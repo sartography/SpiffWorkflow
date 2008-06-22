@@ -1,0 +1,11 @@
+Start
+  add_instance_1
+  multi_instance_1
+    task_g1
+    task_g2
+    task_g1
+    task_g2
+      join_1
+        join_2
+          last
+            End

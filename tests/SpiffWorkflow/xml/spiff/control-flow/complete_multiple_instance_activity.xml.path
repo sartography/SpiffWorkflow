@@ -1,0 +1,10 @@
+Start
+  multi_instance_1
+    task_g1
+    task_g1
+    task_g1
+  trigger_join
+      join_1
+        join_2
+          last
+            End

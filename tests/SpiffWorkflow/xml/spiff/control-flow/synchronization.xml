@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 3 (Synchronization)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>first</successor>
+    </start-task>
+    
+    <task name="first">
+        <successor>task_f1</successor>
+        <successor>task_f2</successor>
+        <successor>task_f3</successor>
+    </task>
+
+    <!-- Implicit split. -->
+    <task name="task_f1">
+        <successor>join</successor>
+    </task>
+    <task name="task_f2">
+        <successor>join</successor>
+    </task>
+    <task name="task_f3">
+        <successor>task_g3a</successor>
+        <successor>task_g3b</successor>
+    </task>
+
+    <task name="task_g3a">
+        <successor>join</successor>
+    </task>
+    <task name="task_g3b">
+        <successor>join</successor>
+    </task>
+
+    <!-- A final task. -->
+    <join name="join">
+        <successor>end</successor>
+    </join>
+</process-definition>

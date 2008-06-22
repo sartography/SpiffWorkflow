@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 37 (Acyclic Synchronizing Merge)</description>
+
+    <start-task>
+        <successor>first</successor>
+    </start-task>
+    
+    <!-- Start with an implicit simple split. -->
+    <task name="first">
+        <successor>task_a1</successor>
+        <successor>task_b1</successor>
+        <successor>task_c1</successor>
+    </task>
+
+    <!-- Implicit split. -->
+    <task name="task_a1">
+        <successor>join</successor>
+    </task>
+    <task name="task_b1">
+        <successor>join</successor>
+    </task>
+    <task name="task_c1">
+        <successor>loop_back_to_c1_once</successor>
+    </task>
+
+    <!-- Loop back to c1 (once). -->
+    <exclusive-choice name="loop_back_to_c1_once">
+        <default-successor>task_c1</default-successor>
+        <conditional-successor>
+            <equals left-field="loop_back_to_c1_once_reached" right-value="2" />
+            <successor>task_c2</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <task name="task_c2">
+        <successor>go_to_stub</successor>
+    </task>
+
+    <!-- Choose the a path to a task. -->
+    <exclusive-choice name="go_to_stub">
+        <default-successor>task_g1</default-successor>
+        <conditional-successor>
+            <equals left-value="1" right-value="1" />
+            <successor>stub_1</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <task name="task_g1">
+        <successor>join</successor>
+    </task>
+
+    <task name="stub_1">
+        <successor>loop_back_to_stub_1_once</successor>
+    </task>
+
+    <!-- Loop back to g2 (once). -->
+    <exclusive-choice name="loop_back_to_stub_1_once">
+        <default-successor>stub_1</default-successor>
+        <conditional-successor>
+            <equals left-field="loop_back_to_stub_1_once_reached" right-value="2" />
+            <successor>go_to_stub_3</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <!-- Choose stub 3. -->
+    <exclusive-choice name="go_to_stub_3">
+        <default-successor>stub_2</default-successor>
+        <conditional-successor>
+            <equals left-value="1" right-value="1" />
+            <successor>stub_3</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <task name="stub_2">
+        <successor>foo</successor>
+    </task>
+
+    <task name="stub_3">
+        <successor>foo</successor>
+    </task>
+
+    <task name="foo" />
+
+    <!-- Structured synchronizing merge. -->
+    <join name="join" context="first">
+        <successor>end</successor>
+    </join>
+</process-definition>

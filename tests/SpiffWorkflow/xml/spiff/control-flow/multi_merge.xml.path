@@ -1,0 +1,10 @@
+Start
+  multi_choice_1
+    task_e1
+      merge
+        last
+          End
+    task_e3
+      merge
+        last
+          End

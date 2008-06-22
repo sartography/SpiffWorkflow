@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 29 (Cancelling Discriminator)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>first</successor>
+    </start-task>
+    
+    <task name="first">
+        <successor>task_f1</successor>
+        <successor>task_f2</successor>
+        <successor>task_f3</successor>
+    </task>
+
+    <!-- Implicit split. -->
+    <task name="task_f1">
+        <successor>struct_discriminator_1</successor>
+    </task>
+    <task name="task_f2">
+        <successor>struct_discriminator_1</successor>
+    </task>
+    <task name="task_f3">
+        <successor>struct_discriminator_1</successor>
+    </task>
+
+    <!-- Structured discriminator. -->
+    <join name="struct_discriminator_1" context="first" cancel="1" threshold="1">
+        <successor>excl_choice_1</successor>
+    </join>
+
+    <!-- Loop back to the start (once). -->
+    <exclusive-choice name="excl_choice_1">
+        <default-successor>last</default-successor>
+        <conditional-successor>
+            <not-equals left-field="excl_choice_1_reached" right-value="2" />
+            <successor>first</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

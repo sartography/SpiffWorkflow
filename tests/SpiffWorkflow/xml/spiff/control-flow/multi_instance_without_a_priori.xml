@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 15 (Multiple Instances without a priori Run-Time Knowledge)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>add_instance_1</successor>
+        <successor>multi_instance_1</successor>
+    </start-task>
+
+    <!-- Branch 1 -->
+        <trigger name="add_instance_1" context="multi_instance_1">
+            <successor>join</successor>
+        </trigger>
+    <!-- End branch 1 -->
+
+    <!-- Branch 2 -->
+        <!-- Split into 2 branches, and implicitly split twice in addition. -->
+        <multi-instance name="multi_instance_1" times="2">
+            <successor>task_g1</successor>
+            <successor>task_g2</successor>
+        </multi-instance>
+
+        <!-- Parallel tasks. -->
+        <task name="task_g1">
+            <successor>struct_synch_merge_1</successor>
+        </task>
+        <task name="task_g2">
+            <successor>struct_synch_merge_1</successor>
+        </task>
+
+        <!-- Structured synchronizing merge. -->
+        <join name="struct_synch_merge_1" context="multi_instance_1">
+            <successor>join</successor>
+        </join>
+    <!-- End branch 2 -->
+
+    <!-- Join all branches. -->
+    <join name="join">
+        <successor>last</successor>
+    </join>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 37 (Acyclic Synchronizing Merge)</description>
+
+    <start-task>
+        <successor>first</successor>
+    </start-task>
+    
+    <!-- Start with an implicit simple split. -->
+    <task name="first">
+        <successor>task_f1</successor>
+        <successor>task_f2</successor>
+        <successor>task_f3</successor>
+    </task>
+
+    <!-- Implicit split. -->
+    <task name="task_f1">
+        <successor>join</successor>
+    </task>
+    <task name="task_f2">
+        <successor>join</successor>
+    </task>
+    <task name="task_f3">
+        <successor>excl_choice_1</successor>
+    </task>
+
+    <!-- Choose a path to a stubtask. -->
+    <exclusive-choice name="excl_choice_1">
+        <default-successor>task_g1</default-successor>
+        <conditional-successor>
+            <equals left-value="1" right-value="1" />
+            <successor>task_g2</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <task name="task_g1">
+        <successor>join</successor>
+    </task>
+
+    <task name="task_g2">
+        <successor>foo</successor>
+    </task>
+    <task name="foo" />
+
+    <!-- Structured synchronizing merge. -->
+    <join name="join" context="first">
+        <successor>end</successor>
+    </join>
+</process-definition>

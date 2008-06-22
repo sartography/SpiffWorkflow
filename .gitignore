@@ -1,0 +1,6 @@
+*.py[co]
+dist
+build
+*.egg-info
+handbook
+unit_test.cfg

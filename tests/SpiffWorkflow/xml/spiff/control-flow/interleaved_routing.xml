@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 40 (Interleaved Routing)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>first</successor>
+    </start-task>
+
+    <!-- Implicit split -->
+    <task name="first">
+        <lock>one_task_at_a_time</lock>
+        <successor>one1</successor>
+        <successor>two1</successor>
+        <successor>three1</successor>
+        <successor>four1</successor>
+    </task>
+
+    <!-- Interleaving branches. -->
+    <task name="one1">
+        <lock>one_task_at_a_time</lock>
+        <successor>join</successor>
+    </task>
+    <task name="two1">
+        <lock>one_task_at_a_time</lock>
+        <successor>join</successor>
+    </task>
+    <task name="three1">
+        <lock>one_task_at_a_time</lock>
+        <successor>join</successor>
+    </task>
+    <task name="four1">
+        <lock>one_task_at_a_time</lock>
+        <successor>join</successor>
+    </task>
+
+    <!-- Join all branches. -->
+    <join name="join">
+        <lock>one_task_at_a_time</lock>
+        <successor>last</successor>
+    </join>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

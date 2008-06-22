@@ -1,0 +1,11 @@
+Start
+  first
+    excl_choice_1
+      sub_workflow_1
+        Start
+          first
+            excl_choice_1
+              last
+                End
+        last
+          End

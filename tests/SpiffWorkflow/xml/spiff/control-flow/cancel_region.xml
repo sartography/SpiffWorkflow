@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 19 (Cancel Task)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>one1</successor>
+        <successor>two1</successor>
+    </start-task>
+
+    <!-- Branch 1 -->
+        <task name="one1">
+            <successor>one2</successor>
+        </task>
+        <task name="one2">
+            <successor>cancel</successor>
+        </task>
+        <cancel-task name="cancel">
+            <cancel>two2a</cancel>
+            <cancel>two4</cancel>
+            <successor>last</successor>
+        </cancel-task>
+    <!-- End branch 1 -->
+
+    <!-- Branch 2 -->
+        <task name="two1">
+            <successor>two2a</successor>
+            <successor>two2b</successor>
+        </task>
+        <task name="two2a">
+            <successor>two3</successor>
+        </task>
+        <task name="two2b">
+            <successor>two3</successor>
+        </task>
+        <task name="two3">
+            <successor>two4</successor>
+        </task>
+        <task name="two4">
+            <successor>last</successor>
+        </task>
+    <!-- End branch 2 -->
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

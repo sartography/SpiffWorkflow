@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 16 (Deferred Choice)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>make_choice</successor>
+        <successor>first</successor>
+    </start-task>
+
+    <!-- Branch 2 -->
+        <task name="first">
+            <successor>deferred_choice_1</successor>
+        </task>
+
+        <!-- If this multi-choice were not triggered by the "choose" task,
+             four of the successors would be selected. -->
+        <multi-choice name="deferred_choice_1">
+            <successor>task_e1</successor>
+            <successor>task_e2</successor>
+            <conditional-successor>
+                <equals left-value="1" right-value="1" />
+                <successor>task_e3</successor>
+            </conditional-successor>
+            <conditional-successor>
+                <equals left-value="1" right-value="1" />
+                <successor>task_e4</successor>
+            </conditional-successor>
+            <conditional-successor>
+                <equals left-value="1" right-value="2" />
+                <successor>task_e5</successor>
+            </conditional-successor>
+            <conditional-successor>
+                <equals left-value="1" right-value="2" />
+                <successor>task_e6</successor>
+            </conditional-successor>
+        </multi-choice>
+
+        <task name="task_e1">
+            <successor>join_1</successor>
+        </task>
+        <task name="task_e2">
+            <successor>join_1</successor>
+        </task>
+        <task name="task_e3">
+            <successor>join_1</successor>
+        </task>
+        <task name="task_e4">
+            <successor>join_1</successor>
+        </task>
+        <task name="task_e5">
+            <successor>join_1</successor>
+        </task>
+        <task name="task_e6">
+            <successor>join_1</successor>
+        </task>
+
+        <join name="join_1" context="deferred_choice_1">
+            <successor>end</successor>
+        </join>
+    <!-- End branch 2 -->
+
+    <!-- Branch 1 -->
+        <choose name="make_choice" context="deferred_choice_1">
+            <pick>task_e2</pick>
+            <pick>task_e4</pick>
+            <pick>task_e6</pick>
+            <successor>last</successor>
+        </choose>
+    <!-- End branch 1 -->
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

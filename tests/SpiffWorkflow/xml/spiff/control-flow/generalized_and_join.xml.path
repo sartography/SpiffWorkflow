@@ -1,0 +1,21 @@
+Start
+  first
+    task_e1
+      task_f1
+    task_e2
+      task_f2
+    task_e3
+      task_f3
+        struct_synch_merge_1
+          excl_choice_1
+            first
+              task_e1
+                task_f1
+              task_e2
+                task_f2
+              task_e3
+                task_f3
+                  struct_synch_merge_1
+                    excl_choice_1
+                      last
+                        End

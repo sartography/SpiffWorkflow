@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.6">
+    <description>Pattern 10 (Arbitrary Cycles)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <pre-assign name="repeat" value="1" />
+        <successor>first</successor>
+    </start-task>
+
+    <!-- Merge branches -->
+    <task name="first">
+        <successor>excl_choice_1</successor>
+    </task>
+
+    <!-- Add an if-condition that matches once. -->
+    <exclusive-choice name="excl_choice_1">
+        <default-successor>task_c1</default-successor>
+        <conditional-successor>
+            <equals left-field="repeat" right-value="1" />
+            <successor>go_to_repetition</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <!-- Conditional tasks. -->
+    <task name="go_to_repetition">
+        <pre-assign name="repeat" value="0" />
+        <successor>first</successor>
+    </task>
+    <task name="task_c1">
+        <successor>last</successor>
+    </task>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 41 (Thread Merge)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>thread_split_1</successor>
+    </start-task>
+
+    <!-- Split into 3 branches, implicitly split twice in addition. -->
+    <thread-split name="thread_split_1" times="3">
+        <successor>task_f1</successor>
+        <successor>task_g1</successor>
+    </thread-split>
+
+    <!-- Parallel tasks. -->
+    <task name="task_f1">
+        <successor>task_f2</successor>
+    </task>
+    <task name="task_f2">
+        <successor>join</successor>
+    </task>
+
+    <!-- Parallel tasks. -->
+    <task name="task_g1">
+        <successor>task_g2</successor>
+    </task>
+    <task name="task_g2">
+        <successor>join</successor>
+    </task>
+
+    <!-- Synch. -->
+    <join name="join" context="thread_split_1">
+        <successor>last</successor>
+    </join>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

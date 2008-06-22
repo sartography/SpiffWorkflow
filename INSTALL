@@ -1,0 +1,3 @@
+To install this package, run
+
+  sudo python setup.py install --prefix /usr/local

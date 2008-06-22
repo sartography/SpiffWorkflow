@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 10 (Block Task to Sub-Workflow Decomposition)</description>
+
+    <start-task>
+        <pre-assign name="data_1" value="outer" />
+        <successor>first</successor>
+    </start-task>
+
+    <task name="first">
+        <successor>sub_workflow_1</successor>
+    </task>
+
+    <sub-workflow name="sub_workflow_1" file="block_to_subworkflow_inner.xml">
+        <in>
+            <assign name="sub_workflow_data" field="data_1" />
+            <assign name="data" field="data" />
+        </in>
+        <out>
+            <assign name="data" field="data" />
+        </out>
+        <successor>last</successor>
+    </sub-workflow>
+
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

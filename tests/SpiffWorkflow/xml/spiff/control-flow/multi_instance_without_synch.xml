@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 12 (Multiple Instances without Synchronization)</description>
+
+    <start-task>
+        <successor>multi_instance_1</successor>
+    </start-task>
+
+    <!-- Split into 3 branches, and implicitly split twice in addition. -->
+    <multi-instance name="multi_instance_1" times="3">
+        <successor>task_g1</successor>
+        <successor>task_g2</successor>
+    </multi-instance>
+
+    <!-- Parallel tasks. -->
+    <task name="task_g1">
+        <successor>last</successor>
+    </task>
+    <task name="task_g2">
+        <successor>last</successor>
+    </task>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

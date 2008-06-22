@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 14 (Multiple Instances with a priori Run-Time Knowledge)</description>
+
+    <start-task>
+        <successor>multi_instance_1</successor>
+    </start-task>
+
+    <!--
+    Split into 2 branches. Note that the number of branches is read from the
+    attribute "two", which may change at runtime.
+    -->
+    <multi-instance name="multi_instance_1" times-field="two">
+        <successor>task_g1</successor>
+    </multi-instance>
+
+    <!-- Parallel tasks. -->
+    <task name="task_g1">
+        <successor>task_g2</successor>
+    </task>
+    <task name="task_g2">
+        <successor>struct_synch_merge_1</successor>
+    </task>
+
+    <!-- Structured synchronizing merge. -->
+    <join name="struct_synch_merge_1" context="multi_instance_1">
+        <successor>last</successor>
+    </join>
+
+    <!-- A final task. -->
+    <join name="last">
+        <successor>end</successor>
+    </join>
+</process-definition>

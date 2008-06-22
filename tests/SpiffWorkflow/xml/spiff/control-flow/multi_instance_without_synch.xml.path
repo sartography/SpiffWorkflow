@@ -1,0 +1,20 @@
+Start
+  multi_instance_1
+    task_g1
+      last
+        End
+    task_g2
+      last
+        End
+    task_g1
+      last
+        End
+    task_g2
+      last
+        End
+    task_g1
+      last
+        End
+    task_g2
+      last
+        End

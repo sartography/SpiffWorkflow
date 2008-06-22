@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 31 (Blocking Partial Join)</description>
+
+    <start-task>
+        <successor>multi_choice_1</successor>
+    </start-task>
+
+    <!-- Split branches using a multi-choice. This creates 3 branches. -->
+    <multi-choice name="multi_choice_1">
+        <conditional-successor>
+            <equals left-field="test_attribute1" right-field="test_attribute1" />
+            <successor>task_e1</successor>
+        </conditional-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute1" right-field="test_attribute2" />
+            <successor>task_e2</successor>
+        </conditional-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute2" right-field="test_attribute2" />
+            <successor>task_e3</successor>
+        </conditional-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute2" right-field="test_attribute2" />
+            <successor>task_e4</successor>
+        </conditional-successor>
+    </multi-choice>
+
+    <!-- Conditional branches. -->
+    <task name="task_e1">
+        <successor>struct_synch_merge_1</successor>
+    </task>
+    <task name="task_e2">
+        <successor>struct_synch_merge_1</successor>
+    </task>
+    <task name="task_e3">
+        <successor>struct_synch_merge_1</successor>
+    </task>
+    <task name="task_e4">
+        <successor>struct_synch_merge_1</successor>
+    </task>
+
+    <!-- Structured synchronizing merge. -->
+    <join name="struct_synch_merge_1" context="multi_choice_1" threshold="2">
+        <successor>excl_choice_1</successor>
+    </join>
+
+    <!-- Loop back to the start (once). -->
+    <exclusive-choice name="excl_choice_1">
+        <default-successor>last</default-successor>
+        <conditional-successor>
+            <not-equals left-field="excl_choice_1_reached" right-value="2" />
+            <successor>multi_choice_1</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

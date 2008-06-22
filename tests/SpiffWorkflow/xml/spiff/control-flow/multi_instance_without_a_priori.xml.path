@@ -1,0 +1,13 @@
+Start
+  add_instance_1
+  multi_instance_1
+    task_g1
+    task_g2
+    task_g1
+    task_g2
+    task_g1
+    task_g2
+      struct_synch_merge_1
+        join
+          last
+            End

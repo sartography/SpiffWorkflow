@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.6">
+    <description>Pattern 18 (Milestone)</description>
+
+    <start-task>
+        <successor>task_e1</successor>
+        <successor>task_f1</successor>
+    </start-task>
+
+    <task name="task_e1">
+        <successor>task_e2</successor>
+    </task>
+    <gate name="task_e2" context="task_f2">
+        <successor>task_e3</successor>
+    </gate>
+    <task name="task_e3">
+        <successor>last</successor>
+    </task>
+
+    <task name="task_f1">
+        <successor>task_f2</successor>
+    </task>
+    <task name="task_f2">
+        <successor>last</successor>
+    </task>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

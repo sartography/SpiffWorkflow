@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.6">
+    <description>Pattern 9 (Structured Discriminator)</description>
+
+    <start-task>
+        <successor>multi_choice_1</successor>
+    </start-task>
+
+    <!-- Split branches using a multi-choice. -->
+    <multi-choice name="multi_choice_1">
+        <conditional-successor>
+            <equals left-field="test_attribute1" right-field="test_attribute1" />
+            <successor>task_a1</successor>
+        </conditional-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute1" right-field="test_attribute2" />
+            <successor>task_a2</successor>
+        </conditional-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute2" right-field="test_attribute2" />
+            <successor>task_a3</successor>
+        </conditional-successor>
+    </multi-choice>
+
+    <!-- Conditional branches. -->
+    <task name="task_a1">
+        <successor>discriminator</successor>
+    </task>
+    <task name="task_a2">
+        <successor>discriminator</successor>
+    </task>
+    <task name="task_a3">
+        <successor>discriminator</successor>
+    </task>
+
+    <!-- Structured discriminator. -->
+    <join name="discriminator" context="multi_choice_1" threshold="1">
+        <successor>last</successor>
+    </join>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

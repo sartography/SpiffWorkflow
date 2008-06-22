@@ -1,0 +1,22 @@
+Start
+  trigger_before_1
+    trigger_before_2
+      last
+        End
+  add_instance_1
+    last
+      End
+  multi_instance_1
+    task_g1
+      last
+        End
+    task_g1
+      last
+        End
+  trigger_after_1
+  add_instance_1
+    task_g1
+      last
+        End
+    last
+      End

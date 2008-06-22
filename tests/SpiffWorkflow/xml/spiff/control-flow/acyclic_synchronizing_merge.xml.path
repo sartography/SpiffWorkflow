@@ -1,0 +1,10 @@
+Start
+  first
+    task_f1
+    task_f2
+    task_f3
+      excl_choice_1
+      join
+        End
+        task_g2
+          foo

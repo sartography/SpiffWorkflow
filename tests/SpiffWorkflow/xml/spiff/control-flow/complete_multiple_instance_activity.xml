@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 27 (Complete Multiple Instance Task)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>multi_instance_1</successor>
+        <successor>trigger_join</successor>
+    </start-task>
+
+    <!-- Branch 1 -->
+        <!-- Create 3 branches, such that the join can never complete. -->
+        <multi-instance name="multi_instance_1" times="3">
+            <successor>task_g1</successor>
+        </multi-instance>
+
+        <task name="task_g1">
+            <successor>join_1</successor>
+        </task>
+
+        <join name="join_1" context="multi_instance_1" threshold="5">
+            <successor>join_2</successor>
+        </join>
+    <!-- End branch 1 -->
+
+    <!-- Branch 2 -->
+        <trigger name="trigger_join" context="join_1">
+            <successor>join_2</successor>
+        </trigger>
+    <!-- End branch 2 -->
+
+    <join name="join_2">
+        <successor>last</successor>
+    </join>
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

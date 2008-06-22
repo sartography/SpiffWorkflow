@@ -1,0 +1,9 @@
+Start
+  first
+    task_f1
+    task_f2
+    task_f3
+      task_g3a
+      task_g3b
+        join
+          End

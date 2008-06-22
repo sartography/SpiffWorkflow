@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 11 (Implicit Termination)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>first</successor>
+    </start-task>
+    
+    <task name="first">
+        <successor>task_f1</successor>
+        <successor>task_f2</successor>
+        <successor>task_f3</successor>
+    </task>
+
+    <task name="task_f1" />
+    <task name="task_f2" />
+    <task name="task_f3" />
+
+    <!-- Implicit end. -->
+</process-definition>

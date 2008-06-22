@@ -1,0 +1,8 @@
+Start
+  first
+    excl_choice_1
+      task_c1
+        excl_choice_2
+          task_d2
+            last
+              End

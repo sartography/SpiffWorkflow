@@ -1,0 +1,10 @@
+Start
+  make_choice
+    last
+      End
+  first
+    deferred_choice_1
+      task_e2
+      task_e4
+        join_1
+          End

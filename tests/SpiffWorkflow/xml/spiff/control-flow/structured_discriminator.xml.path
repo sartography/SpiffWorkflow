@@ -1,0 +1,7 @@
+Start
+  multi_choice_1
+    task_a1
+      discriminator
+        last
+          End
+    task_a3

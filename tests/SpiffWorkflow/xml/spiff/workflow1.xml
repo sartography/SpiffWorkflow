@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="Test Workflow" revision="1.6">
+    <description>
+    A test workflow that contains all possible tasks.
+    </description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>task_a1</successor>
+        <successor>task_b1</successor>
+    </start-task>
+
+        <!-- First branch. -->
+        <task name="task_a1">
+            <successor>task_a2</successor>
+        </task>
+        <task name="task_a2">
+            <successor>synch_1</successor>
+        </task>
+        <!-- End first branch -->
+
+        <!-- Second branch. -->
+        <task name="task_b1">
+            <successor>task_b2</successor>
+        </task>
+        <task name="task_b2">
+            <successor>synch_1</successor>
+        </task>
+        <!-- End second branch -->
+
+    <!-- Merge branches -->
+    <join name="synch_1">
+        <successor>excl_choice_1</successor>
+    </join>
+
+    <!-- Add an if-condition that does not match. -->
+    <exclusive-choice name="excl_choice_1">
+        <default-successor>task_c1</default-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute1" right-field="test_attribute2" />
+            <successor>task_c2</successor>
+        </conditional-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute1" right-field="test_attribute2" />
+            <successor>task_c3</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <!-- Conditional tasks. -->
+    <task name="task_c1">
+        <successor>excl_choice_2</successor>
+    </task>
+    <task name="task_c2">
+        <successor>excl_choice_2</successor>
+    </task>
+    <task name="task_c3">
+        <successor>excl_choice_2</successor>
+    </task>
+
+    <!-- An if-condition that matches. -->
+    <exclusive-choice name="excl_choice_2">
+        <default-successor>task_d1</default-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute1" right-field="test_attribute2" />
+            <successor>task_d2</successor>
+        </conditional-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute1" right-field="test_attribute1" />
+            <successor>task_d3</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <!-- Conditional tasks. -->
+    <task name="task_d1">
+        <successor>multi_choice_1</successor>
+    </task>
+    <task name="task_d2">
+        <successor>multi_choice_1</successor>
+    </task>
+    <task name="task_d3">
+        <successor>multi_choice_1</successor>
+    </task>
+
+    <!-- Split branches using a multi-choice. -->
+    <multi-choice name="multi_choice_1">
+        <conditional-successor>
+            <equals left-field="test_attribute1" right-field="test_attribute1" />
+            <successor>task_e1</successor>
+        </conditional-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute1" right-field="test_attribute2" />
+            <successor>task_e2</successor>
+        </conditional-successor>
+        <conditional-successor>
+            <equals left-field="test_attribute2" right-field="test_attribute2" />
+            <successor>task_e3</successor>
+        </conditional-successor>
+    </multi-choice>
+
+    <!-- Conditional branches. -->
+    <task name="task_e1">
+        <successor>struct_synch_merge_1</successor>
+    </task>
+    <task name="task_e2">
+        <successor>struct_synch_merge_1</successor>
+    </task>
+    <task name="task_e3">
+        <successor>struct_synch_merge_1</successor>
+    </task>
+
+    <!-- Structured synchronizing merge. -->
+    <join name="struct_synch_merge_1" context="multi_choice_1">
+        <successor>task_f1</successor>
+        <successor>task_f2</successor>
+        <successor>task_f3</successor>
+    </join>
+
+    <!-- Implicit split. -->
+    <task name="task_f1">
+        <successor>struct_discriminator_1</successor>
+    </task>
+    <task name="task_f2">
+        <successor>struct_discriminator_1</successor>
+    </task>
+    <task name="task_f3">
+        <successor>struct_discriminator_1</successor>
+    </task>
+
+    <!-- Structured discriminator. -->
+    <join name="struct_discriminator_1"
+          context="struct_synch_merge_1"
+          threshold="1">
+        <successor>excl_choice_3</successor>
+    </join>
+
+    <!-- Loop to excl_choice_1 (once). -->
+    <exclusive-choice name="excl_choice_3">
+        <default-successor>multi_instance_1</default-successor>
+        <conditional-successor>
+            <not-equals left-field="excl_choice_3_reached" right-field="two" />
+            <successor>excl_choice_1</successor>
+        </conditional-successor>
+    </exclusive-choice>
+
+    <!-- Split into 3 branches, and implicitly split twice in addition. -->
+    <multi-instance name="multi_instance_1" times-field="three">
+        <successor>task_g1</successor>
+        <successor>task_g2</successor>
+    </multi-instance>
+
+    <!-- Parallel tasks. -->
+    <task name="task_g1">
+        <successor>struct_synch_merge_2</successor>
+    </task>
+    <task name="task_g2">
+        <successor>struct_synch_merge_2</successor>
+    </task>
+
+    <!-- Structured synchronizing merge. -->
+    <join name="struct_synch_merge_2" context="multi_instance_1">
+        <successor>last</successor>
+    </join>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

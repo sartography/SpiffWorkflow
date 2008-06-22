@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 9 (Task To Task)</description>
+
+    <start-task>
+        <pre-assign name="data_attribute_1" value="at_start" />
+        <successor>first</successor>
+    </start-task>
+
+    <task name="first">
+        <pre-assign name="data_attribute_2" value="at_first" />
+        <successor>last</successor>
+    </task>
+
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

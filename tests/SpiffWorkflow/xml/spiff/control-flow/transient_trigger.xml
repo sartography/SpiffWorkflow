@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 15 (Multiple Instances without a priori Run-Time Knowledge)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>add_instance_1</successor>
+        <successor>multi_instance_1</successor>
+    </start-task>
+
+    <!-- Branch 1 -->
+        <trigger name="add_instance_1" context="multi_instance_1">
+            <successor>add_instance_2</successor>
+        </trigger>
+        <trigger name="add_instance_2" context="multi_instance_1">
+            <successor>last</successor>
+        </trigger>
+    <!-- End branch 1 -->
+
+    <!-- Branch 2 -->
+        <multi-instance name="multi_instance_1" times="0">
+            <successor>task_g1</successor>
+        </multi-instance>
+
+        <task name="task_g1">
+            <successor>last</successor>
+        </task>
+    <!-- End branch 2 -->
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

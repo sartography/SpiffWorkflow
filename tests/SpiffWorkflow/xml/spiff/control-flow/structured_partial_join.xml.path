@@ -1,0 +1,8 @@
+Start
+  multi_choice_1
+    task_e1
+    task_e3
+      struct_synch_merge_1
+        last
+          End
+    task_e4

@@ -1,0 +1,19 @@
+Start
+  first
+    task_a1
+    task_b1
+    task_c1
+      loop_back_to_c1_once
+        task_c1
+          loop_back_to_c1_once
+            task_c2
+              go_to_stub
+                stub_1
+                  loop_back_to_stub_1_once
+                    stub_1
+                      loop_back_to_stub_1_once
+      join
+        End
+                        go_to_stub_3
+                          stub_3
+                            foo

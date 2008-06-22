@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 34 (Static Partial Join for Multiple Instances)</description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>add_instance_1</successor>
+        <successor>multi_instance_1</successor>
+    </start-task>
+
+    <!-- Branch 2 -->
+        <!-- Split into 2 branches, and implicitly split twice in addition. -->
+        <multi-instance name="multi_instance_1" times="2">
+            <successor>task_g1</successor>
+            <successor>task_g2</successor>
+        </multi-instance>
+
+        <!-- Parallel tasks. -->
+        <task name="task_g1">
+            <successor>join_1</successor>
+        </task>
+        <task name="task_g2">
+            <successor>join_1</successor>
+        </task>
+
+        <!-- Merge instances. -->
+        <join name="join_1" context="multi_instance_1" threshold="4">
+            <successor>join_2</successor>
+        </join>
+    <!-- End branch 2 -->
+
+    <!-- Branch 1 -->
+        <trigger name="add_instance_1" context="multi_instance_1">
+            <successor>join_2</successor>
+        </trigger>
+    <!-- End branch 1 -->
+
+    <!-- Join all branches. -->
+    <join name="join_2">
+        <successor>last</successor>
+    </join>
+
+    <!-- A final task. -->
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>
