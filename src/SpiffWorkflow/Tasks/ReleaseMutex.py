@@ -40,13 +40,13 @@ class ReleaseMutex(TaskSpec):
         self.mutex = mutex
 
 
-    def _on_complete_hook(self, task_instance):
+    def _on_complete_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
 
-        task_instance -- the task_instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
-        mutex = task_instance.job.get_mutex(self.mutex)
+        mutex = my_task.job.get_mutex(self.mutex)
         mutex.unlock()
-        return TaskSpec._on_complete_hook(self, task_instance)
+        return TaskSpec._on_complete_hook(self, my_task)

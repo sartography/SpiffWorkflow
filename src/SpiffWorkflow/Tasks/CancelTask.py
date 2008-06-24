@@ -27,15 +27,15 @@ class CancelTask(Trigger):
     parallel split.
     """
 
-    def _on_complete_hook(self, instance):
+    def _on_complete_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
         for task_name in self.context:
-            task = instance.job.get_task_from_name(task_name)
-            for node in instance._get_root()._find_any(task):
-                node.cancel()
-        return TaskSpec._on_complete_hook(self, instance)
+            cancel_tasks = my_task.job.get_task_from_name(task_name)
+            for cancel_task in my_task._get_root()._find_any(cancel_tasks):
+                cancel_task.cancel()
+        return TaskSpec._on_complete_hook(self, my_task)

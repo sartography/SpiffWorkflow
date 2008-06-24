@@ -69,9 +69,9 @@ class Job(Trackable):
         return [w for w in waiting]
 
 
-    def _instance_completed_notify(self, instance):
-        if instance.get_name() == 'End':
-            self.attributes.update(instance.get_attributes())
+    def _task_completed_notify(self, task):
+        if task.get_name() == 'End':
+            self.attributes.update(task.get_attributes())
         # Update the state of every WAITING node.
         for node in self._get_waiting_tasks():
             node.spec._update_state(node)

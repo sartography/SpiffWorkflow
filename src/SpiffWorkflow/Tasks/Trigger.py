@@ -45,32 +45,32 @@ class Trigger(TaskSpec):
         self.queued  = 0
 
 
-    def _on_trigger(self, instance):
+    def _on_trigger(self, my_task):
         """
         Enqueue a trigger, such that this tasks triggers multiple times later
         when _on_complete() is called.
         """
         self.queued += 1
-        # All instances that have already completed need to be put into
+        # All tasks that have already completed need to be put into
         # READY again.
-        for node in instance.job.task_tree:
-            if node.thread_id != instance.thread_id:
+        for node in my_task.job.task_tree:
+            if node.thread_id != my_task.thread_id:
                 continue
             if node.spec == self and node._has_state(Task.COMPLETED):
                 node.state = Task.FUTURE
                 node._ready()
 
 
-    def _on_complete_hook(self, instance):
+    def _on_complete_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
         for i in range(self.times + self.queued):
             for task_name in self.context:
-                task = instance.job.get_task_from_name(task_name)
-                task._on_trigger(instance)
+                task = my_task.job.get_task_from_name(task_name)
+                task._on_trigger(my_task)
         self.queued = 0
-        return TaskSpec._on_complete_hook(self, instance)
+        return TaskSpec._on_complete_hook(self, my_task)

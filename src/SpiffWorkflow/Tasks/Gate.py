@@ -43,23 +43,23 @@ class Gate(TaskSpec):
         self.context = context
 
 
-    def _update_state_hook(self, instance):
-        task      = instance.job.get_task_from_name(self.context)
-        root_node = instance.job.task_tree
-        for node in root_node._find_any(task):
-            if node.thread_id != instance.thread_id:
+    def _update_state_hook(self, my_task):
+        context_task = my_task.job.get_task_from_name(self.context)
+        root_task    = my_task.job.task_tree
+        for task in root_task._find_any(context_task):
+            if task.thread_id != my_task.thread_id:
                 continue
-            if not node._has_state(Task.COMPLETED):
-                instance._set_state(Task.WAITING)
+            if not task._has_state(Task.COMPLETED):
+                my_task._set_state(Task.WAITING)
                 return False
-        return TaskSpec._update_state_hook(self, instance)
+        return TaskSpec._update_state_hook(self, my_task)
 
 
-    def _on_complete_hook(self, instance):
+    def _on_complete_hook(self, my_task):
         """
-        Runs the task. Should not be called directly.
+        Runs the my_task. Should not be called directly.
         Returns True if completed, False otherwise.
 
-        instance -- the instance in which this method is executed
+        task -- the task in which this method is executed
         """
-        return TaskSpec._on_complete_hook(self, instance)
+        return TaskSpec._on_complete_hook(self, my_task)

@@ -37,10 +37,10 @@ class ThreadStart(TaskSpec):
         self.internal = True
 
 
-    def _on_complete_hook(self, instance):
+    def _on_complete_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
         """
-        instance._assign_new_thread_id()
-        return TaskSpec._on_complete_hook(self, instance)
+        my_task._assign_new_thread_id()
+        return TaskSpec._on_complete_hook(self, my_task)

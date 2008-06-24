@@ -40,19 +40,19 @@ class AcquireMutex(TaskSpec):
         self.mutex = mutex
 
 
-    def _update_state_hook(self, instance):
-        mutex = instance.job.get_mutex(self.mutex)
+    def _update_state_hook(self, my_task):
+        mutex = my_task.job.get_mutex(self.mutex)
         if mutex.testandset():
             return True
-        instance._set_state(Task.WAITING)
+        my_task._set_state(Task.WAITING)
         return False
 
 
-    def _on_complete_hook(self, task_instance):
+    def _on_complete_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
 
-        task_instance -- the task_instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
-        return TaskSpec._on_complete_hook(self, task_instance)
+        return TaskSpec._on_complete_hook(self, my_task)

@@ -34,7 +34,7 @@ class Choose(Trigger):
 
         parent -- a reference to the parent (TaskSpec)
         name -- a name for the task (string)
-        context -- the name of the MultiChoice task that is instructed to
+        context -- the name of the MultiChoice that is instructed to
                    select the specified outputs.
         kwargs -- may contain the following keys:
                     choice -- the list of tasks that is selected.
@@ -47,17 +47,17 @@ class Choose(Trigger):
         self.choice  = kwargs.get('choice', [])
 
 
-    def _on_complete_hook(self, instance):
+    def _on_complete_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
-        context = instance.job.get_task_from_name(self.context)
-        for node in instance.job.task_tree:
-            if node.thread_id != instance.thread_id:
+        context = my_task.job.get_task_from_name(self.context)
+        for task in my_task.job.task_tree:
+            if task.thread_id != my_task.thread_id:
                 continue
-            if node.spec == context:
-                node.trigger(self.choice)
-        return TaskSpec._on_complete_hook(self, instance)
+            if task.spec == context:
+                task.trigger(self.choice)
+        return TaskSpec._on_complete_hook(self, my_task)

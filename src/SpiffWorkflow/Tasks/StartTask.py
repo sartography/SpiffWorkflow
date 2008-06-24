@@ -34,18 +34,18 @@ class StartTask(TaskSpec):
         TaskSpec.__init__(self, parent, 'Start', **kwargs)
 
 
-    def _connect_notify(self, task):
+    def _connect_notify(self, taskspec):
         """
         Called by the previous task to let us know that it exists.
         """
         raise WorkflowException(self, 'StartTask can not have any inputs.')
 
 
-    def _update_state(self, instance):
-        if not self._update_state_hook(instance):
+    def _update_state(self, my_task):
+        if not self._update_state_hook(my_task):
             return
-        self.signal_emit('entered', instance.job, instance)
-        instance._ready()
+        self.signal_emit('entered', my_task.job, my_task)
+        my_task._ready()
 
 
     def test(self):

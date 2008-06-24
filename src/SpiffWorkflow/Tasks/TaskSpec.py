@@ -105,36 +105,36 @@ class TaskSpec(Trackable):
         assert self.id is not None
 
 
-    def _connect_notify(self, task):
+    def _connect_notify(self, taskspec):
         """
         Called by the previous task to let us know that it exists.
 
         task -- the task by which this method is executed
         """
-        self.inputs.append(task)
+        self.inputs.append(taskspec)
 
 
-    def _get_activated_instances(self, instance, destination):
+    def _get_activated_tasks(self, my_task, destination):
         """
-        Returns the list of instances that were activated in the previous 
-        call of execute(). Only returns instances that point towards the
+        Returns the list of tasks that were activated in the previous 
+        call of execute(). Only returns tasks that point towards the
         destination node, i.e. those which have destination as a 
         descendant.
 
-        instance -- the instance of this task
-        destination -- the child instance
+        my_task -- the task of this task
+        destination -- the child task
         """
-        return instance.children
+        return my_task.children
 
 
-    def _get_activated_threads(self, instance):
+    def _get_activated_threads(self, my_task):
         """
         Returns the list of threads that were activated in the previous 
         call of execute().
 
-        instance -- the instance of this task
+        my_task -- the my_task of this task
         """
-        return instance.children
+        return my_task.children
 
 
     def set_property(self, **kwargs):
@@ -160,15 +160,15 @@ class TaskSpec(Trackable):
         return self.properties.get(name, default)
 
 
-    def connect(self, task):
+    def connect(self, taskspec):
         """
         Connect the *following* task to this one. In other words, the
         given task is added as an output task.
 
-        task -- the task to connect to.
+        taskspec -- the task to connect to.
         """
-        self.outputs.append(task)
-        task._connect_notify(self)
+        self.outputs.append(taskspec)
+        taskspec._connect_notify(self)
 
 
     def test(self):
@@ -182,7 +182,7 @@ class TaskSpec(Trackable):
             raise Exception.WorkflowException(self, 'No input task connected.')
 
 
-    def _predict(self, instance, seen = None, looked_ahead = 0):
+    def _predict(self, my_task, seen = None, looked_ahead = 0):
         """
         Updates the branch such that all possible future routes are added
         with the LIKELY flag.
@@ -193,161 +193,161 @@ class TaskSpec(Trackable):
             seen = []
         elif self in seen:
             return
-        if not instance._is_definite():
+        if not my_task._is_definite():
             seen.append(self)
-        if instance._has_state(Task.MAYBE):
+        if my_task._has_state(Task.MAYBE):
             looked_ahead += 1
             if looked_ahead >= self.lookahead:
                 return
-        if not instance._is_finished():
-            self._predict_hook(instance)
-        for node in instance.children:
+        if not my_task._is_finished():
+            self._predict_hook(my_task)
+        for node in my_task.children:
             node.spec._predict(node, seen[:], looked_ahead)
 
 
-    def _predict_hook(self, instance):
-        if instance._is_definite():
+    def _predict_hook(self, my_task):
+        if my_task._is_definite():
             child_state = Task.FUTURE
         else:
             child_state = Task.LIKELY
-        instance._update_children(self.outputs, child_state)
+        my_task._update_children(self.outputs, child_state)
 
 
-    def _update_state(self, instance):
-        instance._inherit_attributes()
-        if not self._update_state_hook(instance):
+    def _update_state(self, my_task):
+        my_task._inherit_attributes()
+        if not self._update_state_hook(my_task):
             return
-        self.signal_emit('entered', instance.job, instance)
-        instance._ready()
+        self.signal_emit('entered', my_task.job, my_task)
+        my_task._ready()
 
 
-    def _update_state_hook(self, instance):
-        was_predicted = instance._is_predicted()
-        if not instance.parent._is_finished():
-            instance.state = Task.FUTURE
+    def _update_state_hook(self, my_task):
+        was_predicted = my_task._is_predicted()
+        if not my_task.parent._is_finished():
+            my_task.state = Task.FUTURE
         if was_predicted:
-            self._predict(instance)
-        if instance.parent._is_finished():
+            self._predict(my_task)
+        if my_task.parent._is_finished():
             return True
         return False
 
 
-    def _on_ready(self, instance):
+    def _on_ready(self, my_task):
         """
         Return True on success, False otherwise.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
-        assert instance is not None
+        assert my_task is not None
         assert not self.cancelled
         self.test()
 
         # Acquire locks, if any.
         for lock in self.locks:
-            mutex = instance.job.get_mutex(lock)
+            mutex = my_task.job.get_mutex(lock)
             if not mutex.testandset():
                 return False
 
         # Assign variables, if so requested.
         for assignment in self.pre_assign:
-            assignment.assign(instance, instance)
+            assignment.assign(my_task, my_task)
 
         # Run task-specific code.
-        result = self._on_ready_before_hook(instance)
-        self.signal_emit('reached', instance.job, instance)
+        result = self._on_ready_before_hook(my_task)
+        self.signal_emit('reached', my_task.job, my_task)
         if result:
-            result = self._on_ready_hook(instance)
+            result = self._on_ready_hook(my_task)
 
         # Run user code, if any.
         if result:
-            result = self.signal_emit('ready', instance.job, instance)
+            result = self.signal_emit('ready', my_task.job, my_task)
 
         if result:
             # Assign variables, if so requested.
             for assignment in self.post_assign:
-                assignment.assign(instance, instance)
+                assignment.assign(my_task, my_task)
 
         # Release locks, if any.
         for lock in self.locks:
-            mutex = instance.job.get_mutex(lock)
+            mutex = my_task.job.get_mutex(lock)
             mutex.unlock()
         return result
 
 
-    def _on_ready_before_hook(self, instance):
+    def _on_ready_before_hook(self, my_task):
         """
         A hook into _on_ready() that does the task specific work.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
         return True
 
 
-    def _on_ready_hook(self, instance):
+    def _on_ready_hook(self, my_task):
         """
         A hook into _on_ready() that does the task specific work.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
         return True
 
 
-    def _on_cancel(self, instance):
+    def _on_cancel(self, my_task):
         """
         May be called by another task to cancel the operation before it was
         completed.
 
         Return True on success, False otherwise.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
         return True
 
 
-    def _on_trigger(self, instance):
+    def _on_trigger(self, my_task):
         """
         May be called by another task to trigger a task-specific
         event.
 
         Return True on success, False otherwise.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
         raise NotImplementedError("Trigger not supported by this task.")
 
 
-    def _on_complete(self, instance):
+    def _on_complete(self, my_task):
         """
         Return True on success, False otherwise. Should not be overwritten,
         overwrite _on_complete_hook() instead.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
-        assert instance is not None
+        assert my_task is not None
         assert not self.cancelled
 
-        if instance.job.debug:
-            print "Executing node:", instance.get_name()
+        if my_task.job.debug:
+            print "Executing node:", my_task.get_name()
 
-        if not self._on_complete_hook(instance):
+        if not self._on_complete_hook(my_task):
             return False
 
         # Notify the Job.
-        instance.job._instance_completed_notify(instance)
+        my_task.job._task_completed_notify(my_task)
 
-        if instance.job.debug:
-            instance.job.outer_job.task_tree.dump()
+        if my_task.job.debug:
+            my_task.job.outer_job.task_tree.dump()
 
-        self.signal_emit('completed', instance.job, instance)
+        self.signal_emit('completed', my_task.job, my_task)
         return True
 
 
-    def _on_complete_hook(self, instance):
+    def _on_complete_hook(self, my_task):
         """
         A hook into _on_complete() that does the task specific work.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
         # If we have more than one output, implicitly split.
-        instance._update_children(self.outputs)
+        my_task._update_children(self.outputs)
         return True

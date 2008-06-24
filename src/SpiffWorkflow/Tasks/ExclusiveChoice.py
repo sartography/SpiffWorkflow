@@ -21,8 +21,8 @@ from MultiChoice             import MultiChoice
 class ExclusiveChoice(MultiChoice):
     """
     This class represents an exclusive choice (an if condition) task
-    where precisely one outgoing instance is selected. If none of the
-    given condition matches, a default task is selected.
+    where precisely one outgoing task is selected. If none of the
+    given conditions matches, a default task is selected.
     It has one or more inputs and two or more outputs.
     """
     def __init__(self, parent, name, **kwargs):
@@ -36,16 +36,16 @@ class ExclusiveChoice(MultiChoice):
         self.default_task = None
 
 
-    def connect(self, task):
+    def connect(self, taskspec):
         """
         Connects the task that is executed if no other condition matches.
 
-        task -- the following task
+        taskspec -- the following task
         """
         assert self.default_task is None
-        self.outputs.append(task)
-        self.default_task = task
-        task._connect_notify(self)
+        self.outputs.append(taskspec)
+        self.default_task = taskspec
+        taskspec._connect_notify(self)
 
 
     def test(self):
@@ -58,22 +58,22 @@ class ExclusiveChoice(MultiChoice):
             raise WorkflowException(self, 'A default output is required.')
 
 
-    def _predict_hook(self, instance):
-        instance._update_children(self.outputs, Task.MAYBE)
-        instance._set_likely_task(self.default_task)
+    def _predict_hook(self, my_task):
+        my_task._update_children(self.outputs, Task.MAYBE)
+        my_task._set_likely_task(self.default_task)
 
 
-    def _on_complete_hook(self, instance):
+    def _on_complete_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
         """
         # Find the first matching condition.
         output = self.default_task
-        for condition, task in self.cond_tasks:
-            if condition is None or condition._matches(instance):
-                output = task
+        for condition, taskspec in self.cond_taskspecs:
+            if condition is None or condition._matches(my_task):
+                output = taskspec
                 break
 
-        instance._update_children(output)
+        my_task._update_children(output)
         return True

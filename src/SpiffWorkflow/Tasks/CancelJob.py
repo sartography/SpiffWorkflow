@@ -50,12 +50,12 @@ class CancelJob(TaskSpec):
             raise WorkflowException(self, 'CancelJob with an output.')
 
 
-    def _on_complete_hook(self, instance):
+    def _on_complete_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
-        instance.job.cancel(self.cancel_successfully)
-        return TaskSpec._on_complete_hook(self, instance)
+        my_task.job.cancel(self.cancel_successfully)
+        return TaskSpec._on_complete_hook(self, my_task)

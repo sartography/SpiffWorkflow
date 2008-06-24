@@ -20,8 +20,8 @@ from ThreadStart             import ThreadStart
 
 class ThreadSplit(TaskSpec):
     """
-    When executed, this task performs a split on the current instance.
-    The number of outgoing instances depends on the runtime value of a
+    When executed, this task performs a split on the current my_task.
+    The number of outgoing my_tasks depends on the runtime value of a
     specified attribute.
     If more than one input is connected, the task performs an implicit
     multi merge.
@@ -36,10 +36,10 @@ class ThreadSplit(TaskSpec):
         parent -- a reference to the parent (TaskSpec)
         name -- a name for the pattern (string)
         kwargs -- must contain one of the following:
-                    times -- the number of instances to create.
+                    times -- the number of my_tasks to create.
                     times-attribute -- the name of the attribute that
                                        specifies the number of outgoing
-                                       instances.
+                                       my_tasks.
         """
         assert kwargs.has_key('times_attribute') or kwargs.has_key('times')
         TaskSpec.__init__(self, parent, name, **kwargs)
@@ -50,79 +50,79 @@ class ThreadSplit(TaskSpec):
         self.thread_starter._connect_notify(self)
 
 
-    def connect(self, task):
+    def connect(self, taskspec):
         """
         Connect the *following* task to this one. In other words, the
         given task is added as an output task.
 
         task -- the task to connect to.
         """
-        self.thread_starter.outputs.append(task)
-        task._connect_notify(self.thread_starter)
+        self.thread_starter.outputs.append(taskspec)
+        taskspec._connect_notify(self.thread_starter)
 
 
-    def _find_my_instance(self, job):
-        for node in job.branch_tree:
-            if node.thread_id != instance.thread_id:
+    def _find_my_task(self, job):
+        for task in job.branch_tree:
+            if task.thread_id != my_task.thread_id:
                 continue
-            if node.task == self:
-                return node
+            if task.task == self:
+                return task
         return None
 
 
-    def _get_activated_instances(self, instance, destination):
+    def _get_activated_tasks(self, my_task, destination):
         """
-        Returns the list of instances that were activated in the previous 
-        call of execute(). Only returns instances that point towards the
-        destination node, i.e. those which have destination as a 
+        Returns the list of tasks that were activated in the previous 
+        call of execute(). Only returns tasks that point towards the
+        destination task, i.e. those which have destination as a 
         descendant.
 
-        instance -- the instance of this task
-        destination -- the child instance
+        my_task -- the task of this TaskSpec
+        destination -- the child task
         """
-        node = destination._find_ancestor(self.thread_starter)
-        return self.thread_starter._get_activated_instances(node, destination)
+        task = destination._find_ancestor(self.thread_starter)
+        return self.thread_starter._get_activated_tasks(task, destination)
 
 
-    def _get_activated_threads(self, instance):
+    def _get_activated_threads(self, my_task):
         """
         Returns the list of threads that were activated in the previous 
         call of execute().
 
-        instance -- the instance of this task
+        my_task -- the task of this TaskSpec
         """
-        return instance.children
+        return my_task.children
 
 
-    def _on_trigger(self, instance):
+    def _on_trigger(self, my_task):
         """
         May be called after execute() was already completed to create an
-        additional outbound instance.
+        additional outbound task.
         """
         # Find a Task for this task.
-        my_instance = self._find_my_instance(instance.job)
+        my_task = self._find_my_task(my_task.job)
         for output in self.outputs:
-            state        = Task.READY | Task.TRIGGERED
-            new_instance = my_instance.add_child(output, state)
+            state    = Task.READY | Task.TRIGGERED
+            new_task = my_task.add_child(output, state)
 
 
-    def _predict_hook(self, instance):
-        split_n = instance.get_attribute('split_n', self.times)
+    def _predict_hook(self, my_task):
+        split_n = my_task.get_attribute('split_n', self.times)
         if split_n is None:
-            split_n = instance.get_attribute(self.times_attribute, 1)
+            split_n = my_task.get_attribute(self.times_attribute, 1)
 
         # Predict the outputs.
         outputs = []
         for i in range(split_n):
             outputs.append(self.thread_starter)
-        if instance._is_definite():
+        if my_task._is_definite():
             child_state = Task.FUTURE
         else:
             child_state = Task.LIKELY
-        instance._update_children(outputs, child_state)
+        my_task._update_children(outputs, child_state)
 
 
-    def _on_complete_hook(self, instance):
+    def _on_complete_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
@@ -130,11 +130,11 @@ class ThreadSplit(TaskSpec):
         # Split, and remember the number of splits in the context data.
         split_n = self.times
         if split_n is None:
-            split_n = instance.get_attribute(self.times_attribute)
+            split_n = my_task.get_attribute(self.times_attribute)
 
-        # Create the outgoing nodes.
+        # Create the outgoing tasks.
         outputs = []
         for i in range(split_n):
             outputs.append(self.thread_starter)
-        instance._update_children(outputs)
+        my_task._update_children(outputs)
         return True

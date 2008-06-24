@@ -59,54 +59,54 @@ class SubWorkflow(TaskSpec):
             raise WorkflowException(self, 'File does not exist: %s' % self.file)
 
 
-    def _predict_hook(self, instance):
-        outputs = [node.spec for node in instance.children]
+    def _predict_hook(self, my_task):
+        outputs = [task.spec for task in my_task.children]
         for output in self.outputs:
             if output not in outputs:
                 outputs.insert(0, output)
-        if instance._has_state(Task.LIKELY):
-            instance._update_children(outputs, Task.LIKELY)
+        if my_task._has_state(Task.LIKELY):
+            my_task._update_children(outputs, Task.LIKELY)
         else:
-            instance._update_children(outputs, Task.FUTURE)
+            my_task._update_children(outputs, Task.FUTURE)
 
 
-    def _on_ready_before_hook(self, instance):
-        file          = valueof(instance, self.file)
+    def _on_ready_before_hook(self, my_task):
+        file          = valueof(my_task, self.file)
         xml_reader    = XmlReader()
         workflow_list = xml_reader.parse_file(file)
         workflow      = workflow_list[0]
-        outer_job     = instance.job.outer_job
+        outer_job     = my_task.job.outer_job
         subjob        = SpiffWorkflow.Job(workflow, parent = outer_job)
-        subjob.signal_connect('completed', self._on_subjob_completed, instance)
+        subjob.signal_connect('completed', self._on_subjob_completed, my_task)
 
         # Integrate the tree of the subjob into the tree of this job.
-        instance._update_children(self.outputs, Task.FUTURE)
-        for child in instance.children:
+        my_task._update_children(self.outputs, Task.FUTURE)
+        for child in my_task.children:
             child._inherit_attributes()
         for child in subjob.task_tree.children:
-            instance.children.insert(0, child)
-            child.parent = instance
+            my_task.children.insert(0, child)
+            child.parent = my_task
 
-        instance._set_internal_attribute(subjob = subjob)
+        my_task._set_internal_attribute(subjob = subjob)
         return True
 
 
-    def _on_ready_hook(self, instance):
+    def _on_ready_hook(self, my_task):
         # Assign variables, if so requested.
-        subjob = instance._get_internal_attribute('subjob')
+        subjob = my_task._get_internal_attribute('subjob')
         for child in subjob.task_tree.children:
             for assignment in self.in_assign:
-                assignment.assign(instance, child)
+                assignment.assign(my_task, child)
 
-        self._predict(instance)
+        self._predict(my_task)
         for child in subjob.task_tree.children:
             child.spec._update_state(child)
         return True
 
 
-    def _on_subjob_completed(self, subjob, instance):
+    def _on_subjob_completed(self, subjob, my_task):
         # Assign variables, if so requested.
-        for child in instance.children:
+        for child in my_task.children:
             if child.spec in self.outputs:
                 for assignment in self.out_assign:
                     assignment.assign(subjob, child)
@@ -119,14 +119,14 @@ class SubWorkflow(TaskSpec):
                 child._ready()
 
 
-    def _on_complete_hook(self, instance):
+    def _on_complete_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
 
-        instance -- the instance in which this method is executed
+        my_task -- the task in which this method is executed
         """
-        for child in instance.children:
+        for child in my_task.children:
             if child.spec in self.outputs:
                 continue
             child.spec._update_state(child)

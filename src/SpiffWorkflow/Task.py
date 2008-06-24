@@ -48,7 +48,7 @@ class Task(object):
     class Iterator(object):
         """
         This is a tree iterator that supports filtering such that a client
-        may walk through all nodes that have a specific state.
+        may walk through all tasks that have a specific state.
         """
         def __init__(self, current, filter = None):
             """
@@ -67,30 +67,30 @@ class Task(object):
             if len(self.path) == 0:
                 raise StopIteration()
 
-            # If the current node has children, the first child is the next item.
-            # If the current node is LIKELY, and predicted nodes are not
+            # If the current task has children, the first child is the next item.
+            # If the current task is LIKELY, and predicted tasks are not
             # specificly searched, we can ignore the children, because predicted
-            # nodes should only have predicted children.
+            # tasks should only have predicted children.
             current     = self.path[-1]
-            ignore_node = False
+            ignore_task = False
             if self.filter is not None:
                 search_predicted = self.filter   & Task.LIKELY != 0
                 is_predicted     = current.state & Task.LIKELY != 0
-                ignore_node      = is_predicted and not search_predicted
-            if len(current.children) > 0 and not ignore_node:
+                ignore_task      = is_predicted and not search_predicted
+            if len(current.children) > 0 and not ignore_task:
                 self.path.append(current.children[0])
                 if self.filter is not None and current.state & self.filter == 0:
                     return None
                 return current
 
-            # Ending up here, this node has no children. Crop the path until we
-            # reach a node that has unvisited children, or until we hit the end.
+            # Ending up here, this task has no children. Crop the path until we
+            # reach a task that has unvisited children, or until we hit the end.
             while True:
                 old_child = self.path.pop(-1)
                 if len(self.path) == 0:
                     break
 
-                # If this node has a sibling, choose it.
+                # If this task has a sibling, choose it.
                 parent = self.path[-1]
                 pos    = parent.children.index(old_child)
                 if len(parent.children) > pos + 1:
@@ -212,13 +212,13 @@ class Task(object):
 
     def _add_child(self, spec, state = FUTURE):
         """
-        Adds a new child task and assigns the given task to the new node.
+        Adds a new child and assigns the given TaskSpec to it.
 
-        task -- the task that is assigned to the new node.
-        state -- the initial node state
+        spec -- the TaskSpec that is assigned to the new child.
+        state -- the initial task state
         """
         if spec is None:
-            raise WorkflowException(self, '_add_child() requires a task spec.')
+            raise WorkflowException(self, '_add_child() requires a TaskSpec')
         if self._is_predicted() and state & self.PREDICTED_MASK == 0:
             msg = 'Attempt to add non-predicted child to predicted task'
             raise WorkflowException(self, msg)
@@ -233,7 +233,7 @@ class Task(object):
 
     def _assign_new_thread_id(self, recursive = True):
         """
-        Assigns a new thread id to the node.
+        Assigns a new thread id to the task.
         Returns the new id.
         """
         self.__class__.thread_id_pool += 1
@@ -247,7 +247,7 @@ class Task(object):
 
     def _update_children(self, taskspecs, state = None):
         """
-        This method adds one child for each given task, unless that
+        This method adds one child for each given TaskSpec, unless that
         child already exists.
         The state of COMPLETED tasks is never changed.
 
@@ -259,16 +259,16 @@ class Task(object):
           The state for all children is updated by calling the child's
           _update_state() method.
           
-        If the node currently has a child that is not given in the tasks, 
+        If the task currently has a child that is not given in the TaskSpecs, 
         the child is removed.
-        It is an error if the node has a non-LIKELY child that is 
-        not given in the tasks.
+        It is an error if the task has a non-LIKELY child that is 
+        not given in the TaskSpecs.
 
-        task -- the list of tasks that may become children.
+        taskspecs -- the list of TaskSpecs that may become children.
         state -- the state for newly added children
         """
         if taskspecs is None:
-            raise WorkflowException(self, '"taskspecs" argument is None.')
+            raise WorkflowException(self, '"taskspecs" argument is None')
         if type(taskspecs) != type([]):
             taskspecs = [taskspecs]
 
@@ -343,43 +343,43 @@ class Task(object):
         return self.parent._is_descendant_of(parent)
 
 
-    def _find_child_of(self, parent_task):
+    def _find_child_of(self, parent_taskspec):
         """
-        Returns the ancestor that has a Task with the given TaskSpec
+        Returns the ancestor that has a task with the given TaskSpec
         as a parent.
         If no such ancestor was found, the root node is returned.
 
-        parent_task -- the wanted parent TaskSpec
+        parent_taskspec -- the wanted parent TaskSpec
         """
         if self.parent is None:
             return self
-        if self.parent.task == parent_task:
+        if self.parent.spec == parent_taskspec:
             return self
-        return self.parent._find_child_of(parent_task)
+        return self.parent._find_child_of(parent_taskspec)
 
 
-    def _find_any(self, task):
+    def _find_any(self, taskspec):
         """
-        Returns any descendants that have the given task assigned.
+        Returns any descendants that have the given TaskSpec assigned.
 
         task -- the wanted task
         """
-        instances = []
-        if self.spec == task:
-            instances.append(self)
-        for node in self:
-            if node.spec != task:
+        tasks = []
+        if self.spec == taskspec:
+            tasks.append(self)
+        for child in self:
+            if child.spec != taskspec:
                 continue
-            instances.append(node)
-        return instances
+            tasks.append(child)
+        return tasks
 
 
     def _find_ancestor(self, spec):
         """
-        Returns the ancestor that has the given task spec assigned.
+        Returns the ancestor that has the given TaskSpec assigned.
         If no such ancestor was found, the root node is returned.
 
-        task -- the wanted task
+        spec -- the wanted TaskSpec
         """
         if self.parent is None:
             return self
@@ -404,7 +404,7 @@ class Task(object):
 
     def _ready(self):
         """
-        Marks the node as ready for execution.
+        Marks the task as ready for execution.
         """
         if self.state & self.COMPLETED != 0:
             return
@@ -535,11 +535,11 @@ class Task(object):
         Returns the subtree as a string for debugging.
         """
         dbg  = (' ' * indent * 2)
-        dbg += '%s/'                 % self.id
-        dbg += '%s:'                 % self.thread_id
-        dbg += ' Task of %s' % self.get_name()
-        dbg += ' State: %s'          % self.get_state_name()
-        dbg += ' Children: %s'       % len(self.children)
+        dbg += '%s/'           % self.id
+        dbg += '%s:'           % self.thread_id
+        dbg += ' Task of %s'   % self.get_name()
+        dbg += ' State: %s'    % self.get_state_name()
+        dbg += ' Children: %s' % len(self.children)
         if recursive:
             for child in self.children:
                 dbg += '\n' + child.get_dump(indent + 1)
