@@ -15,9 +15,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow           import TaskInstance
 from SpiffWorkflow.Exception import WorkflowException
-from Task                    import Task
+from TaskSpec                import TaskSpec
 
-class StartTask(Task):
+class StartTask(TaskSpec):
     """
     This class implements the task the is placed at the beginning
     of each workflow. The task has no inputs and at least one output.
@@ -29,9 +29,9 @@ class StartTask(Task):
         """
         Constructor.
         
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         """
-        Task.__init__(self, parent, 'Start', **kwargs)
+        TaskSpec.__init__(self, parent, 'Start', **kwargs)
 
 
     def _connect_notify(self, task):

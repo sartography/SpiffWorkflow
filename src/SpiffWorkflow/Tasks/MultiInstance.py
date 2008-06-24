@@ -16,9 +16,9 @@
 from SpiffWorkflow.TaskInstance import TaskInstance
 from SpiffWorkflow.Exception    import WorkflowException
 from SpiffWorkflow.Operators    import valueof
-from Task                       import Task
+from TaskSpec                   import TaskSpec
 
-class MultiInstance(Task):
+class MultiInstance(TaskSpec):
     """
     When executed, this task performs a split on the current instance.
     The number of outgoing instances depends on the runtime value of a
@@ -33,13 +33,13 @@ class MultiInstance(Task):
         """
         Constructor.
         
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the pattern (string)
         kwargs -- must contain one of the following:
                     times -- the number of instances to create.
         """
         assert kwargs.has_key('times')
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.times = kwargs.get('times', None)
 
 

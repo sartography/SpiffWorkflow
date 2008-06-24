@@ -15,9 +15,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,MA  02110-1301  USA
 from SpiffWorkflow.TaskInstance import TaskInstance
 from SpiffWorkflow.Exception    import WorkflowException
-from Task                       import Task
+from TaskSpec                   import TaskSpec
 
-class AcquireMutex(Task):
+class AcquireMutex(TaskSpec):
     """
     This class implements a task that acquires a mutex (lock), protecting
     a section of the workflow from being accessed by other sections.
@@ -31,12 +31,12 @@ class AcquireMutex(Task):
         """
         Constructor.
 
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the task (string)
         mutex -- the mutex that should be acquired
         """
         assert mutex is not None
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.mutex = mutex
 
 
@@ -55,4 +55,4 @@ class AcquireMutex(Task):
 
         task_instance -- the task_instance in which this method is executed
         """
-        return Task._on_complete_hook(self, task_instance)
+        return TaskSpec._on_complete_hook(self, task_instance)

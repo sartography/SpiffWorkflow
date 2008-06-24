@@ -15,9 +15,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow           import TaskInstance
 from SpiffWorkflow.Exception import WorkflowException
-from Task                    import Task
+from TaskSpec                import TaskSpec
 
-class ReleaseMutex(Task):
+class ReleaseMutex(TaskSpec):
     """
     This class implements a task that releases a mutex (lock), protecting
     a section of the workflow from being accessed by other sections.
@@ -31,12 +31,12 @@ class ReleaseMutex(Task):
         """
         Constructor.
 
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the task (string)
         mutex -- the mutex that should be released
         """
         assert mutex is not None
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.mutex = mutex
 
 
@@ -49,4 +49,4 @@ class ReleaseMutex(Task):
         """
         mutex = task_instance.job.get_mutex(self.mutex)
         mutex.unlock()
-        return Task._on_complete_hook(self, task_instance)
+        return TaskSpec._on_complete_hook(self, task_instance)

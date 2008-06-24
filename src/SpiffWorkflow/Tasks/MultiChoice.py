@@ -17,9 +17,9 @@ import re
 from SpiffWorkflow.Operators    import *
 from SpiffWorkflow.TaskInstance import TaskInstance
 from SpiffWorkflow.Exception    import WorkflowException
-from Task                       import Task
+from TaskSpec                   import TaskSpec
 
-class MultiChoice(Task):
+class MultiChoice(TaskSpec):
     """
     This class represents an if condition where multiple conditions may match
     at the same time, creating multiple instances.
@@ -31,10 +31,10 @@ class MultiChoice(Task):
         """
         Constructor.
         
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the pattern (string)
         """
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.cond_tasks = []
         self.choice     = None
 
@@ -64,7 +64,7 @@ class MultiChoice(Task):
         Checks whether all required attributes are set. Throws an exception
         if an error was detected.
         """
-        Task.test(self)
+        TaskSpec.test(self)
         if len(self.cond_tasks) < 1:
             raise WorkflowException(self, 'At least one output required.')
         for condition, task in self.cond_tasks:

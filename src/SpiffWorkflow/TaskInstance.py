@@ -345,11 +345,11 @@ class TaskInstance(object):
 
     def _find_child_of(self, parent_task):
         """
-        Returns the ancestor that has a TaskInstance with the given Task
+        Returns the ancestor that has a TaskInstance with the given TaskSpec
         as a parent.
         If no such ancestor was found, the root node is returned.
 
-        parent_task -- the wanted parent Task
+        parent_task -- the wanted parent TaskSpec
         """
         if self.parent is None:
             return self

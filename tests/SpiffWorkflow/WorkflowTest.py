@@ -115,17 +115,17 @@ class WorkflowTest(unittest.TestCase):
 
     def testWorkflow(self):
         # Build one branch.
-        a1 = Task(self.wf, 'task_a1')
+        a1 = Simple(self.wf, 'task_a1')
         self.wf.start.connect(a1)
 
-        a2 = Task(self.wf, 'task_a2')
+        a2 = Simple(self.wf, 'task_a2')
         a1.connect(a2)
 
         # Build another branch.
-        b1 = Task(self.wf, 'task_b1')
+        b1 = Simple(self.wf, 'task_b1')
         self.wf.start.connect(b1)
 
-        b2 = Task(self.wf, 'task_b2')
+        b2 = Simple(self.wf, 'task_b2')
         b1.connect(b2)
 
         # Merge both branches (synchronized).
@@ -137,14 +137,14 @@ class WorkflowTest(unittest.TestCase):
         excl_choice_1 = ExclusiveChoice(self.wf, 'excl_choice_1')
         synch_1.connect(excl_choice_1)
 
-        c1 = Task(self.wf, 'task_c1')
+        c1 = Simple(self.wf, 'task_c1')
         excl_choice_1.connect(c1)
 
-        c2 = Task(self.wf, 'task_c2')
+        c2 = Simple(self.wf, 'task_c2')
         cond = Equal(Attrib('test_attribute1'), Attrib('test_attribute2'))
         excl_choice_1.connect_if(cond, c2)
 
-        c3 = Task(self.wf, 'task_c3')
+        c3 = Simple(self.wf, 'task_c3')
         excl_choice_1.connect_if(cond, c3)
 
         # If-condition that matches.
@@ -153,13 +153,13 @@ class WorkflowTest(unittest.TestCase):
         c2.connect(excl_choice_2)
         c3.connect(excl_choice_2)
 
-        d1 = Task(self.wf, 'task_d1')
+        d1 = Simple(self.wf, 'task_d1')
         excl_choice_2.connect(d1)
 
-        d2 = Task(self.wf, 'task_d2')
+        d2 = Simple(self.wf, 'task_d2')
         excl_choice_2.connect_if(cond, d2)
 
-        d3 = Task(self.wf, 'task_d3')
+        d3 = Simple(self.wf, 'task_d3')
         cond = Equal(Attrib('test_attribute1'), Attrib('test_attribute1'))
         excl_choice_2.connect_if(cond, d3)
 
@@ -169,14 +169,14 @@ class WorkflowTest(unittest.TestCase):
         d2.connect(multichoice)
         d3.connect(multichoice)
 
-        e1 = Task(self.wf, 'task_e1')
+        e1 = Simple(self.wf, 'task_e1')
         multichoice.connect_if(cond, e1)
 
-        e2 = Task(self.wf, 'task_e2')
+        e2 = Simple(self.wf, 'task_e2')
         cond = Equal(Attrib('test_attribute1'), Attrib('test_attribute2'))
         multichoice.connect_if(cond, e2)
 
-        e3 = Task(self.wf, 'task_e3')
+        e3 = Simple(self.wf, 'task_e3')
         cond = Equal(Attrib('test_attribute2'), Attrib('test_attribute2'))
         multichoice.connect_if(cond, e3)
 
@@ -187,13 +187,13 @@ class WorkflowTest(unittest.TestCase):
         e3.connect(syncmerge)
 
         # Implicit parallel split.
-        f1 = Task(self.wf, 'task_f1')
+        f1 = Simple(self.wf, 'task_f1')
         syncmerge.connect(f1)
 
-        f2 = Task(self.wf, 'task_f2')
+        f2 = Simple(self.wf, 'task_f2')
         syncmerge.connect(f2)
 
-        f3 = Task(self.wf, 'task_f3')
+        f3 = Simple(self.wf, 'task_f3')
         syncmerge.connect(f3)
 
         # Discriminator
@@ -216,8 +216,8 @@ class WorkflowTest(unittest.TestCase):
         excl_choice_3.connect(multi_instance_1)
 
         # Parallel tasks.
-        g1 = Task(self.wf, 'task_g1')
-        g2 = Task(self.wf, 'task_g2')
+        g1 = Simple(self.wf, 'task_g1')
+        g2 = Simple(self.wf, 'task_g2')
         multi_instance_1.connect(g1)
         multi_instance_1.connect(g2)
 
@@ -227,11 +227,11 @@ class WorkflowTest(unittest.TestCase):
         g2.connect(syncmerge2)
 
         # Add a final task.
-        last = Task(self.wf, 'last')
+        last = Simple(self.wf, 'last')
         syncmerge2.connect(last)
 
         # Add another final task :-).
-        end = Task(self.wf, 'End')
+        end = Simple(self.wf, 'End')
         last.connect(end)
 
         self.runWorkflow(self.wf)

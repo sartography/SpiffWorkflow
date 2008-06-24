@@ -15,9 +15,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.TaskInstance import TaskInstance
 from SpiffWorkflow.Exception    import WorkflowException
-from Task                       import Task
+from TaskSpec                   import TaskSpec
 
-class ThreadStart(Task):
+class ThreadStart(TaskSpec):
     """
     This class implements the task the is placed at the beginning
     of each thread. It is NOT supposed to be used by in the API, it is
@@ -31,9 +31,9 @@ class ThreadStart(Task):
         """
         Constructor.
         
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         """
-        Task.__init__(self, parent, 'ThreadStart', **kwargs)
+        TaskSpec.__init__(self, parent, 'ThreadStart', **kwargs)
         self.internal = True
 
 
@@ -43,4 +43,4 @@ class ThreadStart(Task):
         Returns True if completed, False otherwise.
         """
         instance._assign_new_thread_id()
-        return Task._on_complete_hook(self, instance)
+        return TaskSpec._on_complete_hook(self, instance)

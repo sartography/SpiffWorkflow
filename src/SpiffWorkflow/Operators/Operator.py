@@ -24,12 +24,13 @@ def valueof(scope, op):
         return op
 
 class Operator(object):
+    """
+    Abstract base class for all operators.
+    """
+
     def __init__(self, *args):
         """
         Constructor.
-
-        kwargs -- must contain one of left_attribute/left and one of
-                  right_attribute/right.
         """
         if len(args) == 0:
             raise TypeException("Too few arguments")

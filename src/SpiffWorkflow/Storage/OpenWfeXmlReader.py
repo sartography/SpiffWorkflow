@@ -96,7 +96,7 @@ class OpenWfeXmlReader(object):
         assert condition is not None
         assert match     is not None
         choice = SpiffWorkflow.Tasks.ExclusiveChoice(workflow, name)
-        end    = SpiffWorkflow.Tasks.Task(workflow, name + '_end')
+        end    = SpiffWorkflow.Tasks.Simple(workflow, name + '_end')
         if nomatch is None:
             choice.connect(end)
         else:
@@ -181,7 +181,7 @@ class OpenWfeXmlReader(object):
         elif type == 'sequence':
             return self.read_sequence(workflow, start_node)
         elif type == 'task':
-            task = SpiffWorkflow.Tasks.Task(workflow, name)
+            task = SpiffWorkflow.Tasks.Simple(workflow, name)
             return (task, task)
         else:
             print "Unknown type:", type
@@ -212,7 +212,7 @@ class OpenWfeXmlReader(object):
                 print "Unknown type:", type
                 assert False # Unknown tag.
 
-        last_task.connect(SpiffWorkflow.Tasks.Task(workflow, 'End'))
+        last_task.connect(SpiffWorkflow.Tasks.Simple(workflow, 'End'))
         return workflow
 
 

@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow           import TaskInstance
 from SpiffWorkflow.Exception import WorkflowException
-from Task                    import Task
+from TaskSpec                import TaskSpec
 from Trigger                 import Trigger
 
 class CancelTask(Trigger):
@@ -38,4 +38,4 @@ class CancelTask(Trigger):
             task = instance.job.get_task_from_name(task_name)
             for node in instance._get_root()._find_any(task):
                 node.cancel()
-        return Task._on_complete_hook(self, instance)
+        return TaskSpec._on_complete_hook(self, instance)

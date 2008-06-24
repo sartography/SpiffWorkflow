@@ -6,7 +6,7 @@ def suite():
     return unittest.TestSuite(map(TaskInstanceTest, tests))
 
 from SpiffWorkflow           import Workflow, TaskInstance
-from SpiffWorkflow.Tasks     import Task
+from SpiffWorkflow.Tasks     import Simple
 from SpiffWorkflow.Exception import WorkflowException
 
 class TaskInstanceTest(unittest.TestCase):
@@ -17,15 +17,15 @@ class TaskInstanceTest(unittest.TestCase):
     def testTree(self):
         # Build a tree.
         wf       = Workflow()
-        task1    = Task(wf, 'Task 1')
-        task2    = Task(wf, 'Task 2')
-        task3    = Task(wf, 'Task 3')
-        task4    = Task(wf, 'Task 4')
-        task5    = Task(wf, 'Task 5')
-        task6    = Task(wf, 'Task 6')
-        task7    = Task(wf, 'Task 7')
-        task8    = Task(wf, 'Task 8')
-        task9    = Task(wf, 'Task 9')
+        task1    = Simple(wf, 'Simple 1')
+        task2    = Simple(wf, 'Simple 2')
+        task3    = Simple(wf, 'Simple 3')
+        task4    = Simple(wf, 'Simple 4')
+        task5    = Simple(wf, 'Simple 5')
+        task6    = Simple(wf, 'Simple 6')
+        task7    = Simple(wf, 'Simple 7')
+        task8    = Simple(wf, 'Simple 8')
+        task9    = Simple(wf, 'Simple 9')
         root     = TaskInstance(object, task1)
         c1       = root._add_child(task2)
         c11      = c1._add_child(task3)
@@ -38,15 +38,15 @@ class TaskInstanceTest(unittest.TestCase):
         c3.state = TaskInstance.COMPLETED
 
         # Check whether the tree is built properly.
-        expected = """1/0: TaskInstance of Task 1 State: FUTURE Children: 3
-  2/0: TaskInstance of Task 2 State: FUTURE Children: 2
-    3/0: TaskInstance of Task 3 State: FUTURE Children: 2
-      4/0: TaskInstance of Task 4 State: FUTURE Children: 1
-        5/0: TaskInstance of Task 5 State: FUTURE Children: 0
-      6/0: TaskInstance of Task 6 State: FUTURE Children: 0
-    7/0: TaskInstance of Task 7 State: FUTURE Children: 0
-  8/0: TaskInstance of Task 8 State: FUTURE Children: 0
-  9/0: TaskInstance of Task 9 State: COMPLETED Children: 0"""
+        expected = """1/0: TaskInstance of Simple 1 State: FUTURE Children: 3
+  2/0: TaskInstance of Simple 2 State: FUTURE Children: 2
+    3/0: TaskInstance of Simple 3 State: FUTURE Children: 2
+      4/0: TaskInstance of Simple 4 State: FUTURE Children: 1
+        5/0: TaskInstance of Simple 5 State: FUTURE Children: 0
+      6/0: TaskInstance of Simple 6 State: FUTURE Children: 0
+    7/0: TaskInstance of Simple 7 State: FUTURE Children: 0
+  8/0: TaskInstance of Simple 8 State: FUTURE Children: 0
+  9/0: TaskInstance of Simple 9 State: COMPLETED Children: 0"""
         self.assert_(expected == root.get_dump(),
                      'Expected:\n' + repr(expected) + '\n' + \
                      'but got:\n'  + repr(root.get_dump()))
@@ -55,7 +55,7 @@ class TaskInstanceTest(unittest.TestCase):
         # filtered iterator.
         expected2 = ''
         for line in expected.split('\n'):
-            if line.find('Task 9') >= 0:
+            if line.find('Simple 9') >= 0:
                 continue
             expected2 += line.lstrip() + '\n'
 

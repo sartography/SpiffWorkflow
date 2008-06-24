@@ -36,7 +36,7 @@ class Job(Trackable):
         self.outer_job       = kwargs.get('parent', self)
         self.locks           = {}
         self.last_node       = None
-        self.task_tree       = TaskInstance(self, Tasks.Task(workflow, 'Root'))
+        self.task_tree       = TaskInstance(self, Tasks.Simple(workflow, 'Root'))
         self.success         = True
         self.debug           = False
 

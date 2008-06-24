@@ -14,10 +14,10 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception  import WorkflowException
-from Task                     import Task
+from SpiffWorkflow.Exception    import WorkflowException
+from TaskSpec                   import TaskSpec
 
-class Gate(Task):
+class Gate(TaskSpec):
     """
     This class implements a task that can only execute when another
     specified task is completed.
@@ -31,7 +31,7 @@ class Gate(Task):
         """
         Constructor.
 
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the task (string)
         context -- the name of the task that needs to complete before this
                    task can execute.
@@ -39,7 +39,7 @@ class Gate(Task):
         assert parent  is not None
         assert name    is not None
         assert context is not None
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.context = context
 
 
@@ -52,7 +52,7 @@ class Gate(Task):
             if not node._has_state(TaskInstance.COMPLETED):
                 instance._set_state(TaskInstance.WAITING)
                 return False
-        return Task._update_state_hook(self, instance)
+        return TaskSpec._update_state_hook(self, instance)
 
 
     def _on_complete_hook(self, instance):
@@ -62,4 +62,4 @@ class Gate(Task):
 
         instance -- the instance in which this method is executed
         """
-        return Task._on_complete_hook(self, instance)
+        return TaskSpec._on_complete_hook(self, instance)

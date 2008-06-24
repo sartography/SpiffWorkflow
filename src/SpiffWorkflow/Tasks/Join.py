@@ -16,9 +16,9 @@
 from SpiffWorkflow.TaskInstance import TaskInstance
 from SpiffWorkflow.Exception    import WorkflowException
 from SpiffWorkflow.Operators    import valueof
-from Task                       import Task
+from TaskSpec                   import TaskSpec
 
-class Join(Task):
+class Join(TaskSpec):
     """
     This class represents a task for synchronizing instances that were
     previously split using a conditional task, such as MultiChoice.
@@ -29,7 +29,7 @@ class Join(Task):
         """
         Constructor.
         
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the pattern (string)
         split_task -- the task that was previously used to split the
                           instance
@@ -42,7 +42,7 @@ class Join(Task):
                       cancel -- when set to True, remaining incoming branches
                       are cancelled as soon as the discriminator is activated.
         """
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.split_task       = split_task
         self.threshold        = kwargs.get('threshold', None)
         self.cancel_remaining = kwargs.get('cancel',    False)
@@ -242,4 +242,4 @@ class Join(Task):
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
         """
-        return Task._on_complete_hook(self, instance)
+        return TaskSpec._on_complete_hook(self, instance)

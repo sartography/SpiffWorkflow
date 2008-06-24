@@ -18,10 +18,10 @@ from SpiffWorkflow.TaskInstance import TaskInstance
 from SpiffWorkflow.Exception    import WorkflowException
 from SpiffWorkflow.Operators    import valueof
 from SpiffWorkflow.Storage      import XmlReader
-from Task                       import Task
+from TaskSpec                   import TaskSpec
 import SpiffWorkflow.Job
 
-class SubWorkflow(Task):
+class SubWorkflow(TaskSpec):
     """
     A SubWorkflow is a task that wraps a Workflow, such that you can re-use it
     in multiple places as if it were a task.
@@ -35,7 +35,7 @@ class SubWorkflow(Task):
         """
         Constructor.
 
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the task (string)
         kwargs -- may contain the following keys:
                   file -- name of a file containing a workflow
@@ -44,7 +44,7 @@ class SubWorkflow(Task):
         assert parent  is not None
         assert name    is not None
         assert kwargs.has_key('file')
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.file       = kwargs.get('file',       None)
         self.in_assign  = kwargs.get('in_assign',  [])
         self.out_assign = kwargs.get('out_assign', [])
@@ -54,7 +54,7 @@ class SubWorkflow(Task):
 
 
     def test(self):
-        Task.test(self)
+        TaskSpec.test(self)
         if self.file is not None and not os.path.exists(self.file):
             raise WorkflowException(self, 'File does not exist: %s' % self.file)
 

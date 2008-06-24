@@ -16,7 +16,7 @@
 from SpiffWorkflow.TaskInstance import TaskInstance
 from SpiffWorkflow.Exception    import WorkflowException
 from SpiffWorkflow.Operators    import valueof
-from Task                       import Task
+from TaskSpec                   import TaskSpec
 from Join                       import Join
 
 class ThreadMerge(Join):
@@ -30,7 +30,7 @@ class ThreadMerge(Join):
         """
         Constructor.
         
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the pattern (string)
         split_task -- the name of the task that was previously used to split
                       the instance
@@ -131,4 +131,4 @@ class ThreadMerge(Join):
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.
         """
-        return Task._on_complete_hook(self, instance)
+        return TaskSpec._on_complete_hook(self, instance)

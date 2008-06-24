@@ -15,9 +15,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.TaskInstance import TaskInstance
 from SpiffWorkflow.Exception    import WorkflowException
-from Task                       import Task
+from TaskSpec                   import TaskSpec
 
-class Trigger(Task):
+class Trigger(TaskSpec):
     """
     This class implements a task that triggers an event on another 
     task.
@@ -31,7 +31,7 @@ class Trigger(Task):
         """
         Constructor.
 
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the task (string)
         context -- a list of the names of tasks that are to be triggered
         """
@@ -39,7 +39,7 @@ class Trigger(Task):
         assert name    is not None
         assert context is not None
         assert type(context) == type([])
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.context = context
         self.times   = kwargs.get('times', 1)
         self.queued  = 0
@@ -73,4 +73,4 @@ class Trigger(Task):
                 task = instance.job.get_task_from_name(task_name)
                 task._on_trigger(instance)
         self.queued = 0
-        return Task._on_complete_hook(self, instance)
+        return TaskSpec._on_complete_hook(self, instance)

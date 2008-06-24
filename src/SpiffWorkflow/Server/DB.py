@@ -99,7 +99,7 @@ class DB(object):
                                 })
         self.__add_table(table)
 
-        # Task table.
+        # TaskSpec table.
         table = Table(pfx + 'task',
                       self.db_metadata,
                       Column('id',          Integer,      primary_key = True),

@@ -29,7 +29,7 @@ class ExclusiveChoice(MultiChoice):
         """
         Constructor.
         
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the pattern (string)
         """
         MultiChoice.__init__(self, parent, name, **kwargs)

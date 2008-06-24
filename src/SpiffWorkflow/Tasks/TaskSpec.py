@@ -40,14 +40,9 @@ class Assign(object):
         to_obj.set_attribute(**{str(self.left_attribute): right})
 
 
-class Task(Trackable):
+class TaskSpec(Trackable):
     """
-    This class implements a task with one or more inputs and
-    any number of outputs.
-    If more than one input is connected, the task performs an implicit
-    multi merge.
-    If more than one output is connected, the task performs an implicit
-    parallel split.
+    This class implements an abstract base type for all tasks.
 
     Tasks provide the following signals:
       - *entered*: called when the state changes to READY or WAITING, at a 
@@ -78,7 +73,7 @@ class Task(Trackable):
         Similarly, "defines" are properties that, once defined, can no 
         longer be modified.
 
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the task (string)
         kwargs -- may contain the following keys:
                   lock -- a list of locks that is aquired on entry of
@@ -182,7 +177,7 @@ class Task(Trackable):
         if an error was detected.
         """
         if self.id is None:
-            raise Exception.WorkflowException(self, 'Task is not yet instanciated.')
+            raise Exception.WorkflowException(self, 'TaskSpec is not yet instanciated.')
         if len(self.inputs) < 1:
             raise Exception.WorkflowException(self, 'No input task connected.')
 

@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from Task import Task
+from TaskSpec import TaskSpec
 
-class CancelJob(Task):
+class CancelJob(TaskSpec):
     """
     This class implements a trigger that cancels another task (branch).
     If more than one input is connected, the task performs an implicit
@@ -28,7 +28,7 @@ class CancelJob(Task):
         """
         Constructor.
 
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the task (string)
         kwargs -- may contain the following keys:
                   lock -- a list of locks that is aquired on entry of
@@ -36,7 +36,7 @@ class CancelJob(Task):
                   pre_assign -- a list of attribute name/value pairs
                   post_assign -- a list of attribute name/value pairs
         """
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.cancel_successfully = kwargs.get('success', False)
 
 
@@ -45,7 +45,7 @@ class CancelJob(Task):
         Checks whether all required attributes are set. Throws an exception
         if an error was detected.
         """
-        Task.test(self)
+        TaskSpec.test(self)
         if len(self.outputs) > 0:
             raise WorkflowException(self, 'CancelJob with an output.')
 
@@ -58,4 +58,4 @@ class CancelJob(Task):
         instance -- the instance in which this method is executed
         """
         instance.job.cancel(self.cancel_successfully)
-        return Task._on_complete_hook(self, instance)
+        return TaskSpec._on_complete_hook(self, instance)

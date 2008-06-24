@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow           import TaskInstance
 from SpiffWorkflow.Exception import WorkflowException
-from Task                    import Task
+from TaskSpec                import TaskSpec
 from Trigger                 import Trigger
 
 class Choose(Trigger):
@@ -32,7 +32,7 @@ class Choose(Trigger):
         """
         Constructor.
 
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the task (string)
         context -- the name of the MultiChoice task that is instructed to
                    select the specified outputs.
@@ -42,7 +42,7 @@ class Choose(Trigger):
         assert parent  is not None
         assert name    is not None
         assert context is not None
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.context = context
         self.choice  = kwargs.get('choice', [])
 
@@ -60,4 +60,4 @@ class Choose(Trigger):
                 continue
             if node.task == context:
                 node.trigger(self.choice)
-        return Task._on_complete_hook(self, instance)
+        return TaskSpec._on_complete_hook(self, instance)

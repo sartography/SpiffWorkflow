@@ -39,6 +39,7 @@ class XmlReader(object):
             module = SpiffWorkflow.Tasks.__dict__[name]
             name   = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
             self.task_map[name] = module
+        self.task_map['task'] = SpiffWorkflow.Tasks.Simple
 
         self.op_map = {'equals':       SpiffWorkflow.Operators.Equal,
                        'not-equals':   SpiffWorkflow.Operators.NotEqual,
@@ -306,7 +307,7 @@ class XmlReader(object):
 
         # Read all tasks and create a list of successors.
         workflow             = SpiffWorkflow.Workflow(name, filename)
-        self.read_tasks = {'end': (SpiffWorkflow.Tasks.Task(workflow, 'End'), [])}
+        self.read_tasks = {'end': (SpiffWorkflow.Tasks.Simple(workflow, 'End'), [])}
         for node in start_node.childNodes:
             if node.nodeType != minidom.Node.ELEMENT_NODE:
                 continue

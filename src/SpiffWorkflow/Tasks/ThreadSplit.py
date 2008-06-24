@@ -15,10 +15,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.TaskInstance import TaskInstance
 from SpiffWorkflow.Exception    import WorkflowException
-from Task                       import Task
+from TaskSpec                   import TaskSpec
 from ThreadStart                import ThreadStart
 
-class ThreadSplit(Task):
+class ThreadSplit(TaskSpec):
     """
     When executed, this task performs a split on the current instance.
     The number of outgoing instances depends on the runtime value of a
@@ -33,7 +33,7 @@ class ThreadSplit(Task):
         """
         Constructor.
         
-        parent -- a reference to the parent (Task)
+        parent -- a reference to the parent (TaskSpec)
         name -- a name for the pattern (string)
         kwargs -- must contain one of the following:
                     times -- the number of instances to create.
@@ -42,7 +42,7 @@ class ThreadSplit(Task):
                                        instances.
         """
         assert kwargs.has_key('times_attribute') or kwargs.has_key('times')
-        Task.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.times_attribute = kwargs.get('times_attribute', None)
         self.times           = kwargs.get('times',           None)
         self.thread_starter  = ThreadStart(parent, **kwargs)
