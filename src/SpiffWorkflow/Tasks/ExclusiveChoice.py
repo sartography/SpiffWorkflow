@@ -14,9 +14,9 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import re
-from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception    import WorkflowException
-from MultiChoice                import MultiChoice
+from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Exception import WorkflowException
+from MultiChoice             import MultiChoice
 
 class ExclusiveChoice(MultiChoice):
     """
@@ -59,7 +59,7 @@ class ExclusiveChoice(MultiChoice):
 
 
     def _predict_hook(self, instance):
-        instance._update_children(self.outputs, TaskInstance.MAYBE)
+        instance._update_children(self.outputs, Task.MAYBE)
         instance._set_likely_task(self.default_task)
 
 

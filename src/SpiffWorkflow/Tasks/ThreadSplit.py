@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception    import WorkflowException
-from TaskSpec                   import TaskSpec
-from ThreadStart                import ThreadStart
+from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Exception import WorkflowException
+from TaskSpec                import TaskSpec
+from ThreadStart             import ThreadStart
 
 class ThreadSplit(TaskSpec):
     """
@@ -99,10 +99,10 @@ class ThreadSplit(TaskSpec):
         May be called after execute() was already completed to create an
         additional outbound instance.
         """
-        # Find a TaskInstance for this task.
+        # Find a Task for this task.
         my_instance = self._find_my_instance(instance.job)
         for output in self.outputs:
-            state        = TaskInstance.READY | TaskInstance.TRIGGERED
+            state        = Task.READY | Task.TRIGGERED
             new_instance = my_instance.add_child(output, state)
 
 
@@ -116,9 +116,9 @@ class ThreadSplit(TaskSpec):
         for i in range(split_n):
             outputs.append(self.thread_starter)
         if instance._is_definite():
-            child_state = TaskInstance.FUTURE
+            child_state = Task.FUTURE
         else:
-            child_state = TaskInstance.LIKELY
+            child_state = Task.LIKELY
         instance._update_children(outputs, child_state)
 
 

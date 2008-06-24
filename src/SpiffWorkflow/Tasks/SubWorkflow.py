@@ -14,11 +14,11 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import os.path
-from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception    import WorkflowException
-from SpiffWorkflow.Operators    import valueof
-from SpiffWorkflow.Storage      import XmlReader
-from TaskSpec                   import TaskSpec
+from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.Operators import valueof
+from SpiffWorkflow.Storage   import XmlReader
+from TaskSpec                import TaskSpec
 import SpiffWorkflow.Job
 
 class SubWorkflow(TaskSpec):
@@ -64,10 +64,10 @@ class SubWorkflow(TaskSpec):
         for output in self.outputs:
             if output not in outputs:
                 outputs.insert(0, output)
-        if instance._has_state(TaskInstance.LIKELY):
-            instance._update_children(outputs, TaskInstance.LIKELY)
+        if instance._has_state(Task.LIKELY):
+            instance._update_children(outputs, Task.LIKELY)
         else:
-            instance._update_children(outputs, TaskInstance.FUTURE)
+            instance._update_children(outputs, Task.FUTURE)
 
 
     def _on_ready_before_hook(self, instance):
@@ -80,7 +80,7 @@ class SubWorkflow(TaskSpec):
         subjob.signal_connect('completed', self._on_subjob_completed, instance)
 
         # Integrate the tree of the subjob into the tree of this job.
-        instance._update_children(self.outputs, TaskInstance.FUTURE)
+        instance._update_children(self.outputs, Task.FUTURE)
         for child in instance.children:
             child._inherit_attributes()
         for child in subjob.task_tree.children:

@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,MA  02110-1301  USA
-from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception    import WorkflowException
-from TaskSpec                   import TaskSpec
+from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Exception import WorkflowException
+from TaskSpec                import TaskSpec
 
 class AcquireMutex(TaskSpec):
     """
@@ -44,7 +44,7 @@ class AcquireMutex(TaskSpec):
         mutex = instance.job.get_mutex(self.mutex)
         if mutex.testandset():
             return True
-        instance._set_state(TaskInstance.WAITING)
+        instance._set_state(Task.WAITING)
         return False
 
 

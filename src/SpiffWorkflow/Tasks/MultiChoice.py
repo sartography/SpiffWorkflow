@@ -14,10 +14,10 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import re
-from SpiffWorkflow.Operators    import *
-from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception    import WorkflowException
-from TaskSpec                   import TaskSpec
+from SpiffWorkflow.Operators import *
+from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Exception import WorkflowException
+from TaskSpec                import TaskSpec
 
 class MultiChoice(TaskSpec):
     """
@@ -84,7 +84,7 @@ class MultiChoice(TaskSpec):
 
 
     def _predict_hook(self, instance):
-        instance._update_children(self.outputs, TaskInstance.MAYBE)
+        instance._update_children(self.outputs, Task.MAYBE)
 
 
     def _on_complete_hook(self, instance):

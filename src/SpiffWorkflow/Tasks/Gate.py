@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception    import WorkflowException
-from TaskSpec                   import TaskSpec
+from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Exception import WorkflowException
+from TaskSpec                import TaskSpec
 
 class Gate(TaskSpec):
     """
@@ -49,8 +49,8 @@ class Gate(TaskSpec):
         for node in root_node._find_any(task):
             if node.thread_id != instance.thread_id:
                 continue
-            if not node._has_state(TaskInstance.COMPLETED):
-                instance._set_state(TaskInstance.WAITING)
+            if not node._has_state(Task.COMPLETED):
+                instance._set_state(Task.WAITING)
                 return False
         return TaskSpec._update_state_hook(self, instance)
 

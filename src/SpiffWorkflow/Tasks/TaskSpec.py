@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.Trackable    import Trackable
-from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception    import WorkflowException
-from SpiffWorkflow.Operators    import valueof
+from SpiffWorkflow.Trackable import Trackable
+from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.Operators import valueof
 
 class Assign(object):
     def __init__(self, left_attribute, **kwargs):
@@ -195,7 +195,7 @@ class TaskSpec(Trackable):
             return
         if not instance._is_definite():
             seen.append(self)
-        if instance._has_state(TaskInstance.MAYBE):
+        if instance._has_state(Task.MAYBE):
             looked_ahead += 1
             if looked_ahead >= self.lookahead:
                 return
@@ -207,9 +207,9 @@ class TaskSpec(Trackable):
 
     def _predict_hook(self, instance):
         if instance._is_definite():
-            child_state = TaskInstance.FUTURE
+            child_state = Task.FUTURE
         else:
-            child_state = TaskInstance.LIKELY
+            child_state = Task.LIKELY
         instance._update_children(self.outputs, child_state)
 
 
@@ -224,7 +224,7 @@ class TaskSpec(Trackable):
     def _update_state_hook(self, instance):
         was_predicted = instance._is_predicted()
         if not instance.parent._is_finished():
-            instance.state = TaskInstance.FUTURE
+            instance.state = Task.FUTURE
         if was_predicted:
             self._predict(instance)
         if instance.parent._is_finished():

@@ -16,7 +16,7 @@
 import time
 from Exception import WorkflowException
 
-class TaskInstance(object):
+class Task(object):
     """
     This class implements a node for composing a tree that represents the
     taken/not yet taken path within the workflow.
@@ -74,8 +74,8 @@ class TaskInstance(object):
             current     = self.path[-1]
             ignore_node = False
             if self.filter is not None:
-                search_predicted = self.filter   & TaskInstance.LIKELY != 0
-                is_predicted     = current.state & TaskInstance.LIKELY != 0
+                search_predicted = self.filter   & Task.LIKELY != 0
+                is_predicted     = current.state & Task.LIKELY != 0
                 ignore_node      = is_predicted and not search_predicted
             if len(current.children) > 0 and not ignore_node:
                 self.path.append(current.children[0])
@@ -109,7 +109,7 @@ class TaskInstance(object):
                     return next
 
 
-    # Pool for assigning a unique id to every new TaskInstance.
+    # Pool for assigning a unique id to every new Task.
     id_pool        = 0
     thread_id_pool = 0
 
@@ -123,7 +123,7 @@ class TaskInstance(object):
         self.job                 = job
         self.parent              = parent
         self.children            = []
-        self.state               = TaskInstance.FUTURE
+        self.state               = Task.FUTURE
         self.task                = task
         self.id                  = self.__class__.id_pool
         self.thread_id           = self.__class__.thread_id_pool
@@ -135,13 +135,13 @@ class TaskInstance(object):
 
 
     def __iter__(self):
-        return TaskInstance.Iterator(self)
+        return Task.Iterator(self)
 
 
     def __setstate__(self, dict):
         self.__dict__.update(dict)
         # If unpickled in the same Python process in which a workflow
-        # (TaskInstance) is built through the API, we need to make sure
+        # (Task) is built through the API, we need to make sure
         # that there will not be any ID collisions.
         if dict['id'] >= self.__class__.id_pool:
             self.__class__.id_pool = dict['id']
@@ -169,7 +169,7 @@ class TaskInstance(object):
 
     def _child_added_notify(self, child):
         """
-        Called by another TaskInstance to let us know that a child was added.
+        Called by another Task to let us know that a child was added.
         """
         assert child is not None
         self.children.append(child)
@@ -193,7 +193,7 @@ class TaskInstance(object):
 
     def _has_state(self, state):
         """
-        Returns True if the TaskInstance has the given state flag set.
+        Returns True if the Task has the given state flag set.
         """
         return (self.state & state) != 0
 
@@ -222,7 +222,7 @@ class TaskInstance(object):
         if self._is_predicted() and state & self.PREDICTED_MASK == 0:
             msg = 'Attempt to add non-predicted child to predicted node'
             raise WorkflowException(self, msg)
-        node           = TaskInstance(self.job, task, self)
+        node           = Task(self.job, task, self)
         node.thread_id = self.thread_id
         if state == self.READY:
             node._ready()
@@ -278,7 +278,7 @@ class TaskInstance(object):
         remove = []
         for child in self.children:
             # Must not be TRIGGERED or COMPLETED.
-            if child._has_state(TaskInstance.TRIGGERED):
+            if child._has_state(Task.TRIGGERED):
                 if state is None:
                     child.task._update_state(child)
                 continue
@@ -345,7 +345,7 @@ class TaskInstance(object):
 
     def _find_child_of(self, parent_task):
         """
-        Returns the ancestor that has a TaskInstance with the given TaskSpec
+        Returns the ancestor that has a Task with the given TaskSpec
         as a parent.
         If no such ancestor was found, the root node is returned.
 
@@ -424,14 +424,14 @@ class TaskInstance(object):
 
     def get_state(self):
         """
-        Returns this TaskInstance's state.
+        Returns this Task's state.
         """
         return self.state
 
 
     def get_state_name(self):
         """
-        Returns a textual representation of this TaskInstance's state.
+        Returns a textual representation of this Task's state.
         """
         state_name = []
         for key, name in self.state_names.iteritems():
@@ -537,7 +537,7 @@ class TaskInstance(object):
         dbg  = (' ' * indent * 2)
         dbg += '%s/'                 % self.id
         dbg += '%s:'                 % self.thread_id
-        dbg += ' TaskInstance of %s' % self.get_name()
+        dbg += ' Task of %s' % self.get_name()
         dbg += ' State: %s'          % self.get_state_name()
         dbg += ' Children: %s'       % len(self.children)
         if recursive:

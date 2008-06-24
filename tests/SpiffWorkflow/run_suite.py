@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import os, sys, unittest
 
-modules = ['TaskInstanceTest',
+modules = ['TaskTest',
            'OpenWfeXmlReaderTest',
            'PatternTest',
            'PersistenceTest',

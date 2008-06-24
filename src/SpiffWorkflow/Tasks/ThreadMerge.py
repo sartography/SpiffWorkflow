@@ -13,11 +13,11 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception    import WorkflowException
-from SpiffWorkflow.Operators    import valueof
-from TaskSpec                   import TaskSpec
-from Join                       import Join
+from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.Operators import valueof
+from TaskSpec                import TaskSpec
+from Join                    import Join
 
 class ThreadMerge(Join):
     """
@@ -48,9 +48,9 @@ class ThreadMerge(Join):
 
     def try_fire(self, instance):
         # If the threshold was already reached, there is nothing else to do.
-        if instance._has_state(TaskInstance.COMPLETED):
+        if instance._has_state(Task.COMPLETED):
             return False
-        if instance._has_state(TaskInstance.READY):
+        if instance._has_state(Task.READY):
             return True
 
         # Retrieve a list of all activated instances from the associated
@@ -96,7 +96,7 @@ class ThreadMerge(Join):
 
     def _update_state_hook(self, instance):
         if not self.try_fire(instance):
-            instance._set_state(TaskInstance.WAITING)
+            instance._set_state(Task.WAITING)
             return False
 
         split_task = instance.job.get_task_from_name(self.split_task)
@@ -121,7 +121,7 @@ class ThreadMerge(Join):
                 self.signal_emit('entered', instance.job, instance)
                 node._ready()
             else:
-                node.state = TaskInstance.COMPLETED
+                node.state = Task.COMPLETED
                 node._drop_children()
         return False
 

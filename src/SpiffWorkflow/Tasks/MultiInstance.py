@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception    import WorkflowException
-from SpiffWorkflow.Operators    import valueof
-from TaskSpec                   import TaskSpec
+from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.Operators import valueof
+from TaskSpec                import TaskSpec
 
 class MultiInstance(TaskSpec):
     """
@@ -57,13 +57,13 @@ class MultiInstance(TaskSpec):
         May be called after execute() was already completed to create an
         additional outbound instance.
         """
-        # Find a TaskInstance for this task.
+        # Find a Task for this task.
         my_instance = self._find_my_instance(instance)
         for output in self.outputs:
-            if my_instance._has_state(TaskInstance.COMPLETED):
-                state = TaskInstance.READY | TaskInstance.TRIGGERED
+            if my_instance._has_state(Task.COMPLETED):
+                state = Task.READY | Task.TRIGGERED
             else:
-                state = TaskInstance.FUTURE | TaskInstance.TRIGGERED
+                state = Task.FUTURE | Task.TRIGGERED
             node = my_instance._add_child(output, state)
             output._predict(node)
 
@@ -89,10 +89,10 @@ class MultiInstance(TaskSpec):
         for i in range(split_n):
             outputs += self.outputs
 
-        if instance._has_state(TaskInstance.LIKELY):
-            child_state = TaskInstance.LIKELY
+        if instance._has_state(Task.LIKELY):
+            child_state = Task.LIKELY
         else:
-            child_state = TaskInstance.FUTURE
+            child_state = Task.FUTURE
         instance._update_children(outputs, child_state)
 
 

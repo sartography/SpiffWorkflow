@@ -14,9 +14,9 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import Tasks
-from mutex        import mutex
-from Trackable    import Trackable
-from TaskInstance import TaskInstance
+from mutex     import mutex
+from Trackable import Trackable
+from Task      import Task
 
 class Job(Trackable):
     """
@@ -36,12 +36,12 @@ class Job(Trackable):
         self.outer_job       = kwargs.get('parent', self)
         self.locks           = {}
         self.last_node       = None
-        self.task_tree       = TaskInstance(self, Tasks.Simple(workflow, 'Root'))
+        self.task_tree       = Task(self, Tasks.Simple(workflow, 'Root'))
         self.success         = True
         self.debug           = False
 
         # Prevent the root node from being executed.
-        self.task_tree.state = TaskInstance.COMPLETED
+        self.task_tree.state = Task.COMPLETED
         start                = self.task_tree._add_child(workflow.start)
 
         workflow.start._predict(start)
@@ -54,8 +54,8 @@ class Job(Trackable):
         """
         Returns True if the entire Job is completed, False otherwise.
         """
-        mask = TaskInstance.NOT_FINISHED_MASK
-        iter = TaskInstance.Iterator(self.task_tree, mask)
+        mask = Task.NOT_FINISHED_MASK
+        iter = Task.Iterator(self.task_tree, mask)
         try:
             next = iter.next()
         except:
@@ -65,7 +65,7 @@ class Job(Trackable):
 
 
     def _get_waiting_tasks(self):
-        waiting = TaskInstance.Iterator(self.task_tree, TaskInstance.WAITING)
+        waiting = Task.Iterator(self.task_tree, Task.WAITING)
         return [w for w in waiting]
 
 
@@ -110,8 +110,8 @@ class Job(Trackable):
         """
         self.success = success
         cancel       = []
-        mask         = TaskInstance.NOT_FINISHED_MASK
-        for node in TaskInstance.Iterator(self.task_tree, mask):
+        mask         = Task.NOT_FINISHED_MASK
+        for node in Task.Iterator(self.task_tree, mask):
             cancel.append(node)
         for node in cancel:
             node.cancel()
@@ -121,12 +121,12 @@ class Job(Trackable):
         return self.workflow.tasks[name]
 
 
-    def get_tasks(self, state = TaskInstance.ANY_MASK):
+    def get_tasks(self, state = Task.ANY_MASK):
         """
         Returns a list of objects that each reference a task with the given
         state.
         """
-        return [t for t in TaskInstance.Iterator(self.task_tree, state)]
+        return [t for t in Task.Iterator(self.task_tree, state)]
 
 
     def complete_task_from_id(self, node_id):
@@ -156,7 +156,7 @@ class Job(Trackable):
         blacklist = []
         if pick_up and self.last_node is not None:
             try:
-                iter = TaskInstance.Iterator(self.last_node, TaskInstance.READY)
+                iter = Task.Iterator(self.last_node, Task.READY)
                 next = iter.next()
             except:
                 next = None
@@ -168,7 +168,7 @@ class Job(Trackable):
                 blacklist.append(next)
 
         # Walk through all waiting tasks.
-        for node in TaskInstance.Iterator(self.task_tree, TaskInstance.READY):
+        for node in Task.Iterator(self.task_tree, Task.READY):
             for blacklisted_node in blacklist:
                 if node._is_descendant_of(blacklisted_node):
                     continue

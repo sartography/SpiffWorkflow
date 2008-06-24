@@ -6,7 +6,7 @@ def suite():
     return unittest.TestSuite(map(PatternTest, tests))
 
 from SpiffWorkflow.Tasks   import *
-from SpiffWorkflow         import Workflow, Job, TaskInstance
+from SpiffWorkflow         import Workflow, Job, Task
 from SpiffWorkflow.Storage import XmlReader
 from xml.parsers.expat     import ExpatError
 
@@ -116,7 +116,7 @@ class PatternTest(unittest.TestCase):
                    + job.task_tree.get_dump())
 
         # Make sure that there are no waiting tasks left in the tree.
-        for node in TaskInstance.Iterator(job.task_tree, TaskInstance.READY):
+        for node in Task.Iterator(job.task_tree, Task.READY):
             job.task_tree.dump()
             raise Exception('Node with state READY: %s' % node.name)
 

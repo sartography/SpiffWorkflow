@@ -3,13 +3,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 def suite():
     tests = ['testTree']
-    return unittest.TestSuite(map(TaskInstanceTest, tests))
+    return unittest.TestSuite(map(TaskTest, tests))
 
-from SpiffWorkflow           import Workflow, TaskInstance
+from SpiffWorkflow           import Workflow, Task
 from SpiffWorkflow.Tasks     import Simple
 from SpiffWorkflow.Exception import WorkflowException
 
-class TaskInstanceTest(unittest.TestCase):
+class TaskTest(unittest.TestCase):
     def setUp(self):
         pass
 
@@ -26,27 +26,27 @@ class TaskInstanceTest(unittest.TestCase):
         task7    = Simple(wf, 'Simple 7')
         task8    = Simple(wf, 'Simple 8')
         task9    = Simple(wf, 'Simple 9')
-        root     = TaskInstance(object, task1)
+        root     = Task(object, task1)
         c1       = root._add_child(task2)
         c11      = c1._add_child(task3)
         c111     = c11._add_child(task4)
-        c1111    = TaskInstance(object, task5, c111)
-        c112     = TaskInstance(object, task6, c11)
-        c12      = TaskInstance(object, task7, c1)
-        c2       = TaskInstance(object, task8, root)
-        c3       = TaskInstance(object, task9, root)
-        c3.state = TaskInstance.COMPLETED
+        c1111    = Task(object, task5, c111)
+        c112     = Task(object, task6, c11)
+        c12      = Task(object, task7, c1)
+        c2       = Task(object, task8, root)
+        c3       = Task(object, task9, root)
+        c3.state = Task.COMPLETED
 
         # Check whether the tree is built properly.
-        expected = """1/0: TaskInstance of Simple 1 State: FUTURE Children: 3
-  2/0: TaskInstance of Simple 2 State: FUTURE Children: 2
-    3/0: TaskInstance of Simple 3 State: FUTURE Children: 2
-      4/0: TaskInstance of Simple 4 State: FUTURE Children: 1
-        5/0: TaskInstance of Simple 5 State: FUTURE Children: 0
-      6/0: TaskInstance of Simple 6 State: FUTURE Children: 0
-    7/0: TaskInstance of Simple 7 State: FUTURE Children: 0
-  8/0: TaskInstance of Simple 8 State: FUTURE Children: 0
-  9/0: TaskInstance of Simple 9 State: COMPLETED Children: 0"""
+        expected = """1/0: Task of Simple 1 State: FUTURE Children: 3
+  2/0: Task of Simple 2 State: FUTURE Children: 2
+    3/0: Task of Simple 3 State: FUTURE Children: 2
+      4/0: Task of Simple 4 State: FUTURE Children: 1
+        5/0: Task of Simple 5 State: FUTURE Children: 0
+      6/0: Task of Simple 6 State: FUTURE Children: 0
+    7/0: Task of Simple 7 State: FUTURE Children: 0
+  8/0: Task of Simple 8 State: FUTURE Children: 0
+  9/0: Task of Simple 9 State: COMPLETED Children: 0"""
         self.assert_(expected == root.get_dump(),
                      'Expected:\n' + repr(expected) + '\n' + \
                      'but got:\n'  + repr(root.get_dump()))
@@ -61,7 +61,7 @@ class TaskInstanceTest(unittest.TestCase):
 
         # Run the iterator test.
         result = ''
-        for node in TaskInstance.Iterator(root, TaskInstance.FUTURE):
+        for node in Task.Iterator(root, Task.FUTURE):
             result += node.get_dump(0, False) + '\n'
         self.assert_(expected2 == result,
                      'Expected:\n' + expected2 + '\n' + \

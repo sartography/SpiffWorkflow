@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.TaskInstance import TaskInstance
-from SpiffWorkflow.Exception    import WorkflowException
-from SpiffWorkflow.Operators    import valueof
-from TaskSpec                   import TaskSpec
+from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.Operators import valueof
+from TaskSpec                import TaskSpec
 
 class Join(TaskSpec):
     """
@@ -52,7 +52,7 @@ class Join(TaskSpec):
         # Determine whether that branch is now completed by checking whether
         # it has any waiting items other than myself in it.
         skip  = None
-        for node in TaskInstance.Iterator(instance, instance.NOT_FINISHED_MASK):
+        for node in Task.Iterator(instance, instance.NOT_FINISHED_MASK):
             # If the current node is a child of myself, ignore it.
             if skip is not None and node._is_descendant_of(skip):
                 continue
@@ -66,7 +66,7 @@ class Join(TaskSpec):
     def _branch_may_merge_at(self, instance):
         for node in instance:
             # Ignore nodes that were created by a trigger.
-            if node._has_state(TaskInstance.TRIGGERED):
+            if node._has_state(Task.TRIGGERED):
                 continue
             # Merge found.
             if node.task == self:
@@ -93,9 +93,9 @@ class Join(TaskSpec):
 
     def _try_fire_unstructured(self, instance, force = False):
         # If the threshold was already reached, there is nothing else to do.
-        if instance._has_state(TaskInstance.COMPLETED):
+        if instance._has_state(Task.COMPLETED):
             return False
-        if instance._has_state(TaskInstance.READY):
+        if instance._has_state(Task.READY):
             return True
 
         # The default threshold is the number of inputs.
@@ -117,7 +117,7 @@ class Join(TaskSpec):
         waiting_nodes = []
         completed     = 0
         for node in nodes:
-            if node.parent is None or node._has_state(TaskInstance.COMPLETED):
+            if node.parent is None or node._has_state(Task.COMPLETED):
                 completed += 1
             else:
                 waiting_nodes.append(node)
@@ -136,9 +136,9 @@ class Join(TaskSpec):
 
     def _try_fire_structured(self, instance, force = False):
         # If the threshold was already reached, there is nothing else to do.
-        if instance._has_state(TaskInstance.READY):
+        if instance._has_state(Task.READY):
             return True
-        if instance._has_state(TaskInstance.COMPLETED):
+        if instance._has_state(Task.COMPLETED):
             return False
 
         # Retrieve a list of all activated instances from the associated
@@ -214,7 +214,7 @@ class Join(TaskSpec):
                 self.signal_emit('entered', instance.job, instance)
                 node._ready()
             else:
-                node.state = TaskInstance.COMPLETED
+                node.state = Task.COMPLETED
                 node._drop_children()
         return False
 
@@ -232,7 +232,7 @@ class Join(TaskSpec):
 
     def _update_state_hook(self, instance):
         if not self.try_fire(instance):
-            instance.state = TaskInstance.WAITING
+            instance.state = Task.WAITING
             return False
         return self._do_join(instance)
 
