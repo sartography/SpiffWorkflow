@@ -202,7 +202,7 @@ class TaskSpec(Trackable):
         if not instance._is_finished():
             self._predict_hook(instance)
         for node in instance.children:
-            node.task._predict(node, seen[:], looked_ahead)
+            node.spec._predict(node, seen[:], looked_ahead)
 
 
     def _predict_hook(self, instance):

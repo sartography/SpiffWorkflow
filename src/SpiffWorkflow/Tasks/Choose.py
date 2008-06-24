@@ -58,6 +58,6 @@ class Choose(Trigger):
         for node in instance.job.task_tree:
             if node.thread_id != instance.thread_id:
                 continue
-            if node.task == context:
+            if node.spec == context:
                 node.trigger(self.choice)
         return TaskSpec._on_complete_hook(self, instance)

@@ -56,7 +56,7 @@ class Trigger(TaskSpec):
         for node in instance.job.task_tree:
             if node.thread_id != instance.thread_id:
                 continue
-            if node.task == self and node._has_state(Task.COMPLETED):
+            if node.spec == self and node._has_state(Task.COMPLETED):
                 node.state = Task.FUTURE
                 node._ready()
 

@@ -46,7 +46,7 @@ class Job(Trackable):
 
         workflow.start._predict(start)
         if not kwargs.has_key('parent'):
-            start.task._update_state(start)
+            start.spec._update_state(start)
         #start.dump()
 
 
@@ -74,7 +74,7 @@ class Job(Trackable):
             self.attributes.update(instance.get_attributes())
         # Update the state of every WAITING node.
         for node in self._get_waiting_tasks():
-            node.task._update_state(node)
+            node.spec._update_state(node)
         if self.signal_subscribers('completed') == 0:
             # Since is_completed() is expensive it makes sense to bail
             # out if calling it is not necessary.

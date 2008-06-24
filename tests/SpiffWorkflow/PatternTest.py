@@ -52,10 +52,10 @@ def on_reached_cb(job, task, taken_path):
     # re-assign the function in every step, thus making sure that new
     # children also call on_ready_cb().
     for child in task.children:
-        if not child.task.signal_is_connected('reached', on_reached_cb):
-            child.task.signal_connect('reached', on_reached_cb, taken_path)
-        if not child.task.signal_is_connected('completed', on_complete_cb):
-            child.task.signal_connect('completed', on_complete_cb, taken_path)
+        if not child.spec.signal_is_connected('reached', on_reached_cb):
+            child.spec.signal_connect('reached', on_reached_cb, taken_path)
+        if not child.spec.signal_is_connected('completed', on_complete_cb):
+            child.spec.signal_connect('completed', on_complete_cb, taken_path)
     return True
 
 

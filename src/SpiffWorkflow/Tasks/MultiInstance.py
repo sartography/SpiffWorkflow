@@ -47,7 +47,7 @@ class MultiInstance(TaskSpec):
         for node in instance.job.task_tree:
             if node.thread_id != instance.thread_id:
                 continue
-            if node.task == self:
+            if node.spec == self:
                 return node
         return None
 

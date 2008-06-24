@@ -113,18 +113,18 @@ class Task(object):
     id_pool        = 0
     thread_id_pool = 0
 
-    def __init__(self, job, task, parent = None):
+    def __init__(self, job, spec, parent = None):
         """
         Constructor.
         """
-        assert job  is not None
-        assert task is not None
+        assert job      is not None
+        assert spec is not None
         self.__class__.id_pool  += 1
         self.job                 = job
         self.parent              = parent
         self.children            = []
         self.state               = Task.FUTURE
-        self.task                = task
+        self.spec            = spec
         self.id                  = self.__class__.id_pool
         self.thread_id           = self.__class__.thread_id_pool
         self.last_state_change   = time.time()
@@ -160,10 +160,10 @@ class Task(object):
 
     def _get_depth(self):
         depth = 0
-        node  = self.parent
-        while node is not None:
+        task  = self.parent
+        while task is not None:
             depth += 1
-            node = node.parent
+            task = task.parent
         return depth
 
 
@@ -182,8 +182,8 @@ class Task(object):
                 drop.append(child)
             else:
                 child._drop_children()
-        for node in drop:
-            self.children.remove(node)
+        for task in drop:
+            self.children.remove(task)
 
 
     def _set_state(self, state):
@@ -210,25 +210,25 @@ class Task(object):
         return self.state & self.DEFINITE_MASK != 0
 
 
-    def _add_child(self, task, state = FUTURE):
+    def _add_child(self, spec, state = FUTURE):
         """
-        Adds a new child node and assigns the given task to the new node.
+        Adds a new child task and assigns the given task to the new node.
 
         task -- the task that is assigned to the new node.
         state -- the initial node state
         """
-        if task is None:
-            raise WorkflowException(self, '_add_child() requires a task.')
+        if spec is None:
+            raise WorkflowException(self, '_add_child() requires a task spec.')
         if self._is_predicted() and state & self.PREDICTED_MASK == 0:
-            msg = 'Attempt to add non-predicted child to predicted node'
+            msg = 'Attempt to add non-predicted child to predicted task'
             raise WorkflowException(self, msg)
-        node           = Task(self.job, task, self)
-        node.thread_id = self.thread_id
+        task           = Task(self.job, spec, self)
+        task.thread_id = self.thread_id
         if state == self.READY:
-            node._ready()
+            task._ready()
         else:
-            node.state = state
-        return node
+            task.state = state
+        return task
 
 
     def _assign_new_thread_id(self, recursive = True):
@@ -240,12 +240,12 @@ class Task(object):
         self.thread_id = self.__class__.thread_id_pool
         if not recursive:
             return self.thread_id
-        for node in self:
-            node.thread_id = self.thread_id
+        for child in self:
+            child.thread_id = self.thread_id
         return self.thread_id
 
 
-    def _update_children(self, tasks, state = None):
+    def _update_children(self, taskspecs, state = None):
         """
         This method adds one child for each given task, unless that
         child already exists.
@@ -267,61 +267,61 @@ class Task(object):
         task -- the list of tasks that may become children.
         state -- the state for newly added children
         """
-        if tasks is None:
-            raise WorkflowException(self, '"tasks" argument is None.')
-        if type(tasks) != type([]):
-            tasks = [tasks]
+        if taskspecs is None:
+            raise WorkflowException(self, '"taskspecs" argument is None.')
+        if type(taskspecs) != type([]):
+            taskspecs = [taskspecs]
 
         # Create a list of all children that are no longer needed, and
         # set the state of all others.
-        add    = tasks[:]
+        add    = taskspecs[:]
         remove = []
         for child in self.children:
             # Must not be TRIGGERED or COMPLETED.
             if child._has_state(Task.TRIGGERED):
                 if state is None:
-                    child.task._update_state(child)
+                    child.spec._update_state(child)
                 continue
             if child._is_finished():
-                add.remove(child.task)
+                add.remove(child.spec)
                 continue
 
             # Check whether the item needs to be added or removed.
-            if child.task not in add:
+            if child.spec not in add:
                 if not self._is_definite():
                     msg = 'Attempt to remove non-predicted %s' % child.get_name()
                     raise WorkflowException(self, msg)
                 remove.append(child)
                 continue
-            add.remove(child.task)
+            add.remove(child.spec)
 
             # Update the state.
             if state is not None:
                 child.state = state
             else:
-                child.task._update_state(child)
+                child.spec._update_state(child)
 
         # Remove all children that are no longer specified.
         for child in remove:
             self.children.remove(child)
 
         # Add a new child for each of the remaining tasks.
-        for task in add:
-            if task.cancelled:
+        for spec in add:
+            if spec.cancelled:
                 continue
             if state is not None:
-                self._add_child(task, state)
+                self._add_child(spec, state)
             else:
-                node = self._add_child(task, self.LIKELY)
-                task._update_state(node)
+                child = self._add_child(spec, self.LIKELY)
+                spec._update_state(child)
 
 
-    def _set_likely_task(self, tasks):
-        if type(tasks) != type([]):
-            tasks = [tasks]
-        for task in tasks:
+    def _set_likely_task(self, taskspecs):
+        if type(taskspecs) != type([]):
+            taskspecs = [taskspecs]
+        for spec in taskspecs:
             for child in self.children:
-                if child.task != task:
+                if child.spec != spec:
                     continue
                 if child._is_definite():
                     continue
@@ -365,27 +365,27 @@ class Task(object):
         task -- the wanted task
         """
         instances = []
-        if self.task == task:
+        if self.spec == task:
             instances.append(self)
         for node in self:
-            if node.task != task:
+            if node.spec != task:
                 continue
             instances.append(node)
         return instances
 
 
-    def _find_ancestor(self, task):
+    def _find_ancestor(self, spec):
         """
-        Returns the ancestor that has the given task assigned.
+        Returns the ancestor that has the given task spec assigned.
         If no such ancestor was found, the root node is returned.
 
         task -- the wanted task
         """
         if self.parent is None:
             return self
-        if self.parent.task == task:
+        if self.parent.spec == spec:
             return self.parent
-        return self.parent._find_ancestor(task)
+        return self.parent._find_ancestor(spec)
 
 
     def _find_ancestor_from_name(self, name):
@@ -411,15 +411,15 @@ class Task(object):
         if self.state & self.CANCELLED != 0:
             return
         self._set_state(self.READY | (self.state & self.TRIGGERED))
-        return self.task._on_ready(self)
+        return self.spec._on_ready(self)
 
 
     def get_name(self):
-        return str(self.task.name)
+        return str(self.spec.name)
 
 
     def get_description(self):
-        return str(self.task.description)
+        return str(self.spec.description)
 
 
     def get_state(self):
@@ -449,14 +449,14 @@ class Task(object):
         default -- the default value that is returned if the property does 
                    not exist.
         """
-        return self.task.get_property(name, default)
+        return self.spec.get_property(name, default)
 
 
     def get_properties(self):
         """
         Returns a dictionary containing all properties.
         """
-        return self.task.properties
+        return self.spec.properties
 
 
     def _set_internal_attribute(self, **kwargs):
@@ -511,7 +511,7 @@ class Task(object):
             return
         self._set_state(self.CANCELLED | (self.state & self.TRIGGERED))
         self._drop_children()
-        return self.task._on_cancel(self)
+        return self.spec._on_cancel(self)
 
 
     def complete(self):
@@ -520,14 +520,14 @@ class Task(object):
         has changed (e.g. from FUTURE to COMPLETED.)
         """
         self._set_state(self.COMPLETED | (self.state & self.TRIGGERED))
-        return self.task._on_complete(self)
+        return self.spec._on_complete(self)
 
 
     def trigger(self, *args):
         """
         If recursive is True, the state is applied to the tree recursively.
         """
-        self.task._on_trigger(self, *args)
+        self.spec._on_trigger(self, *args)
 
 
     def get_dump(self, indent = 0, recursive = True):

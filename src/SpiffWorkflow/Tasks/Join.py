@@ -56,7 +56,7 @@ class Join(TaskSpec):
             # If the current node is a child of myself, ignore it.
             if skip is not None and node._is_descendant_of(skip):
                 continue
-            if node.task == self:
+            if node.spec == self:
                 skip = node
                 continue
             return False
@@ -69,13 +69,13 @@ class Join(TaskSpec):
             if node._has_state(Task.TRIGGERED):
                 continue
             # Merge found.
-            if node.task == self:
+            if node.spec == self:
                 return True
             # If the node is predicted with less outputs than he has
             # children, that means the prediction may be incomplete (for
             # example, because a prediction is not yet possible at this time).
             if not node._is_definite() \
-                and len(node.task.outputs) > len(node.children):
+                and len(node.spec.outputs) > len(node.children):
                 return True
         return False
 
@@ -109,7 +109,7 @@ class Join(TaskSpec):
             for node in instance.job.task_tree:
                 if node.thread_id != instance.thread_id:
                     continue
-                if node.task != task:
+                if node.spec != task:
                     continue
                 nodes.append(node)
 
@@ -147,7 +147,7 @@ class Join(TaskSpec):
         if split_node is None:
             msg = 'Join with %s, which was not reached' % self.split_task
             raise WorkflowException(self, msg)
-        nodes = split_node.task._get_activated_instances(split_node, instance)
+        nodes = split_node.spec._get_activated_instances(split_node, instance)
 
         # The default threshold is the number of branches that were started.
         threshold = valueof(instance, self.threshold)
@@ -159,7 +159,7 @@ class Join(TaskSpec):
         completed     = 0
         for node in nodes:
             # Refresh path prediction.
-            node.task._predict(node)
+            node.spec._predict(node)
 
             if not self._branch_may_merge_at(node):
                 completed += 1

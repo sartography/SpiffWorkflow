@@ -60,7 +60,7 @@ class SubWorkflow(TaskSpec):
 
 
     def _predict_hook(self, instance):
-        outputs = [node.task for node in instance.children]
+        outputs = [node.spec for node in instance.children]
         for output in self.outputs:
             if output not in outputs:
                 outputs.insert(0, output)
@@ -100,22 +100,22 @@ class SubWorkflow(TaskSpec):
 
         self._predict(instance)
         for child in subjob.task_tree.children:
-            child.task._update_state(child)
+            child.spec._update_state(child)
         return True
 
 
     def _on_subjob_completed(self, subjob, instance):
         # Assign variables, if so requested.
         for child in instance.children:
-            if child.task in self.outputs:
+            if child.spec in self.outputs:
                 for assignment in self.out_assign:
                     assignment.assign(subjob, child)
 
                 # Alright, abusing that hook and sending the signal is 
                 # just evil but it works.
-                if not child.task._update_state_hook(child):
+                if not child.spec._update_state_hook(child):
                     return
-                child.task.signal_emit('entered', child.job, child)
+                child.spec.signal_emit('entered', child.job, child)
                 child._ready()
 
 
@@ -127,7 +127,7 @@ class SubWorkflow(TaskSpec):
         instance -- the instance in which this method is executed
         """
         for child in instance.children:
-            if child.task in self.outputs:
+            if child.spec in self.outputs:
                 continue
-            child.task._update_state(child)
+            child.spec._update_state(child)
         return True

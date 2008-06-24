@@ -59,7 +59,7 @@ class ThreadMerge(Join):
         if split_node is None:
             msg = 'Join with %s, which was not reached' % self.split_task
             raise WorkflowException(self, msg)
-        nodes = split_node.task._get_activated_threads(split_node)
+        nodes = split_node.spec._get_activated_threads(split_node)
 
         # The default threshold is the number of threads that were started.
         threshold = valueof(instance, self.threshold)
@@ -71,7 +71,7 @@ class ThreadMerge(Join):
         completed     = 0
         for node in nodes:
             # Refresh path prediction.
-            node.task._predict(node)
+            node.spec._predict(node)
 
             if self._branch_is_complete(node):
                 completed += 1
