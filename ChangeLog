@@ -1,3 +1,9 @@
+2008-07-24 Samuel Abels <http://debain.org>
+
+	* all-over: Rename Tasks.Task to Tasks.TaskSpec. Rename TaskInstance to
+	Task.
+	* Tasks/Simple.py: New.
+
 2008-07-22 Samuel Abels <http://debain.org>
 
 	* all-over: Major cleanups/redesign, got gid of a lot of useless code.
