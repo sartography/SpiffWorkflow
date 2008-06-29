@@ -1,3 +1,9 @@
+2008-06-29 Samuel Abels <http://debain.org>
+
+	* src/SpiffWorkflow/Job.py, src/SpiffWorkflow/Tasks/TaskSpec.py: Got rid of 
+	useless reference to Trackable.
+	* src/SpiffWorkflow/Trackable.py: Removed useless file.
+
 2008-06-25 Samuel Abels <http://debain.org>
 
 	* all-over: Rename Tasks.Task to Tasks.TaskSpec. Rename TaskInstance to

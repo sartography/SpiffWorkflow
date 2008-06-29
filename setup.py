@@ -23,7 +23,7 @@ because of this software!
       license          = 'lGPLv2',
       package_dir      = {'': srcdir},
       packages         = [p for p in find_packages(srcdir)],
-      requires         = ['sqlalchemy'],
+      requires         = ['sqlalchemy', 'SpiffSignal'],
       keywords         = 'spiff guard acl acls security authentication object storage',
       url              = 'http://code.google.com/p/spiff/',
       classifiers      = [
