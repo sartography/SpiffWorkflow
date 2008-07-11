@@ -3,6 +3,7 @@
 	* src/SpiffWorkflow/Job.py, src/SpiffWorkflow/Tasks/TaskSpec.py: Got rid of 
 	useless reference to Trackable.
 	* src/SpiffWorkflow/Trackable.py: Removed useless file.
+	* Makefile: New, support for dragging dependencies.
 
 2008-06-25 Samuel Abels <http://debain.org>
 
