@@ -20,26 +20,33 @@ from TaskSpec                import TaskSpec
 
 class Join(TaskSpec):
     """
-    This class represents a task for synchronizing branches that were
-    previously split using a conditional task, such as MultiChoice.
-    It has two or more incoming branches and one or more outputs.
+    A task for synchronizing branches that were previously split using a
+    conditional task, such as MultiChoice. It has two or more incoming
+    branches and one or more outputs.
     """
 
     def __init__(self, parent, name, split_task = None, **kwargs):
         """
         Constructor.
         
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the pattern (string)
-        split_task -- the task that was previously used to split the branch
-        kwargs -- may contain the following keys:
-                      threshold -- an integer that specifies how many incoming
-                      branches need to complete before the task triggers.
-                      When the limit is reached, the task fires but still
-                      expects all other branches to complete.
-                      read from the attribute with the given name at runtime.
-                      cancel -- when set to True, remaining incoming branches
-                      are cancelled as soon as the discriminator is activated.
+        @type  parent: Workflow
+        @param parent: A reference to the parent (usually a workflow).
+        @type  name: string
+        @param name: A name for the task.
+        @type  split_task: TaskSpec
+        @param split_task: The task that was previously used to split the
+                           branch.
+        @type  kwargs: dict
+        @param kwargs: The following options are supported:
+            - threshold: Specifies how many incoming branches need
+              to complete before the task triggers.
+              When the limit is reached, the task fires but still
+              expects all other branches to complete.
+              You may also pass an attribute, in which case the
+              value is determined at runtime.
+            - cancel: When True, any remaining incoming branches
+              are cancelled as soon as the discriminator is activated.
+              The default is False.
         """
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.split_task       = split_task

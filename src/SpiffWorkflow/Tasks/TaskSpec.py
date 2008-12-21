@@ -18,46 +18,24 @@ from SpiffWorkflow.Task      import Task
 from SpiffWorkflow.Exception import WorkflowException
 from SpiffWorkflow.Operators import valueof
 
-class Assign(object):
-    def __init__(self, left_attribute, **kwargs):
-        """
-        Constructor.
-
-        kwargs -- must contain one of right_attribute/right.
-        """
-        assert left_attribute is not None
-        assert kwargs.has_key('right_attribute') or kwargs.has_key('right')
-        self.left_attribute  = left_attribute
-        self.right_attribute = kwargs.get('right_attribute', None)
-        self.right           = kwargs.get('right',           None)
-
-    def assign(self, from_obj, to_obj):
-        # Fetch the value of the right expression.
-        if self.right is not None:
-            right = self.right
-        else:
-            right = from_obj.get_attribute(self.right_attribute)
-        to_obj.set_attribute(**{str(self.left_attribute): right})
-
-
 class TaskSpec(Trackable):
     """
     This class implements an abstract base type for all tasks.
 
     Tasks provide the following signals:
-      - *entered*: called when the state changes to READY or WAITING, at a 
+      - B{entered}: called when the state changes to READY or WAITING, at a 
         time where properties are not yet initialized.
-      - *reached*: called when the state changes to READY or WAITING, at a 
+      - B{reached}: called when the state changes to READY or WAITING, at a 
         time where properties are already initialized using property_assign 
         and pre-assign.
-      - *ready*: called when the state changes to READY, at a time where 
+      - B{ready}: called when the state changes to READY, at a time where 
         properties are already initialized using property_assign and 
         pre-assign.
-      - *completed*: called when the state changes to COMPLETED, at a time 
+      - B{completed}: called when the state changes to COMPLETED, at a time 
         before the post-assign variables are assigned.
-      - *cancelled*: called when the state changes to CANCELLED, at a time 
+      - B{cancelled}: called when the state changes to CANCELLED, at a time 
         before the post-assign variables are assigned.
-      - *finished*: called when the state changes to COMPLETED or CANCELLED, 
+      - B{finished}: called when the state changes to COMPLETED or CANCELLED, 
         at the last possible time and after the post-assign variables are 
         assigned.
     """
@@ -73,14 +51,17 @@ class TaskSpec(Trackable):
         Similarly, "defines" are properties that, once defined, can no 
         longer be modified.
 
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the task (string)
-        kwargs -- may contain the following keys:
-                  lock -- a list of locks that is aquired on entry of
-                  execute() and released on leave of execute().
-                  property_assign -- a list of attribute name/value pairs
-                  pre_assign -- a list of attribute name/value pairs
-                  post_assign -- a list of attribute name/value pairs
+        @type  parent: Workflow
+        @param parent: A reference to the parent (usually a workflow).
+        @type  name: string
+        @param name: A name for the task.
+        @type  kwargs: dict
+        @param kwargs: The following options are supported:
+            - lock: a list of locks that is aquired on entry of
+              execute() and released on leave of execute().
+            - property_assign: a list of attribute name/value pairs
+            - pre_assign: a list of attribute name/value pairs
+            - post_assign: a list of attribute name/value pairs
         """
         assert parent is not None
         assert name   is not None
@@ -109,7 +90,8 @@ class TaskSpec(Trackable):
         """
         Called by the previous task to let us know that it exists.
 
-        task -- the task by which this method is executed
+        @type  taskspec: TaskSpec
+        @param taskspec: The task by which this method is executed.
         """
         self.inputs.append(taskspec)
 
@@ -121,8 +103,10 @@ class TaskSpec(Trackable):
         destination node, i.e. those which have destination as a 
         descendant.
 
-        my_task -- the task of this task
-        destination -- the child task
+        @type  my_task: Task
+        @param my_task: The associated node in the task tree.
+        @type  destination: Task
+        @param destination: The destination node.
         """
         return my_task.children
 
@@ -132,7 +116,8 @@ class TaskSpec(Trackable):
         Returns the list of threads that were activated in the previous 
         call of execute().
 
-        my_task -- the my_task of this task
+        @type  my_task: Task
+        @param my_task: The associated node in the task tree.
         """
         return my_task.children
 
@@ -153,9 +138,10 @@ class TaskSpec(Trackable):
         Returns the value of the property with the given name, or the given
         default value if the property does not exist.
 
-        name -- a property name (string)
-        default -- the default value that is returned if the property does 
-                   not exist.
+        @type  name: string
+        @param name: A property name.
+        @type  default: string
+        @param default: This value is returned if the property does not exist.
         """
         return self.properties.get(name, default)
 
@@ -165,7 +151,8 @@ class TaskSpec(Trackable):
         Connect the *following* task to this one. In other words, the
         given task is added as an output task.
 
-        taskspec -- the task to connect to.
+        @type  taskspec: TaskSpec
+        @param taskspec: The new output node.
         """
         self.outputs.append(taskspec)
         taskspec._connect_notify(self)
@@ -188,6 +175,13 @@ class TaskSpec(Trackable):
         with the LIKELY flag.
 
         Should NOT be overwritten! Instead, overwrite the hook (_predict_hook).
+
+        @type  my_task: Task
+        @param my_task: The associated node in the task tree.
+        @type  seen: list[taskspec]
+        @param seen: A list of already visited tasks.
+        @type  looked_ahead: integer
+        @param looked_ahead: The depth of the predicted path so far.
         """
         if seen is None:
             seen = []
@@ -236,7 +230,10 @@ class TaskSpec(Trackable):
         """
         Return True on success, False otherwise.
 
-        my_task -- the task in which this method is executed
+        @type  my_task: Task
+        @param my_task: The associated node in the task tree.
+        @rtype:  boolean
+        @return: True on success, False otherwise.
         """
         assert my_task is not None
         assert not self.cancelled
@@ -244,7 +241,7 @@ class TaskSpec(Trackable):
 
         # Acquire locks, if any.
         for lock in self.locks:
-            mutex = my_task.job.get_mutex(lock)
+            mutex = my_task.job._get_mutex(lock)
             if not mutex.testandset():
                 return False
 
@@ -269,7 +266,7 @@ class TaskSpec(Trackable):
 
         # Release locks, if any.
         for lock in self.locks:
-            mutex = my_task.job.get_mutex(lock)
+            mutex = my_task.job._get_mutex(lock)
             mutex.unlock()
         return result
 
@@ -278,7 +275,10 @@ class TaskSpec(Trackable):
         """
         A hook into _on_ready() that does the task specific work.
 
-        my_task -- the task in which this method is executed
+        @type  my_task: Task
+        @param my_task: The associated node in the task tree.
+        @rtype:  boolean
+        @return: True on success, False otherwise.
         """
         return True
 
@@ -287,7 +287,10 @@ class TaskSpec(Trackable):
         """
         A hook into _on_ready() that does the task specific work.
 
-        my_task -- the task in which this method is executed
+        @type  my_task: Task
+        @param my_task: The associated node in the task tree.
+        @rtype:  boolean
+        @return: True on success, False otherwise.
         """
         return True
 
@@ -299,7 +302,10 @@ class TaskSpec(Trackable):
 
         Return True on success, False otherwise.
 
-        my_task -- the task in which this method is executed
+        @type  my_task: Task
+        @param my_task: The associated node in the task tree.
+        @rtype:  boolean
+        @return: True on success, False otherwise.
         """
         return True
 
@@ -309,9 +315,10 @@ class TaskSpec(Trackable):
         May be called by another task to trigger a task-specific
         event.
 
-        Return True on success, False otherwise.
-
-        my_task -- the task in which this method is executed
+        @type  my_task: Task
+        @param my_task: The associated node in the task tree.
+        @rtype:  boolean
+        @return: True on success, False otherwise.
         """
         raise NotImplementedError("Trigger not supported by this task.")
 
@@ -321,7 +328,10 @@ class TaskSpec(Trackable):
         Return True on success, False otherwise. Should not be overwritten,
         overwrite _on_complete_hook() instead.
 
-        my_task -- the task in which this method is executed
+        @type  my_task: Task
+        @param my_task: The associated node in the task tree.
+        @rtype:  boolean
+        @return: True on success, False otherwise.
         """
         assert my_task is not None
         assert not self.cancelled
@@ -346,7 +356,10 @@ class TaskSpec(Trackable):
         """
         A hook into _on_complete() that does the task specific work.
 
-        my_task -- the task in which this method is executed
+        @type  my_task: Task
+        @param my_task: The associated node in the task tree.
+        @rtype:  boolean
+        @return: True on success, False otherwise.
         """
         # If we have more than one output, implicitly split.
         my_task._update_children(self.outputs)

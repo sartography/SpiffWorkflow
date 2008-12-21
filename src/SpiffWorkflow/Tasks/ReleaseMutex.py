@@ -47,6 +47,6 @@ class ReleaseMutex(TaskSpec):
 
         my_task -- the task in which this method is executed
         """
-        mutex = my_task.job.get_mutex(self.mutex)
+        mutex = my_task.job._get_mutex(self.mutex)
         mutex.unlock()
         return TaskSpec._on_complete_hook(self, my_task)

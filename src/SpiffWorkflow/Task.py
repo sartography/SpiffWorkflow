@@ -18,8 +18,8 @@ from Exception import WorkflowException
 
 class Task(object):
     """
-    This class implements a node for composing a tree that represents the
-    taken/not yet taken path within the workflow.
+    A node used internally for composing a tree that represents the path that
+    is taken (or predicted) within the workflow.
     """
     FUTURE    =   1
     LIKELY    =   2
@@ -214,8 +214,12 @@ class Task(object):
         """
         Adds a new child and assigns the given TaskSpec to it.
 
-        spec -- the TaskSpec that is assigned to the new child.
-        state -- the initial task state
+        @type  spec: TaskSpec
+        @param spec: The TaskSpec that is assigned to the new child.
+        @type  state: integer
+        @param state: The bitmask of states for the new child.
+        @rtype:  Task
+        @return: The new child task.
         """
         if spec is None:
             raise WorkflowException(self, '_add_child() requires a TaskSpec')
@@ -234,7 +238,11 @@ class Task(object):
     def _assign_new_thread_id(self, recursive = True):
         """
         Assigns a new thread id to the task.
-        Returns the new id.
+
+        @type  recursive: boolean
+        @param recursive: Whether to assign the id to children recursively.
+        @rtype:  boolean
+        @return: The new thread id.
         """
         self.__class__.thread_id_pool += 1
         self.thread_id = self.__class__.thread_id_pool
@@ -256,7 +264,7 @@ class Task(object):
           - The state for all children is set to the given value.
 
         If this method is not passed a state:
-          The state for all children is updated by calling the child's
+          - The state for all children is updated by calling the child's
           _update_state() method.
           
         If the task currently has a child that is not given in the TaskSpecs, 
@@ -264,8 +272,10 @@ class Task(object):
         It is an error if the task has a non-LIKELY child that is 
         not given in the TaskSpecs.
 
-        taskspecs -- the list of TaskSpecs that may become children.
-        state -- the state for newly added children
+        @type  taskspecs: list[TaskSpec]
+        @param taskspecs: The list of TaskSpecs that may become children.
+        @type  state: integer
+        @param state: The bitmask of states for newly added children.
         """
         if taskspecs is None:
             raise WorkflowException(self, '"taskspecs" argument is None')
@@ -334,7 +344,10 @@ class Task(object):
         Returns True if parent is in the list of ancestors, returns False
         otherwise.
 
-        parent -- the parent that is searched in the ancestors.
+        @type  parent: Task
+        @param parent: The parent that is searched in the ancestors.
+        @rtype:  boolean
+        @return: Whether the parent was found.
         """
         if self.parent is None:
             return False
@@ -349,7 +362,10 @@ class Task(object):
         as a parent.
         If no such ancestor was found, the root node is returned.
 
-        parent_taskspec -- the wanted parent TaskSpec
+        @type  parent_taskspec: TaskSpec
+        @param parent_taskspec: The wanted ancestor.
+        @rtype:  Task
+        @return: The child of the given ancestor.
         """
         if self.parent is None:
             return self
@@ -362,7 +378,10 @@ class Task(object):
         """
         Returns any descendants that have the given TaskSpec assigned.
 
-        task -- the wanted task
+        @type  taskspec: TaskSpec
+        @param taskspec: The wanted task.
+        @rtype:  list[Task]
+        @return: The Task objects that are attached to the given TaskSpec.
         """
         tasks = []
         if self.spec == taskspec:
@@ -374,18 +393,21 @@ class Task(object):
         return tasks
 
 
-    def _find_ancestor(self, spec):
+    def _find_ancestor(self, taskspec):
         """
         Returns the ancestor that has the given TaskSpec assigned.
         If no such ancestor was found, the root node is returned.
 
-        spec -- the wanted TaskSpec
+        @type  taskspec: TaskSpec
+        @param taskspec: The wanted task.
+        @rtype:  Task
+        @return: The ancestor.
         """
         if self.parent is None:
             return self
-        if self.parent.spec == spec:
+        if self.parent.taskspec == taskspec:
             return self.parent
-        return self.parent._find_ancestor(spec)
+        return self.parent._find_ancestor(taskspec)
 
 
     def _find_ancestor_from_name(self, name):
@@ -393,7 +415,10 @@ class Task(object):
         Returns the ancestor that has a task with the given name assigned.
         Returns None if no such ancestor was found.
 
-        task -- the wanted task
+        @type  name: string
+        @param name: The name of the wanted task.
+        @rtype:  Task
+        @return: The ancestor.
         """
         if self.parent is None:
             return None
@@ -445,9 +470,12 @@ class Task(object):
         Returns the value of the property with the given name, or the given
         default value if the property does not exist.
 
-        name -- a property name (string)
-        default -- the default value that is returned if the property does 
-                   not exist.
+        @type  name: string
+        @param name: A property name.
+        @type  default: obj
+        @param default: Return this value if the property does not exist.
+        @rtype:  obj
+        @return: The value of the property.
         """
         return self.spec.get_property(name, default)
 
@@ -455,6 +483,9 @@ class Task(object):
     def get_properties(self):
         """
         Returns a dictionary containing all properties.
+
+        @rtype:  dict
+        @return: Maps property names to values.
         """
         return self.spec.properties
 
@@ -489,9 +520,12 @@ class Task(object):
         Returns the value of the attribute with the given name, or the given
         default value if the attribute does not exist.
 
-        name -- an attribute name (string)
-        default -- the default value that is returned if the attribute does 
-                   not exist.
+        @type  name: string
+        @param name: An attribute name.
+        @type  default: obj
+        @param default: Return this value if the attribute does not exist.
+        @rtype:  obj
+        @return: The value of the attribute.
         """
         return self.attributes.get(name, default)
 
@@ -533,6 +567,9 @@ class Task(object):
     def get_dump(self, indent = 0, recursive = True):
         """
         Returns the subtree as a string for debugging.
+
+        @rtype:  string
+        @return: The debug information.
         """
         dbg  = (' ' * indent * 2)
         dbg += '%s/'           % self.id

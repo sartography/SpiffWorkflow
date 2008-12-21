@@ -37,3 +37,15 @@ class Workflow(object):
         """
         self.tasks[task.name] = task
         task.id = len(self.tasks)
+
+
+    def get_task_from_name(self, name):
+        """
+        Returns the task with the given name.
+
+        @type  name: string
+        @param name: The name of the TaskSpec object.
+        @rtype:  TaskSpec
+        @return: The task with the given name.
+        """
+        return self.tasks[name]
