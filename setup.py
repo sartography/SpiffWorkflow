@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from os.path    import dirname, join
 srcdir = join(dirname(__file__), 'src')
 setup(name             = 'Spiff Workflow',
-      version          = '0.1.0',
+      version          = '0.3.0',
       description      = 'A workflow framework based on www.workflowpatterns.com',
       long_description = \
 """
