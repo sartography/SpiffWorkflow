@@ -16,7 +16,7 @@ WARNING! Use in a production environment is NOT RECOMMENDED at this time -
 this release is meant for development only. Don't blame us if something breaks
 because of this software!
 
-.. _README file: http://spiff.googlecode.com/svn/trunk/libs/Workflow/README
+.. _README file: http://code.google.com/p/spiff-workflow/source/browse/trunk/README
 """,
       author           = 'Samuel Abels',
       author_email     = 'cheeseshop.python.org@debain.org',
@@ -25,7 +25,7 @@ because of this software!
       packages         = [p for p in find_packages(srcdir)],
       requires         = ['sqlalchemy', 'SpiffSignal'],
       keywords         = 'spiff guard acl acls security authentication object storage',
-      url              = 'http://code.google.com/p/spiff/',
+      url              = 'http://code.google.com/p/spiff-workflow/',
       classifiers      = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
