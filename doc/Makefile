@@ -1,7 +1,7 @@
 HANDBOOKS=en
 IN_BASENAME=spiff_workflow
 OUT_BASENAME=spiff_workflow
-PUBLISH_PATH=/home/sab/backups/code/www/spiff.debain.org/static/docs
+PUBLISH_PATH=/home/sab/backups/code/www/docs.debain.org/$(OUT_BASENAME)
 PUBLISH_HOST=root@debain.org
 
 all: handbook apidocs
@@ -45,6 +45,7 @@ clean:
 	rm -f *.aux *.log *.out *.pdf *.toc figures/*.png
 
 publish: handbook apidocs
-	ssh $(PUBLISH_HOST) "mkdir -p $(PUBLISH_PATH)/$(OUT_BASENAME)"
-	rsync -avzr handbook/* api/* $(PUBLISH_HOST):$(PUBLISH_PATH)/$(OUT_BASENAME)/
-	ssh $(PUBLISH_HOST) "chown -R www-data:www-data $(PUBLISH_PATH)"
+	ssh root@debain.org "mkdir -p $(PUBLISH_PATH)"
+	rsync -azr handbook/* api/* $(PUBLISH_HOST):$(PUBLISH_PATH)/
+	ssh $(PUBLISH_HOST) "chown -R www-data:www-data $(PUBLISH_PATH)/"
+	make clean
