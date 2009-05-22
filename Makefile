@@ -60,14 +60,14 @@ deb:
 	debuild -S -sa
 	cd ..; sudo pbuilder build $(NAME)_$(VERSION)-0ubuntu1.dsc; cd -
 
-dist: targz tarbz deb
+dist: targz tarbz
 
 ###################################################################
 # Publishers.
 ###################################################################
 dist-publish: dist
 	mkdir -p $(DISTDIR)/
-	mv $(PACKAGE)* dist/* $(DISTDIR)
+	mv dist/* $(DISTDIR)
 
 doc-publish:
 	cd doc; make publish

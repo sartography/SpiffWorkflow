@@ -1,3 +1,7 @@
+2009-01-06 Samuel Abels <http://debain.org>
+
+	* Release 0.3.0.
+
 2008-06-29 Samuel Abels <http://debain.org>
 
 	* src/SpiffWorkflow/Job.py, src/SpiffWorkflow/Tasks/TaskSpec.py: Got rid of 
