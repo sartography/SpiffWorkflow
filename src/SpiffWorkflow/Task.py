@@ -405,7 +405,7 @@ class Task(object):
         """
         if self.parent is None:
             return self
-        if self.parent.taskspec == taskspec:
+        if self.parent.spec == taskspec:
             return self.parent
         return self.parent._find_ancestor(taskspec)
 

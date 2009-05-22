@@ -36,5 +36,5 @@ class TaskInfo(object):
         self.last_change = None
         if node is not None:
             self.node_id = node.id
-            self.name    = node.task.name
+            self.name    = node.spec.name
             self.status  = node.state

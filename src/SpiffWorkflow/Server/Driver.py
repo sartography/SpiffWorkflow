@@ -125,7 +125,7 @@ class Driver(object):
 
     def __save_job_info(self, job_info):
         self.db.save(job_info)
-        for node in job_info.instance.branch_tree:
+        for node in job_info.instance.task_tree:
             task_info = self.get_task_info(job_id  = job_info.id,
                                            node_id = node.id)
             if len(task_info) == 1:
