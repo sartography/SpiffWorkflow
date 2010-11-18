@@ -117,14 +117,14 @@ class Task(object):
         """
         Constructor.
         """
-        assert job      is not None
+        assert job  is not None
         assert spec is not None
         self.__class__.id_pool  += 1
         self.job                 = job
         self.parent              = parent
         self.children            = []
         self.state               = Task.FUTURE
-        self.spec            = spec
+        self.spec                = spec
         self.id                  = self.__class__.id_pool
         self.thread_id           = self.__class__.thread_id_pool
         self.last_state_change   = time.time()
