@@ -203,7 +203,7 @@ class Job(Trackable):
 
     def complete_all(self, pick_up = True):
         """
-        Runs all branches until completion. This is a convinience wrapper
+        Runs all branches until completion. This is a convenience wrapper
         around complete_next(), and the pick_up argument is passed along.
 
         @type  pick_up: boolean
