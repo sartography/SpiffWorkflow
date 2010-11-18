@@ -1,10 +1,6 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-def suite():
-    tests = ['testPickle']
-    return unittest.TestSuite(map(PersistenceTest, tests))
-
 import pickle, pprint
 from random                import randint
 from WorkflowTest          import WorkflowTest, \
@@ -21,8 +17,7 @@ class PersistenceTest(WorkflowTest):
         self.data_file  = 'data.pkl'
         self.taken_path = None
 
-
-    def testPickleSingle(self, workflow, job):
+    def doPickleSingle(self, workflow, job):
         self.taken_path = {'reached':   [],
                            'completed': []}
         for name, task in workflow.tasks.iteritems():
@@ -74,7 +69,6 @@ class PersistenceTest(WorkflowTest):
                          self.expected_path,
                          self.taken_path['completed'])
 
-
     def testPickle(self):
         # Read a complete workflow.
         file = os.path.join(os.path.dirname(__file__), 'xml/spiff/workflow1.xml')
@@ -83,7 +77,9 @@ class PersistenceTest(WorkflowTest):
             workflow_list = self.reader.parse_file(file)
             wf            = workflow_list[0]
             job           = Job(wf)
-            self.testPickleSingle(wf, job)
+            self.doPickleSingle(wf, job)
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(PersistenceTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity = 2).run(suite())

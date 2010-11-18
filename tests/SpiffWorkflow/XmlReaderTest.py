@@ -1,10 +1,6 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-def suite():
-    tests = ['testParseString', 'testParseFile', 'testRunWorkflow']
-    return unittest.TestSuite(map(XmlReaderTest, tests))
-
 from WorkflowTest          import WorkflowTest
 from SpiffWorkflow.Storage import XmlReader
 from xml.parsers.expat     import ExpatError
@@ -48,5 +44,7 @@ class XmlReaderTest(WorkflowTest):
             self.runWorkflow(wf)
 
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(XmlReaderTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity = 2).run(suite())

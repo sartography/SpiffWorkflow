@@ -1,10 +1,6 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-def suite():
-    tests = ['testWorkflow']
-    return unittest.TestSuite(map(WorkflowTest, tests))
-
 from SpiffWorkflow           import Workflow, Job
 from SpiffWorkflow.Tasks     import *
 from SpiffWorkflow.Operators import *
@@ -260,5 +256,7 @@ class WorkflowTest(unittest.TestCase):
 
         assert_same_path(self, self.expected_path, taken_path['completed'])
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(WorkflowTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity = 2).run(suite())

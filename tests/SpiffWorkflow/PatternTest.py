@@ -1,10 +1,6 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-def suite():
-    tests = ['testPattern']
-    return unittest.TestSuite(map(PatternTest, tests))
-
 from SpiffWorkflow.Tasks   import *
 from SpiffWorkflow         import Workflow, Job, Task
 from SpiffWorkflow.Storage import XmlReader
@@ -69,6 +65,8 @@ def on_complete_cb(job, task, taken_path):
 
 class PatternTest(unittest.TestCase):
     def setUp(self):
+        Task.id_pool = 0
+        Task.thread_id_pool = 0
         self.xml_path = ['xml/spiff/control-flow/',
                          'xml/spiff/data/',
                          'xml/spiff/resource/']
@@ -82,20 +80,18 @@ class PatternTest(unittest.TestCase):
             for filename in os.listdir(dirname):
                 if not filename.endswith('.xml'):
                     continue
-                self.testFile(os.path.join(dirname, filename))
+                self.runFile(os.path.join(dirname, filename))
 
-
-    def testFile(self, xml_filename):
+    def runFile(self, xml_filename):
         try:
             #print '\n%s: ok' % xml_filename,
             workflow_list = self.reader.parse_file(xml_filename)
-            self.testWorkflow(workflow_list[0], xml_filename)
+            self.runWorkflow(workflow_list[0], xml_filename)
         except:
             print '%s:' % xml_filename
             raise
 
-
-    def testWorkflow(self, wf, xml_filename):
+    def runWorkflow(self, wf, xml_filename):
         taken_path = []
         for name in wf.tasks:
             wf.tasks[name].signal_connect('reached',   on_reached_cb,  taken_path)
@@ -149,10 +145,12 @@ class PatternTest(unittest.TestCase):
             self.assert_(result == expected, error)
 
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(PatternTest)
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         test = PatternTest('testFile')
         test.setUp()
         test.testFile(sys.argv[1])
         sys.exit(0)
-    unittest.TextTestRunner(verbosity = 1).run(suite())
+    unittest.TextTestRunner(verbosity = 2).run(suite())

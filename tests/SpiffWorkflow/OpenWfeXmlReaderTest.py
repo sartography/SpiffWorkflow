@@ -1,10 +1,6 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-def suite():
-    tests = ['testParseString', 'testParseFile', 'testRunWorkflow']
-    return unittest.TestSuite(map(OpenWfeXmlReaderTest, tests))
-
 from WorkflowTest           import on_reached_cb, \
                                    on_complete_cb, \
                                    assert_same_path
@@ -83,5 +79,7 @@ class OpenWfeXmlReaderTest(unittest.TestCase):
 
         assert_same_path(self, path, self.taken_path)
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(OpenWfeXmlReaderTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity = 2).run(suite())

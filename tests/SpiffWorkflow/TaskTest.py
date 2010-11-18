@@ -1,18 +1,14 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-def suite():
-    tests = ['testTree']
-    return unittest.TestSuite(map(TaskTest, tests))
-
 from SpiffWorkflow           import Workflow, Task
 from SpiffWorkflow.Tasks     import Simple
 from SpiffWorkflow.Exception import WorkflowException
 
 class TaskTest(unittest.TestCase):
     def setUp(self):
-        pass
-
+        Task.id_pool = 0
+        Task.thread_id_pool = 0
 
     def testTree(self):
         # Build a tree.
@@ -67,5 +63,7 @@ class TaskTest(unittest.TestCase):
                      'Expected:\n' + expected2 + '\n' + \
                      'but got:\n'  + result)
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(TaskTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity = 2).run(suite())
