@@ -27,7 +27,7 @@ class Workflow(object):
         self.name        = name
         self.description = ''
         self.file        = filename
-        self.tasks       = {}
+        self.tasks       = dict()
         self.start       = StartTask(self)
 
 

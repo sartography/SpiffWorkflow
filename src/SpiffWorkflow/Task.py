@@ -77,7 +77,7 @@ class Task(object):
                 search_predicted = self.filter   & Task.LIKELY != 0
                 is_predicted     = current.state & Task.LIKELY != 0
                 ignore_task      = is_predicted and not search_predicted
-            if len(current.children) > 0 and not ignore_task:
+            if current.children and not ignore_task:
                 self.path.append(current.children[0])
                 if self.filter is not None and current.state & self.filter == 0:
                     return None

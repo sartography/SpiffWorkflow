@@ -29,10 +29,10 @@ class XmlReader(object):
         """
         Constructor.
         """
-        self.read_tasks = {}
+        self.read_tasks = dict()
 
         # Create a list of tag names out of the task names.
-        self.task_map = {}
+        self.task_map = dict()
         for name in dir(SpiffWorkflow.Tasks):
             if name.startswith('_'):
                 continue
@@ -306,8 +306,9 @@ class XmlReader(object):
             self._raise('%s without a name attribute' % start_node.nodeName)
 
         # Read all tasks and create a list of successors.
-        workflow             = SpiffWorkflow.Workflow(name, filename)
-        self.read_tasks = {'end': (SpiffWorkflow.Tasks.Simple(workflow, 'End'), [])}
+        workflow        = SpiffWorkflow.Workflow(name, filename)
+        end             = SpiffWorkflow.Tasks.Simple(workflow, 'End'), []
+        self.read_tasks = dict(end = end)
         for node in start_node.childNodes:
             if node.nodeType != minidom.Node.ELEMENT_NODE:
                 continue
