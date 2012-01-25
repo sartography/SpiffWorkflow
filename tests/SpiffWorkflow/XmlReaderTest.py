@@ -10,7 +10,6 @@ class XmlReaderTest(WorkflowTest):
         WorkflowTest.setUp(self)
         self.reader = XmlReader()
 
-
     def testParseString(self):
         self.assertRaises(ExpatError,
                           self.reader.parse_string,
@@ -41,7 +40,7 @@ class XmlReaderTest(WorkflowTest):
         file = os.path.join(os.path.dirname(__file__), 'xml', 'spiff', 'workflow1.xml')
         workflow_list = self.reader.parse_file(file)
         for wf in workflow_list:
-            self.runWorkflow(wf)
+            self._runWorkflow(wf)
 
 
 def suite():

@@ -4,7 +4,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 from SpiffWorkflow           import Workflow, Job
 from SpiffWorkflow.Tasks     import *
 from SpiffWorkflow.Operators import *
-
+from SpiffWorkflow.Task      import *
+from SpiffWorkflow.Tasks.Simple import Simple
 
 def append_step(path, task, signal_name):
     path.append((task._get_depth(), task.get_name()))
@@ -64,12 +65,52 @@ class WorkflowTest(unittest.TestCase):
     change will break both tests!
     '''
     def setUp(self):
-        self.wf = self._getWorkflow()
-        self.expected_path = self._getExpectedPath()
+        self.expected_path = \
+                 [( 1, 'Start'),
+                  ( 2, 'task_a1'),
+                  ( 3, 'task_a2'),
+                  ( 2, 'task_b1'),
+                  ( 3, 'task_b2'),
+                  ( 4, 'synch_1'),
+                  ( 5, 'excl_choice_1'),
+                  ( 6, 'task_c1'),
+                  ( 7, 'excl_choice_2'),
+                  ( 8, 'task_d3'),
+                  ( 9, 'multi_choice_1'),
+                  (10, 'task_e1'),
+                  (10, 'task_e3'),
+                  (11, 'struct_synch_merge_1'),
+                  (12, 'task_f1'),
+                  (13, 'struct_discriminator_1'),
+                  (14, 'excl_choice_3'),
+                  (15, 'excl_choice_1'),
+                  (16, 'task_c1'),
+                  (17, 'excl_choice_2'),
+                  (18, 'task_d3'),
+                  (19, 'multi_choice_1'),
+                  (20, 'task_e1'),
+                  (20, 'task_e3'),
+                  (21, 'struct_synch_merge_1'),
+                  (22, 'task_f1'),
+                  (23, 'struct_discriminator_1'),
+                  (24, 'excl_choice_3'),
+                  (25, 'multi_instance_1'),
+                  (26, 'task_g1'),
+                  (26, 'task_g2'),
+                  (26, 'task_g1'),
+                  (26, 'task_g2'),
+                  (26, 'task_g1'),
+                  (26, 'task_g2'),
+                  (27, 'struct_synch_merge_2'),
+                  (28, 'last'),
+                  (29, 'End'),
+                  (22, 'task_f2'),
+                  (22, 'task_f3'),
+                  (12, 'task_f2'),
+                  (12, 'task_f3')]
 
-    def _getWorkflow(self):
+    def _createWorkflow(self):
         wf = Workflow()
-
         # Build one branch.
         a1 = Simple(wf, 'task_a1')
         wf.start.connect(a1)
@@ -192,52 +233,12 @@ class WorkflowTest(unittest.TestCase):
 
         return wf
 
-    def _getExpectedPath(self):
-        return [( 1, 'Start'),
-          ( 2, 'task_a1'),
-          ( 3, 'task_a2'),
-          ( 2, 'task_b1'),
-          ( 3, 'task_b2'),
-          ( 4, 'synch_1'),
-          ( 5, 'excl_choice_1'),
-          ( 6, 'task_c1'),
-          ( 7, 'excl_choice_2'),
-          ( 8, 'task_d3'),
-          ( 9, 'multi_choice_1'),
-          (10, 'task_e1'),
-          (10, 'task_e3'),
-          (11, 'struct_synch_merge_1'),
-          (12, 'task_f1'),
-          (13, 'struct_discriminator_1'),
-          (14, 'excl_choice_3'),
-          (15, 'excl_choice_1'),
-          (16, 'task_c1'),
-          (17, 'excl_choice_2'),
-          (18, 'task_d3'),
-          (19, 'multi_choice_1'),
-          (20, 'task_e1'),
-          (20, 'task_e3'),
-          (21, 'struct_synch_merge_1'),
-          (22, 'task_f1'),
-          (23, 'struct_discriminator_1'),
-          (24, 'excl_choice_3'),
-          (25, 'multi_instance_1'),
-          (26, 'task_g1'),
-          (26, 'task_g2'),
-          (26, 'task_g1'),
-          (26, 'task_g2'),
-          (26, 'task_g1'),
-          (26, 'task_g2'),
-          (27, 'struct_synch_merge_2'),
-          (28, 'last'),
-          (29, 'End'),
-          (22, 'task_f2'),
-          (22, 'task_f3'),
-          (12, 'task_f2'),
-          (12, 'task_f3')]
 
-    def testAutoCompleteWorkflow(self):
-        wf = self.wf
+    def testCompleteWorkflowAutomatically(self):
+        wf = self._createWorkflow()
+        self._runWorkflow(wf)
+
+    def _runWorkflow(self, wf):
         taken_path = {'reached':   [],
                       'completed': []}
         for name, task in wf.tasks.iteritems():
@@ -259,6 +260,54 @@ class WorkflowTest(unittest.TestCase):
         #job.task_tree.dump()
 
         assert_same_path(self, self.expected_path, taken_path['completed'])
+
+    def testCompleteWorkflowStepByStep(self):
+        """
+                Simulates interactive calls, as would be issued by a user.
+                """
+        wf = self._createWorkflow()
+        job = Job(wf)
+
+        tasks = job.get_tasks(Task.READY)
+        self.assertEqual(len(tasks), 1)
+        self.assertEqual(tasks[0].spec.name, 'Start')
+        job.complete_task_from_id(tasks[0].id)
+        self.assertEqual(tasks[0].state, Task.COMPLETED)
+
+        tasks = job.get_tasks(Task.READY)
+        self.assertEqual(len(tasks), 2)
+        task_a1 = tasks[0]
+        task_b1 = tasks[1]
+        self.assertEqual(task_a1.spec.__class__, Simple)
+        self.assertEqual(task_a1.spec.name, 'task_a1')
+        self.assertEqual(task_b1.spec.__class__, Simple)
+        self.assertEqual(task_b1.spec.name, 'task_b1')
+        job.complete_task_from_id(task_a1.id)
+        self.assertEqual(task_a1.state, Task.COMPLETED)
+
+        tasks = job.get_tasks(Task.READY)
+        self.assertEqual(len(tasks), 2)
+        self.assertTrue(task_b1 in tasks)
+        task_a2 = tasks[0]
+        self.assertEqual(task_a2.spec.__class__, Simple)
+        self.assertEqual(task_a2.spec.name, 'task_a2')
+        job.complete_task_from_id(task_a2.id)
+
+        tasks = job.get_tasks(Task.READY)
+        self.assertEqual(len(tasks), 1)
+        self.assertTrue(task_b1 in tasks)
+
+        job.complete_task_from_id(task_b1.id)
+        tasks = job.get_tasks(Task.READY)
+        self.assertEqual(len(tasks), 1)
+        job.complete_task_from_id(tasks[0].id)
+
+        tasks = job.get_tasks(Task.READY)
+        self.assertEqual(len(tasks), 1)
+        self.assertEqual(tasks[0].spec.name, 'synch_1')
+        # haven't reached the end of the job, but stopping at "synch_1"
+
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(WorkflowTest)
