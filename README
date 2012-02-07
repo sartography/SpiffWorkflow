@@ -1,14 +1,11 @@
 Spiff Workflow
 ---------------
-This library is part of the Spiff platform.
-
 Spiff Workflow is a library implementing a framework for workflows.
 It is based on http://www.workflowpatterns.com and implemented in pure Python.
 
 
 Supported Workflow Patterns
 ----------------------------
-
 Hint: The examples are located in tests/xml/spiff/.
 
   Control-Flow Patterns:
@@ -56,7 +53,6 @@ Hint: The examples are located in tests/xml/spiff/.
     41. Thread Merge [control-flow/thread_merge.xml]
     42. Thread Split [control-flow/thread_split.xml]
     43. Explicit Termination [control-flow/explicit_termination.xml]
-
 
   Workflow Data Patterns:
 
