@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.Task      import Task
 from SpiffWorkflow.Exception import WorkflowException
-from SpiffWorkflow.Operators import valueof
+from SpiffWorkflow.operators import valueof
 from TaskSpec                import TaskSpec
 
 class MultiInstance(TaskSpec):

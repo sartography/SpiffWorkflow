@@ -16,7 +16,7 @@
 from SpiffWorkflow.util.event import Event
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from SpiffWorkflow.Operators import valueof
+from SpiffWorkflow.operators import valueof
 
 class TaskSpec(object):
     """

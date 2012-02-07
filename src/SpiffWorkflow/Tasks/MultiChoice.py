@@ -14,7 +14,6 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import re
-from SpiffWorkflow.Operators import *
 from SpiffWorkflow.Task      import Task
 from SpiffWorkflow.Exception import WorkflowException
 from TaskSpec                import TaskSpec

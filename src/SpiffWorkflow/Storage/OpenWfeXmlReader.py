@@ -17,7 +17,7 @@ import os, sys
 import xml.dom.minidom as minidom
 import SpiffWorkflow
 import SpiffWorkflow.Tasks
-import SpiffWorkflow.Operators
+from SpiffWorkflow import operators
 from SpiffWorkflow.Exception import StorageException
 
 class OpenWfeXmlReader(object):
@@ -33,11 +33,11 @@ class OpenWfeXmlReader(object):
                           'concurrence',
                           'if',
                           'sequence')
-        self.op_map = {'equals':       SpiffWorkflow.Operators.Equal,
-                       'not-equals':   SpiffWorkflow.Operators.NotEqual,
-                       'less-than':    SpiffWorkflow.Operators.LessThan,
-                       'greater-than': SpiffWorkflow.Operators.GreaterThan,
-                       'matches':      SpiffWorkflow.Operators.Match}
+        self.op_map = {'equals':       operators.Equal,
+                       'not-equals':   operators.NotEqual,
+                       'less-than':    operators.LessThan,
+                       'greater-than': operators.GreaterThan,
+                       'matches':      operators.Match}
 
 
     def _raise(self, error):
@@ -55,8 +55,8 @@ class OpenWfeXmlReader(object):
         term2 = node.getAttribute('other-value')
         if not self.op_map.has_key(op):
             self._raise('Invalid operator')
-        return self.op_map[op](SpiffWorkflow.Operators.Attrib(term1),
-                               SpiffWorkflow.Operators.Attrib(term2))
+        return self.op_map[op](operators.Attrib(term1),
+                               operators.Attrib(term2))
 
 
     def read_if(self, workflow, start_node):

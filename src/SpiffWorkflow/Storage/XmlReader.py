@@ -17,7 +17,7 @@ import os, re
 import xml.dom.minidom as minidom
 import SpiffWorkflow
 import SpiffWorkflow.Tasks
-import SpiffWorkflow.Operators
+from SpiffWorkflow import operators
 from SpiffWorkflow.Exception import StorageException
 
 class XmlReader(object):
@@ -41,11 +41,11 @@ class XmlReader(object):
             self.task_map[name] = module
         self.task_map['task'] = SpiffWorkflow.Tasks.Simple
 
-        self.op_map = {'equals':       SpiffWorkflow.Operators.Equal,
-                       'not-equals':   SpiffWorkflow.Operators.NotEqual,
-                       'less-than':    SpiffWorkflow.Operators.LessThan,
-                       'greater-than': SpiffWorkflow.Operators.GreaterThan,
-                       'matches':      SpiffWorkflow.Operators.Match}
+        self.op_map = {'equals':       operators.Equal,
+                       'not-equals':   operators.NotEqual,
+                       'less-than':    operators.LessThan,
+                       'greater-than': operators.GreaterThan,
+                       'matches':      operators.Match}
 
 
     def _raise(self, error):
@@ -126,7 +126,7 @@ class XmlReader(object):
         elif term1_value != '':
             left = term1_value
         else:
-            left = SpiffWorkflow.Operators.Attrib(term1_attrib)
+            left = operators.Attrib(term1_attrib)
         if term2_attrib != '' and term2_value != '':
             self._raise('Both, right-field and right-value attributes found')
         elif term2_attrib == '' and term2_value == '':
@@ -134,7 +134,7 @@ class XmlReader(object):
         elif term2_value != '':
             right = term2_value
         else:
-            right = SpiffWorkflow.Operators.Attrib(term2_attrib)
+            right = operators.Attrib(term2_attrib)
         return self.op_map[op](left, right)
 
 
@@ -213,15 +213,15 @@ class XmlReader(object):
         if times != '':
             kwargs['times'] = int(times)
         if times_field != '':
-            kwargs['times'] = SpiffWorkflow.Operators.Attrib(times_field)
+            kwargs['times'] = operators.Attrib(times_field)
         if threshold != '':
             kwargs['threshold'] = int(threshold)
         if threshold_field != '':
-            kwargs['threshold'] = SpiffWorkflow.Operators.Attrib(threshold_field)
+            kwargs['threshold'] = operators.Attrib(threshold_field)
         if file != '':
             kwargs['file'] = file
         if file_field != '':
-            kwargs['file'] = SpiffWorkflow.Operators.Attrib(file_field)
+            kwargs['file'] = operators.Attrib(file_field)
         if nodetype == 'choose':
             kwargs['choice'] = []
         if nodetype == 'trigger':
