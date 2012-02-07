@@ -77,7 +77,7 @@ class SubWorkflow(TaskSpec):
         workflow      = workflow_list[0]
         outer_job     = my_task.job.outer_job
         subjob        = SpiffWorkflow.Job(workflow, parent = outer_job)
-        subjob.signal_connect('completed', self._on_subjob_completed, my_task)
+        subjob.completed_event.connect(self._on_subjob_completed, my_task)
 
         # Integrate the tree of the subjob into the tree of this job.
         my_task._update_children(self.outputs, Task.FUTURE)
@@ -115,7 +115,7 @@ class SubWorkflow(TaskSpec):
                 # just evil but it works.
                 if not child.spec._update_state_hook(child):
                     return
-                child.spec.signal_emit('entered', child.job, child)
+                child.spec.entered_event.emit(child.job, child)
                 child._ready()
 
 

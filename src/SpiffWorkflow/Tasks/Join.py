@@ -217,7 +217,7 @@ class Join(TaskSpec):
         # completed, except for the first one, which should be READY.
         for task in thread_tasks:
             if task == last_changed:
-                self.signal_emit('entered', my_task.job, my_task)
+                self.entered_event.emit(my_task.job, my_task)
                 task._ready()
             else:
                 task.state = Task.COMPLETED

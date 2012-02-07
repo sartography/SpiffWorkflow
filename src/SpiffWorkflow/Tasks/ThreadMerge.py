@@ -118,7 +118,7 @@ class ThreadMerge(Join):
         # completed, except for the first one, which should be READY.
         for node in nodes:
             if node == last_changed:
-                self.signal_emit('entered', my_task.job, my_task)
+                self.entered_event.emit(my_task.job, my_task)
                 node._ready()
             else:
                 node.state = Task.COMPLETED

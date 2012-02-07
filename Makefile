@@ -7,7 +7,7 @@ DISTDIR=/pub/code/releases/spiff_workflow
 ###################################################################
 # Project-specific targets.
 ###################################################################
-DEPENDS=spiff-signal spiff-workflow
+DEPENDS=spiff-workflow
 
 svn-environment:
 	mkdir -p $(NAME)

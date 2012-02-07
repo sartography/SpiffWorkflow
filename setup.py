@@ -22,7 +22,7 @@ to API stability at this time.
       license          = 'lGPLv2',
       package_dir      = {'': srcdir},
       packages         = [p for p in find_packages(srcdir)],
-      requires         = ['SpiffSignal'],
+      requires         = [],
       keywords         = 'spiff guard acl acls security authentication object storage',
       url              = 'http://code.google.com/p/spiff-workflow/',
       classifiers      = [

@@ -242,8 +242,8 @@ class WorkflowTest(unittest.TestCase):
         taken_path = {'reached':   [],
                       'completed': []}
         for name, task in wf.tasks.iteritems():
-            task.signal_connect('reached',   on_reached_cb,  taken_path['reached'])
-            task.signal_connect('completed', on_complete_cb, taken_path['completed'])
+            task.reached_event.connect(on_reached_cb, taken_path['reached'])
+            task.completed_event.connect(on_complete_cb, taken_path['completed'])
 
         # Execute all tasks within the Job.
         job = Job(wf)

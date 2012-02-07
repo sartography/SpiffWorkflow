@@ -13,12 +13,12 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.external.SpiffSignal import Trackable
-from SpiffWorkflow.Task                 import Task
-from SpiffWorkflow.Exception            import WorkflowException
-from SpiffWorkflow.Operators            import valueof
+from SpiffWorkflow.util.event import Event
+from SpiffWorkflow.Task import Task
+from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.Operators import valueof
 
-class TaskSpec(Trackable):
+class TaskSpec(object):
     """
     This class implements an abstract base type for all tasks.
 
@@ -65,7 +65,6 @@ class TaskSpec(Trackable):
         """
         assert parent is not None
         assert name   is not None
-        Trackable.__init__(self)
         self._parent     = parent
         self.id          = None
         self.name        = str(name)
@@ -81,6 +80,13 @@ class TaskSpec(Trackable):
         self.post_assign = kwargs.get('post_assign', [])
         self.locks       = kwargs.get('lock',        [])
         self.lookahead   = 2  # Maximum number of MAYBE predictions.
+
+        # Events.
+        self.entered_event   = Event()
+        self.reached_event   = Event()
+        self.ready_event     = Event()
+        self.completed_event = Event()
+
         self._parent._add_notify(self)
         self.properties.update(self.defines)
         assert self.id is not None
@@ -211,7 +217,7 @@ class TaskSpec(Trackable):
         my_task._inherit_attributes()
         if not self._update_state_hook(my_task):
             return
-        self.signal_emit('entered', my_task.job, my_task)
+        self.entered_event.emit(my_task.job, my_task)
         my_task._ready()
 
 
@@ -251,13 +257,13 @@ class TaskSpec(Trackable):
 
         # Run task-specific code.
         result = self._on_ready_before_hook(my_task)
-        self.signal_emit('reached', my_task.job, my_task)
+        self.reached_event.emit(my_task.job, my_task)
         if result:
             result = self._on_ready_hook(my_task)
 
         # Run user code, if any.
         if result:
-            result = self.signal_emit('ready', my_task.job, my_task)
+            result = self.ready_event.emit(my_task.job, my_task)
 
         if result:
             # Assign variables, if so requested.
@@ -348,7 +354,7 @@ class TaskSpec(Trackable):
         if my_task.job.debug:
             my_task.job.outer_job.task_tree.dump()
 
-        self.signal_emit('completed', my_task.job, my_task)
+        self.completed_event.emit(my_task.job, my_task)
         return True
 
 

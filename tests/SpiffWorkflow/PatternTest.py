@@ -48,10 +48,10 @@ def on_reached_cb(job, task, taken_path):
     # re-assign the function in every step, thus making sure that new
     # children also call on_ready_cb().
     for child in task.children:
-        if not child.spec.signal_is_connected('reached', on_reached_cb):
-            child.spec.signal_connect('reached', on_reached_cb, taken_path)
-        if not child.spec.signal_is_connected('completed', on_complete_cb):
-            child.spec.signal_connect('completed', on_complete_cb, taken_path)
+        if not child.spec.reached_event.is_connected(on_reached_cb):
+            child.spec.reached_event.connect(on_reached_cb, taken_path)
+        if not child.spec.completed_event.is_connected(on_complete_cb):
+            child.spec.completed_event.connect(on_complete_cb, taken_path)
     return True
 
 
@@ -94,8 +94,8 @@ class PatternTest(unittest.TestCase):
     def runWorkflow(self, wf, xml_filename):
         taken_path = []
         for name in wf.tasks:
-            wf.tasks[name].signal_connect('reached',   on_reached_cb,  taken_path)
-            wf.tasks[name].signal_connect('completed', on_complete_cb, taken_path)
+            wf.tasks[name].reached_event.connect(on_reached_cb, taken_path)
+            wf.tasks[name].completed_event.connect(on_complete_cb, taken_path)
 
         # Execute all tasks within the Job.
         job = Job(wf)

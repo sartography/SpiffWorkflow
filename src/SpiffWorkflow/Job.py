@@ -14,11 +14,11 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import Tasks
-from mutex                              import mutex
-from SpiffWorkflow.external.SpiffSignal import Trackable
-from Task                               import Task
+from mutex import mutex
+from SpiffWorkflow.util.event import Event
+from Task import Task
 
-class Job(Trackable):
+class Job(object):
     """
     The engine that executes a workflow.
     It is a essentially a facility for managing all branches.
@@ -29,7 +29,6 @@ class Job(Trackable):
         """
         Constructor.
         """
-        Trackable.__init__(self)
         assert workflow is not None
         self.workflow        = workflow
         self.attributes      = {}
@@ -39,6 +38,9 @@ class Job(Trackable):
         self.task_tree       = Task(self, Tasks.Simple(workflow, 'Root'))
         self.success         = True
         self.debug           = False
+
+        # Events.
+        self.completed_event = Event()
 
         # Prevent the root node from being executed.
         self.task_tree.state = Task.COMPLETED
@@ -75,12 +77,12 @@ class Job(Trackable):
         # Update the state of every WAITING node.
         for node in self._get_waiting_tasks():
             node.spec._update_state(node)
-        if self.signal_subscribers('completed') == 0:
+        if self.completed_event.n_subscribers() == 0:
             # Since is_completed() is expensive it makes sense to bail
             # out if calling it is not necessary.
             return
         if self.is_completed():
-            self.signal_emit('completed', self)
+            self.completed_event(self)
 
 
     def _get_mutex(self, name):

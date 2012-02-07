@@ -21,12 +21,10 @@ class PersistenceTest(WorkflowTest):
         self.taken_path = {'reached':   [],
                            'completed': []}
         for name, task in workflow.tasks.iteritems():
-            task.signal_connect('reached',
-                                on_reached_cb,
-                                self.taken_path['reached'])
-            task.signal_connect('completed',
-                                on_complete_cb,
-                                self.taken_path['completed'])
+            task.reached_event.connect(on_reached_cb,
+                                       self.taken_path['reached'])
+            task.completed_event.connect(on_complete_cb,
+                                         self.taken_path['completed'])
 
         # Execute a random number of steps.
         for i in xrange(randint(0, len(workflow.tasks))):
@@ -52,14 +50,12 @@ class PersistenceTest(WorkflowTest):
         # Re-connect signals, because the pickle dump now only contains a 
         # copy of self.taken_path.
         for name, task in job.workflow.tasks.iteritems():
-            task.signal_disconnect('reached',   on_reached_cb)
-            task.signal_disconnect('completed', on_complete_cb)
-            task.signal_connect('reached',
-                                on_reached_cb,
-                                self.taken_path['reached'])
-            task.signal_connect('completed',
-                                on_complete_cb,
-                                self.taken_path['completed'])
+            task.reached_event.disconnect(on_reached_cb)
+            task.completed_event.disconnect(on_complete_cb)
+            task.reached_event.connect(on_reached_cb,
+                                       self.taken_path['reached'])
+            task.completed_event.connect(on_complete_cb,
+                                         self.taken_path['completed'])
 
         # Run the rest of the workflow.
         job.complete_all()

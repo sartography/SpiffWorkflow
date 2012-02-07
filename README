@@ -68,11 +68,6 @@ Contact
 Mailing List: http://groups.google.com/group/spiff-devel/
 
 
-Dependencies
--------------
-SpiffSignal
-
-
 Usage
 ------
 API documentation is embedded into the Spiff Workflow source code and
@@ -83,7 +78,7 @@ If you need more help, please drop by our mailing list. You might actually
 make someone write the missing pieces of documentation.
 
 ##############################
-from Workflow import *
+from SpiffWorkflow import *
 
 wf = Workflow()
 ...
