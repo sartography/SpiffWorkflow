@@ -145,6 +145,17 @@ class Job(object):
         """
         return self.workflow.get_task_spec_from_name(name)
 
+    def get_task(self, id):
+        """
+        Returns the task with the given id.
+
+        @type id:integer
+        @param id: The id of a state.
+        @rtype: Task
+        @return: The task with the given id.
+        """
+        tasks = [task for task in self.get_tasks() if task.id==id]
+        return tasks[0] if len(tasks) == 1 else None
 
     def get_tasks(self, state = Task.ANY_MASK):
         """
