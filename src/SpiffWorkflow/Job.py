@@ -18,6 +18,16 @@ from mutex import mutex
 from SpiffWorkflow.util.event import Event
 from Task import Task
 
+
+class TaskIdAssigner(object):
+    def __init__(self):
+        self.id_pool = 0
+
+    def get_new_id(self):
+        self.id_pool  += 1
+        return self.id_pool
+
+
 class Job(object):
     """
     The engine that executes a workflow.
@@ -31,6 +41,7 @@ class Job(object):
         """
         assert workflow is not None
         self.workflow        = workflow
+        self.task_id_assigner = TaskIdAssigner()
         self.attributes      = {}
         self.outer_job       = kwargs.get('parent', self)
         self.locks           = {}
