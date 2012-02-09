@@ -261,10 +261,10 @@ class WorkflowTest(unittest.TestCase):
 
         assert_same_path(self, self.expected_path, taken_path['completed'])
 
-    def testCompleteWorkflowStepByStep(self):
+    def testBeginWorkflowStepByStep(self):
         """
-                Simulates interactive calls, as would be issued by a user.
-                """
+            Simulates interactive calls, as would be issued by a user.
+            """
         wf = self._createWorkflow()
         job = Job(wf)
 
