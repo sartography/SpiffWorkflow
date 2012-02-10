@@ -141,8 +141,6 @@ class Task(object):
         # If unpickled in the same Python process in which a workflow
         # (Task) is built through the API, we need to make sure
         # that there will not be any ID collisions.
-        if dict['id'] >= self.__class__.id_pool:
-            self.__class__.id_pool = dict['id']
         if dict['thread_id'] >= self.__class__.thread_id_pool:
             self.__class__.thread_id_pool = dict['thread_id']
 
