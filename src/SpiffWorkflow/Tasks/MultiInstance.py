@@ -44,11 +44,11 @@ class MultiInstance(TaskSpec):
 
 
     def _find_my_task(self, task):
-        for node in task.job.task_tree:
-            if node.thread_id != task.thread_id:
+        for thetask in task.job.task_tree:
+            if thetask.thread_id != task.thread_id:
                 continue
-            if node.spec == self:
-                return node
+            if thetask.spec == self:
+                return thetask
         return None
 
 
@@ -64,8 +64,7 @@ class MultiInstance(TaskSpec):
                 state = Task.READY | Task.TRIGGERED
             else:
                 state = Task.FUTURE | Task.TRIGGERED
-            node = my_task._add_child(output, state)
-            output._predict(node)
+            output._predict(my_task._add_child(output, state))
 
 
     def _get_predicted_outputs(self, my_task):
@@ -84,7 +83,7 @@ class MultiInstance(TaskSpec):
             return
         my_task._set_internal_attribute(splits = split_n)
 
-        # Create the outgoing nodes.
+        # Create the outgoing tasks.
         outputs = []
         for i in range(split_n):
             outputs += self.outputs

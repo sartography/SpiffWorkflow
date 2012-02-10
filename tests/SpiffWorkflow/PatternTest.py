@@ -112,9 +112,9 @@ class PatternTest(unittest.TestCase):
                    + job.task_tree.get_dump())
 
         # Make sure that there are no waiting tasks left in the tree.
-        for node in Task.Iterator(job.task_tree, Task.READY):
+        for thetask in Task.Iterator(job.task_tree, Task.READY):
             job.task_tree.dump()
-            raise Exception('Node with state READY: %s' % node.name)
+            raise Exception('Task with state READY: %s' % thetask.name)
 
         # Check whether the correct route was taken.
         filename = xml_filename + '.path'

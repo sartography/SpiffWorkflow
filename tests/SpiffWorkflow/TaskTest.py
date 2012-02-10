@@ -57,8 +57,8 @@ class TaskTest(unittest.TestCase):
 
         # Run the iterator test.
         result = ''
-        for node in Task.Iterator(root, Task.FUTURE):
-            result += node.get_dump(0, False) + '\n'
+        for thetask in Task.Iterator(root, Task.FUTURE):
+            result += thetask.get_dump(0, False) + '\n'
         self.assert_(expected2 == result,
                      'Expected:\n' + expected2 + '\n' + \
                      'but got:\n'  + result)

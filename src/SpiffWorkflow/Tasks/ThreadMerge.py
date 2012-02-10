@@ -55,36 +55,36 @@ class ThreadMerge(Join):
 
         # Retrieve a list of all activated tasks from the associated
         # task that did the conditional parallel split.
-        split_node = my_task._find_ancestor_from_name(self.split_task)
-        if split_node is None:
+        split_task = my_task._find_ancestor_from_name(self.split_task)
+        if split_task is None:
             msg = 'Join with %s, which was not reached' % self.split_task
             raise WorkflowException(self, msg)
-        nodes = split_node.spec._get_activated_threads(split_node)
+        tasks = split_task.spec._get_activated_threads(split_task)
 
         # The default threshold is the number of threads that were started.
         threshold = valueof(my_task, self.threshold)
         if threshold is None:
-            threshold = len(nodes)
+            threshold = len(tasks)
 
         # Look up which tasks have already completed.
-        waiting_nodes = []
+        waiting_tasks = []
         completed     = 0
-        for node in nodes:
+        for task in tasks:
             # Refresh path prediction.
-            node.spec._predict(node)
+            task.spec._predict(task)
 
-            if self._branch_is_complete(node):
+            if self._branch_is_complete(task):
                 completed += 1
             else:
-                waiting_nodes.append(node)
+                waiting_tasks.append(task)
 
         # If the threshold was reached, get ready to fire.
         if completed >= threshold:
             # If this is a cancelling join, cancel all incoming branches,
             # except for the one that just completed.
             if self.cancel_remaining:
-                for node in waiting_nodes:
-                    node.cancel()
+                for task in waiting_tasks:
+                    task.cancel()
             return True
 
         # We do NOT set the task state to COMPLETED, because in
@@ -99,30 +99,30 @@ class ThreadMerge(Join):
             my_task._set_state(Task.WAITING)
             return False
 
-        split_task = my_task.job.get_task_from_name(self.split_task)
-        split_node = my_task._find_ancestor(split_task)
+        split_task_spec = my_task.job.get_task_from_name(self.split_task)
+        split_task      = my_task._find_ancestor(split_task_spec)
 
-        # Find the inbound node that was completed last.
+        # Find the inbound task that was completed last.
         last_changed = None
-        nodes        = []
-        for node in split_node._find_any(self):
-            if self.split_task and node._is_descendant_of(my_task):
+        tasks        = []
+        for task in split_task._find_any(self):
+            if self.split_task and task._is_descendant_of(my_task):
                 continue
-            changed = node.parent.last_state_change
+            changed = task.parent.last_state_change
             if last_changed is None \
               or changed > last_changed.parent.last_state_change:
-                last_changed = node
-            nodes.append(node)
+                last_changed = task
+            tasks.append(task)
 
-        # Mark all nodes in this thread that reference this task as 
+        # Mark all tasks in this thread that reference this task as 
         # completed, except for the first one, which should be READY.
-        for node in nodes:
-            if node == last_changed:
+        for task in tasks:
+            if task == last_changed:
                 self.entered_event.emit(my_task.job, my_task)
-                node._ready()
+                task._ready()
             else:
-                node.state = Task.COMPLETED
-                node._drop_children()
+                task.state = Task.COMPLETED
+                task._drop_children()
         return False
 
 

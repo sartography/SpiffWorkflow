@@ -106,13 +106,13 @@ class TaskSpec(object):
         """
         Returns the list of tasks that were activated in the previous 
         call of execute(). Only returns tasks that point towards the
-        destination node, i.e. those which have destination as a 
+        destination task, i.e. those which have destination as a
         descendant.
 
         @type  my_task: Task
-        @param my_task: The associated node in the task tree.
+        @param my_task: The associated task in the task tree.
         @type  destination: Task
-        @param destination: The destination node.
+        @param destination: The destination task.
         """
         return my_task.children
 
@@ -123,7 +123,7 @@ class TaskSpec(object):
         call of execute().
 
         @type  my_task: Task
-        @param my_task: The associated node in the task tree.
+        @param my_task: The associated task in the task tree.
         """
         return my_task.children
 
@@ -158,7 +158,7 @@ class TaskSpec(object):
         given task is added as an output task.
 
         @type  taskspec: TaskSpec
-        @param taskspec: The new output node.
+        @param taskspec: The new output task.
         """
         self.outputs.append(taskspec)
         taskspec._connect_notify(self)
@@ -183,7 +183,7 @@ class TaskSpec(object):
         Should NOT be overwritten! Instead, overwrite the hook (_predict_hook).
 
         @type  my_task: Task
-        @param my_task: The associated node in the task tree.
+        @param my_task: The associated task in the task tree.
         @type  seen: list[taskspec]
         @param seen: A list of already visited tasks.
         @type  looked_ahead: integer
@@ -201,8 +201,8 @@ class TaskSpec(object):
                 return
         if not my_task._is_finished():
             self._predict_hook(my_task)
-        for node in my_task.children:
-            node.spec._predict(node, seen[:], looked_ahead)
+        for child in my_task.children:
+            child.spec._predict(child, seen[:], looked_ahead)
 
 
     def _predict_hook(self, my_task):
@@ -237,7 +237,7 @@ class TaskSpec(object):
         Return True on success, False otherwise.
 
         @type  my_task: Task
-        @param my_task: The associated node in the task tree.
+        @param my_task: The associated task in the task tree.
         @rtype:  boolean
         @return: True on success, False otherwise.
         """
@@ -282,7 +282,7 @@ class TaskSpec(object):
         A hook into _on_ready() that does the task specific work.
 
         @type  my_task: Task
-        @param my_task: The associated node in the task tree.
+        @param my_task: The associated task in the task tree.
         @rtype:  boolean
         @return: True on success, False otherwise.
         """
@@ -294,7 +294,7 @@ class TaskSpec(object):
         A hook into _on_ready() that does the task specific work.
 
         @type  my_task: Task
-        @param my_task: The associated node in the task tree.
+        @param my_task: The associated task in the task tree.
         @rtype:  boolean
         @return: True on success, False otherwise.
         """
@@ -309,7 +309,7 @@ class TaskSpec(object):
         Return True on success, False otherwise.
 
         @type  my_task: Task
-        @param my_task: The associated node in the task tree.
+        @param my_task: The associated task in the task tree.
         @rtype:  boolean
         @return: True on success, False otherwise.
         """
@@ -322,7 +322,7 @@ class TaskSpec(object):
         event.
 
         @type  my_task: Task
-        @param my_task: The associated node in the task tree.
+        @param my_task: The associated task in the task tree.
         @rtype:  boolean
         @return: True on success, False otherwise.
         """
@@ -335,7 +335,7 @@ class TaskSpec(object):
         overwrite _on_complete_hook() instead.
 
         @type  my_task: Task
-        @param my_task: The associated node in the task tree.
+        @param my_task: The associated task in the task tree.
         @rtype:  boolean
         @return: True on success, False otherwise.
         """
@@ -343,7 +343,7 @@ class TaskSpec(object):
         assert not self.cancelled
 
         if my_task.job.debug:
-            print "Executing node:", my_task.get_name()
+            print "Executing task:", my_task.get_name()
 
         if not self._on_complete_hook(my_task):
             return False
@@ -363,7 +363,7 @@ class TaskSpec(object):
         A hook into _on_complete() that does the task specific work.
 
         @type  my_task: Task
-        @param my_task: The associated node in the task tree.
+        @param my_task: The associated task in the task tree.
         @rtype:  boolean
         @return: True on success, False otherwise.
         """

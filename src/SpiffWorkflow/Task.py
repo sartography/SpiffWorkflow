@@ -18,7 +18,7 @@ from Exception import WorkflowException
 
 class Task(object):
     """
-    A node used internally for composing a tree that represents the path that
+    Used internally for composing a tree that represents the path that
     is taken (or predicted) within the workflow.
     """
     FUTURE    =   1
@@ -360,7 +360,7 @@ class Task(object):
         """
         Returns the ancestor that has a task with the given TaskSpec
         as a parent.
-        If no such ancestor was found, the root node is returned.
+        If no such ancestor was found, the root task is returned.
 
         @type  parent_taskspec: TaskSpec
         @param parent_taskspec: The wanted ancestor.
@@ -396,7 +396,7 @@ class Task(object):
     def _find_ancestor(self, taskspec):
         """
         Returns the ancestor that has the given TaskSpec assigned.
-        If no such ancestor was found, the root node is returned.
+        If no such ancestor was found, the root task is returned.
 
         @type  taskspec: TaskSpec
         @param taskspec: The wanted task.

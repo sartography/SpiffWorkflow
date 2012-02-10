@@ -53,12 +53,12 @@ class Trigger(TaskSpec):
         self.queued += 1
         # All tasks that have already completed need to be put into
         # READY again.
-        for node in my_task.job.task_tree:
-            if node.thread_id != my_task.thread_id:
+        for thetask in my_task.job.task_tree:
+            if thetask.thread_id != my_task.thread_id:
                 continue
-            if node.spec == self and node._has_state(Task.COMPLETED):
-                node.state = Task.FUTURE
-                node._ready()
+            if thetask.spec == self and thetask._has_state(Task.COMPLETED):
+                thetask.state = Task.FUTURE
+                thetask._ready()
 
 
     def _on_complete_hook(self, my_task):

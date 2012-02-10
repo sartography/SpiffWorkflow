@@ -199,7 +199,7 @@ class Join(TaskSpec):
         else:
             split_task = my_task.job.task_tree
 
-        # Find the inbound node that was completed last.
+        # Find the inbound task that was completed last.
         last_changed = None
         thread_tasks = []
         for task in split_task._find_any(self):
@@ -213,7 +213,7 @@ class Join(TaskSpec):
                 last_changed = task
             thread_tasks.append(task)
 
-        # Mark all nodes in this thread that reference this task as 
+        # Mark all tasks in this thread that reference this task as 
         # completed, except for the first one, which should be READY.
         for task in thread_tasks:
             if task == last_changed:
