@@ -37,8 +37,8 @@ class DictionarySerializer(Serializer):
         s_state['attributes'] = job.attributes
 
         # last_node
-        value = job.last_node
-        s_state['last_node'] = value.id if not value is None else None
+        value = job.last_task
+        s_state['last_task'] = value.id if not value is None else None
 
         # outer_job
         #s_state['outer_job'] = job.outer_job.id
@@ -64,8 +64,8 @@ class DictionarySerializer(Serializer):
         # attributes
         job.attributes = s_state['attributes']
 
-        # last_node
-        job.last_node = s_state['last_node']
+        # last_task
+        job.last_task = s_state['last_task']
 
         # outer_job
         #job.outer_job =  find_job_by_id(remap_job_id(s_state['outer_job']))
@@ -75,7 +75,7 @@ class DictionarySerializer(Serializer):
 
         # task_tree
         tasks = [self.deserialize_task(job, serialized_task) for serialized_task in s_state['task_tree']]
-        job.task_tree = [task for task in tasks if task.spec.name == 'Root'][0]
+        job.task_tree = [task for task in tasks if task.task_spec.name == 'Root'][0]
 
         # workflow
         job.workflow = wf
@@ -100,8 +100,8 @@ class DictionarySerializer(Serializer):
         # state
         s_state['state'] = task.state
 
-        # spec
-        s_state['spec'] = task.spec.__class__.__module__ + '.' + task.spec.__class__.__name__
+        # task_spec
+        s_state['task_spec'] = task.task_spec.__class__.__module__ + '.' + task.task_spec.__class__.__name__
 
         # last_state_change
         s_state['last_state_change'] = task.last_state_change
@@ -130,8 +130,8 @@ class DictionarySerializer(Serializer):
         # state
         task.state = s_state['state']
 
-        # spec
-        assert task.spec.__class__ == get_class(s_state['spec'])
+        # task_spec
+        assert task.task_spec.__class__ == get_class(s_state['task_spec'])
 
         # last_state_change
         task.last_state_change = s_state['last_state_change']

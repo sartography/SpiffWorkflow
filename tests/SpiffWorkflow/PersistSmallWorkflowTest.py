@@ -1,12 +1,12 @@
 import sys, unittest, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from SpiffWorkflow           import Workflow, Job
-from SpiffWorkflow.Tasks     import *
-from SpiffWorkflow.Operators import *
-from SpiffWorkflow.Task      import *
+from SpiffWorkflow import Workflow, Job
+from SpiffWorkflow.Tasks import *
+from SpiffWorkflow.operators import *
+from SpiffWorkflow.Task import *
 from SpiffWorkflow.Tasks.Simple import Simple
-from SpiffWorkflow.Storage import DictionarySerializer
+from SpiffWorkflow.storage import DictionarySerializer
 
 class ASmallWorkflow(Workflow):
     def __init__(self):
@@ -67,4 +67,7 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         self.assert_(before == after, 'Before:\n' + before + '\n' \
                                     + 'After:\n'  + after  + '\n')
 
-
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(PersistSmallWorkflowTest)
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity = 2).run(suite())
