@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from TaskSpec                import TaskSpec
-from ThreadStart             import ThreadStart
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
+from SpiffWorkflow.Tasks.ThreadStart import ThreadStart
 
 class ThreadSplit(TaskSpec):
     """
@@ -29,36 +29,46 @@ class ThreadSplit(TaskSpec):
     This task has one or more inputs and may have any number of outputs.
     """
 
-    def __init__(self, parent, name, **kwargs):
+    def __init__(self,
+                 parent,
+                 name,
+                 times = None,
+                 times_attribute = None,
+                 **kwargs):
         """
         Constructor.
         
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the pattern (string)
-        kwargs -- must contain one of the following:
-                    times -- the number of my_tasks to create.
-                    times-attribute -- the name of the attribute that
-                                       specifies the number of outgoing
-                                       my_tasks.
+        @type  parent: Workflow
+        @param parent: A reference to the parent (usually a workflow).
+        @type  name: string
+        @param name: A name for the task.
+        @type  times: int or None
+        @param times: The number of tasks to create.
+        @type  times_attribute: str or None
+        @param times_attribute: The name of an attribute that specifies
+                                the number of outgoing tasks.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
-        assert kwargs.has_key('times_attribute') or kwargs.has_key('times')
+        if not times_attribute and not times:
+            raise ValueError('require times or times_attribute argument')
         TaskSpec.__init__(self, parent, name, **kwargs)
-        self.times_attribute = kwargs.get('times_attribute', None)
-        self.times           = kwargs.get('times',           None)
+        self.times_attribute = times_attribute
+        self.times           = times
         self.thread_starter  = ThreadStart(parent, **kwargs)
         self.outputs.append(self.thread_starter)
         self.thread_starter._connect_notify(self)
 
 
-    def connect(self, taskspec):
+    def connect(self, task_spec):
         """
         Connect the *following* task to this one. In other words, the
         given task is added as an output task.
 
         task -- the task to connect to.
         """
-        self.thread_starter.outputs.append(taskspec)
-        taskspec._connect_notify(self.thread_starter)
+        self.thread_starter.outputs.append(task_spec)
+        task_spec._connect_notify(self.thread_starter)
 
 
     def _find_my_task(self, job):
@@ -123,10 +133,6 @@ class ThreadSplit(TaskSpec):
 
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-        """
         # Split, and remember the number of splits in the context data.
         split_n = self.times
         if split_n is None:

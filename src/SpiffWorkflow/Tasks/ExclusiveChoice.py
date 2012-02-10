@@ -14,9 +14,9 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import re
-from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from MultiChoice             import MultiChoice
+from MultiChoice import MultiChoice
 
 class ExclusiveChoice(MultiChoice):
     """
@@ -29,23 +29,29 @@ class ExclusiveChoice(MultiChoice):
         """
         Constructor.
         
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the pattern (string)
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  name: str
+        @param name: The name of the task spec.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         MultiChoice.__init__(self, parent, name, **kwargs)
-        self.default_task = None
+        self.default_task_spec = None
 
 
-    def connect(self, taskspec):
+    def connect(self, task_spec):
         """
-        Connects the task that is executed if no other condition matches.
+        Connects the task spec that is executed if no other condition
+        matches.
 
-        taskspec -- the following task
+        @type  task_spec: TaskSpec
+        @param task_spec: The following task spec.
         """
-        assert self.default_task is None
-        self.outputs.append(taskspec)
-        self.default_task = taskspec
-        taskspec._connect_notify(self)
+        assert self.default_task_spec is None
+        self.outputs.append(task_spec)
+        self.default_task_spec = task_spec
+        task_spec._connect_notify(self)
 
 
     def test(self):
@@ -54,25 +60,21 @@ class ExclusiveChoice(MultiChoice):
         if an error was detected.
         """
         MultiChoice.test(self)
-        if self.default_task is None:
+        if self.default_task_spec is None:
             raise WorkflowException(self, 'A default output is required.')
 
 
     def _predict_hook(self, my_task):
         my_task._update_children(self.outputs, Task.MAYBE)
-        my_task._set_likely_task(self.default_task)
+        my_task._set_likely_task(self.default_task_spec)
 
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-        """
         # Find the first matching condition.
-        output = self.default_task
-        for condition, taskspec in self.cond_taskspecs:
+        output = self.default_task_spec
+        for condition, task_spec in self.cond_task_specs:
             if condition is None or condition._matches(my_task):
-                output = taskspec
+                output = task_spec
                 break
 
         my_task._update_children(output)

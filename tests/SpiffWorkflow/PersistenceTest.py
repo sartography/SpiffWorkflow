@@ -21,14 +21,14 @@ class PersistenceTest(WorkflowTest):
     def doPickleSingle(self, workflow, job):
         self.taken_path = {'reached':   [],
                            'completed': []}
-        for name, task in workflow.tasks.iteritems():
+        for name, task in workflow.task_specs.iteritems():
             task.reached_event.connect(on_reached_cb,
                                        self.taken_path['reached'])
             task.completed_event.connect(on_complete_cb,
                                          self.taken_path['completed'])
 
         # Execute a random number of steps.
-        for i in xrange(randint(0, len(workflow.tasks))):
+        for i in xrange(randint(0, len(workflow.task_specs))):
             job.complete_next()
     
         # Store the workflow instance in a file.
@@ -50,7 +50,7 @@ class PersistenceTest(WorkflowTest):
 
         # Re-connect signals, because the pickle dump now only contains a 
         # copy of self.taken_path.
-        for name, task in job.workflow.tasks.iteritems():
+        for name, task in job.workflow.task_specs.iteritems():
             task.reached_event.disconnect(on_reached_cb)
             task.completed_event.disconnect(on_complete_cb)
             task.reached_event.connect(on_reached_cb,

@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from TaskSpec                import TaskSpec
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
 
 class Trigger(TaskSpec):
     """
@@ -31,9 +31,14 @@ class Trigger(TaskSpec):
         """
         Constructor.
 
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the task (string)
-        context -- a list of the names of tasks that are to be triggered
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  name: str
+        @param name: The name of the task spec.
+        @type  context: str
+        @param context: A list of the names of tasks that are to be triggered.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         assert parent  is not None
         assert name    is not None
@@ -56,21 +61,23 @@ class Trigger(TaskSpec):
         for thetask in my_task.job.task_tree:
             if thetask.thread_id != my_task.thread_id:
                 continue
-            if thetask.spec == self and thetask._has_state(Task.COMPLETED):
+            if thetask.task_spec == self and thetask._has_state(Task.COMPLETED):
                 thetask.state = Task.FUTURE
                 thetask._ready()
 
 
     def _on_complete_hook(self, my_task):
         """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
+        A hook into _on_complete() that does the task specific work.
 
-        my_task -- the task in which this method is executed
+        @type  my_task: Task
+        @param my_task: A task in which this method is executed.
+        @rtype:  bool
+        @return: True on success, False otherwise.
         """
         for i in range(self.times + self.queued):
             for task_name in self.context:
-                task = my_task.job.get_task_from_name(task_name)
+                task = my_task.job.get_task_spec_from_name(task_name)
                 task._on_trigger(my_task)
         self.queued = 0
         return TaskSpec._on_complete_hook(self, my_task)

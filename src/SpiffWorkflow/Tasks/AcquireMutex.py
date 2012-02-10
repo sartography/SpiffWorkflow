@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,MA  02110-1301  USA
-from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from TaskSpec                import TaskSpec
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
 
 class AcquireMutex(TaskSpec):
     """
@@ -31,14 +31,18 @@ class AcquireMutex(TaskSpec):
         """
         Constructor.
 
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the task (string)
-        mutex -- the mutex that should be acquired
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  name: str
+        @param name: The name of the task spec.
+        @type  mutex: str
+        @param mutex: The name of the mutex that should be acquired.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         assert mutex is not None
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.mutex = mutex
-
 
     def _update_state_hook(self, my_task):
         mutex = my_task.job._get_mutex(self.mutex)
@@ -46,13 +50,3 @@ class AcquireMutex(TaskSpec):
             return True
         my_task._set_state(Task.WAITING)
         return False
-
-
-    def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-
-        my_task -- the task in which this method is executed
-        """
-        return TaskSpec._on_complete_hook(self, my_task)

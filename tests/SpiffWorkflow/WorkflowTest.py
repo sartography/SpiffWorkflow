@@ -241,7 +241,7 @@ class WorkflowTest(unittest.TestCase):
     def _runWorkflow(self, wf):
         taken_path = {'reached':   [],
                       'completed': []}
-        for name, task in wf.tasks.iteritems():
+        for name, task in wf.task_specs.iteritems():
             task.reached_event.connect(on_reached_cb, taken_path['reached'])
             task.completed_event.connect(on_complete_cb, taken_path['completed'])
 
@@ -270,7 +270,7 @@ class WorkflowTest(unittest.TestCase):
 
         tasks = job.get_tasks(Task.READY)
         self.assertEqual(len(tasks), 1)
-        self.assertEqual(tasks[0].spec.name, 'Start')
+        self.assertEqual(tasks[0].task_spec.name, 'Start')
         job.complete_task_from_id(tasks[0].id)
         self.assertEqual(tasks[0].state, Task.COMPLETED)
 
@@ -278,10 +278,10 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(len(tasks), 2)
         task_a1 = tasks[0]
         task_b1 = tasks[1]
-        self.assertEqual(task_a1.spec.__class__, Simple)
-        self.assertEqual(task_a1.spec.name, 'task_a1')
-        self.assertEqual(task_b1.spec.__class__, Simple)
-        self.assertEqual(task_b1.spec.name, 'task_b1')
+        self.assertEqual(task_a1.task_spec.__class__, Simple)
+        self.assertEqual(task_a1.task_spec.name, 'task_a1')
+        self.assertEqual(task_b1.task_spec.__class__, Simple)
+        self.assertEqual(task_b1.task_spec.name, 'task_b1')
         job.complete_task_from_id(task_a1.id)
         self.assertEqual(task_a1.state, Task.COMPLETED)
 
@@ -289,8 +289,8 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(len(tasks), 2)
         self.assertTrue(task_b1 in tasks)
         task_a2 = tasks[0]
-        self.assertEqual(task_a2.spec.__class__, Simple)
-        self.assertEqual(task_a2.spec.name, 'task_a2')
+        self.assertEqual(task_a2.task_spec.__class__, Simple)
+        self.assertEqual(task_a2.task_spec.name, 'task_a2')
         job.complete_task_from_id(task_a2.id)
 
         tasks = job.get_tasks(Task.READY)
@@ -304,7 +304,7 @@ class WorkflowTest(unittest.TestCase):
 
         tasks = job.get_tasks(Task.READY)
         self.assertEqual(len(tasks), 1)
-        self.assertEqual(tasks[0].spec.name, 'synch_1')
+        self.assertEqual(tasks[0].task_spec.name, 'synch_1')
         # haven't reached the end of the job, but stopping at "synch_1"
 
 

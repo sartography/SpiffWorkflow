@@ -6,7 +6,6 @@ from SpiffWorkflow import Workflow, Job, Task
 from SpiffWorkflow.storage import XmlReader
 from xml.parsers.expat import ExpatError
 
-
 def on_reached_cb(job, task, taken_path):
     reached_key = "%s_reached" % str(task.get_name())
     n_reached   = task.get_attribute(reached_key, 0) + 1
@@ -48,10 +47,10 @@ def on_reached_cb(job, task, taken_path):
     # re-assign the function in every step, thus making sure that new
     # children also call on_ready_cb().
     for child in task.children:
-        if not child.spec.reached_event.is_connected(on_reached_cb):
-            child.spec.reached_event.connect(on_reached_cb, taken_path)
-        if not child.spec.completed_event.is_connected(on_complete_cb):
-            child.spec.completed_event.connect(on_complete_cb, taken_path)
+        if not child.task_spec.reached_event.is_connected(on_reached_cb):
+            child.task_spec.reached_event.connect(on_reached_cb, taken_path)
+        if not child.task_spec.completed_event.is_connected(on_complete_cb):
+            child.task_spec.completed_event.connect(on_complete_cb, taken_path)
     return True
 
 
@@ -61,7 +60,6 @@ def on_complete_cb(job, task, taken_path):
     taken_path.append('%s%s' % (indent, task.get_name()))
     #print "COMPLETED:", task.get_name(), task.get_attributes()
     return True
-
 
 class PatternTest(unittest.TestCase):
     def setUp(self):
@@ -93,9 +91,9 @@ class PatternTest(unittest.TestCase):
 
     def runWorkflow(self, wf, xml_filename):
         taken_path = []
-        for name in wf.tasks:
-            wf.tasks[name].reached_event.connect(on_reached_cb, taken_path)
-            wf.tasks[name].completed_event.connect(on_complete_cb, taken_path)
+        for name in wf.task_specs:
+            wf.task_specs[name].reached_event.connect(on_reached_cb, taken_path)
+            wf.task_specs[name].completed_event.connect(on_complete_cb, taken_path)
 
         # Execute all tasks within the Job.
         job = Job(wf)

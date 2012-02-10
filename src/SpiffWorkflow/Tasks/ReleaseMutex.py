@@ -31,9 +31,14 @@ class ReleaseMutex(TaskSpec):
         """
         Constructor.
 
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the task (string)
-        mutex -- the mutex that should be released
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  name: str
+        @param name: The name of the task spec.
+        @type  mutex: str
+        @param mutex: The name of the mutex that should be released.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         assert mutex is not None
         TaskSpec.__init__(self, parent, name, **kwargs)
@@ -41,12 +46,6 @@ class ReleaseMutex(TaskSpec):
 
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-
-        my_task -- the task in which this method is executed
-        """
         mutex = my_task.job._get_mutex(self.mutex)
         mutex.unlock()
         return TaskSpec._on_complete_hook(self, my_task)

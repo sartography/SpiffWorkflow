@@ -13,11 +13,11 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
 from SpiffWorkflow.operators import valueof
-from TaskSpec                import TaskSpec
-from Join                    import Join
+from SpiffWorkflow.Tasks import Join
 
 class ThreadMerge(Join):
     """
@@ -26,21 +26,23 @@ class ThreadMerge(Join):
     It has two or more incoming branches and one or more outputs.
     """
 
-    def __init__(self, parent, name, split_task, **kwargs):
+    def __init__(self,
+                 parent,
+                 name,
+                 split_task,
+                 **kwargs):
         """
         Constructor.
         
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the pattern (string)
-        split_task -- the name of the task that was previously used to split
-                      the branch
-        kwargs -- may contain the following keys:
-                      threshold -- an integer that specifies how many incoming
-                      branches need to complete before the task triggers.
-                      When the limit is reached, the task fires but still
-                      expects all other branches to complete.
-                      cancel -- when set to True, remaining incoming branches
-                      are cancelled as soon as the discriminator is activated.
+        @type  parent: Workflow
+        @param parent: A reference to the parent (usually a workflow).
+        @type  name: string
+        @param name: A name for the task.
+        @type  split_task: str
+        @param split_task: The name of the task spec that was previously
+                           used to split the branch.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.Join}.
         """
         assert split_task is not None
         Join.__init__(self, parent, name, split_task, **kwargs)
@@ -59,7 +61,7 @@ class ThreadMerge(Join):
         if split_task is None:
             msg = 'Join with %s, which was not reached' % self.split_task
             raise WorkflowException(self, msg)
-        tasks = split_task.spec._get_activated_threads(split_task)
+        tasks = split_task.task_spec._get_activated_threads(split_task)
 
         # The default threshold is the number of threads that were started.
         threshold = valueof(my_task, self.threshold)
@@ -71,7 +73,7 @@ class ThreadMerge(Join):
         completed     = 0
         for task in tasks:
             # Refresh path prediction.
-            task.spec._predict(task)
+            task.task_spec._predict(task)
 
             if self._branch_is_complete(task):
                 completed += 1
@@ -99,7 +101,7 @@ class ThreadMerge(Join):
             my_task._set_state(Task.WAITING)
             return False
 
-        split_task_spec = my_task.job.get_task_from_name(self.split_task)
+        split_task_spec = my_task.job.get_task_spec_from_name(self.split_task)
         split_task      = my_task._find_ancestor(split_task_spec)
 
         # Find the inbound task that was completed last.
@@ -127,8 +129,4 @@ class ThreadMerge(Join):
 
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-        """
         return TaskSpec._on_complete_hook(self, my_task)

@@ -30,32 +30,36 @@ class MultiChoice(TaskSpec):
         """
         Constructor.
         
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the pattern (string)
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  name: str
+        @param name: The name of the task spec.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         TaskSpec.__init__(self, parent, name, **kwargs)
-        self.cond_taskspecs = []
-        self.choice         = None
+        self.cond_task_specs = []
+        self.choice          = None
 
 
-    def connect(self, taskspec):
+    def connect(self, task_spec):
         """
         Convenience wrapper around connect_if() where condition is set to None.
         """
-        return self.connect_if(None, taskspec)
+        return self.connect_if(None, task_spec)
 
 
-    def connect_if(self, condition, taskspec):
+    def connect_if(self, condition, task_spec):
         """
         Connects a taskspec that is executed if the condition DOES match.
         
         condition -- a condition (Condition)
-        taskspec -- the conditional taskspec
+        taskspec -- the conditional task spec
         """
-        assert taskspec is not None
-        self.outputs.append(taskspec)
-        self.cond_taskspecs.append((condition, taskspec))
-        taskspec._connect_notify(self)
+        assert task_spec is not None
+        self.outputs.append(task_spec)
+        self.cond_task_specs.append((condition, task_spec))
+        task_spec._connect_notify(self)
 
 
     def test(self):
@@ -64,9 +68,9 @@ class MultiChoice(TaskSpec):
         if an error was detected.
         """
         TaskSpec.test(self)
-        if len(self.cond_taskspecs) < 1:
+        if len(self.cond_task_specs) < 1:
             raise WorkflowException(self, 'At least one output required.')
-        for condition, task in self.cond_taskspecs:
+        for condition, task in self.cond_task_specs:
             if task is None:
                 raise WorkflowException(self, 'Condition with no task.')
             if condition is None:
@@ -93,7 +97,7 @@ class MultiChoice(TaskSpec):
         """
         # Find all matching conditions.
         outputs = []
-        for condition, output in self.cond_taskspecs:
+        for condition, output in self.cond_task_specs:
             if condition is not None and not condition._matches(my_task):
                 continue
             if self.choice is not None and output.name not in self.choice:

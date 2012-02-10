@@ -20,25 +20,33 @@ class Assign(object):
     a static value, or another attribute.
     """
 
-    def __init__(self, left_attribute, **kwargs):
+    def __init__(self,
+                 left_attribute,
+                 right_attribute = None,
+                 right = None,
+                 **kwargs):
         """
         Constructor.
 
-        @type  left_attribute: string
+        @type  left_attribute: str
         @param left_attribute: The name of the attribute to which the value
                                is assigned.
+        @type  right: object
+        @param right: A static value that, when given, is assigned to
+                      left_attribute.
+        @type  right_attribute: str
+        @param right_attribute: When given, the attribute with the given
+                                name is used as the source (instead of the
+                                static value).
         @type  kwargs: dict
-        @param kwargs: Must contain one of right_attribute/right:
-            - right: A static value that when given is assigned to
-              left_attribute.
-            - right_attribute: When given, the attribute with the given
-              name is used as the source (instead of the static value).
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
+        if not right_attribute and not right:
+            raise ValueError('require argument: right_attribute or right')
         assert left_attribute is not None
-        assert kwargs.has_key('right_attribute') or kwargs.has_key('right')
         self.left_attribute  = left_attribute
-        self.right_attribute = kwargs.get('right_attribute', None)
-        self.right           = kwargs.get('right',           None)
+        self.right_attribute = right_attribute
+        self.right           = right
 
     def assign(self, from_obj, to_obj):
         # Fetch the value of the right expression.

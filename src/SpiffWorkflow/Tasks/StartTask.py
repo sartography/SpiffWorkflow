@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow           import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from TaskSpec                import TaskSpec
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
 
 class StartTask(TaskSpec):
     """
@@ -27,14 +27,17 @@ class StartTask(TaskSpec):
 
     def __init__(self, parent, **kwargs):
         """
-        Constructor.
+        Constructor. The name of this task is *always* 'Start'.
         
-        parent -- a reference to the parent (TaskSpec)
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         TaskSpec.__init__(self, parent, 'Start', **kwargs)
 
 
-    def _connect_notify(self, taskspec):
+    def _connect_notify(self, task_spec):
         """
         Called by the previous task to let us know that it exists.
         """

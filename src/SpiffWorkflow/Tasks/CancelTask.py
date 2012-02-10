@@ -13,10 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow           import Task
-from SpiffWorkflow.Exception import WorkflowException
-from TaskSpec                import TaskSpec
-from Trigger                 import Trigger
+from SpiffWorkflow import Task
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
+from SpiffWorkflow.Tasks.Trigger import Trigger
 
 class CancelTask(Trigger):
     """
@@ -28,14 +27,8 @@ class CancelTask(Trigger):
     """
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-
-        my_task -- the task in which this method is executed
-        """
         for task_name in self.context:
-            cancel_tasks = my_task.job.get_task_from_name(task_name)
+            cancel_tasks = my_task.job.get_task_spec_from_name(task_name)
             for cancel_task in my_task._get_root()._find_any(cancel_tasks):
                 cancel_task.cancel()
         return TaskSpec._on_complete_hook(self, my_task)

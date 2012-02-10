@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
 from SpiffWorkflow.operators import valueof
-from TaskSpec                import TaskSpec
 
 class MultiInstance(TaskSpec):
     """
@@ -33,10 +33,14 @@ class MultiInstance(TaskSpec):
         """
         Constructor.
         
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the pattern (string)
-        kwargs -- must contain one of the following:
-                    times -- the number of tasks to create.
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  name: str
+        @param name: The name of the task spec.
+        @type  times: int
+        @param times: The number of tasks to create.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         assert kwargs.has_key('times')
         TaskSpec.__init__(self, parent, name, **kwargs)
@@ -47,18 +51,18 @@ class MultiInstance(TaskSpec):
         for thetask in task.job.task_tree:
             if thetask.thread_id != task.thread_id:
                 continue
-            if thetask.spec == self:
+            if thetask.task_spec == self:
                 return thetask
         return None
 
 
-    def _on_trigger(self, taskspec):
+    def _on_trigger(self, task_spec):
         """
         May be called after execute() was already completed to create an
         additional outbound task.
         """
         # Find a Task for this TaskSpec.
-        my_task = self._find_my_task(taskspec)
+        my_task = self._find_my_task(task_spec)
         for output in self.outputs:
             if my_task._has_state(Task.COMPLETED):
                 state = Task.READY | Task.TRIGGERED
@@ -96,10 +100,6 @@ class MultiInstance(TaskSpec):
 
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-        """
         outputs = self._get_predicted_outputs(my_task)
         my_task._update_children(outputs)
         return True

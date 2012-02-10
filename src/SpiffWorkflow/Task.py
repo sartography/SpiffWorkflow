@@ -4,12 +4,12 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -113,18 +113,18 @@ class Task(object):
     id_pool        = 0
     thread_id_pool = 0
 
-    def __init__(self, job, spec, parent = None):
+    def __init__(self, job, task_spec, parent = None):
         """
         Constructor.
         """
-        assert job  is not None
-        assert spec is not None
+        assert job is not None
+        assert task_spec is not None
         self.__class__.id_pool  += 1
         self.job                 = job
         self.parent              = parent
         self.children            = []
         self.state               = Task.FUTURE
-        self.spec                = spec
+        self.task_spec           = task_spec
         self.id                  = self.__class__.id_pool
         self.thread_id           = self.__class__.thread_id_pool
         self.last_state_change   = time.time()
@@ -210,23 +210,23 @@ class Task(object):
         return self.state & self.DEFINITE_MASK != 0
 
 
-    def _add_child(self, spec, state = FUTURE):
+    def _add_child(self, task_spec, state = FUTURE):
         """
         Adds a new child and assigns the given TaskSpec to it.
 
-        @type  spec: TaskSpec
-        @param spec: The TaskSpec that is assigned to the new child.
+        @type  task_spec: TaskSpec
+        @param task_spec: The task spec that is assigned to the new child.
         @type  state: integer
         @param state: The bitmask of states for the new child.
         @rtype:  Task
         @return: The new child task.
         """
-        if spec is None:
-            raise WorkflowException(self, '_add_child() requires a TaskSpec')
+        if task_spec is None:
+            raise ValueError(self, '_add_child() requires a TaskSpec')
         if self._is_predicted() and state & self.PREDICTED_MASK == 0:
             msg = 'Attempt to add non-predicted child to predicted task'
             raise WorkflowException(self, msg)
-        task           = Task(self.job, spec, self)
+        task           = Task(self.job, task_spec, self)
         task.thread_id = self.thread_id
         if state == self.READY:
             task._ready()
@@ -253,7 +253,7 @@ class Task(object):
         return self.thread_id
 
 
-    def _update_children(self, taskspecs, state = None):
+    def _update_children(self, task_specs, state = None):
         """
         This method adds one child for each given TaskSpec, unless that
         child already exists.
@@ -266,72 +266,72 @@ class Task(object):
         If this method is not passed a state:
           - The state for all children is updated by calling the child's
           _update_state() method.
-          
-        If the task currently has a child that is not given in the TaskSpecs, 
+
+        If the task currently has a child that is not given in the TaskSpec,
         the child is removed.
-        It is an error if the task has a non-LIKELY child that is 
+        It is an error if the task has a non-LIKELY child that is
         not given in the TaskSpecs.
 
-        @type  taskspecs: list[TaskSpec]
-        @param taskspecs: The list of TaskSpecs that may become children.
+        @type  task_specs: list(TaskSpec)
+        @param task_specs: The list of task specs that may become children.
         @type  state: integer
         @param state: The bitmask of states for newly added children.
         """
-        if taskspecs is None:
-            raise WorkflowException(self, '"taskspecs" argument is None')
-        if type(taskspecs) != type([]):
-            taskspecs = [taskspecs]
+        if task_specs is None:
+            raise ValueError('"task_specs" argument is None')
+        if type(task_specs) != type([]):
+            task_specs = [task_specs]
 
         # Create a list of all children that are no longer needed, and
         # set the state of all others.
-        add    = taskspecs[:]
+        add    = task_specs[:]
         remove = []
         for child in self.children:
             # Must not be TRIGGERED or COMPLETED.
             if child._has_state(Task.TRIGGERED):
                 if state is None:
-                    child.spec._update_state(child)
+                    child.task_spec._update_state(child)
                 continue
             if child._is_finished():
-                add.remove(child.spec)
+                add.remove(child.task_spec)
                 continue
 
             # Check whether the item needs to be added or removed.
-            if child.spec not in add:
+            if child.task_spec not in add:
                 if not self._is_definite():
                     msg = 'Attempt to remove non-predicted %s' % child.get_name()
                     raise WorkflowException(self, msg)
                 remove.append(child)
                 continue
-            add.remove(child.spec)
+            add.remove(child.task_spec)
 
             # Update the state.
             if state is not None:
                 child.state = state
             else:
-                child.spec._update_state(child)
+                child.task_spec._update_state(child)
 
         # Remove all children that are no longer specified.
         for child in remove:
             self.children.remove(child)
 
         # Add a new child for each of the remaining tasks.
-        for spec in add:
-            if spec.cancelled:
+        for task_spec in add:
+            if task_spec.cancelled:
                 continue
             if state is not None:
-                self._add_child(spec, state)
+                self._add_child(task_spec, state)
             else:
-                child = self._add_child(spec, self.LIKELY)
-                spec._update_state(child)
+                child = self._add_child(task_spec, self.LIKELY)
+                task_spec._update_state(child)
 
 
-    def _set_likely_task(self, taskspecs):
-        if type(taskspecs) != type([]):
-            taskspecs = [taskspecs]
-        for spec in taskspecs:
+    def _set_likely_task(self, task_specs):
+        if type(task_specs) != type([]):
+            task_specs = [task_specs]
+        for task_spec in task_specs:
             for child in self.children:
-                if child.spec != spec:
+                if child.task_spec != task_spec:
                     continue
                 if child._is_definite():
                     continue
@@ -356,58 +356,58 @@ class Task(object):
         return self.parent._is_descendant_of(parent)
 
 
-    def _find_child_of(self, parent_taskspec):
+    def _find_child_of(self, parent_task_spec):
         """
-        Returns the ancestor that has a task with the given TaskSpec
+        Returns the ancestor that has a task with the given task spec
         as a parent.
         If no such ancestor was found, the root task is returned.
 
-        @type  parent_taskspec: TaskSpec
-        @param parent_taskspec: The wanted ancestor.
+        @type  parent_task_spec: TaskSpec
+        @param parent_task_spec: The wanted ancestor.
         @rtype:  Task
         @return: The child of the given ancestor.
         """
         if self.parent is None:
             return self
-        if self.parent.spec == parent_taskspec:
+        if self.parent.task_spec == parent_task_spec:
             return self
-        return self.parent._find_child_of(parent_taskspec)
+        return self.parent._find_child_of(parent_task_spec)
 
 
-    def _find_any(self, taskspec):
+    def _find_any(self, task_spec):
         """
-        Returns any descendants that have the given TaskSpec assigned.
+        Returns any descendants that have the given task spec assigned.
 
-        @type  taskspec: TaskSpec
-        @param taskspec: The wanted task.
-        @rtype:  list[Task]
-        @return: The Task objects that are attached to the given TaskSpec.
+        @type  task_spec: TaskSpec
+        @param task_spec: The wanted task spec.
+        @rtype:  list(Task)
+        @return: The tasks objects that are attached to the given task spec.
         """
         tasks = []
-        if self.spec == taskspec:
+        if self.task_spec == task_spec:
             tasks.append(self)
         for child in self:
-            if child.spec != taskspec:
+            if child.task_spec != task_spec:
                 continue
             tasks.append(child)
         return tasks
 
 
-    def _find_ancestor(self, taskspec):
+    def _find_ancestor(self, task_spec):
         """
-        Returns the ancestor that has the given TaskSpec assigned.
+        Returns the ancestor that has the given task spec assigned.
         If no such ancestor was found, the root task is returned.
 
-        @type  taskspec: TaskSpec
-        @param taskspec: The wanted task.
+        @type  task_spec: TaskSpec
+        @param task_spec: The wanted task spec.
         @rtype:  Task
         @return: The ancestor.
         """
         if self.parent is None:
             return self
-        if self.parent.spec == taskspec:
+        if self.parent.task_spec == task_spec:
             return self.parent
-        return self.parent._find_ancestor(taskspec)
+        return self.parent._find_ancestor(task_spec)
 
 
     def _find_ancestor_from_name(self, name):
@@ -415,7 +415,7 @@ class Task(object):
         Returns the ancestor that has a task with the given name assigned.
         Returns None if no such ancestor was found.
 
-        @type  name: string
+        @type  name: str
         @param name: The name of the wanted task.
         @rtype:  Task
         @return: The ancestor.
@@ -436,15 +436,15 @@ class Task(object):
         if self.state & self.CANCELLED != 0:
             return
         self._set_state(self.READY | (self.state & self.TRIGGERED))
-        return self.spec._on_ready(self)
+        return self.task_spec._on_ready(self)
 
 
     def get_name(self):
-        return str(self.spec.name)
+        return str(self.task_spec.name)
 
 
     def get_description(self):
-        return str(self.spec.description)
+        return str(self.task_spec.description)
 
 
     def get_state(self):
@@ -470,14 +470,14 @@ class Task(object):
         Returns the value of the property with the given name, or the given
         default value if the property does not exist.
 
-        @type  name: string
+        @type  name: str
         @param name: A property name.
         @type  default: obj
         @param default: Return this value if the property does not exist.
         @rtype:  obj
         @return: The value of the property.
         """
-        return self.spec.get_property(name, default)
+        return self.task_spec.get_property(name, default)
 
 
     def get_properties(self):
@@ -487,7 +487,7 @@ class Task(object):
         @rtype:  dict
         @return: Maps property names to values.
         """
-        return self.spec.properties
+        return self.task_spec.properties
 
 
     def _set_internal_attribute(self, **kwargs):
@@ -520,7 +520,7 @@ class Task(object):
         Returns the value of the attribute with the given name, or the given
         default value if the attribute does not exist.
 
-        @type  name: string
+        @type  name: str
         @param name: An attribute name.
         @type  default: obj
         @param default: Return this value if the attribute does not exist.
@@ -545,7 +545,7 @@ class Task(object):
             return
         self._set_state(self.CANCELLED | (self.state & self.TRIGGERED))
         self._drop_children()
-        return self.spec._on_cancel(self)
+        return self.task_spec._on_cancel(self)
 
 
     def complete(self):
@@ -554,21 +554,21 @@ class Task(object):
         has changed (e.g. from FUTURE to COMPLETED.)
         """
         self._set_state(self.COMPLETED | (self.state & self.TRIGGERED))
-        return self.spec._on_complete(self)
+        return self.task_spec._on_complete(self)
 
 
     def trigger(self, *args):
         """
         If recursive is True, the state is applied to the tree recursively.
         """
-        self.spec._on_trigger(self, *args)
+        self.task_spec._on_trigger(self, *args)
 
 
     def get_dump(self, indent = 0, recursive = True):
         """
         Returns the subtree as a string for debugging.
 
-        @rtype:  string
+        @rtype:  str
         @return: The debug information.
         """
         dbg  = (' ' * indent * 2)

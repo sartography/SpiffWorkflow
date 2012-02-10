@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
 from SpiffWorkflow.operators import valueof
-from TaskSpec                import TaskSpec
 
 class Join(TaskSpec):
     """
@@ -25,7 +25,13 @@ class Join(TaskSpec):
     branches and one or more outputs.
     """
 
-    def __init__(self, parent, name, split_task = None, **kwargs):
+    def __init__(self,
+                 parent,
+                 name,
+                 split_task = None,
+                 threshold = None,
+                 cancel = False,
+                 **kwargs):
         """
         Constructor.
         
@@ -33,25 +39,27 @@ class Join(TaskSpec):
         @param parent: A reference to the parent (usually a workflow).
         @type  name: string
         @param name: A name for the task.
-        @type  split_task: TaskSpec
-        @param split_task: The task that was previously used to split the
-                           branch.
+        @type  split_task: str or None
+        @param split_task: The name of the task spec that was previously
+                           used to split the branch. If this is None,
+                           the most recent branch split is merged.
+        @type  threshold: int or L{SpiffWorkflow.operators.Attrib}
+        @param threshold: Specifies how many incoming branches need to
+                          complete before the task triggers. When the limit
+                          is reached, the task fires but still expects all
+                          other branches to complete.
+                          You may also pass an attribute, in which case
+                          the value is resolved at runtime.
+        @type  cancel: bool
+        @param cancel: When True, any remaining incoming branches are
+                       cancelled as soon as the discriminator is activated.
         @type  kwargs: dict
-        @param kwargs: The following options are supported:
-            - threshold: Specifies how many incoming branches need
-              to complete before the task triggers.
-              When the limit is reached, the task fires but still
-              expects all other branches to complete.
-              You may also pass an attribute, in which case the
-              value is determined at runtime.
-            - cancel: When True, any remaining incoming branches
-              are cancelled as soon as the discriminator is activated.
-              The default is False.
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.split_task       = split_task
-        self.threshold        = kwargs.get('threshold', None)
-        self.cancel_remaining = kwargs.get('cancel',    False)
+        self.threshold        = threshold
+        self.cancel_remaining = cancel
 
 
     def _branch_is_complete(self, my_task):
@@ -62,7 +70,7 @@ class Join(TaskSpec):
             # If the current task is a child of myself, ignore it.
             if skip is not None and task._is_descendant_of(skip):
                 continue
-            if task.spec == self:
+            if task.task_spec == self:
                 skip = task
                 continue
             return False
@@ -75,13 +83,13 @@ class Join(TaskSpec):
             if child._has_state(Task.TRIGGERED):
                 continue
             # Merge found.
-            if child.spec == self:
+            if child.task_spec == self:
                 return True
             # If the task is predicted with less outputs than he has
             # children, that means the prediction may be incomplete (for
             # example, because a prediction is not yet possible at this time).
             if not child._is_definite() \
-                and len(child.spec.outputs) > len(child.children):
+                and len(child.task_spec.outputs) > len(child.children):
                 return True
         return False
 
@@ -115,7 +123,7 @@ class Join(TaskSpec):
             for task in my_task.job.task_tree:
                 if task.thread_id != my_task.thread_id:
                     continue
-                if task.spec != input:
+                if task.task_spec != input:
                     continue
                 tasks.append(task)
 
@@ -153,7 +161,7 @@ class Join(TaskSpec):
         if split_task is None:
             msg = 'Join with %s, which was not reached' % self.split_task
             raise WorkflowException(self, msg)
-        tasks = split_task.spec._get_activated_tasks(split_task, my_task)
+        tasks = split_task.task_spec._get_activated_tasks(split_task, my_task)
 
         # The default threshold is the number of branches that were started.
         threshold = valueof(my_task, self.threshold)
@@ -165,7 +173,7 @@ class Join(TaskSpec):
         completed     = 0
         for task in tasks:
             # Refresh path prediction.
-            task.spec._predict(task)
+            task.task_spec._predict(task)
 
             if not self._branch_may_merge_at(task):
                 completed += 1
@@ -194,7 +202,7 @@ class Join(TaskSpec):
 
     def _do_join(self, my_task):
         if self.split_task:
-            split_task = my_task.job.get_task_from_name(self.split_task)
+            split_task = my_task.job.get_task_spec_from_name(self.split_task)
             split_task = my_task._find_ancestor(split_task)
         else:
             split_task = my_task.job.task_tree
@@ -244,8 +252,4 @@ class Join(TaskSpec):
 
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-        """
         return TaskSpec._on_complete_hook(self, my_task)

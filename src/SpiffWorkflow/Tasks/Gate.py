@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from TaskSpec                import TaskSpec
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
 
 class Gate(TaskSpec):
     """
@@ -31,10 +31,15 @@ class Gate(TaskSpec):
         """
         Constructor.
 
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the task (string)
-        context -- the name of the task that needs to complete before this
-                   task can execute.
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  name: str
+        @param name: The name of the task spec.
+        @type  context: str
+        @param context: The name of the task that needs to complete before
+                        this task can execute.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         assert parent  is not None
         assert name    is not None
@@ -44,7 +49,7 @@ class Gate(TaskSpec):
 
 
     def _update_state_hook(self, my_task):
-        context_task = my_task.job.get_task_from_name(self.context)
+        context_task = my_task.job.get_task_spec_from_name(self.context)
         root_task    = my_task.job.task_tree
         for task in root_task._find_any(context_task):
             if task.thread_id != my_task.thread_id:
@@ -56,10 +61,4 @@ class Gate(TaskSpec):
 
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the my_task. Should not be called directly.
-        Returns True if completed, False otherwise.
-
-        task -- the task in which this method is executed
-        """
         return TaskSpec._on_complete_hook(self, my_task)

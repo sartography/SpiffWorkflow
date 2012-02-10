@@ -13,10 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow           import Task
-from SpiffWorkflow.Exception import WorkflowException
-from TaskSpec                import TaskSpec
-from Trigger                 import Trigger
+from SpiffWorkflow import Task
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
+from SpiffWorkflow.Tasks.Trigger import Trigger
 
 class Choose(Trigger):
     """
@@ -28,36 +27,36 @@ class Choose(Trigger):
     parallel split.
     """
 
-    def __init__(self, parent, name, context, **kwargs):
+    def __init__(self, parent, name, context, choice = None, **kwargs):
         """
         Constructor.
 
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the task (string)
-        context -- the name of the MultiChoice that is instructed to
-                   select the specified outputs.
-        kwargs -- may contain the following keys:
-                    choice -- the list of tasks that is selected.
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  name: str
+        @param name: The name of the task spec.
+        @type  context: str
+        @param context: The name of the MultiChoice that is instructed to
+                        select the specified outputs.
+        @type  choice: list(TaskSpec)
+        @param choice: The list of task specs that is selected.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
-        assert parent  is not None
-        assert name    is not None
+        assert parent is not None
+        assert name is not None
         assert context is not None
+        #HACK: inherit from TaskSpec (not Trigger) on purpose.
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.context = context
-        self.choice  = kwargs.get('choice', [])
+        self.choice  = choice is not None and choice or []
 
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-
-        my_task -- the task in which this method is executed
-        """
-        context = my_task.job.get_task_from_name(self.context)
+        context = my_task.job.get_task_spec_from_name(self.context)
         for task in my_task.job.task_tree:
             if task.thread_id != my_task.thread_id:
                 continue
-            if task.spec == context:
+            if task.task_spec == context:
                 task.trigger(self.choice)
         return TaskSpec._on_complete_hook(self, my_task)

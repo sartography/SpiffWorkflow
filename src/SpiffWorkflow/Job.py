@@ -48,7 +48,7 @@ class Job(object):
 
         workflow.start._predict(start)
         if not kwargs.has_key('parent'):
-            start.spec._update_state(start)
+            start.task_spec._update_state(start)
         #start.dump()
 
 
@@ -76,7 +76,7 @@ class Job(object):
             self.attributes.update(task.get_attributes())
         # Update the state of every WAITING task.
         for thetask in self._get_waiting_tasks():
-            thetask.spec._update_state(thetask)
+            thetask.task_spec._update_state(thetask)
         if self.completed_event.n_subscribers() == 0:
             # Since is_completed() is expensive it makes sense to bail
             # out if calling it is not necessary.
@@ -123,16 +123,16 @@ class Job(object):
             task.cancel()
     
 
-    def get_task_from_name(self, name):
+    def get_task_spec_from_name(self, name):
         """
-        Returns the task with the given name.
+        Returns the task spec with the given name.
 
         @type  name: string
         @param name: The name of the task.
         @rtype:  TaskSpec
-        @return: The task with the given name.
+        @return: The task spec with the given name.
         """
-        return self.workflow.get_task_from_name(name)
+        return self.workflow.get_task_spec_from_name(name)
 
 
     def get_tasks(self, state = Task.ANY_MASK):

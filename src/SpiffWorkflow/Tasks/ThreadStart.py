@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from TaskSpec                import TaskSpec
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
 
 class ThreadStart(TaskSpec):
     """
@@ -29,18 +29,17 @@ class ThreadStart(TaskSpec):
 
     def __init__(self, parent, **kwargs):
         """
-        Constructor.
+        Constructor. The name of this task is *always* 'ThreadStart'.
         
-        parent -- a reference to the parent (TaskSpec)
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         TaskSpec.__init__(self, parent, 'ThreadStart', **kwargs)
         self.internal = True
 
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-        """
         my_task._assign_new_thread_id()
         return TaskSpec._on_complete_hook(self, my_task)

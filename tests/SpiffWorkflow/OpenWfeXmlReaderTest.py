@@ -47,9 +47,9 @@ class OpenWfeXmlReaderTest(unittest.TestCase):
     def testRunWorkflow(self):
         wf = self.reader.parse_file(os.path.join(os.path.dirname(__file__), 'xml/openwfe/workflow1.xml'))
 
-        for name in wf[0].tasks:
-            wf[0].tasks[name].reached_event.connect(self.on_reached_cb)
-            wf[0].tasks[name].completed_event.connect(on_complete_cb, self.taken_path)
+        for name in wf[0].task_specs:
+            wf[0].task_specs[name].reached_event.connect(self.on_reached_cb)
+            wf[0].task_specs[name].completed_event.connect(on_complete_cb, self.taken_path)
 
         job = Job(wf[0])
         try:

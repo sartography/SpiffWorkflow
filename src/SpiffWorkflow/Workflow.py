@@ -27,25 +27,27 @@ class Workflow(object):
         self.name        = name
         self.description = ''
         self.file        = filename
-        self.tasks       = dict()
+        self.task_specs  = dict()
         self.start       = StartTask(self)
 
 
-    def _add_notify(self, task):
+    def _add_notify(self, task_spec):
         """
-        Called by a task when it was added into the workflow.
+        Called by a task spec when it was added into the workflow.
         """
-        self.tasks[task.name] = task
-        task.id = len(self.tasks)
+        if task_spec in self.task_specs:
+            raise ValueError('duplicate model name: ' + repr(task_spec))
+        self.task_specs[task_spec.name] = task_spec
+        task_spec.id = len(self.task_specs)
 
 
-    def get_task_from_name(self, name):
+    def get_task_spec_from_name(self, name):
         """
         Returns the task with the given name.
 
-        @type  name: string
-        @param name: The name of the TaskSpec object.
+        @type  name: str
+        @param name: The name of the task spec.
         @rtype:  TaskSpec
-        @return: The task with the given name.
+        @return: The task spec with the given name.
         """
-        return self.tasks[name]
+        return self.task_specs[name]

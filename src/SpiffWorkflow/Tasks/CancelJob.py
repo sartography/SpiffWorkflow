@@ -13,7 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from TaskSpec import TaskSpec
+from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
 
 class CancelJob(TaskSpec):
     """
@@ -24,20 +25,21 @@ class CancelJob(TaskSpec):
     parallel split.
     """
 
-    def __init__(self, parent, name, **kwargs):
+    def __init__(self, parent, name, success = False, **kwargs):
         """
         Constructor.
 
-        parent -- a reference to the parent (TaskSpec)
-        name -- a name for the task (string)
-        kwargs -- may contain the following keys:
-                  lock -- a list of locks that is aquired on entry of
-                  execute() and released on leave of execute().
-                  pre_assign -- a list of attribute name/value pairs
-                  post_assign -- a list of attribute name/value pairs
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  name: str
+        @param name: The name of the task spec.
+        @type  success: bool
+        @param success: Whether to cancel successfully or unsuccessfully.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
         """
         TaskSpec.__init__(self, parent, name, **kwargs)
-        self.cancel_successfully = kwargs.get('success', False)
+        self.cancel_successfully = success
 
 
     def test(self):
@@ -51,11 +53,5 @@ class CancelJob(TaskSpec):
 
 
     def _on_complete_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-
-        my_task -- the task in which this method is executed
-        """
         my_task.job.cancel(self.cancel_successfully)
         return TaskSpec._on_complete_hook(self, my_task)
