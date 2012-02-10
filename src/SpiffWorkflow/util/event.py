@@ -22,7 +22,7 @@
 A simple signal/event mechanism.
 """
 from threading     import Lock
-from Exscript.util import weakmethod
+from SpiffWorkflow.util import weakmethod
 
 class Event(object):
     """
