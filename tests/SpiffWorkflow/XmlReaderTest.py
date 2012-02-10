@@ -1,9 +1,9 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from WorkflowTest          import WorkflowTest
-from SpiffWorkflow.Storage import XmlReader
-from xml.parsers.expat     import ExpatError
+from WorkflowTest import WorkflowTest
+from SpiffWorkflow.storage import XmlReader
+from xml.parsers.expat import ExpatError
 
 class XmlReaderTest(WorkflowTest):
     def setUp(self):

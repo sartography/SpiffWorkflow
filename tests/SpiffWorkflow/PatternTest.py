@@ -1,10 +1,10 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from SpiffWorkflow.Tasks   import *
-from SpiffWorkflow         import Workflow, Job, Task
-from SpiffWorkflow.Storage import XmlReader
-from xml.parsers.expat     import ExpatError
+from SpiffWorkflow.Tasks import *
+from SpiffWorkflow import Workflow, Job, Task
+from SpiffWorkflow.storage import XmlReader
+from xml.parsers.expat import ExpatError
 
 
 def on_reached_cb(job, task, taken_path):
