@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
 
 class ThreadStart(TaskSpec):
     """
@@ -34,7 +34,7 @@ class ThreadStart(TaskSpec):
         @type  parent: TaskSpec
         @param parent: A reference to the parent task spec.
         @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
+        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         TaskSpec.__init__(self, parent, 'ThreadStart', **kwargs)
         self.internal = True

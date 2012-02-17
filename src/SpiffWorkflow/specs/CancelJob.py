@@ -12,22 +12,20 @@
 # 
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,MA  02110-1301  USA
-from SpiffWorkflow.Task import Task
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.Exception import WorkflowException
-from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
 
-class AcquireMutex(TaskSpec):
+class CancelJob(TaskSpec):
     """
-    This class implements a task that acquires a mutex (lock), protecting
-    a section of the workflow from being accessed by other sections.
+    This class implements a trigger that cancels another task (branch).
     If more than one input is connected, the task performs an implicit
     multi merge.
     If more than one output is connected, the task performs an implicit
     parallel split.
     """
 
-    def __init__(self, parent, name, mutex, **kwargs):
+    def __init__(self, parent, name, success = False, **kwargs):
         """
         Constructor.
 
@@ -35,18 +33,25 @@ class AcquireMutex(TaskSpec):
         @param parent: A reference to the parent task spec.
         @type  name: str
         @param name: The name of the task spec.
-        @type  mutex: str
-        @param mutex: The name of the mutex that should be acquired.
+        @type  success: bool
+        @param success: Whether to cancel successfully or unsuccessfully.
         @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
+        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
-        assert mutex is not None
         TaskSpec.__init__(self, parent, name, **kwargs)
-        self.mutex = mutex
+        self.cancel_successfully = success
 
-    def _update_state_hook(self, my_task):
-        mutex = my_task.job._get_mutex(self.mutex)
-        if mutex.testandset():
-            return True
-        my_task._set_state(Task.WAITING)
-        return False
+
+    def test(self):
+        """
+        Checks whether all required attributes are set. Throws an exception
+        if an error was detected.
+        """
+        TaskSpec.test(self)
+        if len(self.outputs) > 0:
+            raise WorkflowException(self, 'CancelJob with an output.')
+
+
+    def _on_complete_hook(self, my_task):
+        my_task.job.cancel(self.cancel_successfully)
+        return TaskSpec._on_complete_hook(self, my_task)

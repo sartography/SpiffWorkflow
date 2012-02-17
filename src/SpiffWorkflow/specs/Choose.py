@@ -13,19 +13,21 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.Exception import WorkflowException
-from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
+from SpiffWorkflow import Task
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
+from SpiffWorkflow.specs.Trigger import Trigger
 
-class CancelJob(TaskSpec):
+class Choose(Trigger):
     """
-    This class implements a trigger that cancels another task (branch).
+    This class implements a task that causes an associated MultiChoice
+    task to select the tasks with the specified name.
     If more than one input is connected, the task performs an implicit
     multi merge.
     If more than one output is connected, the task performs an implicit
     parallel split.
     """
 
-    def __init__(self, parent, name, success = False, **kwargs):
+    def __init__(self, parent, name, context, choice = None, **kwargs):
         """
         Constructor.
 
@@ -33,25 +35,28 @@ class CancelJob(TaskSpec):
         @param parent: A reference to the parent task spec.
         @type  name: str
         @param name: The name of the task spec.
-        @type  success: bool
-        @param success: Whether to cancel successfully or unsuccessfully.
+        @type  context: str
+        @param context: The name of the MultiChoice that is instructed to
+                        select the specified outputs.
+        @type  choice: list(TaskSpec)
+        @param choice: The list of task specs that is selected.
         @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
+        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
+        assert parent is not None
+        assert name is not None
+        assert context is not None
+        #HACK: inherit from TaskSpec (not Trigger) on purpose.
         TaskSpec.__init__(self, parent, name, **kwargs)
-        self.cancel_successfully = success
-
-
-    def test(self):
-        """
-        Checks whether all required attributes are set. Throws an exception
-        if an error was detected.
-        """
-        TaskSpec.test(self)
-        if len(self.outputs) > 0:
-            raise WorkflowException(self, 'CancelJob with an output.')
+        self.context = context
+        self.choice  = choice is not None and choice or []
 
 
     def _on_complete_hook(self, my_task):
-        my_task.job.cancel(self.cancel_successfully)
+        context = my_task.job.get_task_spec_from_name(self.context)
+        for task in my_task.job.task_tree:
+            if task.thread_id != my_task.thread_id:
+                continue
+            if task.task_spec == context:
+                task.trigger(self.choice)
         return TaskSpec._on_complete_hook(self, my_task)

@@ -3,7 +3,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from SpiffWorkflow           import Workflow, Task
 from SpiffWorkflow.Job       import TaskIdAssigner
-from SpiffWorkflow.Tasks     import Simple
+from SpiffWorkflow.specs     import Simple
 from SpiffWorkflow.Exception import WorkflowException
 
 class MockJob(object):

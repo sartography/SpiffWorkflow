@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.operators import valueof
 
 class MultiInstance(TaskSpec):
@@ -40,7 +40,7 @@ class MultiInstance(TaskSpec):
         @type  times: int
         @param times: The number of tasks to create.
         @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
+        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         assert kwargs.has_key('times')
         TaskSpec.__init__(self, parent, name, **kwargs)

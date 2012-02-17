@@ -6,8 +6,8 @@ doc_dir  = 'api'
 doc_file = os.path.join(doc_dir, 'Spiff_Workflow.py')
 files    = ['../src/SpiffWorkflow/Task.py',
             '../src/SpiffWorkflow/Job.py',
-            '../src/SpiffWorkflow/Tasks/TaskSpec.py',
-            '../src/SpiffWorkflow/Tasks/Join.py'] # Order matters - can't resolve inheritance otherwise.
+            '../src/SpiffWorkflow/specs/TaskSpec.py',
+            '../src/SpiffWorkflow/specs/Join.py'] # Order matters - can't resolve inheritance otherwise.
 classes  = [os.path.splitext(os.path.basename(file))[0] for file in files]
 classes  = ['(?:SpiffWorkflow.)?' + cl for cl in classes]
 

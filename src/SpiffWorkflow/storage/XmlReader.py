@@ -16,7 +16,7 @@
 import os, re
 import xml.dom.minidom as minidom
 import SpiffWorkflow
-import SpiffWorkflow.Tasks
+import SpiffWorkflow.specs
 from SpiffWorkflow import operators
 from SpiffWorkflow.Exception import StorageException
 
@@ -29,17 +29,17 @@ class XmlReader(object):
         """
         Constructor.
         """
-        self.read_tasks = dict()
+        self.read_specs = dict()
 
-        # Create a list of tag names out of the task names.
-        self.task_map = dict()
-        for name in dir(SpiffWorkflow.Tasks):
+        # Create a list of tag names out of the spec names.
+        self.spec_map = dict()
+        for name in dir(SpiffWorkflow.specs):
             if name.startswith('_'):
                 continue
-            module = SpiffWorkflow.Tasks.__dict__[name]
+            module = SpiffWorkflow.specs.__dict__[name]
             name   = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
-            self.task_map[name] = module
-        self.task_map['task'] = SpiffWorkflow.Tasks.Simple
+            self.spec_map[name] = module
+        self.spec_map['task'] = SpiffWorkflow.specs.Simple
 
         self.op_map = {'equals':       operators.Equal,
                        'not-equals':   operators.NotEqual,
@@ -72,7 +72,7 @@ class XmlReader(object):
             kwargs['right'] = value
         else:
             kwargs['right_attribute'] = attrib
-        return SpiffWorkflow.Tasks.Assign(name, **kwargs)
+        return SpiffWorkflow.specs.Assign(name, **kwargs)
 
 
     def _read_property(self, workflow, start_node):
@@ -147,16 +147,16 @@ class XmlReader(object):
         """
         # Collect all information.
         condition = None
-        task_name = None
+        spec_name = None
         for node in start_node.childNodes:
             if node.nodeType != minidom.Node.ELEMENT_NODE:
                 continue
             if node.nodeName.lower() == 'successor':
-                if task_name is not None:
-                    self._raise('Duplicate task name %s' % task_name)
+                if spec_name is not None:
+                    self._raise('Duplicate task name %s' % spec_name)
                 if node.firstChild is None:
                     self._raise('Successor tag without a task name')
-                task_name = node.firstChild.nodeValue
+                spec_name = node.firstChild.nodeValue
             elif node.nodeName.lower() in self.op_map:
                 if condition is not None:
                     self._raise('Multiple conditions are not yet supported')
@@ -166,9 +166,9 @@ class XmlReader(object):
 
         if condition is None:
             self._raise('Missing condition in conditional statement')
-        if task_name is None:
+        if spec_name is None:
             self._raise('A %s has no task specified' % start_node.nodeName)
-        return (condition, task_name)
+        return condition, spec_name
 
 
     def read_task(self, workflow, start_node):
@@ -198,13 +198,13 @@ class XmlReader(object):
                            'defines':     {},
                            'pre_assign':  [],
                            'post_assign': []}
-        if not self.task_map.has_key(nodetype):
+        if not self.spec_map.has_key(nodetype):
             self._raise('Invalid task type "%s"' % nodetype)
         if nodetype == 'start-task':
             name = 'start'
         if name == '':
             self._raise('Invalid task name "%s"' % name)
-        if self.read_tasks.has_key(name):
+        if self.read_specs.has_key(name):
             self._raise('Duplicate task name "%s"' % name)
         if cancel != '' and cancel != u'0':
             kwargs['cancel'] = True
@@ -276,22 +276,22 @@ class XmlReader(object):
             else:
                 self._raise('Unknown node: %s' % node.nodeName)
 
-        # Create a new instance of the task.
-        module = self.task_map[nodetype]
+        # Create a new instance of the task spec.
+        module = self.spec_map[nodetype]
         if nodetype == 'start-task':
-            task = module(workflow, **kwargs)
+            spec = module(workflow, **kwargs)
         elif nodetype == 'multi-instance' or nodetype == 'thread-split':
             if times == '' and times_field == '':
                 self._raise('Missing "times" or "times-field" in "%s"' % name)
             elif times != '' and times_field != '':
                 self._raise('Both, "times" and "times-field" in "%s"' % name)
-            task  = module(workflow, name, **kwargs)
+            spec = module(workflow, name, **kwargs)
         elif context == '':
-            task = module(workflow, name, **kwargs)
+            spec = module(workflow, name, **kwargs)
         else:
-            task = module(workflow, name, context, **kwargs)
+            spec = module(workflow, name, context, **kwargs)
 
-        self.read_tasks[name] = (task, successors)
+        self.read_specs[name] = spec, successors
 
 
     def _read_workflow(self, start_node, filename = None):
@@ -305,34 +305,34 @@ class XmlReader(object):
         if name == '':
             self._raise('%s without a name attribute' % start_node.nodeName)
 
-        # Read all tasks and create a list of successors.
+        # Read all task specs and create a list of successors.
         workflow        = SpiffWorkflow.Workflow(name, filename)
-        end             = SpiffWorkflow.Tasks.Simple(workflow, 'End'), []
-        self.read_tasks = dict(end = end)
+        end             = SpiffWorkflow.specs.Simple(workflow, 'End'), []
+        self.read_specs = dict(end = end)
         for node in start_node.childNodes:
             if node.nodeType != minidom.Node.ELEMENT_NODE:
                 continue
             if node.nodeName == 'description':
                 workflow.description = node.firstChild.nodeValue
-            elif self.task_map.has_key(node.nodeName.lower()):
+            elif self.spec_map.has_key(node.nodeName.lower()):
                 self.read_task(workflow, node)
             else:
                 self._raise('Unknown node: %s' % node.nodeName)
 
         # Remove the default start-task from the workflow.
-        workflow.start = self.read_tasks['start'][0]
+        workflow.start = self.read_specs['start'][0]
 
-        # Connect all tasks.
-        for name in self.read_tasks:
-            task, successors = self.read_tasks[name]
+        # Connect all task specs.
+        for name in self.read_specs:
+            spec, successors = self.read_specs[name]
             for condition, successor_name in successors:
-                if not self.read_tasks.has_key(successor_name):
+                if not self.read_specs.has_key(successor_name):
                     self._raise('Unknown successor: "%s"' % successor_name)
-                successor, foo = self.read_tasks[successor_name]
+                successor, foo = self.read_specs[successor_name]
                 if condition is None:
-                    task.connect(successor)
+                    spec.connect(successor)
                 else:
-                    task.connect_if(condition, successor)
+                    spec.connect_if(condition, successor)
         return workflow
 
 

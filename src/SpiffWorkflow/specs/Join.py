@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.operators import valueof
 
 class Join(TaskSpec):
@@ -54,7 +54,7 @@ class Join(TaskSpec):
         @param cancel: When True, any remaining incoming branches are
                        cancelled as soon as the discriminator is activated.
         @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
+        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.split_task       = split_task

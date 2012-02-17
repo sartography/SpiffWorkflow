@@ -2,10 +2,10 @@ import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from SpiffWorkflow           import Workflow, Job
-from SpiffWorkflow.Tasks     import *
+from SpiffWorkflow.specs     import *
 from SpiffWorkflow.operators import *
 from SpiffWorkflow.Task      import *
-from SpiffWorkflow.Tasks.Simple import Simple
+from SpiffWorkflow.specs.Simple import Simple
 
 def append_step(path, task, signal_name):
     path.append((task._get_depth(), task.get_name()))

@@ -13,8 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-import Tasks
 from mutex import mutex
+from SpiffWorkflow import specs
 from SpiffWorkflow.util.event import Event
 from Task import Task
 
@@ -46,7 +46,7 @@ class Job(object):
         self.outer_job       = kwargs.get('parent', self)
         self.locks           = {}
         self.last_task       = None
-        self.task_tree       = Task(self, Tasks.Simple(workflow, 'Root'))
+        self.task_tree       = Task(self, specs.Simple(workflow, 'Root'))
         self.success         = True
         self.debug           = False
 

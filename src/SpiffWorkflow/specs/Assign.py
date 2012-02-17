@@ -39,7 +39,7 @@ class Assign(object):
                                 name is used as the source (instead of the
                                 static value).
         @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.Tasks.TaskSpec}.
+        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         if not right_attribute and not right:
             raise ValueError('require argument: right_attribute or right')

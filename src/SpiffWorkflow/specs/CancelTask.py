@@ -14,8 +14,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow import Task
-from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
-from SpiffWorkflow.Tasks.Trigger import Trigger
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
+from SpiffWorkflow.specs.Trigger import Trigger
 
 class CancelTask(Trigger):
     """

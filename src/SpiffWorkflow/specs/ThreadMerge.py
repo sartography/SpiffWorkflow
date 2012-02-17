@@ -15,9 +15,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Exception import WorkflowException
-from SpiffWorkflow.Tasks.TaskSpec import TaskSpec
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.operators import valueof
-from SpiffWorkflow.Tasks import Join
+from SpiffWorkflow.specs import Join
 
 class ThreadMerge(Join):
     """
@@ -42,7 +42,7 @@ class ThreadMerge(Join):
         @param split_task: The name of the task spec that was previously
                            used to split the branch.
         @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.Tasks.Join}.
+        @param kwargs: See L{SpiffWorkflow.specs.Join}.
         """
         assert split_task is not None
         Join.__init__(self, parent, name, split_task, **kwargs)
