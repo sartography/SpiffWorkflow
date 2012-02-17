@@ -50,7 +50,7 @@ class DictionarySerializer(Serializer):
         s_state['task_tree'] = [self.serialize_task(task) for task in Task.Iterator(job.task_tree)]
 
         #workflow
-        s_state['workflow'] = job.workflow.__class__.__module__ + '.' + job.workflow.__class__.__name__
+        s_state['workflow'] = job.spec.__class__.__module__ + '.' + job.spec.__class__.__name__
 
         return s_state
 
@@ -78,7 +78,7 @@ class DictionarySerializer(Serializer):
         job.task_tree = [task for task in tasks if task.task_spec.name == 'Root'][0]
 
         # workflow
-        job.workflow = wf
+        job.spec = wf
 
         return job
 

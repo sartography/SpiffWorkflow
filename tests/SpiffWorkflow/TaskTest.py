@@ -1,9 +1,9 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from SpiffWorkflow           import Workflow, Task
-from SpiffWorkflow.Job       import TaskIdAssigner
-from SpiffWorkflow.specs     import Simple
+from SpiffWorkflow import Task
+from SpiffWorkflow.Job import TaskIdAssigner
+from SpiffWorkflow.specs import WorkflowSpec, Simple
 from SpiffWorkflow.Exception import WorkflowException
 
 class MockJob(object):
@@ -17,7 +17,7 @@ class TaskTest(unittest.TestCase):
 
     def testTree(self):
         # Build a tree.
-        wf       = Workflow()
+        wf       = WorkflowSpec()
         job      = MockJob()
         task1    = Simple(wf, 'Simple 1')
         task2    = Simple(wf, 'Simple 2')

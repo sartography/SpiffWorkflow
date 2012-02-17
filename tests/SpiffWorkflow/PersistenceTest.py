@@ -50,7 +50,7 @@ class PersistenceTest(WorkflowTest):
 
         # Re-connect signals, because the pickle dump now only contains a 
         # copy of self.taken_path.
-        for name, task in job.workflow.task_specs.iteritems():
+        for name, task in job.spec.task_specs.iteritems():
             task.reached_event.disconnect(on_reached_cb)
             task.completed_event.disconnect(on_complete_cb)
             task.reached_event.connect(on_reached_cb,

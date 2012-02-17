@@ -34,7 +34,7 @@ class ThreadMerge(Join):
         """
         Constructor.
         
-        @type  parent: Workflow
+        @type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
         @param parent: A reference to the parent (usually a workflow).
         @type  name: string
         @param name: A name for the task.

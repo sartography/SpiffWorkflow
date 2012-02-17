@@ -1,5 +1,4 @@
 from Job       import Job
-from Workflow  import Workflow
 from Exception import WorkflowException
 from Task      import Task
 

@@ -15,9 +15,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.specs import StartTask
 
-class Workflow(object):
+class WorkflowSpec(object):
     """
-    This class represents an entire workflow.
+    This class represents the specification of a workflow.
     """
 
     def __init__(self, name = '', filename = None):

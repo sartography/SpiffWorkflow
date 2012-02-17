@@ -1,10 +1,10 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from SpiffWorkflow           import Workflow, Job
-from SpiffWorkflow.specs     import *
+from SpiffWorkflow import Job
+from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
-from SpiffWorkflow.Task      import *
+from SpiffWorkflow.Task import *
 from SpiffWorkflow.specs.Simple import Simple
 
 def append_step(path, task, signal_name):
@@ -109,8 +109,8 @@ class WorkflowTest(unittest.TestCase):
                   (12, 'task_f2'),
                   (12, 'task_f3')]
 
-    def _createWorkflow(self):
-        wf = Workflow()
+    def _createWorkflowSpec(self):
+        wf = WorkflowSpec()
         # Build one branch.
         a1 = Simple(wf, 'task_a1')
         wf.start.connect(a1)
@@ -235,7 +235,7 @@ class WorkflowTest(unittest.TestCase):
 
 
     def testCompleteWorkflowAutomatically(self):
-        wf = self._createWorkflow()
+        wf = self._createWorkflowSpec()
         self._runWorkflow(wf)
 
     def _runWorkflow(self, wf):
@@ -265,7 +265,7 @@ class WorkflowTest(unittest.TestCase):
         """
             Simulates interactive calls, as would be issued by a user.
             """
-        wf = self._createWorkflow()
+        wf = self._createWorkflowSpec()
         job = Job(wf)
 
         tasks = job.get_tasks(Task.READY)

@@ -78,8 +78,8 @@ If you need more help, please drop by our mailing list. You might actually
 make someone write the missing pieces of documentation.
 
 ##############################
-from SpiffWorkflow import *
+from SpiffWorkflow.specs import *
 
-wf = Workflow()
+wf = WorkflowSpec()
 ...
 ##############################

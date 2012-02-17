@@ -22,7 +22,7 @@ from SpiffWorkflow.Exception import StorageException
 
 class XmlReader(object):
     """
-    Parses XML into a workflow object.
+    Parses XML into a WorkflowSpec object.
     """
 
     def __init__(self):
@@ -306,21 +306,21 @@ class XmlReader(object):
             self._raise('%s without a name attribute' % start_node.nodeName)
 
         # Read all task specs and create a list of successors.
-        workflow        = SpiffWorkflow.Workflow(name, filename)
-        end             = SpiffWorkflow.specs.Simple(workflow, 'End'), []
+        workflow_spec   = SpiffWorkflow.specs.WorkflowSpec(name, filename)
+        end             = SpiffWorkflow.specs.Simple(workflow_spec, 'End'), []
         self.read_specs = dict(end = end)
         for node in start_node.childNodes:
             if node.nodeType != minidom.Node.ELEMENT_NODE:
                 continue
             if node.nodeName == 'description':
-                workflow.description = node.firstChild.nodeValue
+                workflow_spec.description = node.firstChild.nodeValue
             elif self.spec_map.has_key(node.nodeName.lower()):
-                self.read_task(workflow, node)
+                self.read_task(workflow_spec, node)
             else:
                 self._raise('Unknown node: %s' % node.nodeName)
 
         # Remove the default start-task from the workflow.
-        workflow.start = self.read_specs['start'][0]
+        workflow_spec.start = self.read_specs['start'][0]
 
         # Connect all task specs.
         for name in self.read_specs:
@@ -333,7 +333,7 @@ class XmlReader(object):
                     spec.connect(successor)
                 else:
                     spec.connect_if(condition, successor)
-        return workflow
+        return workflow_spec
 
 
     def read(self, xml, filename = None):
@@ -343,16 +343,16 @@ class XmlReader(object):
         
         xml -- the xml structure (xml.dom.minidom.Node)
         """
-        workflows = []
+        workflow_specs = []
         for node in xml.getElementsByTagName('process-definition'):
-            workflows.append(self._read_workflow(node, filename))
-        return workflows
+            workflow_specs.append(self._read_workflow(node, filename))
+        return workflow_specs
 
 
     def parse_string(self, string):
         """
-        Reads the workflow XML from the given string and returns a workflow
-        object.
+        Reads the workflow specification XML from the given string and returns
+        a workflow object.
         
         string -- the name of the file (string)
         """
@@ -361,8 +361,8 @@ class XmlReader(object):
 
     def parse_file(self, filename):
         """
-        Reads the workflow XML from the given file and returns a workflow
-        object.
+        Reads the workflow specification XML from the given file and returns
+        a workflow object.
         
         filename -- the name of the file (string)
         """

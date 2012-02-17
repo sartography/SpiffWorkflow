@@ -1,14 +1,14 @@
 import sys, unittest, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from SpiffWorkflow import Workflow, Job
+from SpiffWorkflow import Job
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
 from SpiffWorkflow.Task import *
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.storage import DictionarySerializer
 
-class ASmallWorkflow(Workflow):
+class ASmallWorkflow(WorkflowSpec):
     def __init__(self):
         super(ASmallWorkflow, self).__init__(name = "asmallworkflow")
 

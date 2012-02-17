@@ -35,29 +35,29 @@ class Job(object):
     A Job is also the place that holds the attributes of a running workflow.
     """
 
-    def __init__(self, workflow, **kwargs):
+    def __init__(self, workflow_spec, **kwargs):
         """
         Constructor.
         """
-        assert workflow is not None
-        self.workflow        = workflow
+        assert workflow_spec is not None
+        self.spec             = workflow_spec
         self.task_id_assigner = TaskIdAssigner()
-        self.attributes      = {}
-        self.outer_job       = kwargs.get('parent', self)
-        self.locks           = {}
-        self.last_task       = None
-        self.task_tree       = Task(self, specs.Simple(workflow, 'Root'))
-        self.success         = True
-        self.debug           = False
+        self.attributes       = {}
+        self.outer_job        = kwargs.get('parent', self)
+        self.locks            = {}
+        self.last_task        = None
+        self.task_tree        = Task(self, specs.Simple(workflow_spec, 'Root'))
+        self.success          = True
+        self.debug            = False
 
         # Events.
         self.completed_event = Event()
 
         # Prevent the root task from being executed.
         self.task_tree.state = Task.COMPLETED
-        start                = self.task_tree._add_child(workflow.start)
+        start                = self.task_tree._add_child(self.spec.start)
 
-        workflow.start._predict(start)
+        self.spec.start._predict(start)
         if not kwargs.has_key('parent'):
             start.task_spec._update_state(start)
         #start.dump()
@@ -143,7 +143,7 @@ class Job(object):
         @rtype:  TaskSpec
         @return: The task spec with the given name.
         """
-        return self.workflow.get_task_spec_from_name(name)
+        return self.spec.get_task_spec_from_name(name)
 
     def get_task(self, id):
         """
@@ -177,12 +177,12 @@ class Job(object):
         @param task_id: The id of the Task object.
         """
         if task_id is None:
-            raise WorkflowException(self.workflow, 'task_id is None')
+            raise WorkflowException(self.spec, 'task_id is None')
         for task in self.task_tree:
             if task.id == task_id:
                 return task.complete()
         msg = 'A task with the given task_id (%s) was not found' % task_id
-        raise WorkflowException(self.workflow, msg)
+        raise WorkflowException(self.spec, msg)
 
 
     def complete_next(self, pick_up = True):

@@ -23,8 +23,8 @@ import SpiffWorkflow.Job
 
 class SubWorkflow(TaskSpec):
     """
-    A SubWorkflow is a task that wraps a Workflow, such that you can re-use it
-    in multiple places as if it were a task.
+    A SubWorkflow is a task that wraps a WorkflowSpec, such that you can
+    re-use it in multiple places as if it were a task.
     If more than one input is connected, the task performs an implicit
     multi merge.
     If more than one output is connected, the task performs an implicit

@@ -51,7 +51,7 @@ class TaskSpec(object):
         Similarly, "defines" are properties that, once defined, can no 
         longer be modified.
 
-        @type  parent: Workflow
+        @type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
         @param parent: A reference to the parent (usually a workflow).
         @type  name: string
         @param name: A name for the task.
