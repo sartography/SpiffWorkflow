@@ -87,14 +87,14 @@ class PatternTest(unittest.TestCase):
             print '%s:' % xml_filename
             raise
 
-    def runWorkflow(self, wfspec, xml_filename):
+    def runWorkflow(self, wf_spec, xml_filename):
         taken_path = []
-        for name in wfspec.task_specs:
-            wfspec.task_specs[name].reached_event.connect(on_reached_cb, taken_path)
-            wfspec.task_specs[name].completed_event.connect(on_complete_cb, taken_path)
+        for name in wf_spec.task_specs:
+            wf_spec.task_specs[name].reached_event.connect(on_reached_cb, taken_path)
+            wf_spec.task_specs[name].completed_event.connect(on_complete_cb, taken_path)
 
         # Execute all tasks within the Workflow
-        workflow = Workflow(wfspec)
+        workflow = Workflow(wf_spec)
         self.assert_(not workflow.is_completed(), 'Workflow is complete before start')
         try:
             workflow.complete_all(False)

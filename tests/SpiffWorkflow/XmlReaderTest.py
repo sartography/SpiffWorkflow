@@ -38,9 +38,9 @@ class XmlReaderTest(WorkflowTest):
 
     def testRunWorkflow(self):
         file = os.path.join(os.path.dirname(__file__), 'xml', 'spiff', 'workflow1.xml')
-        workflow_list = self.reader.parse_file(file)
-        for wf in workflow_list:
-            self._runWorkflow(wf)
+        workflow_spec_list = self.reader.parse_file(file)
+        for wf_spec in workflow_spec_list:
+            self._runWorkflow(wf_spec)
 
 
 def suite():

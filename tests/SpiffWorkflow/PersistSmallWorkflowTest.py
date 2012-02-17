@@ -32,11 +32,11 @@ class ASmallWorkflow(WorkflowSpec):
 class PersistSmallWorkflowTest(unittest.TestCase):
     """Runs persistency tests agains a small and easy to inspect workflowdefinition"""
     def setUp(self):
-        self.wf = ASmallWorkflow()
-        self.workflow = self._advance_to_a1(self.wf)
+        self.wf_spec = ASmallWorkflow()
+        self.workflow = self._advance_to_a1(self.wf_spec)
 
-    def _advance_to_a1(self, wf):
-        workflow = Workflow(wf)
+    def _advance_to_a1(self, wf_spec):
+        workflow = Workflow(wf_spec)
 
         tasks = workflow.get_tasks(Task.READY)
         task_start = tasks[0]

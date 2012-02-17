@@ -56,9 +56,9 @@ class DictionarySerializer(Serializer):
     def deserialize_workflow(self, s_state):
         from SpiffWorkflow import Workflow
 
-        wf_class = get_class(s_state['workflow'])
-        wf = wf_class()
-        workflow = Workflow(wf)
+        wf_spec_class = get_class(s_state['workflow'])
+        wf_spec = wf_spec_class()
+        workflow = Workflow(wf_spec)
 
         # attributes
         workflow.attributes = s_state['attributes']
@@ -77,7 +77,7 @@ class DictionarySerializer(Serializer):
         workflow.task_tree = [task for task in tasks if task.task_spec.name == 'Root'][0]
 
         # workflow
-        workflow.spec = wf
+        workflow.spec = wf_spec
 
         return workflow
 

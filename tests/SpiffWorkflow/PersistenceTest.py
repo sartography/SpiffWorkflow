@@ -71,9 +71,9 @@ class PersistenceTest(WorkflowTest):
         file = os.path.join(os.path.dirname(__file__), 'xml/spiff/workflow1.xml')
 
         for i in xrange(5):
-            workflow_list = self.reader.parse_file(file)
-            wf            = workflow_list[0]
-            workflow      = Workflow(wf)
+            wf_spec_list = self.reader.parse_file(file)
+            wf_spec      = wf_spec_list[0]
+            workflow     = Workflow(wf_spec)
             self.doPickleSingle(workflow)
 
 def suite():

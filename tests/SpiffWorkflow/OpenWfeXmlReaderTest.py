@@ -45,13 +45,15 @@ class OpenWfeXmlReaderTest(unittest.TestCase):
 
 
     def testRunWorkflow(self):
-        wf = self.reader.parse_file(os.path.join(os.path.dirname(__file__), 'xml/openwfe/workflow1.xml'))
+        filename = os.path.join(os.path.dirname(__file__), 'xml/openwfe/workflow1.xml')
+        wf_specs = self.reader.parse_file(filename)
+        wf_spec = wf_specs[0]
 
-        for name in wf[0].task_specs:
-            wf[0].task_specs[name].reached_event.connect(self.on_reached_cb)
-            wf[0].task_specs[name].completed_event.connect(on_complete_cb, self.taken_path)
+        for name in wf_spec.task_specs:
+            wf_spec.task_specs[name].reached_event.connect(self.on_reached_cb)
+            wf_spec.task_specs[name].completed_event.connect(on_complete_cb, self.taken_path)
 
-        workflow = Workflow(wf[0])
+        workflow = Workflow(wf_spec)
         try:
             workflow.complete_all()
         except:
