@@ -1,5 +1,5 @@
 from AcquireMutex import AcquireMutex
-from CancelJob import CancelJob
+from Cancel import Cancel
 from CancelTask import CancelTask
 from Choose import Choose
 from ExclusiveChoice import ExclusiveChoice

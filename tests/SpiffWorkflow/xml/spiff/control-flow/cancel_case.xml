@@ -15,7 +15,7 @@
         <task name="one2">
             <successor>cancel</successor>
         </task>
-        <cancel-job name="cancel" />
+        <cancel name="cancel" />
     <!-- End branch 1 -->
 
     <!-- Branch 2 -->

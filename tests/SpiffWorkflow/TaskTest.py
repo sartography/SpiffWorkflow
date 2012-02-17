@@ -2,11 +2,11 @@ import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from SpiffWorkflow import Task
-from SpiffWorkflow.Job import TaskIdAssigner
+from SpiffWorkflow.Workflow import TaskIdAssigner
 from SpiffWorkflow.specs import WorkflowSpec, Simple
 from SpiffWorkflow.Exception import WorkflowException
 
-class MockJob(object):
+class MockWorkflow(object):
     def __init__(self):
         self.task_id_assigner = TaskIdAssigner()
 
@@ -17,26 +17,26 @@ class TaskTest(unittest.TestCase):
 
     def testTree(self):
         # Build a tree.
-        wf       = WorkflowSpec()
-        job      = MockJob()
-        task1    = Simple(wf, 'Simple 1')
-        task2    = Simple(wf, 'Simple 2')
-        task3    = Simple(wf, 'Simple 3')
-        task4    = Simple(wf, 'Simple 4')
-        task5    = Simple(wf, 'Simple 5')
-        task6    = Simple(wf, 'Simple 6')
-        task7    = Simple(wf, 'Simple 7')
-        task8    = Simple(wf, 'Simple 8')
-        task9    = Simple(wf, 'Simple 9')
-        root     = Task(job, task1)
+        spec     = WorkflowSpec()
+        workflow = MockWorkflow()
+        task1    = Simple(spec, 'Simple 1')
+        task2    = Simple(spec, 'Simple 2')
+        task3    = Simple(spec, 'Simple 3')
+        task4    = Simple(spec, 'Simple 4')
+        task5    = Simple(spec, 'Simple 5')
+        task6    = Simple(spec, 'Simple 6')
+        task7    = Simple(spec, 'Simple 7')
+        task8    = Simple(spec, 'Simple 8')
+        task9    = Simple(spec, 'Simple 9')
+        root     = Task(workflow, task1)
         c1       = root._add_child(task2)
         c11      = c1._add_child(task3)
         c111     = c11._add_child(task4)
-        c1111    = Task(job, task5, c111)
-        c112     = Task(job, task6, c11)
-        c12      = Task(job, task7, c1)
-        c2       = Task(job, task8, root)
-        c3       = Task(job, task9, root)
+        c1111    = Task(workflow, task5, c111)
+        c112     = Task(workflow, task6, c11)
+        c12      = Task(workflow, task7, c1)
+        c2       = Task(workflow, task8, root)
+        c3       = Task(workflow, task9, root)
         c3.state = Task.COMPLETED
 
         # Check whether the tree is built properly.

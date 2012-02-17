@@ -58,7 +58,7 @@ class Trigger(TaskSpec):
         self.queued += 1
         # All tasks that have already completed need to be put into
         # READY again.
-        for thetask in my_task.job.task_tree:
+        for thetask in my_task.workflow.task_tree:
             if thetask.thread_id != my_task.thread_id:
                 continue
             if thetask.task_spec == self and thetask._has_state(Task.COMPLETED):
@@ -77,7 +77,7 @@ class Trigger(TaskSpec):
         """
         for i in range(self.times + self.queued):
             for task_name in self.context:
-                task = my_task.job.get_task_spec_from_name(task_name)
+                task = my_task.workflow.get_task_spec_from_name(task_name)
                 task._on_trigger(my_task)
         self.queued = 0
         return TaskSpec._on_complete_hook(self, my_task)

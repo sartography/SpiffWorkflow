@@ -11,7 +11,6 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
 import sys
 from SpiffWorkflow.Task import Task
 
@@ -23,64 +22,64 @@ def get_class(full_class_name):
     return getattr(sys.modules[module_name], class_name)
 
 class Serializer(object):
-    def serialize_job(self, job):
-        raise NotImplementedError("You must implement the serialize_job method.")
+    def serialize_workflow(self, workflow):
+        raise NotImplementedError("You must implement the serialize_workflow method.")
 
-    def deserialize_job(self, s_state):
-        raise NotImplementedError("You must implement the deserialize_job method.")
+    def deserialize_workflow(self, s_state):
+        raise NotImplementedError("You must implement the deserialize_workflow method.")
 
 class DictionarySerializer(Serializer):
-    def serialize_job(self, job):
+    def serialize_workflow(self, workflow):
         s_state = dict()
 
         # attributes
-        s_state['attributes'] = job.attributes
+        s_state['attributes'] = workflow.attributes
 
         # last_node
-        value = job.last_task
+        value = workflow.last_task
         s_state['last_task'] = value.id if not value is None else None
 
-        # outer_job
-        #s_state['outer_job'] = job.outer_job.id
+        # outer_workflow
+        #s_state['outer_workflow'] = workflow.outer_workflow.id
 
         #success
-        s_state['success'] = job.success
+        s_state['success'] = workflow.success
 
         #task_tree
-        s_state['task_tree'] = [self.serialize_task(task) for task in Task.Iterator(job.task_tree)]
+        s_state['task_tree'] = [self.serialize_task(task) for task in Task.Iterator(workflow.task_tree)]
 
         #workflow
-        s_state['workflow'] = job.spec.__class__.__module__ + '.' + job.spec.__class__.__name__
+        s_state['workflow'] = workflow.spec.__class__.__module__ + '.' + workflow.spec.__class__.__name__
 
         return s_state
 
-    def deserialize_job(self, s_state):
-        from SpiffWorkflow.Job import Job
+    def deserialize_workflow(self, s_state):
+        from SpiffWorkflow import Workflow
 
         wf_class = get_class(s_state['workflow'])
         wf = wf_class()
-        job = Job(wf)
+        workflow = Workflow(wf)
 
         # attributes
-        job.attributes = s_state['attributes']
+        workflow.attributes = s_state['attributes']
 
         # last_task
-        job.last_task = s_state['last_task']
+        workflow.last_task = s_state['last_task']
 
-        # outer_job
-        #job.outer_job =  find_job_by_id(remap_job_id(s_state['outer_job']))
+        # outer_workflow
+        #workflow.outer_workflow =  find_workflow_by_id(remap_workflow_id(s_state['outer_workflow']))
 
         # success
-        job.success = s_state['success']
+        workflow.success = s_state['success']
 
         # task_tree
-        tasks = [self.deserialize_task(job, serialized_task) for serialized_task in s_state['task_tree']]
-        job.task_tree = [task for task in tasks if task.task_spec.name == 'Root'][0]
+        tasks = [self.deserialize_task(workflow, serialized_task) for serialized_task in s_state['task_tree']]
+        workflow.task_tree = [task for task in tasks if task.task_spec.name == 'Root'][0]
 
         # workflow
-        job.spec = wf
+        workflow.spec = wf
 
-        return job
+        return workflow
 
     def serialize_task(self, task):
         s_state = dict()
@@ -88,8 +87,8 @@ class DictionarySerializer(Serializer):
         # id
         s_state['id'] = task.id
 
-        # job
-        #s_state['job'] = task.job.id
+        # workflow
+        #s_state['workflow'] = task.workflow.id
 
         # parent
         s_state['parent'] = task.parent.id if not task.parent is None else None
@@ -114,12 +113,12 @@ class DictionarySerializer(Serializer):
 
         return s_state
 
-    def deserialize_task(self, job, s_state):
+    def deserialize_task(self, workflow, s_state):
         # id
-        task = job.get_task(s_state['id'])
+        task = workflow.get_task(s_state['id'])
 
-        # job
-        assert task.job == job
+        # workflow
+        assert task.workflow == workflow
 
         # parent
         assert task.parent.id if not task.parent is None else None == s_state['parent']

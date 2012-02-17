@@ -1,7 +1,7 @@
 import sys, unittest, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from SpiffWorkflow import Job
+from SpiffWorkflow import Workflow
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
 from SpiffWorkflow.Task import *
@@ -33,34 +33,34 @@ class PersistSmallWorkflowTest(unittest.TestCase):
     """Runs persistency tests agains a small and easy to inspect workflowdefinition"""
     def setUp(self):
         self.wf = ASmallWorkflow()
-        self.job = self._advance_to_a1(self.wf)
+        self.workflow = self._advance_to_a1(self.wf)
 
     def _advance_to_a1(self, wf):
-        job = Job(wf)
+        workflow = Workflow(wf)
 
-        tasks = job.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(Task.READY)
         task_start = tasks[0]
-        job.complete_task_from_id(task_start.id)
+        workflow.complete_task_from_id(task_start.id)
 
-        tasks = job.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(Task.READY)
         multichoice = tasks[0]
-        job.complete_task_from_id(multichoice.id)
+        workflow.complete_task_from_id(multichoice.id)
 
-        tasks = job.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(Task.READY)
         task_a1 = tasks[0]
-        job.complete_task_from_id(task_a1.id)
-        return job
+        workflow.complete_task_from_id(task_a1.id)
+        return workflow
 
     def testDictionarySerializer(self):
         """
-        Tests the SelectivePickler serializer for persisting Jobs and Tasks.
+        Tests the SelectivePickler serializer for persisting Workflows and Tasks.
         """
-        old_job = self.job
+        old_job = self.workflow
         serializer = DictionarySerializer()
         serialized_job = old_job.serialize(serializer)
 
         serializer = DictionarySerializer()
-        new_job = Job.deserialize(serializer, serialized_job)
+        new_job = Workflow.deserialize(serializer, serialized_job)
 
         before = old_job.get_dump()
         after = new_job.get_dump()

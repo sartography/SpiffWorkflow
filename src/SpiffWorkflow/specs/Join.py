@@ -120,7 +120,7 @@ class Join(TaskSpec):
         # Look at the tree to find all places where this task is used.
         tasks = []
         for input in self.inputs:
-            for task in my_task.job.task_tree:
+            for task in my_task.workflow.task_tree:
                 if task.thread_id != my_task.thread_id:
                     continue
                 if task.task_spec != input:
@@ -202,10 +202,10 @@ class Join(TaskSpec):
 
     def _do_join(self, my_task):
         if self.split_task:
-            split_task = my_task.job.get_task_spec_from_name(self.split_task)
+            split_task = my_task.workflow.get_task_spec_from_name(self.split_task)
             split_task = my_task._find_ancestor(split_task)
         else:
-            split_task = my_task.job.task_tree
+            split_task = my_task.workflow.task_tree
 
         # Find the inbound task that was completed last.
         last_changed = None
@@ -225,7 +225,7 @@ class Join(TaskSpec):
         # completed, except for the first one, which should be READY.
         for task in thread_tasks:
             if task == last_changed:
-                self.entered_event.emit(my_task.job, my_task)
+                self.entered_event.emit(my_task.workflow, my_task)
                 task._ready()
             else:
                 task.state = Task.COMPLETED
@@ -238,7 +238,7 @@ class Join(TaskSpec):
         May be called to fire the Join before the incoming branches are
         completed.
         """
-        for task in my_task.job.task_tree._find_any(self):
+        for task in my_task.workflow.task_tree._find_any(self):
             if task.thread_id != my_task.thread_id:
                 continue
             return self._do_join(task)

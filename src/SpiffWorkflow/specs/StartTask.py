@@ -47,7 +47,7 @@ class StartTask(TaskSpec):
     def _update_state(self, my_task):
         if not self._update_state_hook(my_task):
             return
-        self.entered_event.emit(my_task.job, my_task)
+        self.entered_event.emit(my_task.workflow, my_task)
         my_task._ready()
 
 

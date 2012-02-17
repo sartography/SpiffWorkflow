@@ -71,8 +71,8 @@ class ThreadSplit(TaskSpec):
         task_spec._connect_notify(self.thread_starter)
 
 
-    def _find_my_task(self, job):
-        for task in job.branch_tree:
+    def _find_my_task(self, workflow):
+        for task in workflow.branch_tree:
             if task.thread_id != my_task.thread_id:
                 continue
             if task.task == self:
@@ -110,7 +110,7 @@ class ThreadSplit(TaskSpec):
         additional outbound task.
         """
         # Find a Task for this task.
-        my_task = self._find_my_task(my_task.job)
+        my_task = self._find_my_task(my_task.workflow)
         for output in self.outputs:
             state    = Task.READY | Task.TRIGGERED
             new_task = my_task.add_child(output, state)

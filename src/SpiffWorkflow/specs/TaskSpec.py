@@ -220,7 +220,7 @@ class TaskSpec(object):
         my_task._inherit_attributes()
         if not self._update_state_hook(my_task):
             return
-        self.entered_event.emit(my_task.job, my_task)
+        self.entered_event.emit(my_task.workflow, my_task)
         my_task._ready()
 
 
@@ -250,7 +250,7 @@ class TaskSpec(object):
 
         # Acquire locks, if any.
         for lock in self.locks:
-            mutex = my_task.job._get_mutex(lock)
+            mutex = my_task.workflow._get_mutex(lock)
             if not mutex.testandset():
                 return False
 
@@ -260,13 +260,13 @@ class TaskSpec(object):
 
         # Run task-specific code.
         result = self._on_ready_before_hook(my_task)
-        self.reached_event.emit(my_task.job, my_task)
+        self.reached_event.emit(my_task.workflow, my_task)
         if result:
             result = self._on_ready_hook(my_task)
 
         # Run user code, if any.
         if result:
-            result = self.ready_event.emit(my_task.job, my_task)
+            result = self.ready_event.emit(my_task.workflow, my_task)
 
         if result:
             # Assign variables, if so requested.
@@ -275,7 +275,7 @@ class TaskSpec(object):
 
         # Release locks, if any.
         for lock in self.locks:
-            mutex = my_task.job._get_mutex(lock)
+            mutex = my_task.workflow._get_mutex(lock)
             mutex.unlock()
         return result
 
@@ -345,19 +345,19 @@ class TaskSpec(object):
         assert my_task is not None
         assert not self.cancelled
 
-        if my_task.job.debug:
+        if my_task.workflow.debug:
             print "Executing task:", my_task.get_name()
 
         if not self._on_complete_hook(my_task):
             return False
 
-        # Notify the Job.
-        my_task.job._task_completed_notify(my_task)
+        # Notify the Workflow.
+        my_task.workflow._task_completed_notify(my_task)
 
-        if my_task.job.debug:
-            my_task.job.outer_job.task_tree.dump()
+        if my_task.workflow.debug:
+            my_task.workflow.outer_job.task_tree.dump()
 
-        self.completed_event.emit(my_task.job, my_task)
+        self.completed_event.emit(my_task.workflow, my_task)
         return True
 
 

@@ -53,8 +53,8 @@ class Choose(Trigger):
 
 
     def _on_complete_hook(self, my_task):
-        context = my_task.job.get_task_spec_from_name(self.context)
-        for task in my_task.job.task_tree:
+        context = my_task.workflow.get_task_spec_from_name(self.context)
+        for task in my_task.workflow.task_tree:
             if task.thread_id != my_task.thread_id:
                 continue
             if task.task_spec == context:

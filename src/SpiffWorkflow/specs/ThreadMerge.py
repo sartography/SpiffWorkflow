@@ -101,7 +101,7 @@ class ThreadMerge(Join):
             my_task._set_state(Task.WAITING)
             return False
 
-        split_task_spec = my_task.job.get_task_spec_from_name(self.split_task)
+        split_task_spec = my_task.workflow.get_task_spec_from_name(self.split_task)
         split_task      = my_task._find_ancestor(split_task_spec)
 
         # Find the inbound task that was completed last.
@@ -120,7 +120,7 @@ class ThreadMerge(Join):
         # completed, except for the first one, which should be READY.
         for task in tasks:
             if task == last_changed:
-                self.entered_event.emit(my_task.job, my_task)
+                self.entered_event.emit(my_task.workflow, my_task)
                 task._ready()
             else:
                 task.state = Task.COMPLETED

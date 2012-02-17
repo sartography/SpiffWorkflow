@@ -1,7 +1,7 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from SpiffWorkflow import Job
+from SpiffWorkflow import Workflow
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
 from SpiffWorkflow.Task import *
@@ -12,7 +12,7 @@ def append_step(path, task, signal_name):
     #print task._get_depth(), '.', signal_name, task.get_name(), len(path)
 
 
-def on_reached_cb(job, task, taken_path):
+def on_reached_cb(workflow, task, taken_path):
     append_step(taken_path, task, 'reached')
     reached_key = '%s_reached' % task.get_name()
     n_reached   = task.get_attribute(reached_key, 0) + 1
@@ -25,7 +25,7 @@ def on_reached_cb(job, task, taken_path):
     task.set_attribute(test_attribute2 = 'true')
 
 
-def on_complete_cb(job, task, taken_path):
+def on_complete_cb(workflow, task, taken_path):
     append_step(taken_path, task, 'completed')
     return True
 
@@ -230,9 +230,7 @@ class WorkflowTest(unittest.TestCase):
         # Add another final task :-).
         end = Simple(wf, 'End')
         last.connect(end)
-
         return wf
-
 
     def testCompleteWorkflowAutomatically(self):
         wf = self._createWorkflowSpec()
@@ -245,19 +243,19 @@ class WorkflowTest(unittest.TestCase):
             task.reached_event.connect(on_reached_cb, taken_path['reached'])
             task.completed_event.connect(on_complete_cb, taken_path['completed'])
 
-        # Execute all tasks within the Job.
-        job = Job(wf)
-        self.assert_(not job.is_completed(), 'Job is complete before start')
+        # Execute all tasks within the Workflow.
+        workflow = Workflow(wf)
+        self.assert_(not workflow.is_completed(), 'Workflow complete before start')
         try:
-            job.complete_all()
+            workflow.complete_all()
         except:
-            job.dump()
+            workflow.dump()
             raise
 
-        self.assert_(job.is_completed(),
-                     'complete_all() returned, but job is not complete\n'
-                   + job.task_tree.get_dump())
-        #job.task_tree.dump()
+        self.assert_(workflow.is_completed(),
+                     'complete_all() returned, but workflow is not complete\n'
+                   + workflow.task_tree.get_dump())
+        #workflow.task_tree.dump()
 
         assert_same_path(self, self.expected_path, taken_path['completed'])
 
@@ -266,15 +264,15 @@ class WorkflowTest(unittest.TestCase):
             Simulates interactive calls, as would be issued by a user.
             """
         wf = self._createWorkflowSpec()
-        job = Job(wf)
+        workflow = Workflow(wf)
 
-        tasks = job.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(Task.READY)
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks[0].task_spec.name, 'Start')
-        job.complete_task_from_id(tasks[0].id)
+        workflow.complete_task_from_id(tasks[0].id)
         self.assertEqual(tasks[0].state, Task.COMPLETED)
 
-        tasks = job.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(Task.READY)
         self.assertEqual(len(tasks), 2)
         task_a1 = tasks[0]
         task_b1 = tasks[1]
@@ -282,30 +280,30 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(task_a1.task_spec.name, 'task_a1')
         self.assertEqual(task_b1.task_spec.__class__, Simple)
         self.assertEqual(task_b1.task_spec.name, 'task_b1')
-        job.complete_task_from_id(task_a1.id)
+        workflow.complete_task_from_id(task_a1.id)
         self.assertEqual(task_a1.state, Task.COMPLETED)
 
-        tasks = job.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(Task.READY)
         self.assertEqual(len(tasks), 2)
         self.assertTrue(task_b1 in tasks)
         task_a2 = tasks[0]
         self.assertEqual(task_a2.task_spec.__class__, Simple)
         self.assertEqual(task_a2.task_spec.name, 'task_a2')
-        job.complete_task_from_id(task_a2.id)
+        workflow.complete_task_from_id(task_a2.id)
 
-        tasks = job.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(Task.READY)
         self.assertEqual(len(tasks), 1)
         self.assertTrue(task_b1 in tasks)
 
-        job.complete_task_from_id(task_b1.id)
-        tasks = job.get_tasks(Task.READY)
+        workflow.complete_task_from_id(task_b1.id)
+        tasks = workflow.get_tasks(Task.READY)
         self.assertEqual(len(tasks), 1)
-        job.complete_task_from_id(tasks[0].id)
+        workflow.complete_task_from_id(tasks[0].id)
 
-        tasks = job.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(Task.READY)
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks[0].task_spec.name, 'synch_1')
-        # haven't reached the end of the job, but stopping at "synch_1"
+        # haven't reached the end of the workflow, but stopping at "synch_1"
 
 
 

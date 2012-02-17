@@ -2,7 +2,7 @@ import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from WorkflowTest import on_reached_cb, on_complete_cb, assert_same_path
-from SpiffWorkflow import Job
+from SpiffWorkflow import Workflow
 from SpiffWorkflow.storage import OpenWfeXmlReader
 from xml.parsers.expat import ExpatError
 
@@ -12,8 +12,8 @@ class OpenWfeXmlReaderTest(unittest.TestCase):
         self.taken_path = []
 
 
-    def on_reached_cb(self, job, instance):
-        on_reached_cb(job, instance, [])
+    def on_reached_cb(self, workflow, instance):
+        on_reached_cb(workflow, instance, [])
         instance.set_attribute(test_attribute1 = 'false')
         instance.set_attribute(test_attribute2 = 'true')
         return True
@@ -51,11 +51,11 @@ class OpenWfeXmlReaderTest(unittest.TestCase):
             wf[0].task_specs[name].reached_event.connect(self.on_reached_cb)
             wf[0].task_specs[name].completed_event.connect(on_complete_cb, self.taken_path)
 
-        job = Job(wf[0])
+        workflow = Workflow(wf[0])
         try:
-            job.complete_all()
+            workflow.complete_all()
         except:
-            job.dump()
+            workflow.dump()
             raise
 
         path = [( 1, 'Start'),

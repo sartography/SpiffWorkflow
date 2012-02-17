@@ -48,7 +48,7 @@ class MultiInstance(TaskSpec):
 
 
     def _find_my_task(self, task):
-        for thetask in task.job.task_tree:
+        for thetask in task.workflow.task_tree:
             if thetask.thread_id != task.thread_id:
                 continue
             if thetask.task_spec == self:

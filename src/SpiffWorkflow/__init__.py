@@ -1,6 +1,6 @@
-from Job       import Job
-from Exception import WorkflowException
-from Task      import Task
+from SpiffWorkflow.Workflow import Workflow
+from SpiffWorkflow.Task import Task
+from SpiffWorkflow.Exception import WorkflowException
 
 import inspect
 __all__ = [name for name, obj in locals().items()

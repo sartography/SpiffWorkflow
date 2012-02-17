@@ -45,7 +45,7 @@ class AcquireMutex(TaskSpec):
         self.mutex = mutex
 
     def _update_state_hook(self, my_task):
-        mutex = my_task.job._get_mutex(self.mutex)
+        mutex = my_task.workflow._get_mutex(self.mutex)
         if mutex.testandset():
             return True
         my_task._set_state(Task.WAITING)

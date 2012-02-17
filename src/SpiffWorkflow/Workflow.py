@@ -28,11 +28,11 @@ class TaskIdAssigner(object):
         return self.id_pool
 
 
-class Job(object):
+class Workflow(object):
     """
     The engine that executes a workflow.
     It is a essentially a facility for managing all branches.
-    A Job is also the place that holds the attributes of a running workflow.
+    A Workflow is also the place that holds the attributes of a running workflow.
     """
 
     def __init__(self, workflow_spec, **kwargs):
@@ -43,7 +43,7 @@ class Job(object):
         self.spec             = workflow_spec
         self.task_id_assigner = TaskIdAssigner()
         self.attributes       = {}
-        self.outer_job        = kwargs.get('parent', self)
+        self.outer_workflow   = kwargs.get('parent', self)
         self.locks            = {}
         self.last_task        = None
         self.task_tree        = Task(self, specs.Simple(workflow_spec, 'Root'))
@@ -65,7 +65,7 @@ class Job(object):
 
     def is_completed(self):
         """
-        Returns True if the entire Job is completed, False otherwise.
+        Returns True if the entire Workflow is completed, False otherwise.
         """
         mask = Task.NOT_FINISHED_MASK
         iter = Task.Iterator(self.task_tree, mask)
@@ -119,10 +119,10 @@ class Job(object):
 
     def cancel(self, success = False):
         """
-        Cancels all open tasks in the job.
+        Cancels all open tasks in the workflow.
 
         @type  success: boolean
-        @param success: Whether the Job should be marked as successfully
+        @param success: Whether the Workflow should be marked as successfully
                         completed.
         """
         self.success = success
@@ -257,13 +257,13 @@ class Job(object):
 
     def serialize(self, serializer):
         """
-        Serializes a Job instance using the provided serializer.
+        Serializes a Workflow instance using the provided serializer.
         """
-        return serializer.serialize_job(self)
+        return serializer.serialize_workflow(self)
 
     @classmethod
     def deserialize(cls, serializer, s_state):
         """
-        Deserializes a Job instance using the provided serializer.
+        Deserializes a Workflow instance using the provided serializer.
         """
-        return serializer.deserialize_job(s_state)
+        return serializer.deserialize_workflow(s_state)

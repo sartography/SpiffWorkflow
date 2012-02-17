@@ -16,9 +16,9 @@
 from SpiffWorkflow.Exception import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
 
-class CancelJob(TaskSpec):
+class Cancel(TaskSpec):
     """
-    This class implements a trigger that cancels another task (branch).
+    This class cancels a complete workflow.
     If more than one input is connected, the task performs an implicit
     multi merge.
     If more than one output is connected, the task performs an implicit
@@ -41,7 +41,6 @@ class CancelJob(TaskSpec):
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.cancel_successfully = success
 
-
     def test(self):
         """
         Checks whether all required attributes are set. Throws an exception
@@ -49,9 +48,8 @@ class CancelJob(TaskSpec):
         """
         TaskSpec.test(self)
         if len(self.outputs) > 0:
-            raise WorkflowException(self, 'CancelJob with an output.')
-
+            raise WorkflowException(self, 'Cancel with an output.')
 
     def _on_complete_hook(self, my_task):
-        my_task.job.cancel(self.cancel_successfully)
+        my_task.workflow.cancel(self.cancel_successfully)
         return TaskSpec._on_complete_hook(self, my_task)
