@@ -25,7 +25,7 @@ class Serializer(object):
     def serialize_workflow(self, workflow):
         raise NotImplementedError("You must implement the serialize_workflow method.")
 
-    def deserialize_workflow(self, s_state):
+    def deserialize_workflow(self, spec, s_state):
         raise NotImplementedError("You must implement the deserialize_workflow method.")
 
 class DictionarySerializer(Serializer):
@@ -53,11 +53,8 @@ class DictionarySerializer(Serializer):
 
         return s_state
 
-    def deserialize_workflow(self, s_state):
+    def deserialize_workflow(self, wf_spec, s_state):
         from SpiffWorkflow import Workflow
-
-        wf_spec_class = get_class(s_state['workflow'])
-        wf_spec = wf_spec_class()
         workflow = Workflow(wf_spec)
 
         # attributes
@@ -72,11 +69,11 @@ class DictionarySerializer(Serializer):
         # success
         workflow.success = s_state['success']
 
-        # task_tree
-        workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'])
-
         # workflow
         workflow.spec = wf_spec
+
+        # task_tree
+        workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'])
 
         return workflow
 
@@ -99,7 +96,7 @@ class DictionarySerializer(Serializer):
         s_state['state'] = task.state
 
         # task_spec
-        s_state['task_spec'] = task.task_spec.__class__.__module__ + '.' + task.task_spec.__class__.__name__
+        s_state['task_spec'] = task.task_spec.name
 
         # last_state_change
         s_state['last_state_change'] = task.last_state_change
@@ -113,23 +110,21 @@ class DictionarySerializer(Serializer):
         return s_state
 
     def deserialize_task(self, workflow, s_state):
-        # id
-        task = workflow.get_task(s_state['id'])
+        # task_spec
+        task_spec = workflow.get_task_spec_from_name(s_state['task_spec'])
+        task = Task(workflow, task_spec)
 
-        # workflow
-        assert task.workflow == workflow
+        # id
+        task.id = s_state['id']
 
         # parent
-        assert task.parent.id if not task.parent is None else None == s_state['parent']
+        task.parent = workflow.get_task(s_state['parent'])
 
         # children
         task.children = [self.deserialize_task(workflow, c) for c in s_state['children']]
 
         # state
         task.state = s_state['state']
-
-        # task_spec
-        assert task.task_spec.__class__ == get_class(s_state['task_spec'])
 
         # last_state_change
         task.last_state_change = s_state['last_state_change']
@@ -141,5 +136,3 @@ class DictionarySerializer(Serializer):
         task.internal_attributes = s_state['internal_attributes']
 
         return task
-
-

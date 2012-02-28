@@ -258,12 +258,26 @@ class Workflow(object):
     def serialize(self, serializer):
         """
         Serializes a Workflow instance using the provided serializer.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @rtype:  object
+        @return: The serialized workflow.
         """
         return serializer.serialize_workflow(self)
 
     @classmethod
-    def deserialize(cls, serializer, s_state):
+    def deserialize(cls, spec, serializer, s_state):
         """
         Deserializes a Workflow instance using the provided serializer.
+
+        @type  spec: L{SpiffWorkflow.spec.WorkflowSpec}
+        @param spec: An instance of the WorkflowSpec.
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @type  s_state: object
+        @param s_state: The serialized workflow.
+        @rtype:  Workflow
+        @return: The workflow instance.
         """
-        return serializer.deserialize_workflow(s_state)
+        return serializer.deserialize_workflow(spec, s_state)

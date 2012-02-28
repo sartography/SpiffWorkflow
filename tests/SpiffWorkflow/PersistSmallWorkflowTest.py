@@ -60,7 +60,7 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         serialized_job = old_job.serialize(serializer)
 
         serializer = DictionarySerializer()
-        new_job = Workflow.deserialize(serializer, serialized_job)
+        new_job = Workflow.deserialize(self.wf_spec, serializer, serialized_job)
 
         before = old_job.get_dump()
         after = new_job.get_dump()
