@@ -46,7 +46,7 @@ class DictionarySerializer(Serializer):
         s_state['success'] = workflow.success
 
         #task_tree
-        s_state['task_tree'] = [self.serialize_task(task) for task in Task.Iterator(workflow.task_tree)]
+        s_state['task_tree'] = self.serialize_task(workflow.task_tree)
 
         #workflow
         s_state['workflow'] = workflow.spec.__class__.__module__ + '.' + workflow.spec.__class__.__name__
@@ -73,8 +73,7 @@ class DictionarySerializer(Serializer):
         workflow.success = s_state['success']
 
         # task_tree
-        tasks = [self.deserialize_task(workflow, serialized_task) for serialized_task in s_state['task_tree']]
-        workflow.task_tree = [task for task in tasks if task.task_spec.name == 'Root'][0]
+        workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'])
 
         # workflow
         workflow.spec = wf_spec
@@ -94,7 +93,7 @@ class DictionarySerializer(Serializer):
         s_state['parent'] = task.parent.id if not task.parent is None else None
 
         # children
-        s_state['children'] = [child.id for child in task.children]
+        s_state['children'] = [self.serialize_task(child) for child in task.children]
 
         # state
         s_state['state'] = task.state
@@ -124,7 +123,7 @@ class DictionarySerializer(Serializer):
         assert task.parent.id if not task.parent is None else None == s_state['parent']
 
         # children
-        assert [child.id for child in task.children] == s_state['children']
+        task.children = [self.deserialize_task(workflow, c) for c in s_state['children']]
 
         # state
         task.state = s_state['state']
