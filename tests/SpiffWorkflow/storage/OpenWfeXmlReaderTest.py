@@ -1,5 +1,7 @@
-import sys, unittest, re, os.path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+import sys, unittest, re, os
+dirname = os.path.dirname(__file__)
+data_dir = os.path.join(dirname, '..', 'data')
+sys.path.insert(0, os.path.join(dirname, '..', '..', '..', 'src'))
 
 from WorkflowTest import on_reached_cb, on_complete_cb, assert_same_path
 from SpiffWorkflow import Workflow
@@ -35,17 +37,17 @@ class OpenWfeXmlReaderTest(unittest.TestCase):
         # 0 byte sized file.
         self.assertRaises(ExpatError,
                           self.reader.parse_file,
-                          os.path.join(os.path.dirname(__file__), 'data/empty1.xml'))
+                          os.path.join(data_dir, 'empty1.xml'))
 
         # File containing only "<xml></xml>".
-        self.reader.parse_file(os.path.join(os.path.dirname(__file__), 'data/empty2.xml'))
+        self.reader.parse_file(os.path.join(data_dir, 'empty2.xml'))
 
         # Read a complete workflow.
-        self.reader.parse_file(os.path.join(os.path.dirname(__file__), 'data/openwfe/workflow1.xml'))
+        self.reader.parse_file(os.path.join(data_dir, 'openwfe/workflow1.xml'))
 
 
     def testRunWorkflow(self):
-        filename = os.path.join(os.path.dirname(__file__), 'data/openwfe/workflow1.xml')
+        filename = os.path.join(data_dir, 'openwfe/workflow1.xml')
         wf_specs = self.reader.parse_file(filename)
         wf_spec = wf_specs[0]
 
