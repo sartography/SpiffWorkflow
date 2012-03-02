@@ -24,20 +24,20 @@ class XmlReaderTest(WorkflowTest):
                           'foo')
 
         # 0 byte sized file.
-        file = os.path.join(os.path.dirname(__file__), 'xml', 'empty1.xml')
+        file = os.path.join(os.path.dirname(__file__), 'data', 'empty1.xml')
         self.assertRaises(ExpatError, self.reader.parse_file, file)
 
         # File containing only "<xml></xml>".
-        file = os.path.join(os.path.dirname(__file__), 'xml', 'empty2.xml')
+        file = os.path.join(os.path.dirname(__file__), 'data', 'empty2.xml')
         self.reader.parse_file(file)
 
         # Read a complete workflow.
-        file = os.path.join(os.path.dirname(__file__), 'xml', 'spiff', 'workflow1.xml')
+        file = os.path.join(os.path.dirname(__file__), 'data', 'spiff-xml', 'workflow1.xml')
         self.reader.parse_file(file)
 
 
     def testRunWorkflow(self):
-        file = os.path.join(os.path.dirname(__file__), 'xml', 'spiff', 'workflow1.xml')
+        file = os.path.join(os.path.dirname(__file__), 'data', 'spiff-xml', 'workflow1.xml')
         workflow_spec_list = self.reader.parse_file(file)
         for wf_spec in workflow_spec_list:
             self._runWorkflow(wf_spec)

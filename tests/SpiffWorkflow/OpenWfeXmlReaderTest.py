@@ -35,17 +35,17 @@ class OpenWfeXmlReaderTest(unittest.TestCase):
         # 0 byte sized file.
         self.assertRaises(ExpatError,
                           self.reader.parse_file,
-                          os.path.join(os.path.dirname(__file__), 'xml/empty1.xml'))
+                          os.path.join(os.path.dirname(__file__), 'data/empty1.xml'))
 
         # File containing only "<xml></xml>".
-        self.reader.parse_file(os.path.join(os.path.dirname(__file__), 'xml/empty2.xml'))
+        self.reader.parse_file(os.path.join(os.path.dirname(__file__), 'data/empty2.xml'))
 
         # Read a complete workflow.
-        self.reader.parse_file(os.path.join(os.path.dirname(__file__), 'xml/openwfe/workflow1.xml'))
+        self.reader.parse_file(os.path.join(os.path.dirname(__file__), 'data/openwfe/workflow1.xml'))
 
 
     def testRunWorkflow(self):
-        filename = os.path.join(os.path.dirname(__file__), 'xml/openwfe/workflow1.xml')
+        filename = os.path.join(os.path.dirname(__file__), 'data/openwfe/workflow1.xml')
         wf_specs = self.reader.parse_file(filename)
         wf_spec = wf_specs[0]
 
