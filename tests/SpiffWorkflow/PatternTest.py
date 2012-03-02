@@ -1,4 +1,4 @@
-import sys, unittest, re, os.path
+import sys, unittest, re, os, glob
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from SpiffWorkflow.specs import *
@@ -65,29 +65,50 @@ class PatternTest(unittest.TestCase):
     def setUp(self):
         Task.id_pool = 0
         Task.thread_id_pool = 0
-        self.xml_path = ['data/spiff-xml/control-flow/',
-                         'data/spiff-xml/data/',
-                         'data/spiff-xml/resource/']
+        self.xml_path = ['data/spiff-xml/control-flow',
+                         'data/spiff-xml/data',
+                         'data/spiff-xml/resource',
+                         'data/spiff-xml']
         self.reader = XmlReader()
 
     def testPattern(self):
-        for dirname in self.xml_path:
-            dirname = os.path.join(os.path.dirname(__file__), dirname)
+        for basedir in self.xml_path:
+            dirname = os.path.join(os.path.dirname(__file__), basedir)
+
             for filename in os.listdir(dirname):
-                if not filename.endswith('.xml'):
+                if not filename.endswith(('.xml', '.py')):
                     continue
-                self.runFile(os.path.join(dirname, filename))
+                filename = os.path.join(dirname, filename)
+                print filename
 
-    def runFile(self, xml_filename):
-        try:
-            #print '\n%s: ok' % xml_filename,
-            workflow_list = self.reader.parse_file(xml_filename)
-            self.runWorkflow(workflow_list[0], xml_filename)
-        except:
-            print '%s:' % xml_filename
-            raise
+                # Load the .path file.
+                path_file = os.path.splitext(filename)[0] + '.path'
+                if os.path.exists(path_file):
+                    expected_path = open(path_file).read()
+                else:
+                    expected_path = None
 
-    def runWorkflow(self, wf_spec, xml_filename):
+                # Load the .data file.
+                data_file = os.path.splitext(filename)[0] + '.data'
+                if os.path.exists(data_file):
+                    expected_data = open(data_file, 'r').read()
+                else:
+                    expected_data = None
+
+                # Test patterns that are defined in XML format.
+                if filename.endswith('.xml'):
+                    wf_spec = self.reader.parse_file(filename)[0]
+                    self.runWorkflow(wf_spec, expected_path, expected_data)
+
+                # Test patterns that are defined in Python.
+                if filename.endswith('.py'):
+                    code    = compile(open(filename).read(), filename, 'exec')
+                    thedict = {}
+                    result  = eval(code, thedict)
+                    wf_spec = thedict['TestWorkflowSpec']()
+                    self.runWorkflow(wf_spec, expected_path, expected_data)
+
+    def runWorkflow(self, wf_spec, expected_path, expected_data):
         taken_path = []
         for name in wf_spec.task_specs:
             wf_spec.task_specs[name].reached_event.connect(on_reached_cb, taken_path)
@@ -113,32 +134,24 @@ class PatternTest(unittest.TestCase):
             raise Exception('Task with state READY: %s' % thetask.name)
 
         # Check whether the correct route was taken.
-        filename = xml_filename + '.path'
-        if os.path.exists(filename):
-            file     = open(filename, 'r')
-            expected = file.read()
-            file.close()
+        if expected_path is not None:
             taken_path = '\n'.join(taken_path) + '\n'
             error      = '%s:\n'       % name
             error     += 'Expected:\n'
-            error     += '%s\n'        % expected
+            error     += '%s\n'        % expected_path
             error     += 'but got:\n'
             error     += '%s\n'        % taken_path
-            self.assert_(taken_path == expected, error)
+            self.assert_(taken_path == expected_path, error)
 
         # Check attribute availibility.
-        filename = xml_filename + '.data'
-        if os.path.exists(filename):
-            file     = open(filename, 'r')
-            expected = file.read()
-            file.close()
+        if expected_data is not None:
             result   = workflow.get_attribute('data', '')
             error    = '%s:\n'       % name
             error   += 'Expected:\n'
-            error   += '%s\n'        % expected
+            error   += '%s\n'        % expected_data
             error   += 'but got:\n'
             error   += '%s\n'        % result
-            self.assert_(result == expected, error)
+            self.assert_(result == expected_data, error)
 
 
 def suite():
