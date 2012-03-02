@@ -18,7 +18,7 @@ import xml.dom.minidom as minidom
 import SpiffWorkflow
 import SpiffWorkflow.specs
 from SpiffWorkflow import operators
-from SpiffWorkflow.Exception import StorageException
+from SpiffWorkflow.exceptions import StorageException
 
 _spec_tags = ('task',
               'concurrence',

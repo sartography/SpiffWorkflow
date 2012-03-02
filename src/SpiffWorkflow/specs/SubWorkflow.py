@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import os
 from SpiffWorkflow.Task import Task
-from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.operators import valueof
 from SpiffWorkflow.storage import XmlReader
 from TaskSpec import TaskSpec

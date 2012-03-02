@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 from SpiffWorkflow.Task import Task
-from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.exceptions import WorkflowException
 from MultiChoice import MultiChoice
 
 class ExclusiveChoice(MultiChoice):

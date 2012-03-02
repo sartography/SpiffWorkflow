@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.util.event import Event
 from SpiffWorkflow.Task import Task
-from SpiffWorkflow.Exception import WorkflowException
+from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.operators import valueof
 
 class TaskSpec(object):
@@ -138,7 +138,7 @@ class TaskSpec(object):
         for key in kwargs:
             if self.defines.has_key(key):
                 msg = "Property %s can not be modified" % key
-                raise Exception.WorkflowException(msg)
+                raise WorkflowException(msg)
         self.properties.update(kwargs)
 
 
