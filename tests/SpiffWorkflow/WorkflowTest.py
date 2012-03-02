@@ -18,7 +18,7 @@ class WorkflowTest(unittest.TestCase):
         """
         Simulates interactive calls, as would be issued by a user.
         """
-        xml_file = os.path.join(data_dir, 'spiff-xml', 'workflow1.xml')
+        xml_file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
         wf_spec  = XmlReader().parse_file(xml_file)[0]
         workflow = Workflow(wf_spec)
 

@@ -11,10 +11,10 @@ class PatternTest(unittest.TestCase):
     def setUp(self):
         Task.id_pool = 0
         Task.thread_id_pool = 0
-        self.xml_path = ['data/spiff-xml/control-flow',
-                         'data/spiff-xml/data',
-                         'data/spiff-xml/resource',
-                         'data/spiff-xml']
+        self.xml_path = ['data/spiff/control-flow',
+                         'data/spiff/data',
+                         'data/spiff/resource',
+                         'data/spiff']
         self.reader = XmlReader()
 
     def testPattern(self):

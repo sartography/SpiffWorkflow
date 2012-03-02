@@ -32,11 +32,11 @@ class XmlReaderTest(unittest.TestCase):
         self.reader.parse_file(file)
 
         # Read a complete workflow.
-        file = os.path.join(data_dir, 'spiff-xml', 'workflow1.xml')
+        file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
         self.reader.parse_file(file)
 
     def testRunWorkflow(self):
-        xml_file       = os.path.join(data_dir, 'spiff-xml', 'workflow1.xml')
+        xml_file       = os.path.join(data_dir, 'spiff', 'workflow1.xml')
         path_file      = os.path.splitext(xml_file)[0] + '.path'
         expected_path  = open(path_file).read()
         workflow_specs = self.reader.parse_file(xml_file)

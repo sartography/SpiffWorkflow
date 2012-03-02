@@ -6,7 +6,7 @@ It is based on http://www.workflowpatterns.com and implemented in pure Python.
 
 Supported Workflow Patterns
 ----------------------------
-Hint: The examples are located in tests/data/spiff-xml/.
+Hint: The examples are located in tests/data/spiff/.
 
   Control-Flow Patterns:
 
