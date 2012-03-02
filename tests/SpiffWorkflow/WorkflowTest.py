@@ -9,6 +9,11 @@ from SpiffWorkflow.Task import *
 from SpiffWorkflow.storage import XmlReader
 
 class WorkflowTest(unittest.TestCase):
+    def testConstructor(self):
+        wf_spec = WorkflowSpec()
+        wf_spec.start.connect(Cancel(wf_spec, 'name'))
+        workflow = Workflow(wf_spec)
+
     def testBeginWorkflowStepByStep(self):
         """
         Simulates interactive calls, as would be issued by a user.
