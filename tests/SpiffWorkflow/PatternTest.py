@@ -47,12 +47,8 @@ def on_reached_cb(workflow, task, taken_path):
     # re-assign the function in every step, thus making sure that new
     # children also call on_ready_cb().
     for child in task.children:
-        if not child.task_spec.reached_event.is_connected(on_reached_cb):
-            child.task_spec.reached_event.connect(on_reached_cb, taken_path)
-        if not child.task_spec.completed_event.is_connected(on_complete_cb):
-            child.task_spec.completed_event.connect(on_complete_cb, taken_path)
+        track_task(child.task_spec, taken_path)
     return True
-
 
 def on_complete_cb(workflow, task, taken_path):
     # Record the path in an attribute.
@@ -60,6 +56,21 @@ def on_complete_cb(workflow, task, taken_path):
     taken_path.append('%s%s' % (indent, task.get_name()))
     #print "COMPLETED:", task.get_name(), task.get_attributes()
     return True
+
+def track_task(task_spec, taken_path):
+    if task_spec.reached_event.is_connected(on_reached_cb):
+        task_spec.reached_event.disconnect(on_reached_cb)
+    task_spec.reached_event.connect(on_reached_cb, taken_path)
+    if task_spec.completed_event.is_connected(on_complete_cb):
+        task_spec.completed_event.disconnect(on_complete_cb)
+    task_spec.completed_event.connect(on_complete_cb, taken_path)
+
+def track_workflow(wf_spec, taken_path = None):
+    if taken_path is None:
+        taken_path = []
+    for name in wf_spec.task_specs:
+        track_task(wf_spec.task_specs[name], taken_path)
+    return taken_path
 
 class PatternTest(unittest.TestCase):
     def setUp(self):
@@ -109,13 +120,9 @@ class PatternTest(unittest.TestCase):
                     self.runWorkflow(wf_spec, expected_path, expected_data)
 
     def runWorkflow(self, wf_spec, expected_path, expected_data):
-        taken_path = []
-        for name in wf_spec.task_specs:
-            wf_spec.task_specs[name].reached_event.connect(on_reached_cb, taken_path)
-            wf_spec.task_specs[name].completed_event.connect(on_complete_cb, taken_path)
-
         # Execute all tasks within the Workflow
-        workflow = Workflow(wf_spec)
+        taken_path = track_workflow(wf_spec)
+        workflow   = Workflow(wf_spec)
         self.assert_(not workflow.is_completed(), 'Workflow is complete before start')
         try:
             workflow.complete_all(False)
@@ -136,8 +143,7 @@ class PatternTest(unittest.TestCase):
         # Check whether the correct route was taken.
         if expected_path is not None:
             taken_path = '\n'.join(taken_path) + '\n'
-            error      = '%s:\n'       % name
-            error     += 'Expected:\n'
+            error      = 'Expected:\n'
             error     += '%s\n'        % expected_path
             error     += 'but got:\n'
             error     += '%s\n'        % taken_path
@@ -146,8 +152,7 @@ class PatternTest(unittest.TestCase):
         # Check attribute availibility.
         if expected_data is not None:
             result   = workflow.get_attribute('data', '')
-            error    = '%s:\n'       % name
-            error   += 'Expected:\n'
+            error    = 'Expected:\n'
             error   += '%s\n'        % expected_data
             error   += 'but got:\n'
             error   += '%s\n'        % result
