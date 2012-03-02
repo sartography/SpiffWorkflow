@@ -1,31 +1,21 @@
-import sys, unittest, re, os.path
+import sys, unittest, re, os
+data_dir = os.path.join(os.path.dirname(__file__), 'data')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import pickle
 import pprint
 from random import randint
-from WorkflowTest import WorkflowTest, \
-                         on_reached_cb, \
-                         on_complete_cb, \
-                         assert_same_path
+from PatternTest import track_workflow
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.storage import XmlReader
 
-class PersistenceTest(WorkflowTest):
+class PersistenceTest(unittest.TestCase):
     def setUp(self):
-        WorkflowTest.setUp(self)
-        self.reader     = XmlReader()
-        self.data_file  = 'data.pkl'
-        self.taken_path = None
+        self.reader    = XmlReader()
+        self.data_file = 'data.pkl'
 
-    def doPickleSingle(self, workflow):
-        self.taken_path = {'reached':   [],
-                           'completed': []}
-        for name, task in workflow.spec.task_specs.iteritems():
-            task.reached_event.connect(on_reached_cb,
-                                       self.taken_path['reached'])
-            task.completed_event.connect(on_complete_cb,
-                                         self.taken_path['completed'])
+    def doPickleSingle(self, workflow, expected_path):
+        taken_path = track_workflow(workflow.spec)
 
         # Execute a random number of steps.
         for i in xrange(randint(0, len(workflow.spec.task_specs))):
@@ -49,32 +39,30 @@ class PersistenceTest(WorkflowTest):
                                     + 'After:\n'  + after  + '\n')
 
         # Re-connect signals, because the pickle dump now only contains a 
-        # copy of self.taken_path.
-        for name, task in workflow.spec.task_specs.iteritems():
-            task.reached_event.disconnect(on_reached_cb)
-            task.completed_event.disconnect(on_complete_cb)
-            task.reached_event.connect(on_reached_cb,
-                                       self.taken_path['reached'])
-            task.completed_event.connect(on_complete_cb,
-                                         self.taken_path['completed'])
+        # copy of taken_path.
+        taken_path = track_workflow(workflow.spec, taken_path)
 
         # Run the rest of the workflow.
         workflow.complete_all()
         after = workflow.get_dump()
         self.assert_(workflow.is_completed(), 'Workflow not complete:' + after)
-        assert_same_path(self,
-                         self.expected_path,
-                         self.taken_path['completed'])
+        #taken_path = '\n'.join(taken_path) + '\n'
+        if taken_path != expected_path:
+            for taken, expected in zip(taken_path, expected_path):
+                print "TAKEN:   ", taken
+                print "EXPECTED:", expected
+        self.assertEqual(expected_path, taken_path)
 
     def testPickle(self):
         # Read a complete workflow.
-        file = os.path.join(os.path.dirname(__file__), 'data/spiff-xml/workflow1.xml')
+        xml_file      = os.path.join(data_dir, 'spiff-xml', 'workflow1.xml')
+        path_file     = os.path.splitext(xml_file)[0] + '.path'
+        expected_path = open(path_file).read().strip().split('\n')
+        wf_spec       = self.reader.parse_file(xml_file)[0]
 
         for i in xrange(5):
-            wf_spec_list = self.reader.parse_file(file)
-            wf_spec      = wf_spec_list[0]
-            workflow     = Workflow(wf_spec)
-            self.doPickleSingle(workflow)
+            workflow = Workflow(wf_spec)
+            self.doPickleSingle(workflow, expected_path)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(PersistenceTest)
