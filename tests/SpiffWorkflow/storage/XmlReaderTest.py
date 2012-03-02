@@ -3,13 +3,12 @@ dirname = os.path.dirname(__file__)
 data_dir = os.path.join(dirname, '..', 'data')
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..', 'src'))
 
-from WorkflowTest import WorkflowTest
+from PatternTest import run_workflow
 from SpiffWorkflow.storage import XmlReader
 from xml.parsers.expat import ExpatError
 
-class XmlReaderTest(WorkflowTest):
+class XmlReaderTest(unittest.TestCase):
     def setUp(self):
-        WorkflowTest.setUp(self)
         self.reader = XmlReader()
 
     def testParseString(self):
@@ -17,7 +16,6 @@ class XmlReaderTest(WorkflowTest):
                           self.reader.parse_string,
                           '')
         self.reader.parse_string('<xml></xml>')
-
 
     def testParseFile(self):
         # File not found.
@@ -37,12 +35,13 @@ class XmlReaderTest(WorkflowTest):
         file = os.path.join(data_dir, 'spiff-xml', 'workflow1.xml')
         self.reader.parse_file(file)
 
-
     def testRunWorkflow(self):
-        file = os.path.join(data_dir, 'spiff-xml', 'workflow1.xml')
-        workflow_spec_list = self.reader.parse_file(file)
-        for wf_spec in workflow_spec_list:
-            self._runWorkflow(wf_spec)
+        xml_file       = os.path.join(data_dir, 'spiff-xml', 'workflow1.xml')
+        path_file      = os.path.splitext(xml_file)[0] + '.path'
+        expected_path  = open(path_file).read()
+        workflow_specs = self.reader.parse_file(xml_file)
+        for wf_spec in workflow_specs:
+            run_workflow(self, wf_spec, expected_path, None)
 
 
 def suite():

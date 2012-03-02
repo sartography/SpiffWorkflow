@@ -72,6 +72,45 @@ def track_workflow(wf_spec, taken_path = None):
         track_task(wf_spec.task_specs[name], taken_path)
     return taken_path
 
+def run_workflow(test, wf_spec, expected_path, expected_data):
+    # Execute all tasks within the Workflow.
+    taken_path = track_workflow(wf_spec)
+    workflow   = Workflow(wf_spec)
+    test.assert_(not workflow.is_completed(), 'Workflow is complete before start')
+    try:
+        workflow.complete_all(False)
+    except:
+        workflow.task_tree.dump()
+        raise
+
+    #workflow.task_tree.dump()
+    test.assert_(workflow.is_completed(),
+                 'complete_all() returned, but workflow is not complete\n'
+               + workflow.task_tree.get_dump())
+
+    # Make sure that there are no waiting tasks left in the tree.
+    for thetask in Task.Iterator(workflow.task_tree, Task.READY):
+        workflow.task_tree.dump()
+        raise Exception('Task with state READY: %s' % thetask.name)
+
+    # Check whether the correct route was taken.
+    if expected_path is not None:
+        taken_path = '\n'.join(taken_path) + '\n'
+        error      = 'Expected:\n'
+        error     += '%s\n'        % expected_path
+        error     += 'but got:\n'
+        error     += '%s\n'        % taken_path
+        test.assert_(taken_path == expected_path, error)
+
+    # Check attribute availibility.
+    if expected_data is not None:
+        result   = workflow.get_attribute('data', '')
+        error    = 'Expected:\n'
+        error   += '%s\n'        % expected_data
+        error   += 'but got:\n'
+        error   += '%s\n'        % result
+        test.assert_(result == expected_data, error)
+
 class PatternTest(unittest.TestCase):
     def setUp(self):
         Task.id_pool = 0
@@ -109,7 +148,7 @@ class PatternTest(unittest.TestCase):
                 # Test patterns that are defined in XML format.
                 if filename.endswith('.xml'):
                     wf_spec = self.reader.parse_file(filename)[0]
-                    self.runWorkflow(wf_spec, expected_path, expected_data)
+                    run_workflow(self, wf_spec, expected_path, expected_data)
 
                 # Test patterns that are defined in Python.
                 if filename.endswith('.py'):
@@ -117,47 +156,7 @@ class PatternTest(unittest.TestCase):
                     thedict = {}
                     result  = eval(code, thedict)
                     wf_spec = thedict['TestWorkflowSpec']()
-                    self.runWorkflow(wf_spec, expected_path, expected_data)
-
-    def runWorkflow(self, wf_spec, expected_path, expected_data):
-        # Execute all tasks within the Workflow
-        taken_path = track_workflow(wf_spec)
-        workflow   = Workflow(wf_spec)
-        self.assert_(not workflow.is_completed(), 'Workflow is complete before start')
-        try:
-            workflow.complete_all(False)
-        except:
-            workflow.task_tree.dump()
-            raise
-
-        #workflow.task_tree.dump()
-        self.assert_(workflow.is_completed(),
-                     'complete_all() returned, but workflow is not complete\n'
-                   + workflow.task_tree.get_dump())
-
-        # Make sure that there are no waiting tasks left in the tree.
-        for thetask in Task.Iterator(workflow.task_tree, Task.READY):
-            workflow.task_tree.dump()
-            raise Exception('Task with state READY: %s' % thetask.name)
-
-        # Check whether the correct route was taken.
-        if expected_path is not None:
-            taken_path = '\n'.join(taken_path) + '\n'
-            error      = 'Expected:\n'
-            error     += '%s\n'        % expected_path
-            error     += 'but got:\n'
-            error     += '%s\n'        % taken_path
-            self.assert_(taken_path == expected_path, error)
-
-        # Check attribute availibility.
-        if expected_data is not None:
-            result   = workflow.get_attribute('data', '')
-            error    = 'Expected:\n'
-            error   += '%s\n'        % expected_data
-            error   += 'but got:\n'
-            error   += '%s\n'        % result
-            self.assert_(result == expected_data, error)
-
+                    run_workflow(self, wf_spec, expected_path, expected_data)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(PatternTest)
