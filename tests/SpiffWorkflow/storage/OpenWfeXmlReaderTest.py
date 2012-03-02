@@ -1,9 +1,10 @@
 import sys, unittest, re, os
 dirname = os.path.dirname(__file__)
 data_dir = os.path.join(dirname, '..', 'data')
+sys.path.insert(0, os.path.join(dirname, '..'))
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..', 'src'))
 
-from PatternTest import track_workflow
+from util import track_workflow
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.storage import OpenWfeXmlReader
 from xml.parsers.expat import ExpatError

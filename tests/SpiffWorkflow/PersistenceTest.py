@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import pickle
 import pprint
 from random import randint
-from PatternTest import track_workflow
+from util import track_workflow
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.storage import XmlReader
 
