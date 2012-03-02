@@ -21,7 +21,7 @@ class WorkflowException(Exception):
         sender -- the task that threw the exception.
         error -- string
         """
-        Exception.__init__(self, '%s: %s' % (sender.get_name(), error))
+        Exception.__init__(self, '%s: %s' % (sender.name, error))
         self.sender = sender
 
 

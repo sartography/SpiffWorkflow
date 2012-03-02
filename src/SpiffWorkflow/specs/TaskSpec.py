@@ -173,9 +173,9 @@ class TaskSpec(object):
         if an error was detected.
         """
         if self.id is None:
-            raise Exception.WorkflowException(self, 'TaskSpec is not yet instanciated.')
+            raise WorkflowException(self, 'TaskSpec is not yet instanciated.')
         if len(self.inputs) < 1:
-            raise Exception.WorkflowException(self, 'No input task connected.')
+            raise WorkflowException(self, 'No input task connected.')
 
 
     def _predict(self, my_task, seen = None, looked_ahead = 0):
