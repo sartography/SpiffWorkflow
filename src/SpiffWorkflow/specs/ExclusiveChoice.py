@@ -50,7 +50,7 @@ class ExclusiveChoice(MultiChoice):
         """
         assert self.default_task_spec is None
         self.outputs.append(task_spec)
-        self.default_task_spec = task_spec
+        self.default_task_spec = task_spec.name
         task_spec._connect_notify(self)
 
 
@@ -66,15 +66,16 @@ class ExclusiveChoice(MultiChoice):
 
     def _predict_hook(self, my_task):
         my_task._update_children(self.outputs, Task.MAYBE)
-        my_task._set_likely_task(self.default_task_spec)
+        spec = self._parent.get_task_spec_from_name(self.default_task_spec)
+        my_task._set_likely_task(spec)
 
 
     def _on_complete_hook(self, my_task):
         # Find the first matching condition.
-        output = self.default_task_spec
-        for condition, task_spec in self.cond_task_specs:
+        output = self._parent.get_task_spec_from_name(self.default_task_spec)
+        for condition, spec_name in self.cond_task_specs:
             if condition is None or condition._matches(my_task):
-                output = task_spec
+                output = self._parent.get_task_spec_from_name(spec_name)
                 break
 
         my_task._update_children(output)

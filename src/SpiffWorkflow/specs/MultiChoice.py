@@ -41,13 +41,11 @@ class MultiChoice(TaskSpec):
         self.cond_task_specs = []
         self.choice          = None
 
-
     def connect(self, task_spec):
         """
         Convenience wrapper around connect_if() where condition is set to None.
         """
         return self.connect_if(None, task_spec)
-
 
     def connect_if(self, condition, task_spec):
         """
@@ -58,9 +56,8 @@ class MultiChoice(TaskSpec):
         """
         assert task_spec is not None
         self.outputs.append(task_spec)
-        self.cond_task_specs.append((condition, task_spec))
+        self.cond_task_specs.append((condition, task_spec.name))
         task_spec._connect_notify(self)
-
 
     def test(self):
         """
@@ -70,14 +67,15 @@ class MultiChoice(TaskSpec):
         TaskSpec.test(self)
         if len(self.cond_task_specs) < 1:
             raise WorkflowException(self, 'At least one output required.')
-        for condition, task in self.cond_task_specs:
-            if task is None:
-                raise WorkflowException(self, 'Condition with no task.')
+        for condition, name in self.cond_task_specs:
+            if name is None:
+                raise WorkflowException(self, 'Condition with no task spec.')
+            task_spec = self._parent.get_task_spec_from_name(name)
+            if task_spec is None:
+                msg = 'Condition leads to non-existent task ' + repr(name)
+                raise WorkflowException(self, msg)
             if condition is None:
                 continue
-            if condition is None:
-                raise WorkflowException(self, 'Condition is None.')
-
 
     def _on_trigger(self, my_task, choice):
         """
@@ -98,9 +96,9 @@ class MultiChoice(TaskSpec):
         for condition, output in self.cond_task_specs:
             if condition is not None and not condition._matches(my_task):
                 continue
-            if self.choice is not None and output.name not in self.choice:
+            if self.choice is not None and output not in self.choice:
                 continue
-            outputs.append(output)
+            outputs.append(self._parent.get_task_spec_from_name(output))
 
         my_task._update_children(outputs)
         return True
