@@ -18,7 +18,7 @@ import re
 class Attrib(object):
     """
     Used for marking a value such that it is recognized to be an
-    attribute name by valueod().
+    attribute name by valueof().
     """
     def __init__(self, name):
         self.name = name
