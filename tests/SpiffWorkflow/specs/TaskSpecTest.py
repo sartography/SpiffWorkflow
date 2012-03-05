@@ -4,6 +4,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'sr
 from SpiffWorkflow.specs import WorkflowSpec
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
+from SpiffWorkflow.storage import DictionarySerializer
 
 class TaskSpecTest(unittest.TestCase):
     CORRELATE = TaskSpec
@@ -50,6 +51,11 @@ class TaskSpecTest(unittest.TestCase):
         # Connect another task to make sure that it has an input.
         self.spec.connect(spec)
         self.assertEqual(spec.test(), None)
+
+    def testSerialize(self):
+        serializer = DictionarySerializer()
+        spec = TaskSpec(self.wf_spec, 'myspec')
+        self.assert_(isinstance(spec.serialize(serializer), dict))
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TaskSpecTest)
