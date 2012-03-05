@@ -6,7 +6,7 @@ from SpiffWorkflow import Workflow
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
 from SpiffWorkflow.Task import *
-from SpiffWorkflow.storage import XmlReader
+from SpiffWorkflow.storage import XmlSerializer
 
 class WorkflowTest(unittest.TestCase):
     def testConstructor(self):
@@ -19,7 +19,8 @@ class WorkflowTest(unittest.TestCase):
         Simulates interactive calls, as would be issued by a user.
         """
         xml_file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
-        wf_spec  = XmlReader().parse_file(xml_file)[0]
+        xml      = open(xml_file).read()
+        wf_spec  = WorkflowSpec.deserialize(XmlSerializer(), xml)
         workflow = Workflow(wf_spec)
 
         tasks = workflow.get_tasks(Task.READY)

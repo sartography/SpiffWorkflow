@@ -30,7 +30,6 @@ class WorkflowSpec(object):
         self.task_specs  = dict()
         self.start       = StartTask(self)
 
-
     def _add_notify(self, task_spec):
         """
         Called by a task spec when it was added into the workflow.
@@ -39,7 +38,6 @@ class WorkflowSpec(object):
             raise ValueError('duplicate model name: ' + repr(task_spec))
         self.task_specs[task_spec.name] = task_spec
         task_spec.id = len(self.task_specs)
-
 
     def get_task_spec_from_name(self, name):
         """
@@ -51,3 +49,7 @@ class WorkflowSpec(object):
         @return: The task spec with the given name.
         """
         return self.task_specs[name]
+
+    @classmethod
+    def deserialize(cls, serializer, s_state, **kwargs):
+        return serializer.deserialize_workflow_spec(s_state, **kwargs)

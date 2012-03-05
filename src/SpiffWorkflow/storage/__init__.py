@@ -1,5 +1,5 @@
 from OpenWfeXmlReader import OpenWfeXmlReader
-from XmlReader import XmlReader
+from XmlSerializer import XmlSerializer
 from DictionarySerializer import DictionarySerializer
 
 import inspect

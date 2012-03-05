@@ -1,4 +1,4 @@
-# Copyright (C) 2007 Samuel Abels
+# Copyright (C) 2007-2012 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -13,14 +13,30 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-import os, re
+import os
+import re
 import xml.dom.minidom as minidom
-import SpiffWorkflow
-import SpiffWorkflow.specs
-from SpiffWorkflow import operators
+from SpiffWorkflow import operators, specs
 from SpiffWorkflow.exceptions import StorageException
+from SpiffWorkflow.storage.Serializer import Serializer
 
-class XmlReader(object):
+# Create a list of tag names out of the spec names.
+spec_map = dict()
+for name in dir(specs):
+    if name.startswith('_'):
+        continue
+    module = specs.__dict__[name]
+    name   = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
+    spec_map[name] = module
+spec_map['task'] = specs.Simple
+
+op_map = {'equals':       operators.Equal,
+          'not-equals':   operators.NotEqual,
+          'less-than':    operators.LessThan,
+          'greater-than': operators.GreaterThan,
+          'matches':      operators.Match}
+
+class XmlSerializer(Serializer):
     """
     Parses XML into a WorkflowSpec object.
     """
@@ -29,28 +45,9 @@ class XmlReader(object):
         """
         Constructor.
         """
-        self.read_specs = dict()
-
-        # Create a list of tag names out of the spec names.
-        self.spec_map = dict()
-        for name in dir(SpiffWorkflow.specs):
-            if name.startswith('_'):
-                continue
-            module = SpiffWorkflow.specs.__dict__[name]
-            name   = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
-            self.spec_map[name] = module
-        self.spec_map['task'] = SpiffWorkflow.specs.Simple
-
-        self.op_map = {'equals':       operators.Equal,
-                       'not-equals':   operators.NotEqual,
-                       'less-than':    operators.LessThan,
-                       'greater-than': operators.GreaterThan,
-                       'matches':      operators.Match}
-
 
     def _raise(self, error):
         raise StorageException('%s in XML file.' % error)
-
 
     def _read_assign(self, workflow, start_node):
         """
@@ -72,8 +69,7 @@ class XmlReader(object):
             kwargs['right'] = value
         else:
             kwargs['right_attribute'] = attrib
-        return SpiffWorkflow.specs.Assign(name, **kwargs)
-
+        return specs.Assign(name, **kwargs)
 
     def _read_property(self, workflow, start_node):
         """
@@ -84,7 +80,6 @@ class XmlReader(object):
         name   = start_node.getAttribute('name')
         value  = start_node.getAttribute('value')
         return name, value
-
 
     def _read_assign_list(self, workflow, start_node):
         """
@@ -104,7 +99,6 @@ class XmlReader(object):
                 self._raise('Unknown node: %s' % node.nodeName)
         return assignments
 
-
     def _read_logical(self, node):
         """
         Reads the logical tag from the given node, returns a Condition object.
@@ -117,7 +111,7 @@ class XmlReader(object):
         term2_attrib = node.getAttribute('right-field')
         term2_value  = node.getAttribute('right-value')
         kwargs       = {}
-        if not self.op_map.has_key(op):
+        if not op_map.has_key(op):
             self._raise('Invalid operator')
         if term1_attrib != '' and term1_value != '':
             self._raise('Both, left-field and left-value attributes found')
@@ -135,8 +129,7 @@ class XmlReader(object):
             right = term2_value
         else:
             right = operators.Attrib(term2_attrib)
-        return self.op_map[op](left, right)
-
+        return op_map[op](left, right)
 
     def _read_condition(self, workflow, start_node):
         """
@@ -157,7 +150,7 @@ class XmlReader(object):
                 if node.firstChild is None:
                     self._raise('Successor tag without a task name')
                 spec_name = node.firstChild.nodeValue
-            elif node.nodeName.lower() in self.op_map:
+            elif node.nodeName.lower() in op_map:
                 if condition is not None:
                     self._raise('Multiple conditions are not yet supported')
                 condition = self._read_logical(node)
@@ -170,8 +163,7 @@ class XmlReader(object):
             self._raise('A %s has no task specified' % start_node.nodeName)
         return condition, spec_name
 
-
-    def read_task(self, workflow, start_node):
+    def _deserialize_task_spec(self, workflow, start_node, read_specs):
         """
         Reads the task from the given node and returns a tuple
         (start, end) that contains the stream of objects that model
@@ -198,13 +190,13 @@ class XmlReader(object):
                            'defines':     {},
                            'pre_assign':  [],
                            'post_assign': []}
-        if not self.spec_map.has_key(nodetype):
+        if not spec_map.has_key(nodetype):
             self._raise('Invalid task type "%s"' % nodetype)
         if nodetype == 'start-task':
             name = 'start'
         if name == '':
             self._raise('Invalid task name "%s"' % name)
-        if self.read_specs.has_key(name):
+        if read_specs.has_key(name):
             self._raise('Duplicate task name "%s"' % name)
         if cancel != '' and cancel != u'0':
             kwargs['cancel'] = True
@@ -277,7 +269,7 @@ class XmlReader(object):
                 self._raise('Unknown node: %s' % node.nodeName)
 
         # Create a new instance of the task spec.
-        module = self.spec_map[nodetype]
+        module = spec_map[nodetype]
         if nodetype == 'start-task':
             spec = module(workflow, **kwargs)
         elif nodetype == 'multi-instance' or nodetype == 'thread-split':
@@ -291,13 +283,12 @@ class XmlReader(object):
         else:
             spec = module(workflow, name, context, **kwargs)
 
-        self.read_specs[name] = spec, successors
-
+        read_specs[name] = spec, successors
 
     def _read_workflow(self, start_node, filename = None):
         """
-        Reads the workflow from the given workflow node and returns a workflow
-        object.
+        Reads the workflow from the given node and returns a WorkflowSpec
+        instance.
         
         start_node -- the xml structure (xml.dom.minidom.Node)
         """
@@ -306,64 +297,40 @@ class XmlReader(object):
             self._raise('%s without a name attribute' % start_node.nodeName)
 
         # Read all task specs and create a list of successors.
-        workflow_spec   = SpiffWorkflow.specs.WorkflowSpec(name, filename)
-        end             = SpiffWorkflow.specs.Simple(workflow_spec, 'End'), []
-        self.read_specs = dict(end = end)
+        workflow_spec = specs.WorkflowSpec(name, filename)
+        end           = specs.Simple(workflow_spec, 'End'), []
+        read_specs    = dict(end = end)
         for node in start_node.childNodes:
             if node.nodeType != minidom.Node.ELEMENT_NODE:
                 continue
             if node.nodeName == 'description':
                 workflow_spec.description = node.firstChild.nodeValue
-            elif self.spec_map.has_key(node.nodeName.lower()):
-                self.read_task(workflow_spec, node)
+            elif spec_map.has_key(node.nodeName.lower()):
+                self._deserialize_task_spec(workflow_spec, node, read_specs)
             else:
                 self._raise('Unknown node: %s' % node.nodeName)
 
         # Remove the default start-task from the workflow.
-        workflow_spec.start = self.read_specs['start'][0]
+        workflow_spec.start = read_specs['start'][0]
 
         # Connect all task specs.
-        for name in self.read_specs:
-            spec, successors = self.read_specs[name]
+        for name in read_specs:
+            spec, successors = read_specs[name]
             for condition, successor_name in successors:
-                if not self.read_specs.has_key(successor_name):
+                if not read_specs.has_key(successor_name):
                     self._raise('Unknown successor: "%s"' % successor_name)
-                successor, foo = self.read_specs[successor_name]
+                successor, foo = read_specs[successor_name]
                 if condition is None:
                     spec.connect(successor)
                 else:
                     spec.connect_if(condition, successor)
         return workflow_spec
 
-
-    def read(self, xml, filename = None):
+    def deserialize_workflow_spec(self, s_state, filename = None):
         """
-        Reads all workflows from the given XML structure and returns a
-        list of workflow object.
-        
-        xml -- the xml structure (xml.dom.minidom.Node)
+        Reads the workflow from the given XML structure and returns a
+        workflow object.
         """
-        workflow_specs = []
-        for node in xml.getElementsByTagName('process-definition'):
-            workflow_specs.append(self._read_workflow(node, filename))
-        return workflow_specs
-
-
-    def parse_string(self, string):
-        """
-        Reads the workflow specification XML from the given string and returns
-        a workflow object.
-        
-        string -- the name of the file (string)
-        """
-        return self.read(minidom.parseString(string))
-
-
-    def parse_file(self, filename):
-        """
-        Reads the workflow specification XML from the given file and returns
-        a workflow object.
-        
-        filename -- the name of the file (string)
-        """
-        return self.read(minidom.parse(filename), filename)
+        dom  = minidom.parseString(s_state)
+        node = dom.getElementsByTagName('process-definition')[0]
+        return self._read_workflow(node, filename)

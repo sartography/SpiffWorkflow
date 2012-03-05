@@ -7,12 +7,13 @@ import pprint
 from random import randint
 from util import track_workflow
 from SpiffWorkflow import Workflow
-from SpiffWorkflow.storage import XmlReader
+from SpiffWorkflow.specs import WorkflowSpec
+from SpiffWorkflow.storage import XmlSerializer
 
 class PersistenceTest(unittest.TestCase):
     def setUp(self):
-        self.reader    = XmlReader()
-        self.data_file = 'data.pkl'
+        self.serializer = XmlSerializer()
+        self.data_file  = 'data.pkl'
 
     def doPickleSingle(self, workflow, expected_path):
         taken_path = track_workflow(workflow.spec)
@@ -56,9 +57,10 @@ class PersistenceTest(unittest.TestCase):
     def testPickle(self):
         # Read a complete workflow.
         xml_file      = os.path.join(data_dir, 'spiff', 'workflow1.xml')
+        xml           = open(xml_file).read()
         path_file     = os.path.splitext(xml_file)[0] + '.path'
         expected_path = open(path_file).read().strip().split('\n')
-        wf_spec       = self.reader.parse_file(xml_file)[0]
+        wf_spec       = WorkflowSpec.deserialize(self.serializer, xml)
 
         for i in xrange(5):
             workflow = Workflow(wf_spec)

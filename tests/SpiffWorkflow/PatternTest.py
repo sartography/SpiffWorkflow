@@ -3,7 +3,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from SpiffWorkflow.specs import *
 from SpiffWorkflow import Task
-from SpiffWorkflow.storage import XmlReader
+from SpiffWorkflow.storage import XmlSerializer
 from xml.parsers.expat import ExpatError
 from util import run_workflow
 
@@ -15,7 +15,7 @@ class PatternTest(unittest.TestCase):
                          'data/spiff/data',
                          'data/spiff/resource',
                          'data/spiff']
-        self.reader = XmlReader()
+        self.serializer = XmlSerializer()
 
     def testPattern(self):
         for basedir in self.xml_path:
@@ -43,7 +43,8 @@ class PatternTest(unittest.TestCase):
 
                 # Test patterns that are defined in XML format.
                 if filename.endswith('.xml'):
-                    wf_spec = self.reader.parse_file(filename)[0]
+                    xml     = open(filename).read()
+                    wf_spec = WorkflowSpec.deserialize(self.serializer, xml, filename = filename)
                     run_workflow(self, wf_spec, expected_path, expected_data)
 
                 # Test patterns that are defined in Python.

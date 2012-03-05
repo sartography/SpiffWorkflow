@@ -17,8 +17,7 @@ import os
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.operators import valueof
-from SpiffWorkflow.storage import XmlReader
-from TaskSpec import TaskSpec
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
 import SpiffWorkflow
 
 class SubWorkflow(TaskSpec):
@@ -84,12 +83,14 @@ class SubWorkflow(TaskSpec):
 
 
     def _on_ready_before_hook(self, my_task):
+        from SpiffWorkflow.storage import XmlSerializer
+        from SpiffWorkflow.specs import WorkflowSpec
         file           = valueof(my_task, self.file)
-        xml_reader     = XmlReader()
-        workflow_list  = xml_reader.parse_file(file)
-        workflow       = workflow_list[0]
+        serializer     = XmlSerializer()
+        xml            = open(file).read()
+        wf_spec        = WorkflowSpec.deserialize(serializer, xml, filename = file)
         outer_workflow = my_task.workflow.outer_workflow
-        subworkflow    = SpiffWorkflow.Workflow(workflow, parent = outer_workflow)
+        subworkflow    = SpiffWorkflow.Workflow(wf_spec, parent = outer_workflow)
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
 
         # Integrate the tree of the subworkflow into the tree of this workflow.
