@@ -52,4 +52,16 @@ class WorkflowSpec(object):
 
     @classmethod
     def deserialize(cls, serializer, s_state, **kwargs):
+        """
+        Deserializes a WorkflowSpec instance using the provided serializer.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @type  s_state: object
+        @param s_state: The serialized workflow specification object.
+        @type  kwargs: dict
+        @param kwargs: Passed to the serializer.
+        @rtype:  WorkflowSpec
+        @return: The resulting instance.
+        """
         return serializer.deserialize_workflow_spec(s_state, **kwargs)
