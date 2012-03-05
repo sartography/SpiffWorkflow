@@ -375,3 +375,18 @@ class TaskSpec(object):
         # If we have more than one output, implicitly split.
         my_task._update_children(self.outputs)
         return True
+
+    def serialize(self, serializer):
+        """
+        Serializes the instance using the provided serializer.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @rtype:  object
+        @return: The serialized object.
+        """
+        return serializer._serialize_task_spec(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_task_spec(wf_spec, s_state)

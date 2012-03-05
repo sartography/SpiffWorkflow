@@ -29,7 +29,7 @@ class MultiInstance(TaskSpec):
     This task has one or more inputs and may have any number of outputs.
     """
 
-    def __init__(self, parent, name, **kwargs):
+    def __init__(self, parent, name, times = None, **kwargs):
         """
         Constructor.
         
@@ -42,9 +42,8 @@ class MultiInstance(TaskSpec):
         @type  kwargs: dict
         @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
-        assert kwargs.has_key('times')
         TaskSpec.__init__(self, parent, name, **kwargs)
-        self.times = kwargs.get('times', None)
+        self.times = times
 
 
     def _find_my_task(self, task):
@@ -103,3 +102,10 @@ class MultiInstance(TaskSpec):
         outputs = self._get_predicted_outputs(my_task)
         my_task._update_children(outputs)
         return True
+
+    def serialize(self, serializer):
+        return serializer._serialize_multi_instance(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_multi_instance(wf_spec, s_state)

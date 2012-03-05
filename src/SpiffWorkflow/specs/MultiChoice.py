@@ -14,9 +14,9 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import re
-from SpiffWorkflow.Task      import Task
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.exceptions import WorkflowException
-from TaskSpec                import TaskSpec
+from TaskSpec import TaskSpec
 
 class MultiChoice(TaskSpec):
     """
@@ -85,10 +85,8 @@ class MultiChoice(TaskSpec):
         """
         self.choice = choice
 
-
     def _predict_hook(self, my_task):
         my_task._update_children(self.outputs, Task.MAYBE)
-
 
     def _on_complete_hook(self, my_task):
         """
@@ -106,3 +104,10 @@ class MultiChoice(TaskSpec):
 
         my_task._update_children(outputs)
         return True
+
+    def serialize(self, serializer):
+        return serializer._serialize_multi_choice(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_multi_choice(wf_spec, s_state)

@@ -50,6 +50,17 @@ class WorkflowSpec(object):
         """
         return self.task_specs[name]
 
+    def serialize(self, serializer):
+        """
+        Serializes the instance using the provided serializer.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @rtype:  object
+        @return: The serialized object.
+        """
+        return serializer.serialize_workflow_spec(self)
+
     @classmethod
     def deserialize(cls, serializer, s_state, **kwargs):
         """

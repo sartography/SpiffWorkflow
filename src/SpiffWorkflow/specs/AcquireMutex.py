@@ -50,3 +50,10 @@ class AcquireMutex(TaskSpec):
             return True
         my_task._set_state(Task.WAITING)
         return False
+
+    def serialize(self, serializer):
+        return serializer._serialize_acquire_mutex(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_acquire_mutex(wf_spec, s_state)

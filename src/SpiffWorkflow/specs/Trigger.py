@@ -27,7 +27,7 @@ class Trigger(TaskSpec):
     parallel split.
     """
 
-    def __init__(self, parent, name, context, **kwargs):
+    def __init__(self, parent, name, context, times = 1, **kwargs):
         """
         Constructor.
 
@@ -35,8 +35,10 @@ class Trigger(TaskSpec):
         @param parent: A reference to the parent task spec.
         @type  name: str
         @param name: The name of the task spec.
-        @type  context: str
+        @type  context: list(str)
         @param context: A list of the names of tasks that are to be triggered.
+        @type  times: int or None
+        @param times: The number of signals before the trigger fires.
         @type  kwargs: dict
         @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
@@ -46,7 +48,7 @@ class Trigger(TaskSpec):
         assert type(context) == type([])
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.context = context
-        self.times   = kwargs.get('times', 1)
+        self.times   = times
         self.queued  = 0
 
 
@@ -81,3 +83,6 @@ class Trigger(TaskSpec):
                 task._on_trigger(my_task)
         self.queued = 0
         return TaskSpec._on_complete_hook(self, my_task)
+
+    def serialize(self, serializer):
+        return serializer._serialize_trigger(self)

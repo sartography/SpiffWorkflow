@@ -139,3 +139,10 @@ class SubWorkflow(TaskSpec):
                 continue
             child.task_spec._update_state(child)
         return True
+
+    def serialize(self, serializer):
+        return serializer._serialize_sub_workflow(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_sub_workflow(wf_spec, s_state)

@@ -60,3 +60,10 @@ class StartTask(TaskSpec):
             raise WorkflowException(self, 'StartTask with an input.')
         elif len(self.outputs) < 1:
             raise WorkflowException(self, 'No output task connected.')
+
+    def serialize(self, serializer):
+        return serializer._serialize_start_task(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_start_task(wf_spec, s_state)

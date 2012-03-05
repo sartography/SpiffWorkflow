@@ -60,3 +60,10 @@ class Choose(Trigger):
             if task.task_spec == context:
                 task.trigger(self.choice)
         return TaskSpec._on_complete_hook(self, my_task)
+
+    def serialize(self, serializer):
+        return serializer._serialize_choose(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_choose(wf_spec, s_state)

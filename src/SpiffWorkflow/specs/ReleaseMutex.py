@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow           import Task
+from SpiffWorkflow import Task
 from SpiffWorkflow.exceptions import WorkflowException
-from TaskSpec                import TaskSpec
+from TaskSpec import TaskSpec
 
 class ReleaseMutex(TaskSpec):
     """
@@ -44,8 +44,14 @@ class ReleaseMutex(TaskSpec):
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.mutex = mutex
 
-
     def _on_complete_hook(self, my_task):
         mutex = my_task.workflow._get_mutex(self.mutex)
         mutex.unlock()
         return TaskSpec._on_complete_hook(self, my_task)
+
+    def serialize(self, serializer):
+        return serializer._serialize_release_mutex(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_release_mutex(wf_spec, s_state)

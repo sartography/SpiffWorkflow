@@ -24,4 +24,9 @@ class Simple(TaskSpec):
     If more than one output is connected, the task performs an implicit
     parallel split.
     """
-    pass # Inherit everything from TaskSpec
+    def serialize(self, serializer):
+        return serializer._serialize_simple(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_simple(wf_spec, s_state)

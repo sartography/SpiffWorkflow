@@ -130,3 +130,6 @@ class ThreadMerge(Join):
 
     def _on_complete_hook(self, my_task):
         return TaskSpec._on_complete_hook(self, my_task)
+
+    def serialize(self, serializer):
+        return serializer._serialize_thread_merge(self)

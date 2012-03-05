@@ -43,3 +43,6 @@ class ThreadStart(TaskSpec):
     def _on_complete_hook(self, my_task):
         my_task._assign_new_thread_id()
         return TaskSpec._on_complete_hook(self, my_task)
+
+    def serialize(self, serializer):
+        return serializer._serialize_thread_start(self)
