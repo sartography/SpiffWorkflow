@@ -6,6 +6,8 @@ from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
 
 class TaskSpecTest(unittest.TestCase):
+    CORRELATE = TaskSpec
+
     def setUp(self):
         self.wf_spec = WorkflowSpec()
         self.spec = TaskSpec(self.wf_spec, 'testtask', description = 'foo')
