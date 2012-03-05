@@ -13,7 +13,7 @@ class SerializerTest(unittest.TestCase):
         self.serializer = None
 
     def get_state(self):
-        return None
+        return None, None
 
     def testConstructor(self):
         if self.serializer is None:
@@ -23,11 +23,9 @@ class SerializerTest(unittest.TestCase):
     def testDeserializeWorkflowSpec(self):
         if self.serializer is None:
             return
-        state         = self.get_state()
-        wf_spec       = WorkflowSpec.deserialize(self.serializer, state)
-        path_file     = os.path.join(data_dir, 'spiff', 'workflow1.path')
-        expected_path = open(path_file).read()
-        run_workflow(self, wf_spec, expected_path, None)
+        state, path = self.get_state()
+        wf_spec     = WorkflowSpec.deserialize(self.serializer, state)
+        run_workflow(self, wf_spec, path, None)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(SerializerTest)

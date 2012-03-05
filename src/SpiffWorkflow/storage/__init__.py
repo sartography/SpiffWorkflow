@@ -1,4 +1,4 @@
-from OpenWfeXmlReader import OpenWfeXmlReader
+from OpenWfeXmlSerializer import OpenWfeXmlSerializer
 from XmlSerializer import XmlSerializer
 from DictionarySerializer import DictionarySerializer
 
