@@ -6,26 +6,59 @@ sys.path.insert(0, os.path.join(dirname, '..', '..', '..', 'src'))
 from PatternTest import run_workflow
 from SpiffWorkflow.storage.Serializer import Serializer
 from SpiffWorkflow.specs import WorkflowSpec
-from xml.parsers.expat import ExpatError
+from data.spiff.workflow1 import TestWorkflowSpec
+
+def assert_equal(dict1, dict2):
+    for key1, value1 in dict1.iteritems():
+        if key1 not in dict2:
+            raise Exception("Missing Key: " + key1)
+        value2 = dict2[key1]
+        if isinstance(value1, dict):
+            try:
+                assert_equal(value1, value2)
+            except Exception, e:
+                raise Exception(key1 + '/' + str(e))
+        else:
+            if value1 != value2:
+                raise Exception("Unequal: " + key1 + '=' + repr(value1) \
+                                + " vs " + repr(value2))
 
 class SerializerTest(unittest.TestCase):
+    CORRELATE = Serializer
+
     def setUp(self):
+        self.wf_spec = TestWorkflowSpec()
         self.serializer = None
 
-    def get_state(self):
-        return None, None
-
     def testConstructor(self):
-        if self.serializer is None:
-            return
         Serializer()
 
-    def testDeserializeWorkflowSpec(self):
+    def testSerializeWorkflowSpec(self):
         if self.serializer is None:
             return
-        state, path = self.get_state()
-        wf_spec     = WorkflowSpec.deserialize(self.serializer, state)
+
+        # Back to back testing.
+        serialized1 = self.wf_spec.serialize(self.serializer)
+        wf_spec     = WorkflowSpec.deserialize(self.serializer, serialized1)
+        serialized2 = wf_spec.serialize(self.serializer)
+        self.assert_(isinstance(serialized1, dict))
+        self.assert_(isinstance(serialized2, dict))
+        assert_equal(serialized1, serialized2)
+        self.assertEqual(serialized1, serialized2)
+
+        # Test whether the restored workflow still works.
+        path_file = os.path.join(data_dir, 'spiff', 'workflow1.path')
+        path      = open(path_file).read()
         run_workflow(self, wf_spec, path, None)
+
+    def testDeserializeWorkflowSpec(self):
+        pass # Already covered in testSerializeWorkflowSpec()
+
+    def testSerializeWorkflow(self):
+        pass #TODO
+
+    def testDeserializeWorkflow(self):
+        pass #TODO
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(SerializerTest)
