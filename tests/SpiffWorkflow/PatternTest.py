@@ -48,7 +48,7 @@ class PatternTest(unittest.TestCase):
                     run_workflow(self, wf_spec, expected_path, expected_data)
 
                 # Test patterns that are defined in Python.
-                if filename.endswith('.py'):
+                if filename.endswith('.py') and not filename.endswith('__.py'):
                     code    = compile(open(filename).read(), filename, 'exec')
                     thedict = {}
                     result  = eval(code, thedict)
