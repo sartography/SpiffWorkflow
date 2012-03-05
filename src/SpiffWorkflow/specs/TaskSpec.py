@@ -4,12 +4,12 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -23,20 +23,20 @@ class TaskSpec(object):
     This class implements an abstract base type for all tasks.
 
     Tasks provide the following signals:
-      - B{entered}: called when the state changes to READY or WAITING, at a 
+      - B{entered}: called when the state changes to READY or WAITING, at a
         time where properties are not yet initialized.
-      - B{reached}: called when the state changes to READY or WAITING, at a 
-        time where properties are already initialized using property_assign 
+      - B{reached}: called when the state changes to READY or WAITING, at a
+        time where properties are already initialized using property_assign
         and pre-assign.
-      - B{ready}: called when the state changes to READY, at a time where 
-        properties are already initialized using property_assign and 
+      - B{ready}: called when the state changes to READY, at a time where
+        properties are already initialized using property_assign and
         pre-assign.
-      - B{completed}: called when the state changes to COMPLETED, at a time 
+      - B{completed}: called when the state changes to COMPLETED, at a time
         before the post-assign variables are assigned.
-      - B{cancelled}: called when the state changes to CANCELLED, at a time 
+      - B{cancelled}: called when the state changes to CANCELLED, at a time
         before the post-assign variables are assigned.
-      - B{finished}: called when the state changes to COMPLETED or CANCELLED, 
-        at the last possible time and after the post-assign variables are 
+      - B{finished}: called when the state changes to COMPLETED or CANCELLED,
+        at the last possible time and after the post-assign variables are
         assigned.
     """
 
@@ -44,11 +44,11 @@ class TaskSpec(object):
         """
         Constructor. May also have properties/attributes passed.
 
-        The difference between the assignment of a property using 
-        property_assign versus pre_assign and post_assign is that 
-        changes made using property_assign are task-local, i.e. they are 
+        The difference between the assignment of a property using
+        properties versus pre_assign and post_assign is that
+        changes made using properties are task-local, i.e. they are
         not visible to other tasks.
-        Similarly, "defines" are properties that, once defined, can no 
+        Similarly, "defines" are properties that, once defined, can no
         longer be modified.
 
         @type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
@@ -59,8 +59,10 @@ class TaskSpec(object):
         @keyword lock: A list of mutex names. The mutex is acquired
                        on entry of execute() and released on leave of
                        execute().
-        @type    property_assign: list((str, object))
-        @keyword property_assign: a list of name/value pairs
+        @type    properties: dict((str, object))
+        @keyword properties: name/value pairs
+        @type    defines: dict((str, object))
+        @keyword defines: name/value pairs
         @type    pre_assign: list((str, object))
         @keyword pre_assign: a list of name/value pairs
         @type    post_assign: list((str, object))
@@ -107,7 +109,7 @@ class TaskSpec(object):
 
     def _get_activated_tasks(self, my_task, destination):
         """
-        Returns the list of tasks that were activated in the previous 
+        Returns the list of tasks that were activated in the previous
         call of execute(). Only returns tasks that point towards the
         destination task, i.e. those which have destination as a
         descendant.
@@ -122,7 +124,7 @@ class TaskSpec(object):
 
     def _get_activated_threads(self, my_task):
         """
-        Returns the list of threads that were activated in the previous 
+        Returns the list of threads that were activated in the previous
         call of execute().
 
         @type  my_task: Task
