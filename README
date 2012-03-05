@@ -79,7 +79,9 @@ make someone write the missing pieces of documentation.
 
 ##############################
 from SpiffWorkflow.specs import *
+from SpiffWorkflow import Workflow
 
-wf = WorkflowSpec()
+spec = WorkflowSpec()
+wf   = Workflow(spec)
 ...
 ##############################
