@@ -23,6 +23,29 @@ class Attrib(object):
     def __init__(self, name):
         self.name = name
 
+    def serialize(self, serializer):
+        """
+        Serializes the instance using the provided serializer.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @rtype:  object
+        @return: The serialized object.
+        """
+        return serializer._serialize_attrib(self)
+
+    @classmethod
+    def deserialize(cls, serializer, s_state):
+        """
+        Serializes the instance using the provided serializer.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @rtype:  object
+        @return: The serialized object.
+        """
+        return serializer._deserialize_attrib(self, s_state)
+
 def valueof(scope, op):
     if op is None:
         return None
@@ -53,6 +76,29 @@ class Operator(object):
     def _matches(self, task):
         raise Exception("Abstract class, do not call")
 
+    def serialize(self, serializer):
+        """
+        Serializes the instance using the provided serializer.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @rtype:  object
+        @return: The serialized object.
+        """
+        return serializer._serialize_operator(self)
+
+    @classmethod
+    def deserialize(cls, serializer, s_state):
+        """
+        Serializes the instance using the provided serializer.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @rtype:  object
+        @return: The serialized object.
+        """
+        return serializer._deserialize_operator(s_state)
+
 class Equal(Operator):
     """
     This class represents the EQUAL operator.
@@ -66,6 +112,13 @@ class Equal(Operator):
             last = value
         return True
 
+    def serialize(self, serializer):
+        return serializer._serialize_operator_equal(self)
+
+    @classmethod
+    def deserialize(cls, serializer, s_state):
+        return serializer._deserialize_operator_equal(s_state)
+
 class NotEqual(Operator):
     """
     This class represents the NOT EQUAL operator.
@@ -78,6 +131,13 @@ class NotEqual(Operator):
                 return True
             last = value
         return False
+
+    def serialize(self, serializer):
+        return serializer._serialize_operator_not_equal(self)
+
+    @classmethod
+    def deserialize(cls, serializer, s_state):
+        return serializer._deserialize_operator_not_equal(s_state)
 
 class GreaterThan(Operator):
     """
@@ -93,6 +153,13 @@ class GreaterThan(Operator):
         left, right = self._get_values(task)
         return int(left) > int(right)
 
+    def serialize(self, serializer):
+        return serializer._serialize_operator_greater_than(self)
+
+    @classmethod
+    def deserialize(cls, serializer, s_state):
+        return serializer._deserialize_operator_greater_than(s_state)
+
 class LessThan(Operator):
     """
     This class represents the LESS THAN operator.
@@ -106,6 +173,13 @@ class LessThan(Operator):
     def _matches(self, task):
         left, right = self._get_values(task)
         return int(left) < int(right)
+
+    def serialize(self, serializer):
+        return serializer._serialize_operator_less_than(self)
+
+    @classmethod
+    def deserialize(cls, serializer, s_state):
+        return serializer._deserialize_operator_less_than(s_state)
 
 class Match(Operator):
     """
@@ -123,3 +197,10 @@ class Match(Operator):
             if not self.regex.search(value):
                 return False
         return True
+
+    def serialize(self, serializer):
+        return serializer._serialize_operator_match(self)
+
+    @classmethod
+    def deserialize(cls, serializer, s_state):
+        return serializer._deserialize_operator_match(s_state)
