@@ -1,6 +1,6 @@
 from OpenWfeXmlReader import OpenWfeXmlReader
-from XmlReader        import XmlReader
-from Serializer       import DictionarySerializer
+from XmlReader import XmlReader
+from DictionarySerializer import DictionarySerializer
 
 import inspect
 __all__ = [name for name, obj in locals().items()

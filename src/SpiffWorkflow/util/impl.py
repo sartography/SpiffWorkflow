@@ -12,9 +12,9 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-class Serializer(object):
-    def serialize_workflow(self, workflow):
-        raise NotImplementedError("You must implement the serialize_workflow method.")
-
-    def deserialize_workflow(self, spec, s_state):
-        raise NotImplementedError("You must implement the deserialize_workflow method.")
+def get_class(full_class_name):
+    parts = full_class_name.rsplit('.', 1)
+    module_name = parts[0]
+    class_name = parts[1]
+    __import__(module_name)
+    return getattr(sys.modules[module_name], class_name)
