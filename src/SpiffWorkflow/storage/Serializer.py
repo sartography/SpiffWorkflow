@@ -19,8 +19,8 @@ class Serializer(object):
     def deserialize_workflow_spec(self, s_state, **kwargs):
         raise NotImplementedError("You must implement the deserialize_workflow method.")
 
-    def serialize_workflow(self, workflow):
+    def serialize_workflow(self, workflow, **kwargs):
         raise NotImplementedError("You must implement the serialize_workflow method.")
 
-    def deserialize_workflow(self, spec, s_state):
+    def deserialize_workflow(self, s_state, **kwargs):
         raise NotImplementedError("You must implement the deserialize_workflow method.")
