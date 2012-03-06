@@ -36,13 +36,12 @@ _op_map = {'equals':       operators.Equal,
            'greater-than': operators.GreaterThan,
            'matches':      operators.Match}
 
+_exc = StorageException
+
 class XmlSerializer(Serializer):
     """
     Parses XML into a WorkflowSpec object.
     """
-    def _raise(self, error):
-        raise StorageException('%s in XML file.' % error)
-
     def _read_assign(self, workflow, start_node):
         """
         Reads the "pre-assign" or "post-assign" tag from the given node.
@@ -54,11 +53,11 @@ class XmlSerializer(Serializer):
         value  = start_node.getAttribute('value')
         kwargs = {}
         if name == '':
-            self._raise('name attribute required')
+            _exc('name attribute required')
         if attrib != '' and value != '':
-            self._raise('Both, field and right-value attributes found')
+            _exc('Both, field and right-value attributes found')
         elif attrib == '' and value == '':
-            self._raise('field or value attribute required')
+            _exc('field or value attribute required')
         elif value != '':
             kwargs['right'] = value
         else:
@@ -90,7 +89,7 @@ class XmlSerializer(Serializer):
             if node.nodeName.lower() == 'assign':
                 assignments.append(self._read_assign(workflow, node))
             else:
-                self._raise('Unknown node: %s' % node.nodeName)
+                _exc('Unknown node: %s' % node.nodeName)
         return assignments
 
     def _read_logical(self, node):
@@ -106,19 +105,19 @@ class XmlSerializer(Serializer):
         term2_value  = node.getAttribute('right-value')
         kwargs       = {}
         if not _op_map.has_key(op):
-            self._raise('Invalid operator')
+            _exc('Invalid operator')
         if term1_attrib != '' and term1_value != '':
-            self._raise('Both, left-field and left-value attributes found')
+            _exc('Both, left-field and left-value attributes found')
         elif term1_attrib == '' and term1_value == '':
-            self._raise('left-field or left-value attribute required')
+            _exc('left-field or left-value attribute required')
         elif term1_value != '':
             left = term1_value
         else:
             left = operators.Attrib(term1_attrib)
         if term2_attrib != '' and term2_value != '':
-            self._raise('Both, right-field and right-value attributes found')
+            _exc('Both, right-field and right-value attributes found')
         elif term2_attrib == '' and term2_value == '':
-            self._raise('right-field or right-value attribute required')
+            _exc('right-field or right-value attribute required')
         elif term2_value != '':
             right = term2_value
         else:
@@ -140,21 +139,21 @@ class XmlSerializer(Serializer):
                 continue
             if node.nodeName.lower() == 'successor':
                 if spec_name is not None:
-                    self._raise('Duplicate task name %s' % spec_name)
+                    _exc('Duplicate task name %s' % spec_name)
                 if node.firstChild is None:
-                    self._raise('Successor tag without a task name')
+                    _exc('Successor tag without a task name')
                 spec_name = node.firstChild.nodeValue
             elif node.nodeName.lower() in _op_map:
                 if condition is not None:
-                    self._raise('Multiple conditions are not yet supported')
+                    _exc('Multiple conditions are not yet supported')
                 condition = self._read_logical(node)
             else:
-                self._raise('Unknown node: %s' % node.nodeName)
+                _exc('Unknown node: %s' % node.nodeName)
 
         if condition is None:
-            self._raise('Missing condition in conditional statement')
+            _exc('Missing condition in conditional statement')
         if spec_name is None:
-            self._raise('A %s has no task specified' % start_node.nodeName)
+            _exc('A %s has no task specified' % start_node.nodeName)
         return condition, spec_name
 
     def _deserialize_task_spec(self, workflow, start_node, read_specs):
@@ -185,13 +184,13 @@ class XmlSerializer(Serializer):
                            'pre_assign':  [],
                            'post_assign': []}
         if not _spec_map.has_key(nodetype):
-            self._raise('Invalid task type "%s"' % nodetype)
+            _exc('Invalid task type "%s"' % nodetype)
         if nodetype == 'start-task':
             name = 'start'
         if name == '':
-            self._raise('Invalid task name "%s"' % name)
+            _exc('Invalid task name "%s"' % name)
         if read_specs.has_key(name):
-            self._raise('Duplicate task name "%s"' % name)
+            _exc('Duplicate task name "%s"' % name)
         if cancel != '' and cancel != u'0':
             kwargs['cancel'] = True
         if success != '' and success != u'0':
@@ -225,7 +224,7 @@ class XmlSerializer(Serializer):
             elif node.nodeName == 'successor' \
               or node.nodeName == 'default-successor':
                 if node.firstChild is None:
-                    self._raise('Empty %s tag' % node.nodeName)
+                    _exc('Empty %s tag' % node.nodeName)
                 successors.append((None, node.firstChild.nodeValue))
             elif node.nodeName == 'conditional-successor':
                 successors.append(self._read_condition(workflow, node))
@@ -245,7 +244,7 @@ class XmlSerializer(Serializer):
                 kwargs['out_assign'] = self._read_assign_list(workflow, node)
             elif node.nodeName == 'cancel':
                 if node.firstChild is None:
-                    self._raise('Empty %s tag' % node.nodeName)
+                    _exc('Empty %s tag' % node.nodeName)
                 if context == '':
                     context = []
                 elif type(context) != type([]):
@@ -253,14 +252,14 @@ class XmlSerializer(Serializer):
                 context.append(node.firstChild.nodeValue)
             elif node.nodeName == 'lock':
                 if node.firstChild is None:
-                    self._raise('Empty %s tag' % node.nodeName)
+                    _exc('Empty %s tag' % node.nodeName)
                 kwargs['lock'].append(node.firstChild.nodeValue)
             elif node.nodeName == 'pick':
                 if node.firstChild is None:
-                    self._raise('Empty %s tag' % node.nodeName)
+                    _exc('Empty %s tag' % node.nodeName)
                 kwargs['choice'].append(node.firstChild.nodeValue)
             else:
-                self._raise('Unknown node: %s' % node.nodeName)
+                _exc('Unknown node: %s' % node.nodeName)
 
         # Create a new instance of the task spec.
         module = _spec_map[nodetype]
@@ -268,9 +267,9 @@ class XmlSerializer(Serializer):
             spec = module(workflow, **kwargs)
         elif nodetype == 'multi-instance' or nodetype == 'thread-split':
             if times == '' and times_field == '':
-                self._raise('Missing "times" or "times-field" in "%s"' % name)
+                _exc('Missing "times" or "times-field" in "%s"' % name)
             elif times != '' and times_field != '':
-                self._raise('Both, "times" and "times-field" in "%s"' % name)
+                _exc('Both, "times" and "times-field" in "%s"' % name)
             spec = module(workflow, name, **kwargs)
         elif context == '':
             spec = module(workflow, name, **kwargs)
@@ -288,7 +287,7 @@ class XmlSerializer(Serializer):
         """
         name = start_node.getAttribute('name')
         if name == '':
-            self._raise('%s without a name attribute' % start_node.nodeName)
+            _exc('%s without a name attribute' % start_node.nodeName)
 
         # Read all task specs and create a list of successors.
         workflow_spec = specs.WorkflowSpec(name, filename)
@@ -302,7 +301,7 @@ class XmlSerializer(Serializer):
             elif _spec_map.has_key(node.nodeName.lower()):
                 self._deserialize_task_spec(workflow_spec, node, read_specs)
             else:
-                self._raise('Unknown node: %s' % node.nodeName)
+                _exc('Unknown node: %s' % node.nodeName)
 
         # Remove the default start-task from the workflow.
         workflow_spec.start = read_specs['start'][0]
@@ -312,7 +311,7 @@ class XmlSerializer(Serializer):
             spec, successors = read_specs[name]
             for condition, successor_name in successors:
                 if not read_specs.has_key(successor_name):
-                    self._raise('Unknown successor: "%s"' % successor_name)
+                    _exc('Unknown successor: "%s"' % successor_name)
                 successor, foo = read_specs[successor_name]
                 if condition is None:
                     spec.connect(successor)
