@@ -13,6 +13,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import marshal
 from binascii import b2a_uu, a2b_uu
+from SpiffWorkflow import Workflow
 from SpiffWorkflow.util.impl import get_class
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.operators import *
@@ -351,8 +352,9 @@ class DictionarySerializer(Serializer):
         spec.start = spec.get_task_spec_from_name('Start')
         return spec
 
-    def serialize_workflow(self, workflow):
+    def serialize_workflow(self, workflow, **kwargs):
         s_state = dict()
+        s_state['wf_spec'] = self.serialize_workflow_spec(workflow.spec, **kwargs)
 
         # attributes
         s_state['attributes'] = workflow.attributes
@@ -375,8 +377,8 @@ class DictionarySerializer(Serializer):
 
         return s_state
 
-    def deserialize_workflow(self, wf_spec, s_state):
-        from SpiffWorkflow import Workflow
+    def deserialize_workflow(self, s_state, **kwargs):
+        wf_spec = self.deserialize_workflow_spec(s_state['wf_spec'], **kwargs)
         workflow = Workflow(wf_spec)
 
         # attributes

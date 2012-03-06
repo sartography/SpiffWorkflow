@@ -55,15 +55,15 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         """
         Tests the SelectivePickler serializer for persisting Workflows and Tasks.
         """
-        old_job = self.workflow
+        old_workflow = self.workflow
         serializer = DictionarySerializer()
-        serialized_job = old_job.serialize(serializer)
+        serialized_workflow = old_workflow.serialize(serializer)
 
         serializer = DictionarySerializer()
-        new_job = Workflow.deserialize(self.wf_spec, serializer, serialized_job)
+        new_workflow = Workflow.deserialize(serializer, serialized_workflow)
 
-        before = old_job.get_dump()
-        after = new_job.get_dump()
+        before = old_workflow.get_dump()
+        after = new_workflow.get_dump()
         self.assert_(before == after, 'Before:\n' + before + '\n' \
                                     + 'After:\n'  + after  + '\n')
 

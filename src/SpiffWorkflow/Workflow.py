@@ -255,29 +255,31 @@ class Workflow(object):
         """
         return self.task_tree.dump()
 
-    def serialize(self, serializer):
+    def serialize(self, serializer, **kwargs):
         """
         Serializes a Workflow instance using the provided serializer.
 
         @type  serializer: L{SpiffWorkflow.storage.Serializer}
         @param serializer: The serializer to use.
+        @type  kwargs: dict
+        @param kwargs: Passed to the serializer.
         @rtype:  object
         @return: The serialized workflow.
         """
-        return serializer.serialize_workflow(self)
+        return serializer.serialize_workflow(self, **kwargs)
 
     @classmethod
-    def deserialize(cls, spec, serializer, s_state):
+    def deserialize(cls, serializer, s_state, **kwargs):
         """
         Deserializes a Workflow instance using the provided serializer.
 
-        @type  spec: L{SpiffWorkflow.spec.WorkflowSpec}
-        @param spec: An instance of the WorkflowSpec.
         @type  serializer: L{SpiffWorkflow.storage.Serializer}
         @param serializer: The serializer to use.
         @type  s_state: object
         @param s_state: The serialized workflow.
+        @type  kwargs: dict
+        @param kwargs: Passed to the serializer.
         @rtype:  Workflow
         @return: The workflow instance.
         """
-        return serializer.deserialize_workflow(spec, s_state)
+        return serializer.deserialize_workflow(s_state, **kwargs)
