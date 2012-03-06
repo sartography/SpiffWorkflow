@@ -15,6 +15,7 @@ class XmlSerializerTest(SerializerTest):
     def setUp(self):
         SerializerTest.setUp(self)
         self.serializer = XmlSerializer()
+        self.serial_type = str
 
     def testConstructor(self):
         XmlSerializer()

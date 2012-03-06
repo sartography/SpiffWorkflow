@@ -16,6 +16,7 @@ class OpenWfeXmlSerializerTest(SerializerTest):
     def setUp(self):
         SerializerTest.setUp(self)
         self.serializer = OpenWfeXmlSerializer()
+        self.serial_type = str
 
     def testConstructor(self):
         OpenWfeXmlSerializer()
