@@ -107,10 +107,9 @@ class DictionarySerializer(Serializer):
         s_state['post_assign'] = self._serialize_list(spec.post_assign)
         s_state['locks'] = spec.locks[:]
 
-        #TODO: spec.entered_event
-        #TODO: spec.reached_event
-        #TODO: spec.ready_event
-        #TODO: spec.completed_event
+        # Note: Events are not serialized; this is documented in
+        # the TaskSpec API docs.
+
         return s_state
 
     def _deserialize_task_spec(self, wf_spec, s_state, spec):
@@ -329,7 +328,7 @@ class DictionarySerializer(Serializer):
         self._deserialize_task_spec(wf_spec, s_state, spec = spec)
         return spec
 
-    def serialize_workflow_spec(self, spec):
+    def serialize_workflow_spec(self, spec, **kwargs):
         s_state = dict(name = spec.name,
                        description = spec.description,
                        file = spec.file)
@@ -337,7 +336,7 @@ class DictionarySerializer(Serializer):
                                      for k, v in spec.task_specs.iteritems())
         return s_state
 
-    def deserialize_workflow_spec(self, s_state):
+    def deserialize_workflow_spec(self, s_state, **kwargs):
         spec = WorkflowSpec(s_state['name'], filename = s_state['file'])
         spec.description = s_state['description']
         for name, task_spec_state in s_state['task_specs'].iteritems():

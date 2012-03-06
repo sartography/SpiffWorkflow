@@ -21,31 +21,25 @@ from SpiffWorkflow.exceptions import StorageException
 from SpiffWorkflow.storage.Serializer import Serializer
 
 # Create a list of tag names out of the spec names.
-spec_map = dict()
+_spec_map = dict()
 for name in dir(specs):
     if name.startswith('_'):
         continue
     module = specs.__dict__[name]
     name   = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
-    spec_map[name] = module
-spec_map['task'] = specs.Simple
+    _spec_map[name] = module
+_spec_map['task'] = specs.Simple
 
-op_map = {'equals':       operators.Equal,
-          'not-equals':   operators.NotEqual,
-          'less-than':    operators.LessThan,
-          'greater-than': operators.GreaterThan,
-          'matches':      operators.Match}
+_op_map = {'equals':       operators.Equal,
+           'not-equals':   operators.NotEqual,
+           'less-than':    operators.LessThan,
+           'greater-than': operators.GreaterThan,
+           'matches':      operators.Match}
 
 class XmlSerializer(Serializer):
     """
     Parses XML into a WorkflowSpec object.
     """
-
-    def __init__(self):
-        """
-        Constructor.
-        """
-
     def _raise(self, error):
         raise StorageException('%s in XML file.' % error)
 
@@ -111,7 +105,7 @@ class XmlSerializer(Serializer):
         term2_attrib = node.getAttribute('right-field')
         term2_value  = node.getAttribute('right-value')
         kwargs       = {}
-        if not op_map.has_key(op):
+        if not _op_map.has_key(op):
             self._raise('Invalid operator')
         if term1_attrib != '' and term1_value != '':
             self._raise('Both, left-field and left-value attributes found')
@@ -129,7 +123,7 @@ class XmlSerializer(Serializer):
             right = term2_value
         else:
             right = operators.Attrib(term2_attrib)
-        return op_map[op](left, right)
+        return _op_map[op](left, right)
 
     def _read_condition(self, workflow, start_node):
         """
@@ -150,7 +144,7 @@ class XmlSerializer(Serializer):
                 if node.firstChild is None:
                     self._raise('Successor tag without a task name')
                 spec_name = node.firstChild.nodeValue
-            elif node.nodeName.lower() in op_map:
+            elif node.nodeName.lower() in _op_map:
                 if condition is not None:
                     self._raise('Multiple conditions are not yet supported')
                 condition = self._read_logical(node)
@@ -190,7 +184,7 @@ class XmlSerializer(Serializer):
                            'defines':     {},
                            'pre_assign':  [],
                            'post_assign': []}
-        if not spec_map.has_key(nodetype):
+        if not _spec_map.has_key(nodetype):
             self._raise('Invalid task type "%s"' % nodetype)
         if nodetype == 'start-task':
             name = 'start'
@@ -269,7 +263,7 @@ class XmlSerializer(Serializer):
                 self._raise('Unknown node: %s' % node.nodeName)
 
         # Create a new instance of the task spec.
-        module = spec_map[nodetype]
+        module = _spec_map[nodetype]
         if nodetype == 'start-task':
             spec = module(workflow, **kwargs)
         elif nodetype == 'multi-instance' or nodetype == 'thread-split':
@@ -305,7 +299,7 @@ class XmlSerializer(Serializer):
                 continue
             if node.nodeName == 'description':
                 workflow_spec.description = node.firstChild.nodeValue
-            elif spec_map.has_key(node.nodeName.lower()):
+            elif _spec_map.has_key(node.nodeName.lower()):
                 self._deserialize_task_spec(workflow_spec, node, read_specs)
             else:
                 self._raise('Unknown node: %s' % node.nodeName)

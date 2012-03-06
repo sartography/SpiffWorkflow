@@ -380,6 +380,10 @@ class TaskSpec(object):
         """
         Serializes the instance using the provided serializer.
 
+        @note: The events of a TaskSpec are not serialized. If you
+        use them, make sure to re-connect them once the spec is
+        deserialized.
+
         @type  serializer: L{SpiffWorkflow.storage.Serializer}
         @param serializer: The serializer to use.
         @rtype:  object
@@ -389,4 +393,20 @@ class TaskSpec(object):
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
+        """
+        Deserializes the instance using the provided serializer.
+
+        @note: The events of a TaskSpec are not serialized. If you
+        use them, make sure to re-connect them once the spec is
+        deserialized.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @type  wf_spec: L{SpiffWorkflow.spec.WorkflowSpec}
+        @param wf_spec: An instance of the WorkflowSpec.
+        @type  s_state: object
+        @param s_state: The serialized task specification object.
+        @rtype:  TaskSpec
+        @return: The task specification instance.
+        """
         return serializer._deserialize_task_spec(wf_spec, s_state)

@@ -18,6 +18,7 @@ import sys
 import xml.dom.minidom as minidom
 from SpiffWorkflow import operators, specs
 from SpiffWorkflow.exceptions import StorageException
+from SpiffWorkflow.storage.Serializer import Serializer
 
 _spec_tags = ('task',
               'concurrence',
@@ -29,7 +30,7 @@ _op_map = {'equals':       operators.Equal,
            'greater-than': operators.GreaterThan,
            'matches':      operators.Match}
 
-class OpenWfeXmlSerializer(object):
+class OpenWfeXmlSerializer(Serializer):
     """
     Parses OpenWFE XML into a workflow object.
     """
@@ -199,7 +200,7 @@ class OpenWfeXmlSerializer(object):
         last_spec.connect(specs.Simple(workflow_spec, 'End'))
         return workflow_spec
 
-    def deserialize_workflow_spec(self, s_state):
+    def deserialize_workflow_spec(self, s_state, **kwargs):
         """
         Reads the workflow from the given XML structure and returns a
         workflow object.

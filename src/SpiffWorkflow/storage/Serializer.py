@@ -13,6 +13,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Serializer(object):
+    def serialize_workflow_spec(self, wf_spec, **kwargs):
+        raise NotImplementedError("You must implement the serialize_workflow method.")
+
+    def deserialize_workflow_spec(self, s_state, **kwargs):
+        raise NotImplementedError("You must implement the deserialize_workflow method.")
+
     def serialize_workflow(self, workflow):
         raise NotImplementedError("You must implement the serialize_workflow method.")
 
