@@ -278,30 +278,30 @@ class XmlSerializer(Serializer):
 
         read_specs[name] = spec, successors
 
-    def _read_workflow(self, start_node, filename = None):
+
+    def deserialize_workflow_spec(self, s_state, filename = None):
         """
-        Reads the workflow from the given node and returns a WorkflowSpec
-        instance.
-        
-        start_node -- the xml structure (xml.dom.minidom.Node)
+        Reads the workflow from the given XML structure and returns a
+        WorkflowSpec instance.
         """
-        name = start_node.getAttribute('name')
-        if name == '':
-            _exc('%s without a name attribute' % start_node.nodeName)
+        dom  = minidom.parseString(s_state)
+        node = dom.getElementsByTagName('process-definition')[0]
 
         # Read all task specs and create a list of successors.
         workflow_spec = specs.WorkflowSpec(name, filename)
         end           = specs.Simple(workflow_spec, 'End'), []
         read_specs    = dict(end = end)
-        for node in start_node.childNodes:
-            if node.nodeType != minidom.Node.ELEMENT_NODE:
+        for child_node in node.childNodes:
+            if child_node.nodeType != minidom.Node.ELEMENT_NODE:
                 continue
-            if node.nodeName == 'description':
-                workflow_spec.description = node.firstChild.nodeValue
-            elif _spec_map.has_key(node.nodeName.lower()):
-                self._deserialize_task_spec(workflow_spec, node, read_specs)
+            if child_node.nodeName == 'name':
+                workflow_spec.name = child_node.firstChild.nodeValue
+            elif child_node.nodeName == 'description':
+                workflow_spec.description = child_node.firstChild.nodeValue
+            elif _spec_map.has_key(child_node.nodeName.lower()):
+                self._deserialize_task_spec(workflow_spec, child_node, read_specs)
             else:
-                _exc('Unknown node: %s' % node.nodeName)
+                _exc('Unknown node: %s' % child_node.nodeName)
 
         # Remove the default start-task from the workflow.
         workflow_spec.start = read_specs['start'][0]
@@ -318,12 +318,3 @@ class XmlSerializer(Serializer):
                 else:
                     spec.connect_if(condition, successor)
         return workflow_spec
-
-    def deserialize_workflow_spec(self, s_state, filename = None):
-        """
-        Reads the workflow from the given XML structure and returns a
-        workflow object.
-        """
-        dom  = minidom.parseString(s_state)
-        node = dom.getElementsByTagName('process-definition')[0]
-        return self._read_workflow(node, filename)
