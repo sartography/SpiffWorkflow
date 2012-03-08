@@ -376,7 +376,7 @@ class TaskSpec(object):
         my_task._update_children(self.outputs)
         return True
 
-    def serialize(self, serializer):
+    def serialize(self, serializer, **kwargs):
         """
         Serializes the instance using the provided serializer.
 
@@ -386,13 +386,15 @@ class TaskSpec(object):
 
         @type  serializer: L{SpiffWorkflow.storage.Serializer}
         @param serializer: The serializer to use.
+        @type  kwargs: dict
+        @param kwargs: Passed to the serializer.
         @rtype:  object
         @return: The serialized object.
         """
-        return serializer._serialize_task_spec(self)
+        return serializer._serialize_task_spec(self, **kwargs)
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
+    def deserialize(self, serializer, wf_spec, s_state, **kwargs):
         """
         Deserializes the instance using the provided serializer.
 
@@ -406,7 +408,9 @@ class TaskSpec(object):
         @param wf_spec: An instance of the WorkflowSpec.
         @type  s_state: object
         @param s_state: The serialized task specification object.
+        @type  kwargs: dict
+        @param kwargs: Passed to the serializer.
         @rtype:  TaskSpec
         @return: The task specification instance.
         """
-        return serializer._deserialize_task_spec(wf_spec, s_state)
+        return serializer._deserialize_task_spec(wf_spec, s_state, **kwargs)
