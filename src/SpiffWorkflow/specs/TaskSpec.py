@@ -355,7 +355,8 @@ class TaskSpec(object):
         my_task.workflow._task_completed_notify(my_task)
 
         if my_task.workflow.debug:
-            my_task.workflow.outer_job.task_tree.dump()
+            if hasattr(my_task.workflow, "outer_job"):
+                my_task.workflow.outer_job.task_tree.dump()
 
         self.completed_event.emit(my_task.workflow, my_task)
         return True
