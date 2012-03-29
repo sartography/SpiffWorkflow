@@ -20,6 +20,55 @@ class Task(object):
     """
     Used internally for composing a tree that represents the path that
     is taken (or predicted) within the workflow.
+
+    Each Task has a state. For an explanation, consider the following task
+    specification::
+
+                                    ,-> Simple (default choice)
+        StartTask -> ExclusiveChoice
+                                    `-> Simple
+
+    The initial task tree for this specification looks like so::
+
+                                                   ,-> Simple LIKELY
+        StartTask WAITING -> ExclusiveChoice FUTURE
+                                                   `-> Simple MAYBE
+
+    The following states may exist::
+
+        - FUTURE: The task will definitely be reached in the future,
+        regardless of which choices the user makes within the workflow.
+
+        - LIKELY: The task may or may not be reached in the future. It
+        is likely because the specification lists it as the default
+        option for the ExclusiveChoice.
+
+        - MAYBE: The task may or may not be reached in the future. It
+        is not LIKELY, because the specification does not list it as the
+        default choice for the ExclusiveChoice.
+
+        - WAITING: The task is still waiting for an event before it
+        completes. For example, a Join task will be WAITING until all
+        predecessors are completed.
+
+        - READY: The conditions for completing the task are now satisfied.
+        Usually this means that all predecessors have completed and the
+        task may now be completed using
+        L{Workflow.complete_task_from_id()}.
+
+        - CANCELLED: The task was cancelled by a CancelTask or
+        CancelWorkflow task.
+
+        - COMPLETED: The task was regularily completed.
+
+        - TRIGGERED: This is an extra flag that may be used in connection
+        with the other states. It means that the task was created at
+        runtime, for example by a Trigger or MultiInstance task.
+
+    Note that the LIKELY and MAYBE tasks are merely predicted/guessed, so
+    those tasks may be removed from the tree at runtime later. They are
+    created to allow for visualizing the workflow at a time where
+    the required decisions have not yet been made.
     """
     FUTURE    =   1
     LIKELY    =   2
