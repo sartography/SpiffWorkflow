@@ -2,13 +2,57 @@ import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from SpiffWorkflow import Task
-from SpiffWorkflow.Workflow import TaskIdAssigner
+from SpiffWorkflow.Workflow import TaskIdAssigner, Workflow
 from SpiffWorkflow.specs import WorkflowSpec, Simple
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.exceptions import WorkflowException
+
 
 class MockWorkflow(object):
     def __init__(self):
         self.task_id_assigner = TaskIdAssigner()
+
+
+class Wait(TaskSpec):
+    """
+    This class implements a task that waits for an external resource and has to
+    be called back a number of times before being revived for completion.
+    """
+
+    def __init__(self, parent, name, count, **kwargs):
+        """
+        Constructor.
+
+        @type  parent: TaskSpec
+        @param parent: A reference to the parent task spec.
+        @type  name: str
+        @param name: The name of the task spec.
+        @type  count: int
+        @param count: How many times to respond with Waiting before Ready.
+        @type  kwargs: dict
+        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        """
+        assert parent  is not None
+        assert name    is not None
+        TaskSpec.__init__(self, parent, name, **kwargs)
+        self.count = count
+        self.counter = 0    # We use this to implement the waiting
+
+    def try_fire(self, my_task, force = False):
+        """Returns False when successfully fired, True otherwise"""
+        if self.counter == self.count:
+            return True
+        self.counter += 1
+        return False
+
+    def _update_state_hook(self, my_task):
+        if not self.try_fire(my_task):
+            my_task.state = Task.WAITING
+            result = False
+        else:
+            result = super(Wait, self)._update_state_hook(my_task)
+        return result
+
 
 class TaskTest(unittest.TestCase):
     def setUp(self):
@@ -68,6 +112,21 @@ class TaskTest(unittest.TestCase):
         self.assert_(expected2 == result,
                      'Expected:\n' + expected2 + '\n' + \
                      'but got:\n'  + result)
+
+    def testWait(self):
+        """Tests that we can create a task that waits for an external resource
+        and that the workflow can be called to complete such tasks"""
+        spec     = WorkflowSpec()
+        task1    = Wait(spec, 'Wait 3 Times', 4)
+        spec.start.connect(task1)
+        workflow = Workflow(spec)
+
+        i = 0
+        while not workflow.is_completed() and i < 10:
+            workflow.complete_all()
+            i += 1
+        self.assertTrue(workflow.is_completed())
+        self.assertEqual(i, 3)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TaskTest)
