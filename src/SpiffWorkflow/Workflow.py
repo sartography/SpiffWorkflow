@@ -213,7 +213,7 @@ class Workflow(object):
                     return True
                 blacklist.append(next)
 
-        # Walk through all waiting tasks.
+        # Walk through all ready tasks.
         for task in Task.Iterator(self.task_tree, Task.READY):
             for blacklisted_task in blacklist:
                 if task._is_descendant_of(blacklisted_task):
@@ -222,6 +222,13 @@ class Workflow(object):
                 self.last_task = task
                 return True
             blacklist.append(task)
+
+        # Walk through all waiting tasks.
+        for task in Task.Iterator(self.task_tree, Task.WAITING):
+            task.task_spec._update_state(task)
+            if not task._has_state(Task.WAITING):
+                self.last_task = task
+                return True
         return False
 
 
