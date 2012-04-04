@@ -219,6 +219,11 @@ class TaskSpec(object):
 
 
     def _update_state(self, my_task):
+        """
+        Called whenever any event happens that may affect the
+        state of this task in the workflow. For example, if a predecessor
+        completes it makes sure to call this method so we can react.
+        """
         my_task._inherit_attributes()
         if not self._update_state_hook(my_task):
             return
@@ -227,10 +232,18 @@ class TaskSpec(object):
 
 
     def _update_state_hook(self, my_task):
-        was_predicted = my_task._is_predicted()
+        """
+        Typically this method should perform the following actions::
+
+            - Update the state of the corresponding task.
+            - Update the predictions for its successors.
+
+        Returning non-False will cause the task to go into READY.
+        Returning any other value will cause no action.
+        """
         if not my_task.parent._is_finished():
             my_task.state = Task.FUTURE
-        if was_predicted:
+        if my_task._is_predicted():
             self._predict(my_task)
         if my_task.parent._is_finished():
             return True
