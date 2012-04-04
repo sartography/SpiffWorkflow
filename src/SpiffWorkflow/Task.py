@@ -170,7 +170,9 @@ class Task(object):
         self.workflow            = workflow
         self.parent              = parent
         self.children            = []
-        self.state               = Task.FUTURE
+        self._state              = Task.FUTURE
+        self.state_history       = [Task.FUTURE]
+        self.log                 = []
         self.task_spec           = task_spec
         self.id                  = workflow.task_id_assigner.get_new_id()
         self.thread_id           = self.__class__.thread_id_pool
@@ -180,6 +182,23 @@ class Task(object):
         if parent is not None:
             self.parent._child_added_notify(self)
 
+    def _getstate(self):
+        return self._state
+
+    def _setstate(self, value):
+        if self._state != value:
+            if __debug__:
+                old = self.get_state_name()
+            self._state = value
+            if __debug__:
+                self.log.append("Moving '%s' from %s to %s" % (self.get_name(),
+                        old, self.get_state_name()))
+            self.state_history.append(value)
+
+    def _delstate(self):
+        del self._state
+
+    state = property(_getstate, _setstate, _delstate, "State property.")
 
     def __iter__(self):
         return Task.Iterator(self)
