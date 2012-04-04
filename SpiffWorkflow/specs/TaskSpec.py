@@ -38,6 +38,19 @@ class TaskSpec(object):
       - B{finished}: called when the state changes to COMPLETED or CANCELLED,
         at the last possible time after the post-assign variables are
         assigned and mutexes are released.
+        
+    Event sequence is: entered -> reached -> ready -> completed -> finished 
+        (cancelled may happen at any time) 
+
+    The only events where implementing something other than state tracking 
+    may be useful are the following:
+      - Reached: You could mess with the pre-assign variables here, for 
+        example. Other then that, there is probably no need in a real 
+        application. 
+      - Ready: This is where a task could implement custom code, for example 
+        for triggering an external system. This is also the only event where a 
+        return value has a meaning (returning non-True will mean that the 
+        post-assign procedure is skipped.) 
     """
 
     def __init__(self, parent, name, **kwargs):
