@@ -36,8 +36,8 @@ class TaskSpec(object):
       - B{cancelled}: called when the state changes to CANCELLED, at a time
         before the post-assign variables are assigned.
       - B{finished}: called when the state changes to COMPLETED or CANCELLED,
-        at the last possible time and after the post-assign variables are
-        assigned.
+        at the last possible time after the post-assign variables are
+        assigned and mutexes are released.
     """
 
     def __init__(self, parent, name, **kwargs):
@@ -90,11 +90,12 @@ class TaskSpec(object):
         self.reached_event   = Event()
         self.ready_event     = Event()
         self.completed_event = Event()
+        self.cancelled_event = Event()
+        self.finished_event  = Event()
 
         self._parent._add_notify(self)
         self.properties.update(self.defines)
         assert self.id is not None
-
 
     def _connect_notify(self, taskspec):
         """
@@ -279,8 +280,9 @@ class TaskSpec(object):
         for lock in self.locks:
             mutex = my_task.workflow._get_mutex(lock)
             mutex.unlock()
-        return result
 
+        self.finished_event.emit(my_task.workflow, my_task)
+        return result
 
     def _on_ready_before_hook(self, my_task):
         """
@@ -316,6 +318,7 @@ class TaskSpec(object):
         @rtype:  boolean
         @return: True on success, False otherwise.
         """
+        self.cancelled_event.emit(my_task.workflow, my_task)
         return True
 
     def _on_trigger(self, my_task):
