@@ -78,7 +78,6 @@ class TaskSpec(object):
         self.outputs     = []
         self.manual      = False
         self.internal    = False  # Only for easing debugging.
-        self.cancelled   = False
         self.properties  = kwargs.get('properties',  {})
         self.defines     = kwargs.get('defines',     {})
         self.pre_assign  = kwargs.get('pre_assign',  [])
@@ -106,7 +105,6 @@ class TaskSpec(object):
         """
         self.inputs.append(taskspec)
 
-
     def _get_activated_tasks(self, my_task, destination):
         """
         Returns the list of tasks that were activated in the previous
@@ -121,7 +119,6 @@ class TaskSpec(object):
         """
         return my_task.children
 
-
     def _get_activated_threads(self, my_task):
         """
         Returns the list of threads that were activated in the previous
@@ -132,7 +129,6 @@ class TaskSpec(object):
         """
         return my_task.children
 
-
     def set_property(self, **kwargs):
         """
         Defines the given property name/value pairs.
@@ -142,7 +138,6 @@ class TaskSpec(object):
                 msg = "Property %s can not be modified" % key
                 raise WorkflowException(msg)
         self.properties.update(kwargs)
-
 
     def get_property(self, name, default = None):
         """
@@ -156,7 +151,6 @@ class TaskSpec(object):
         """
         return self.properties.get(name, default)
 
-
     def connect(self, taskspec):
         """
         Connect the *following* task to this one. In other words, the
@@ -168,7 +162,6 @@ class TaskSpec(object):
         self.outputs.append(taskspec)
         taskspec._connect_notify(self)
 
-
     def test(self):
         """
         Checks whether all required attributes are set. Throws an exception
@@ -178,7 +171,6 @@ class TaskSpec(object):
             raise WorkflowException(self, 'TaskSpec is not yet instanciated.')
         if len(self.inputs) < 1:
             raise WorkflowException(self, 'No input task connected.')
-
 
     def _predict(self, my_task, seen = None, looked_ahead = 0):
         """
@@ -209,14 +201,12 @@ class TaskSpec(object):
         for child in my_task.children:
             child.task_spec._predict(child, seen[:], looked_ahead)
 
-
     def _predict_hook(self, my_task):
         if my_task._is_definite():
             child_state = Task.FUTURE
         else:
             child_state = Task.LIKELY
         my_task._update_children(self.outputs, child_state)
-
 
     def _update_state(self, my_task):
         """
@@ -229,7 +219,6 @@ class TaskSpec(object):
             return
         self.entered_event.emit(my_task.workflow, my_task)
         my_task._ready()
-
 
     def _update_state_hook(self, my_task):
         """
@@ -249,7 +238,6 @@ class TaskSpec(object):
             return True
         return False
 
-
     def _on_ready(self, my_task):
         """
         Return True on success, False otherwise.
@@ -260,7 +248,6 @@ class TaskSpec(object):
         @return: True on success, False otherwise.
         """
         assert my_task is not None
-        assert not self.cancelled
         self.test()
 
         # Acquire locks, if any.
@@ -306,7 +293,6 @@ class TaskSpec(object):
         """
         return True
 
-
     def _on_ready_hook(self, my_task):
         """
         A hook into _on_ready() that does the task specific work.
@@ -317,7 +303,6 @@ class TaskSpec(object):
         @return: True on success, False otherwise.
         """
         return True
-
 
     def _on_cancel(self, my_task):
         """
@@ -333,7 +318,6 @@ class TaskSpec(object):
         """
         return True
 
-
     def _on_trigger(self, my_task):
         """
         May be called by another task to trigger a task-specific
@@ -346,7 +330,6 @@ class TaskSpec(object):
         """
         raise NotImplementedError("Trigger not supported by this task.")
 
-
     def _on_complete(self, my_task):
         """
         Return True on success, False otherwise. Should not be overwritten,
@@ -358,7 +341,6 @@ class TaskSpec(object):
         @return: True on success, False otherwise.
         """
         assert my_task is not None
-        assert not self.cancelled
 
         if my_task.workflow.debug:
             print "Executing task:", my_task.get_name()
@@ -374,7 +356,6 @@ class TaskSpec(object):
 
         self.completed_event.emit(my_task.workflow, my_task)
         return True
-
 
     def _on_complete_hook(self, my_task):
         """

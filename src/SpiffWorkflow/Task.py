@@ -362,8 +362,6 @@ class Task(object):
 
         # Add a new child for each of the remaining tasks.
         for task_spec in add:
-            if task_spec.cancelled:
-                continue
             if state is not None:
                 self._add_child(task_spec, state)
             else:

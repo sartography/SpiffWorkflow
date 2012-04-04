@@ -96,7 +96,6 @@ class DictionarySerializer(Serializer):
                        description = spec.description,
                        manual = spec.manual,
                        internal = spec.internal,
-                       cancelled = spec.cancelled,
                        lookahead = spec.lookahead)
         module_name = spec.__class__.__module__
         s_state['class'] = module_name + '.' + spec.__class__.__name__
@@ -118,7 +117,6 @@ class DictionarySerializer(Serializer):
         spec.description = s_state['description']
         spec.manual = s_state['manual']
         spec.internal = s_state['internal']
-        spec.cancelled = s_state['cancelled']
         spec.lookahead = s_state['lookahead']
         spec.properties = self._deserialize_dict(s_state['properties'])
         spec.defines = self._deserialize_dict(s_state['defines'])
