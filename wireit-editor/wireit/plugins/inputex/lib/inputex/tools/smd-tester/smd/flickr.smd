@@ -1,0 +1,29 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://www.flickr.com/services/api/", 
+	"description": "Flickr API",
+
+   "target": "http://www.flickr.com/services/rest/",
+	"transport": "JSONP",
+	"envelope": "URL",
+	
+	"additionalParameters": true,
+	"parameters": [
+		{ "name": "api_key", "optional": false, "default": "3cce2f86830dca21700e1fa5903bdbc8" },
+		{ "name": "format", "optional": false, "default": "json" }
+	],
+   "callbackParamName": "jsoncallback",
+
+	"services": {
+												
+		"getPublicPhotos": {
+		   "target": "?method=flickr.people.getPublicPhotos",
+		   "parameters": [
+				{ "name": "user_id", "type": "string", "optional": false, "default": "8479707@N02" },	
+				{ "name": "extras", "type": "string", "optional": false, "default": "geo,tags,media,date_taken,o_dims,views" }
+			]
+		}
+
+   }
+	
+}

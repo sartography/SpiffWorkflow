@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+ <head>
+  <title>inputEx - HiddenField Usage</title>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="../lib/yui/reset-fonts/reset-fonts.css">
+
+<!-- InputEx CSS -->
+<link type='text/css' rel='stylesheet' href='../css/inputEx.css' />
+
+<!-- Demo CSS -->
+<link rel="stylesheet" type="text/css" href="css/demo.css"/>
+<link rel="stylesheet" type="text/css" href="css/dpSyntaxHighlighter.css">
+
+ </head>
+
+ <body>
+
+<h1>inputEx - HiddenField Usage</h1>
+
+
+<!-- Example 1 -->
+<div class='exampleDiv'>
+
+	<h2>Basic HiddenField creation</h2>
+	
+	<p>The hidden field is by definition 'invisible', so there isn't a lot to see. However, it can be useful to keep an id :</p>
+
+	<div class='demoContainer' id='container1'></div>
+
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript">
+		var exampleDiv = YAHOO.util.Dom.get('container1');
+		var group = new inputEx.Group({
+			 	fields: [ 
+					{ type: 'hidden', name: 'id', value: 12 },
+					{ type: 'hidden', name: 'lastname', value: 'Scott' },
+					{ type: 'string', name: 'firstname', label: 'Firstname', required: true, value:'James'}
+				], 
+				parentEl: exampleDiv
+		});
+		var button=inputEx.cn('button',null,null, 'Get Value'); 
+		exampleDiv.appendChild(button); 
+		YAHOO.util.Event.addListener(button, 'click', function(){ alert(YAHOO.lang.JSON.stringify(group.getValue()) ); });
+		</textarea>
+	</div>
+	
+	<p>Note that <i>&lt;hiddenFieldInstance&gt;</i>.getValue() returns the value as stored, without type casting (we store an integer -> we get an integer).<br /><br />
+	<p>However, when the form is submitted via a 'submit' button, the hidden value is sent as 'string' whatever its datatype was... (we store 12, we submit "12").<br /><br />
+		This is a limitation of the classic HTML form submit. To circumvent the problem, use an ajax submit of the form (which relies on getValue) : see <a href="form.html">form examples</a>.</p>
+</div>
+
+
+<!-- YUI Library -->
+<script type="text/javascript" src="../lib/yui/utilities/utilities.js"></script>
+<script type="text/javascript" src="../lib/yui/json/json-min.js"></script>
+
+<!-- InputEx -->
+<script src="../js/inputex.js"  type='text/javascript'></script>
+<script src="../js/Field.js"  type='text/javascript'></script>
+<script src="../js/Group.js"  type='text/javascript'></script>
+<script src="../js/fields/StringField.js"  type='text/javascript'></script>
+<script src="../js/fields/HiddenField.js"  type='text/javascript'></script>
+
+<!-- inputEx examples -->
+<script src="js/dpSyntaxHighlighter.js"></script>
+<script src="inputex-examples.js"></script>
+
+
+ </body>
+</html>

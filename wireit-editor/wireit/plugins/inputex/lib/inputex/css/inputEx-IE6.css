@@ -1,0 +1,53 @@
+/**
+*  Fix bug with "float:left + position:relative" which results in disappearing fields
+*
+*  -> set zoom (proprietary to IE6) to force hasLayout = true, so boxes have standard behavior.
+*/
+div.inputEx-fieldWrapper, div.inputEx-Field {
+   zoom:1;
+}
+
+/** 
+* Hide selects behind a form mask 
+*/
+select.inputEx-hidden { visibility:hidden;}
+
+/**
+*  CSS patches because IE 6 doesn't support child selector (>) :
+*/
+div.inputEx-valid div.inputEx-message {
+   color:#505050;
+   font-weight: normal;
+}
+
+div.inputEx-valid div.inputEx-label {
+   color:#505050;
+   font-weight:normal;
+}
+
+div.inputEx-invalid div.inputEx-message {
+   color:#C00E0C;
+   font-weight:bold;
+}
+
+div.inputEx-invalid div.inputEx-label {
+   color:#C00E0C;
+   font-weight:bold;
+}
+
+div.inputEx-invalid div.inputEx-label label {
+   background:transparent url(../images/error_bang.gif) no-repeat scroll 0 1px;
+   padding-left:20px;
+}
+
+div.inputEx-valid div.inputEx-label label,
+div.inputEx-empty div.inputEx-label label {
+   background: none;
+   padding-left: inherit;
+   font-weight:normal;
+   color: #505050;
+}
+
+div.inputEx-typeInvite div.inputEx-Field input, div.inputEx-typeInvite div.inputEx-Field textarea {
+   color: #aaa;
+}

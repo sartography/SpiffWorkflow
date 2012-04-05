@@ -1,0 +1,93 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://ajax.googleapis.com/ajax/services/search/", 
+	"description": "Google Ajax API",
+		
+	"transport": "JSONP",
+	"envelope": "URL",
+	"additionalParameters": true,	
+	"parameters": [
+		{ "name": "q", "optional": false, "default":"" },
+		{ "name": "rsz", "optional":true, "default": "small", "enum": ["small", "large"] },
+		{ "name": "hl", "optional":true, "default": "en" },
+		{ "name": "start", "optional":true, "default": 0 },
+		{ "name": "alt", "optional":false, "default": "json" },
+		{ "name": "v", "optional":false, "default": "1.0" }
+	],
+
+	"services": {
+
+		"webSearch": {
+			"target": "http://ajax.googleapis.com/ajax/services/search/web",
+			"parameters": [
+				{ "name": "cx", "type":"string", "optional":true },
+				{ "name": "cref", "type":"string", "optional":true },
+				{ "name": "safe", "type":"string", "optional":true, "enum": ["active","moderate","off"] },
+				{ "name": "lr", "type":"string", "optional":true }
+			]
+		},
+
+		"localSearch": {
+			"target": "http://ajax.googleapis.com/ajax/services/search/local",
+			"parameters": [
+				{ "name": "sll", "type": "string", "optional": true },
+				{ "name": "sspn", "type":"string", "optional": true }
+			]
+		},
+
+		"videoSearch": {
+			"target": "http://ajax.googleapis.com/ajax/services/search/video",
+			"parameters": [
+				{ "name": "scoring", "type": "string", "optional": true }
+			]
+		},
+
+		"blogSearch": {
+			"target": "http://ajax.googleapis.com/ajax/services/search/blogs",
+			"parameters": [
+				{ "name": "scoring", "type": "string", "optional": true }
+			]
+		},
+
+		"newsSearch": {
+			"target": "http://ajax.googleapis.com/ajax/services/search/news",
+			"parameters": [
+				{ "name": "scoring", "type": "string", "optional": true },
+				{ "name": "geo", "type":"string", "optional":true }
+			]
+		},
+
+		"bookSearch": {
+			"target": "http://ajax.googleapis.com/ajax/services/search/books",
+			"parameters": [
+				{ "name":"as_brr", "optional": true, "type":"number" },
+				{ "name":"as_list", "optional": true, "type":"string" }
+			]
+		},
+
+		"imageSearch": {
+			"target": "http://ajax.googleapis.com/ajax/services/search/images",
+			"parameters": [
+				{ "name": "safe", "type":"string", "optional":true, "enum": ["active", "moderate", "off"] },
+				{ "name": "imgsz", "type":"string", "optional": true, "enum": ["icon", "small","medium","large","xlarge", "xxlarge", "huge"] },
+				{ "name": "imgc", "type":"string", "optional": true, "enum":["mono", "gray","color"] },
+				{ "name": "imgtype", "type":"string", "optional": true },
+				{ "name": "as_filetype", "type": "string", "optional": true, "enum": ["jpg", "png", "gif", "bmp"] },
+				{ "name": "as_sitesearch", "type": "string", "optional": true }
+			]
+		},
+
+		"getFeed": {
+			"target": "http://ajax.googleapis.com/ajax/services/feed/load",
+			"parameters": []
+		},
+		
+		"translate" : {
+			"target" : "http://ajax.googleapis.com/ajax/services/language/translate",
+			"parameters": [
+				{ "name":"langpair", "type":"string", "optional":false }
+			]
+		}
+		
+	}
+}

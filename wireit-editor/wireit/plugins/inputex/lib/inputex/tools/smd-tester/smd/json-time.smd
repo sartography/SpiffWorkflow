@@ -1,0 +1,29 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://json-time.appspot.com/", 
+	"description": "JSON Time",
+		
+	"target": "http://json-time.appspot.com/",
+	"transport": "JSONP",
+	"envelope": "URL",
+	"callbackParamName": "callback",
+
+	"services": {
+	   
+	   
+		"time": {
+			"target": "time.json",
+			"parameters": [
+			   { "name": "tz", "type":"string", "default": "UTC", "_inputex": {"label": "Timezone"} }
+			]
+		},
+		
+
+		"timezones": {
+			"target": "timezones.json",
+			"parameters": [
+			]
+		}
+		
+	}
+}

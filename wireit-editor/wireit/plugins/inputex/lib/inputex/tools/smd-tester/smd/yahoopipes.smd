@@ -1,0 +1,44 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://pipes.yahoo.com/", 
+	"description": "Yahoo Pipes API",
+
+   "target": "http://pipes.yahoo.com/pipes/",
+	"transport": "JSONP",
+	"envelope": "URL",
+	
+	"additionalParameters": true,
+	"parameters": [
+		{ "name": "_render", "optional": false, "default": "json" }
+	],
+   "callbackParamName": "_callback",
+
+	"services": {
+												
+		"pipeRun": {
+		   "target": "pipe.run",
+		   "parameters": [
+				{ "name": "_id", "type": "string", "optional": false, "default": "CtQcy03f3RGYU__BdfQQIA", "_inputex":{"label":"Pipe ID", "description": "Find this in your yahoo pipes list"} }
+			]
+		},
+		
+		"pipeInfo": {
+		   "target": "pipe.info",
+		   "parameters": [
+				{ "name": "_id", "type": "string", "optional": false, "default": "CtQcy03f3RGYU__BdfQQIA", "_inputex":{"label":"Pipe ID", "description": "Find this in your yahoo pipes list"} },
+   		   {"name":"_out", "type": "string", "default":"json"}
+			]
+		},
+		
+		"personInfo": {
+		   "target": "person.info",
+		   "parameters": [
+		      {"name":"eyuid", "type": "string", "default":"CdfXh6k2umpz6pR9HCW7Gf_9NQ--", "_inputex": {"label": "Yahoo Pipes User ID"}},
+   		   {"name":"_out", "type": "string", "default":"json"}
+		   ]
+		}
+
+
+   }
+	
+}

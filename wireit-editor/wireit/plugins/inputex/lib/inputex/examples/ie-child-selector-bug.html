@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+ <head>
+  <title>Cross-browser issues</title>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="../lib/yui/reset-fonts/reset-fonts.css">
+<link rel="stylesheet" type="text/css" href="../lib/yui/container/assets/container.css"> 
+<link rel="stylesheet" type="text/css" href="../lib/yui/assets/skins/sam/skin.css">
+
+<!-- Demo CSS -->
+<link rel="stylesheet" type="text/css" href="css/demo.css"/>
+<link rel="stylesheet" type="text/css" href="css/dpSyntaxHighlighter.css">
+
+ </head>
+
+ <body class="yui-skin-sam">
+	
+<h1>Child-selector (>) issues</h1>
+
+<!-- Example 1 -->
+<div class='exampleDiv'>
+
+	<h2>Major recent browsers</h2>
+
+	<p>Test figure should match expected result on all modern browsers (Firefox >= 2, Safari, Opera, Chrome, IE >= 7).</p>
+
+	<div class='demoContainer' id='container1'>
+
+
+		<style type="text/css">
+
+		div.ext {width:200px; float:left; margin:0 0 20px 20px;}
+		div.ext div {border:1px solid black;padding:10px;background-color:#FFFFFF;font-weight:bold;}
+		
+		/* for expected result figure */
+		div.ext div.red1 {background-color:#FF0000;}
+      
+      /* for tests */
+      div.ext div.yellow {background-color:#FFFF00;}
+		div.ext div.yellow > div.red {background-color:#FF0000;}
+      
+		</style>
+		
+		<div class="ext">
+			Expected result :
+			<div class="yellow">
+				<div class="red1">
+					<div>
+					   <div>
+						   <div class="yellow">
+					   		<div class="red1">
+							      <div>
+								   </div>
+								</div>
+							</div>
+					   </div>
+				   </div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="ext">
+			Test with your navigator :
+			<div class="yellow">
+				<div class="red">
+					<div class="c">
+					   <div class="red">
+						   <div class="yellow">
+					   		<div class="red">
+							      <div class="red">
+								   </div>
+								</div>
+							</div>
+					   </div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+      <!--[if IE 6]>
+	   <style>
+	      div.ext div.yellow2 {background-color:#FFFF00;}
+		   div.ext div.yellow2 div.red2 {background-color:#FF0000;}
+		</style>
+		<div class="ext">
+			Test with "IE6 patch" ...
+				<div class="yellow2">
+					<div class="red2">
+						<div class="c2">
+						   <div class="red2">
+							   <div class="yellow2">
+						   		<div class="red2">
+								      <div class="red2">
+									   </div>
+									</div>
+								</div>
+						   </div>
+						</div>
+					</div>
+				</div>
+			</div>
+	   <![endif]-->
+	
+
+		<div style="clear:both;"></div>
+
+	</div>
+	
+	<div class='codeContainer'>
+		<textarea name="code" class="xhtml">
+			<style type="text/css">
+				div.ext div.yellow {background-color:#FFFF00;}
+	
+				/* only select divs with "red" class which are childs of a div with "yellow" class */
+				div.ext div.yellow > div.red {background-color:#FF0000;}
+			</style>
+	   </textarea>
+	</div>
+
+</div>
+
+<!-- Example 2 -->
+<div class='exampleDiv'>
+
+	<h2>IE 7 behavior</h2>
+
+	<p>On <strong>IE 7</strong>, page MUST have a valid DOCTYPE to use child-selector !</p>
+	
+	<div class='codeContainer'>
+		<textarea name="code" class="xhtml">
+			<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	   </textarea>
+	</div>
+</div>
+
+<!-- Example 3 -->
+<div class='exampleDiv'>
+
+	<h2>IE 6 behavior</h2>
+
+	<p>On <strong>IE 6</strong>, child-selector is not available...</p>
+
+	<div class='codeContainer'>
+		<textarea name="code" class="xhtml">
+			<!--[if IE 6]>
+				<style>
+					/* Don't use child selector : better than nothing... */
+					
+					div.ext div.yellow2 {background-color:#FFFF00;}
+					div.ext div.yellow2 div.red2 {background-color:#FF0000;}
+				</style>
+			<![endif]-->
+	   </textarea>
+	</div>
+	
+</div>
+
+
+<script src="js/dpSyntaxHighlighter.js"></script>
+<script language="javascript"> 
+dp.SyntaxHighlighter.HighlightAll('code');
+</script>
+
+</body>
+</html>

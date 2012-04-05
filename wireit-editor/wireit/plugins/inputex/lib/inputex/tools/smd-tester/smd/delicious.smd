@@ -1,0 +1,32 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://delicious.com/help/feeds", 
+	"description": "Delicious feeds",
+		
+	"target": "http://feeds.delicious.com/v2/",
+	"transport": "JSONP",
+	"envelope": "URL",
+	"callbackParamName": "callback",
+
+	"services": {
+	   
+		"hotlist": {
+		   "target": "json/",
+			"parameters": []
+		},
+		
+		"recent": {
+		   "target": "json/recent",
+			"parameters": []
+		},
+		
+		"UserBookmarks": {
+		   	"envelope": "PATH",
+			"parameters": [
+			   {"name": "json", "type":"string", "default":"neyric"}
+			]
+		}
+		
+	}
+}
+

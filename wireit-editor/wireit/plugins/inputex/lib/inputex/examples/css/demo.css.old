@@ -1,0 +1,67 @@
+
+#mainFrame {
+	background-color: #AAAA66;
+	margin: 50px auto; 
+	width: 80%; 
+	padding-bottom:70px;
+	position: relative;
+}
+
+
+.title {
+	font-size: 16pt;
+	font-weight: bold;
+}
+
+#componentsList {
+	float: left;
+	margin: 20px;
+	width: 20%;
+}
+
+#componentsList ul {
+	list-style: none;
+	padding-left: 0;
+	border: 1px solid black;
+	background-color: #666633;
+}
+
+#componentsList ul li {
+	cursor: pointer;
+	margin: 5px;
+}
+
+
+#componentsList ul li:hover {
+	background-color: yellow;
+}
+
+#componentDisplay {
+	float: left;
+	width: 65%;
+	margin: 20px;
+	background-color: white;
+	padding: 20px;
+}
+
+#exampleContainer {
+}
+
+.exampleDiv {
+	margin: 20px 10px;
+}
+
+.exampleDiv .exampleTitle {
+	font-size: 16pt;
+	font-weight: bold;
+}
+
+.exampleDiv .exampleDescription {
+}
+	
+.exampleDiv .exampleCode {
+	background-color:#DDDDDD;
+	border:1px solid #AAAAFF;
+	font-style:italic;
+	padding:10px;
+}

@@ -1,0 +1,35 @@
+p.demoTitle {
+    height: 160px;
+    color: white;
+    text-align: center;
+    font-size: 14pt;
+    margin: 0px 20px;
+}
+
+div.exampleDiv {
+    margin: 30px 20px;
+}
+
+div.exampleDiv .hd {
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+div.exampleDiv .desc {
+    font-size: 12pt;
+}
+
+div.exampleDiv .demo {
+    margin: 20px;
+    padding: 15px;
+    border: 1px solid #9999ff;
+    background-color: #ddddff;
+}
+
+div.exampleDiv div.dp-highlighter {
+    margin: 20px; /*width: 80%;*/
+}
+
+div.exampleDiv div.error {
+    color: red;
+}

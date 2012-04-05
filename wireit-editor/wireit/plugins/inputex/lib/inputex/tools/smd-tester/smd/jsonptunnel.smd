@@ -1,0 +1,20 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://labs.thinkminimo.com/jsonptunnel/", 
+	"description": "lets you POST to remote web services from your client-side Javascript application and receive JSONP data",
+		
+	"target": "http://labs.thinkminimo.com/jsonptunnel/service/",
+	"transport": "JSONP",
+	"envelope": "URL",
+	"callbackParamName": "callback",
+
+	"services": {
+	   
+		"jsonptunnel": {
+			"parameters": [
+			   { "name": "extURL", "type":"string", "format": "url", "default":"http://neyric.com/~neyric/exhibit/data/websites.js", "_inputex": { "label": "JSON url" } }
+			]
+		}
+		
+	}
+}

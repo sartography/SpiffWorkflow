@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+<head>
+<title>inputEx.RPC.Service: json-rpc mathservice demo</title>
+
+<link rel="stylesheet" type="text/css" href="../../lib/yui/reset-fonts-grids/reset-fonts-grids.css"> 
+
+<script type="text/javascript" src="../../lib/yui/utilities/utilities.js"></script>
+<script type="text/javascript" src="../../lib/yui/json/json.js"></script>
+
+<script type="text/javascript" src="../../js/inputex.js"></script>
+<script type="text/javascript" src="../../js/rpc/inputex-rpc.js"></script> 
+
+<script>
+
+YAHOO.util.Event.onDOMReady(function() {
+	
+	var service = new inputEx.RPC.Service("mathservice.smd",{
+			success: function() {
+				this.add({a: 3, b: 4}, {
+					success: function(result) {
+						console.log(result);
+					}
+				});
+			},
+			failure: function(o) {}
+	});
+	
+});
+
+
+</script>
+
+</head>
+
+<body>
+
+</body>
+</html>

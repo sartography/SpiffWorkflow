@@ -1,0 +1,27 @@
+
+/* WireIt page style */
+
+body { background-color: white; margin: 0; padding: 0; font-family:"Trebuchet MS",Helvetica,Arial,Verdana; font-size: 13px; }
+p {	font-size: 13px; }
+ul li {	font-size: 13px;}
+
+#headbar { background-image: url(logo-wireit.jpg);	height: 223px; margin: 0;	padding: 0; }
+
+/*.navigation { }*/
+.navigation li { margin: 0; display: inline; margin-right: 30px;}
+.navigation li a { color: #999999; text-decoration: none;	font-size: 14px; }
+.navigation li a:hover { color: #cccc33; text-decoration: underline; }
+
+#layout { width: 80%; }
+#layout td.left { width: 55%; text-align: left;}
+#layout td.right { width: 45%; text-align: left;}
+#layout td.left, #layout td.right { padding: 15px 30px; vertical-align: top; }
+
+p.title { font-weight: bold; font-size: 22px;}
+td.left ul { list-style-image: url(star.png); }
+
+div.appBox { width: 100%; position: relative;  margin-top: 10px; }
+div.appBox p { position: absolute; left: 130px;  top: 0px; 	font-size: 18px; text-decoration: none;}
+div.appBox a {text-decoration: none;}
+div.appBox p span {color: #aaa;font-size: 11pt;}
+div.appBox p span.big { color: #ffb73e; font-size: 16pt; font-weight: bold;}

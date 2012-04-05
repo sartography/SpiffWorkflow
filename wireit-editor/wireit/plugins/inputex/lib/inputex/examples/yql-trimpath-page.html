@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+   <title>inputEx - yql-trimpath-page example</title>
+   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+   <!-- We use YUI Grids for the layout -->
+   <link rel="stylesheet" href="../lib/yui/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
+   <link rel="stylesheet" href="../lib/yui/base/base.css" type="text/css">
+
+	<!-- InputEx CSS is included for the 'response tree' widget. 
+	     You can remove it safely -->
+	<link type='text/css' rel='stylesheet' href='../css/inputEx.css' />
+	
+<!-- CSS customization for the page -->	
+<style>
+#hd { padding: 5px; background-color: #CCCCCC; color: white; }
+#hd h1 { font-size: 32pt; }
+#bd { border:1px solid #CCCCCC; }
+#ft { padding: 10px 10px 0; background-color: #CCCCCC; color: black; -moz-border-radius-bottomleft: 10px; -moz-border-radius-bottomright:10px;}
+.box {padding: 5px;}
+#treeContainer { overflow: scroll; height: 400px;}
+</style>
+
+</head>
+<body>
+	
+<div id="doc" class="yui-t7">
+  
+	<div id="hd" role="banner">
+		<h1>yql-trimpath-page Example</h1>
+		<p>This page is an example of the <a href="../tools/yql-trimpath-page/index.html">yql-trimpath-page utility</a> from the inputEx library.<br />
+		   Read the comments in the source to view the "text/yql" and "text/trimpath" script tags.</p>
+	</div>
+	
+	<div id="bd" role="main">
+		
+		<div class="yui-g">
+			
+	    <div class="yui-u first">	
+					<div class="box" id="log">
+						<h1>Photos</h1>
+						
+						<!-- 
+						Ok, this is where it's getting interesting.
+						Each script tag with a type set to "text/trimpath" will be executed as a trimpath template. 
+						The src attribute must be set to "#n" where n represent the index of the yql query (see botom)
+						The "query" object is available containing the results of the #n th query.
+						-->
+						
+						<!-- 
+						The query we run on this page is : "select * from flickr.photos.search where text=\"juggler\""
+						This template displays small thumbnails of this flickr search results
+						-->
+						<script type="text/trimpath" src="#0">
+							{for p in query.results.results.photo}
+							  <a href="http://farm${p.farm}.static.flickr.com/${p.server}/${p.id}_${p.secret}_b.jpg">
+									<img src="http://farm${p.farm}.static.flickr.com/${p.server}/${p.id}_${p.secret}_s.jpg">
+								</a>
+							{/for}
+						</script>
+					</div>
+		  </div>
+		
+	    <div class="yui-u">
+				<div class="box" id="diagnostic">
+					<h1>Diagnostics</h1>
+					
+					<!--
+					This 
+					-->
+					<script type="text/trimpath" src="#0">
+						<p>Build Version: ${query.diagnostics['build-version']}</p>
+						<p>Instructions used: ${query.diagnostics.javascript['instructions-used']}</p>
+						<p>Publicly callable: ${query.diagnostics['publiclyCallable']}</p>
+						<p>Service time: ${query.diagnostics['service-time']}</p>
+						<p>User time: ${query.diagnostics['user-time']}</p>
+					</script>
+				</div>
+		  </div>
+		
+		</div>
+	
+	<!-- Second row -->
+	<div class="yui-g">
+		
+	    <div class="yui-u first">
+				<div class="box" id="log">
+					<h1>Log</h1>
+					<ul>
+					<script type="text/trimpath" src="#0">
+						{for l in query.diagnostics.log}
+							<li>${l}</li>
+						{/for}
+					</script>
+					</ul>
+				</div>
+		  </div>
+	    
+			<div class="yui-u">
+				<div class="box" id="url">
+					<h1>Urls and queries</h1>
+					<ul>
+					<script type="text/trimpath" src="#0">
+						{for u in query.diagnostics.url}
+							{if u.content.substr(0,7) == "http://"}
+							<li><a href="${u.content}" target="_new">${u.content.substr(0,45)}...</a></li>
+							{else}
+							<li>${u.content}</li>
+							{/if}
+						{/for}
+					</script>
+					</ul>
+				</div>
+		  </div>
+		
+	</div>
+	
+	<!-- Third row -->
+	<div class="yui-g">
+		
+				<div class="box" id="tree">
+					<h1>Response Tree</h1>
+					<div id="treeContainer"></div>
+				</div>
+		
+	</div>
+
+	</div>
+	
+	
+  <div id="ft" role="contentinfo"><p>Footer</p></div>
+</div>
+
+<!-- Scripts with type="text/yql" will run on the Yahoo! YQL platform -->
+<script type="text/yql">
+
+	y.log("Hello World");
+
+	var q = "select * from flickr.photos.search where text=\"juggler\"";
+	var query = y.query(q);
+	var json = y.xmlToJson(query.results);
+
+	y.log("Everything's fine");
+
+	response.object = json;
+</script> 
+
+<script type="text/javascript" src="../lib/yui/utilities/utilities.js"></script> 
+<script type="text/javascript" src="../lib/yui/json/json-min.js"></script>
+<script type="text/javascript" src="../lib/trimpath-template-1.0.38.js"></script>
+<script type="text/javascript" src="../js/inputex.js"></script>
+<script type="text/javascript" src="../js/rpc/yql.js"></script>
+<script type="text/javascript" src="../js/widgets/json-tree-inspector.js"></script>
+
+<script>
+// Executed when DOM is loaded
+YAHOO.util.Event.onDOMReady(function() {
+	
+	// This is an example of an additionnal callback, to display a JsonTreeInspector widget from the yql response
+	var callback0 = function(results) {
+		new inputEx.widget.JsonTreeInspector('treeContainer', {query: results.query});
+	};
+	
+   // Call the yql-trimpath-page utility (with a list of callbacks for each "text/yql" script tag)
+   inputEx.YQL.initTrimpathPage([[callback0]]);
+});
+</script>
+
+</body>
+</html>

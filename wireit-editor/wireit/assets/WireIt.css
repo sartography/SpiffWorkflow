@@ -1,0 +1,188 @@
+/**
+ * Wires :
+ */
+
+canvas.WireIt-Wire {
+   position: absolute;
+   border: 0;
+   z-index: 0;
+}
+
+canvas.WireIt-Wire-editing {
+   z-index: 10;
+}
+
+div.WireIt-Wire-scissors {
+   border: 0;
+   position: absolute;
+   z-index: 7;
+   width: 16px;
+   height: 16px;
+   background-color: transparent;
+   background-image: url(cut.png);
+   cursor: pointer;
+}
+
+div.WireIt-Wire-Label {
+	position: absolute;
+	height: auto;
+	width: auto;
+}
+
+/**
+ * Terminals :
+ */
+
+div.WireIt-Terminal {
+   width: 30px;
+   height: 30px;
+   cursor: pointer;   
+   position: absolute;
+   background: transparent url(terminals.png) no-repeat scroll 0 0;
+   z-index: 6;
+}
+
+div.WireIt-Terminal-connected {
+   background-position: 0 -30px;
+}
+
+div.WireIt-Terminal-dropinvite {
+   background-position: 0 -60px;
+}
+
+/**
+ * Containers
+ */
+div.WireIt-Container {
+   position: absolute;
+ 	z-index: 5;
+ 	opacity: 0.8;
+ 	filter: alpha(opacity = 80);
+   border: 0; /* Changing this value causes positioning issues */
+   font-size: 8pt;
+}
+
+div.WireIt-Container div.body {
+   padding: 5px;
+   /*overflow:auto;*/
+ 	border: 2px solid #3366CC;
+ 	background-color: #FFFFFF;
+}
+
+div.WireIt-Container-ddhandle {
+   width: 100%;
+   height: 22px;
+   background-color: #3366CC;
+ 	cursor: move;
+ 	-moz-border-radius-topleft: 5px;
+ 	-moz-border-radius-topright: 5px;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	padding-top: 3px;
+	line-height:150%;
+	color:white;
+	font-weight:bold;
+	text-align:center;
+	font-size: 10pt;
+   float : none;
+} 
+
+div.WireIt-Container-ddhandle span {
+	text-align:center;
+	margin-left:4px;
+	margin-right:25px;
+}
+
+img.WireIt-Container-icon {
+   background: white;
+	float: left;
+	margin: 0 0 0 4px;
+   padding: 1px;
+   border: 1px solid #ccc;
+}
+
+div.WireIt-Container-resizehandle {
+   position: absolute;
+   bottom: 0;
+   right: 0;
+   width: 10px;
+   height: 10px;
+   cursor: se-resize;
+}
+
+div.WireIt-Container-closebutton {
+   background-image: url(cancel.png);
+   width: 16px;
+   height: 16px;
+   position: absolute;
+   top: 4px;
+   right: 4px;
+   cursor: pointer;
+}
+
+div.WireIt-Container-toolbar {
+
+}
+
+.floatleft {
+    float : left;
+}
+
+div.WireIt-Container-focused {
+   z-index: 6;
+   opacity: 1;
+   filter: alpha(opacity = 100);
+}
+
+/**
+ * ImageContainer
+ */
+
+div.WireIt-ImageContainer div.body {	
+	width: 128px;
+	height: 60px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	border: 0;
+	cursor: move;
+}
+
+div.WireIt-ImageContainer div.WireIt-Container-closebutton {
+	display: none;
+}
+div.WireIt-ImageContainer:hover div.WireIt-Container-closebutton {
+	display: block;
+}
+
+/**
+ * InOutContainer
+ */
+
+div.WireIt-InOutContainer {	
+	width: 150px;
+}
+
+div.WireIt-InOutContainer div.body {	
+	padding: 5px 10px;
+	font-size: 10pt;
+}
+ 
+/**
+ * Layers
+ */
+div.WireIt-Layer {
+   border: 0; /* Changing this value causes positioning issues */
+   overflow: scroll;
+   margin: auto;
+   position: relative;
+	height: 100%; 
+	width: 100%;
+	background-color: white;
+}
+
+canvas.WireIt-LayerMap {
+   position: absolute;
+   border: 2px solid #3366CC;
+   top: 0;
+   right: 0;
+}

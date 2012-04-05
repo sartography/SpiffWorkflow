@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+ <head>
+  <title>inputEx - Autocomplete Usage</title>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="../lib/yui/reset-fonts/reset-fonts.css">
+<link rel="stylesheet" type="text/css" href="../lib/yui/container/assets/container.css"> 
+<link rel="stylesheet" type="text/css" href="../lib/yui/assets/skins/sam/skin.css">
+
+<!-- InputEx CSS -->
+<link type='text/css' rel='stylesheet' href='../css/inputEx.css' />
+
+ </head>
+
+ <body>
+
+	<p>Wrapped in a div with float none</p>
+
+	<div style="margin: 50px; border: 1px solid black;">
+
+		<div style="float: left;">
+			<div style="float: none;">
+				<input type="text" />
+			</div>
+		</div>
+
+		<div style="clear: both;"></div>
+
+	</div>
+
+
+	<p>Display inline trick that won't work in IE7</p>
+
+	<div style="margin: 50px; border: 1px solid black;">
+
+		<div style="float: left; display: inline;">
+				<input type="text" />
+		</div>
+
+		<div style="clear: both;"></div>
+
+	</div>
+
+
+ </body>
+</html>

@@ -1,0 +1,8 @@
+{
+   "Results": [
+      {"id":"po-0167", "quantity":1, "amount":4, "title":"A Book About Nothing", "category": "SF"},
+      {"id":"po-0783", "quantity":null, "amount":12.12345, "title":"The Meaning of Life", "category": "Novel"},
+      {"id":"po-0297", "quantity":12, "amount":1.25, "title":"This Book Was Meant to Be Read Aloud", "category": "SF"},
+      {"id":"po-1482", "quantity":6, "amount":3.5, "title":"Read Me Twice", "category": "Philosophy"}
+   ]
+}

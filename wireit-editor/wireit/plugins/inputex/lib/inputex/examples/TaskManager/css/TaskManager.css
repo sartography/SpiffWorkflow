@@ -1,0 +1,71 @@
+
+/**
+ * Main Layout
+ */
+
+#mainPanel {
+   margin: 40px auto;
+   width: 800px;
+   padding: 5px;
+   background-color: #66CC00;
+}
+
+div.title {
+   background-color:#EEFFD6;
+   color:#2C7486;
+   border-bottom: 1px solid #66CC00;
+   padding: 5px;
+}
+
+#taskManager {
+   padding: 10px;
+}
+
+#taskTree {
+   width: 400px;
+   float: left;
+   background-color: white;
+}
+
+#taskDetails {
+   width: 395px;
+   float: right;
+   background-color: white;
+}
+
+#taskInformation, #informations {
+   padding: 10px;
+}
+
+#footer {
+   text-align: center;
+   clear: both;
+   padding-top: 5px;
+}
+#footer a {
+   color: #437100;
+   text-decoration: none;
+}
+
+#footer a:hover {
+   text-decoration: underline;
+}
+
+
+/**
+ * Tree
+ */
+.ygtvcheck0 { background: url(../images/check0.gif) 0 0 no-repeat; width:16px; cursor:pointer; }
+.ygtvcheck1 { background: url(../images/check1.gif) 0 0 no-repeat; width:16px; cursor:pointer; }
+.ygtvcheck2 { background: url(../images/check2.gif) 0 0 no-repeat; width:16px; cursor:pointer; }
+.ygtvspacer { height: 12px; }
+
+
+
+/**
+ * Tasks
+ */
+#taskTreeView a.selectedTask {
+   background-color: yellow;
+}
+

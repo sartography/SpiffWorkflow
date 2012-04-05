@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+ <head>
+  <title>inputEx - YQL-trimpath-page</title>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="../../lib/yui/reset-fonts/reset-fonts.css">
+
+<!-- Demo CSS -->
+<link rel="stylesheet" type="text/css" href="../../examples/css/demo.css"/>
+<link rel="stylesheet" type="text/css" href="../../examples/css/dpSyntaxHighlighter.css">
+
+ </head>
+
+ <body>
+
+<h1>inputEx - YQL-trimpath-page</h1>
+
+<div class='exampleDiv'>
+	<p style="font-size: 85%;"><a href="../../index.html">back to the inputEx library</a><br /><br /></p>
+	
+	<h2>Introduction</h2><br />
+	
+	<p>This utility makes it easy to use the <a href="http://developer.yahoo.com/yql/guide/index.html">Yahoo! Query Language (YQL)</a> from web pages.</p>
+	<p><a href="http://developer.yahoo.com/yql/guide/yql-execute-chapter.html">YQL Execute</a> gives the ability to execute JavaScript on Yahoo!'s platform, with a <a href="http://developer.yahoo.com/yql/guide/yql-javascript-objects.html">very powerful API to query the web</a>.</p><br /><br />
+		
+	<p>We combine this new backend with client-side templating using <a href="http://code.google.com/p/trimpath/wiki/JavaScriptTemplates">Trimpath templates</a>.</p><br /><br />
+	
+	<p>To use this utility, you will need to be familiar with the <a href="http://code.google.com/p/trimpath/wiki/JavaScriptTemplateSyntax">trimpath templates syntax</a> and the <a href="http://developer.yahoo.com/yql/guide/yql-javascript-objects.html">yql api</a>.</p>
+	
+	<p>Furthermore, we provide <a href="../yql-trimpath-page-builder/index.html">an editor</a>, based on YUI Grids CSS builder, to create pages from YQL code + trimpath templates.</p><br /><br />
+	
+	
+	<h2>Demo</h2><br />
+	<p>Here is a custom example: <a href="../../examples/yql-trimpath-page.html">example using a flickr query, YQL logging and diagnostics, and custom javascript handler</a>.</p><br /><br />
+	
+	
+	<h2>Usage</h2><br />
+	<p>Add YQL Execute code in <b>script tags</b> with a <i>type</i> set to <b><i>"text/yql"</i></b>.</p>
+	<p>Add them at the end of your body tag ; This code will run on the Yahoo! YQL platform.</p>
+	<div class='codeContainer'>
+		<textarea name="code" class="xml">
+			<script type="text/yql">
+					y.log("Hello World");
+					var q = "select * from flickr.photos.search where text=\"juggler\"";
+					var query = y.query(q);
+					var json = y.xmlToJson(query.results);
+					y.log("Everything's fine");
+					response.object = json;
+			</script>
+		</textarea>
+	</div>
+	
+	<p>Add templates in your code in <b>script tags</b> with a <i>type</i> set to <b><i>"text/trimpath"</i></b>.</p>
+	<p>The result of this template will be inserted where the script tag is in the dom.</p>
+	<p>The <i>src</i> attribute must be set to the index of the YQL query ("#0" for the first query).</p>
+	<p>In your templates, the results are accessible  through the "query" object.</p>
+	<div class='codeContainer'>
+		<textarea name="code" class="xml">
+			<script type="text/trimpath" src="#0">
+				{for p in query.results.results.photo}
+					<a href="http://farm${p.farm}.static.flickr.com/${p.server}/${p.id}_${p.secret}_b.jpg">
+						<img src="http://farm${p.farm}.static.flickr.com/${p.server}/${p.id}_${p.secret}_s.jpg">
+					</a>
+				{/for}
+			</script>
+		</textarea>
+	</div>
+	<p>You can add multiple template script tags at various places in your dom for the same YQL query.</p>
+	
+	<br /><br />
+	
+	<p>You will also need to install the javascript dependencies : YUI utilities and json, the trimpath-template library, 3 files from inputEx + a line to run the trimpath page utility.</p>
+	<div class='codeContainer'>
+		<textarea name="code" class="xml">
+<script type="text/javascript" src="../lib/yui/utilities/utilities.js"></script> 
+<script type="text/javascript" src="../lib/yui/json/json-min.js"></script>
+<script type="text/javascript" src="../lib/trimpath-template-1.0.38.js"></script>
+<script type="text/javascript" src="../js/inputex.js"></script>
+<script type="text/javascript" src="../js/rpc/yql.js"></script>
+<script type="text/javascript">YAHOO.util.Event.onDOMReady(inputEx.YQL.initTrimpathPage, inputEx.YQL, true);</script>
+		</textarea>
+	</div>
+	
+	<p>You can also add custom javascript handlers for each query (You may want to use widgets for advanced visualization)</p>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript">
+	YAHOO.util.Event.onDOMReady(function () {
+	    // This is an example of an additionnal callback, to display a JsonTreeInspector widget from the yql response
+		var callback0 = function(results) {
+			new inputEx.widget.JsonTreeInspector('treeContainer', {query: results.query});
+		};
+
+		// Call the yql-trimpath-page utility (with a list of callbacks for each "text/yql" script tag)
+		inputEx.YQL.initTrimpathPage([[callback0]]);
+		
+	});
+		</textarea>
+	</div>
+
+
+
+	<h2>Behind the scene</h2><br />
+	
+	<p>We generate a YQL XML through: <a href="http://javascript.neyric.com/yql/">http://javascript.neyric.com/yql/</a>. (<a href="http://javascript.neyric.com/yql/js.php?code=y.log%28%22test%22%29">like this one</a>)</p>
+	
+	<p>Then, we build a YQL query, to use this XML file : (actually the xml file is requested by YQL servers)</p>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript">
+	use 'http://javascript.neyric.com/yql/js.php?code=y.log(%22test%22)' as t; 
+	select * from t;
+		</textarea>
+	</div>
+	
+	<p>We finally get the results of this query through JSON-P.</p><br /><br />
+	
+	<p>Enjoy !</p>
+
+</div>
+
+
+<script src="../../examples/js/dpSyntaxHighlighter.js"></script>
+<script>dp.SyntaxHighlighter.HighlightAll('code');</script>
+
+ </body>
+</html>

@@ -1,0 +1,32 @@
+
+body { background-color: white; margin: 0; padding: 0; font-family:"Trebuchet MS",Helvetica,Arial,Verdana; font-size: 13px; }
+
+p { font-size: 13px; }
+ul li { font-size: 13px; }
+img { border: 0;}
+
+#headbar { background-image: url(logo-inputex.jpg); height: 160px; margin: 0; padding: 0; }
+
+.navigation li { margin: 0; display: inline; margin-right: 30px;}
+.navigation li a { color: #999999; text-decoration: none;	font-size: 14px; }
+.navigation li a:hover { color: #cccc33; text-decoration: underline; }
+
+
+.layout { width: 70%; text-align: left; }
+.layout td.left { width: 55%;}
+.layout td.right { width: 45%;}
+.layout td.left, .layout td.right {	padding: 15px 30px; vertical-align: top;}
+
+p.title { font-weight: bold; font-size: 22px; }
+ul.starlist { list-style-image: url(star.png); }
+
+div.appBox { width: 100%; height: 144px; position: relative; margin-top: 10px;}
+div.appBox p { position: absolute; left: 160px; top: 10px; font-size: 18px; text-decoration: none;}
+div.appBox a {	text-decoration: none; }
+div.appBox p span { color: #aaa;	font-size: 12pt; }
+div.appBox p span.big {	color: #ffb73e; font-size: 20pt;	font-weight: bold; }
+
+div.exampleGroup { border: 1px solid #ccc; margin: 20px; -moz-border-radius: 15px; -webkit-border-radius: 15px; }
+div.exampleGroup h2 {	margin: 10px;	}
+div.exampleSection { float: left;	width: 30%;	padding: 10px; }
+div.exampleSection h3 {	color: #888; margin: 5px;	font-size: 130%; }

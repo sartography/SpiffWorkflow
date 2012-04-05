@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+ <head>
+  <title>inputEx - DDList Widget Usage</title>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="../lib/yui/reset-fonts/reset-fonts.css">
+<link rel="stylesheet" type="text/css" href="../lib/yui/container/assets/container.css"> 
+<link rel="stylesheet" type="text/css" href="../lib/yui/assets/skins/sam/skin.css">
+
+<!-- InputEx CSS -->
+<link type='text/css' rel='stylesheet' href='../css/inputEx.css' />
+
+<!-- Demo CSS -->
+<link rel="stylesheet" type="text/css" href="css/demo.css"/>
+<link rel="stylesheet" type="text/css" href="css/dpSyntaxHighlighter.css">
+
+
+<style>
+#numberedList li {
+	list-style-type:decimal;
+	margin-left:20px;
+}
+</style>
+
+ </head>
+
+ <body>
+
+<h1>inputEx - DDList Widget Usage</h1>
+
+<!-- YUI Library -->
+<script type="text/javascript" src="../lib/yui/utilities/utilities.js"></script>
+
+<!-- InputEx -->
+<script src="../js/inputex.js"  type='text/javascript'></script>
+<script src="../js/Field.js"  type='text/javascript'></script>
+<script src="../js/widgets/ddlist.js" type='text/javascript'></script>
+
+
+<script src="js/dpSyntaxHighlighter.js"></script>
+<script src="inputex-examples.js"></script>
+
+
+
+<!-- Example 1 -->
+<div class='exampleDiv'>
+ <h2>Basic DDList Widget creation</h2>
+ <p>Use the following code to create a basic inputEx DDList Widget</p>
+ <div class='demoContainer' id='container1'></div>
+ <div class='codeContainer'>
+  <textarea name="code" class="JScript">
+	new inputEx.widget.DDList({
+		parentEl: 'container1', 
+		value: ["I was in first position !", "I'm second.", "Third element"]
+	});
+  </textarea>
+ </div>
+</div>
+
+
+
+<!-- Example 2 -->
+<div class='exampleDiv'>
+ <h2>Returned value</h2>
+ <p>The returned value is an array</p>
+ <div class='demoContainer' id='container2'></div>
+ <div class='codeContainer'>
+  <textarea name="code" class="JScript">
+		var list = new inputEx.widget.DDList({
+			parentEl: 'container2', 
+			value: ["I was in first position !", "I'm second.", "Third element"]
+		});
+		
+		var onUpdate = function() {
+			YAHOO.util.Dom.get('container2').appendChild( inputEx.cn("div", null, null, "Value: ["+list.getValue()+"]") );
+		};
+		list.itemRemovedEvt.subscribe(onUpdate);
+		list.listReorderedEvt.subscribe(onUpdate);
+  </textarea>
+ </div>
+</div>
+
+
+
+<!-- Example 3 -->
+<div class='exampleDiv'>
+ <h2>Change returned value</h2>
+ <p>By providing an object containing label and value attributes</p>
+ <div class='demoContainer' id='container3'></div>
+ <div class='codeContainer'>
+  <textarea name="code" class="JScript">
+		var items= [
+			{label: "I was in first position !", value: 1}, 
+			{label: "I'm second.", value: 2},
+			{label: "Third element", value: 3}
+		];
+		var list = new inputEx.widget.DDList({parentEl: 'container3', value: items});
+		var onUpdate = function() {
+			YAHOO.util.Dom.get('container3').appendChild( inputEx.cn("div", null, null, "Value: ["+list.getValue()+"]") );
+		};
+		list.itemRemovedEvt.subscribe(onUpdate);
+		list.listReorderedEvt.subscribe(onUpdate);
+  </textarea>
+ </div>
+</div>
+
+
+
+<!-- Example 4 -->
+<div class='exampleDiv'>
+ <h2>Numbered list</h2>
+ <p>Display the item # by changing CSS style only :</p>
+ <div class='demoContainer' id='container4'></div>
+ <div class='codeContainer'>
+  <textarea name="code" class="JScript">
+		new inputEx.widget.DDList({
+			id:'numberedList', 
+			parentEl: 'container4', 
+			value: ['I was in first position !', 'I\'m second.', 'Third element']
+		});
+  </textarea>
+ </div>
+</div>
+
+
+
+<!-- Example 5 -->
+<div class='exampleDiv'>
+ <h2>itemRemoved Event</h2>
+ <p>Use the following code to listen for the itemRemoved Event:</p>
+ <div class='demoContainer' id='container5'></div>
+ <div class='codeContainer'>
+  <textarea name="code" class="JScript">
+		var list = new inputEx.widget.DDList({
+			parentEl: 'container5', 
+			value: ['I was in first position !', 'I\'m second.', 'Third element']
+		});
+		list.itemRemovedEvt.subscribe(function() {
+				alert("removed !");
+		});
+  </textarea>
+ </div>
+</div>
+
+
+
+<!-- Example 6 -->
+<div class='exampleDiv'>
+ <h2>listReordered Event</h2>
+ <p>Use the following code to listen for the listReordered Event:</p>
+ <div class='demoContainer' id='container6'></div>
+ <div class='codeContainer'>
+  <textarea name="code" class="JScript">
+		var list = new inputEx.widget.DDList({
+			parentEl: 'container6',
+			value: ['I was in first position !', 'I\'m second.', 'Third element']
+		});
+		list.listReorderedEvt.subscribe(function() {
+				alert("reordered !");
+		});
+  </textarea>
+ </div>
+</div>
+
+
+
+
+<!-- Example 7 -->
+<div class='exampleDiv'>
+ <h2>Styling</h2>
+ <p>Let's style the list !</p>
+ <div class='demoContainer' id='container7'></div>
+ <div class='codeContainer'>
+  <style>
+	#myList li {-moz-border-radius:7px; background-color:#EEEEEE; border:0 none; margin:5px; text-align: center;}
+  </style>
+  <textarea name="code" class="JScript">
+		var list = new inputEx.widget.DDList({
+			parentEl: 'container7',
+			id: 'myList',
+			value: ['I was in first position !', 'I\'m second.', 'Third element']
+		});
+  </textarea>
+ </div>
+</div>
+
+<!-- Example 8 -->
+<div class='exampleDiv'>
+ <h2>Options</h2>
+ <p>Same list without "remove" link</p>
+ <div class='demoContainer' id='container8'></div>
+ <div class='codeContainer'>
+  <style>
+	#myList li {-moz-border-radius:7px; background-color:#EEEEEE; border:0 none; margin:5px; text-align: center;}
+  </style>
+  <textarea name="code" class="JScript">
+		var list = new inputEx.widget.DDList({
+			parentEl: 'container8',
+			id: 'myList',
+			allowDelete: false,
+			value: ['I was in first position !', 'I\'m second.', 'Third element']
+		});
+  </textarea>
+ </div>
+</div>
+
+
+ </body>
+</html>

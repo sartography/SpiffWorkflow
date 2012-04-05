@@ -1,0 +1,222 @@
+{
+	"SMDVersion":"2.0",
+	"id":"http://www.geonames.org/export/JSON-webservices.html",
+	"transport":"JSONP",
+	"envelope":"URL",
+	"target": "http://ws.geonames.org/",
+   
+   "additionalParameters": true,
+	"parameters" : [ 
+		{"name":"type", "optional": false, "default":"JSON"}
+	],
+	"callbackParamName": "callback",
+
+	"services":{
+		"getCountryInfo":{
+			"description": "returns info about a country such as name, population, etc.",
+			"target": "countryInfoJSON",
+			"parameters": [
+				{ "name": "country", "type":"string", "optional": true, "default": "FR", "_inputex": {"label": "Country code"}  },
+				{ "name": "lang", "type":"string",  "enum":["en", "de", "fr", "it", "es"], "default": "en", "_inputex": {"label": "Lang"} },
+				{ "name": "maxRows", "type":"integer", "optional": true, "default": 10 }
+			]	
+		},
+
+		"getCities":{
+			"description": "returns a list of cities and placenames in the bounding box",
+			"target": "citiesJSON",
+			"parameters": [
+				{ "name": "north", "type":"float"},
+				{ "name": "south", "type":"float"},
+				{ "name": "east", "type":"float"},
+				{ "name": "west", "type":"float"},
+				{ "name": "lang", "type":"string", "default": "en"},
+				{ "name": "maxRows", "type":"integer", "optional": true, "default": 10 }
+			]	
+		},
+
+		"getQuakes":{
+			"description": "returns a list of earthquakes, ordered by magnitude",
+			"target" : "earthquakesJSON",
+			"parameters" : [
+				{ "name": "north", "type":"float" },
+				{ "name": "south", "type":"float" },
+				{ "name": "east", "type":"float" },
+       				{ "name": "west", "type":"float" },
+				{ "name": "date", "type":"string","optional": true },
+				{ "name": "minMagniture", "type":"integer","optional": true },
+				{ "name": "maxRows", "type":"integer", "optional": true, "default": 10 }
+			]
+		},
+
+		"getWeather":{
+			"description": "Weather data is provided in the METAR (METeorological Aerodrome Report) format. returns a list of weather stations with the most recent weather observation",
+			"target" : "weatherJSON",
+			"parameters" : [
+				{ "name": "north", "type":"float" },
+				{ "name": "south", "type":"float" },
+				{ "name": "east", "type":"float" },
+				{ "name": "west", "type":"float" },
+				{ "name": "maxRows", "type":"integer","optional":true, "default": 10 }
+			]
+		},
+
+		"getWeatherByICAO":{
+			"description": "returns the weather station and the most recent weather observation for the ICAO code",
+			"target": "weatherIcaoJSON",
+			"parameters": [
+				{ "name":"ICAO", "type":"string" }
+			]
+		},
+
+		"getWeatherByCoords":{
+			"description": "returns a weather station with the most recent weather observation",
+			"target": "findNearByWeatherJSON",
+			"parameters": [
+				{ "name":"lat", "type":"float" },
+				{ "name":"lng", "type":"float" }
+			]
+		},
+
+		"getChildren":{
+         "description": "Returns the children for a given geonameId. The children are the administrative divisions within an other administrative division. Like the counties (ADM2) in a state (ADM1) or also the countries in a continent.",
+         "target": "childrenJSON",
+			"parameters": [
+				{ "name":"geonameId", "type":"integer" }
+			]
+		},
+
+		"getHierarchy":{
+			"description": "returns a list of GeoName records, ordered by hierarchy level. The top hierarchy (continent) is the first element in the list",
+			"target": "hierarchyJSON",
+			"parameters": [
+				{ "name":"geonameId", "type":"integer" }
+			]
+		},
+
+		"getNeighbours":{
+			"description": "The neighbourhood for US cities. Data provided by Zillow under cc-by-sa license.",
+			"target":"neighboursJSON",
+			"parameters": [
+				{ "name":"geonameId", "type":"integer" },
+            { "name":"lat", "type":"float" },
+            { "name":"long", "type":"float" }
+			]
+		},
+
+		"getNeighbourhood":{
+			"description": "returns the neighbourhood for the given latitude/longitude.Example http://ws.geonames.org/neighbourhood?lat=40.78343&lng=-73.96625",
+			"target":"neighbourhoodJSON",
+			"parameters":[
+				{ "name":"lat", "type":"float" },
+				{ "name":"lng", "type":"float" },
+				{ "name":"radius", "type":"float" } 
+			]
+		},
+
+		"getSiblings":{
+			"description": "returns a list of GeoNames records that have the same administrative level and the same father",
+			"target":"siblingsJSON",
+			"parameters": [
+				{ "name":"geonameId", "type":"integer" }
+			]
+		},
+
+		"getCountryCode":{
+			"description": "returns the iso country code for the given latitude/longitude With the parameter type=xml this service returns an xml document with iso country code and country name. The optional parameter lang can be used to specify the language the country name should  be in. JSON output is produced with type=JSON",
+			"target":"countryCode",
+			"parameters": [
+				{ "name":"lat", "type":"float" },
+				{ "name":"lng", "type":"float" },
+				{ "name":"lang", "type":"string","optional":true }, 
+				{ "name":"radius", "type":"float" }
+			]
+		},
+
+		"getCountrySubdivision":{
+			"description": "returns the country and the administrative subdivison (state, province,...) for the given latitude/longitude Example http://ws.geonames.org/countrySubdivisionJSON?lat=47.03&lng=10.2",
+			"target":"countrySubdivisionJSON",
+			"parameters":[
+				{ "name":"lat", "type":"float" },
+				{ "name":"long", "type":"float" },
+				{ "name":"radius", "type":"float" }
+			]
+                }, 
+
+		"getWikipediaBoundingBox":{
+			"description": "returns the wikipedia entries within the bounding box as xml document Example http://ws.geonames.org/wikipediaBoundingBoxJSON?north=44.1&south=-9.9&east=-22.4&west=55.2",
+			"target":"wikipediaBoundingBoxJSON",
+			"parameters":[
+				{ "name": "north", "type":"float" },
+				{ "name": "south", "type":"float" },
+				{ "name": "east", "type":"float" },
+				{ "name": "west", "type":"float" },
+				{ "name": "lang", "type":"string","optional":true, "default": "en" }, 
+				{ "name": "maxRows", "type":"integer","optional":true, "default": 10}
+         ]
+      },
+
+		"searchWikipedia":{
+			"description": "returns the wikipedia entries found for the searchterm as xml document Example http://ws.geonames.org/wikipediaSearchJSON?q=london&maxRows=10",
+			"target":"wikipediaSearchJSON",
+			"parameters":[
+				{ "name": "q", "type":"string", "label": "Place name" }, 
+				{ "name": "title", "type":"string", "optional": true },
+				{ "name": "lang", "type":"float","optional":true, "default": "en" }, 
+				{ "name": "maxRows", "type":"integer","optional":true, "default": 10 }
+			]
+		},
+
+		"getTimezone":{
+         "description": "the timezone at the lat/lng with gmt offset (1. January) and dst offset (1. July)",
+         "target":"timezoneJSON",
+			"parameters":[
+				{ "name":"lat", "type":"float" },
+				{ "name":"lng", "type":"float" }
+			]
+		},
+
+		"search":{
+          "description": "returns the names found for the searchterm as xml or json document, the search is using an AND operator",
+          "target":"searchJSON",
+			 "parameters":[
+				{ "name":"q", "type":"string" },
+				{ "name":"name", "type":"string" },
+				{ "name":"name_equals", "type":"string" },
+				{ "name":"maxRows", "type":"integer","optional":true }, 
+				{ "name":"startRow", "type":"integer","optional":true },
+				{ "name":"country", "type":"string","optional":true },
+				{ "name":"featureClass", "type":"string","optional":true},
+				{ "name":"featureCode", "type":"string","optional":true},
+				{ "name":"lang", "type":"string","optional":true},
+				{ "name":"type", "type":"string","optional":true, "default":"json"},
+				{ "name":"style", "type":"string","optional":true },
+				{ "name":"isNamedRequired", "type":"boolean", "optional":true }
+			]
+		},
+
+		"postalCodeLookup":{
+			"description": "returns a list of places for the given postalcode in JSON format Example http://ws.geonames.org/postalCodeLookupJSON?postalcode=6600&country=AT",
+			"target":"postalCodeLookupJSON",
+			"parameters":[
+				{ "name":"postalcode", "type":"string" },
+				{ "name":"country", "type":"string","optional":true},
+				{ "name":"maxRows", "type":"integer", "optional":true },
+				{ "name":"charset", "type":"string","optional":true, "default": "utf-8" }
+			]
+		},
+
+      "postalCodeSearch":{
+         "target":"postalCodeSearchJSON",
+			"parameters":[
+				{ "name":"postalcode", "type":"string","optional":true},
+				{ "name":"placename", "type":"string","optional":true },
+				{ "name":"country", "type":"string","optional":true},
+				{ "name":"style", "type":"string","optional":true},
+				{ "name":"maxRows", "type":"integer","optional":true},
+            { "name":"charset", "type":"string","optional":true}
+         ]
+      }
+                
+	} 
+}

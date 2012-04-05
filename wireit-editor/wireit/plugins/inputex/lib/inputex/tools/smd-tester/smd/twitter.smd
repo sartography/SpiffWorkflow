@@ -1,0 +1,19 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://twitter.com/", 
+	"description": "Twitter API",
+
+   "target": "http://twitter.com/statuses",
+	"transport": "JSONP",
+	"envelope": "PATH",
+   "callbackParamName": "callback",
+
+	"services": {	
+		"user_timeline": {
+		   "parameters": [
+				{ "name": "user_timeline", "type": "string", "optional": false, "default": "14613655.json", "_inputex": {"label": "Twitter User ID", "description": "This is a bit hacky, and should finish by .json"} }
+			]
+		}
+   }
+	
+}

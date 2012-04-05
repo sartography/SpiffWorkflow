@@ -1,0 +1,22 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://en.wikipedia.org/w/api.php",
+	"description": "Wikipedia API",
+
+	"transport": "JSONP",
+	"envelope": "URL",
+	"additionalParameters": true,
+	"target": "http://en.wikipedia.org/w/api.php",
+	"parameters": [
+		{ "name": "format", "optional": false, "default": "json" }
+	],
+
+	"services": {
+		"query": {
+			"parameters": [
+				{ "name": "action", "type": "string", "default": "parse" }
+			]
+		}
+
+	}
+}

@@ -1,0 +1,38 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://developer.yahoo.com/search/", 
+	"description": "Yahoo's search API",
+
+	"transport": "JSONP",
+	"envelope": "URL",
+	
+	"additionalParameters": true,
+	"parameters": [
+		{ "name": "appid", "optional": false, "default": "dojotoolkit" },
+		{ "name": "output", "optional": false, "default": "json" }
+	],
+   "callbackParamName": "callback",
+
+	"services": {
+												
+			"questionSearch": {
+			"target": "http://answers.yahooapis.com/AnswersService/V1/questionSearch",
+			"parameters": [
+				{ "name": "query", "type": "string", "optional": false, "_inputex": {"description":"Example: 'moon'"} },
+				{ "name": "search_in", "type": "string", "optional": true, "default": "all", "enum":["all", "question", "best_answer"] },
+				{ "name": "category_id", "type": "integer", "optional": true, "default": null },
+				{ "name": "category_name", "type": "string", "optional": true, "default": null },
+				{ "name": "region", "type": "string", "optional": true, "default": "us", "enum":["us", "uk", "ca", "au", "in", "es", "br", "ar", "mx", "e1", "it", "de", "fr", "sg"] },
+				{ "name": "date_range", "type": "string", "optional": true, "default": "all", "enum": ["all", "7", "7-30", "30-60", "60-90", "more90"], "options": [{"value": "all", "label": "Anytime"}, {"value": "7", "label":"Within 7 days"}, {"value":"7-30", "label": "Within 7-30 days"},{"value":"30-60", "label": "Within 30-60 days"}, {"value": "60-90", "label": "Within 60-90 days"}, {"value":"more90", "label":"More than 90 days"}] },
+				{ "name": "sort", "type": "string", "optional": true, "default": "relevance", "enum": ["relevance", "date_desc", "date_asc"], "options": [{"value":"relevance","label":"By relevance"},{"value":"date_desc","label":"By date, newest first"},{"value":"date_asc","label":"By date, oldest first"} ]},
+				{ "name": "type", "type": "string", "optional": true, "default": "all", "enum":["all", "resolved", "open", "undecided"] },
+				{ "name": "start", "type": "integer", "optional": true, "default": 0 },
+				{ "name": "results", "type": "integer", "optional": true, "default": 10 } 			
+			]
+		}
+
+   }
+	
+}
+
+

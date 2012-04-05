@@ -1,0 +1,20 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://json-head.appspot.com/", 
+	"description": "JSON Head",
+		
+	"target": "http://json-head.appspot.com/",
+	"transport": "JSONP",
+	"envelope": "URL",
+	"callbackParamName": "callback",
+
+	"services": {
+	   
+		"head": {
+			"parameters": [
+			   { "name": "url", "type":"string", "default": "http://www.google.com/", "_inputex": {"label": "Url"} }
+			]
+		}
+		
+	}
+}

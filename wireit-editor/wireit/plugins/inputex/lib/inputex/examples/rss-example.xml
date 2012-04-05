@@ -1,0 +1,1229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="http://feeds.feedburner.com/~d/styles/rss2full.xsl" type="text/xsl" media="screen"?><?xml-stylesheet href="http://feeds.feedburner.com/~d/styles/itemcontent.css" type="text/css" media="screen"?><rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0" version="2.0">
+
+<channel>
+	<title>Ajaxian » Front Page</title>
+	
+	<link>http://ajaxian.com</link>
+	<description>Cleaning up the web with Ajax</description>
+	<pubDate>Wed, 15 Oct 2008 11:16:06 +0000</pubDate>
+	<generator>http://wordpress.org/?v=2.6</generator>
+
+	<language>en</language>
+			<atom10:link xmlns:atom10="http://www.w3.org/2005/Atom" rel="self" href="http://ajaxian.com/index.xml" type="application/rss+xml" /><feedburner:browserFriendly>This is an XML content feed. It is intended to be viewed in a newsreader or syndicated to another site, subject to copyright and fair use.</feedburner:browserFriendly><item>
+		<title>Non-Euclidean Browser UI</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/421474894/non-euclidean-browser-ui</link>
+		<comments>http://ajaxian.com/archives/non-euclidean-browser-ui#comments</comments>
+		<pubDate>Wed, 15 Oct 2008 11:16:06 +0000</pubDate>
+
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Browsers]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[UI]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4770</guid>
+		<description><![CDATA[
+The video above by Ron Brinkmann is his mockup of a non-euclidean browser UI which looks a touch like the magnifying glass tool on the iPhone, and aims to give you your data in a readable way, while still showing the larger context:
+
+The reason why I think an interface like this can be superior in [...]]]></description>
+
+			<content:encoded><![CDATA[<p><object width="480" height="482"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=1478902&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=01AAEA&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=1478902&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=01AAEA&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="480" height="482"></embed></object></p>
+<p>The video above by Ron Brinkmann is his mockup of a <a href="http://digitalcomposting.wordpress.com/2008/08/08/non-euclidean-user-interfaces-2/">non-euclidean browser UI</a> which looks a touch like the magnifying glass tool on the iPhone, and aims to give you your data in a readable way, while still showing the larger context:</p>
+<blockquote><p>
+The reason why I think an interface like this can be superior in many ways is that it allows you to specify an area of interest where you get full, detailed information yet you can still see the full document/page/object at the same time.  Which means that one is able to avoid the zoom(in/out)-scroll-zoom(in/out)-scroll paradigm that you often get stuck in when using, for example, the iphone.   In many ways it gives the user an analogue to the way peripheral vision works in the ‘real world’.  You have an area of interest that you can focus on but then you’re also aware of the surroundings and glean information from that as well.</p>
+<p>(The mockup I did above just shows a single point-of-interest but it’s certainly expandable to multiple points if you’ve got a touchscreen or other such device.  And there’s all sort of little refinements you’d want to implement if you really wanted to make it swank - drag&#038;drop from one place to another might want to keep the source area zoomed but also follow the dragged object with a zoom-region until you get to the appropriate destination. This all gets even sexier once eye-tracking becomes more available - the area you’re looking at would bubble up to full resolution but you’d still be able to quickly scan the entire page and re-target the area of interest.  Somebody get busy on this, okay?)
+</p></blockquote>
+<p>In his post, Ron then shows other subtle examples, such as mapping this to peripheral vision.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=oTqaM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=oTqaM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=HRvKM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=HRvKM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=81tsm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=81tsm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/non-euclidean-browser-ui/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/non-euclidean-browser-ui</feedburner:origLink></item>
+		<item>
+		<title>Using JavaScript to make things work</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/421452621/using-javascript-to-make-things-work</link>
+		<comments>http://ajaxian.com/archives/using-javascript-to-make-things-work#comments</comments>
+
+		<pubDate>Wed, 15 Oct 2008 10:31:21 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[JavaScript]]></category>
+
+		<category><![CDATA[jQuery]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4772</guid>
+
+		<description><![CDATA[An interesting top 12 list has been published, on using Javascript to fix 12 common browser headaches:
+
+
+Setting Equal Heights (jQuery example: $("#col1, #col2").equalizeCols();)
+IE6 PNG Alpha Transperancy support
+Changing CSS Classes in JavaScript
+Browser selectors in CSS ($('html').addClass($.browser);)
+min-/max- height &#038; width support
+Center Elements Vertically / Horizontally
+Display Q tags in Internet Explorer
+Increase the size of click targets and get [...]]]></description>
+			<content:encoded><![CDATA[<p>An interesting top 12 list has been published, on <a href="http://www.noupe.com/css/using-javascript-to-fix-12-common-browser-headaches.html">using Javascript to fix 12 common browser headaches</a>:</p>
+<p><img src="http://noupe.com/img/jquery9.jpg" /></p>
+<ol>
+<li>Setting Equal Heights (jQuery example: <code>$("#col1, #col2").equalizeCols();</code>)</li>
+<li>IE6 PNG Alpha Transperancy support</li>
+<li>Changing CSS Classes in JavaScript</li>
+<li>Browser selectors in CSS (<code>$('html').addClass($.browser);</code>)</li>
+<li>min-/max- height &#038; width support</li>
+<li>Center Elements Vertically / Horizontally</li>
+<li>Display Q tags in Internet Explorer</li>
+<li>Increase the size of click targets and get more call-to-action conversions</li>
+<li>Lazy loader</li>
+<li>bgiframe: Helps ease the pain when having to deal with IE z-index issues.</li>
+<li>ieFixButtons: fixes the buggy behavior of the <button> element in Internet Explorer 6 and 7</button></li>
+<li>Fix Overflow</li>
+</ol>
+<p>As you will see, most of the solutions are jQuery plugins, but you could roll your own.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=3axzM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=3axzM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=sNHAM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=sNHAM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=wyEhm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=wyEhm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/using-javascript-to-make-things-work/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/using-javascript-to-make-things-work</feedburner:origLink></item>
+		<item>
+		<title>Firefox 3.1 beta: Geolocation, @font-face, Video and Audio, XHR++, and TraceMonkey</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/421219043/firefox-31-beta-geolocation-font-face-video-and-audio-xhr-and-tracemonkey</link>
+
+		<comments>http://ajaxian.com/archives/firefox-31-beta-geolocation-font-face-video-and-audio-xhr-and-tracemonkey#comments</comments>
+		<pubDate>Wed, 15 Oct 2008 05:01:58 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Browsers]]></category>
+
+		<category><![CDATA[Firefox]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4767</guid>
+		<description><![CDATA[Isn't it great that a browser point release these days adds so many features? We are starting to see this from Firefox, Opera, WebKit and others, and it is exciting!
+The Firefox 3.1 beta 1 release has a slew of features that developers have been craving:
+Geolocation
+The labs team got Geode out there, and quickly we have [...]]]></description>
+			<content:encoded><![CDATA[<p>Isn't it great that a browser point release these days adds so many features? We are starting to see this from Firefox, Opera, WebKit and others, and it is exciting!</p>
+<p>The <a href="http://developer.mozilla.org/web-tech/2008/10/14/firefox-31-beta-1-an-overview-of-features-for-web-developers/">Firefox 3.1 beta 1 release</a> has a slew of features that developers have been craving:</p>
+<p><b>Geolocation</b></p>
+<p>The labs team got Geode out there, and quickly we have seen the addition of the <a href="http://dev.w3.org/geo/api/spec-source.html">W3C Geolocation API</a> added to the Firefox core. I can test <a href="http://almaer.com/whereareyou">Where Are You</a> with a native implementation.</p>
+<p><b>@font-face</b></p>
+<p><img src="http://farm4.static.flickr.com/3174/2942234212_a06a054b38_o.jpg" /></p>
+<p>WebKit lead with their @font-face implementation, and getting browser #2 to support it is huge. Now you can load up a font using same-origin rules via simple CSS:</p>
+<div class="igBar"><a href="javascript:showCodeTxt('css-2');">PLAIN TEXT</a></div>
+<div class="syntax_hilite"><span style="color:#000000; font-weight:bold;">CSS:</span>
+<div id="css-2">
+<div class="css">
+<ol>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color: #a1a100;">@font-face {</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color: #000000; font-weight: bold;">font-family</span>: <span style="color: #ff0000;">"Bitstream Vera Serif Bold"</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; src: <span style="color: #993333;">url</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #ff0000;">"http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf"</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color:#006600; font-weight:bold;">&#125;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<p><b>Video and Audio</b></p>
+<p>We now have lots of <a href="http://www.double.co.nz/video_test/">examples</a> testing out the video and audio tags with support for both OGG Theora and OGG Vorbis.</p>
+<p>This is something that the Web really needs to work out. The codec game is far from Open, and with native support we get to do cool things such as integrating media with canvas, svg, and plain old HTML. Take a video, add transparency, and skew it a little.... and add an overlay message.</p>
+<p><b>XHR Updates</b></p>
+<blockquote><p>
+<strong>XHR Progress Notification</strong></p>
+<p>We’ve added a better way to get progress notifications for XML HTTP Requests.  We’ve implemented the <a href="http://dev.w3.org/2006/webapi/progress/Progress.html">W3C Draft Spec</a> on progress events.  In Firefox 3 the events available on the <a href="http://developer.mozilla.org/En/XMLHttpRequest">XHR object</a> were progress, uploadprogress, load, abort and error.  For 3.1 we now support the loadstart, progress, load, abort and error events.  (uploadprogress is also supported, but is deprecated.)</p>
+<p>There’s a <a href="http://mozilla.pettay.fi/xhr_upload/xhr_upload_demo.html">great example of the new progress events by Olli Pettay</a>.  It’s very simple and does everything in a single script.</p>
+<p><strong>XHR Cross-site Access Control</strong></p>
+<p>We’ve implemented the <a href="http://dev.w3.org/2006/waf/access-control/">draft specification for access-control for cross-site requests</a>.&nbsp; Web developers have long wanted to be able to get data from one site on another but <a href="http://en.wikipedia.org/wiki/Same_origin_policy">same-origin restrictions</a> on many types of requests prevent many developers from mashing up content.&nbsp; This new access control mechanism offers the ability for servers, content and web clients to cooperate to make a lot of new things possible on an opt-in basis.&nbsp; The spec is complex, and support is new, so if you’re interested reading <a href="http://dev.w3.org/2006/waf/access-control/">the spec</a> is probably the best thing to do.&nbsp; It contains examples and uses cases.</p>
+</blockquote>
+<p><b>Fast JavaScript VM</b></p>
+<p>An early version of TraceMonkey is here:</p>
+<blockquote>
+<p>Beta 1 does include <a href="https://wiki.mozilla.org/JavaScript:TraceMonkey">TraceMonkey, our super-fast JavaScript engine</a>, but it’s not turned on by default.&nbsp; If you do want to turn it on, go to <code>about:config</code>, set <code>javascript.options.jit.content</code> to <code>True</code>, restart your browser and try it out.</p>
+<p>This is an early beta, of course, so there will be issues.  Please <a href="http://bugzilla.mozilla.org/">file bugs</a> if you find sites that don’t work or cause crashes or hangs.  The more testing we get, the better it will be when we turn it on.</p>
+</blockquote>
+<p>Phew, good times for browsers == good times for Web developers.</p>
+<p><b>UPDATE</b></p>
+<p>More browser news, <a href="http://www.flock.com/">Flock 2.0</a> is out there, providing a very social browsing experience.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=d490M"><img src="http://feeds.feedburner.com/~f/ajaxian?i=d490M" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=ZC1UM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=ZC1UM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=lKXLm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=lKXLm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/firefox-31-beta-geolocation-font-face-video-and-audio-xhr-and-tracemonkey/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/firefox-31-beta-geolocation-font-face-video-and-audio-xhr-and-tracemonkey</feedburner:origLink></item>
+		<item>
+		<title>Open Web Podcast - Episode 5: Ryan Stewart of Adobe</title>
+
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/420551733/owp5-ryan-stewart-of-adobe</link>
+		<comments>http://ajaxian.com/archives/owp5-ryan-stewart-of-adobe#comments</comments>
+		<pubDate>Tue, 14 Oct 2008 13:45:06 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Adobe]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[OpenWebPodcast]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4755</guid>
+		<description><![CDATA[Ryan Stewart of Adobe joined us for episode 5 of the Open Web Podcast. We really want to be pragmatic Open Web citizens, so thought it would be good to hear from Ryan and get his point of view on what Adobe, and he, are thinking with respect to the Web as a-whole. 
+You can [...]]]></description>
+			<content:encoded><![CDATA[<p>Ryan Stewart of Adobe <a href="http://openwebpodcast.com/episode-5-ryan-stewart-of-adobe">joined us for episode 5 of the Open Web Podcast</a>. We really want to be pragmatic Open Web citizens, so thought it would be good to hear from Ryan and get his point of view on what Adobe, and he, are thinking with respect to the Web as a-whole. </p>
+<p>You can <a href="http://open-web-podcast.googlecode.com/files/openwebpodcast-20081014.mp3">download the podcast directly</a> (<a href="http://open-web-podcast.googlecode.com/files/openwebpodcast-20081014.ogg">OGG format too</a>), or <a href="http://feeds.feedburner.com/OpenWebPodcast">subscribe to the series</a>, including via <a href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewPodcast?id=287711499">iTunes</a>).</p>
+<p>We had a really fun chat, which had us discussing:</p>
+<ul>
+<li>Adobe's view of the Web</li>
+<li>Silverlight, and Alex's quote of the show: "Microsoft can't write JavaScript." Ah, come on, what about Scott Isaacs!</li>
+<li>Ctrl/Cmd-R is the "Make All" of the Web, and Flex</li>
+<li>ECMAScript, ActionScript, and the path forward</li>
+<li>Video: A huge Flash advantage. Where does the video tag fit in? John pointed us to the <a href="http://barelyfocused.net/blog/2008/10/03/flash-vorbis-player/">experimental vorbis support via haXe</a></li>
+<li>AIR: Ryan talked about how he sees AIR fitting into the landscape, and how he personally would love to see Geolocation APIs added</li>
+<li>Open Source: Ryan shares his insight on the experience Adobe has gotten from their Open Source projects (Tamarin, Flex, ...)</li>
+</ul>
+<p>It was a real pleasure to have Ryan come into the lions den. He is very honest with what he does and doesn't know from within, and doesn't hold back on his own thoughts.</p>
+<p>What would you like to ask Adobe?</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=RzJVM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=RzJVM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=BDnWM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=BDnWM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=LY4ym"><img src="http://feeds.feedburner.com/~f/ajaxian?i=LY4ym" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/owp5-ryan-stewart-of-adobe/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/owp5-ryan-stewart-of-adobe</feedburner:origLink></item>
+
+		<item>
+		<title>Runtime Page Optimizer: Fix performance on the fly</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/420529160/runtime-page-optimizer</link>
+		<comments>http://ajaxian.com/archives/runtime-page-optimizer#comments</comments>
+		<pubDate>Tue, 14 Oct 2008 13:11:22 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+
+		
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[Performance]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4753</guid>
+		<description><![CDATA[Steve Souders posted on Runtime Page Optimizer a tool that you can think of as a performance proxy. It sits on the server side, and cleans up content before it is sent back to the browser.
+What can it do? Steve let us know:
+
+RPO automatically implements many of the best practices from my book and YSlow, [...]]]></description>
+			<content:encoded><![CDATA[<p>Steve Souders posted on <a href="http://www.stevesouders.com/blog/2008/10/12/runtime-page-optimizer/">Runtime Page Optimizer</a> a tool that you can think of as a performance proxy. It sits on the server side, and cleans up content before it is sent back to the browser.</p>
+<p>What can it do? Steve let us know:</p>
+<blockquote>
+<p>RPO automatically implements many of the best practices from <a href="http://www.amazon.com/dp/0596529309?tag=stevsoud-20&amp;camp=14573&amp;creative=327641&amp;linkCode=as1&amp;creativeASIN=0596529309&amp;adid=1S1KP4EV129EN37422C0&amp;">my book</a> and <a href="http://developer.yahoo.com/yslow/">YSlow</a>, so the guys from Aptimize contacted me and showed me an early version. Here are the performance improvements RPO delivers:</p>
+<ul>
+<li>minifies, combines and compresses JavaScript files</li>
+<li>minifies, combines and compresses stylesheets</li>
+<li>combines images into CSS sprites</li>
+<li>inlines images inside the stylesheet</li>
+<li>turns on gzip compression</li>
+<li>sets far future Expires headers</li>
+<li>loads scripts asynchronously</li>
+</ul>
+<p>RPO reduces the number of HTTP requests as well as reducing the amount of data that is transmitted, resulting in a page that loads faster. In doing this the big question is, how much overhead does this add at runtime? RPO caches the resources it generates (combined scripts, combined stylesheets, sprites). The primary realtime cost is changing the HTML markup. Static pages, after they are massaged, are also cached. Dynamic HTML can be optimized without a significant slowdown, much less than what’s gained by adding these performance benefits.</p>
+</blockquote>
+<p>Steve had another couple of interesting posts recently:</p>
+<ul>
+<li><a href="http://www.stevesouders.com/blog/2008/10/11/say-no-to-ie6/">Say no to IE6</a> discusses how we need to do something to help upgrade IE6 users (to IE7 is fine!)</li>
+<li><a href="http://www.stevesouders.com/blog/2008/10/03/firefox-31-raising-the-bar/">Raising the bar</a> talks about results from Steve's <a href="http://stevesouders.com/ua/">UA Profiler</a> tests and how new browsers are pushing forward</li>
+</ul>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=MtCtM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=MtCtM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=8OMfM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=8OMfM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=aCfwm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=aCfwm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/runtime-page-optimizer/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/runtime-page-optimizer</feedburner:origLink></item>
+
+		<item>
+		<title>Bacon - a sizzling new YUI utility</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/420458493/bacon-a-sizzling-new-yui-utility</link>
+		<comments>http://ajaxian.com/archives/bacon-a-sizzling-new-yui-utility#comments</comments>
+		<pubDate>Tue, 14 Oct 2008 11:36:03 +0000</pubDate>
+		<dc:creator>Chris Heilmann</dc:creator>
+
+		
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[api]]></category>
+
+		<category><![CDATA[bacon]]></category>
+
+		<category><![CDATA[fry]]></category>
+
+		<category><![CDATA[Fun]]></category>
+
+		<category><![CDATA[yui]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4763</guid>
+		<description><![CDATA[Beware of what you ask for. After Stephen Woods asked on Twitter why there are just no Bacon utilities in the browser Dav Glass of the YUI team went right to it and created YUI Bacon. 
+ YUI bacon is now the only JS solution to fry any HTML element with a few lines of [...]]]></description>
+			<content:encoded><![CDATA[<p>Beware of what you ask for. After <a href="https://twitter.com/ysaw/statuses/957253347">Stephen Woods asked on Twitter why there are just no Bacon utilities in the browser</a> Dav Glass of the YUI team went right to it and created <a href="http://blog.davglass.com/files/yui/bacon/">YUI Bacon</a>. </p>
+<p> YUI bacon is now the only JS solution to fry any HTML element with a few lines of code:</p>
+<div class="igBar"><a href="javascript:showCodeTxt('javascript-4');">PLAIN TEXT</a></div>
+<div class="syntax_hilite"><span style="color:#000000; font-weight:bold;">JAVASCRIPT:</span>
+<div id="javascript-4">
+<div class="javascript">
+<ol>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color: #003366; font-weight: bold;">var</span> foo = <span style="color: #003366; font-weight: bold;">new</span> YAHOO.<span style="color: #006600;">util</span>.<span style="color: #006600;">Bacon</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">'demo'</span><span style="color:#006600; font-weight:bold;">&#41;</span>; </div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color: #003366; font-weight: bold;">var</span> bar = <span style="color: #003366; font-weight: bold;">new</span> YAHOO.<span style="color: #006600;">util</span>.<span style="color: #006600;">Bacon</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">'demo2'</span><span style="color:#006600; font-weight:bold;">&#41;</span>; </div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<p><img src="http://ajaxian.com/wp-content/uploads/yui_-bacon-utility.jpg" alt="" title="YUI bacon utility" width="492" height="512" class="alignleft size-full wp-image-4764"/></p>
+<p>As always with Dav, the utility comes with a <a href="http://blog.davglass.com/files/yui/bacon/docs/">full API and documentation</a>, features useful methods like <code>fryBacon()</code> and <code>stopFryBacon()</code>  and there are several clever custom events (<code>baconReady</code>, <code>baconDone</code>, <code>baconStart</code>) to subscribe to.</p>
+<p>If you dive deeper into the workings of bacon you also find hidden messages of what the future might hold: <code>void cook() An override method for extending this class to maybe fry eggs too.</code></p>
+<p>I am now waiting for jQuery cocktail sausage and protoype T-Bone.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=kYJdM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=kYJdM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=nbZsM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=nbZsM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=mrTnm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=mrTnm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/bacon-a-sizzling-new-yui-utility/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/bacon-a-sizzling-new-yui-utility</feedburner:origLink></item>
+		<item>
+		<title>Dojo 1.2: Squeezing it into 5.5kb</title>
+
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/420448165/dojo-12-tiny</link>
+		<comments>http://ajaxian.com/archives/dojo-12-tiny#comments</comments>
+		<pubDate>Tue, 14 Oct 2008 11:17:26 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Dojo]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4751</guid>
+		<description><![CDATA[James Burke gave a great presentation in Boston on the Dojo build system, and how he is able to get the core down to 5.5k.
+
+With Dojo 1.2, the build system can generate a 5.5KB gzipped (13KB ungzipped) dojo.js file, via the customBase layer option. Useful for iPhone development if you want to get under the [...]]]></description>
+			<content:encoded><![CDATA[<p>James Burke gave a great presentation in Boston on the Dojo build system, and <a href="http://tagneto.blogspot.com/2008/10/dojo-12-loader-and-build-system.html">how he is able to get the core down to 5.5k</a>.</p>
+<blockquote><p>
+With Dojo 1.2, the build system can generate a 5.5KB gzipped (13KB ungzipped) dojo.js file, via the customBase layer option. Useful for iPhone development if you want to get under the 25KB uncompressed size limits for the Mobile Safari cache. That small dojo.js is basically just the loader and some bootstrap functions, but it allows you then to tune your build layers to meet the 25KB and dynamically load what you need as you go.</p>
+<p>Also, the djConfig options afterOnLoad/require/addOnLoad allows loading Dojo after the page is loaded. Great for making progressively enhanced pages render even faster.
+</p></blockquote>
+<p><iframe src='http://docs.google.com/EmbedSlideshow?docid=ddjm9cjh_1dvbx2cf7&amp;size=m' frameborder='0' width='555' height='451'></iframe></p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=ZumaM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=ZumaM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=RavjM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=RavjM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=nalHm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=nalHm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/dojo-12-tiny/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/dojo-12-tiny</feedburner:origLink></item>
+		<item>
+		<title>MozAfterPaint: Being able to get a callback event on repaint</title>
+
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/420391549/mozafterpaint</link>
+		<comments>http://ajaxian.com/archives/mozafterpaint#comments</comments>
+		<pubDate>Tue, 14 Oct 2008 10:02:29 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Firefox]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[Mozilla]]></category>
+
+		<category><![CDATA[events]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4749</guid>
+		<description><![CDATA[John Resig put together a nice usage of MozAfterPaint, the new Firefox event that will call back letting you know when a repaint operation has happened:
+
+The event object contains two properties: .clientRects and .boundingClientRect, both of which refer to the result of the associated DOM methods.
+In a nutshell, boundingClientRect gives you a single rectangle encompassing [...]]]></description>
+			<content:encoded><![CDATA[<p>John Resig <a href="http://ejohn.org/blog/browser-paint-events/">put together a nice usage of MozAfterPaint</a>, the new Firefox event that will call back letting you know when a repaint operation has happened:</p>
+<blockquote>
+<p>The event object contains two properties: <a href="http://developer.mozilla.org/en/DOM/element.getClientRects">.clientRects</a> and <a href="http://developer.mozilla.org/En/DOM:element.getBoundingClientRect">.boundingClientRect</a>, both of which refer to the result of the associated DOM methods.</p>
+<p>In a nutshell, boundingClientRect gives you a single rectangle encompassing the entire area in which a paint operation could've taken place whereas clientRects gives you a number of rectangles, each encompassing an individual area that was drawn.</p>
+<p>To test this I created a <a href="http://ejohn.org/apps/paint/cnn.html">quick demo</a> using CNN.com (only works in the latest <a href="http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-trunk/">Firefox nightlies</a>).</p>
+</blockquote>
+<p><img src="http://ejohn.org/files/paint-jquery.sm.png" /></p>
+<p>John creating a simple <a href="http://ejohn.org/apps/paint/track.js">tracking script</a> that uses the new event to show where you have been.</p>
+<p>kourge reminded us of the related Flash event <a href="http://livedocs.adobe.com/flash/8/main/wwhelp/wwhimpl/common/html/wwhelp.htm?context=LiveDocs_Parts&#038;file=00001768.html">showRedrawRegions</a>.</p>
+<p>Robert O'Callahan mentioned a use for the event when he discussed <a href="http://weblogs.mozillazine.org/roc/archives/2008/10/svg_bling_updat.html">SVG bling that made it into the first 3.1 beta</a>.</p>
+<p>David Hyatt put in a WebKit patch to <a href="http://trac.webkit.org/changeset/37579">add support for CSS transitions on some SVG properties</a>.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=Vk3QM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=Vk3QM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=EFAEM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=EFAEM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=0tpam"><img src="http://feeds.feedburner.com/~f/ajaxian?i=0tpam" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/mozafterpaint/feed</wfw:commentRss>
+
+		<feedburner:origLink>http://ajaxian.com/archives/mozafterpaint</feedburner:origLink></item>
+		<item>
+		<title>Sensei: A beautiful Dojo application</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/420289380/dojo-sensei</link>
+		<comments>http://ajaxian.com/archives/dojo-sensei#comments</comments>
+		<pubDate>Tue, 14 Oct 2008 07:24:33 +0000</pubDate>
+
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Dojo]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[Showcase]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4758</guid>
+		<description><![CDATA[
+I have seen some of the great applications that SitePen produces, but unfortunately too many of them are for companies behind the firewalls.
+It is great to see Sensei a really compelling Dojo application that SitePen wrote for their training class. This isn't one of those simple training examples that you normally get though. This says [...]]]></description>
+
+			<content:encoded><![CDATA[<p><a href="http://www.sitepen.com/blog/2008/10/14/dojo-sensei-reader/"><img src="http://ajaxian.com/wp-content/uploads/dojosensei.png" alt="" title="Dojo Sensei" width="480" height="312" border="0" /></a></p>
+<p>I have seen some of the great applications that SitePen produces, but unfortunately too many of them are for companies behind the firewalls.</p>
+<p>It is great to see <a href="http://www.sitepen.com/blog/2008/10/14/dojo-sensei-reader/">Sensei</a> a really compelling Dojo application that SitePen wrote for their training class. This isn't one of those simple training examples that you normally get though. This says quality.</p>
+<p>Revin Guillen explains:</p>
+<blockquote><p>
+When conducting Dojo training courses, we’ve found it to be very valuable to go beyond simple code snippets to demonstrate APIs, patterns, and other key concepts. Snippets and demos are useful, but they often lack a very important quality: <i>context</i>. Nothing beats having a full application in front of you—with code available to read and modify as you learn the ropes—so we built the Dojo Sensei Reader, a rich, powerful RSS reader realized as a single-page web application.</p>
+<p><!-- more --></p>
+<p>We designed Sensei specifically for training sessions. We wanted something that demonstrates the major areas of functionality Dojo offers, but as a single cohesive application rather than a collection of unrelated demos. We wanted something small enough that training groups could easily grasp the entire codebase, yet large enough to be worth using as a real-world application. We wanted something that shows the development process from start to finish, to demonstrate the level of polish you can achieve in a Dojo-based application. Beautiful as well as functional, it does all of this while providing a great, <i>fast</i> user experience.</p>
+<p>One of the beautiful things about Sensei is that it proves that you don’t have to sacrifice maintainability to build a fast application. One key goal in our development process was to create an easy way for training groups to introspect the code, follow the app as it works, and even modify or augment its behavior at run-time by swapping code in and out. To deliver on this, we designed and integrated what we call <i>Blox</i>, a small JavaScript package with the power to make it all possible (it’s Sensei’s <a href="http://en.wikipedia.org/wiki/Flux_capacitor#Flux_capacitor">flux capacitor</a>; we’ll cover it later). The result is a codebase that is <i>very</i> easy to work with but incurs negligible performance impact for its trouble.</p>
+<p>Check out the <a href="http://www.sitepen.com/labs/code/sensei/sensei-intro.mov">screencast to see it in action</a></p>
+</blockquote>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=RyMPM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=RyMPM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=qJAcM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=qJAcM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=ajY0m"><img src="http://feeds.feedburner.com/~f/ajaxian?i=ajY0m" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/dojo-sensei/feed</wfw:commentRss>
+
+		<feedburner:origLink>http://ajaxian.com/archives/dojo-sensei</feedburner:origLink><enclosure url="http://feeds.feedburner.com/~r/ajaxian/~5/420289381/sensei-intro.mov" length="22645636" type="video/quicktime" /><feedburner:origEnclosureLink>http://www.sitepen.com/labs/code/sensei/sensei-intro.mov</feedburner:origEnclosureLink></item>
+		<item>
+		<title>Ajaxians join Mozilla; Creating a Developer Tools Group</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/419697650/ajaxians-join-mozilla-creating-developer-tools</link>
+
+		<comments>http://ajaxian.com/archives/ajaxians-join-mozilla-creating-developer-tools#comments</comments>
+		<pubDate>Mon, 13 Oct 2008 17:15:48 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Ajaxian.com Announcements]]></category>
+
+		<category><![CDATA[Announcements]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[Mozilla]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4734</guid>
+		<description><![CDATA[
+Today, we are really excited to be able to announce a big personal change. Ben and I are joining forces, full time, for the first time. What are we doing?  We are joining Mozilla to create a new group with the charter to create developer tools for the Open Web.
+Mozilla is placing a big [...]]]></description>
+			<content:encoded><![CDATA[<p><object width="600" height="338"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=1914823&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=01AAEA&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=1914823&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=0&amp;show_portrait=0&amp;color=01AAEA&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="600" height="338"></embed></object></p>
+<p>Today, we are really excited to be able to announce a big personal change. Ben and I are joining forces, full time, for the first time. What are we doing?  We are joining Mozilla to create a new group with <a href="http://labs.mozilla.com/2008/10/developer-tools-and-the-open-web/">the charter to create developer tools for the Open Web</a>.</p>
+<p>Mozilla is placing a big bet, not only on us, but in the developer tools space.</p>
+<p>Why are we doing this? Ben and I are passionate about a couple of things: compelling software and developers. In various roles in the past, we have built tools that attempt to make developers productive. We are huge advocates for the Open Web, yet we feel that tools are lacking on our collective platform. We want to help make a difference.</p>
+<p>As we ramp up this new group, we will be looking at the problem and seeing where it makes sense to step in. We are going to be experimenting, and thinking about how to make developers lives better in different ways, so we aren't expecting to see traditional tools come out of this group. Also, we don't want to do this alone. We want to involve the entire community which is one reason that we are so excited to kick off this work at Mozilla. We believe that we have a unique opportunity to put developers first. We can build these tools in the open, with total transparency; the Mozilla way.</p>
+<p>We respect the work being done by other vendors, and very much want to work together. We can't wait to reach out early-on in the process, involving companies that believe in the Open Web like we do. Together we can drastically improve productivity, allowing developers to build compelling user experiences.</p>
+<p>We are just getting started. As soon as we come up with some ideas, we will be sharing then with you and asking for community participation in various forms. You, the Ajaxian community, have been phenomenal over the years, and we can't wait to do more together.</p>
+<p>For our personal takes, see what <a href="http://almaer.com/blog/joining-mozilla-to-create-new-developer-tools-for-the-web-hoping-to-create-a-new-chapter-in-the-book-of-mozilla">I said</a> and <a href="http://galbraiths.org/blog/2008/10/13/a-new-direction/">Ben thought</a>.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=g3zbM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=g3zbM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=HoSzM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=HoSzM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=27lcm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=27lcm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/ajaxians-join-mozilla-creating-developer-tools/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/ajaxians-join-mozilla-creating-developer-tools</feedburner:origLink></item>
+
+		<item>
+		<title>Tying great visualizations to Ext charts and maps</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/419567498/tying-great-visualizations-to-ext-charts-and-maps</link>
+		<comments>http://ajaxian.com/archives/tying-great-visualizations-to-ext-charts-and-maps#comments</comments>
+		<pubDate>Mon, 13 Oct 2008 14:37:20 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+
+		
+		<category><![CDATA[Ext]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[visualization]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4741</guid>
+		<description><![CDATA[
+Aaron Conran has developed a nice Ext extension to tie that world to the Google Visualization API:
+
+Working with different API’s can present hurdles as we attempt to massage the same data in two different data structures - one for a grid and another for a pie chart. To address this specific challenge, I developed a [...]]]></description>
+			<content:encoded><![CDATA[<p><img src="http://extjs.com/playpen/google-visualization/DailyForumRatiosScreenshotSm.png" style="float: right; padding: 8px; border; none" /></p>
+<p>Aaron Conran has developed a nice <a href="http://extjs.com/blog/2008/10/13/google-visualization/">Ext extension to tie that world to the Google Visualization API</a>:</p>
+<blockquote><p>
+Working with different API’s can present hurdles as we attempt to massage the same data in two different data structures - one for a grid and another for a pie chart. To address this specific challenge, I developed a short user extension <a href="http://extjs.com/playpen/google-visualization/GVisualizationPanel.js">Ext.ux.GVisualizationPanel</a> enabling users to integrate visualizations into Ext JS applications without concern for these issues. The GVisualizationPanel adapts any Ext data Store into the google’s format and enables you to embed any type of visualization into a panel.
+</p></blockquote>
+<p>He then shows some examples, such as this intensity map:</p>
+<div class="igBar"><a href="javascript:showCodeTxt('javascript-6');">PLAIN TEXT</a></div>
+<div class="syntax_hilite"><span style="color:#000000; font-weight:bold;">JAVASCRIPT:</span>
+<div id="javascript-6">
+<div class="javascript">
+<ol>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color: #003366; font-weight: bold;">var</span> countryStore = <span style="color: #003366; font-weight: bold;">new</span> Ext.<span style="color: #006600;">data</span>.<span style="color: #006600;">SimpleStore</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; fields: <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066;">name</span>: <span style="color: #3366CC;">'Country'</span>,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; type: <span style="color: #3366CC;">'string'</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span>,<span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066;">name</span>: <span style="color: #3366CC;">'pop'</span>,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; type: <span style="color: #3366CC;">'int'</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span>,<span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066;">name</span>: <span style="color: #3366CC;">'area'</span>,</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; type: <span style="color: #3366CC;">'int'</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span><span style="color:#006600; font-weight:bold;">&#93;</span>,</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; data: <span style="color:#006600; font-weight:bold;">&#91;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #3366CC;">'CN'</span>, <span style="color:#800000;">1324</span>, <span style="color:#800000;">9640821</span><span style="color:#006600; font-weight:bold;">&#93;</span>,&nbsp; &nbsp; &nbsp; &nbsp; </div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #3366CC;">'IN'</span>, <span style="color:#800000;">1134</span>, <span style="color:#800000;">3287263</span><span style="color:#006600; font-weight:bold;">&#93;</span>,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #3366CC;">'US'</span>, <span style="color:#800000;">304</span>, <span style="color:#800000;">9629091</span><span style="color:#006600; font-weight:bold;">&#93;</span>,</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #3366CC;">'ID'</span>, <span style="color:#800000;">232</span>, <span style="color:#800000;">1904569</span><span style="color:#006600; font-weight:bold;">&#93;</span>,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #3366CC;">'BR'</span>, <span style="color:#800000;">187</span>, <span style="color:#800000;">8514877</span><span style="color:#006600; font-weight:bold;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; </div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#93;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color:#006600; font-weight:bold;">&#125;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color: #003366; font-weight: bold;">var</span> intensityMap = <span style="color: #003366; font-weight: bold;">new</span> Ext.<span style="color: #006600;">ux</span>.<span style="color: #006600;">GVisualizationPanel</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; id: <span style="color: #3366CC;">'intensityMap'</span>,</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; visualizationPkg: <span style="color: #3366CC;">'intensitymap'</span>,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; title: <span style="color: #3366CC;">'Intensity Map Sample'</span>,</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; store: countryStore,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; columns: <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #3366CC;">'Country'</span>,<span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; dataIndex: <span style="color: #3366CC;">'pop'</span>,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; label: <span style="color: #3366CC;">'Population (mil)'</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span>,<span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; dataIndex: <span style="color: #3366CC;">'area'</span>,</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; label: <span style="color: #3366CC;">'Area (km2)'</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span><span style="color:#006600; font-weight:bold;">&#93;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color:#006600; font-weight:bold;">&#125;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=OwyGM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=OwyGM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=HhaUM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=HhaUM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=Ytafm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=Ytafm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/tying-great-visualizations-to-ext-charts-and-maps/feed</wfw:commentRss>
+
+		<feedburner:origLink>http://ajaxian.com/archives/tying-great-visualizations-to-ext-charts-and-maps</feedburner:origLink></item>
+		<item>
+		<title>The bane and choice of Rich Text Editors</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/419449542/richtexteditors-compared</link>
+		<comments>http://ajaxian.com/archives/richtexteditors-compared#comments</comments>
+		<pubDate>Mon, 13 Oct 2008 11:49:51 +0000</pubDate>
+
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[RichTextWidget]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4738</guid>
+		<description><![CDATA[
+Whenever Abe Fettig is in town I think about how painful his live has been working with rich text editors :)
+Stuart Atkinson has kindly done a roundup of the state of rich text editors, and it covers:
+
+TinyMCE: There’s a modified version of this included in Wordpress these days, and it’s extremely well supported by its [...]]]></description>
+			<content:encoded><![CDATA[<p><img src="http://bulletproofbox.com/wp-content/uploads/artid-35-s-1.jpg" /></p>
+<p>Whenever Abe Fettig is in town I think about how painful his live has been working with rich text editors :)</p>
+<p>Stuart Atkinson has <a href="http://bulletproofbox.com/web-based-rich-text-editors-compared/">kindly done a roundup of the state of rich text editors</a>, and it covers:</p>
+<ul>
+<li><a href="http://tinymce.moxiecode.com/index.php">TinyMCE</a>: There’s a modified version of this included in Wordpress these days, and it’s extremely well supported by its developers. You get all the formatting options you’d expect, plus the ability to easily remove excess formatting tools with just a little code. As an added bonus, there’s a collection of plugins which enable even more advanced formatting options.</li>
+<li><a href="http://developer.yahoo.com/yui/editor/">YUI Editor</a>: Sadly, this one is quite often ignored, perhaps due to that fact it’s the product of a large corporation. Nonetheless, I know a kick-ass set of tools and utilities when I see one, and this editor is fit for any such best-of list!
+<p>You have 2 main configurations for this - Editor and simpleEditor. You’re not limited to these however, as once you get to grips with the API you can bespoke it with relative ease.</li>
+<li><a href="http://docs.fckeditor.net/">FCKEditor</a>: FCKEditor is one of the longest standing web-based editors out there, and used in a great many open-source apps. It’s also available in a number of server-side languages</li>
+<li><a href="http://www.freerichtexteditor.com/index.php?inc=demo/index">FreeRichTextEditor</a>: FreeRichTextEditor is gaining more momentum these days, and comes available with 2 modes available straight out the box: design, code and preview.</li>
+<li><a href="http://www.themaninblue.com/experiment/widgEditor/">WidgEditor</a>: This is the work of client-side coding guru Cameron Adams, whose personal project has become an extremely viable, standards-based rich text editor for web applications. The JavaScript behind is also lean yet easy to read (should you want or need to understand it further), and the code output is smooth.</li>
+</ul>
+<p>Then, people in the comments linked to <a href="http://www.wymeditor.org/">WYMEditor</a>, <a href="http://openwebware.com/">OpenWYSIWYG</a>, <a href="http://nicedit.com">NicEdit</a>, and <a href="http://dojotoolkit.org/book/dojo-book-0-9/part-2-dijit/advanced-editing-and-display/editor-rich-text">Dojo's editor (Abe Fettig in part)</a>.</p>
+<p>Are there others out there that you like? Any experiences that you would like to share? A friend recently jumped from a paid widget to TinyMCE saying that it was finally ready for prime time.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=13ziM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=13ziM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=LjuWM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=LjuWM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=9S8nm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=9S8nm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/richtexteditors-compared/feed</wfw:commentRss>
+
+		<feedburner:origLink>http://ajaxian.com/archives/richtexteditors-compared</feedburner:origLink></item>
+		<item>
+		<title>Ruby on jQuery and Closures</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/419442513/ruby-on-jquery-and-closures</link>
+		<comments>http://ajaxian.com/archives/ruby-on-jquery-and-closures#comments</comments>
+		<pubDate>Mon, 13 Oct 2008 11:40:09 +0000</pubDate>
+
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[JSON]]></category>
+
+		<category><![CDATA[jQuery]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4736</guid>
+		<description><![CDATA[Sam Ruby has that way about him that sees things very clearly. He just took a peak at jQuery for the first time and was able to really put into words what I think jQuery enthusiasts like about the library:
+
+The notable thing about this is that despite all of the asynchronous events taking place, the [...]]]></description>
+
+			<content:encoded><![CDATA[<p>Sam Ruby has that way about him that sees things very clearly. He just took a peak at jQuery for the first time and was able to <a href="http://intertwingly.net/blog/2008/10/12/jQuery-and-Closures">really put into words</a> what I think jQuery enthusiasts like about the library:</p>
+<blockquote><p>
+The notable thing about this is that despite all of the asynchronous events taking place, the code is sequential (nested, but sequential), and that the JSON results of the AJAX call is immediately available to the function that is invoked when the selection changes.
+</p></blockquote>
+<p>This is based on the following code that he wrote:</p>
+<div class="igBar"><a href="javascript:showCodeTxt('javascript-9');">PLAIN TEXT</a></div>
+<div class="syntax_hilite"><span style="color:#000000; font-weight:bold;">JAVASCRIPT:</span>
+<div id="javascript-9">
+<div class="javascript">
+<ol>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">$<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"#archive"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">click</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #003366; font-weight: bold;">function</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span> <span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; $.<span style="color: #006600;">getJSON</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">'unscanned.cgi'</span>, <span style="color:#006600; font-weight:bold;">&#123;</span><span style="color:#006600; font-weight:bold;">&#125;</span>, <span style="color: #003366; font-weight: bold;">function</span><span style="color:#006600; font-weight:bold;">&#40;</span>unscanned<span style="color:#006600; font-weight:bold;">&#41;</span> <span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color: #009900; font-style: italic;">// replace realname input field with a selection list</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color: #003366; font-weight: bold;">var</span> select = $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">'&lt;select name=&quot;realname&quot; id=&quot;realname&quot;/&gt;'</span><span style="color:#006600; font-weight:bold;">&#41;</span><span style="color:#006600; font-weight:bold;">&#91;</span><span style="color:#800000;">0</span><span style="color:#006600; font-weight:bold;">&#93;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">for</span> <span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #003366; font-weight: bold;">var</span> i=<span style="color:#800000;">0</span>; i&lt;unscanned .<span style="color: #006600;">length</span>; i++<span style="color:#006600; font-weight:bold;">&#41;</span> <span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; select.<span style="color: #006600;">options</span><span style="color:#006600; font-weight:bold;">&#91;</span>i<span style="color:#006600; font-weight:bold;">&#93;</span> = <span style="color: #003366; font-weight: bold;">new</span> Option<span style="color:#006600; font-weight:bold;">&#40;</span>unscanned<span style="color:#006600; font-weight:bold;">&#91;</span>i<span style="color:#006600; font-weight:bold;">&#93;</span><span style="color:#006600; font-weight:bold;">&#91;</span><span style="color:#800000;">1</span><span style="color:#006600; font-weight:bold;">&#93;</span>, i<span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">'#realname'</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">before</span><span style="color:#006600; font-weight:bold;">&#40;</span>select<span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">remove</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"#archive"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">attr</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"disabled"</span>,<span style="color: #3366CC;">"disabled"</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color: #009900; font-style: italic;">// process selection</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">'#realname'</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">focus</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">change</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #003366; font-weight: bold;">function</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span> <span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; <span style="color: #003366; font-weight: bold;">var</span> icla = unscanned<span style="color:#006600; font-weight:bold;">&#91;</span>$<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"#realname option:selected"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">val</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span><span style="color:#006600; font-weight:bold;">&#93;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"#realname"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">before</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">'&lt;input type=&quot;text&quot; '</span> + </div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #3366CC;">'id=&quot;realname&quot; name=&quot;realname&quot;/&gt;'</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">remove</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"#realname"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">val</span><span style="color:#006600; font-weight:bold;">&#40;</span>icla<span style="color:#006600; font-weight:bold;">&#91;</span><span style="color:#800000;">1</span><span style="color:#006600; font-weight:bold;">&#93;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"#pubname"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">val</span><span style="color:#006600; font-weight:bold;">&#40;</span>icla<span style="color:#006600; font-weight:bold;">&#91;</span><span style="color:#800000;">2</span><span style="color:#006600; font-weight:bold;">&#93;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"#email"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">val</span><span style="color:#006600; font-weight:bold;">&#40;</span>icla<span style="color:#006600; font-weight:bold;">&#91;</span><span style="color:#800000;">3</span><span style="color:#006600; font-weight:bold;">&#93;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"#replaces"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">val</span><span style="color:#006600; font-weight:bold;">&#40;</span>icla<span style="color:#006600; font-weight:bold;">&#91;</span><span style="color:#800000;">0</span><span style="color:#006600; font-weight:bold;">&#93;</span> + <span style="color: #3366CC;">':'</span> + icla<span style="color:#006600; font-weight:bold;">&#91;</span><span style="color:#800000;">3</span><span style="color:#006600; font-weight:bold;">&#93;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"#filename"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">val</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">''</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">focus</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"#archive"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">removeAttr</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"disabled"</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color: #000066; font-weight: bold;">return</span> <span style="color: #003366; font-weight: bold;">false</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color:#006600; font-weight:bold;">&#125;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<p>Those that love jQuery, love the API.</p>
+<p>John himself had an example in the comments:</p>
+<div class="igBar"><a href="javascript:showCodeTxt('javascript-10');">PLAIN TEXT</a></div>
+<div class="syntax_hilite"><span style="color:#000000; font-weight:bold;">JAVASCRIPT:</span>
+<div id="javascript-10">
+<div class="javascript">
+<ol>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">$<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">':radio[name=is_user]'</span><span style="color:#006600; font-weight:bold;">&#41;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; .<span style="color: #006600;">change</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #003366; font-weight: bold;">function</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span><span style="color:#006600; font-weight:bold;">&#123;</span> $<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">'.depends-isuser'</span><span style="color:#006600; font-weight:bold;">&#41;</span><span style="color:#006600; font-weight:bold;">&#91;</span> <span style="color: #000066; font-weight: bold;">this</span>.<span style="color: #006600;">value</span> == <span style="color:#800000;">1</span> ? ‘show’ : ‘hide’ <span style="color:#006600; font-weight:bold;">&#93;</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span>; <span style="color:#006600; font-weight:bold;">&#125;</span><span style="color:#006600; font-weight:bold;">&#41;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; .<span style="color: #006600;">change</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=dxsnM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=dxsnM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=ml5oM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=ml5oM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=Dnx9m"><img src="http://feeds.feedburner.com/~f/ajaxian?i=Dnx9m" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/ruby-on-jquery-and-closures/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/ruby-on-jquery-and-closures</feedburner:origLink></item>
+		<item>
+		<title>This Week in HTML 5: Web Forms 2, Search, and more</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/417505417/this-week-in-html-5-e8</link>
+		<comments>http://ajaxian.com/archives/this-week-in-html-5-e8#comments</comments>
+
+		<pubDate>Sat, 11 Oct 2008 05:43:24 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[HTML]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4732</guid>
+		<description><![CDATA[In Mark's eighth roundup of HTML 5 land, he delves into the merging of Web Forms 2, which gives us fun things like:
+
+input type="email"
+input type="url"
+inpu type="number"
+input type="range"
+input type="date"
+input type="time"
+input type="datetime"
+input type="week"
+input type="month"
+
+Then Mark discusses input type="search":
+
+Andy Lyttle wants to standardize one particular feature of &#60;input type="search"&#62; (which is already supported by Safari, but not standardized): [...]]]></description>
+
+			<content:encoded><![CDATA[<p>In Mark's eighth roundup of HTML 5 land, he delves into the merging of Web Forms 2, which gives us fun things like:</p>
+<ul>
+<li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#e-mail-state">input type="email"</a></li>
+<li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#url-state">input type="url"</a></li>
+<li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#number-state">inpu type="number"</a></li>
+<li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#range-state">input type="range"</a></li>
+<li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#date-state">input type="date"</a></li>
+<li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#time-state">input type="time"</a></li>
+<li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#date-and-time-state">input type="datetime"</a></li>
+<li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#week-state">input type="week"</a></li>
+<li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#month-state">input type="month"</a></li>
+</ul>
+<p>Then Mark discusses input type="search":</p>
+<blockquote><p>
+Andy Lyttle wants to standardize one particular feature of &lt;input type="search"&gt; (which is already supported by Safari, but not standardized): placeholder text for input fields. The text would initially display in the input field (possibly in a stylized form, smaller font, or lighter color), then disappear when the field receives focus. Lots of sites use Javascript to achieve this effect, but it is surprisingly difficult to get right, in part because no one can quite agree on exactly how it should work. Mozilla Firefox displays the name of your current search engine in its dedicated search box until you focus the search box, at which point it blanks out and allows you to type. Safari's search box is initially blank (at least on Windows), and only displays the name of your default search engine after it has received focus and lost it again. Google Chrome's "omnibox" displays "Type to search", right-justified, even when the omnibox has focus, then removes it after you've typed a single character. Adding an &lt;input placeholder&gt; attribute would allow each browser on each platform to match their users' expectations (and possibly even allow end-user customization) of how placeholder text should work for web forms. Discussion threads: 1, 2, 3. So far, there is no consensus on whether this should be added to HTML 5, or what the markup would look like.
+</p></blockquote>
+<p>And, he finishes with some interesting posts:</p>
+<ul>
+<li>Following up on <a href="http://blog.whatwg.org/this-week-in-html-5-episode-7">last week's article on clickjacking</a>, the security researcher who discovered (and named) it has <a href="http://ha.ckers.org/blog/20081007/clickjacking-details/">posted details of his discovery</a>.  Short version: it's even worse than we thought, but vendors are working on it.  <a href="http://blog.guya.net/2008/10/07/malicious-camera-spying-using-clickjacking/">Here's a proof-of-concept against Adobe Flash</a> that, quite literally, spys on you (via your webcam) without the usual warning dialogs; here's <a href="http://www.adobe.com/support/security/advisories/apsa08-08.html">Adobe's response</a>.  <a href="http://hackademix.net/2008/10/08/hello-clearclick-goodbye-clickjacking/">NoScript now offers enhanced protection</a> against some clickjacking attack vectors.</li>
+<li>Anne van Kesteren gives an update on <a href="http://annevankesteren.nl/2008/10/ie8-bad-update">IE 8's support for HTML 5</a> and other emerging standards.</li>
+<li>Matt Ryall has a good article on <a href="http://www.mattryall.net/blog/2008/10/html-5-headings-and-sections">HTML 5, headings and sections</a>, which documents the differences between HTML 4 and 5's header elements.  My personal opinion: I once wrote a 500 page book in <a href="http://www.docbook.org/">Docbook</a>, a non-HTML markup language for technical writers.  Docbook 3 had separate elements for <a href="http://www.docbook.org/tdg/en/html/sect1.html"><code>&lt;sect1&gt;</code></a>, <a href="http://www.docbook.org/tdg/en/html/sect2.html"><code>&lt;sect2&gt;</code></a>, <a href="http://www.docbook.org/tdg/en/html/sect.html"><code>&lt;sect3&gt;</code></a>, &amp;c, and it was a massive pain in the ass to cut-and-paste sections, or try to reuse them in different documents.  Docbook 4 added a generic <a href="http://www.docbook.org/tdg/en/html/section.html"><code>&lt;section&gt;</code></a> element which can be nested indefinitely, and all those problems went away.  Lots of web authors copy-and-paste HTML markup; anything that helps that "just work" is a good thing.</li>
+</ul>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=Xc3bM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=Xc3bM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=ie2IM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=ie2IM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=E6cUm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=E6cUm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/this-week-in-html-5-e8/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/this-week-in-html-5-e8</feedburner:origLink></item>
+		<item>
+		<title>Maintainable JavaScript videos are now available.</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/417292700/maintainable-javascript-videos-are-now-available</link>
+		<comments>http://ajaxian.com/archives/maintainable-javascript-videos-are-now-available#comments</comments>
+
+		<pubDate>Sat, 11 Oct 2008 00:13:17 +0000</pubDate>
+		<dc:creator>Chris Heilmann</dc:creator>
+		
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[fronteers]]></category>
+
+		<category><![CDATA[JavaScript]]></category>
+
+		<category><![CDATA[maintainbility]]></category>
+
+		<category><![CDATA[The Ajax Experience]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4730</guid>
+		<description><![CDATA[One month ago, the Fronteers conference in Amsterdam featured several "deep dive" talks on various web development topics. Stuart Langridge for example explained in detail what closures are and I talked about Maintainable JavaScript. The slides of my talk have been available for quite a while now and now Bachelor ICT have released the videos [...]]]></description>
+			<content:encoded><![CDATA[<p>One month ago, the <a href="http://fronteers.nl/congres/2008/english">Fronteers conference in Amsterdam</a> featured several "deep dive" talks on various web development topics. Stuart Langridge for example <a href="http://www.kryogenix.org/code/browser/secrets-of-javascript-closures/">explained in detail what closures are</a> and I talked about Maintainable JavaScript. The <a href="http://www.slideshare.net/cheilmann/fronteers-maintainability-presentation">slides of my talk</a> have been available for quite a while now and now <a href="http://www.bachelor-ict.nl/christian-heilmann">Bachelor ICT have released the videos of the talk and an interview</a>.</p>
+<p>Here's the first half of the talk on Vimeo:</p>
+<p><object width="400" height="320"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=1919942&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=1919942&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="320"></embed></object><br /><a href="http://vimeo.com/1919942?pg=embed&amp;sec=1919942">Chris Heilmann: Maintainable JavaScript, part 1</a> from <a href="http://vimeo.com/bachelorict?pg=embed&amp;sec=1919942">Bachelor-ict.nl</a> on <a href="http://vimeo.com?pg=embed&amp;sec=1919942">Vimeo</a>.</p>
+<p>And here's the second:</p>
+<p><object width="400" height="320"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=1919908&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=1919908&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="320"></embed></object><br /><a href="http://vimeo.com/1919908?pg=embed&amp;sec=1919908">Christian Heilmann: Maintainable JavaScript, part 2</a> from <a href="http://vimeo.com/bachelorict?pg=embed&amp;sec=1919908">Bachelor-ict.nl</a> on <a href="http://vimeo.com?pg=embed&amp;sec=1919908">Vimeo</a>.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=cZHyM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=cZHyM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=lOGGM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=lOGGM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=k4irm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=k4irm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/maintainable-javascript-videos-are-now-available/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/maintainable-javascript-videos-are-now-available</feedburner:origLink></item>
+
+		<item>
+		<title>Reinhardt: a Client-side Dispatch Framework</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/416710961/reinhardt</link>
+		<comments>http://ajaxian.com/archives/reinhardt#comments</comments>
+		<pubDate>Fri, 10 Oct 2008 11:32:10 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+
+		
+		<category><![CDATA[Dojo]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4728</guid>
+		<description><![CDATA[Kevin Dangoor of SitePen has introduced Reinhardt a dispatch engine on the client side:
+
+A typical server-side web framework today includes three main components: a URL dispatching to some controller object scheme, a template engine, and a data mapping facility. Currently in Dojo, you’ll find that the latter two items already exist. dojox.dtl provides the first [...]]]></description>
+			<content:encoded><![CDATA[<p>Kevin Dangoor of SitePen has introduced <a href="http://www.sitepen.com/blog/2008/10/09/reinhardt-a-client-side-web-framework/">Reinhardt</a> a dispatch engine on the client side:</p>
+<blockquote><p>
+A typical server-side web framework today includes three main components: a URL dispatching to some controller object scheme, a template engine, and a data mapping facility. Currently in Dojo, you’ll find that the latter two items already exist. dojox.dtl provides the first one, and dojo.data provides the second. </p>
+<p>Given that Dojo already offers an implementation of the Django template engine, and that regular expression-based URL dispatch was a good fit for our problem at hand, I decided to base our URL dispatch on the model provided by Django.
+</p></blockquote>
+<p>You can see an <a href="http://www.sitepen.com/labs/code/reinhardt1/reinhardt_demo/index.html">example using the framework</a> which uses these patterns:</p>
+<div class="igBar"><a href="javascript:showCodeTxt('javascript-13');">PLAIN TEXT</a></div>
+<div class="syntax_hilite"><span style="color:#000000; font-weight:bold;">JAVASCRIPT:</span>
+<div id="javascript-13">
+<div class="javascript">
+<ol>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color: #003366; font-weight: bold;">var</span> patterns = reinhardt.<span style="color: #006600;">urldispatch</span>.<span style="color: #006600;">patterns</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"demo.code"</span>,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #0066FF;">/^list\/<span style="color:#006600; font-weight:bold;">&#40;</span>\d*<span style="color:#006600; font-weight:bold;">&#41;</span>$/</span>, <span style="color: #3366CC;">"showMovieList"</span>, <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #3366CC;">"year"</span><span style="color:#006600; font-weight:bold;">&#93;</span><span style="color:#006600; font-weight:bold;">&#93;</span>,</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #0066FF;">/^search$/</span>, <span style="color: #3366CC;">"search"</span><span style="color:#006600; font-weight:bold;">&#93;</span>,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #0066FF;">/^movie\/<span style="color:#006600; font-weight:bold;">&#40;</span>\d+<span style="color:#006600; font-weight:bold;">&#41;</span>\/$/</span>, <span style="color: #3366CC;">"whatyear"</span>, <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #3366CC;">'id'</span><span style="color:#006600; font-weight:bold;">&#93;</span><span style="color:#006600; font-weight:bold;">&#93;</span>,</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #0066FF;">/^movie\/<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#91;</span>\w <span style="color:#006600; font-weight:bold;">&#93;</span>+<span style="color:#006600; font-weight:bold;">&#41;</span>\/$/</span>, <span style="color: #3366CC;">"whatyear"</span>, <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #3366CC;">"name"</span><span style="color:#006600; font-weight:bold;">&#93;</span><span style="color:#006600; font-weight:bold;">&#93;</span>,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color: #0066FF;">/^luke$/</span>, <span style="color: #3366CC;">"whatyear"</span>, <span style="color:#006600; font-weight:bold;">&#91;</span><span style="color:#006600; font-weight:bold;">&#93;</span>, <span style="color:#006600; font-weight:bold;">&#123;</span><span style="color: #000066;">name</span>: <span style="color: #3366CC;">"Cool Hand Luke"</span><span style="color:#006600; font-weight:bold;">&#125;</span><span style="color:#006600; font-weight:bold;">&#93;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<p>To get this all going you do something like this:</p>
+<div class="igBar"><a href="javascript:showCodeTxt('javascript-14');">PLAIN TEXT</a></div>
+<div class="syntax_hilite"><span style="color:#000000; font-weight:bold;">JAVASCRIPT:</span>
+<div id="javascript-14">
+<div class="javascript">
+<ol>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">dojo.<span style="color: #006600;">addOnLoad</span><span style="color:#006600; font-weight:bold;">&#40;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color: #003366; font-weight: bold;">function</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span> <span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">if</span> <span style="color:#006600; font-weight:bold;">&#40;</span>!patterns.<span style="color: #006600;">dispatch</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span><span style="color:#006600; font-weight:bold;">&#41;</span> <span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; renderContent<span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"../../default.dtl"</span>, </div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#123;</span>movieCount: demo.<span style="color: #006600;">database</span>.<span style="color: #006600;">movies</span>.<span style="color: #006600;">length</span><span style="color:#006600; font-weight:bold;">&#125;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color: #003366; font-weight: bold;">function</span> renderContent<span style="color:#006600; font-weight:bold;">&#40;</span>templatename, variables<span style="color:#006600; font-weight:bold;">&#41;</span> <span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color: #003366; font-weight: bold;">var</span> template = <span style="color: #003366; font-weight: bold;">new</span> dojox.<span style="color: #006600;">dtl</span>.<span style="color: #006600;">Template</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #003366; font-weight: bold;">new</span> dojo.<span style="color: #006600;">moduleUrl</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"demo"</span>,</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; templatename<span style="color:#006600; font-weight:bold;">&#41;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; <span style="color: #003366; font-weight: bold;">var</span> context = <span style="color: #003366; font-weight: bold;">new</span> dojox.<span style="color: #006600;">dtl</span>.<span style="color: #006600;">Context</span><span style="color:#006600; font-weight:bold;">&#40;</span>variables<span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; dojo.<span style="color: #006600;">byId</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"content"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">innerHTML</span> = template.<span style="color: #006600;">render</span><span style="color:#006600; font-weight:bold;">&#40;</span>context<span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; pagecount++;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; dojo.<span style="color: #006600;">byId</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"pagecount"</span><span style="color:#006600; font-weight:bold;">&#41;</span>.<span style="color: #006600;">innerHTML</span> = pagecount;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color:#006600; font-weight:bold;">&#125;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<p>Read the full article for details, and <a href="http://www.sitepen.com/labs/code/reinhardt1/reinhardt_demo.zip">download the entire sample, for perusal</a>.</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=MqmwM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=MqmwM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=zkhBM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=zkhBM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=dHklm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=dHklm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/reinhardt/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/reinhardt</feedburner:origLink></item>
+
+		<item>
+		<title>IE8 and Standards</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/416668363/ie8-and-standards</link>
+		<comments>http://ajaxian.com/archives/ie8-and-standards#comments</comments>
+		<pubDate>Fri, 10 Oct 2008 10:26:50 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+
+		
+		<category><![CDATA[Browsers]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[IE]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4726</guid>
+		<description><![CDATA[Anne van Kesteren of Opera Software has updated his post on IE 8 to cover beta 2:
+
+
+
+XDomainRequest: Microsoft unfortunately continues with XDomainRequest rather than making changes to XMLHttpRequest as other browsers are doing and as is being standardized by the W3C Web Apps Working Group. (Disclaimer: I am the editor of XMLHttpRequest Level 2.)
+  [...]]]></description>
+			<content:encoded><![CDATA[<p>Anne van Kesteren of Opera Software has updated his post on IE 8 to <a href="http://annevankesteren.nl/2008/10/ie8-bad-update">cover beta 2</a>:</p>
+<blockquote>
+<ul>
+<li>
+<p><strong><code>XDomainRequest</code></strong>: Microsoft unfortunately continues with <code>XDomainRequest</code> rather than making changes to <code>XMLHttpRequest</code> as other browsers are doing and as is being standardized by the W3C Web Apps Working Group. (Disclaimer: I am the editor of <a href="http://dev.w3.org/2006/webapi/XMLHttpRequest-2/"><code>XMLHttpRequest</code> Level 2</a>.)
+  </p>
+<p>Some agreement was made to at least support the same protocol on the server, namely using the <code>Access-Control-Allow-Origin</code> header as per <a href="http://dev.w3.org/2006/waf/access-control/">Access Control for Cross-Site Requests</a>. (Disclaimer: I am the editor of that draft too.) However, IE8 only supports <code>*</code> as value for that header, not an origin, e.g. <code>http://annevankesteren.nl</code> (<a href="/test/ie/xdomainrequest/002.htm">test</a>). Sunava <a href="http://blogs.msdn.com/ie/archive/2008/10/06/updates-for-ajax-in-ie8-beta-2.aspx#8988858">pointed out</a> that was because the W3C WebApps WG was still debating the matter. Here is hoping they will fix the bug as there is agreement on that syntax.</p>
+</li>
+<li>
+<p><strong>HTML5 DOM Storage</strong>: <code>localStorage</code> and <code>sessionStorage</code> are now supported. Enumerating through them does not give the results I was expecting (I got "<code>length</code>" and "<code>remainingSpace</code>" back as well, besides the keys) and they still have a <code>remainingSpace</code> member that is not part of HTML5. Given that anything that gives some indication of space is highly vendor specific as it depends on encoding, compression, and type of device, they should really rename it to <code>msRemainingSpace</code> or some such or simply drop it.
+  </p>
+<p>IE8 also supports an event named <code>storagecommit</code> that is not part of HTML5 which tells you when the data has been written to an XML backend format IE8 uses. The event object for used for the <code>storage</code> does not expose <code>key</code>, <code>oldValue</code>, and <code>newValue</code>. The <code>url</code> member is named <code>uri</code> and the <code>source</code> member is <code>null</code> rather than a reference to the <code>Window</code> object. Ouch!</p>
+</li>
+<li>
+<p><strong>ARIA</strong>: Aaron Leventhal recently blogged about how <a href="http://accessgarage.wordpress.com/2008/09/30/legacy-defeats-consistency-in-ie-8s-web-20-accessibility-effort/">ARIA in IE8 is a pain</a>. (Aaron works for IBM making Firefox and Web applications accessible and is a member of the W3C PF WG which standardizes ARIA.) In short, when IE8 renders in super standards mode ARIA will work as everywhere else, otherwise you have to use Microsoft proprietary syntax. So not only do you need to upgrade your application code to be keyboard accessible and ARIA-enabled, you will also need to upgrade it from quirks to standards mode. Alternatively, you could take the easy way out and lock out other browsers. Not nice.
+</p>
+</li>
+</ul>
+</blockquote>
+<p>He did admit that he has "only played around with Internet Explorer 8 for an hour so" :)</p>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=Rn8gM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=Rn8gM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=b2GXM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=b2GXM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=ABumm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=ABumm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/ie8-and-standards/feed</wfw:commentRss>
+
+		<feedburner:origLink>http://ajaxian.com/archives/ie8-and-standards</feedburner:origLink></item>
+		<item>
+		<title>An Interesting Twist on a Pastebin</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/415896674/an-interest-twist-on-a-pastebin</link>
+		<comments>http://ajaxian.com/archives/an-interest-twist-on-a-pastebin#comments</comments>
+		<pubDate>Thu, 09 Oct 2008 15:52:26 +0000</pubDate>
+
+		<dc:creator>Rey Bango</dc:creator>
+		
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[JavaScript]]></category>
+
+		<category><![CDATA[jQuery]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4715</guid>
+		<description><![CDATA[Pastebins have become an important part of sharing code with colleagues. Sites such as Pastebin &#038; Pastie.org are extremely popular because they're easy to use and very effective in letting people compare notes on source code, especially in a support setting. 
+Remy Sharp wanted to take the pastebin concept a step further, past the static [...]]]></description>
+
+			<content:encoded><![CDATA[<p>Pastebins have become an important part of sharing code with colleagues. Sites such as <a href="http://pastebin.com/">Pastebin</a> &#038; <a href="http://pastie.org/">Pastie.org</a> are extremely popular because they're easy to use and very effective in letting people compare notes on source code, especially in a support setting. </p>
+<p><a href="http://remysharp.com">Remy Sharp</a> wanted to take <a href="http://remysharp.com/2008/10/06/js-bin-for-collaborative-javascript-debugging/">the pastebin concept a step further</a>, past the static posting of code. His idea, which he tossed around for 6 months, finally came to fruition in the form of JS Bin, a new pastebin site with a twist:</p>
+<blockquote><p>JS Bin is a form of paste bin, but with a twist. It allows you to also include the HTML and CSS to provide context to your pasty. As such, it means you can actually run the JavaScript and pass this on to a colleague to help to debug.</p></blockquote>
+<p>This is a great idea as it lets you troubleshoot your code while seeing immediate results. The feature list is well thought out as well.</p>
+<ul>
+<li>Save private snippet</li>
+<li>Remote Ajax debugging</li>
+<li>Snippet URLs run entirely on their own (i.e. without the JS Bin framework around them)</li>
+<li>Support to quickly inject major JS libraries including jQuery, jQuery UI, Prototype, Scriptaculous, Dojo, MooTools &#038; YUI</li>
+<li>Saves state within the open window (i.e. refresh and the code doesn't reset)</li>
+</ul>
+<p>The ability to inject many of the popular JavaScript libraries is especially important and I would highly recommend individual project teams to contact Remy <em><strong>directly</strong></em> to have their libs included.</p>
+<p>To give this a run, I'd suggest going to the <a href="http://jsbin.com/">JS Bin site</a> and putting it through its paces. In addition, Remy has produced two videos which go into detail on how to leverage JS Bin:</p>
+<ul>
+<li><a href="http://jsbin.com/about#video">JS Bin Video Introduction</a></li>
+<li><a href="http://jsbin.com/about#video">Ajax Debugging</a></li>
+</ul>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=A9TDM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=A9TDM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=iNgoM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=iNgoM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=toK7m"><img src="http://feeds.feedburner.com/~f/ajaxian?i=toK7m" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/an-interest-twist-on-a-pastebin/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/an-interest-twist-on-a-pastebin</feedburner:origLink></item>
+		<item>
+		<title>Chofter: search mashup using all things Dojo</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/415886906/chofter-search-mashup-using-all-things-dojo</link>
+		<comments>http://ajaxian.com/archives/chofter-search-mashup-using-all-things-dojo#comments</comments>
+
+		<pubDate>Thu, 09 Oct 2008 15:50:30 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Dojo]]></category>
+
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[Showcase]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4719</guid>
+
+		<description><![CDATA[
+Shane O'Sullivan has built a nice search mashup experience called Chofter. It uses all things Dojo, including:
+
+Layouts, Dialogs, Menus and ContentPanes for the user interface.
+dojo.data and dojo.rpc for data transfer.
+dojox.dtl (Django Templating Library) for transforming search data into visuals.
+dojo.fx and FisheyeLite for eye candy
+
+]]></description>
+			<content:encoded><![CDATA[<p><img src="http://ajaxian.com/wp-content/uploads/chofter.png" alt="" title="Chofter" width="480" height="335" border="0" /></p>
+<p>Shane O'Sullivan has built a nice search mashup experience called <a href="http://www.chofter.com/">Chofter</a>. It uses all things Dojo, including:</p>
+<ul>
+<li><a href="http://dojocampus.org/explorer/#Dijit_Layout" target="_blank">Layouts</a>, Dialogs, Menus and ContentPanes for the user interface.</li>
+<li><a href="http://dojocampus.org/explorer/#Dojo_Data" target="_blank">dojo.data</a> and dojo.rpc for data transfer.</li>
+<li><a href="http://dojocampus.org/explorer/#Dojox_DTL" target="_blank">dojox.dtl</a> (Django Templating Library) for transforming search data into visuals.</li>
+<li><a href="http://dojocampus.org/explorer/#Dojo_FX" target="_blank">dojo.fx</a> and <a href="http://dojocampus.org/explorer/#Dojox_Widgets_FishEyeLite" target="_blank">FisheyeLite</a> for eye candy</li>
+</ul>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=vt0gM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=vt0gM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=dE02M"><img src="http://feeds.feedburner.com/~f/ajaxian?i=dE02M" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=d6Qom"><img src="http://feeds.feedburner.com/~f/ajaxian?i=d6Qom" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/chofter-search-mashup-using-all-things-dojo/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/chofter-search-mashup-using-all-things-dojo</feedburner:origLink></item>
+		<item>
+		<title>How does the scoping work with eval()?</title>
+		<link>http://feeds.feedburner.com/~r/ajaxian/~3/415870555/how-does-the-scoping-work-with-eval</link>
+
+		<comments>http://ajaxian.com/archives/how-does-the-scoping-work-with-eval#comments</comments>
+		<pubDate>Thu, 09 Oct 2008 15:32:45 +0000</pubDate>
+		<dc:creator>Dion Almaer</dc:creator>
+		
+		<category><![CDATA[Front Page]]></category>
+
+		<category><![CDATA[JavaScript]]></category>
+
+		<guid isPermaLink="false">http://ajaxian.com/?p=4716</guid>
+
+		<description><![CDATA[Rakesh Pai wanted to understand scope issues with eval and found a few surprises.
+He started with the snippet:
+PLAIN TEXT
+JAVASCRIPT:
+
+
+
+
+&#160;
+
+
+var foo = 123;
+
+
+var bar = &#123;
+
+
+&#160; &#160; changeFoo: function&#40;&#41; &#123;
+
+
+&#160; &#160; &#160; &#160; // We'll keep changing the following snippet
+
+
+&#160; &#160; &#160; &#160; alert&#40;this&#41;;
+
+
+&#160; &#160; &#160; &#160; eval&#40;"var foo = 456"&#41;;
+
+
+&#160; &#160; &#160; &#160; // Changing [...]]]></description>
+			<content:encoded><![CDATA[<p>Rakesh Pai wanted to understand scope issues with eval and <a href="http://piecesofrakesh.blogspot.com/2008/10/understanding-eval-scope-spoiler-its.html">found a few surprises</a>.</p>
+<p>He started with the snippet:</p>
+<div class="igBar"><a href="javascript:showCodeTxt('javascript-16');">PLAIN TEXT</a></div>
+<div class="syntax_hilite"><span style="color:#000000; font-weight:bold;">JAVASCRIPT:</span>
+<div id="javascript-16">
+<div class="javascript">
+<ol>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color: #003366; font-weight: bold;">var</span> foo = <span style="color:#800000;">123</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color: #003366; font-weight: bold;">var</span> bar = <span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; changeFoo: <span style="color: #003366; font-weight: bold;">function</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span> <span style="color:#006600; font-weight:bold;">&#123;</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #009900; font-style: italic;">// We'll keep changing the following snippet</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066;">alert</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #000066; font-weight: bold;">this</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">eval</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color: #3366CC;">"var foo = 456"</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #009900; font-style: italic;">// Changing snippet ends</span></div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp; &nbsp; <span style="color:#006600; font-weight:bold;">&#125;</span></div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color:#006600; font-weight:bold;">&#125;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">bar.<span style="color: #006600;">changeFoo</span><span style="color:#006600; font-weight:bold;">&#40;</span><span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-family: 'Courier New', Courier, monospace; color: black; font-weight: normal; font-style: normal;color:#3A6A8B;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;"><span style="color: #000066;">alert</span><span style="color:#006600; font-weight:bold;">&#40;</span>foo<span style="color:#006600; font-weight:bold;">&#41;</span>;</div>
+</li>
+<li style="font-weight: bold;color:#26536A;">
+<div style="color:#000000; font-family: 'Courier New', Courier, monospace; font-weight: normal;">&nbsp;</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<p>And then he rev'd it in different ways and captured the output.</p>
+<p>His conclusion?</p>
+<blockquote>
+<p><strong>What I think of these results</strong>: </p>
+<ul>
+<li>I don't know what Firefox is doing in case 2, and for some reason Safari Nightlies seem to be following it. Maybe it's just beyond my understanding, but case 2 is not supposed to be different from case 1. Why does case 2 operate in global scope? If <code>window.eval</code> is different from <code>eval</code>, case 3 shouldn't all have given errors. Someone please help me understand that $hit.</li>
+<li>Case 4 makes sense, but that's a non-standard behavior in Firefox. Understandable that no one else exhibits it.</li>
+<li>IE baffles me in case 5, and Chrome seems to ape it. In this scenario, the anonymous function is supposed to have the global scope - so, in this case, <code>this</code> should point to the window. WTF is happening here!</li>
+<li>Consistent with case 2 above, Firefox and Safari Nightlies continue to display weird behavior in case 6. For some reason, in these two cases, the <code>eval</code> operates in the global scope.</li>
+<li>Now, I have no idea why, but only cases 8 and 9 seem to really work at all. This is despite Doug Crockford going on and on about not using <code>with</code> constructs. It's also despite being beyond (my) understanding about why the <code>with</code> should make any difference to the <code>eval</code>, since <code>eval</code> is part of the window object.</li>
+</ul>
+<p>All in call, if you are going to be <code>eval</code>ing JavaScript (not JSON), and you want the eval'd code to run in the global scope, you should use the <code>with</code> block around the JavaScript snippet. Or else, you can lose a lot of hair handling cross-browser issues.</p>
+</blockquote>
+<div class="feedflare">
+<a href="http://feeds.feedburner.com/~f/ajaxian?a=8qQ0M"><img src="http://feeds.feedburner.com/~f/ajaxian?i=8qQ0M" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=hmvoM"><img src="http://feeds.feedburner.com/~f/ajaxian?i=hmvoM" border="0"></img></a> <a href="http://feeds.feedburner.com/~f/ajaxian?a=9sBbm"><img src="http://feeds.feedburner.com/~f/ajaxian?i=9sBbm" border="0"></img></a>
+</div>]]></content:encoded>
+			<wfw:commentRss>http://ajaxian.com/archives/how-does-the-scoping-work-with-eval/feed</wfw:commentRss>
+		<feedburner:origLink>http://ajaxian.com/archives/how-does-the-scoping-work-with-eval</feedburner:origLink></item>
+	</channel>
+</rss>

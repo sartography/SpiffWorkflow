@@ -1,0 +1,283 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>YQL Execute page builder</title>
+
+    <link rel="stylesheet" type="text/css" href="../../lib/yui/reset-fonts-grids/reset-fonts-grids.css">
+    <link rel="stylesheet" type="text/css" href="../../lib/yui/assets/skins/sam/skin.css">             
+    <link rel="stylesheet" type="text/css" href="http://l.yimg.com/d/i/ydn/yuiweb/css/dpsyntax-min-11.css">
+
+		<link rel="stylesheet" type="text/css" href="../../css/inputEx.css">
+		
+<style>
+/* From YUI CSS Grid Builder: http://developer.yahoo.com/yui/grids/builder/ */
+#hd, #bd, #ft { border: 1px solid #808080; }
+#hd h1 { font-size: 120%; }
+#bd { min-height: 350px; }
+#bd p { border: 2px solid #426FD9; background-color: #F2F2F2; height: 200px; padding: .25em; }
+#bd p.nav { background-color: #EDF5FF; border-color: #7D98B8; }
+body { position: relative; }
+.bd { text-align: left; }
+
+#toolBoxHolder { visibility: hidden; }
+#toolBoxHolder fieldset { border: 1px solid #ccc; padding: .5em; margin: .5em 0; }
+#toolBoxHolder p { padding-bottom: .25em }
+
+#showSlider { position: relative; }
+#sliderbg { background-image: url( http://developer.yahoo.com/yui/grids/builder/bg-fader.gif ); background-repeat: repeat-x; position: relative; top: 10px; height: 40px; width: 209px; }
+#sliderthumb { position: absolute; }
+#custom-doc { margin:auto;text-align:left; }
+#sliderValue { border: 1px solid #ccc; }
+#toolBoxHolder .yui-button { margin: .25em 0; }
+#showCode .bd { height: 310px; overflow: scroll; }
+#showCode .ft { text-align: left; }
+
+button.rowDel { background: transparent url(http://l.yimg.com/a/i/nt/ic/ut/bsc/del12_1.gif);border: 0;padding: 0;float: left; height: 12px; overflow: hidden;text-indent: 999px; width: 12px; margin: 4px 2px; }
+#gridRowDel0 { background-image: none; }
+
+li.yui-button-selectedmenuitem { background: url(http://developer.yahoo.com/yui/grids/builder/checkbox.png) left center no-repeat; }
+
+#doc .yui-button, #doc2 .yui-button, #doc3 .yui-button, #doc4 .yui-button, #custom-doc .yui-button { border: solid 1px #808080; background: #ff9; margin: .25em;}
+#doc .yui-button .first-child, #doc2 .yui-button .first-child, #doc3 .yui-button .first-child, #doc4 .yui-button .first-child, #custom-doc .yui-button .first-child { border: 0; margin: 0;}		
+#doc .yui-button .first-child button, #doc2 .yui-button .first-child button, #doc3 .yui-button .first-child button, #doc4 .yui-button .first-child button, #custom-doc .yui-button .first-child button { padding: 0 20px 0 5px; font-size: 77%;  /* 10px */ line-height: 1.5; min-height: 1.5em; color: #000;font-weight: bold; }
+#hd h1, #ft p { min-height: 1.5em; *height: 2em; }
+#doc p, #doc2 p, #doc3 p, #doc4 p, #custom-doc p, #hd, #ft { position: relative; }
+
+.order-indicator { font-size: 77%; font-weight: bold; position: absolute; padding: 2px 4px; right: 5px; bottom: 5px; background: #fc6; border: solid 1px #c60;	}
+#hd .order-indicator, #ft .order-indicator { right: 3px; bottom: 3px; }
+
+.first-row select { margin-left: 16px; }
+
+/* YQL Execute Page Builder */
+		
+#editorsPanel { position: absolute; top: 0; right: 0;	padding: 20px;	background-color: black; opacity: 0.7;	text-align: left;	-moz-border-radius-bottomleft: 10px; }
+#editorsPanel div { padding: 5px; }
+#editorsPanel p { margin: 5px auto; color: white; text-align: center; }
+#editorsPanel p a { color: white; }
+
+#yqlHolder { visibility: hidden; }
+#templatesHolder { visibility: hidden; }
+
+#jsontreeContainer, #templateJsontreeContainer { width: 430px; overflow: scroll; height: 340px; padding: 5px; border:1px solid #CCCCCC; margin: 5px;}
+
+</style>
+		
+</head>
+<body class="yui-skin-sam">
+
+<div id="doc" class="yui-t2">
+    <div id="hd"><h1>YQL Execute Page Builder</h1></div>
+    <div id="bd"><p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Maecenas sit amet metus. Nunc quam elit, posuere nec, auctor in, rhoncus quis, dui. Aliquam erat volutpat. Ut dignissim, massa sit amet dignissim cursus, quam lacus feugiat.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Maecenas sit amet metus. Nunc quam elit, posuere nec, auctor in, rhoncus quis, dui. Aliquam erat volutpat. Ut dignissim, massa sit amet dignissim cursus, quam lacus feugiat.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Maecenas sit amet metus. Nunc quam elit, posuere nec, auctor in, rhoncus quis, dui. Aliquam erat volutpat. Ut dignissim, massa sit amet dignissim cursus, quam lacus feugiat.</p></div>
+    <div id="ft"><p>Footer</p></div>
+</div>
+
+<!-- Editors Panel -->
+<div id="editorsPanel">
+	
+	
+	<div>
+		<button type="button" id="setProperties">1. Set page properties</button>
+	</div>
+	
+	<div>
+		<button type="button" id="showGridBuilder">2. Edit Grid layout</button>
+	</div>
+	
+	<div>
+		<button type="button" id="showYqlEditor">3. Write YQL javascript</button>
+	</div>
+	
+	<div>
+		<button type="button" id="showTemplatesEditor">4. Create templates</button>
+	</div>
+	
+	<div>
+		<button type="button" id="test">5. Build page</button>
+	</div>
+	
+	<div>
+		<button type="button" id="save">6. Save</button>
+	</div>
+	
+	<p><a href="" id="link" target="_new"></a></p>
+	
+	<p>This tool is an interface for the <br />	<a href="../yql-trimpath-page/index.html">yql-trimpath-page utility</a><br /> from the inputEx library.</p>
+	<br />
+	<!--p>Examples : </p>
+	<p><a href="http://tinyurl.com/o7bn3c" target="_new">Flickr astro photos</a></p>
+	<p><a href="http://tinyurl.com/pqrbov" target="_new">Neyric's repositories</a></p-->
+	
+</div>
+
+
+<!-- YQL panel -->
+<div id="yqlHolder">
+    <div class="hd">Write <a href="http://developer.yahoo.com/yql/guide/yql-javascript-objects.html" target="_new">YQL javascript</a></div>
+
+    <div class="bd">
+	
+			<table style="width: 100%;">
+				<tr>
+					<td style="width: 50%;">
+			<textarea id="codeContainer" style="width: 100%; height: 400px;">
+y.log("Hello World");
+
+var q = "select * from flickr.photos.search where text=\"juggler\"";
+var query = y.query(q);
+var json = y.xmlToJson(query.results);
+
+y.log("Everything's fine");
+
+response.object = json;
+			</textarea>
+				</td>
+				<td style="padding: 5px;">
+					<div><button onclick="YAHOO.util.GridBuilder.runYQL();">Run YQL query</button></div>
+					<div id="jsontreeContainer"></div>
+				</td>
+			</tr>
+			</table>
+			
+		</div>
+</div>
+
+
+<!-- Templates panel -->
+<div id="templatesHolder">
+    <div class="hd">Render using <a href="http://code.google.com/p/trimpath/wiki/JavaScriptTemplateSyntax" target="_new">Trimpath templates</a></div>
+
+    <div class="bd">
+	
+			<table style="width: 100%;">
+				<tr>
+				<td style="width: 50%;">
+					<div id="templatesContainer" style="overflow-y:scroll; height: 400px; width: 100%;"></div>
+				</td>
+				<td>
+					<div id="templateJsontreeContainer"></div>
+				</td>
+			</tr>
+			</table>
+			
+		</div>
+</div>
+
+
+<!-- YUI CSS Grid Builder toolbox -->
+<div id="toolBoxHolder">
+    <div class="hd">YUI CSS Grid Builder</div>
+
+    <div class="bd">
+    <form id="grids">
+        <fieldset>
+            <legend>Body Size</legend>
+            <select id="which_doc">
+                <option value="doc">750px</option>
+                <option value="doc2">950px</option>
+
+                <option value="doc4">974px</option>
+                <option value="doc3">100%</option>
+                <option value="custom-doc" id="customDoc">Custom</option>
+            </select>
+        </fieldset>
+        <fieldset>
+            <legend>Body Columns</legend>
+
+            <select id="which_grid">
+                <option value="yui-t7">No Columns</option>
+                <option value="yui-t1">Sidebar left 160px</option>
+                <option value="yui-t2">Sidebar left 180px</option>
+                <option value="yui-t3">Sidebar left 300px</option>
+                <option value="yui-t4">Sidebar right 180px</option>
+
+                <option value="yui-t5">Sidebar right 240px</option>
+                <option value="yui-t6">Sidebar right 300px</option>
+            </select>
+        </fieldset>
+        <fieldset>
+            <legend>Split Content</legend>
+
+			<div class="first-row">
+
+				<label>Row:
+					<select id="splitBody0">
+						<option value="1">1 Column (100)</option>
+						<option value="2">2 Column (50/50)</option>
+						<option value="7">2 Column (66/33)</option>
+						<option value="8">2 Column (33/66)</option>
+						<option value="9">2 Column (75/25)</option>
+
+						<option value="10">2 Column (25/75)</option>
+						<option value="3">3 Column (33/33/33)</option>
+						<option value="5">3 Column (50/25/25)</option>
+						<option value="6">3 Column (25/25/50)</option>
+						<option value="4">4 Column (25/25/25/25)</option>
+					</select>
+
+				</label>
+			</div>
+
+            <button type="button" id="addRow">Add Row</button>
+        </fieldset>
+
+        <fieldset>
+            <legend>Accessibility</legend>	
+			<div>
+
+				<input type="checkbox" id="use-aria" checked><label for="use-aria">Use ARIA Landmark Roles</label>
+			</div>
+			<div>
+				<input type="checkbox" id="show-order" checked><label for="show-order">Show Reading Order</label>
+			</div>
+        </fieldset>
+
+		<div>
+        	<button type="button" id="show_code">Show Code</button>
+
+			    <button type="button" id="resetBuilder">Reset</button>
+		</div>
+		
+
+    </form>
+    </div>
+</div>
+
+<!-- YUI -->
+<script type="text/javascript" src="../../lib/yui/utilities/utilities.js"></script> 
+<script type="text/javascript" src="../../lib/yui/button/button-min.js"></script> 
+<script type="text/javascript" src="../../lib/yui/container/container-min.js"></script> 
+<script type="text/javascript" src="../../lib/yui/menu/menu-min.js"></script> 
+<script type="text/javascript" src="../../lib/yui/slider/slider-min.js"></script> 
+<script type="text/javascript" src="../../lib/yui/json/json-min.js"></script> 
+
+<!-- inputEx -->
+<script src="../../js/inputex.js"></script>
+<script src="../../js/Field.js"></script>
+<script src="../../js/Group.js"></script>
+<script src="../../js/Form.js"></script>
+<script src="../../js/fields/StringField.js"></script>
+<script src="../../js/fields/Textarea.js"  type='text/javascript'></script>
+<script src="../../js/fields/ListField.js"  type='text/javascript'></script>
+<script src="../../js/widgets/Dialog.js"></script>
+<script src="../../js/widgets/button.js"></script>
+<script src="../../js/widgets/json-tree-inspector.js"></script>
+<script src="../../js/rpc/yql.js"  type='text/javascript'></script>
+
+<!-- JSMin-->
+<script type="text/javascript" src="../../lib/jsmin.js"></script>
+
+<script src="permalink.js"  type='text/javascript'></script>
+
+<script type="text/javascript" src="yql-trimpath-page-builder.js"></script>
+
+<script src="http://l.yimg.com/d/i/ydn/yuiweb/js/dpsyntax-min-2.js"></script>
+<script type="text/javascript">
+/* Frame Buster  */
+if (top != self) top.location.href = location.href;
+
+YAHOO.util.Event.onDOMReady(function () {
+	YAHOO.util.GridBuilder.init();
+});
+</script>
+</body>
+</html>

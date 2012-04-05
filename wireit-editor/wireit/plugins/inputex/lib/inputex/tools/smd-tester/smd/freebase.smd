@@ -1,0 +1,22 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://www.freebase.com/view/freebase/metaweb_api_service", 
+	"description": "Freebase API service",
+		
+	"transport": "JSONP",
+	"envelope": "URL",
+	"callbackParamName": "callback",
+	
+	"services": {
+	   
+		"search": {
+		   "target": "http://www.freebase.com/api/service/search",
+			"parameters": [
+			   { "name": "query", "type":"string", "format": "string", "default":"mozart", "_inputex": { "label": "Query"} },
+			   { "name": "type", "type":"string", "format": "string", "default":"/people/person", "_inputex": { "label": "Type"} }
+			]
+		}
+		
+	}
+}
+

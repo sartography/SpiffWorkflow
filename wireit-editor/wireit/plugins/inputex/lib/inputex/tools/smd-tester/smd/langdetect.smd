@@ -1,0 +1,17 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://langdetect.appspot.com/", 
+	"description": "langdetect",
+		
+	"target": "http://langdetect.appspot.com/",
+	"transport": "JSONP",
+	"envelope": "URL",
+	"callbackParamName": "callback",
+
+	"services": {
+		"langdetect": {
+			"parameters": [
+			]
+		}
+	}
+}

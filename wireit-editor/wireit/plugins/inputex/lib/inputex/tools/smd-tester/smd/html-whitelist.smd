@@ -1,0 +1,28 @@
+{
+	"SMDVersion": "2.0",
+	"id": "http://html-whitelist.appspot.com/", 
+	"description": "A wrapper around the html5lib library for sanitizing HTML. ",
+		
+	"target": "http://html-whitelist.appspot.com/",
+	"transport": "JSONP",
+	"envelope": "URL",
+	"callbackParamName": "callback",
+
+	"services": {
+	   
+		"fromContent": {
+		   "target": "whitelist",
+			"parameters": [
+			   { "name": "content", "type":"string", "format": "text", "default":"<script>scary+html</script>" }
+			]
+		},
+		
+		"fromUrl": {
+		   "target": "whitelist",
+			"parameters": [
+			   { "name": "url", "type":"string", "format": "url", "default":"http://www.google.com" }
+			]
+		}
+		
+	}
+}

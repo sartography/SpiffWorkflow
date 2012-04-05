@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Task manager</title>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="../../lib/yui/reset-fonts/reset-fonts.css">
+<link rel="stylesheet" type="text/css" href="../../lib/yui/assets/skins/sam/skin.css">
+
+<!-- inputEx -->
+<link rel="stylesheet" type="text/css" href="../../build/inputex-min.css">
+
+<!-- Task Manager CSS-->
+<link rel="stylesheet" type="text/css" href="css/TaskManager.css">
+
+
+  </head>
+  <body class="yui-skin-sam">
+	
+	
+	<div id='mainPanel'>
+	
+		 <div id='taskTree'>
+				<div class="title" style="color: black; font-weight: bold">Task manager</div>
+				<div id='taskManager'>
+					<a href="" id='addRootNode'>Add root node</a>
+     			<div id='taskTreeView'></div>
+					<input type='button' value='Save' id='saveTreeButton'/> <span id="saveStatus"></span>
+				</div>
+		 </div>
+
+		 <div id='taskDetails'>
+				<div class="title">Task details</div>
+				<div id='taskInformation'></div>
+				
+				<div class="title" style="border-top: 5px solid #66CC00;">About TaskManager</div>
+				<div id='informations'>
+					This application is an example for the <a href="http://neyric.github.com/inputex">inputEx Library</a>.<br />
+					<br />
+					<b>Click</b> on a task to expand it and edit its properties.<br />
+					<b>Right click</b> on a task to add a subtask or delete it.</span><br />
+					<br />
+					This example won't save anything, but the code contains an example to save via Ajax.
+				</div>
+			
+		 </div>
+
+		<div id='footer'>by <a href="http://www.neyric.com/" target="_new">neyric</a></div>
+	</div>
+
+<!-- YUI dependencies -->
+<script type="text/javascript" src="../../lib/yui/utilities/utilities.js"></script>
+
+<script type="text/javascript" src="../../lib/yui/container/container-min.js"></script>
+<script type="text/javascript" src="../../lib/yui/menu/menu-min.js"></script>
+<script type="text/javascript" src="../../lib/yui/treeview/treeview-min.js"></script> 
+<script type="text/javascript" src="../../lib/yui/button/button-min.js"></script>
+<script type="text/javascript" src="../../lib/yui/json/json-min.js"></script>
+
+<!-- inputEx -->
+<script type="text/javascript" src="../../build/inputex-min.js"></script>
+
+<!-- Task Manager -->
+<script type="text/javascript" src="js/TaskNode.js"></script>
+<script type="text/javascript" src="js/TaskManager.js"></script>
+
+  </body>
+</html>

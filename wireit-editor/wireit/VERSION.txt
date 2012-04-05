@@ -1,0 +1,191 @@
+
+To get the latest version, please visit http://neyric.github.com/wireit
+---------------------------------------------------------------------------
+
+Version 0.6.0
+Not released yet
+
+Changeset:
+
+	* General
+		* Splitting the WireIt core classes & plugins into separate folders	
+		* change default options settings for Containers, Wires, Terminals, ...
+			The default options are now in the classe prototypes, which is easier to override
+		* upgrading to inputEx 0.6.0 (now in the "inputex" plugin)
+  	* upgrading to YUI 2.8.1
+  	* Moving images and css into "assets"
+
+	* Wires enhancements
+  	* Adding labels for Wires
+		* drawingMethod has been removed from the Wire options. Use the xtype instead.
+
+	* Containers enhancements
+  	* Bug fix: DDResize on containers redraw wires
+		* Position constrained to (0,0) minimum
+		* Fix FormContainer terminals positioning if the fieldset is collapsed
+
+	* Adding 3 Containers :
+		* CanvasContainer : uses a canvas tag to render a container
+		* EllipseLabelContainer : inherits the CanvasContainer to draw an ellipse
+		* RectLabelContainer : Simple rect container with editable label
+
+  * Layer enhancements
+		* Export wires properties in getWiring method
+
+	* editor plugin
+		* AccordionView on left panel for module categories
+		* Toolbar positionning
+		* ModuleProxy.js into its own file
+		* WiringEditor now inherits from BaseEditor, which wraps general full-page editor functionnality
+		* Example for a non-fullscreen editor
+	  * Don't save/load the wiring JSON as a string, let the adapter handle it
+	  * fix CSS class-name issue if module name contains spaces
+	  * adding a CSS class name for the category
+		
+	* Added "composable" plugin
+		* Usage is demonstrated in the "jsBox" example
+		
+	* Added "grouping" plugin
+
+----------------------------------------------------
+
+Version 0.5.0
+August 10, 2009
+
+Changeset:
+
+	* WiringEditor:
+		* AccordionView on right panel
+		* filter box in load panel
+		* alert panel
+		* Autoload: example, http://myhost.com/editor/?autoload=myWiring  autoloads the "myWiring" layout
+		* Adapters: (removed the complicated SMD & YUI-RPC stuff)
+			* JSON-RPC (the old adapter)
+			* Gears (if no backend usable)
+			* Ajax adapter - configurable XHR calls. Can be configured to do REST or something else...
+		* propertiesFields default value (becomes optional)
+		* saved status indicator + confirmation
+		* rollup file wiring-editor-min.js (includes some inputEx and yui-accordionview)
+			
+	* WireIt Guide	
+	* InOutContainer
+
+	* Layer.onChangeEvt
+	* Show only one scissor at a time
+	* Spring Layout (experimental) (+examples)
+	* Wire mouse events (experimental) (+examples)
+	* Added drawing method 'bezierArrows' (experimental)
+	
+	* Move issues/bug tracker to github
+	
+	Bugfixes:
+	* WiringEditor: Containers were mispositionned when the layer was scrolled
+	* Wire positioning for wirables fields in FormContainer
+	* Updating Excanvas to R3 - now works in IE8
+
+----------------------------------------------------
+
+Version 0.4.0
+May 17, 2009
+
+Changeset:
+
+ * Installation instructions
+ * WiringEditor:
+		- base example
+		- logicGates example
+		- jsBox example
+ * inputEx FormContainer: create a container from an inputEx field definition
+ * inputEx wirable option: make the inputEx fields wirable
+ * LayerMap leave beta (indicate visible region, move layer on click)
+
+ * Terminal position switched to {top: , left: , right: , bottom: }
+ * new options: 
+	- TerminalProxy.proxySize (default 10) size of the proxy element
+	- Terminal.alwaysSrc : make this terminal the src element in every wires
+	- Container.preventSelfWiring : prevent to connect 2 terminals of the same container 
+
+ * New demo
+ * Switching to git repository (http://github.com/neyric/wireit/)
+ * Switching issue tracking
+ * Documentation with YUI Doc
+ * Bugfixes for IE
+
+
+
+-----------------------------------------------------
+
+Version 0.3.0
+october 12, 2008
+
+Changeset:
+
+ * Layer: added "clear" and "setWiring" methods
+ * "typed" terminals examples (see presentation)
+ * LayerMap (beta): a canvas minimap for the layer 
+ * Add new drawing methods for drawing wires (straight, arrows, bezier)
+ * indexOf and compact methods not extending Array.prototype anymore
+ * Create a CanvasElement class (wrap cross-browser issues for canvas tags, Wire will inherit it)
+ * Scissors class to handle the scissors widget
+ * Cleaner CSS
+ * Changed terminal images (copyright issues)
+ * Correct the positioning issues
+
+
+-----------------------------------------------------
+
+Version 0.2.1
+january 26, 2008
+
+Changeset:
+
+  - new Layer.getWiring function to save the state of the wiring. It can be customized by overriding Container.getConfig
+  - jsBox updated to use the Layer.getWiring function
+  - no default width for containers so they can auto-adjust to the content
+
+  - Layer.addContainer and Layer.addWire now returns the created instance
+  - Added the method Container.redrawAllWires and Terminal.redrawAllWires
+  - Added Layer.removeAllContainers
+	
+  - adds a "body" div to the container
+  - CSS updates on Containers and Layers
+  - adds a focus CSS class on the last mousedown-ed container in the layer
+
+  - bugfixes (events "addWire" and "removeWire" added to WireIt.Layer, offset in the connections)
+
+-----------------------------------------------------
+
+Version 0.2.0
+january 4, 2008
+
+Changeset:
+  - Added YUI custom events for terminal interactions
+  - new method Wire.getOtherTerminal(terminal)
+  - new method Terminal.getConnectedTerminals()
+  - new class WireIt.Container
+  - new class WireIt.Layer
+  - new class WireIt.util.DDResize (helper for WireIt.Container)
+  - customable CSS class names
+  - minified version (18k)
+  - WireIt.BoxIO has been removed (use WireIt.Container instead)
+  - use YUI 2.4.1
+
+-----------------------------------------------------
+
+Version 0.1.1
+december 17, 2007
+
+Changeset:
+  - Fixing images copyright
+
+-----------------------------------------------------
+
+Version 0.1
+december 6, 2007
+
+Changeset:
+  - First version of the library
+  - Implements wires in all major browser
+  - Terminals
+  - BoxIO
+  - wrappers for YAHOO.util.Anim et YAHOO.util.DD

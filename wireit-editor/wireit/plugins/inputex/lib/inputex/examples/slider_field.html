@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+ <head>
+  <title>inputEx - SliderField Usage</title>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="../lib/yui/reset-fonts/reset-fonts.css">
+
+<!-- InputEx CSS -->
+<link type='text/css' rel='stylesheet' href='../css/inputEx.css' />
+
+<!-- Demo CSS -->
+<link rel="stylesheet" type="text/css" href="css/demo.css"/>
+<link rel="stylesheet" type="text/css" href="css/dpSyntaxHighlighter.css">
+
+ </head>
+
+ <body>
+
+<h1>inputEx - SliderField Usage</h1>
+
+
+<!-- Example 1 -->
+<div class='exampleDiv'>
+
+	<h2>Basic SliderField creation</h2>
+	
+	<p>A simple SliderField instance</p>
+
+	<div class='demoContainer' id='container1'></div>
+
+	<div class='codeContainer'>
+				<textarea name="code" class="JScript">
+			sliderField = new inputEx.SliderField({parentEl: 'container1'});
+		</textarea>
+			</div>
+
+</div>
+
+
+<!-- Example 2 -->
+<div class='exampleDiv'>
+
+	<h2>Updated Event</h2>
+	
+	<p>The updated event</p>
+
+	<div class='demoContainer' id='container2'></div>
+
+	<div class='codeContainer'>
+				<textarea name="code" class="JScript">
+			var el = YAHOO.util.Dom.get('container2');
+			var field = new inputEx.SliderField({parentEl: el, displayValue: false}); 
+			var logDiv = inputEx.cn('div', null, null, "Log :"); 
+			el.appendChild(logDiv); 
+			field.updatedEvt.subscribe(function(e,params) { 
+					var val = params[0];
+			    logDiv.innerHTML += "Updated at "+(new Date())+" with value: "+val+"<br />";
+			});
+		</textarea>
+			</div>
+
+</div>
+
+
+
+<!-- Example 3 -->
+<div class='exampleDiv'>
+
+	<h2>Boundaries</h2>
+	
+	<p>WARNING: this feature does NOT work (click the button)</p>
+
+	<div class='demoContainer' id='container3'></div>
+
+	<div class='codeContainer'>
+				<textarea name="code" class="JScript">
+			new inputEx.SliderField({parentEl: 'container3', minValue: 50, maxValue: 500});
+		</textarea>
+			</div>
+
+</div>
+
+
+<!-- YUI Library -->
+<script type="text/javascript" src="../lib/yui/utilities/utilities.js"></script>
+<script type="text/javascript" src="../lib/yui/json/json-min.js"></script>
+<script type="text/javascript" src="../lib/yui/slider/slider-min.js" ></script> 
+
+<!-- InputEx -->
+<script src="../js/inputex.js"  type='text/javascript'></script>
+<script src="../js/Field.js"  type='text/javascript'></script>
+<script src="../js/Group.js"  type='text/javascript'></script>
+<script src="../js/fields/StringField.js"  type='text/javascript'></script>
+<script src="../js/fields/SliderField.js"  type='text/javascript'></script>
+
+<!-- inputEx examples -->
+<script src="js/dpSyntaxHighlighter.js"></script>
+<script src="inputex-examples.js"></script>
+
+ </body>
+</html>

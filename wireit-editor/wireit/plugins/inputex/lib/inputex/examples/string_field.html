@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+ <head>
+  <title>inputEx - StringField Usage</title>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="../lib/yui/reset-fonts/reset-fonts.css">
+<link rel="stylesheet" type="text/css" href="../lib/yui/container/assets/container.css"> 
+<link rel="stylesheet" type="text/css" href="../lib/yui/assets/skins/sam/skin.css">
+
+<!-- InputEx CSS -->
+<link type='text/css' rel='stylesheet' href='../css/inputEx.css' />
+
+<!--[if IE 6]>
+<link type='text/css' rel='stylesheet' href='../css/inputEx-IE6.css' />
+<![endif]-->
+
+<!-- Demo CSS -->
+<link rel="stylesheet" type="text/css" href="css/demo.css"/>
+<link rel="stylesheet" type="text/css" href="css/dpSyntaxHighlighter.css">
+
+ </head>
+
+ <body>
+
+<h1>inputEx - StringField Usage</h1>
+
+
+<!-- Example 1 -->
+<div class='exampleDiv'>
+	<h2>Basic StringField creation</h2>
+	<p>Use the following code to create a basic inputEx field.</p>
+	<div class='demoContainer' id='container1'></div>
+	<div class='codeContainer'>
+	  <textarea name="code" class="JScript">
+		new inputEx.StringField({parentEl: 'container1'});
+	  </textarea>
+	</div>
+</div>
+
+
+<!-- Example 2 -->
+<div class='exampleDiv'>
+	<h2>With a default value</h2>
+	<p>You can set a default value by specifying the 'value' property in the options object.</p>
+	<div class='demoContainer' id='container2'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+			new inputEx.StringField({value: 'inputEx rocks', parentEl: 'container2'});
+		</textarea>
+	</div>
+</div>
+
+
+<!-- Example 3 -->
+<div class='exampleDiv'>
+	<h2>Changing the size</h2>
+	<p>You can set the size of the input.</p>
+	<div class='demoContainer' id='container3'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+		new inputEx.StringField({size: 40, value: 'size is set to 40 (default is 20)', parentEl: 'container3'});
+		</textarea>
+	</div>
+</div>
+
+
+<!-- Example 4 -->
+<div class='exampleDiv'>
+	<h2>Maximum and minimum length</h2>
+	<p>You can add a maximum/minimum length on string fields :</p>
+	<div class='demoContainer' id='container4'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+			new inputEx.StringField({value: '0123456789', showMsg: true, minLength: 3, maxLength: 10, parentEl: 'container4'});
+		</textarea>
+	</div>
+</div>
+
+
+<!-- Example 5 -->
+<div class='exampleDiv'>
+	<h2>Required</h2>
+	<p>If the 'required' property is set, the 'validate' method will return false if the field is empty. In a form, the 'validate' method will be called on each field and will return false if at least one field doesn't validate.</p>
+	<div class='demoContainer' id='container5'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+			new inputEx.StringField({required: true, showMsg: true, parentEl: 'container5'});
+		</textarea>
+	</div>
+</div>
+
+
+<!-- Example 6 -->
+<div class='exampleDiv'>
+	<h2>Regular Expression 1</h2>
+	<p>Here is an example on how to check the value with a regular expression. (It is better to use the IntegerField, but this is a simple example.)</p>
+	<div class='demoContainer' id='container6'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+			new inputEx.StringField({label: 'Enter your age', regexp: /^[0-9]*$/, parentEl: 'container6'});
+		</textarea>
+	</div>
+</div>
+
+
+
+<!-- Example 7 -->
+<div class='exampleDiv'>
+	<h2>Regular Expression 2</h2>
+	<p>The basic Field class can use regular expressions to validate the field content. Here is an example with this wonderful email regular expression (note that there is an Email Field class).</p>
+	<div class='demoContainer' id='container7'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+		new inputEx.StringField({showMsg: true,regexp: inputEx.regexps.email, value: 'wrong@email', parentEl: 'container7'});
+		</textarea>
+	</div>
+</div>
+
+
+
+<!-- Example 8 -->
+<div class='exampleDiv'>
+	<h2>Enabling/Disabling inputs</h2>
+	<p>You can call the methods 'disable' or 'enable' to set the state of the field.</p>
+	<div class='demoContainer' id='container8'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+			var field = new inputEx.StringField({value: 'This field is disabled', parentEl: 'container8'});
+			field.disable();
+		</textarea>
+	</div>
+</div>
+
+
+<!-- Example 9 -->
+<div class='exampleDiv'>
+	<h2>Updated event</h2>	
+	<p>How to listen to the updated event :</p>
+	<div class='demoContainer' id='container9'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+					var el = YAHOO.util.Dom.get('container9');
+					var field = new inputEx.StringField({parentEl: el });
+					var logDiv = inputEx.cn('div', null, null, "Log :");
+					el.appendChild(logDiv);
+					field.updatedEvt.subscribe(function(e,params) {
+						var val = params[0];
+						logDiv.innerHTML += "Updated at "+(new Date())+" with value: "+val;
+					});
+		</textarea>
+	</div>
+</div>
+
+
+
+<!-- Example 10 -->
+<div class='exampleDiv'>
+	<h2>Type invitation</h2>
+	<p>Display a text when the field is empty.</p>
+	<div class='demoContainer' id='container10'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+		new inputEx.StringField({parentEl: 'container10', typeInvite: 'lastname', description: 'Enter your lastname'});
+		</textarea>
+	</div>
+</div>
+
+
+
+<!-- Example 11 -->
+<div class='exampleDiv'>
+	<h2>Various options</h2>
+	<p>Config with various options : typeInvite, required, minLength, trim  &nbsp;--&nbsp; Test setValue and getValue methods</p>
+	<div class='demoContainer' id='container11'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+			var field1 = new inputEx.StringField({
+				parentEl: 'container11', 
+				typeInvite: 'lastname', 
+				description: 'Enter your lastname', 
+				minLength:10, 
+				trim:true, // getValue will return a trimed value
+				required:true, 
+				showMsg:true
+			});
+
+			var exampleDiv = YAHOO.util.Dom.get('container11');
+
+			var button1 = inputEx.cn('button', null, null, 'setValue()');
+			exampleDiv.appendChild(button1); 
+			YAHOO.util.Event.addListener(button1, 'click', function() { 
+				field1.setValue("I've been set by setValue"); 
+			});
+
+			var button2 = inputEx.cn('button', null, null, 'getValue()');
+			exampleDiv.appendChild(button2); 
+			YAHOO.util.Event.addListener(button2, 'click', function() { 
+				alert(field1.getValue()); 
+			});
+		</textarea>
+	</div>
+</div>
+
+
+<!-- Example 12 -->
+<div class='exampleDiv'>
+	<h2>Focus the field</h2>
+	<p>Use the focus method</p>
+	<div class='demoContainer' id='container12'></div>
+	<div class='codeContainer'>
+		<textarea name="code" class="JScript" cols="60" rows="1">
+			var field12 = new inputEx.StringField({parentEl: 'container12'});
+
+			var exampleDiv = YAHOO.util.Dom.get('container12');
+
+			var button3 = inputEx.cn('button', null, null, 'focus()');
+			exampleDiv.appendChild(button3); 
+			YAHOO.util.Event.addListener(button3, 'click', function() { field12.focus(); });
+		</textarea>
+	</div>
+</div>
+
+
+<!-- YUI Library -->
+<script type="text/javascript" src="../lib/yui/utilities/utilities.js"></script>
+<script type="text/javascript" src="../lib/yui/container/container-min.js"></script>
+
+<!-- InputEx -->
+<script src="../js/inputex.js"  type='text/javascript'></script>
+<script src="../js/Field.js"  type='text/javascript'></script>
+<script src="../js/fields/StringField.js"  type='text/javascript'></script>
+
+<!-- inputEx examples -->
+<script src="js/dpSyntaxHighlighter.js"></script>
+<script src="inputex-examples.js"></script>
+
+ </body>
+</html>
