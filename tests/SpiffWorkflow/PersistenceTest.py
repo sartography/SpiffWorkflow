@@ -1,6 +1,6 @@
 import sys, unittest, re, os
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 import pickle
 import pprint

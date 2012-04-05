@@ -1,6 +1,6 @@
 import sys, unittest, re, os
 dirname = os.path.dirname(__file__)
-sys.path.insert(0, os.path.join(dirname, '..', '..', '..', 'src'))
+sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 from SpiffWorkflow.storage import DictionarySerializer
 from SerializerTest import SerializerTest

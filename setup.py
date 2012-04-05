@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
-from os.path    import dirname, join
-srcdir = join(dirname(__file__), 'src')
+from os.path import dirname, join
 setup(name             = 'SpiffWorkflow',
       version          = '0.3.0',
       description      = 'A workflow framework based on www.workflowpatterns.com',
@@ -20,8 +19,7 @@ to API stability at this time.
       author           = 'Samuel Abels',
       author_email     = 'cheeseshop.python.org@debain.org',
       license          = 'lGPLv2',
-      package_dir      = {'': srcdir},
-      packages         = [p for p in find_packages(srcdir)],
+      packages         = ['SpiffWorkflow'],
       requires         = [],
       keywords         = 'spiff guard acl acls security authentication object storage',
       url              = 'http://code.google.com/p/spiff-workflow/',
