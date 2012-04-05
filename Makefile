@@ -29,6 +29,7 @@ git-environment:
 ###################################################################
 clean:
 	find . -name "*.pyc" -o -name "*.pyo" | xargs -n1 rm -f
+	find . -name "*.egg-info" | xargs -n1 rm -r
 	rm -Rf build
 
 dist-clean: clean
