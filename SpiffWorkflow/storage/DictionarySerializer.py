@@ -183,6 +183,16 @@ class DictionarySerializer(Serializer):
         spec.default_task_spec = s_state['default_task_spec']
         return spec
 
+    def _serialize_execute(self, spec):
+        s_state = self._serialize_task_spec(spec)
+        s_state['args'] = spec.args
+        return s_state
+
+    def _deserialize_execute(self, wf_spec, s_state):
+        spec = Execute(wf_spec, s_state['name'], s_state['args'])
+        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        return spec
+
     def _serialize_gate(self, spec):
         s_state = self._serialize_task_spec(spec)
         s_state['context'] = spec.context
