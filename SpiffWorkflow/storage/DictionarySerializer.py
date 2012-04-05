@@ -12,7 +12,9 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import marshal
-from binascii import b2a_uu, a2b_uu
+import StringIO
+import uu
+
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.util.impl import get_class
 from SpiffWorkflow.Task import Task
@@ -20,18 +22,68 @@ from SpiffWorkflow.operators import *
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.storage.Serializer import Serializer
 
+
+def uu_encodestring(text):
+    fin = StringIO.StringIO(text)
+    fout = StringIO.StringIO()
+    uu.encode(fin, fout)
+    return fout.getvalue()
+
+
+def uu_decodestring(text):
+    # Support legacy by handling strings without begin/end
+    if text and text[0:5] != 'begin':
+        text = 'begin 666 -\n%s \nend\n' % text
+    fin = StringIO.StringIO(text)
+    fout = StringIO.StringIO()
+    uu.decode(fin, fout)
+    return fout.getvalue()
+
+
 class DictionarySerializer(Serializer):
     def _serialize_dict(self, thedict):
-        return dict((k, b2a_uu(marshal.dumps(v))) for k, v in thedict.iteritems())
+        return dict((k, uu_encodestring(marshal.dumps(v))) for k, v in thedict.iteritems())
 
     def _deserialize_dict(self, s_state):
-        return dict((k, marshal.loads(a2b_uu(v))) for k, v in s_state.iteritems())
+        return dict((k, marshal.loads(uu_decodestring(v))) for k, v in s_state.iteritems())
+
+    def _serialize_dict_with_objects(self, thedict):
+        """Detect any Attrib or Operator objects and call their serializers"""
+        if thedict is None:
+            return None
+        result = {}
+        for key, value in thedict.iteritems():
+            result[key] = self._serialize_arg(value)
+        return self._serialize_dict(result)
+
+    def _deserialize_dict_with_objects(self, s_state):
+        thedict = self._deserialize_dict(s_state)
+        if thedict:
+            for key, value in thedict.iteritems():
+                thedict[key] = self._deserialize_arg(value)
+        return thedict
 
     def _serialize_list(self, thedict):
-        return [(k, b2a_uu(marshal.dumps(v))) for k, v in thedict]
+        return [(k, uu_encodestring(marshal.dumps(v))) for k, v in thedict]
 
     def _deserialize_list(self, s_state):
-        return [(k, a2b_uu(marshal.loads(v))) for k, v in s_state]
+        return [(k, uu_decodestring(marshal.loads(v))) for k, v in s_state]
+
+    def _serialize_list_with_objects(self, thelist):
+        """Detect any Attrib or Operator objects and call their serializers"""
+        if thelist is None:
+            return None
+        result = []
+        for value in thelist:
+            result.append(self._serialize_arg(value))
+        return self._serialize_list(result)
+
+    def _deserialize_list_with_objects(self, s_state):
+        thelist = self._deserialize_dict(s_state)
+        if thelist:
+            for index, value in enumerate(thelist):
+                thelist[index] = self._deserialize_arg(value)
+        return thelist
 
     def _serialize_attrib(self, attrib):
         return attrib.name
@@ -158,6 +210,26 @@ class DictionarySerializer(Serializer):
         self._deserialize_trigger(wf_spec, s_state, spec = spec)
         return spec
 
+    def _serialize_celery(self, spec):
+        args = self._serialize_list_with_objects(spec.args)
+        kwargs = self._serialize_dict_with_objects(spec.kwargs)
+        s_state = self._serialize_task_spec(spec)
+        s_state['call'] = spec.call
+        s_state['args'] = self._serialize_list_with_objects(args)
+        s_state['kwargs'] = self._serialize_dict_with_objects(kwargs)
+        s_state['result_key'] = spec.result_key
+        return s_state
+
+    def _deserialize_celery(self, wf_spec, s_state):
+        args = self._deserialize_list_with_objects(s_state['args'])
+        kwargs = self._deserialize_dict_with_objects(s_state['kwargs'])
+        spec = Celery(wf_spec, s_state['name'], s_state['call'],
+                      call_args=args,
+                      result_key=s_state['result_key'],
+                      **kwargs)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
+
     def _serialize_choose(self, spec):
         s_state = self._serialize_trigger(spec)
         s_state['context'] = spec.context
@@ -206,7 +278,7 @@ class DictionarySerializer(Serializer):
     def _serialize_join(self, spec):
         s_state = self._serialize_task_spec(spec)
         s_state['split_task'] = spec.split_task
-        s_state['threshold'] = b2a_uu(marshal.dumps(spec.threshold))
+        s_state['threshold'] = uu_encodestring(marshal.dumps(spec.threshold))
         s_state['cancel_remaining'] = spec.cancel_remaining
         return s_state
 
@@ -214,7 +286,8 @@ class DictionarySerializer(Serializer):
         spec = Join(wf_spec,
                     s_state['name'],
                     split_task = s_state['split_task'],
-                    threshold = marshal.loads(a2b_uu(s_state['threshold'])),
+                    threshold = marshal.loads(uu_decodestring(
+                            s_state['threshold'])),
                     cancel = s_state['cancel_remaining'])
         self._deserialize_task_spec(wf_spec, s_state, spec = spec)
         return spec

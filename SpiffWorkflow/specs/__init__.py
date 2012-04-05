@@ -1,4 +1,5 @@
 from AcquireMutex import AcquireMutex
+from Celery import Celery
 from Cancel import Cancel
 from CancelTask import CancelTask
 from Choose import Choose
