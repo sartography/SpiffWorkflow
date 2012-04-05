@@ -62,6 +62,10 @@ Hint: The examples are located in tests/data/spiff/.
     10. Block Task to Sub-Workflow Decomposition [data/block_to_subworkflow.xml]
     11. Sub-Workflow Decomposition to Block Task [data/subworkflow_to_block.xml]
 
+  Other Patterns:
+
+     1. Execute - spawns a subprocess and waits for the results
+
 
 Contact
 --------

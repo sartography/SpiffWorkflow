@@ -1,9 +1,11 @@
+import time
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from SpiffWorkflow import Task
-from SpiffWorkflow.Workflow import TaskIdAssigner
-from SpiffWorkflow.specs import WorkflowSpec, Simple
+from SpiffWorkflow.Workflow import TaskIdAssigner, Workflow
+from SpiffWorkflow.specs import WorkflowSpec, Simple, Execute
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.exceptions import WorkflowException
 
 class MockWorkflow(object):
@@ -68,6 +70,33 @@ class TaskTest(unittest.TestCase):
         self.assert_(expected2 == result,
                      'Expected:\n' + expected2 + '\n' + \
                      'but got:\n'  + result)
+
+    def test_execute(self):
+        """Tests that we can create a task that executes an shell command
+        and that the workflow can be called to complete such tasks"""
+        spec     = WorkflowSpec()
+        task1    = Execute(spec, 'Ping', args=["ping", "-t", "1", "127.0.0.1"])
+        spec.start.connect(task1)
+        workflow = Workflow(spec)
+
+        i = 0
+        while not workflow.is_completed() and i < 10:
+            workflow.complete_all()
+            i += 1
+            time.sleep(0.5)
+        self.assertTrue(workflow.is_completed())
+        self.assertEqual(i, 3)
+        task = workflow.get_task(3)
+        self.assertEquals(task.state_history, [1, 8, 16, 64])
+        # Check whether the status log is accurate.
+        expected = """Moving 'Ping' from FUTURE to WAITING
+Moving 'Ping' from WAITING to READY
+Moving 'Ping' from READY to COMPLETED"""
+        self.assert_(expected == '\n'.join(task.log),
+                     'Expected:\n' + expected + '\n' + \
+                     'but got:\n'  + '\n'.join(task.log))
+        self.assertIn('127.0.0.1', task.results[0])
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TaskTest)
