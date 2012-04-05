@@ -2,8 +2,8 @@ import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from SpiffWorkflow import Task
-from SpiffWorkflow.Workflow import TaskIdAssigner
-from SpiffWorkflow.specs import WorkflowSpec, Simple
+from SpiffWorkflow.Workflow import TaskIdAssigner, Workflow
+from SpiffWorkflow.specs import WorkflowSpec, Simple, Wait
 from SpiffWorkflow.exceptions import WorkflowException
 
 class MockWorkflow(object):
@@ -68,6 +68,31 @@ class TaskTest(unittest.TestCase):
         self.assert_(expected2 == result,
                      'Expected:\n' + expected2 + '\n' + \
                      'but got:\n'  + result)
+
+    def testWait(self):
+        """Tests that we can create a task that waits for an external resource
+        and that the workflow can be called to complete such tasks"""
+        spec     = WorkflowSpec()
+        task1    = Wait(spec, 'Wait 3 Times', 4)
+        spec.start.connect(task1)
+        workflow = Workflow(spec)
+
+        i = 0
+        while not workflow.is_completed() and i < 10:
+            workflow.complete_all()
+            i += 1
+        self.assertTrue(workflow.is_completed())
+        self.assertEqual(i, 3)
+        wait_task = workflow.get_task(3)
+        self.assertEquals(wait_task.state_history, [1, 8, 16, 64])
+        # Check whether the status log is accurate.
+        expected = """Moving 'Wait 3 Times' from FUTURE to WAITING
+Moving 'Wait 3 Times' from WAITING to READY
+Moving 'Wait 3 Times' from READY to COMPLETED"""
+        self.assert_(expected == '\n'.join(wait_task.log),
+                     'Expected:\n' + expected + '\n' + \
+                     'but got:\n'  + '\n'.join(wait_task.log))
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TaskTest)

@@ -15,6 +15,7 @@ from Assign import Assign
 from ThreadMerge import ThreadMerge
 from ThreadSplit import ThreadSplit
 from Trigger import Trigger
+from Wait import Wait
 from WorkflowSpec import WorkflowSpec
 
 import inspect
