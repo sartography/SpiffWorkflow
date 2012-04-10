@@ -12,7 +12,6 @@ from ReleaseMutex import ReleaseMutex
 from Simple import Simple
 from StartTask import StartTask
 from SubWorkflow import SubWorkflow
-from Assign import Assign
 from ThreadMerge import ThreadMerge
 from ThreadSplit import ThreadSplit
 from Trigger import Trigger

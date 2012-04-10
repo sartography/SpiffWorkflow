@@ -62,7 +62,7 @@ class XmlSerializer(Serializer):
             kwargs['right'] = value
         else:
             kwargs['right_attribute'] = attrib
-        return specs.Assign(name, **kwargs)
+        return operators.Assign(name, **kwargs)
 
     def _deserialize_property(self, workflow, start_node):
         """
