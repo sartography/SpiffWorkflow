@@ -9,9 +9,12 @@ from SpiffWorkflow.storage import DictionarySerializer
 class TaskSpecTest(unittest.TestCase):
     CORRELATE = TaskSpec
 
+    def create_instance(self):
+        return TaskSpec(self.wf_spec, 'testtask', description = 'foo')
+
     def setUp(self):
         self.wf_spec = WorkflowSpec()
-        self.spec = TaskSpec(self.wf_spec, 'testtask', description = 'foo')
+        self.spec    = self.create_instance()
 
     def testConstructor(self):
         self.assertEqual(self.spec.name, 'testtask')
@@ -34,14 +37,14 @@ class TaskSpecTest(unittest.TestCase):
 
     def testConnect(self):
         self.assertEqual(self.spec.outputs, [])
-        spec = TaskSpec(self.wf_spec, 'another')
+        spec = self.create_instance()
         self.spec.connect(spec)
         self.assertEqual(self.spec.outputs, [spec])
         self.assertEqual(spec.inputs, [self.spec])
 
     def testTest(self):
-        # Should fail because the TaskSpec has no if yet.
-        spec = TaskSpec(self.wf_spec, 'myspec')
+        # Should fail because the TaskSpec has no id yet.
+        spec = self.create_instance()
         self.assertRaises(WorkflowException, spec.test)
 
         # Should fail because the task has no inputs.
@@ -54,7 +57,7 @@ class TaskSpecTest(unittest.TestCase):
 
     def testSerialize(self):
         serializer = DictionarySerializer()
-        spec = TaskSpec(self.wf_spec, 'myspec')
+        spec = self.create_instance()
         self.assert_(isinstance(spec.serialize(serializer), dict))
 
 def suite():
