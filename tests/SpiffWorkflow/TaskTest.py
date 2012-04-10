@@ -1,9 +1,9 @@
 import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from SpiffWorkflow import Task
+from SpiffWorkflow import Task, Workflow
 from SpiffWorkflow.Workflow import TaskIdAssigner
-from SpiffWorkflow.specs import WorkflowSpec, Simple
+from SpiffWorkflow.specs import WorkflowSpec, Simple, Transform
 from SpiffWorkflow.exceptions import WorkflowException
 
 class MockWorkflow(object):
@@ -68,6 +68,29 @@ class TaskTest(unittest.TestCase):
         self.assert_(expected2 == result,
                      'Expected:\n' + expected2 + '\n' + \
                      'but got:\n'  + result)
+
+    def test_transform(self):
+        """Tests that we can create a task that to transform data"""
+        spec     = WorkflowSpec()
+        task1    = Transform(spec, 'First', transforms=[
+            "my_task.set_attribute(data=1)"])
+        spec.start.connect(task1)
+        task2    = Transform(spec, 'Second', transforms=[
+            "my_task.set_attribute(data=my_task.attributes['data']+1)",
+            "my_task.set_attribute(copy=my_task.attributes['data'])"
+            ])
+        task1.connect(task2)
+        task3    = Simple(spec, 'Last')
+        task2.connect(task3)
+        workflow = Workflow(spec)
+
+        workflow.complete_all()
+        self.assertTrue(workflow.is_completed())
+        first = workflow.get_task(3)
+        last = workflow.get_task(5)
+        self.assertDictEqual(first.attributes, {'data': 1})
+        self.assertDictEqual(last.attributes, {'data': 2, 'copy': 2})
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TaskTest)
