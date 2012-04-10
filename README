@@ -64,8 +64,8 @@ Hint: The examples are located in tests/data/spiff/.
 
   Specs that have no corresponding workflow pattern on workflowpatterns.com:
 
-     Execute - spawns a subprocess and waits for the results
-     Transform - executes commands that can be used for data transforms
+    Execute - spawns a subprocess and waits for the results
+    Transform - executes commands that can be used for data transforms
 
 
 Contact
@@ -82,11 +82,106 @@ yet been written.
 If you need more help, please drop by our mailing list. You might actually
 make someone write the missing pieces of documentation.
 
-##############################
+```
 from SpiffWorkflow.specs import *
 from SpiffWorkflow import Workflow
 
 spec = WorkflowSpec()
 wf   = Workflow(spec)
 ...
-##############################
+```
+
+
+How it works
+------------
+
+### Functionality
+
+One critical concept to know about SpiffWorkflow that helps with understanding
+the code is the difference between a `TaskSpec `and `Task` and the difference
+between a `WorkflowSpec` and `Workflow`.
+
+A WorkflowSpec and TaskSpec are used to define your workflow. All types of
+tasks (Join, Split, Execute, Wait, etc) are derived from TaskSpec. The Specs
+can be deserialized from known formats like OpenWFE. You build your
+WorkflowSpec by chaining TaskSpecs together in a tree.
+
+When you want to actually run the process, you create a Workflow instance
+from the WorkflowSpec (pass the spec to the Workflow initializer).
+
+How this works from there is based on the principles of computer programming
+(remember, this project comes from the academic world). A `derivation tree` is
+created based off of the spec using a hierarchy of Task objects (not TaskSpecs,
+but each Task points to the TaskSpec that generated it).
+For more documentation of the derivation tree have a look at the
+[SpiffWorkflow wiki](https://github.com/knipknap/SpiffWorkflow/wiki).
+
+Think of a derivation tree as tree of execution paths (some, but not all, of
+which will end up executing). Each Task object is basically a node in the
+derivation tree. Each task in the tree links back to its parent (there are no
+connection objects). The processing is done by walking down the derivation
+tree one Task at a time and moving the task (and it's children) through the
+sequence of states towards completion. The states are documented in
+[Task.py](https://github.com/knipknap/SpiffWorkflow/blob/master/SpiffWorkflow/Task.py|the code).
+
+The Workflow and Task classes are in the root of the project. All the specs
+(TaskSpec, WorkflowSpec, and all derived classes) are in the specs
+subdirectory.
+
+You can serialize/deserialize specs and open standards like OpenWFE are
+supported (and others can be coded in easily). You can also
+serialize/deserialize a running workflow (it will pull in its spec as
+well).
+
+Another important distinction is between properties and attributes.
+Properties belong to TaskSpecs. They are static at run-time and belong
+to the design of the workflow. Attributes are dynamic and assigned to
+Tasks (nodes in the execution path).
+
+There's a decent eventing model that allows you to tie in to and receive
+events (for each task, you can get event notifications from its TaskSpec).
+The events correspond with how the processing is going in the derivation
+tree, not necessarily how the workflow as a whole is moving. See
+[TaskSpec.py](https://github.com/knipknap/SpiffWorkflow/blob/master/SpiffWorkflow/specs/TaskSpec.py)
+for docs on events.
+
+### Understanding FUTURE, WAITING, READY, and COMPLETE states
+
+ * FUTURE means the processor has predicted that this this path will be taken and this task will definitely run.
+ * If a task is waiting on predecessors to run then it is in FUTURE state (not WAITING).
+ * READY means "preconditions are met for marking this task as complete".
+ * You can try to complete a task at any point. If it is in FUTURE state and does not complete, it can fall back to READY state.
+
+
+*WAITING* can be confusing:
+
+ * WAITING means "I am in the process of doing my work and have not finished.
+   When the work is finished, then I will be READY for completion and will go
+   to READY state."
+ * WAITING always comes after FUTURE and before READY. 
+ * WAITING is an optional state.
+
+
+*REACHED* may also be confusing unless you remember that it means that the
+processor has now _reached_ this task in the execution path:
+
+ * REACHED means processing has reached this task in the derivation tree.
+ This is not a state, but an event.
+ * A task is always reached before it becomes READY.
+
+You can nest workflows (using the SubWorkflowSpec).
+
+The serialization code is done well which makes it easy to add new formats
+if we need to support them.
+
+To understand better how a TaskSpec pattern works, look at [the workflow
+patterns](http://www.workflowpatterns.com) web site; especially the flash
+animations showing how each type of task works.
+
+The tasks labelled "ThreadXXXX" create logical threads based on the model
+in http://www.workflowpatterns.com. There is no python threading implemented.
+However, there is some locking and mutex code in place.
+
+### State Transitions
+
+![state-diagram.png](https://github.com/knipknap/SpiffWorkflow/raw/docs/doc/figures/state-diagram.png)
