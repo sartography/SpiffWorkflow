@@ -48,7 +48,7 @@ class ThreadMerge(Join):
         Join.__init__(self, parent, name, split_task, **kwargs)
 
 
-    def try_fire(self, my_task):
+    def _try_fire(self, my_task):
         # If the threshold was already reached, there is nothing else to do.
         if my_task._has_state(Task.COMPLETED):
             return False
@@ -97,7 +97,7 @@ class ThreadMerge(Join):
 
 
     def _update_state_hook(self, my_task):
-        if not self.try_fire(my_task):
+        if not self._try_fire(my_task):
             my_task._set_state(Task.WAITING)
             return False
 

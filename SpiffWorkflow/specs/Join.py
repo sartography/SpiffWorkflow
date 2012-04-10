@@ -178,7 +178,7 @@ class Join(TaskSpec):
         # If the threshold was reached, get ready to fire.
         return force or completed >= threshold, waiting_tasks
 
-    def try_fire(self, my_task, force = False):
+    def _try_fire(self, my_task, force = False):
         """
         Checks whether the preconditions for going to READY state are met.
         Returns True if the threshold was reached, False otherwise.
@@ -196,7 +196,7 @@ class Join(TaskSpec):
         return self._try_fire_structured(my_task, force)
 
     def _update_state_hook(self, my_task):
-        may_fire, waiting_tasks = self.try_fire(my_task)
+        may_fire, waiting_tasks = self._try_fire(my_task)
         if may_fire:
             # If this is a cancelling join, cancel all incoming branches,
             # except for the one that just completed.
