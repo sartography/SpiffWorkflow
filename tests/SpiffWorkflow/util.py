@@ -1,3 +1,4 @@
+import time
 from SpiffWorkflow import Workflow, Task
 
 def on_reached_cb(workflow, task, taken_path):
@@ -72,7 +73,13 @@ def run_workflow(test, wf_spec, expected_path, expected_data):
     workflow   = Workflow(wf_spec)
     test.assert_(not workflow.is_completed(), 'Workflow is complete before start')
     try:
-        workflow.complete_all(False)
+        # We allow the workflow to require a maximum of 5 seconds to
+        # complete, to allow for testing long running tasks.
+        for i in range(10):
+            workflow.complete_all(False)
+            if workflow.is_completed():
+                break
+            time.sleep(0.5)
     except:
         workflow.task_tree.dump()
         raise
@@ -104,3 +111,5 @@ def run_workflow(test, wf_spec, expected_path, expected_data):
         error   += 'but got:\n'
         error   += '%s\n'        % result
         test.assert_(result == expected_data, error)
+
+    return workflow
