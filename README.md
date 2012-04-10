@@ -184,4 +184,4 @@ However, there is some locking and mutex code in place.
 
 ### State Transitions
 
-![state-diagram.png](https://github.com/knipknap/SpiffWorkflow/raw/docs/doc/figures/state-diagram.png)
+![state-diagram.png](https://github.com/knipknap/SpiffWorkflow/raw/master/doc/figures/state-diagram.png)
