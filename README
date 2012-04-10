@@ -1,5 +1,5 @@
 Spiff Workflow
----------------
+==============
 Spiff Workflow is a library implementing a framework for workflows.
 It is based on http://www.workflowpatterns.com and implemented in pure Python.
 
@@ -62,9 +62,10 @@ Hint: The examples are located in tests/data/spiff/.
     10. Block Task to Sub-Workflow Decomposition [data/block_to_subworkflow.xml]
     11. Sub-Workflow Decomposition to Block Task [data/subworkflow_to_block.xml]
 
-  Other Patterns:
+  Specs that have no corresponding workflow pattern on workflowpatterns.com:
 
-     1. Execute - spawns a subprocess and waits for the results
+     Execute - spawns a subprocess and waits for the results
+     Transform - executes commands that can be used for data transforms
 
 
 Contact

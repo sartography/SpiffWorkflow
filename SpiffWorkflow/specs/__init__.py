@@ -14,6 +14,7 @@ from StartTask import StartTask
 from SubWorkflow import SubWorkflow
 from ThreadMerge import ThreadMerge
 from ThreadSplit import ThreadSplit
+from Transform import Transform
 from Trigger import Trigger
 from WorkflowSpec import WorkflowSpec
 
