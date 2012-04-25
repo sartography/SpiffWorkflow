@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 from os.path import dirname, join
+
 setup(name             = 'SpiffWorkflow',
       version          = '0.3.0',
       description      = 'A workflow framework based on www.workflowpatterns.com',
@@ -14,15 +15,15 @@ included with the package.
 WARNING! This software is still under development - there are no guarantees
 to API stability at this time.
 
-.. _README file: http://code.google.com/p/spiff-workflow/source/browse/trunk/README
+.. _README file: https://github.com/knipknap/SpiffWorkflow/blob/master/README.md
 """,
       author           = 'Samuel Abels',
       author_email     = 'cheeseshop.python.org@debain.org',
       license          = 'lGPLv2',
-      packages         = ['SpiffWorkflow'],
+      packages         = find_packages(exclude=['tests', 'tests.*']),
       requires         = [],
       keywords         = 'spiff guard acl acls security authentication object storage',
-      url              = 'http://code.google.com/p/spiff-workflow/',
+      url              = 'https://github.com/knipknap/SpiffWorkflow',
       classifiers      = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
