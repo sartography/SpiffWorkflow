@@ -11,11 +11,6 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-import base64
-import marshal
-import StringIO
-import uu
-
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.util.impl import get_class
 from SpiffWorkflow.Task import Task
@@ -25,31 +20,12 @@ from SpiffWorkflow.storage.Serializer import Serializer
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
 
 
-def uu_encodestring(text):
-    fin = StringIO.StringIO(text)
-    fout = StringIO.StringIO()
-    uu.encode(fin, fout)
-    return fout.getvalue()
-
-
-def uu_decodestring(text):
-    # Support legacy by handling strings without begin/end
-    if text and text[0:5] != 'begin':
-        text = 'begin 666 -\n%s \nend\n' % text
-    fin = StringIO.StringIO(text)
-    fout = StringIO.StringIO()
-    uu.decode(fin, fout)
-    return fout.getvalue()
-
-
 class DictionarySerializer(Serializer):
     def _serialize_dict(self, thedict):
         return thedict
-        #dict((k, uu_encodestring(marshal.dumps(v))) for k, v in thedict.iteritems())
 
     def _deserialize_dict(self, s_state):
         return s_state
-        #dict((k, marshal.loads(uu_decodestring(v))) for k, v in s_state.iteritems())
 
     def _serialize_dict_with_objects(self, thedict):
         """Detect any Attrib or Operator objects and call their serializers"""
@@ -69,11 +45,9 @@ class DictionarySerializer(Serializer):
 
     def _serialize_list(self, theList):
         return theList
-        #[(k, uu_encodestring(marshal.dumps(v))) for k, v in thedict]
 
     def _deserialize_list(self, s_state):
         return s_state
-        #[(k, uu_decodestring(marshal.loads(v))) for k, v in s_state]
 
     def _serialize_list_with_objects(self, thelist):
         """Detect any Attrib or Operator objects and call their serializers"""
@@ -137,13 +111,15 @@ class DictionarySerializer(Serializer):
             module = arg.__class__.__module__
             arg_type = module + '.' + arg.__class__.__name__
             return arg_type, arg.serialize(self)
-        return 'value', arg
+        elif isinstance(arg, tuple) and arg[0] in ["spiff:value", 'Attrib']:
+            return arg
+        return 'spiff:value', arg
 
     def _deserialize_arg(self, s_state):
         arg_type, arg = s_state
         if arg_type == 'Attrib':
             return self._deserialize_attrib(arg)
-        elif arg_type == 'value':
+        elif arg_type == 'spiff:value':
             return arg
         arg_cls = get_class(arg_type)
         return arg_cls.deserialize(self, arg)
@@ -275,7 +251,6 @@ class DictionarySerializer(Serializer):
         if s_state.get('choice') is not None:
             spec.choice = wf_spec.get_task_spec_from_name(s_state['choice'])
         for cond, spec_name in s_state['cond_task_specs']:
-
             condition = self._deserialize_arg(cond)
             spec.cond_task_specs.append((condition, spec_name))
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
