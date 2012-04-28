@@ -4,16 +4,17 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from mutex import mutex
+from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow import specs
 from SpiffWorkflow.util.event import Event
 from Task import Task
@@ -24,7 +25,7 @@ class TaskIdAssigner(object):
         self.id_pool = 0
 
     def get_new_id(self):
-        self.id_pool  += 1
+        self.id_pool += 1
         return self.id_pool
 
 
@@ -58,10 +59,9 @@ class Workflow(object):
         start                = self.task_tree._add_child(self.spec.start)
 
         self.spec.start._predict(start)
-        if not kwargs.has_key('parent'):
+        if 'parent' not in kwargs:
             start.task_spec._update_state(start)
         #start.dump()
-
 
     def is_completed(self):
         """
@@ -76,11 +76,9 @@ class Workflow(object):
             return True
         return False
 
-
     def _get_waiting_tasks(self):
         waiting = Task.Iterator(self.task_tree, Task.WAITING)
         return [w for w in waiting]
-
 
     def _task_completed_notify(self, task):
         if task.get_name() == 'End':
@@ -95,14 +93,12 @@ class Workflow(object):
         if self.is_completed():
             self.completed_event(self)
 
-
     def _get_mutex(self, name):
-        if not self.locks.has_key(name):
+        if name not in self.locks:
             self.locks[name] = mutex()
         return self.locks[name]
 
-
-    def get_attribute(self, name, default = None):
+    def get_attribute(self, name, default=None):
         """
         Returns the value of the attribute with the given name, or the given
         default value if the attribute does not exist.
@@ -116,8 +112,7 @@ class Workflow(object):
         """
         return self.attributes.get(name, default)
 
-
-    def cancel(self, success = False):
+    def cancel(self, success=False):
         """
         Cancels all open tasks in the workflow.
 
@@ -132,7 +127,6 @@ class Workflow(object):
             cancel.append(task)
         for task in cancel:
             task.cancel()
-    
 
     def get_task_spec_from_name(self, name):
         """
@@ -154,10 +148,10 @@ class Workflow(object):
         @rtype: Task
         @return: The task with the given id.
         """
-        tasks = [task for task in self.get_tasks() if task.id==id]
+        tasks = [task for task in self.get_tasks() if task.id == id]
         return tasks[0] if len(tasks) == 1 else None
 
-    def get_tasks(self, state = Task.ANY_MASK):
+    def get_tasks(self, state=Task.ANY_MASK):
         """
         Returns a list of Task objects with the given state.
 
@@ -167,7 +161,6 @@ class Workflow(object):
         @return: A list of tasks.
         """
         return [t for t in Task.Iterator(self.task_tree, state)]
-
 
     def complete_task_from_id(self, task_id):
         """
@@ -184,8 +177,7 @@ class Workflow(object):
         msg = 'A task with the given task_id (%s) was not found' % task_id
         raise WorkflowException(self.spec, msg)
 
-
-    def complete_next(self, pick_up = True):
+    def complete_next(self, pick_up=True):
         """
         Runs the next task.
         Returns True if completed, False otherwise.
@@ -231,8 +223,7 @@ class Workflow(object):
                 return True
         return False
 
-
-    def complete_all(self, pick_up = True):
+    def complete_all(self, pick_up=True):
         """
         Runs all branches until completion. This is a convenience wrapper
         around complete_next(), and the pick_up argument is passed along.
@@ -242,7 +233,6 @@ class Workflow(object):
         """
         while self.complete_next(pick_up):
             pass
-
 
     def get_dump(self):
         """
@@ -254,13 +244,12 @@ class Workflow(object):
         """
         return self.task_tree.get_dump()
 
-
     def dump(self):
         """
         Like get_dump(), but prints the output to the terminal instead of
         returning it.
         """
-        return self.task_tree.dump()
+        print self.task_tree.dump()
 
     def serialize(self, serializer, **kwargs):
         """
