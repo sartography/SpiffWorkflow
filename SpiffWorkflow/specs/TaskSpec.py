@@ -16,7 +16,7 @@
 from SpiffWorkflow.util.event import Event
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.operators import valueof
+
 
 class TaskSpec(object):
     """
@@ -38,19 +38,19 @@ class TaskSpec(object):
       - B{finished}: called when the state changes to COMPLETED or CANCELLED,
         at the last possible time after the post-assign variables are
         assigned and mutexes are released.
-        
-    Event sequence is: entered -> reached -> ready -> completed -> finished 
-        (cancelled may happen at any time) 
 
-    The only events where implementing something other than state tracking 
+    Event sequence is: entered -> reached -> ready -> completed -> finished
+        (cancelled may happen at any time)
+
+    The only events where implementing something other than state tracking
     may be useful are the following:
-      - Reached: You could mess with the pre-assign variables here, for 
-        example. Other then that, there is probably no need in a real 
-        application. 
-      - Ready: This is where a task could implement custom code, for example 
-        for triggering an external system. This is also the only event where a 
-        return value has a meaning (returning non-True will mean that the 
-        post-assign procedure is skipped.) 
+      - Reached: You could mess with the pre-assign variables here, for
+        example. Other then that, there is probably no need in a real
+        application.
+      - Ready: This is where a task could implement custom code, for example
+        for triggering an external system. This is also the only event where a
+        return value has a meaning (returning non-True will mean that the
+        post-assign procedure is skipped.)
     """
 
     def __init__(self, parent, name, **kwargs):
@@ -148,12 +148,12 @@ class TaskSpec(object):
         Defines the given property name/value pairs.
         """
         for key in kwargs:
-            if self.defines.has_key(key):
+            if key in self.defines:
                 msg = "Property %s can not be modified" % key
                 raise WorkflowException(msg)
         self.properties.update(kwargs)
 
-    def get_property(self, name, default = None):
+    def get_property(self, name, default=None):
         """
         Returns the value of the property with the given name, or the given
         default value if the property does not exist.
@@ -186,7 +186,7 @@ class TaskSpec(object):
         if len(self.inputs) < 1:
             raise WorkflowException(self, 'No input task connected.')
 
-    def _predict(self, my_task, seen = None, looked_ahead = 0):
+    def _predict(self, my_task, seen=None, looked_ahead=0):
         """
         Updates the branch such that all possible future routes are added
         with the LIKELY flag.
@@ -405,7 +405,7 @@ class TaskSpec(object):
         return serializer._serialize_task_spec(self, **kwargs)
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state, **kwargs):
+    def deserialize(cls, serializer, wf_spec, s_state, **kwargs):
         """
         Deserializes the instance using the provided serializer.
 
@@ -424,4 +424,5 @@ class TaskSpec(object):
         @rtype:  TaskSpec
         @return: The task specification instance.
         """
-        return serializer._deserialize_task_spec(wf_spec, s_state, **kwargs)
+        return serializer._deserialize_task_spec(wf_spec, s_state,
+                cls(wf_spec, s_state['name']), **kwargs)

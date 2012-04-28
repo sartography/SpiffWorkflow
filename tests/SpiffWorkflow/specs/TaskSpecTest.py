@@ -1,20 +1,23 @@
-import sys, unittest, re, os
+import os
+import sys
+import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from SpiffWorkflow.specs import WorkflowSpec
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
-from SpiffWorkflow.storage import DictionarySerializer
+from SpiffWorkflow.storage import DictionarySerializer, JSONSerializer
+
 
 class TaskSpecTest(unittest.TestCase):
     CORRELATE = TaskSpec
 
     def create_instance(self):
-        return TaskSpec(self.wf_spec, 'testtask', description = 'foo')
+        return TaskSpec(self.wf_spec, 'testtask', description='foo')
 
     def setUp(self):
         self.wf_spec = WorkflowSpec()
-        self.spec    = self.create_instance()
+        self.spec = self.create_instance()
 
     def testConstructor(self):
         self.assertEqual(self.spec.name, 'testtask')
@@ -28,7 +31,7 @@ class TaskSpecTest(unittest.TestCase):
     def testSetProperty(self):
         self.assertEqual(self.spec.get_property('foo'), None)
         self.assertEqual(self.spec.get_property('foo', 'bar'), 'bar')
-        self.spec.set_property(foo = 'foobar')
+        self.spec.set_property(foo='foobar')
         self.assertEqual(self.spec.get_property('foo'), 'foobar')
         self.assertEqual(self.spec.get_property('foo', 'bar'), 'foobar')
 
@@ -58,9 +61,17 @@ class TaskSpecTest(unittest.TestCase):
     def testSerialize(self):
         serializer = DictionarySerializer()
         spec = self.create_instance()
-        self.assert_(isinstance(spec.serialize(serializer), dict))
+        serialized = spec.serialize(serializer)
+        self.assert_(isinstance(serialized, dict))
+        new_spec = spec.__class__.deserialize(serializer, self.wf_spec,
+                serialized)
+        before = spec.serialize(serializer)
+        after = new_spec.serialize(serializer)
+        self.assertEqual(before, after, 'Before:\n%s\nAfter:\n%s\n' % (before,
+                after))
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TaskSpecTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())

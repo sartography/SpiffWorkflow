@@ -4,18 +4,17 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-from SpiffWorkflow.Task import Task
-from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
+
 
 class Transform(TaskSpec):
     """
@@ -44,7 +43,6 @@ class Transform(TaskSpec):
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.transforms = transforms
 
-
     def _on_complete_hook(self, my_task):
         if self.transforms:
             for transform in self.transforms:
@@ -57,8 +55,8 @@ class Transform(TaskSpec):
         return s_state
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        spec = Transform(wf_spec, m_state['name'])
+    def deserialize(cls, serializer, wf_spec, s_state):
+        spec = Transform(wf_spec, s_state['name'])
+        serializer._deserialize_task_spec(wf_spec, s_state, spec=spec)
         spec.transforms = s_state['transforms']
-        serializer._deserialize_simple(spec, s_state)
         return spec
