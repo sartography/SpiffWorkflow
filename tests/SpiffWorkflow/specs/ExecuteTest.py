@@ -1,10 +1,13 @@
-import sys, unittest, re, os
+import os
+import sys
+import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from tests.SpiffWorkflow.util import run_workflow
 from TaskSpecTest import TaskSpecTest
 from SpiffWorkflow import Task
 from SpiffWorkflow.specs import Execute
+
 
 class ExecuteTest(TaskSpecTest):
     CORRELATE = Execute
@@ -14,11 +17,11 @@ class ExecuteTest(TaskSpecTest):
             del self.wf_spec.task_specs['testtask']
         return Execute(self.wf_spec,
                        'testtask',
-                       description = 'foo',
-                       args = self.cmd_args)
+                       description='foo',
+                       args=self.cmd_args)
 
     def setUp(self):
-        self.cmd_args = "ping", "-c", "1", "127.0.0.1"
+        self.cmd_args = "ping", "-c", "1", "-t", "1", "127.0.0.1"
         TaskSpecTest.setUp(self)
 
     def testConstructor(self):
@@ -40,7 +43,8 @@ class ExecuteTest(TaskSpecTest):
                                               Task.COMPLETED])
         self.assert_('127.0.0.1' in task.results[0])
 
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ExecuteTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())
