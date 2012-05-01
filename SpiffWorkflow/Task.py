@@ -13,8 +13,13 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+import logging
 import time
+
 from SpiffWorkflow.exceptions import WorkflowException
+
+LOG = logging.getLogger(__name__)
+
 
 class Task(object):
     """
@@ -99,17 +104,15 @@ class Task(object):
         This is a tree iterator that supports filtering such that a client
         may walk through all tasks that have a specific state.
         """
-        def __init__(self, current, filter = None):
+        def __init__(self, current, filter=None):
             """
             Constructor.
             """
             self.filter = filter
-            self.path   = [current]
-
+            self.path = [current]
 
         def __iter__(self):
             return self
-
 
         def _next(self):
             # Make sure that the end is not yet reached.
@@ -120,12 +123,12 @@ class Task(object):
             # If the current task is LIKELY, and predicted tasks are not
             # specificly searched, we can ignore the children, because predicted
             # tasks should only have predicted children.
-            current     = self.path[-1]
+            current = self.path[-1]
             ignore_task = False
             if self.filter is not None:
-                search_predicted = self.filter   & Task.LIKELY != 0
-                is_predicted     = current.state & Task.LIKELY != 0
-                ignore_task      = is_predicted and not search_predicted
+                search_predicted = self.filter & Task.LIKELY != 0
+                is_predicted = current.state & Task.LIKELY != 0
+                ignore_task = is_predicted and not search_predicted
             if current.children and not ignore_task:
                 self.path.append(current.children[0])
                 if self.filter is not None and current.state & self.filter == 0:
@@ -141,14 +144,13 @@ class Task(object):
 
                 # If this task has a sibling, choose it.
                 parent = self.path[-1]
-                pos    = parent.children.index(old_child)
+                pos = parent.children.index(old_child)
                 if len(parent.children) > pos + 1:
                     self.path.append(parent.children[pos + 1])
                     break
             if self.filter is not None and current.state & self.filter == 0:
                 return None
             return current
-
 
         def next(self):
             # By using this loop we avoid an (expensive) recursive call.
@@ -161,7 +163,7 @@ class Task(object):
     # Pool for assigning a unique thread id to every new Task.
     thread_id_pool = 0
 
-    def __init__(self, workflow, task_spec, parent = None):
+    def __init__(self, workflow, task_spec, parent=None):
         """
         Constructor.
         """
@@ -194,6 +196,8 @@ class Task(object):
                 self.log.append("Moving '%s' from %s to %s" % (self.get_name(),
                         old, self.get_state_name()))
             self.state_history.append(value)
+            LOG.debug("Moving '%s' (spec=%s) from %s to %s" % (self.get_name(),
+                        self.task_spec.name, old, self.get_state_name()))
 
     def _delstate(self):
         del self._state
@@ -203,7 +207,6 @@ class Task(object):
     def __iter__(self):
         return Task.Iterator(self)
 
-
     def __setstate__(self, dict):
         self.__dict__.update(dict)
         # If unpickled in the same Python process in which a workflow
@@ -211,7 +214,6 @@ class Task(object):
         # that there will not be any ID collisions.
         if dict['thread_id'] >= self.__class__.thread_id_pool:
             self.__class__.thread_id_pool = dict['thread_id']
-
 
     def _get_root(self):
         """
@@ -221,15 +223,13 @@ class Task(object):
             return self
         return self.parent._get_root()
 
-
     def _get_depth(self):
         depth = 0
-        task  = self.parent
+        task = self.parent
         while task is not None:
             depth += 1
             task = task.parent
         return depth
-
 
     def _child_added_notify(self, child):
         """
@@ -237,7 +237,6 @@ class Task(object):
         """
         assert child is not None
         self.children.append(child)
-
 
     def _drop_children(self):
         drop = []
@@ -249,11 +248,9 @@ class Task(object):
         for task in drop:
             self.children.remove(task)
 
-
     def _set_state(self, state):
-        self.state             = state
+        self.state = state
         self.last_state_change = time.time()
-
 
     def _has_state(self, state):
         """
@@ -261,20 +258,16 @@ class Task(object):
         """
         return (self.state & state) != 0
 
-
     def _is_finished(self):
         return self.state & self.FINISHED_MASK != 0
-
 
     def _is_predicted(self):
         return self.state & self.PREDICTED_MASK != 0
 
-
     def _is_definite(self):
         return self.state & self.DEFINITE_MASK != 0
 
-
-    def _add_child(self, task_spec, state = FUTURE):
+    def _add_child(self, task_spec, state=FUTURE):
         """
         Adds a new child and assigns the given TaskSpec to it.
 
@@ -290,7 +283,7 @@ class Task(object):
         if self._is_predicted() and state & self.PREDICTED_MASK == 0:
             msg = 'Attempt to add non-predicted child to predicted task'
             raise WorkflowException(self, msg)
-        task           = Task(self.workflow, task_spec, self)
+        task = Task(self.workflow, task_spec, self)
         task.thread_id = self.thread_id
         if state == self.READY:
             task._ready()
@@ -298,8 +291,7 @@ class Task(object):
             task.state = state
         return task
 
-
-    def _assign_new_thread_id(self, recursive = True):
+    def _assign_new_thread_id(self, recursive=True):
         """
         Assigns a new thread id to the task.
 
@@ -316,8 +308,7 @@ class Task(object):
             child.thread_id = self.thread_id
         return self.thread_id
 
-
-    def _update_children(self, task_specs, state = None):
+    def _update_children(self, task_specs, state=None):
         """
         This method adds one child for each given TaskSpec, unless that
         child already exists.
@@ -341,6 +332,7 @@ class Task(object):
         @type  state: integer
         @param state: The bitmask of states for newly added children.
         """
+        LOG.debug("Updating children for %s" % self.get_name())
         if task_specs is None:
             raise ValueError('"task_specs" argument is None')
         if type(task_specs) != type([]):
@@ -348,7 +340,7 @@ class Task(object):
 
         # Create a list of all children that are no longer needed, and
         # set the state of all others.
-        add    = task_specs[:]
+        add = task_specs[:]
         remove = []
         for child in self.children:
             # Must not be TRIGGERED or COMPLETED.
@@ -387,7 +379,6 @@ class Task(object):
                 child = self._add_child(task_spec, self.LIKELY)
                 task_spec._update_state(child)
 
-
     def _set_likely_task(self, task_specs):
         if type(task_specs) != type([]):
             task_specs = [task_specs]
@@ -399,7 +390,6 @@ class Task(object):
                     continue
                 child._set_state(self.LIKELY)
                 return
-
 
     def _is_descendant_of(self, parent):
         """
@@ -417,7 +407,6 @@ class Task(object):
             return True
         return self.parent._is_descendant_of(parent)
 
-
     def _find_child_of(self, parent_task_spec):
         """
         Returns the ancestor that has a task with the given task spec
@@ -434,7 +423,6 @@ class Task(object):
         if self.parent.task_spec == parent_task_spec:
             return self
         return self.parent._find_child_of(parent_task_spec)
-
 
     def _find_any(self, task_spec):
         """
@@ -454,7 +442,6 @@ class Task(object):
             tasks.append(child)
         return tasks
 
-
     def _find_ancestor(self, task_spec):
         """
         Returns the ancestor that has the given task spec assigned.
@@ -470,7 +457,6 @@ class Task(object):
         if self.parent.task_spec == task_spec:
             return self.parent
         return self.parent._find_ancestor(task_spec)
-
 
     def _find_ancestor_from_name(self, name):
         """
@@ -488,7 +474,6 @@ class Task(object):
             return self.parent
         return self.parent._find_ancestor_from_name(name)
 
-
     def _ready(self):
         """
         Marks the task as ready for execution.
@@ -500,21 +485,17 @@ class Task(object):
         self._set_state(self.READY | (self.state & self.TRIGGERED))
         return self.task_spec._on_ready(self)
 
-
     def get_name(self):
         return str(self.task_spec.name)
 
-
     def get_description(self):
         return str(self.task_spec.description)
-
 
     def get_state(self):
         """
         Returns this Task's state.
         """
         return self.state
-
 
     def get_state_name(self):
         """
@@ -526,8 +507,7 @@ class Task(object):
                 state_name.append(name)
         return '|'.join(state_name)
 
-
-    def get_property(self, name, default = None):
+    def get_property(self, name, default=None):
         """
         Returns the value of the property with the given name, or the given
         default value if the property does not exist.
@@ -541,7 +521,6 @@ class Task(object):
         """
         return self.task_spec.get_property(name, default)
 
-
     def get_properties(self):
         """
         Returns a dictionary containing all properties.
@@ -551,17 +530,14 @@ class Task(object):
         """
         return self.task_spec.properties
 
-
     def _set_internal_attribute(self, **kwargs):
         """
         Defines the given attribute/value pairs.
         """
         self.internal_attributes.update(kwargs)
 
-
-    def _get_internal_attribute(self, name, default = None):
+    def _get_internal_attribute(self, name, default=None):
         return self.internal_attributes.get(name, default)
-
 
     def set_attribute(self, **kwargs):
         """
@@ -569,15 +545,13 @@ class Task(object):
         """
         self.attributes.update(kwargs)
 
-
     def _inherit_attributes(self):
         """
         Inherits the attributes from the parent.
         """
         self.set_attribute(**self.parent.attributes)
 
-
-    def get_attribute(self, name, default = None):
+    def get_attribute(self, name, default=None):
         """
         Returns the value of the attribute with the given name, or the given
         default value if the attribute does not exist.
@@ -591,10 +565,8 @@ class Task(object):
         """
         return self.attributes.get(name, default)
 
-
     def get_attributes(self):
         return self.attributes
-
 
     def cancel(self):
         """
@@ -609,7 +581,6 @@ class Task(object):
         self._drop_children()
         return self.task_spec._on_cancel(self)
 
-
     def complete(self):
         """
         Called by the associated task to let us know that its state
@@ -618,15 +589,13 @@ class Task(object):
         self._set_state(self.COMPLETED | (self.state & self.TRIGGERED))
         return self.task_spec._on_complete(self)
 
-
     def trigger(self, *args):
         """
         If recursive is True, the state is applied to the tree recursively.
         """
         self.task_spec._on_trigger(self, *args)
 
-
-    def get_dump(self, indent = 0, recursive = True):
+    def get_dump(self, indent=0, recursive=True):
         """
         Returns the subtree as a string for debugging.
 
@@ -644,10 +613,8 @@ class Task(object):
                 dbg += '\n' + child.get_dump(indent + 1)
         return dbg
 
-
-    def dump(self, indent = 0):
+    def dump(self, indent=0):
         """
         Prints the subtree as a string for debugging.
         """
         print self.get_dump()
-

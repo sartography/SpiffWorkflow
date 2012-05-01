@@ -292,7 +292,8 @@ class DictionarySerializer(Serializer):
         return self._serialize_task_spec(spec)
 
     def _deserialize_start_task(self, wf_spec, s_state):
-        spec = StartTask(wf_spec)
+        # When we create a spec, the start task is created by default. So deserialize into that
+        spec = wf_spec.start  # StartTask(wf_spec)
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
@@ -375,7 +376,7 @@ class DictionarySerializer(Serializer):
                                 for t in task_spec.inputs]
             task_spec.outputs = [spec.get_task_spec_from_name(t)
                                  for t in task_spec.outputs]
-        spec.start = spec.get_task_spec_from_name('Start')
+        assert spec.start is spec.get_task_spec_from_name('Start')
         return spec
 
     def serialize_workflow(self, workflow, **kwargs):
@@ -478,7 +479,7 @@ class DictionarySerializer(Serializer):
         task.children = [self._deserialize_task(workflow, c) for c in s_state['children']]
 
         # state
-        task.state = s_state['state']
+        task._state = s_state['state']
 
         # last_state_change
         task.last_state_change = s_state['last_state_change']
