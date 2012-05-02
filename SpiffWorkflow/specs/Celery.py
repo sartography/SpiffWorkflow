@@ -82,7 +82,8 @@ class Celery(TaskSpec):
         @param call_args: args to pass to celery task.
         @type  result_key: str
         @param result_key: The key to use to store the results of the call in
-                task.attributes. Default is the value of 'call'.
+                task.attributes. If None, then dicts are expanded into
+                attributes and values are stored in 'result'.
         @type  kwargs: dict
         @param kwargs: kwargs to pass to celery task.
         """
@@ -90,10 +91,12 @@ class Celery(TaskSpec):
         assert name    is not None
         assert call is not None
         TaskSpec.__init__(self, parent, name, **kwargs)
+        self.description = kwargs.pop('description', '')
         self.call = call
         self.args = call_args
-        self.kwargs = kwargs
-        self.result_key = result_key or call
+        self.kwargs = {key: kwargs[key] for key in kwargs if key not in \
+                ['properties', 'defines', 'pre_assign', 'post_assign', 'lock']}
+        self.result_key = result_key
 
     def try_fire(self, my_task, force=False):
         """Returns False when successfully fired, True otherwise"""
@@ -103,6 +106,7 @@ class Celery(TaskSpec):
                 my_task._get_internal_attribute('task_id') is not None:
             task_id = my_task._get_internal_attribute('task_id')
             my_task.async_call = app_or_default().AsyncResult(task_id)
+            my_task.deserialized = True
             LOG.debug("Reanimate AsyncCall %s" % task_id)
 
         # Make the call if not already done
@@ -125,22 +129,34 @@ class Celery(TaskSpec):
             LOG.debug("'%s' called: %s" % (self.call, my_task.async_call))
 
         # Get call status (and manually refr4esh if deserialized)
-        if my_task.get_attribute("deserialized"):
+        if getattr(my_task, "deserialized", False):
             my_task.async_call.state  # must manually refresh if deserialized
         if my_task.async_call.ready():
+            result = my_task.async_call.get()
+            if isinstance(result, Exception):
+                LOG.debug("Celery call %s failed: %s" % (self.call, result))
+                my_task.set_attribute(error=str(result))
+                print "Error obj in TaskSpec:~137:", result
+                return False
             LOG.debug("Completed celery call %s with result=%s" % (self.call,
-                    my_task.async_call.result))
-            my_task.set_attribute(**{self.result_key:
-                    my_task.async_call.result})
+                    result))
+            if self.result_key:
+                my_task.set_attribute(**{self.result_key: result})
+            else:
+                if isinstance(result, dict):
+                    my_task.set_attribute(**result)
+                else:
+                    my_task.set_attribute(**{'result': result})
             return True
         else:
-            LOG.debug("TryFire for %s returning False" % my_task.get_name())
+            LOG.debug("async_call.ready()=%s. TryFire for '%s' "
+                    "returning False" % (my_task.async_call.ready(),
+                            my_task.get_name()))
             return False
 
     def _update_state_hook(self, my_task):
         if not self.try_fire(my_task):
-            LOG.debug("TryFire for %s returned False, so going to WAITING "
-                    "state" % my_task.get_name())
+            LOG.debug("'%s' going to WAITING state" % my_task.get_name())
             my_task.state = Task.WAITING
             result = False
         else:

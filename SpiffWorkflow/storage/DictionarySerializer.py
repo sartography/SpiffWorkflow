@@ -370,6 +370,8 @@ class DictionarySerializer(Serializer):
         for name, task_spec_state in s_state['task_specs'].iteritems():
             task_spec_cls = get_class(task_spec_state['class'])
             task_spec = task_spec_cls.deserialize(self, spec, task_spec_state)
+            if name in spec.task_specs:
+                assert spec.task_specs[name] is task_spec
             spec.task_specs[name] = task_spec
         for name, task_spec in spec.task_specs.iteritems():
             task_spec.inputs = [spec.get_task_spec_from_name(t)
@@ -408,7 +410,10 @@ class DictionarySerializer(Serializer):
 
     def deserialize_workflow(self, s_state, **kwargs):
         wf_spec = self.deserialize_workflow_spec(s_state['wf_spec'], **kwargs)
-        workflow = Workflow(wf_spec)
+        original_root = wf_spec.task_specs['Root']
+        workflow = Workflow(wf_spec, deserializing=True)
+        new_root = wf_spec.task_specs['Root']
+        assert original_root is new_root
 
         # attributes
         workflow.attributes = s_state['attributes']
@@ -426,8 +431,9 @@ class DictionarySerializer(Serializer):
         workflow.spec = wf_spec
 
         # task_tree
+        old_root_task = workflow.task_tree
         workflow.task_tree = self._deserialize_task(workflow, s_state['task_tree'])
-
+        assert old_root_task is workflow.task_tree
         return workflow
 
     def _serialize_task(self, task):
@@ -467,16 +473,25 @@ class DictionarySerializer(Serializer):
         assert isinstance(workflow, Workflow)
         # task_spec
         task_spec = workflow.get_task_spec_from_name(s_state['task_spec'])
-        task = Task(workflow, task_spec)
+        if task_spec.name == "Root":  # Don't create two roots
+            task = workflow.task_tree
+        else:
+            task = Task(workflow, task_spec)
 
         # id
         task.id = s_state['id']
 
         # parent
         task.parent = workflow.get_task(s_state['parent'])
+        # We need to add children in before deserializing child tasks so they can
+        # find their parent (Task.Iter uses children to traverse the hierarchy
+        if task.parent and task not in task.parent.children:
+            task.parent.children.append(task)
+        assert task.parent is not None or task.get_name() == 'Root'
 
         # children
-        task.children = [self._deserialize_task(workflow, c) for c in s_state['children']]
+        for c in s_state['children']:
+            self._deserialize_task(workflow, c)
 
         # state
         task._state = s_state['state']

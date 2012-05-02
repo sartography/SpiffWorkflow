@@ -19,6 +19,7 @@ from SpiffWorkflow.util.event import Event
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.exceptions import WorkflowException
 
+
 LOG = logging.getLogger(__name__)
 
 
@@ -87,19 +88,22 @@ class TaskSpec(object):
         """
         assert parent is not None
         assert name   is not None
+        if __debug__:
+            from SpiffWorkflow.specs import WorkflowSpec  # Can't import above
+            assert isinstance(parent, WorkflowSpec)
         self._parent     = parent
         self.id          = None
         self.name        = str(name)
-        self.description = kwargs.get('description', '')
+        self.description = kwargs.pop('description', '')
         self.inputs      = []
         self.outputs     = []
         self.manual      = False
         self.internal    = False  # Only for easing debugging.
-        self.properties  = kwargs.get('properties',  {})
-        self.defines     = kwargs.get('defines',     {})
-        self.pre_assign  = kwargs.get('pre_assign',  [])
-        self.post_assign = kwargs.get('post_assign', [])
-        self.locks       = kwargs.get('lock',        [])
+        self.properties  = kwargs.pop('properties',  {})
+        self.defines     = kwargs.pop('defines',     {})
+        self.pre_assign  = kwargs.pop('pre_assign',  [])
+        self.post_assign = kwargs.pop('post_assign', [])
+        self.locks       = kwargs.pop('lock',        [])
         self.lookahead   = 2  # Maximum number of MAYBE predictions.
 
         # Events.

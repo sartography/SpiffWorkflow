@@ -4,18 +4,18 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.Task import Task
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
+
 
 class StartTask(TaskSpec):
     """
@@ -28,7 +28,7 @@ class StartTask(TaskSpec):
     def __init__(self, parent, **kwargs):
         """
         Constructor. The name of this task is *always* 'Start'.
-        
+
         @type  parent: TaskSpec
         @param parent: A reference to the parent task spec.
         @type  kwargs: dict
@@ -36,20 +36,17 @@ class StartTask(TaskSpec):
         """
         TaskSpec.__init__(self, parent, 'Start', **kwargs)
 
-
     def _connect_notify(self, task_spec):
         """
         Called by the previous task to let us know that it exists.
         """
         raise WorkflowException(self, 'StartTask can not have any inputs.')
 
-
     def _update_state(self, my_task):
         if not self._update_state_hook(my_task):
             return
         self.entered_event.emit(my_task.workflow, my_task)
         my_task._ready()
-
 
     def test(self):
         """
@@ -65,5 +62,5 @@ class StartTask(TaskSpec):
         return serializer._serialize_start_task(self)
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
+    def deserialize(cls, serializer, wf_spec, s_state):
         return serializer._deserialize_start_task(wf_spec, s_state)

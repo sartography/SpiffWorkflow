@@ -4,31 +4,32 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow.specs import StartTask
+
 
 class WorkflowSpec(object):
     """
     This class represents the specification of a workflow.
     """
 
-    def __init__(self, name = '', filename = None):
+    def __init__(self, name=None, filename=None):
         """
         Constructor.
         """
-        self.name        = name
+        self.name = name or ''
         self.description = ''
-        self.file        = filename
-        self.task_specs  = dict()
-        self.start       = StartTask(self)
+        self.file = filename
+        self.task_specs = dict()
+        self.start = StartTask(self)
 
     def _add_notify(self, task_spec):
         """

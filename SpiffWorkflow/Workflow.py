@@ -39,33 +39,42 @@ class Workflow(object):
     A Workflow is also the place that holds the attributes of a running workflow.
     """
 
-    def __init__(self, workflow_spec, **kwargs):
+    def __init__(self, workflow_spec, deserializing=False, **kwargs):
         """
         Constructor.
+
+        :param deserializing: set to true when deserializing to avoid
+        generating tasks twice (and associated problems with multiple
+        hierarchies of tasks)
         """
         assert workflow_spec is not None
         LOG.debug("__init__ Workflow instance: %s" % self.__str__())
-        self.spec             = workflow_spec
+        self.spec = workflow_spec
         self.task_id_assigner = TaskIdAssigner()
-        self.attributes       = {}
-        self.outer_workflow   = kwargs.get('parent', self)
-        self.locks            = {}
-        self.last_task        = None
-        self.task_tree        = Task(self, specs.Simple(workflow_spec, 'Root'))
-        self.success          = True
-        self.debug            = False
+        self.attributes = {}
+        self.outer_workflow = kwargs.get('parent', self)
+        self.locks = {}
+        self.last_task = None
+        if deserializing:
+            assert 'Root' in workflow_spec.task_specs
+            root = workflow_spec.task_specs['Root']  # Probably deserialized
+        else:
+            root = specs.Simple(workflow_spec, 'Root')
+        self.task_tree = Task(self, root)
+        self.success = True
+        self.debug = False
 
         # Events.
         self.completed_event = Event()
 
-        # Prevent the root task from being executed.
-        self.task_tree.state = Task.COMPLETED
-        start                = self.task_tree._add_child(self.spec.start)
+        if not deserializing:
+            # Prevent the root task from being executed.
+            self.task_tree.state = Task.COMPLETED
+            start = self.task_tree._add_child(self.spec.start)
 
-        self.spec.start._predict(start)
-        if 'parent' not in kwargs:
-            start.task_spec._update_state(start)
-        #start.dump()
+            self.spec.start._predict(start)
+            if 'parent' not in kwargs:
+                start.task_spec._update_state(start)
 
     def is_completed(self):
         """
@@ -74,7 +83,7 @@ class Workflow(object):
         mask = Task.NOT_FINISHED_MASK
         iter = Task.Iterator(self.task_tree, mask)
         try:
-            next = iter.next()
+            iter.next()
         except:
             # No waiting tasks found.
             return True
@@ -125,8 +134,8 @@ class Workflow(object):
                         completed.
         """
         self.success = success
-        cancel       = []
-        mask         = Task.NOT_FINISHED_MASK
+        cancel = []
+        mask = Task.NOT_FINISHED_MASK
         for task in Task.Iterator(self.task_tree, mask):
             cancel.append(task)
         for task in cancel:
