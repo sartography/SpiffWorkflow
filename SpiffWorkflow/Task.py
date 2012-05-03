@@ -13,8 +13,13 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+import logging
 import time
+
 from SpiffWorkflow.exceptions import WorkflowException
+
+LOG = logging.getLogger(__name__)
+
 
 class Task(object):
     """
@@ -191,6 +196,8 @@ class Task(object):
                 self.log.append("Moving '%s' from %s to %s" % (self.get_name(),
                         old, self.get_state_name()))
             self.state_history.append(value)
+            LOG.debug("Moving '%s' (spec=%s) from %s to %s" % (self.get_name(),
+                        self.task_spec.name, old, self.get_state_name()))
 
     def _delstate(self):
         del self._state
@@ -325,6 +332,7 @@ class Task(object):
         @type  state: integer
         @param state: The bitmask of states for newly added children.
         """
+        LOG.debug("Updating children for %s" % self.get_name())
         if task_specs is None:
             raise ValueError('"task_specs" argument is None')
         if type(task_specs) != type([]):

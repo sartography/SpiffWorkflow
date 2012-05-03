@@ -13,10 +13,13 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+import logging
+
 from SpiffWorkflow.util.event import Event
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.operators import valueof
+
+LOG = logging.getLogger(__name__)
 
 class TaskSpec(object):
     """
@@ -230,6 +233,8 @@ class TaskSpec(object):
         """
         my_task._inherit_attributes()
         if not self._update_state_hook(my_task):
+            LOG.debug("_update_state_hook for %s was not positive, so not "
+                    "going to READY state" % my_task.get_name())
             return
         self.entered_event.emit(my_task.workflow, my_task)
         my_task._ready()
@@ -245,9 +250,14 @@ class TaskSpec(object):
         Returning any other value will cause no action.
         """
         if not my_task.parent._is_finished():
+            assert my_task.state != Task.WAITING
             my_task.state = Task.FUTURE
         if my_task._is_predicted():
             self._predict(my_task)
+        LOG.debug("'%s'._update_state_hook says parent (%s, state=%s) "
+                "is_finished=%s" % (self.name, my_task.parent.get_name(),
+                my_task.parent.get_state_name(),
+                my_task.parent._is_finished()))
         if my_task.parent._is_finished():
             return True
         return False

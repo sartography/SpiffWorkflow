@@ -13,11 +13,14 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+import logging
 from mutex import mutex
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow import specs
 from SpiffWorkflow.util.event import Event
 from Task import Task
+
+LOG = logging.getLogger(__name__)
 
 
 class TaskIdAssigner(object):
@@ -41,6 +44,7 @@ class Workflow(object):
         Constructor.
         """
         assert workflow_spec is not None
+        LOG.debug("__init__ Workflow instance: %s" % self.__str__())
         self.spec             = workflow_spec
         self.task_id_assigner = TaskIdAssigner()
         self.attributes       = {}
