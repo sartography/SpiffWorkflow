@@ -148,12 +148,12 @@ class TaskSpec(object):
         Defines the given property name/value pairs.
         """
         for key in kwargs:
-            if self.defines.has_key(key):
+            if key in self.defines:
                 msg = "Property %s can not be modified" % key
                 raise WorkflowException(msg)
         self.properties.update(kwargs)
 
-    def get_property(self, name, default = None):
+    def get_property(self, name, default=None):
         """
         Returns the value of the property with the given name, or the given
         default value if the property does not exist.
@@ -186,7 +186,7 @@ class TaskSpec(object):
         if len(self.inputs) < 1:
             raise WorkflowException(self, 'No input task connected.')
 
-    def _predict(self, my_task, seen = None, looked_ahead = 0):
+    def _predict(self, my_task, seen=None, looked_ahead=0):
         """
         Updates the branch such that all possible future routes are added
         with the LIKELY flag.
@@ -405,7 +405,7 @@ class TaskSpec(object):
         return serializer._serialize_task_spec(self, **kwargs)
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state, **kwargs):
+    def deserialize(cls, serializer, wf_spec, s_state, **kwargs):
         """
         Deserializes the instance using the provided serializer.
 

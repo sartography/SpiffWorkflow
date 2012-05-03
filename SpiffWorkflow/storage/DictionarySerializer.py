@@ -2,12 +2,12 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -76,7 +76,7 @@ class DictionarySerializer(Serializer):
         if isinstance(arg, Attrib):
             return 'Attrib', self._serialize_attrib(arg)
         elif isinstance(arg, Operator):
-            module   = arg.__class__.__module__
+            module = arg.__class__.__module__
             arg_type = module + '.' + arg.__class__.__name__
             return arg_type, arg.serialize(self)
         return 'value', arg
@@ -136,7 +136,7 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_acquire_mutex(self, wf_spec, s_state):
         spec = AcquireMutex(wf_spec, s_state['name'])
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         spec.mutex = s_state['mutex']
         return spec
 
@@ -146,8 +146,8 @@ class DictionarySerializer(Serializer):
         return s_state
 
     def _deserialize_cancel(self, wf_spec, s_state):
-        spec = Cancel(wf_spec, s_state['name'], success = cancel_successfully)
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        spec = Cancel(wf_spec, s_state['name'], success=cancel_successfully)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_cancel_task(self, spec):
@@ -155,7 +155,7 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_cancel_task(self, wf_spec, s_state):
         spec = CancelTask(wf_spec, s_state['name'])
-        self._deserialize_trigger(wf_spec, s_state, spec = spec)
+        self._deserialize_trigger(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_choose(self, spec):
@@ -169,7 +169,7 @@ class DictionarySerializer(Serializer):
                       s_state['name'],
                       s_state['context'],
                       s_state['choice'])
-        self._deserialize_trigger(wf_spec, s_state, spec = spec)
+        self._deserialize_trigger(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_exclusive_choice(self, spec):
@@ -179,7 +179,7 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_exclusive_choice(self, wf_spec, s_state):
         spec = ExclusiveChoice(wf_spec, s_state['name'])
-        self._deserialize_multi_choice(wf_spec, s_state, spec = spec)
+        self._deserialize_multi_choice(wf_spec, s_state, spec=spec)
         spec.default_task_spec = s_state['default_task_spec']
         return spec
 
@@ -190,7 +190,7 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_execute(self, wf_spec, s_state):
         spec = Execute(wf_spec, s_state['name'], s_state['args'])
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_gate(self, spec):
@@ -200,7 +200,7 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_gate(self, wf_spec, s_state):
         spec = Gate(wf_spec, s_state['name'], s_state['context'])
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_join(self, spec):
@@ -228,7 +228,7 @@ class DictionarySerializer(Serializer):
         s_state['choice'] = spec.choice and spec.choice.name or None
         return s_state
 
-    def _deserialize_multi_choice(self, wf_spec, s_state, spec = None):
+    def _deserialize_multi_choice(self, wf_spec, s_state, spec=None):
         if spec is None:
             spec = MultiChoice(wf_spec, s_state['name'])
         if s_state.get('choice') is not None:
@@ -237,7 +237,7 @@ class DictionarySerializer(Serializer):
 
             condition = self._deserialize_arg(cond)
             spec.cond_task_specs.append((condition, spec_name))
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_multi_instance(self, spec):
@@ -248,8 +248,8 @@ class DictionarySerializer(Serializer):
     def _deserialize_multi_instance(self, wf_spec, s_state):
         spec = MultiInstance(wf_spec,
                              s_state['name'],
-                             times = s_state['times'])
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+                             times=s_state['times'])
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_release_mutex(self, spec):
@@ -259,15 +259,17 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_release_mutex(self, wf_spec, s_state):
         spec = ReleaseMutex(wf_spec, s_state['name'], s_state['mutex'])
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_simple(self, spec):
+        assert isinstance(spec, TaskSpec)
         return self._serialize_task_spec(spec)
 
     def _deserialize_simple(self, wf_spec, s_state):
+        assert isinstance(wf_spec, WorkflowSpec)
         spec = Simple(wf_spec, s_state['name'])
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_start_task(self, spec):
@@ -275,7 +277,7 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_start_task(self, wf_spec, s_state):
         spec = StartTask(wf_spec)
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_sub_workflow(self, spec):
@@ -287,7 +289,7 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_sub_workflow(self, wf_spec, s_state):
         spec = SubWorkflow(wf_spec, s_state['name'], s_state['file'])
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         spec.in_assign = self._deserialize_dict(s_state['in_assign'])
         spec.out_assign = self._deserialize_dict(s_state['out_assign'])
         return spec
@@ -297,7 +299,7 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_thread_merge(self, wf_spec, s_state):
         spec = ThreadMerge(wf_spec, s_state['name'], s_state['split_task'])
-        self._deserialize_join(wf_spec, s_state, spec = spec)
+        self._deserialize_join(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_thread_split(self, spec):
@@ -311,15 +313,15 @@ class DictionarySerializer(Serializer):
                            s_state['name'],
                            s_state['times'],
                            s_state['times_attribute'])
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_thread_start(self, spec):
         return self._serialize_task_spec(spec)
 
-    def _deserialize_thread_split(self, wf_spec, s_state):
+    def _deserialize_thread_start(self, wf_spec, s_state):
         spec = ThreadStart(wf_spec)
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_trigger(self, spec):
@@ -333,24 +335,24 @@ class DictionarySerializer(Serializer):
         spec = Trigger(wf_spec,
                        s_state['name'],
                        s_state['context'],
-                       times = s_state['times'])
-        self._deserialize_task_spec(wf_spec, s_state, spec = spec)
+                       times=s_state['times'])
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def serialize_workflow_spec(self, spec, **kwargs):
-        s_state = dict(name = spec.name,
-                       description = spec.description,
-                       file = spec.file)
+        s_state = dict(name=spec.name,
+                       description=spec.description,
+                       file=spec.file)
         s_state['task_specs'] = dict((k, v.serialize(self))
                                      for k, v in spec.task_specs.iteritems())
         return s_state
 
     def deserialize_workflow_spec(self, s_state, **kwargs):
-        spec = WorkflowSpec(s_state['name'], filename = s_state['file'])
+        spec = WorkflowSpec(s_state['name'], filename=s_state['file'])
         spec.description = s_state['description']
         for name, task_spec_state in s_state['task_specs'].iteritems():
             task_spec_cls = get_class(task_spec_state['class'])
-            task_spec     = task_spec_cls.deserialize(self, spec, task_spec_state)
+            task_spec = task_spec_cls.deserialize(self, spec, task_spec_state)
             spec.task_specs[name] = task_spec
         for name, task_spec in spec.task_specs.iteritems():
             task_spec.inputs = [spec.get_task_spec_from_name(t)
@@ -361,8 +363,10 @@ class DictionarySerializer(Serializer):
         return spec
 
     def serialize_workflow(self, workflow, **kwargs):
+        assert isinstance(workflow, Workflow)
         s_state = dict()
-        s_state['wf_spec'] = self.serialize_workflow_spec(workflow.spec, **kwargs)
+        s_state['wf_spec'] = self.serialize_workflow_spec(workflow.spec,
+                **kwargs)
 
         # attributes
         s_state['attributes'] = workflow.attributes
@@ -410,6 +414,7 @@ class DictionarySerializer(Serializer):
         return workflow
 
     def _serialize_task(self, task):
+        assert isinstance(task, Task)
         s_state = dict()
 
         # id
@@ -442,6 +447,7 @@ class DictionarySerializer(Serializer):
         return s_state
 
     def _deserialize_task(self, workflow, s_state):
+        assert isinstance(workflow, Workflow)
         # task_spec
         task_spec = workflow.get_task_spec_from_name(s_state['task_spec'])
         task = Task(workflow, task_spec)

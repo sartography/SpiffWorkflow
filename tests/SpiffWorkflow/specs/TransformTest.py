@@ -6,14 +6,15 @@ from TaskSpecTest import TaskSpecTest
 from SpiffWorkflow import Task
 from SpiffWorkflow.specs import Transform, Simple
 
+
 class TransformTest(TaskSpecTest):
     CORRELATE = Transform
 
     def create_instance(self):
         return Transform(self.wf_spec,
                        'testtask',
-                       description = 'foo',
-                       transforms = [''])
+                       description='foo',
+                       transforms=[''])
 
     def testPattern(self):
         """
@@ -39,7 +40,8 @@ class TransformTest(TaskSpecTest):
         self.assertEqual(last.attributes.get('foo'), 2)
         self.assertEqual(last.attributes.get('copy'), 2)
 
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TransformTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())

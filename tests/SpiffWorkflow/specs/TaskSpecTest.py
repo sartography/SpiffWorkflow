@@ -10,11 +10,11 @@ class TaskSpecTest(unittest.TestCase):
     CORRELATE = TaskSpec
 
     def create_instance(self):
-        return TaskSpec(self.wf_spec, 'testtask', description = 'foo')
+        return TaskSpec(self.wf_spec, 'testtask', description='foo')
 
     def setUp(self):
         self.wf_spec = WorkflowSpec()
-        self.spec    = self.create_instance()
+        self.spec = self.create_instance()
 
     def testConstructor(self):
         self.assertEqual(self.spec.name, 'testtask')
@@ -28,7 +28,7 @@ class TaskSpecTest(unittest.TestCase):
     def testSetProperty(self):
         self.assertEqual(self.spec.get_property('foo'), None)
         self.assertEqual(self.spec.get_property('foo', 'bar'), 'bar')
-        self.spec.set_property(foo = 'foobar')
+        self.spec.set_property(foo='foobar')
         self.assertEqual(self.spec.get_property('foo'), 'foobar')
         self.assertEqual(self.spec.get_property('foo', 'bar'), 'foobar')
 
@@ -63,4 +63,4 @@ class TaskSpecTest(unittest.TestCase):
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TaskSpecTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())
