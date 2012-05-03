@@ -132,11 +132,10 @@ class Celery(TaskSpec):
         if getattr(my_task, "deserialized", False):
             my_task.async_call.state  # must manually refresh if deserialized
         if my_task.async_call.ready():
-            result = my_task.async_call.get()
+            result = my_task.async_call.result
             if isinstance(result, Exception):
-                LOG.debug("Celery call %s failed: %s" % (self.call, result))
+                LOG.warn("Celery call %s failed: %s" % (self.call, result))
                 my_task.set_attribute(error=str(result))
-                print "Error obj in TaskSpec:~137:", result
                 return False
             LOG.debug("Completed celery call %s with result=%s" % (self.call,
                     result))
