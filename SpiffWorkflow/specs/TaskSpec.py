@@ -424,4 +424,8 @@ class TaskSpec(object):
         @rtype:  TaskSpec
         @return: The task specification instance.
         """
-        return serializer._deserialize_task_spec(wf_spec, s_state, **kwargs)
+        instance = cls(wf_spec, s_state['name'])
+        return serializer._deserialize_task_spec(wf_spec,
+                                                 s_state,
+                                                 instance,
+                                                 **kwargs)

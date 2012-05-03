@@ -58,7 +58,15 @@ class TaskSpecTest(unittest.TestCase):
     def testSerialize(self):
         serializer = DictionarySerializer()
         spec = self.create_instance()
-        self.assert_(isinstance(spec.serialize(serializer), dict))
+        serialized = spec.serialize(serializer)
+        self.assert_(isinstance(serialized, dict))
+        new_spec = spec.__class__.deserialize(serializer, self.wf_spec,
+                serialized)
+        before = spec.serialize(serializer)
+        after = new_spec.serialize(serializer)
+        self.assertEqual(before, after, 'Before:\n%s\nAfter:\n%s\n' % (before,
+                after))
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TaskSpecTest)

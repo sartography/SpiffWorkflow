@@ -17,6 +17,7 @@ from SpiffWorkflow import Workflow
 from SpiffWorkflow.util.impl import get_class
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.operators import *
+from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.storage.Serializer import Serializer
 
