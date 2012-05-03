@@ -1,9 +1,10 @@
-import sys, unittest, re, os
+import os
+import sys
+import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from tests.SpiffWorkflow.util import run_workflow
 from TaskSpecTest import TaskSpecTest
-from SpiffWorkflow import Task
 from SpiffWorkflow.specs import Transform, Simple
 
 
