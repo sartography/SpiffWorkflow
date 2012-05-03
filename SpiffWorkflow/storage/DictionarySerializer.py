@@ -415,7 +415,7 @@ class DictionarySerializer(Serializer):
 
         return workflow
 
-    def _serialize_task(self, task):
+    def _serialize_task(self, task, skip_children=False):
         assert isinstance(task, Task)
         s_state = dict()
 
@@ -429,7 +429,8 @@ class DictionarySerializer(Serializer):
         s_state['parent'] = task.parent.id if not task.parent is None else None
 
         # children
-        s_state['children'] = [self._serialize_task(child) for child in task.children]
+        if not skip_children:
+            s_state['children'] = [self._serialize_task(child) for child in task.children]
 
         # state
         s_state['state'] = task.state
