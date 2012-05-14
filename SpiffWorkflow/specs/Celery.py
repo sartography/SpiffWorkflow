@@ -4,12 +4,12 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -98,6 +98,26 @@ class Celery(TaskSpec):
                 ['properties', 'defines', 'pre_assign', 'post_assign', 'lock']}
         self.result_key = result_key
 
+    def _send_call(self, my_task):
+        """Sends Celery asynchronous call and stores async call information for
+        retrieval laster"""
+        if self.args:
+            args = eval_args(self.args, my_task)
+            if self.kwargs:
+                async_call = send_task(self.call, args=args,
+                        kwargs=eval_kwargs(self.kwargs, my_task))
+            else:
+                async_call = send_task(self.call, args=args)
+        else:
+            if self.kwargs:
+                async_call = send_task(self.call,
+                        kwargs=eval_kwargs(self.kwargs, my_task))
+            else:
+                async_call = send_task(self.call)
+        my_task._set_internal_attribute(task_id=str(async_call))
+        my_task.async_call = async_call
+        LOG.debug("'%s' called: %s" % (self.call, my_task.async_call))
+
     def try_fire(self, my_task, force=False):
         """Returns False when successfully fired, True otherwise"""
 
@@ -111,22 +131,7 @@ class Celery(TaskSpec):
 
         # Make the call if not already done
         if not hasattr(my_task, 'async_call'):
-            if self.args:
-                args = eval_args(self.args, my_task)
-                if self.kwargs:
-                    async_call = send_task(self.call, args=args,
-                            kwargs=eval_kwargs(self.kwargs, my_task))
-                else:
-                    async_call = send_task(self.call, args=args)
-            else:
-                if self.kwargs:
-                    async_call = send_task(self.call,
-                            kwargs=eval_kwargs(self.kwargs, my_task))
-                else:
-                    async_call = send_task(self.call)
-            my_task._set_internal_attribute(task_id=str(async_call))
-            my_task.async_call = async_call
-            LOG.debug("'%s' called: %s" % (self.call, my_task.async_call))
+            self._send_call(my_task)
 
         # Get call status (and manually refr4esh if deserialized)
         if getattr(my_task, "deserialized", False):

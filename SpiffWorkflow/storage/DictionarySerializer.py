@@ -236,6 +236,11 @@ class DictionarySerializer(Serializer):
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
+    def _deserialize_merge(self, wf_spec, s_state):
+        spec = Merge(wf_spec, s_state['name'], s_state['split_task'])
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
+
     def _serialize_multi_choice(self, spec):
         s_state = self._serialize_task_spec(spec)
         s_state['cond_task_specs'] = thestate = []

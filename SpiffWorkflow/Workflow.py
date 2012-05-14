@@ -157,7 +157,7 @@ class Workflow(object):
         Returns the task with the given id.
 
         @type id:integer
-        @param id: The id of a state.
+        @param id: The id of a task.
         @rtype: Task
         @return: The task with the given id.
         """
