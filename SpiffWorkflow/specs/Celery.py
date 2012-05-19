@@ -53,6 +53,22 @@ def eval_kwargs(kwargs, my_task):
     return results
 
 
+def Serializable(o):
+    """Make sure an object is JSON-serializable
+    Use this to return errors and other info that does not need to be
+    deserialized or does not contain important app data. Best for returning
+    error info and such"""
+    if type(o) in [basestring, dict, int, long]:
+        return o
+    else:
+        try:
+            s = json.dumps(o)
+            return o
+        except:
+            LOG.debug("Got a non-serilizeable object: %s" % o)
+            return o.__repr__()
+
+
 class Celery(TaskSpec):
     """This class implements a celeryd task that is sent to the celery queue for
     completion."""
@@ -133,14 +149,22 @@ class Celery(TaskSpec):
         if not hasattr(my_task, 'async_call'):
             self._send_call(my_task)
 
-        # Get call status (and manually refr4esh if deserialized)
+        # Get call status (and manually refresh if deserialized)
         if getattr(my_task, "deserialized", False):
             my_task.async_call.state  # must manually refresh if deserialized
-        if my_task.async_call.ready():
+        if my_task.async_call.state == 'FAILURE':
+            LOG.debug("Async Call for task '%s' failed: %s" % (
+                    my_task.get_name(), my_task.async_call.info))
+            info = {}
+            info['traceback'] = my_task.async_call.traceback
+            info['info'] = Serializable(my_task.async_call.info)
+            info['state'] = my_task.async_call.state
+            my_task._set_internal_attribute(task_state=info)
+        elif my_task.async_call.ready():
             result = my_task.async_call.result
             if isinstance(result, Exception):
                 LOG.warn("Celery call %s failed: %s" % (self.call, result))
-                my_task.set_attribute(error=str(result))
+                my_task.set_attribute(error=Serializable(result))
                 return False
             LOG.debug("Completed celery call %s with result=%s" % (self.call,
                     result))
