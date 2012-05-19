@@ -134,6 +134,50 @@ class Celery(TaskSpec):
         my_task.async_call = async_call
         LOG.debug("'%s' called: %s" % (self.call, my_task.async_call))
 
+    def retry_fire(self, my_task):
+        """ Abort celery task and retry it"""
+        if not my_task._has_state(Task.WAITING):
+            raise WorkflowException(my_task, "Cannot refire a task that is not"
+                    "in WAITING state")
+        # Check state of existing call and abort it (save history)
+        if my_task._get_internal_attribute('task_id') is not None:
+            if not hasattr(my_task, 'async_call'):
+                task_id = my_task._get_internal_attribute('task_id')
+                my_task.async_call = app_or_default().AsyncResult(task_id)
+                my_task.deserialized = True
+                my_task.async_call.state  # manually refresh
+            async_call = my_task.async_call
+            if async_call.state == 'FAILED':
+                pass
+            elif async_call.state in ['RETRY', 'PENDING', 'STARTED']:
+                async_call.revoke()
+                LOG.info("Celery task '%s' was in %s state and was revoked" % (
+                    async_call.state, async_call))
+            elif async_call.state == 'SUCCESS':
+                LOG.warning("Celery task '%s' succeeded, but a refire was "
+                        "requested" % async_call)
+            self._clear_celery_task_data(my_task)
+        # Retrigger
+        return self.try_fire(my_task)
+
+    def _clear_celery_task_data(self, my_task):
+        """ Clear celery task data """
+        # Save history
+        if 'task_id' in my_task.internal_attributes:
+            # Save history for diagnostics/forensics
+            history = my_task._get_internal_attribute('task_history', [])
+            history.append(my_task._get_internal_attribute('task_id'))
+            del my_task.internal_attributes['task_id']
+            my_task._set_internal_attribute(task_history=history)
+        if 'task_state' in my_task.internal_attributes:
+            del my_task.internal_attributes['task_state']
+        if 'error' in my_task.attributes:
+            del my_task.attributes['error']
+        if hasattr(my_task, 'async_call'):
+            delattr(my_task, 'async_call')
+        if hasattr(my_task, 'deserialized'):
+            delattr(my_task, 'deserialized')
+
     def try_fire(self, my_task, force=False):
         """Returns False when successfully fired, True otherwise"""
 
@@ -155,6 +199,12 @@ class Celery(TaskSpec):
         if my_task.async_call.state == 'FAILURE':
             LOG.debug("Async Call for task '%s' failed: %s" % (
                     my_task.get_name(), my_task.async_call.info))
+            info = {}
+            info['traceback'] = my_task.async_call.traceback
+            info['info'] = Serializable(my_task.async_call.info)
+            info['state'] = my_task.async_call.state
+            my_task._set_internal_attribute(task_state=info)
+        elif my_task.async_call.state == 'RETRY':
             info = {}
             info['traceback'] = my_task.async_call.traceback
             info['info'] = Serializable(my_task.async_call.info)
