@@ -165,7 +165,7 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_celery(self, wf_spec, s_state):
         args = self._deserialize_list_with_objects(s_state['args'])
-        kwargs = self._deserialize_dict_with_objects(s_state['kwargs'])
+        kwargs = self._deserialize_dict_with_objects(s_state.get('kwargs', {}))
         spec = Celery(wf_spec, s_state['name'], s_state['call'],
                       call_args=args,
                       result_key=s_state['result_key'],
