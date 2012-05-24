@@ -214,7 +214,7 @@ class Celery(TaskSpec):
             result = my_task.async_call.result
             if isinstance(result, Exception):
                 LOG.warn("Celery call %s failed: %s" % (self.call, result))
-                my_task.set_attribute(error=Serializable(result))
+                my_task._set_internal_attribute(error=Serializable(result))
                 return False
             LOG.debug("Completed celery call %s with result=%s" % (self.call,
                     result))
