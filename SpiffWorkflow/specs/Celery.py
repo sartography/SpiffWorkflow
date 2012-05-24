@@ -234,8 +234,9 @@ class Celery(TaskSpec):
 
     def _update_state_hook(self, my_task):
         if not self.try_fire(my_task):
-            LOG.debug("'%s' going to WAITING state" % my_task.get_name())
-            my_task.state = Task.WAITING
+            if not my_task._has_state(Task.WAITING):
+                LOG.debug("'%s' going to WAITING state" % my_task.get_name())
+                my_task.state = Task.WAITING
             result = False
         else:
             result = super(Celery, self)._update_state_hook(my_task)
