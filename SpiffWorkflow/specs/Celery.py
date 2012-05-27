@@ -21,9 +21,8 @@ from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.operators import valueof, Attrib
 
 try:
-    from celery.execute import send_task
+    from celery.app import default_app
     from celery.result import AsyncResult
-    from celery.app import app_or_default
 except ImportError:
     print "Unable to import python-celery imports. These are only needed if"\
             " the celery task spec is used"
@@ -117,19 +116,12 @@ class Celery(TaskSpec):
     def _send_call(self, my_task):
         """Sends Celery asynchronous call and stores async call information for
         retrieval laster"""
+        arg, kwargs = None, None
         if self.args:
             args = eval_args(self.args, my_task)
-            if self.kwargs:
-                async_call = send_task(self.call, args=args,
-                        kwargs=eval_kwargs(self.kwargs, my_task))
-            else:
-                async_call = send_task(self.call, args=args)
-        else:
-            if self.kwargs:
-                async_call = send_task(self.call,
-                        kwargs=eval_kwargs(self.kwargs, my_task))
-            else:
-                async_call = send_task(self.call)
+        if self.kwargs:
+            kwargs = eval_kwargs(self.kwargs, my_task)
+        async_call = default_app.send_task(self.call, args=args, kwargs=kwargs)
         my_task._set_internal_attribute(task_id=str(async_call))
         my_task.async_call = async_call
         LOG.debug("'%s' called: %s" % (self.call, my_task.async_call))
@@ -143,7 +135,7 @@ class Celery(TaskSpec):
         if my_task._get_internal_attribute('task_id') is not None:
             if not hasattr(my_task, 'async_call'):
                 task_id = my_task._get_internal_attribute('task_id')
-                my_task.async_call = app_or_default().AsyncResult(task_id)
+                my_task.async_call = default_app.AsyncResult(task_id)
                 my_task.deserialized = True
                 my_task.async_call.state  # manually refresh
             async_call = my_task.async_call
@@ -185,7 +177,7 @@ class Celery(TaskSpec):
         if not hasattr(my_task, 'async_call') and \
                 my_task._get_internal_attribute('task_id') is not None:
             task_id = my_task._get_internal_attribute('task_id')
-            my_task.async_call = app_or_default().AsyncResult(task_id)
+            my_task.async_call = default_app.AsyncResult(task_id)
             my_task.deserialized = True
             LOG.debug("Reanimate AsyncCall %s" % task_id)
 
