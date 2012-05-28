@@ -122,9 +122,9 @@ class Celery(TaskSpec):
         if self.kwargs:
             kwargs = eval_kwargs(self.kwargs, my_task)
         async_call = default_app.send_task(self.call, args=args, kwargs=kwargs)
-        my_task._set_internal_attribute(task_id=str(async_call))
+        my_task._set_internal_attribute(task_id=async_call.task_id)
         my_task.async_call = async_call
-        LOG.debug("'%s' called: %s" % (self.call, my_task.async_call))
+        LOG.debug("'%s' called: %s" % (self.call, my_task.async_call.task_id))
 
     def retry_fire(self, my_task):
         """ Abort celery task and retry it"""
