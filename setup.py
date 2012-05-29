@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from os.path import dirname, join
 
 setup(name             = 'SpiffWorkflow',
-      version          = '0.3.0',
+      version          = '0.3.1-rackspace',
       description      = 'A workflow framework based on www.workflowpatterns.com',
       long_description = \
 """
@@ -25,7 +25,7 @@ to API stability at this time.
       keywords         = 'spiff guard acl acls security authentication object storage',
       url              = 'https://github.com/knipknap/SpiffWorkflow',
       classifiers      = [
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 3 - Alpha - Rackspace Fork',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
         'Programming Language :: Python',
