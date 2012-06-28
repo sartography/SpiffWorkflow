@@ -47,12 +47,13 @@ class Transform(TaskSpec):
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.transforms = transforms
 
-    def _on_complete_hook(self, my_task):
+    def _update_state_hook(self, my_task):
         if self.transforms:
             for transform in self.transforms:
                 LOG.debug("Executing: %s" % transform)
                 exec(transform)
-        return TaskSpec._on_complete_hook(self, my_task)
+        result = super(Transform, self)._update_state_hook(my_task)
+        return result
 
     def serialize(self, serializer):
         s_state = serializer._serialize_simple(self)
