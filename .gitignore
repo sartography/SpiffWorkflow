@@ -1,6 +1,6 @@
 *.py[co]
 dist
-build
+/build
 *.egg-info
 handbook
 unit_test.cfg
