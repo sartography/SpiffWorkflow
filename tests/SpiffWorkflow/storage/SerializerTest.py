@@ -1,7 +1,7 @@
 import sys, unittest, re, os
 dirname = os.path.dirname(__file__)
 data_dir = os.path.join(dirname, '..', 'data')
-sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
+sys.path.insert(0, os.path.join(dirname, '..'))
 
 from PatternTest import run_workflow
 from SpiffWorkflow.storage.Serializer import Serializer
