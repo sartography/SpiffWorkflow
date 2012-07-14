@@ -179,6 +179,20 @@ class TaskSpec(object):
         self.outputs.append(taskspec)
         taskspec._connect_notify(self)
 
+    def follow(self, taskspec):
+        """
+        Make this task follow the provided one. In other words, this task is
+        added to the given task outputs.
+
+        This is an alias to connect, just easier to understand when reading
+        code - ex: my_task.follow(the_other_task)
+        Adding it after being confused by .connect one times too many!
+
+        @type  taskspec: TaskSpec
+        @param taskspec: The task to follow.
+        """
+        taskspec.connect(self)
+
     def test(self):
         """
         Checks whether all required attributes are set. Throws an exception
