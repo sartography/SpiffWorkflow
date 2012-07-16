@@ -45,6 +45,14 @@ class TaskSpecTest(unittest.TestCase):
         self.assertEqual(self.spec.outputs, [spec])
         self.assertEqual(spec.inputs, [self.spec])
 
+    def testFollow(self):
+        self.assertEqual(self.spec.outputs, [])
+        self.assertEqual(self.spec.inputs, [])
+        spec = self.create_instance()
+        self.spec.follow(spec)
+        self.assertEqual(spec.outputs, [self.spec])
+        self.assertEqual(self.spec.inputs, [spec])
+
     def testTest(self):
         # Should fail because the TaskSpec has no id yet.
         spec = self.create_instance()
