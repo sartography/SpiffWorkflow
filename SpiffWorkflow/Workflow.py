@@ -39,7 +39,7 @@ class Workflow(object):
     A Workflow is also the place that holds the attributes of a running workflow.
     """
 
-    def __init__(self, workflow_spec, **kwargs):
+    def __init__(self, workflow_spec, deserializing=False, **kwargs):
         """
         Constructor.
         """
@@ -47,13 +47,21 @@ class Workflow(object):
         LOG.debug("__init__ Workflow instance: %s" % self.__str__())
         self.spec             = workflow_spec
         self.task_id_assigner = TaskIdAssigner()
-        self.attributes       = {}
-        self.outer_workflow   = kwargs.get('parent', self)
-        self.locks            = {}
-        self.last_task        = None
-        self.task_tree        = Task(self, specs.Simple(workflow_spec, 'Root'))
-        self.success          = True
-        self.debug            = False
+        self.attributes = {}
+        self.outer_workflow = kwargs.get('parent', self)
+        self.locks = {}
+        self.last_task = None
+        if deserializing:
+            assert 'Root' in workflow_spec.task_specs
+            root = workflow_spec.task_specs['Root']  # Probably deserialized
+        else:
+            if 'Root' in workflow_spec.task_specs:
+                root = workflow_spec.task_specs['Root']
+            else:
+                root = specs.Simple(workflow_spec, 'Root')
+        self.task_tree = Task(self, root)
+        self.success = True
+        self.debug = False
 
         # Events.
         self.completed_event = Event()

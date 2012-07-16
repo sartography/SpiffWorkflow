@@ -10,6 +10,8 @@ class ExecuteTest(TaskSpecTest):
     CORRELATE = Execute
 
     def create_instance(self):
+        if 'testtask' in self.wf_spec.task_specs:
+            del self.wf_spec.task_specs['testtask']
         return Execute(self.wf_spec,
                        'testtask',
                        description = 'foo',

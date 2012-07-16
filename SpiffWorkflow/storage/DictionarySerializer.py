@@ -277,8 +277,7 @@ class DictionarySerializer(Serializer):
         return self._serialize_task_spec(spec)
 
     def _deserialize_start_task(self, wf_spec, s_state):
-        # When we create a spec, the start task is created by default. So deserialize into that
-        spec = wf_spec.start  # StartTask(wf_spec)
+        spec = StartTask(wf_spec)
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
@@ -352,7 +351,17 @@ class DictionarySerializer(Serializer):
     def deserialize_workflow_spec(self, s_state, **kwargs):
         spec = WorkflowSpec(s_state['name'], filename=s_state['file'])
         spec.description = s_state['description']
+        # Handle Start Task
+        spec.start = None
+        del spec.task_specs['Start']
+        start_task_spec_state = s_state['task_specs']['Start']
+        start_task_spec = StartTask.deserialize(self, spec, start_task_spec_state)
+        spec.start = start_task_spec
+        spec.task_specs['Start'] = start_task_spec
+
         for name, task_spec_state in s_state['task_specs'].iteritems():
+            if name == 'Start':
+                continue
             task_spec_cls = get_class(task_spec_state['class'])
             task_spec = task_spec_cls.deserialize(self, spec, task_spec_state)
             spec.task_specs[name] = task_spec

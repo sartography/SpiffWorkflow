@@ -12,6 +12,9 @@ class TransformTest(TaskSpecTest):
     CORRELATE = Transform
 
     def create_instance(self):
+        if 'testtask' in self.wf_spec.task_specs:
+            del self.wf_spec.task_specs['testtask']
+
         return Transform(self.wf_spec,
                        'testtask',
                        description='foo',

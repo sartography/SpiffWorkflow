@@ -278,8 +278,7 @@ class XmlSerializer(Serializer):
 
         read_specs[name] = spec, successors
 
-
-    def deserialize_workflow_spec(self, s_state, filename = None):
+    def deserialize_workflow_spec(self, s_state, filename=None):
         """
         Reads the workflow from the given XML structure and returns a
         WorkflowSpec instance.
@@ -292,6 +291,7 @@ class XmlSerializer(Serializer):
 
         # Read all task specs and create a list of successors.
         workflow_spec = specs.WorkflowSpec(name, filename)
+        del workflow_spec.task_specs['Start']
         end           = specs.Simple(workflow_spec, 'End'), []
         read_specs    = dict(end = end)
         for child_node in node.childNodes:
