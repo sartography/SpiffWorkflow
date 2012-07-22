@@ -13,7 +13,11 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+import logging
 import re
+
+LOG = logging.getLogger(__name__)
+
 
 class Attrib(object):
     """
@@ -94,6 +98,9 @@ def valueof(scope, op):
     if op is None:
         return None
     elif isinstance(op, Attrib):
+        if op.name not in scope.attributes:
+            LOG.debug("Attrib('%s') not present in task '%s' attributes" %
+                    (op.name, scope.get_name()))
         return scope.get_attribute(op.name)
     else:
         return op
