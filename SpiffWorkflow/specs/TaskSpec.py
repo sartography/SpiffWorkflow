@@ -122,6 +122,19 @@ class TaskSpec(object):
         """
         self.inputs.append(taskspec)
 
+    def ancestors(self):
+        """Returns list of ancestor task specs based on inputs"""
+        results = []
+
+        def recursive_find_ancestors(task, stack):
+            for input in task.inputs:
+                if input not in stack:
+                    stack.append(input)
+                    recursive_find_ancestors(input, stack)
+        recursive_find_ancestors(self, results)
+
+        return results
+
     def _get_activated_tasks(self, my_task, destination):
         """
         Returns the list of tasks that were activated in the previous
