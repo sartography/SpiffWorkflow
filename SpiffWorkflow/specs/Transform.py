@@ -50,7 +50,7 @@ class Transform(TaskSpec):
     def _update_state_hook(self, my_task):
         if self.transforms:
             for transform in self.transforms:
-                LOG.debug("Executing: %s" % transform)
+                LOG.debug("Executing transform", extra=dict(data=transform))
                 exec(transform)
         result = super(Transform, self)._update_state_hook(my_task)
         return result
