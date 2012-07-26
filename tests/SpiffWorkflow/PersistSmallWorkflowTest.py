@@ -19,7 +19,7 @@ class ASmallWorkflow(WorkflowSpec):
         multichoice.connect(a1)
 
         a2 = Simple(self, 'task_a2')
-        cond = Equal(Attrib('test_attribute1'), Attrib('test_attribute2'))
+        cond = Equal(Attrib('test_attribute1'), PathAttrib('test/attribute2'))
         multichoice.connect_if(cond, a2)
 
         syncmerge = Join(self, 'struct_synch_merge_1', 'multi_choice_1')

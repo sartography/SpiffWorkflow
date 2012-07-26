@@ -51,6 +51,38 @@ class Attrib(object):
         return serializer._deserialize_attrib(cls, s_state)
 
 
+class PathAttrib(object):
+    """
+    Used for marking a value such that it is recognized to be an
+    attribute obtained by evaluating a path by valueof().
+    """
+    def __init__(self, path):
+        self.path = path
+
+    def serialize(self, serializer):
+        """
+        Serializes the instance using the provided serializer.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @rtype:  object
+        @return: The serialized object.
+        """
+        return serializer._serialize_pathattrib(self)
+
+    @classmethod
+    def deserialize(cls, serializer, s_state):
+        """
+        Serializes the instance using the provided serializer.
+
+        @type  serializer: L{SpiffWorkflow.storage.Serializer}
+        @param serializer: The serializer to use.
+        @rtype:  object
+        @return: The serialized object.
+        """
+        return serializer._deserialize_pathattrib(cls, s_state)
+
+
 class Assign(object):
     """
     Assigns a new value to an attribute. The source may be either
@@ -102,6 +134,19 @@ def valueof(scope, op):
             LOG.debug("Attrib('%s') not present in task '%s' attributes" %
                     (op.name, scope.get_name()))
         return scope.get_attribute(op.name)
+    elif isinstance(op, PathAttrib):
+        if not op.path:
+            return None
+        parts = op.path.split('/')
+        data = scope.attributes
+        for part in parts:
+            if part not in data:
+                LOG.debug("PathAttrib('%s') not present in task '%s' "
+                        "attributes" % (op.path, scope.get_name()),
+                        extra=dict(data=scope.attributes))
+                return None
+            data = data[part]  # move down the path
+        return data
     else:
         return op
 

@@ -40,6 +40,12 @@ class DictionarySerializer(Serializer):
     def _deserialize_attrib(self, s_state):
         return Attrib(s_state)
 
+    def _serialize_pathattrib(self, pathattrib):
+        return pathattrib.path
+
+    def _deserialize_pathattrib(self, s_state):
+        return PathAttrib(s_state)
+
     def _serialize_operator(self, op):
         return [self._serialize_arg(a) for a in op.args]
 
@@ -76,6 +82,8 @@ class DictionarySerializer(Serializer):
     def _serialize_arg(self, arg):
         if isinstance(arg, Attrib):
             return 'Attrib', self._serialize_attrib(arg)
+        elif isinstance(arg, PathAttrib):
+            return 'PathAttrib', self._serialize_pathattrib(arg)
         elif isinstance(arg, Operator):
             module = arg.__class__.__module__
             arg_type = module + '.' + arg.__class__.__name__
@@ -86,6 +94,8 @@ class DictionarySerializer(Serializer):
         arg_type, arg = s_state
         if arg_type == 'Attrib':
             return self._deserialize_attrib(arg)
+        elif arg_type == 'PathAttrib':
+            return self._deserialize_pathattrib(arg)
         elif arg_type == 'value':
             return arg
         arg_cls = get_class(arg_type)
