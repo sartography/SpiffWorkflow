@@ -66,6 +66,7 @@ Hint: The examples are located in tests/data/spiff/.
 
     Execute - spawns a subprocess and waits for the results
     Transform - executes commands that can be used for data transforms
+    Celery - executes a Celery task (see http://celeryproject.org/)
 
 
 Contact
