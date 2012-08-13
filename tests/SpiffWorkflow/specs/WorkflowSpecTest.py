@@ -1,19 +1,31 @@
-import sys, unittest, re, os
-data_dir = os.path.join(os.path.dirname(__file__), 'data')
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+import os
+import sys
+import unittest
+data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 import pickle
-import pprint
 from random import randint
 from util import track_workflow
 from SpiffWorkflow import Workflow
-from SpiffWorkflow.specs import WorkflowSpec
+from SpiffWorkflow.specs import Join, WorkflowSpec
 from SpiffWorkflow.storage import XmlSerializer
 
-class PersistenceTest(unittest.TestCase):
+serializer = XmlSerializer()
+data_file = 'data.pkl'
+
+class WorkflowSpecTest(unittest.TestCase):
+    CORRELATE = WorkflowSpec
+
     def setUp(self):
-        self.serializer = XmlSerializer()
-        self.data_file  = 'data.pkl'
+        self.wf_spec = WorkflowSpec()
+
+    def testConstructor(self):
+        spec = WorkflowSpec('my spec')
+        self.assertEqual('my spec', spec.name)
+
+    def testGetTaskSpecFromName(self):
+        pass #FIXME
 
     def doPickleSingle(self, workflow, expected_path):
         taken_path = track_workflow(workflow.spec)
@@ -21,25 +33,25 @@ class PersistenceTest(unittest.TestCase):
         # Execute a random number of steps.
         for i in xrange(randint(0, len(workflow.spec.task_specs))):
             workflow.complete_next()
-    
+
         # Store the workflow instance in a file.
-        output = open(self.data_file, 'wb')
+        output = open(data_file, 'wb')
         pickle.dump(workflow, output, -1)
         output.close()
         before = workflow.get_dump()
 
         # Load the workflow instance from a file and delete the file.
-        input = open(self.data_file, 'rb')
+        input = open(data_file, 'rb')
         workflow = pickle.load(input)
         input.close()
-        os.remove(self.data_file)
+        os.remove(data_file)
         after = workflow.get_dump()
 
         # Make sure that the state of the workflow did not change.
         self.assert_(before == after, 'Before:\n' + before + '\n' \
                                     + 'After:\n'  + after  + '\n')
 
-        # Re-connect signals, because the pickle dump now only contains a 
+        # Re-connect signals, because the pickle dump now only contains a
         # copy of taken_path.
         taken_path = track_workflow(workflow.spec, taken_path)
 
@@ -54,19 +66,20 @@ class PersistenceTest(unittest.TestCase):
                 print "EXPECTED:", expected
         self.assertEqual(expected_path, taken_path)
 
-    def testPickle(self):
-        # Read a complete workflow.
+    def testSerialize(self):
+        # Read a complete workflow spec.
         xml_file      = os.path.join(data_dir, 'spiff', 'workflow1.xml')
         xml           = open(xml_file).read()
         path_file     = os.path.splitext(xml_file)[0] + '.path'
         expected_path = open(path_file).read().strip().split('\n')
-        wf_spec       = WorkflowSpec.deserialize(self.serializer, xml)
+        wf_spec       = WorkflowSpec.deserialize(serializer, xml)
 
         for i in xrange(5):
             workflow = Workflow(wf_spec)
             self.doPickleSingle(workflow, expected_path)
 
+
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(PersistenceTest)
+    return unittest.TestLoader().loadTestsFromTestCase(WorkflowSpecTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())
