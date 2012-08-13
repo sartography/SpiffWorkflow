@@ -42,10 +42,14 @@ class Workflow(object):
     def __init__(self, workflow_spec, deserializing=False, **kwargs):
         """
         Constructor.
+
+        :param deserializing: set to true when deserializing to avoid
+        generating tasks twice (and associated problems with multiple
+        hierarchies of tasks)
         """
         assert workflow_spec is not None
         LOG.debug("__init__ Workflow instance: %s" % self.__str__())
-        self.spec             = workflow_spec
+        self.spec = workflow_spec
         self.task_id_assigner = TaskIdAssigner()
         self.attributes = {}
         self.outer_workflow = kwargs.get('parent', self)
@@ -82,7 +86,7 @@ class Workflow(object):
         mask = Task.NOT_FINISHED_MASK
         iter = Task.Iterator(self.task_tree, mask)
         try:
-            next = iter.next()
+            iter.next()
         except:
             # No waiting tasks found.
             return True
@@ -133,8 +137,8 @@ class Workflow(object):
                         completed.
         """
         self.success = success
-        cancel       = []
-        mask         = Task.NOT_FINISHED_MASK
+        cancel = []
+        mask = Task.NOT_FINISHED_MASK
         for task in Task.Iterator(self.task_tree, mask):
             cancel.append(task)
         for task in cancel:
@@ -156,7 +160,7 @@ class Workflow(object):
         Returns the task with the given id.
 
         @type id:integer
-        @param id: The id of a state.
+        @param id: The id of a task.
         @rtype: Task
         @return: The task with the given id.
         """
