@@ -552,6 +552,9 @@ class Task(object):
         """
         Inherits the attributes from the parent.
         """
+        LOG.debug("'%s' inheriting attributes from '%s'" % (self.get_name(),
+                self.parent.get_name()),
+                extra=dict(data=self.parent.attributes))
         self.set_attribute(**self.parent.attributes)
 
     def get_attribute(self, name, default=None):
