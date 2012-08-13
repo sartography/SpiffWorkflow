@@ -245,7 +245,6 @@ class DictionarySerializer(Serializer):
         if s_state.get('choice') is not None:
             spec.choice = wf_spec.get_task_spec_from_name(s_state['choice'])
         for cond, spec_name in s_state['cond_task_specs']:
-
             condition = self._deserialize_arg(cond)
             spec.cond_task_specs.append((condition, spec_name))
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
@@ -332,6 +331,11 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_thread_start(self, wf_spec, s_state):
         spec = ThreadStart(wf_spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
+
+    def _deserialize_merge(self, wf_spec, s_state):
+        spec = Merge(wf_spec, s_state['name'], s_state['split_task'])
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 

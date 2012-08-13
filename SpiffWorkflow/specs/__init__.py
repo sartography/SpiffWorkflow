@@ -6,6 +6,7 @@ from ExclusiveChoice import ExclusiveChoice
 from Execute import Execute
 from Gate import Gate
 from Join import Join
+from Merge import Merge
 from MultiChoice import MultiChoice
 from MultiInstance import MultiInstance
 from ReleaseMutex import ReleaseMutex

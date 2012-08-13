@@ -20,7 +20,6 @@ class JoinTest(TaskSpecTest):
                        description='foo')
 
 def suite():
-    tests = unittest.TestLoader().loadTestsFromTestCase(JoinTest)
-    return tests
+    return unittest.TestLoader().loadTestsFromTestCase(JoinTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
