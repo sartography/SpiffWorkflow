@@ -62,5 +62,5 @@ class StartTask(TaskSpec):
         return serializer._serialize_start_task(self)
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
+    def deserialize(cls, serializer, wf_spec, s_state):
         return serializer._deserialize_start_task(wf_spec, s_state)
