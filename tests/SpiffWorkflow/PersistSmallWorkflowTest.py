@@ -8,9 +8,10 @@ from SpiffWorkflow.Task import *
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.storage import DictionarySerializer
 
+
 class ASmallWorkflow(WorkflowSpec):
     def __init__(self):
-        super(ASmallWorkflow, self).__init__(name = "asmallworkflow")
+        super(ASmallWorkflow, self).__init__(name="asmallworkflow")
 
         multichoice = MultiChoice(self, 'multi_choice_1')
         self.start.connect(multichoice)
@@ -28,6 +29,7 @@ class ASmallWorkflow(WorkflowSpec):
 
         end = Simple(self, 'End')
         syncmerge.connect(end)
+
 
 class PersistSmallWorkflowTest(unittest.TestCase):
     """Runs persistency tests agains a small and easy to inspect workflowdefinition"""
@@ -65,9 +67,27 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         before = old_workflow.get_dump()
         after = new_workflow.get_dump()
         self.assert_(before == after, 'Before:\n' + before + '\n' \
-                                    + 'After:\n'  + after  + '\n')
+                                    + 'After:\n' + after + '\n')
+
+    def testDeserialization(self):
+        """
+        Tests the that deserialized workflow matches the original workflow
+        """
+        old_workflow = self.workflow
+        old_workflow.spec.start.set_property(marker=True)
+        serializer = DictionarySerializer()
+        serialized_workflow = old_workflow.serialize(serializer)
+
+        serializer = DictionarySerializer()
+        new_workflow = Workflow.deserialize(serializer, serialized_workflow)
+
+        self.assertEqual(len(new_workflow.get_tasks()), len(old_workflow.get_tasks()))
+        self.assertEqual(new_workflow.spec.start.get_property('marker'), old_workflow.spec.start.get_property('marker'))
+        self.assertEqual(1, len([t for t in new_workflow.get_tasks() if t.task_spec.name == 'Start']))
+        self.assertEqual(1, len([t for t in new_workflow.get_tasks() if t.task_spec.name == 'Root']))
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(PersistSmallWorkflowTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())
