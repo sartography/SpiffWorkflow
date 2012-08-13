@@ -18,6 +18,7 @@ from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.operators import valueof
 
+
 class Join(TaskSpec):
     """
     A task for synchronizing branches that were previously split using a
@@ -56,9 +57,9 @@ class Join(TaskSpec):
     def __init__(self,
                  parent,
                  name,
-                 split_task = None,
-                 threshold = None,
-                 cancel = False,
+                 split_task=None,
+                 threshold=None,
+                 cancel=False,
                  **kwargs):
         """
         Constructor.
@@ -85,14 +86,14 @@ class Join(TaskSpec):
         @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         TaskSpec.__init__(self, parent, name, **kwargs)
-        self.split_task       = split_task
-        self.threshold        = threshold
+        self.split_task = split_task
+        self.threshold = threshold
         self.cancel_remaining = cancel
 
     def _branch_is_complete(self, my_task):
         # Determine whether that branch is now completed by checking whether
         # it has any waiting items other than myself in it.
-        skip  = None
+        skip = None
         for task in Task.Iterator(my_task, my_task.NOT_FINISHED_MASK):
             # If the current task is a child of myself, ignore it.
             if skip is not None and task._is_descendant_of(skip):
@@ -119,7 +120,7 @@ class Join(TaskSpec):
                 return True
         return False
 
-    def _try_fire_unstructured(self, my_task, force = False):
+    def _try_fire_unstructured(self, my_task, force=False):
         # The default threshold is the number of inputs.
         threshold = valueof(my_task, self.threshold)
         if threshold is None:
@@ -137,7 +138,7 @@ class Join(TaskSpec):
 
         # Look up which tasks have already completed.
         waiting_tasks = []
-        completed     = 0
+        completed = 0
         for task in tasks:
             if task.parent is None or task._has_state(Task.COMPLETED):
                 completed += 1
@@ -147,7 +148,7 @@ class Join(TaskSpec):
         # If the threshold was reached, get ready to fire.
         return force or completed >= threshold, waiting_tasks
 
-    def _try_fire_structured(self, my_task, force = False):
+    def _try_fire_structured(self, my_task, force=False):
         # Retrieve a list of all activated tasks from the associated
         # task that did the conditional parallel split.
         split_task = my_task._find_ancestor_from_name(self.split_task)
@@ -178,7 +179,7 @@ class Join(TaskSpec):
         # If the threshold was reached, get ready to fire.
         return force or completed >= threshold, waiting_tasks
 
-    def _try_fire(self, my_task, force = False):
+    def _try_fire(self, my_task, force=False):
         """
         Checks whether the preconditions for going to READY state are met.
         Returns True if the threshold was reached, False otherwise.
