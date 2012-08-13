@@ -169,6 +169,26 @@ class DictionarySerializer(Serializer):
         self._deserialize_trigger(wf_spec, s_state, spec=spec)
         return spec
 
+    def _serialize_celery(self, spec):
+        args = self._serialize_list(spec.args)
+        kwargs = self._serialize_dict(spec.kwargs)
+        s_state = self._serialize_task_spec(spec)
+        s_state['call'] = spec.call
+        s_state['args'] = args
+        s_state['kwargs'] = kwargs
+        s_state['result_key'] = spec.result_key
+        return s_state
+
+    def _deserialize_celery(self, wf_spec, s_state):
+        args = self._deserialize_list(s_state['args'])
+        kwargs = self._deserialize_dict(s_state.get('kwargs', {}))
+        spec = Celery(wf_spec, s_state['name'], s_state['call'],
+                      call_args=args,
+                      result_key=s_state['result_key'],
+                      **kwargs)
+        self._deserialize_task_spec(wf_spec, s_state, spec)
+        return spec
+
     def _serialize_choose(self, spec):
         s_state = self._serialize_trigger(spec)
         s_state['context'] = spec.context

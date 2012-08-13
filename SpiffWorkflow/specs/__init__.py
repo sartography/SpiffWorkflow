@@ -1,6 +1,7 @@
 from AcquireMutex import AcquireMutex
 from Cancel import Cancel
 from CancelTask import CancelTask
+from Celery import Celery
 from Choose import Choose
 from ExclusiveChoice import ExclusiveChoice
 from Execute import Execute
