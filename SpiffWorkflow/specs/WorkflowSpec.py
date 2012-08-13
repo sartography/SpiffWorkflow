@@ -4,31 +4,36 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+import logging
+
 from SpiffWorkflow.specs import StartTask
+
+LOG = logging.getLogger(__name__)
+
 
 class WorkflowSpec(object):
     """
     This class represents the specification of a workflow.
     """
 
-    def __init__(self, name = '', filename = None):
+    def __init__(self, name=None, filename=None):
         """
         Constructor.
         """
-        self.name        = name
+        self.name = name or ''
         self.description = ''
-        self.file        = filename
-        self.task_specs  = dict()
-        self.start       = StartTask(self)
+        self.file = filename
+        self.task_specs = dict()
+        self.start = StartTask(self)
 
     def _add_notify(self, task_spec):
         """
@@ -49,6 +54,48 @@ class WorkflowSpec(object):
         @return: The task spec with the given name.
         """
         return self.task_specs[name]
+
+    def validate(self):
+        """Checks integrity of workflow and reports any problems with it.
+
+        Detects:
+        - loops (tasks that wait on each other in a loop)
+        :returns: empty list if valid, a list of errors if not
+        """
+        results = []
+        from SpiffWorkflow.specs import Join
+
+        def recursive_find_loop(task, history):
+            current = history[:]
+            current.append(task)
+            if isinstance(task, Join):
+                if task in history:
+                    msg = "Found loop with '%s': %s then '%s' again" % (
+                            task.name, '->'.join([p.name for p in history]),
+                            task.name)
+                    raise Exception(msg)
+                for predecessor in task.inputs:
+                    recursive_find_loop(predecessor, current)
+
+            for parent in task.inputs:
+                recursive_find_loop(parent, current)
+
+        for task_id, task in self.task_specs.iteritems():
+            # Check for cyclic waits
+            try:
+                recursive_find_loop(task, [])
+            except Exception as exc:
+                results.append(exc.__str__())
+
+            # Check for disconnected tasks
+            if not task.inputs and task.name not in ['Start', 'Root']:
+                if task.outputs:
+                    results.append("Task '%s' is disconnected (no inputs)" %
+                        task.name)
+                else:
+                    LOG.debug("Task '%s' is not being used" % task.name)
+
+        return results
 
     def serialize(self, serializer, **kwargs):
         """

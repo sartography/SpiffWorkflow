@@ -78,6 +78,25 @@ class WorkflowSpecTest(unittest.TestCase):
             workflow = Workflow(wf_spec)
             self.doPickleSingle(workflow, expected_path)
 
+    def testValidate(self):
+        """
+        Tests that we can detect when two wait taks are waiting on each
+        other.
+        """
+        task1 = Join(self.wf_spec, 'First')
+        self.wf_spec.start.connect(task1)
+        task2 = Join(self.wf_spec, 'Second')
+        task1.connect(task2)
+
+        task2.follow(task1)
+        task1.follow(task2)
+
+        results = self.wf_spec.validate()
+        self.assert_("Found loop with 'Second': Second->First then 'Second' "
+                "again" in results)
+        self.assert_("Found loop with 'First': First->Second then 'First' "
+                "again" in results)
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(WorkflowSpecTest)
