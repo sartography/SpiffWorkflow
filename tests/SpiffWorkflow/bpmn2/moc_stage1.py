@@ -111,19 +111,28 @@ class MocStage1Test(unittest.TestCase):
         self.do_next_exclusive_step('dgm-review-result')
         self.do_next_exclusive_step('record-on-agenda')
 
-    def test_find_path_to_a_point(self):
+    def test_restore_ready_task(self):
         self.workflow = Workflow(self.spec)
-        print self.workflow.dump()
-        target_position = 'dgm-review'
-        matches = sorted([t for t in self.workflow.get_tasks()  if t.task_spec.name == target_position], key=lambda t: t.id)
+
+        self.restore_ready_task('dgm-review')
+
+        self.do_next_exclusive_step('dgm-review', set_attribs={'status':'Approve'})
+        self.do_next_exclusive_step('dgm-review-result')
+        self.do_next_exclusive_step('record-on-agenda')
+
+    def test_restore_ready_task_after_branch(self):
+        self.workflow = Workflow(self.spec)
+
+        self.restore_ready_task('record-on-agenda')
+        self.do_next_exclusive_step('record-on-agenda')
+
+    def restore_ready_task(self, target_task):
+        matches = sorted([t for t in self.workflow.get_tasks()  if t.task_spec.name == target_task], key=lambda t: t.id)
         self.assertGreater(len(matches), 0)
         task = matches[0]
         if task.state != Task.READY:
             self.complete_task(task.parent, task)
         assert task.state == Task.READY
-
-        print self.workflow.dump()
-
 
     def complete_task(self, task, target_child):
         if task.state != Task.READY:
