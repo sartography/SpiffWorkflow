@@ -184,6 +184,7 @@ class Task(object):
         if parent is not None:
             self.parent._child_added_notify(self)
 
+
     def __repr__(self):
         return '<Task object (%s) at %s>' % (self.task_spec.name, hex(id(self)))
 

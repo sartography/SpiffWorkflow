@@ -57,27 +57,32 @@ class Workflow(object):
         self.last_task = None
         if deserializing:
             assert 'Root' in workflow_spec.task_specs
-            root = workflow_spec.task_specs['Root']  # Probably deserialized
+            self.task_tree = None
+            self.success = None
+            self.task_lookup_by_id = {}
         else:
             if 'Root' in workflow_spec.task_specs:
                 root = workflow_spec.task_specs['Root']
             else:
                 root = specs.Simple(workflow_spec, 'Root')
-        self.task_tree = Task(self, root)
-        self.success = True
-        self.debug = False
+            self.task_tree = Task(self, root)
+
+            self.success = True
+            self.debug = False
+
+            # Prevent the root task from being executed.
+            self.task_tree.state = Task.COMPLETED
+            start                = self.task_tree._add_child(self.spec.start)
+
+            self.spec.start._predict(start)
+            if 'parent' not in kwargs:
+                start.task_spec._update_state(start)
+                #start.dump()
 
         # Events.
         self.completed_event = Event()
+        self.debug = False
 
-        # Prevent the root task from being executed.
-        self.task_tree.state = Task.COMPLETED
-        start                = self.task_tree._add_child(self.spec.start)
-
-        self.spec.start._predict(start)
-        if 'parent' not in kwargs:
-            start.task_spec._update_state(start)
-        #start.dump()
 
     def is_completed(self):
         """

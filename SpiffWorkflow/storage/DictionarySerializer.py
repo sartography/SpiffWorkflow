@@ -436,7 +436,8 @@ class DictionarySerializer(Serializer):
 
     def deserialize_workflow(self, s_state, **kwargs):
         wf_spec = self.deserialize_workflow_spec(s_state['wf_spec'], **kwargs)
-        workflow = Workflow(wf_spec)
+        workflow = Workflow(wf_spec, deserializing=True)
+        workflow._ds_task_lookup_by_id = {}
 
         # attributes
         workflow.attributes = s_state['attributes']
@@ -500,9 +501,16 @@ class DictionarySerializer(Serializer):
 
         # id
         task.id = s_state['id']
+        workflow._ds_task_lookup_by_id[task.id] = task
 
-        # parent
-        task.parent = workflow.get_task(s_state['parent'])
+        if workflow.task_tree is None:
+            #assert task.name == 'Root'
+            assert s_state['parent'] is None
+            workflow.task_tree = task
+        else:
+            assert s_state['parent'] is not None
+            task.parent = workflow._ds_task_lookup_by_id[s_state['parent']]
+            assert task.parent is not None
 
         # children
         task.children = [self._deserialize_task(workflow, c) for c in s_state['children']]
