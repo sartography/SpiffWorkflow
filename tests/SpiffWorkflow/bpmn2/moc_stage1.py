@@ -94,7 +94,6 @@ class MocStage1Test(unittest.TestCase):
         new_state = self.workflow.serialize(JSONSerializer())
         self.assertEqual(json.dumps(json.loads(state), sort_keys=True), json.dumps(json.loads(new_state), sort_keys=True))
 
-        #self.do_next_exclusive_step('dgm-review', set_attribs={'status':'Approve'})
         tasks = self.workflow.get_tasks(Task.READY)
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks[0].task_spec.name, 'dgm-review')
@@ -106,21 +105,35 @@ class MocStage1Test(unittest.TestCase):
         tasks[0].set_attribute(**{'status':'Approve'})
         old_tasks[0].set_attribute(**{'status':'Approve'})
 
-        print hex(id(old_tasks[0].children[0].parent)), old_tasks[0].children[0].parent.id
-        print hex(id(old_tasks[0])), old_tasks[0].id
-        print hex(id(tasks[0].children[0].parent)), tasks[0].children[0].parent.id
-        print hex(id(tasks[0])), tasks[0].id
-
         old_workflow.complete_task_from_id(old_tasks[0].id)
         self.workflow.complete_task_from_id(tasks[0].id)
-
-        t = self.workflow.get_tasks(Task.READY)
-        t2 = old_workflow.get_tasks(Task.READY)
 
         self.do_next_exclusive_step('dgm-review-result')
         self.do_next_exclusive_step('record-on-agenda')
 
-    def do_next_exclusive_step(self, step_name, with_save_load=True, set_attribs=None):
+    def test_find_path_to_a_point(self):
+        self.workflow = Workflow(self.spec)
+        print self.workflow.dump()
+        target_position = 'dgm-review'
+        matches = sorted([t for t in self.workflow.get_tasks()  if t.task_spec.name == target_position], key=lambda t: t.id)
+        self.assertGreater(len(matches), 0)
+        task = matches[0]
+        if task.state != Task.READY:
+            self.complete_task(task.parent, task)
+        assert task.state == Task.READY
+
+        print self.workflow.dump()
+
+
+    def complete_task(self, task, target_child):
+        if task.state != Task.READY:
+            self.complete_task(task.parent, task)
+        assert task.state == Task.READY
+        task._set_state(Task.COMPLETED | (task.state & Task.TRIGGERED))
+        task._update_children(target_child.task_spec)
+
+
+    def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None):
 
         old_workflow = self.workflow
         if with_save_load:
