@@ -20,4 +20,7 @@ class BpmnSpecMixin(object):
         self._init()
         return self.outgoing_names[taskspec.name]
 
+    def get_outgoing_sequence_names(self):
+        return self.outgoing_names.values()
+
 
