@@ -102,7 +102,6 @@ class SubWorkflow(TaskSpec):
             child.parent = my_task
 
         my_task._set_internal_attribute(subworkflow = subworkflow)
-        return True
 
 
     def _on_ready_hook(self, my_task):

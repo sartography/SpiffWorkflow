@@ -314,10 +314,9 @@ class TaskSpec(object):
             assignment.assign(my_task, my_task)
 
         # Run task-specific code.
-        result = self._on_ready_before_hook(my_task)
+        self._on_ready_before_hook(my_task)
         self.reached_event.emit(my_task.workflow, my_task)
-        if result:
-            result = self._on_ready_hook(my_task)
+        result = self._on_ready_hook(my_task)
 
         # Run user code, if any.
         if result:
@@ -345,7 +344,7 @@ class TaskSpec(object):
         @rtype:  boolean
         @return: True on success, False otherwise.
         """
-        return True
+        pass
 
     def _on_ready_hook(self, my_task):
         """
