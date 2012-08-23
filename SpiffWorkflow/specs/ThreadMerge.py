@@ -47,7 +47,6 @@ class ThreadMerge(Join):
         assert split_task is not None
         Join.__init__(self, parent, name, split_task, **kwargs)
 
-
     def _try_fire(self, my_task):
         # If the threshold was already reached, there is nothing else to do.
         if my_task._has_state(Task.COMPLETED):
@@ -95,7 +94,6 @@ class ThreadMerge(Join):
         # we need to revisit it.
         return False
 
-
     def _update_state_hook(self, my_task):
         if not self._try_fire(my_task):
             my_task._set_state(Task.WAITING)
@@ -126,10 +124,6 @@ class ThreadMerge(Join):
                 task.state = Task.COMPLETED
                 task._drop_children()
         return False
-
-
-    def _on_complete_hook(self, my_task):
-        return TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):
         return serializer._serialize_thread_merge(self)

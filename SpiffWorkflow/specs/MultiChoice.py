@@ -101,7 +101,6 @@ class MultiChoice(TaskSpec):
             outputs.append(self._parent.get_task_spec_from_name(output))
 
         my_task._update_children(outputs)
-        return True
 
     def serialize(self, serializer):
         return serializer._serialize_multi_choice(self)

@@ -51,7 +51,6 @@ class Trigger(TaskSpec):
         self.times   = times
         self.queued  = 0
 
-
     def _on_trigger(self, my_task):
         """
         Enqueue a trigger, such that this tasks triggers multiple times later
@@ -67,7 +66,6 @@ class Trigger(TaskSpec):
                 thetask.state = Task.FUTURE
                 thetask._ready()
 
-
     def _on_complete_hook(self, my_task):
         """
         A hook into _on_complete() that does the task specific work.
@@ -82,7 +80,7 @@ class Trigger(TaskSpec):
                 task = my_task.workflow.get_task_spec_from_name(task_name)
                 task._on_trigger(my_task)
         self.queued = 0
-        return TaskSpec._on_complete_hook(self, my_task)
+        TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):
         return serializer._serialize_trigger(self)

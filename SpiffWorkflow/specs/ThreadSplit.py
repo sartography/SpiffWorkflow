@@ -136,7 +136,6 @@ class ThreadSplit(TaskSpec):
         for i in range(split_n):
             outputs.append(self.thread_starter)
         my_task._update_children(outputs)
-        return True
 
     def serialize(self, serializer):
         return serializer._serialize_thread_split(self)

@@ -59,7 +59,7 @@ class Choose(Trigger):
                 continue
             if task.task_spec == context:
                 task.trigger(self.choice)
-        return TaskSpec._on_complete_hook(self, my_task)
+        TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):
         return serializer._serialize_choose(self)

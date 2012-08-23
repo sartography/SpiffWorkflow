@@ -138,7 +138,6 @@ class SubWorkflow(TaskSpec):
             if child.task_spec in self.outputs:
                 continue
             child.task_spec._update_state(child)
-        return True
 
     def serialize(self, serializer):
         return serializer._serialize_sub_workflow(self)

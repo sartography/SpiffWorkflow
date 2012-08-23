@@ -52,7 +52,7 @@ class Cancel(TaskSpec):
 
     def _on_complete_hook(self, my_task):
         my_task.workflow.cancel(self.cancel_successfully)
-        return TaskSpec._on_complete_hook(self, my_task)
+        TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):
         return serializer._serialize_cancel(self)

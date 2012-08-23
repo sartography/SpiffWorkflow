@@ -400,8 +400,7 @@ class TaskSpec(object):
         if my_task.workflow.debug:
             print "Executing task:", my_task.get_name()
 
-        if not self._on_complete_hook(my_task):
-            return False
+        self._on_complete_hook(my_task)
 
         # Notify the Workflow.
         my_task.workflow._task_completed_notify(my_task)
@@ -424,7 +423,6 @@ class TaskSpec(object):
         """
         # If we have more than one output, implicitly split.
         my_task._update_children(self.outputs)
-        return True
 
     def serialize(self, serializer, **kwargs):
         """

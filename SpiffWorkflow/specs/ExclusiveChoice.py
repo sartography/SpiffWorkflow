@@ -39,7 +39,6 @@ class ExclusiveChoice(MultiChoice):
         MultiChoice.__init__(self, parent, name, **kwargs)
         self.default_task_spec = None
 
-
     def connect(self, task_spec):
         """
         Connects the task spec that is executed if no other condition
@@ -52,7 +51,6 @@ class ExclusiveChoice(MultiChoice):
         self.outputs.append(task_spec)
         self.default_task_spec = task_spec.name
         task_spec._connect_notify(self)
-
 
     def test(self):
         """

@@ -47,7 +47,7 @@ class ReleaseMutex(TaskSpec):
     def _on_complete_hook(self, my_task):
         mutex = my_task.workflow._get_mutex(self.mutex)
         mutex.unlock()
-        return TaskSpec._on_complete_hook(self, my_task)
+        TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):
         return serializer._serialize_release_mutex(self)

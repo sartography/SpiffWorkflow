@@ -283,9 +283,6 @@ class Join(TaskSpec):
                 continue
             self._do_join(task)
 
-    def _on_complete_hook(self, my_task):
-        return TaskSpec._on_complete_hook(self, my_task)
-
     def serialize(self, serializer):
         return serializer._serialize_join(self)
 

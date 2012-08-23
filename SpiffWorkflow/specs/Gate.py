@@ -60,9 +60,6 @@ class Gate(TaskSpec):
         return TaskSpec._update_state_hook(self, my_task)
 
 
-    def _on_complete_hook(self, my_task):
-        return TaskSpec._on_complete_hook(self, my_task)
-
     def serialize(self, serializer):
         return serializer._serialize_gate(self)
 
