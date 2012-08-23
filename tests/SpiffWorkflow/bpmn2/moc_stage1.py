@@ -16,20 +16,49 @@ __author__ = 'matth'
 
 class WorkflowTest(unittest.TestCase):
 
-    def restore_ready_task(self, target_task):
+    def find_task_by_name(self, target_task):
         matches = sorted([t for t in self.workflow.get_tasks()  if t.task_spec.name == target_task], key=lambda t: t.id)
         self.assertGreater(len(matches), 0)
-        task = matches[0]
-        if task.state != Task.READY:
-            self.complete_task(task.parent, task)
-        assert task.state == Task.READY
+        return matches[0]
 
-    def complete_task(self, task, target_child):
-        if task.state != Task.READY:
-            self.complete_task(task.parent, task)
+    def redo_last_tasks(self, target_task_names, set_attribs=None):
+        tasks = []
+        for target_task in target_task_names:
+            tasks.append(self.find_task_by_name(target_task))
+
+        complete_path = {}
+        for t in tasks:
+            if t.state != Task.READY:
+                ancestor_tasks = [self.find_task_by_name(spec.name) for spec in t.task_spec.ancestors()]
+                leftover_task_set = set(ancestor_tasks)
+                for task in ancestor_tasks:
+                    if task.parent:
+                        complete_path.setdefault(task.parent.id, (task.parent, set()))[1].add(task.task_spec)
+                        if task.parent in leftover_task_set:
+                            leftover_task_set.remove(task.parent)
+                for task in leftover_task_set:
+                    if task.parent:
+                        complete_path.setdefault(task.id, (task, set()))[1].add(t.task_spec)
+
+        for id in sorted(complete_path.keys()):
+            task, target_children_specs = complete_path[id]
+            if not task._is_finished():
+                self.complete_task(task, list(target_children_specs))
+
+        for t in tasks:
+            if not t._is_finished():
+                assert t.state == Task.READY
+                if set_attribs:
+                    t.set_attribute(**set_attribs)
+                self.workflow.complete_task_from_id(t.id)
+
+
+    def complete_task(self, task, target_children_specs):
+        if task._is_finished():
+            return
         assert task.state == Task.READY
         task._set_state(Task.COMPLETED | (task.state & Task.TRIGGERED))
-        task._update_children(target_child.task_spec)
+        task._update_children(target_children_specs)
 
 
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None):
@@ -253,13 +282,31 @@ class HandoverTest(WorkflowTest):
         self.do_next_named_step('gm-approval')
         self.assertTaskNotReady('join1')
         #path 1:
-        self.do_next_named_step('create-new-handover')
+        self.do_next_exclusive_step('create-new-handover')
 
 
         self.do_next_exclusive_step('join1')
         self.do_next_exclusive_step('shift-report')
 
+    def test_restore_multiple_tasks(self):
+        self.workflow = Workflow(self.spec)
+        self.redo_last_tasks(['open-for-approval', 'outgoing-operator-approval'])
+        self.do_next_named_step('supervisor-approval')
+        #path 2
+        self.do_next_named_step('gm-approval')
+        self.assertTaskNotReady('join1')
+        #path 1:
+        self.do_next_exclusive_step('create-new-handover')
 
+
+        self.do_next_exclusive_step('join1')
+        self.do_next_exclusive_step('shift-report')
+
+    def test_restore_after_join(self):
+        self.workflow = Workflow(self.spec)
+        self.redo_last_tasks(['gm-approval', 'create-new-handover'])
+        self.do_next_exclusive_step('join1')
+        self.do_next_exclusive_step('shift-report')
 
 
 
