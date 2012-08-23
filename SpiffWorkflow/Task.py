@@ -157,7 +157,7 @@ class Task(object):
     # Pool for assigning a unique thread id to every new Task.
     thread_id_pool = 0
 
-    def __init__(self, workflow, task_spec, parent=None):
+    def __init__(self, workflow, task_spec, parent=None, state=FUTURE):
         """
         Constructor.
         """
@@ -166,9 +166,9 @@ class Task(object):
         self.workflow            = workflow
         self.parent              = parent
         self.children            = []
-        self._state              = Task.FUTURE
+        self._state              = state
         self.triggered           = False
-        self.state_history       = [Task.FUTURE]
+        self.state_history       = [state]
         self.log                 = []
         self.task_spec           = task_spec
         self.id                  = workflow.task_id_assigner.get_new_id()
@@ -378,7 +378,7 @@ class Task(object):
                 task_spec._update_state(child)
 
     def _set_likely_task(self, task_specs):
-        if type(task_specs) != type([]):
+        if not isinstance(task_specs, list):
             task_specs = [task_specs]
         for task_spec in task_specs:
             for child in self.children:
