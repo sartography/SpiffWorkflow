@@ -90,11 +90,15 @@ class UserTaskParser(TaskParser):
 class ExclusiveGatewayParser(TaskParser):
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
-        cond = Equal(Attrib('status'), 'Approve')
+
         if not self.task.outputs:
             #We need a default, it might as well be this one
             self.task.connect(outgoing_task)
+        cond = self.create_condition(outgoing_task, outgoing_task_node, sequence_flow_node)
         self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('name', None))
+
+    def create_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
+        return Equal(Attrib('choice'), sequence_flow_node.get('name', None))
 
 
 class Parser(object):
