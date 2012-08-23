@@ -47,6 +47,10 @@ class WorkflowTest(unittest.TestCase):
 
         self._do_single_step(step_name, tasks, set_attribs)
 
+    def assertTaskNotReady(self, step_name):
+        tasks = filter(lambda t: t.task_spec.name == step_name, self.workflow.get_tasks(Task.READY))
+        self.assertEquals([], tasks)
+
     def _do_single_step(self, step_name, tasks, set_attribs=None):
 
         self.assertEqual(len(tasks), 1)
@@ -233,6 +237,31 @@ class HandoverTest(WorkflowTest):
 
         self.do_next_exclusive_step('join1')
         self.do_next_exclusive_step('shift-report')
+
+    def test_run_through_parallel(self):
+
+        self.workflow = Workflow(self.spec)
+
+        self.do_next_exclusive_step('Start')
+        self.do_next_exclusive_step('open-for-approval')
+
+        #path 1:
+        self.do_next_named_step('outgoing-operator-approval')
+        self.assertTaskNotReady('join1')
+        self.do_next_named_step('supervisor-approval')
+        #path 2
+        self.do_next_named_step('gm-approval')
+        self.assertTaskNotReady('join1')
+        #path 1:
+        self.do_next_named_step('create-new-handover')
+
+
+        self.do_next_exclusive_step('join1')
+        self.do_next_exclusive_step('shift-report')
+
+
+
+
 
 
 def suite():
