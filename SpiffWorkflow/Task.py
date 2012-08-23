@@ -280,7 +280,7 @@ class Task(object):
             raise ValueError(self, '_add_child() requires a TaskSpec')
         if self._is_predicted() and state & self.PREDICTED_MASK == 0:
             msg = 'Attempt to add non-predicted child to predicted task'
-            raise WorkflowException(self, msg)
+            raise WorkflowException(self.task_spec, msg)
         task = Task(self.workflow, task_spec, self)
         task.thread_id = self.thread_id
         if state == self.READY:
@@ -354,7 +354,7 @@ class Task(object):
             if child.task_spec not in add:
                 if not self._is_definite():
                     msg = 'Attempt to remove non-predicted %s' % child.get_name()
-                    raise WorkflowException(self, msg)
+                    raise WorkflowException(self.task_spec, msg)
                 remove.append(child)
                 continue
             add.remove(child.task_spec)
