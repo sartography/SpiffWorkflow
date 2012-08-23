@@ -59,7 +59,6 @@ class ThreadSplit(TaskSpec):
         self.outputs.append(self.thread_starter)
         self.thread_starter._connect_notify(self)
 
-
     def connect(self, task_spec):
         """
         Connect the *following* task to this one. In other words, the
@@ -70,7 +69,6 @@ class ThreadSplit(TaskSpec):
         self.thread_starter.outputs.append(task_spec)
         task_spec._connect_notify(self.thread_starter)
 
-
     def _find_my_task(self, workflow):
         for task in workflow.branch_tree:
             if task.thread_id != my_task.thread_id:
@@ -78,7 +76,6 @@ class ThreadSplit(TaskSpec):
             if task.task == self:
                 return task
         return None
-
 
     def _get_activated_tasks(self, my_task, destination):
         """
@@ -93,7 +90,6 @@ class ThreadSplit(TaskSpec):
         task = destination._find_ancestor(self.thread_starter)
         return self.thread_starter._get_activated_tasks(task, destination)
 
-
     def _get_activated_threads(self, my_task):
         """
         Returns the list of threads that were activated in the previous 
@@ -103,7 +99,6 @@ class ThreadSplit(TaskSpec):
         """
         return my_task.children
 
-
     def _on_trigger(self, my_task):
         """
         May be called after execute() was already completed to create an
@@ -112,9 +107,8 @@ class ThreadSplit(TaskSpec):
         # Find a Task for this task.
         my_task = self._find_my_task(my_task.workflow)
         for output in self.outputs:
-            state    = Task.READY | Task.TRIGGERED
-            new_task = my_task.add_child(output, state)
-
+            new_task = my_task.add_child(output, Task.READY)
+            new_task.triggered = True
 
     def _predict_hook(self, my_task):
         split_n = my_task.get_attribute('split_n', self.times)
@@ -130,7 +124,6 @@ class ThreadSplit(TaskSpec):
         else:
             child_state = Task.LIKELY
         my_task._update_children(outputs, child_state)
-
 
     def _on_complete_hook(self, my_task):
         # Split, and remember the number of splits in the context data.

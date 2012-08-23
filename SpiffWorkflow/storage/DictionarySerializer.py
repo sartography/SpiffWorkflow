@@ -479,6 +479,7 @@ class DictionarySerializer(Serializer):
 
         # state
         s_state['state'] = task.state
+        s_state['triggered'] = task.triggered
 
         # task_spec
         s_state['task_spec'] = task.task_spec.name
@@ -511,6 +512,7 @@ class DictionarySerializer(Serializer):
 
         # state
         task._state = s_state['state']
+        task.triggered = s_state['triggered']
 
         # last_state_change
         task.last_state_change = s_state['last_state_change']

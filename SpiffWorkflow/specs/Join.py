@@ -107,7 +107,7 @@ class Join(TaskSpec):
     def _branch_may_merge_at(self, task):
         for child in task:
             # Ignore tasks that were created by a trigger.
-            if child._has_state(Task.TRIGGERED):
+            if child.triggered:
                 continue
             # Merge found.
             if child.task_spec == self:

@@ -45,7 +45,6 @@ class MultiInstance(TaskSpec):
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.times = times
 
-
     def _find_my_task(self, task):
         for thetask in task.workflow.task_tree:
             if thetask.thread_id != task.thread_id:
@@ -54,7 +53,6 @@ class MultiInstance(TaskSpec):
                 return thetask
         return None
 
-
     def _on_trigger(self, task_spec):
         """
         May be called after execute() was already completed to create an
@@ -62,13 +60,14 @@ class MultiInstance(TaskSpec):
         """
         # Find a Task for this TaskSpec.
         my_task = self._find_my_task(task_spec)
+        if my_task._has_state(Task.COMPLETED):
+            state = Task.READY
+        else:
+            state = Task.FUTURE
         for output in self.outputs:
-            if my_task._has_state(Task.COMPLETED):
-                state = Task.READY | Task.TRIGGERED
-            else:
-                state = Task.FUTURE | Task.TRIGGERED
-            output._predict(my_task._add_child(output, state))
-
+            new_task = my_task._add_child(output, state)
+            new_task.triggered = True
+            output._predict(new_task)
 
     def _get_predicted_outputs(self, my_task):
         split_n = my_task._get_internal_attribute('splits', 1)
@@ -78,7 +77,6 @@ class MultiInstance(TaskSpec):
         for i in range(split_n):
             outputs += self.outputs
         return outputs
-
 
     def _predict_hook(self, my_task):
         split_n = valueof(my_task, self.times)
@@ -96,7 +94,6 @@ class MultiInstance(TaskSpec):
         else:
             child_state = Task.FUTURE
         my_task._update_children(outputs, child_state)
-
 
     def _on_complete_hook(self, my_task):
         outputs = self._get_predicted_outputs(my_task)

@@ -66,10 +66,6 @@ class Task(object):
 
         - COMPLETED: The task was regularily completed.
 
-        - TRIGGERED: This is an extra flag that may be used in connection
-        with the other states. It means that the task was created at
-        runtime, for example by a Trigger or MultiInstance task.
-
     Note that the LIKELY and MAYBE tasks are merely predicted/guessed, so
     those tasks may be removed from the tree at runtime later. They are
     created to allow for visualizing the workflow at a time where
@@ -82,7 +78,6 @@ class Task(object):
     READY     =  16
     CANCELLED =  32
     COMPLETED =  64
-    TRIGGERED = 128
 
     FINISHED_MASK      = CANCELLED | COMPLETED
     DEFINITE_MASK      = FUTURE | WAITING | READY | FINISHED_MASK
@@ -96,8 +91,7 @@ class Task(object):
                    CANCELLED: 'CANCELLED',
                    COMPLETED: 'COMPLETED',
                    LIKELY:    'LIKELY',
-                   MAYBE:     'MAYBE',
-                   TRIGGERED: 'TRIGGERED'}
+                   MAYBE:     'MAYBE'}
 
     class Iterator(object):
         """
@@ -173,6 +167,7 @@ class Task(object):
         self.parent              = parent
         self.children            = []
         self._state              = Task.FUTURE
+        self.triggered           = False
         self.state_history       = [Task.FUTURE]
         self.log                 = []
         self.task_spec           = task_spec
@@ -318,7 +313,7 @@ class Task(object):
         The state of COMPLETED tasks is never changed.
 
         If this method is passed a state:
-          - The state of TRIGGERED tasks is not changed.
+          - The state of triggered tasks is not changed.
           - The state for all children is set to the given value.
 
         If this method is not passed a state:
@@ -346,8 +341,8 @@ class Task(object):
         add = task_specs[:]
         remove = []
         for child in self.children:
-            # Must not be TRIGGERED or COMPLETED.
-            if child._has_state(Task.TRIGGERED):
+            # Must not be triggered or COMPLETED.
+            if child.triggered:
                 if state is None:
                     child.task_spec._update_state(child)
                 continue
@@ -485,7 +480,7 @@ class Task(object):
             return
         if self.state & self.CANCELLED != 0:
             return
-        self._set_state(self.READY | (self.state & self.TRIGGERED))
+        self._set_state(self.READY)
         return self.task_spec._on_ready(self)
 
     def get_name(self):
@@ -583,7 +578,7 @@ class Task(object):
             for child in self.children:
                 child.cancel()
             return
-        self._set_state(self.CANCELLED | (self.state & self.TRIGGERED))
+        self._set_state(self.CANCELLED)
         self._drop_children()
         return self.task_spec._on_cancel(self)
 
@@ -592,7 +587,7 @@ class Task(object):
         Called by the associated task to let us know that its state
         has changed (e.g. from FUTURE to COMPLETED.)
         """
-        self._set_state(self.COMPLETED | (self.state & self.TRIGGERED))
+        self._set_state(self.COMPLETED)
         return self.task_spec._on_complete(self)
 
     def trigger(self, *args):
