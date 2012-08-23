@@ -1,8 +1,11 @@
 from SpiffWorkflow.Workflow import Workflow
+from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
+from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Equal, Attrib
-from SpiffWorkflow.specs.ExclusiveChoice import ExclusiveChoice
-from SpiffWorkflow.specs.Simple import Simple
+from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
+from SpiffWorkflow.bpmn2.specs.EndEvent import EndEvent
+
 
 __author__ = 'matth'
 
@@ -33,8 +36,9 @@ def full_tag(tag):
 
 class TaskParser(object):
 
-    def __init__(self, p, node):
+    def __init__(self, p, spec_class, node):
         self.parser = p
+        self.spec_class = spec_class
         self.doc = p.doc
         self.root_xpath = p.xpath
         self.spec = p.spec
@@ -65,7 +69,7 @@ class TaskParser(object):
         return self.task
 
     def create_task(self):
-        return Simple(self.spec, self.node.get('id'), description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.node.get('id'), description=self.node.get('name', None))
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         self.task.connect(outgoing_task)
@@ -74,10 +78,13 @@ class StartEventParser(TaskParser):
     def create_task(self):
         return self.spec.start
 
-class ExclusiveGatewayParser(TaskParser):
+class EndEventParser(TaskParser):
+    pass
 
-    def create_task(self):
-        return ExclusiveChoice(self.spec, self.node.get('id'), description=self.node.get('name', None))
+class UserTaskParser(TaskParser):
+    pass
+
+class ExclusiveGatewayParser(TaskParser):
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         cond = Equal(Attrib('status'), 'Approve')
@@ -89,12 +96,11 @@ class ExclusiveGatewayParser(TaskParser):
 
 class Parser(object):
 
-    START_EVENT = full_tag('startEvent')
-    EXCLUSIVE_GATEWAY = full_tag('exclusiveGateway')
-
     PARSER_CLASSES = {
-        START_EVENT : StartEventParser,
-        EXCLUSIVE_GATEWAY: ExclusiveGatewayParser
+        full_tag('startEvent')          : (StartEventParser, StartTask),
+        full_tag('endEvent')            : (EndEventParser, EndEvent),
+        full_tag('userTask')            : (UserTaskParser, UserTask),
+        full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
     }
 
     def __init__(self, f):
@@ -102,16 +108,14 @@ class Parser(object):
         self.xpath = xpath_eval(self.doc)
         self.spec = WorkflowSpec()
 
-
     def parse_node(self,node):
-
-        return self.PARSER_CLASSES.get(node.tag, TaskParser)(self, node).parse_node()
+        (node_parser, spec_class) = self.PARSER_CLASSES[node.tag]
+        return node_parser(self, spec_class, node).parse_node()
 
 
     def parse(self):
-
         start_node = one(self.xpath('//bpmn2:startEvent'))
-        start_task = self.parse_node(start_node)
+        self.parse_node(start_node)
 
 
 
