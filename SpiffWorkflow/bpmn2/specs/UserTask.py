@@ -11,7 +11,7 @@ class UserTask(Simple, BpmnSpecMixin):
         next_node = self.outputs[0]
         if isinstance(next_node, ExclusiveGateway):
             return next_node.get_outgoing_sequence_names()
-        return self.get_sequence_flow_name(next_node)
+        return [self.get_sequence_flow_name(next_node)]
 
 
 

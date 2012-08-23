@@ -124,14 +124,3 @@ class Parser(object):
         start_node = one(self.xpath('//bpmn2:startEvent'))
         self.parse_node(start_node)
 
-
-
-def main():
-    f = open('/home/matth/workspace_bpmn/MOC/stage_1.bpmn', 'r')
-    with(f):
-        p = Parser(f)
-        p.parse()
-        Workflow(p.spec).dump()
-
-if __name__ == '__main__':
-    main()
