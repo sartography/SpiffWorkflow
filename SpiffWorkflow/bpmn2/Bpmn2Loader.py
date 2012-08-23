@@ -1,4 +1,3 @@
-from twisted.words.xish import xpath
 from SpiffWorkflow.Workflow import Workflow
 from SpiffWorkflow.operators import Equal, Attrib
 from SpiffWorkflow.specs.ExclusiveChoice import ExclusiveChoice
@@ -13,11 +12,10 @@ from lxml import etree
 def one(nodes,or_none=False):
     if not nodes and or_none:
         return None
-    assert len(nodes) == 1, 'Expected 1 result for \'%s\'. Received %d results.' % (xpath, len(nodes))
+    assert len(nodes) == 1, 'Expected 1 result. Received %d results.' % (len(nodes))
     return nodes[0]
 
-def first(tree,xpath=None):
-    nodes = tree.xpath(xpath)
+def first(nodes):
     if len(nodes) >= 1:
         return nodes[0]
     else:
