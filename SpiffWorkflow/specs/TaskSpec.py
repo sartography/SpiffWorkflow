@@ -340,8 +340,6 @@ class TaskSpec(object):
 
         @type  my_task: Task
         @param my_task: The associated task in the task tree.
-        @rtype:  boolean
-        @return: True on success, False otherwise.
         """
         pass
 
@@ -351,8 +349,6 @@ class TaskSpec(object):
 
         @type  my_task: Task
         @param my_task: The associated task in the task tree.
-        @rtype:  boolean
-        @return: True on success, False otherwise.
         """
         pass
 
@@ -361,15 +357,10 @@ class TaskSpec(object):
         May be called by another task to cancel the operation before it was
         completed.
 
-        Return True on success, False otherwise.
-
         @type  my_task: Task
         @param my_task: The associated task in the task tree.
-        @rtype:  boolean
-        @return: True on success, False otherwise.
         """
         self.cancelled_event.emit(my_task.workflow, my_task)
-        return True
 
     def _on_trigger(self, my_task):
         """

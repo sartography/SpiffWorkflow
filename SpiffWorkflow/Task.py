@@ -578,7 +578,7 @@ class Task(object):
             return
         self._set_state(self.CANCELLED)
         self._drop_children()
-        return self.task_spec._on_cancel(self)
+        self.task_spec._on_cancel(self)
 
     def complete(self):
         """
