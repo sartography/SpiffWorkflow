@@ -72,11 +72,14 @@ class TaskParser(object):
         return self.spec_class(self.spec, self.node.get('id'), description=self.node.get('name', None))
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
-        self.task.connect(outgoing_task)
+        self.task.connect_outgoing(outgoing_task, sequence_flow_node.get('name', None))
 
 class StartEventParser(TaskParser):
     def create_task(self):
         return self.spec.start
+
+    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
+        self.task.connect(outgoing_task)
 
 class EndEventParser(TaskParser):
     pass
@@ -91,7 +94,7 @@ class ExclusiveGatewayParser(TaskParser):
         if not self.task.outputs:
             #We need a default, it might as well be this one
             self.task.connect(outgoing_task)
-        self.task.connect_if(cond, outgoing_task)
+        self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('name', None))
 
 
 class Parser(object):
