@@ -21,36 +21,34 @@ class WorkflowTest(unittest.TestCase):
         self.assertGreater(len(matches), 0)
         return matches[0]
 
-    def redo_last_tasks(self, target_task_names, set_attribs=None):
+    def redo_last_transitions(self, target_transitions):
         tasks = []
-        for target_task in target_task_names:
+        for target_task in target_transitions.keys():
             tasks.append(self.find_task_by_name(target_task))
 
         complete_path = {}
         for t in tasks:
-            if t.state != Task.READY:
-                ancestor_tasks = [self.find_task_by_name(spec.name) for spec in t.task_spec.ancestors()]
-                leftover_task_set = set(ancestor_tasks)
-                for task in ancestor_tasks:
-                    if task.parent:
-                        complete_path.setdefault(task.parent.id, (task.parent, set()))[1].add(task.task_spec)
-                        if task.parent in leftover_task_set:
-                            leftover_task_set.remove(task.parent)
-                for task in leftover_task_set:
-                    if task.parent:
-                        complete_path.setdefault(task.id, (task, set()))[1].add(t.task_spec)
+            ancestor_tasks = filter(lambda x: x.id < t.id, [self.find_task_by_name(spec.name) for spec in t.task_spec.ancestors()])
+
+            leftover_task_set = set(ancestor_tasks)
+            for task in ancestor_tasks:
+                if task.parent:
+                    complete_path.setdefault(task.parent.id, (task.parent, set()))[1].add(task.task_spec)
+                    if task.parent in leftover_task_set:
+                        leftover_task_set.remove(task.parent)
+            for task in leftover_task_set:
+                if task.parent:
+                    complete_path.setdefault(task.id, (task, set()))[1].add(t.task_spec)
+
+        for t in tasks:
+            children = target_transitions[t.task_spec.name]
+            for c in [children] if isinstance(children, basestring) else children:
+                complete_path.setdefault(t.id, (t, set()))[1].add(self.workflow.get_task_spec_from_name(c))
 
         for id in sorted(complete_path.keys()):
             task, target_children_specs = complete_path[id]
             if not task._is_finished():
                 self.complete_task(task, list(target_children_specs))
-
-        for t in tasks:
-            if not t._is_finished():
-                assert t.state == Task.READY
-                if set_attribs:
-                    t.set_attribute(**set_attribs)
-                self.workflow.complete_task_from_id(t.id)
 
 
     def complete_task(self, task, target_children_specs):
@@ -202,7 +200,7 @@ class MocStage1Test(WorkflowTest):
     def test_restore_ready_task(self):
         self.workflow = Workflow(self.spec)
 
-        self.restore_ready_task('dgm-review')
+        self.redo_last_transitions({'prepare-moc-proposal' : 'dgm-review'})
 
         self.do_next_exclusive_step('dgm-review', set_attribs={'status':'Approve'})
         self.do_next_exclusive_step('dgm-review-result')
@@ -211,7 +209,7 @@ class MocStage1Test(WorkflowTest):
     def test_restore_ready_task_after_branch(self):
         self.workflow = Workflow(self.spec)
 
-        self.restore_ready_task('record-on-agenda')
+        self.redo_last_transitions({'dgm-review-result':'record-on-agenda'})
         self.do_next_exclusive_step('record-on-agenda')
 
 
@@ -290,7 +288,7 @@ class HandoverTest(WorkflowTest):
 
     def test_restore_multiple_tasks(self):
         self.workflow = Workflow(self.spec)
-        self.redo_last_tasks(['open-for-approval', 'outgoing-operator-approval'])
+        self.redo_last_transitions({'open-for-approval':'gm-approval', 'outgoing-operator-approval':'supervisor-approval'})
         self.do_next_named_step('supervisor-approval')
         #path 2
         self.do_next_named_step('gm-approval')
@@ -302,13 +300,25 @@ class HandoverTest(WorkflowTest):
         self.do_next_exclusive_step('join1')
         self.do_next_exclusive_step('shift-report')
 
-    def test_restore_after_join(self):
+    def test_restore_join_ready(self):
         self.workflow = Workflow(self.spec)
-        self.redo_last_tasks(['gm-approval', 'create-new-handover'])
+        self.redo_last_transitions({'gm-approval': 'join1', 'create-new-handover': 'join1'})
         self.do_next_exclusive_step('join1')
         self.do_next_exclusive_step('shift-report')
 
+    def test_restore_after_join(self):
+        self.workflow = Workflow(self.spec)
+        self.redo_last_transitions({ 'join1': 'shift-report'})
+        self.do_next_exclusive_step('shift-report')
 
+    def test_restore_join_waiting(self):
+        self.workflow = Workflow(self.spec)
+        self.redo_last_transitions({'gm-approval': 'join1', 'outgoing-operator-approval':'supervisor-approval'})
+        self.assertTaskNotReady('join1')
+        self.do_next_named_step('supervisor-approval')
+        self.do_next_exclusive_step('create-new-handover')
+        self.do_next_exclusive_step('join1')
+        self.do_next_exclusive_step('shift-report')
 
 
 def suite():
