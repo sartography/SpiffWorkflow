@@ -8,19 +8,18 @@ class BpmnSpecMixin(object):
 
     def connect_outgoing(self, taskspec, sequence_flow_name):
         self._init()
-        self.connect(taskspec)
-        self.outgoing_names[taskspec.name] = sequence_flow_name
+        if taskspec not in self.outputs:
+            self.connect(taskspec)
+        self.outgoing_names[sequence_flow_name] = taskspec
 
     def connect_outgoing_if(self, condition, taskspec, sequence_flow_name):
         self._init()
-        self.connect_if(condition, taskspec)
-        self.outgoing_names[taskspec.name] = sequence_flow_name
-
-    def get_sequence_flow_name(self, taskspec):
-        self._init()
-        return self.outgoing_names[taskspec.name]
+        if taskspec not in self.outputs:
+            self.connect_if(condition, taskspec)
+        self.outgoing_names[sequence_flow_name] = taskspec
 
     def get_outgoing_sequence_names(self):
-        return self.outgoing_names.values()
+        self._init()
+        return self.outgoing_names.keys()
 
 

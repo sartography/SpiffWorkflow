@@ -49,8 +49,7 @@ class TaskParser(object):
 
         self.task = self.create_task()
 
-        children = set()
-        child_nodes = {}
+        children = []
         outgoing = self.xpath('./bpmn2:outgoing')
         for sequence_flow_id in outgoing:
             sequence_flow = one(self.root_xpath('//bpmn2:sequenceFlow[@id="%s"]' % sequence_flow_id.text))
@@ -59,11 +58,9 @@ class TaskParser(object):
             c = self.spec.task_specs.get(target_ref, None)
             if c is None:
                 c = self.parser.parse_node(target_node)
-            children.add(c)
-            child_nodes[target_ref] = (target_node, sequence_flow)
+            children.append((c, target_node, sequence_flow))
 
-        for c in children:
-            (target_node, sequence_flow) = child_nodes[c.name]
+        for (c, target_node, sequence_flow) in children:
             self.connect_outgoing(c, target_node, sequence_flow)
 
         return self.task
