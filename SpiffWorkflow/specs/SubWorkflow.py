@@ -64,12 +64,10 @@ class SubWorkflow(TaskSpec):
             dirname   = os.path.dirname(parent.file)
             self.file = os.path.join(dirname, file)
 
-
     def test(self):
         TaskSpec.test(self)
         if self.file is not None and not os.path.exists(self.file):
             raise WorkflowException(self, 'File does not exist: %s' % self.file)
-
 
     def _predict_hook(self, my_task):
         outputs = [task.task_spec for task in my_task.children]
@@ -80,7 +78,6 @@ class SubWorkflow(TaskSpec):
             my_task._update_children(outputs, Task.LIKELY)
         else:
             my_task._update_children(outputs, Task.FUTURE)
-
 
     def _on_ready_before_hook(self, my_task):
         from SpiffWorkflow.storage import XmlSerializer
@@ -103,7 +100,6 @@ class SubWorkflow(TaskSpec):
 
         my_task._set_internal_attribute(subworkflow = subworkflow)
 
-
     def _on_ready_hook(self, my_task):
         # Assign variables, if so requested.
         subworkflow = my_task._get_internal_attribute('subworkflow')
@@ -114,8 +110,6 @@ class SubWorkflow(TaskSpec):
         self._predict(my_task)
         for child in subworkflow.task_tree.children:
             child.task_spec._update_state(child)
-        return True
-
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
         # Assign variables, if so requested.
@@ -130,7 +124,6 @@ class SubWorkflow(TaskSpec):
                     return
                 child.task_spec.entered_event.emit(child.workflow, child)
                 child._ready()
-
 
     def _on_complete_hook(self, my_task):
         for child in my_task.children:

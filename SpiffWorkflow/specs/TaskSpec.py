@@ -316,11 +316,10 @@ class TaskSpec(object):
         # Run task-specific code.
         self._on_ready_before_hook(my_task)
         self.reached_event.emit(my_task.workflow, my_task)
-        result = self._on_ready_hook(my_task)
+        self._on_ready_hook(my_task)
 
         # Run user code, if any.
-        if result:
-            result = self.ready_event.emit(my_task.workflow, my_task)
+        result = self.ready_event.emit(my_task.workflow, my_task)
 
         if result:
             # Assign variables, if so requested.
@@ -355,7 +354,7 @@ class TaskSpec(object):
         @rtype:  boolean
         @return: True on success, False otherwise.
         """
-        return True
+        pass
 
     def _on_cancel(self, my_task):
         """
