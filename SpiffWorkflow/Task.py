@@ -257,13 +257,13 @@ class Task(object):
         return (self.state & state) != 0
 
     def _is_finished(self):
-        return self.state & self.FINISHED_MASK != 0
+        return self._has_state(self.FINISHED_MASK)
 
     def _is_predicted(self):
-        return self.state & self.PREDICTED_MASK != 0
+        return self._has_state(self.PREDICTED_MASK)
 
     def _is_definite(self):
-        return self.state & self.DEFINITE_MASK != 0
+        return self._has_state(self.DEFINITE_MASK)
 
     def _add_child(self, task_spec, state=FUTURE):
         """
@@ -476,9 +476,7 @@ class Task(object):
         """
         Marks the task as ready for execution.
         """
-        if self.state & self.COMPLETED != 0:
-            return
-        if self.state & self.CANCELLED != 0:
+        if self._has_state(self.COMPLETED) or self._has_state(self.CANCELLED):
             return
         self._set_state(self.READY)
         return self.task_spec._on_ready(self)
@@ -500,8 +498,8 @@ class Task(object):
         Returns a textual representation of this Task's state.
         """
         state_name = []
-        for key, name in self.state_names.iteritems():
-            if self.state & key != 0:
+        for state, name in self.state_names.iteritems():
+            if self._has_state(state):
                 state_name.append(name)
         return '|'.join(state_name)
 

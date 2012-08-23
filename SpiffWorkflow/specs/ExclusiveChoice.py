@@ -61,12 +61,10 @@ class ExclusiveChoice(MultiChoice):
         if self.default_task_spec is None:
             raise WorkflowException(self, 'A default output is required.')
 
-
     def _predict_hook(self, my_task):
         my_task._update_children(self.outputs, Task.MAYBE)
         spec = self._parent.get_task_spec_from_name(self.default_task_spec)
         my_task._set_likely_task(spec)
-
 
     def _on_complete_hook(self, my_task):
         # Find the first matching condition.
