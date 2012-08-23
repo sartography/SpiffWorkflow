@@ -613,6 +613,8 @@ class Task(object):
         dbg += '%s/'           % self.id
         dbg += '%s:'           % self.thread_id
         dbg += ' Task of %s'   % self.get_name()
+        if self.task_spec.description:
+            dbg += ' (%s)'   % self.get_description()
         dbg += ' State: %s'    % self.get_state_name()
         dbg += ' Children: %s' % len(self.children)
         if recursive:
