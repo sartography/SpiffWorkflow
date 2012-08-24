@@ -3,6 +3,7 @@ from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn2.specs.ManualTask import ManualTask
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Equal, Attrib
+from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.bpmn2.specs.EndEvent import EndEvent
@@ -86,7 +87,12 @@ class StartEventParser(TaskParser):
         self.task.connect(outgoing_task)
 
 class EndEventParser(TaskParser):
-    pass
+
+    def create_task(self):
+        task = self.spec_class(self.spec, self.get_task_spec_name(), description=self.node.get('name', None))
+        task.connect(self.process_parser._end_node)
+        return task
+
 
 class UserTaskParser(TaskParser):
     pass
@@ -132,6 +138,7 @@ class ProcessParser(object):
         self.node = node
         self.xpath = xpath_eval(node)
         self.spec = WorkflowSpec()
+        self._end_node = Simple(self.spec, 'End')
         self.parsing_started = False
         self.is_parsed = False
 
