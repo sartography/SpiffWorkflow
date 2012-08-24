@@ -55,7 +55,6 @@ class SubWorkflow(TaskSpec):
         """
         assert parent is not None
         assert name is not None
-        assert file is not None
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.file       = None
         self.in_assign  = in_assign is not None and in_assign or []
