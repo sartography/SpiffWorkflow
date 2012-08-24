@@ -1,5 +1,5 @@
 from SpiffWorkflow.Task import Task
-from SpiffWorkflow.Workflow import Workflow
+from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.bpmn2.Bpmn2Loader import Parser
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from tests.SpiffWorkflow.bpmn2.ConsoleMenu import Console_App_Menu
@@ -9,13 +9,13 @@ __author__ = 'matth'
 
 def main():
 
-    f = open('/home/matth/Desktop/MOC.bpmn', 'r')
+    #f = open('/home/matth/Desktop/MOC.bpmn', 'r')
     f = open('/home/matth/Desktop/Approvals.bpmn', 'r')
     with(f):
         p = Parser(f)
         spec = p.parse()
 
-    workflow = Workflow(spec)
+    workflow = BpmnWorkflow(spec)
 
     exit_flag = None
     while not exit_flag:

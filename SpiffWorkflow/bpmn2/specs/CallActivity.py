@@ -1,3 +1,4 @@
+from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.bpmn2.specs.BpmnSpecMixin import BpmnSpecMixin
 from SpiffWorkflow.operators import Assign
 from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
@@ -14,6 +15,6 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
     def test(self):
         TaskSpec.test(self)
 
-    def _get_workflow_spec(self):
-        return self.spec
+    def _create_workflow_spec(self, my_task):
+        return BpmnWorkflow(self.spec, parent = my_task.workflow.outer_workflow)
 
