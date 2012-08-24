@@ -1,6 +1,7 @@
 from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn2.specs.ManualTask import ManualTask
+from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Equal, Attrib
 from SpiffWorkflow.specs.Simple import Simple
@@ -128,6 +129,7 @@ class ProcessParser(object):
         full_tag('userTask')            : (UserTaskParser, UserTask),
         full_tag('manualTask')          : (ManualTaskParser, ManualTask),
         full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
+        full_tag('parallelGateway')     : (TaskParser, ParallelGateway),
         full_tag('callActivity')        : (CallActivityParser, CallActivity),
         }
 
