@@ -50,11 +50,11 @@ class TaskParser(object):
         self.task = self.create_task()
 
         children = []
-        outgoing = self.process_xpath('.//bpmn2:sequenceFlow[@sourceRef="%s"]' % self.node.get('id'))
+        outgoing = self.process_xpath('.//bpmn2:sequenceFlow[@sourceRef="%s"]' % self.get_id())
         for sequence_flow in outgoing:
             target_ref = sequence_flow.get('targetRef')
             target_node = one(self.process_xpath('.//bpmn2:*[@id="%s"]' % target_ref))
-            c = self.spec.task_specs.get(target_ref, None)
+            c = self.spec.task_specs.get(self.get_task_spec_name(target_ref), None)
             if c is None:
                 c = self.process_parser.parse_node(target_node)
             children.append((c, target_node, sequence_flow))
@@ -64,8 +64,14 @@ class TaskParser(object):
 
         return self.task
 
+    def get_task_spec_name(self, target_ref=None):
+        return '%s.%s' %(self.process_parser.get_id(), target_ref or self.get_id())
+
+    def get_id(self):
+        return self.node.get('id')
+
     def create_task(self):
-        return self.spec_class(self.spec, self.node.get('id'), description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.get_task_spec_name(), description=self.node.get('name', None))
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         self.task.connect_outgoing(outgoing_task, sequence_flow_node.get('name', None))
@@ -117,8 +123,11 @@ class ProcessParser(object):
         self.xpath = xpath_eval(node)
 
     def is_called(self):
-        called_by = self.root_xpath('//bpmn2:callActivity[@calledElement="%s"]' % self.node.get('id'))
+        called_by = self.root_xpath('//bpmn2:callActivity[@calledElement="%s"]' % self.get_id())
         return called_by and len(called_by) > 0
+
+    def get_id(self):
+        return self.node.get('id')
 
     def parse_node(self,node):
         (node_parser, spec_class) = self.PARSER_CLASSES[node.tag]
