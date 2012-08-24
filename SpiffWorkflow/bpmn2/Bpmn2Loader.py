@@ -1,3 +1,4 @@
+from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn2.specs.ManualTask import ManualTask
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
@@ -37,11 +38,12 @@ def full_tag(tag):
 class TaskParser(object):
 
     def __init__(self, process_parser, spec_class, node):
+        self.parser = process_parser.parser
         self.process_parser = process_parser
         self.spec_class = spec_class
         self.process_xpath = self.process_parser.xpath
         self.root_xpath = self.process_parser.parser.xpath
-        self.spec = self.process_parser.parser.spec
+        self.spec = self.process_parser.spec
         self.node = node
         self.xpath = xpath_eval(node)
 
@@ -105,6 +107,13 @@ class ExclusiveGatewayParser(TaskParser):
     def create_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         return Equal(Attrib('choice'), sequence_flow_node.get('name', None))
 
+class CallActivityParser(TaskParser):
+    def create_task(self):
+
+        wf_spec = self.parser.get_process_spec(self.node.get('calledElement'))
+        return self.spec_class(self.spec, self.get_task_spec_name(), wf_spec, description=self.node.get('name', None))
+
+
 class ProcessParser(object):
 
     PARSER_CLASSES = {
@@ -113,6 +122,7 @@ class ProcessParser(object):
         full_tag('userTask')            : (UserTaskParser, UserTask),
         full_tag('manualTask')          : (ManualTaskParser, ManualTask),
         full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
+        full_tag('callActivity')        : (CallActivityParser, CallActivity),
         }
 
     def __init__(self, p, node):
@@ -121,6 +131,9 @@ class ProcessParser(object):
         self.root_xpath = p.xpath
         self.node = node
         self.xpath = xpath_eval(node)
+        self.spec = WorkflowSpec()
+        self.parsing_started = False
+        self.is_parsed = False
 
     def is_called(self):
         called_by = self.root_xpath('//bpmn2:callActivity[@calledElement="%s"]' % self.get_id())
@@ -135,20 +148,42 @@ class ProcessParser(object):
 
     def parse(self):
         start_node = one(self.xpath('.//bpmn2:startEvent'))
+        self.parsing_started = True
         self.parse_node(start_node)
+        self.is_parsed = True
+
+    def get_spec(self):
+        if self.is_parsed:
+            return self.spec
+        if self.parsing_started:
+            raise NotImplementedError('Recursive call Activities are not supported.')
+        self.parse()
+        return self.get_spec()
 
 class Parser(object):
 
     def __init__(self, f):
         self.doc = etree.parse(f)
         self.xpath = xpath_eval(self.doc)
-        self.spec = WorkflowSpec()
+        self.process_parsers = {}
+
+    def get_process_spec(self, id):
+        return self.process_parsers[id].get_spec()
 
     def parse(self):
         processes = self.xpath('//bpmn2:process')
+        root_processes = []
         for process in processes:
             process_parser = ProcessParser(self, process)
+            self.process_parsers[process_parser.get_id()] = process_parser
+
             if not process_parser.is_called():
-                process_parser.parse()
+                root_processes.append(process_parser)
+
+        if len(root_processes) != 1:
+            raise NotImplementedError('The BPMN file must have a single root process (i.e. one that is not called by another process)')
+
+        return self.get_process_spec(root_processes[0].get_id())
+
 
 
