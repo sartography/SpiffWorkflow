@@ -90,7 +90,9 @@ class StartEventParser(TaskParser):
 class EndEventParser(TaskParser):
 
     def create_task(self):
-        task = self.spec_class(self.spec, self.get_task_spec_name(), description=self.node.get('name', None))
+
+        terminateEventDefinition = self.xpath('.//bpmn2:terminateEventDefinition')
+        task = self.spec_class(self.spec, self.get_task_spec_name(), is_terminate_event=terminateEventDefinition, description=self.node.get('name', None))
         task.connect(self.process_parser._end_node)
         return task
 
