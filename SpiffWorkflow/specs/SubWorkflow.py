@@ -79,13 +79,16 @@ class SubWorkflow(TaskSpec):
         else:
             my_task._sync_children(outputs, my_task.state)
 
-    def _on_ready_before_hook(self, my_task):
+    def _get_workflow_spec(self, my_task):
         from SpiffWorkflow.storage import XmlSerializer
         from SpiffWorkflow.specs import WorkflowSpec
         file           = valueof(my_task, self.file)
         serializer     = XmlSerializer()
         xml            = open(file).read()
-        wf_spec        = WorkflowSpec.deserialize(serializer, xml, filename = file)
+        return WorkflowSpec.deserialize(serializer, xml, filename = file)
+
+    def _on_ready_before_hook(self, my_task):
+        wf_spec        = self._get_workflow_spec(my_task)
         outer_workflow = my_task.workflow.outer_workflow
         subworkflow    = SpiffWorkflow.Workflow(wf_spec, parent = outer_workflow)
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
