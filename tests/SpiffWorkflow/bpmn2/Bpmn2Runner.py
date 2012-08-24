@@ -8,7 +8,8 @@ __author__ = 'matth'
 
 
 def main():
-    f = open('/home/matth/workspace_bpmn/MOC/stage_1.bpmn', 'r')
+    f = open('/home/matth/workspace_bpmn/MOC/stage_1-bonita.bpmn', 'r')
+    #f = open('/home/matth/workspace_bpmn/MOC/stage_1.bpmn', 'r')
     with(f):
         p = Parser(f)
         p.parse()

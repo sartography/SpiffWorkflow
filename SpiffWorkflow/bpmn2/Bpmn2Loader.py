@@ -1,5 +1,5 @@
-from SpiffWorkflow.Workflow import Workflow
 from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
+from SpiffWorkflow.bpmn2.specs.ManualTask import ManualTask
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Equal, Attrib
 from SpiffWorkflow.specs.StartTask import StartTask
@@ -50,9 +50,8 @@ class TaskParser(object):
         self.task = self.create_task()
 
         children = []
-        outgoing = self.xpath('./bpmn2:outgoing')
-        for sequence_flow_id in outgoing:
-            sequence_flow = one(self.root_xpath('//bpmn2:sequenceFlow[@id="%s"]' % sequence_flow_id.text))
+        outgoing = self.root_xpath('//bpmn2:sequenceFlow[@sourceRef="%s"]' % self.node.get('id'))
+        for sequence_flow in outgoing:
             target_ref = sequence_flow.get('targetRef')
             target_node = one(self.root_xpath('//bpmn2:*[@id="%s"]' % target_ref))
             c = self.spec.task_specs.get(target_ref, None)
@@ -84,6 +83,9 @@ class EndEventParser(TaskParser):
 class UserTaskParser(TaskParser):
     pass
 
+class ManualTaskParser(UserTaskParser):
+    pass
+
 class ExclusiveGatewayParser(TaskParser):
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
@@ -104,6 +106,7 @@ class Parser(object):
         full_tag('startEvent')          : (StartEventParser, StartTask),
         full_tag('endEvent')            : (EndEventParser, EndEvent),
         full_tag('userTask')            : (UserTaskParser, UserTask),
+        full_tag('manualTask')          : (ManualTaskParser, ManualTask),
         full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
     }
 
