@@ -9,13 +9,13 @@ __author__ = 'matth'
 
 def main():
 
-    #f = open('/home/matth/Desktop/MOC.bpmn', 'r')
-    f = open('/home/matth/Desktop/stage_1_bonita.bpmn', 'r')
+    f = open('/home/matth/Desktop/MOC.bpmn', 'r')
+    #f = open('/home/matth/Desktop/stage_1_bonita.bpmn', 'r')
     with(f):
         p = Parser(f)
-        p.parse()
+        spec = p.parse()
 
-    workflow = Workflow(p.spec)
+    workflow = Workflow(spec)
 
     exit_flag = None
     while not exit_flag:
@@ -23,7 +23,7 @@ def main():
         auto_tasks = filter(lambda t: not isinstance(t.task_spec, UserTask), workflow.get_tasks(Task.READY))
         while auto_tasks:
             for task in auto_tasks:
-                workflow.complete_task_from_id(task.id)
+                task.complete()
             auto_tasks = filter(lambda t: not isinstance(t.task_spec, UserTask), workflow.get_tasks(Task.READY))
 
         user_tasks = filter(lambda t: isinstance(t.task_spec, UserTask), workflow.get_tasks(Task.READY))
@@ -32,7 +32,7 @@ def main():
             exit_flag = True
         else:
 
-            options = ['Exit']
+            options = ['Exit', 'View Workflow State']
             option_lookup = {}
 
             for task in user_tasks:
@@ -48,10 +48,12 @@ def main():
             selected = menu.option()
             if selected[2] == 'Exit':
                 exit_flag = True
+            elif selected[2] == 'View Workflow State':
+                workflow.dump()
             else:
                 (task, choice) = option_lookup[selected[0]]
                 task.set_attribute(choice=choice)
-                workflow.complete_task_from_id(task.id)
+                task.complete()
 
 
 
