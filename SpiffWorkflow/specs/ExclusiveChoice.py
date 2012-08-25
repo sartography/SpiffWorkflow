@@ -36,7 +36,7 @@ class ExclusiveChoice(MultiChoice):
         @type  kwargs: dict
         @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
-        MultiChoice.__init__(self, parent, name, **kwargs)
+        super(ExclusiveChoice, self).__init__(parent, name, **kwargs)
         self.default_task_spec = None
 
 
