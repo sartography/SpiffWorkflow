@@ -1,9 +1,11 @@
+from SpiffWorkflow.bpmn2.specs.BpmnProcessSpec import BpmnProcessSpec
 from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn2.specs.ManualTask import ManualTask
 from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Equal, Attrib
+from SpiffWorkflow.specs.Join import Join
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
@@ -53,8 +55,15 @@ class TaskParser(object):
 
         self.task = self.create_task()
 
+        if not self.handles_multiple_incoming():
+            incoming = self.process_xpath('.//bpmn2:sequenceFlow[@targetRef="%s"]' % self.get_id())
+            if len(incoming) > 1:
+                raise NotImplementedError('Multiple incoming flows are not supported for tasks of type %s', self.spec_class.__name__)
+
         children = []
         outgoing = self.process_xpath('.//bpmn2:sequenceFlow[@sourceRef="%s"]' % self.get_id())
+        if len(outgoing) > 1 and not self.handles_multiple_outgoing():
+            raise NotImplementedError('Multiple outgoing flows are not supported for tasks of type %s', self.spec_class.__name__)
         for sequence_flow in outgoing:
             target_ref = sequence_flow.get('targetRef')
             target_node = one(self.process_xpath('.//bpmn2:*[@id="%s"]' % target_ref))
@@ -62,6 +71,7 @@ class TaskParser(object):
             if c is None:
                 c = self.process_parser.parse_node(target_node)
             children.append((c, target_node, sequence_flow))
+
 
         for (c, target_node, sequence_flow) in children:
             self.connect_outgoing(c, target_node, sequence_flow)
@@ -80,6 +90,12 @@ class TaskParser(object):
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         self.task.connect_outgoing(outgoing_task, sequence_flow_node.get('name', None))
 
+    def handles_multiple_incoming(self):
+        return False
+
+    def handles_multiple_outgoing(self):
+        return False
+
 class StartEventParser(TaskParser):
     def create_task(self):
         return self.spec.start
@@ -87,14 +103,20 @@ class StartEventParser(TaskParser):
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         self.task.connect(outgoing_task)
 
+    def handles_multiple_outgoing(self):
+        return True
+
 class EndEventParser(TaskParser):
 
     def create_task(self):
 
         terminateEventDefinition = self.xpath('.//bpmn2:terminateEventDefinition')
         task = self.spec_class(self.spec, self.get_task_spec_name(), is_terminate_event=terminateEventDefinition, description=self.node.get('name', None))
-        task.connect(self.process_parser._end_node)
+        task.connect(self.spec.end)
         return task
+
+    def handles_multiple_incoming(self):
+        return True
 
 
 class UserTaskParser(TaskParser):
@@ -116,6 +138,16 @@ class ExclusiveGatewayParser(TaskParser):
     def create_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         return Equal(Attrib('choice'), sequence_flow_node.get('name', None))
 
+    def handles_multiple_outgoing(self):
+        return True
+
+class ParallelGatewayParser(TaskParser):
+    def handles_multiple_incoming(self):
+        return True
+
+    def handles_multiple_outgoing(self):
+        return True
+
 class CallActivityParser(TaskParser):
     def create_task(self):
 
@@ -131,7 +163,7 @@ class ProcessParser(object):
         full_tag('userTask')            : (UserTaskParser, UserTask),
         full_tag('manualTask')          : (ManualTaskParser, ManualTask),
         full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
-        full_tag('parallelGateway')     : (TaskParser, ParallelGateway),
+        full_tag('parallelGateway')     : (ParallelGatewayParser, ParallelGateway),
         full_tag('callActivity')        : (CallActivityParser, CallActivity),
         }
 
@@ -141,8 +173,7 @@ class ProcessParser(object):
         self.root_xpath = p.xpath
         self.node = node
         self.xpath = xpath_eval(node)
-        self.spec = WorkflowSpec()
-        self._end_node = Simple(self.spec, 'End')
+        self.spec = BpmnProcessSpec(name=self.get_id())
         self.parsing_started = False
         self.is_parsed = False
 
