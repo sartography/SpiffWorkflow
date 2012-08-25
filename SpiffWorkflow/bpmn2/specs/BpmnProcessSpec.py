@@ -15,4 +15,8 @@ class BpmnProcessSpec(WorkflowSpec):
         self.end = EndJoin(self, '%s.EndJoin' % (self.name))
         end = Simple(self, 'End')
         end.follow(self.end)
+        self.is_single_threaded = None
+
+    def is_single_threaded(self):
+        return self.is_single_threaded
 

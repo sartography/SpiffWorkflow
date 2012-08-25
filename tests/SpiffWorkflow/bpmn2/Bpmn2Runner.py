@@ -9,8 +9,8 @@ __author__ = 'matth'
 
 def main():
 
-    #f = open('/home/matth/Desktop/MOC.bpmn', 'r')
-    f = open('/home/matth/Desktop/Approvals.bpmn', 'r')
+    f = open('/home/matth/Desktop/MOC.bpmn', 'r')
+    #f = open('/home/matth/Desktop/Approvals.bpmn', 'r')
     with(f):
         p = Parser(f)
         spec = p.parse()

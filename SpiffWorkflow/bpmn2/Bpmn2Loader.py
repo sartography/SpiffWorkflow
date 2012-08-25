@@ -5,10 +5,7 @@ from SpiffWorkflow.bpmn2.specs.ManualTask import ManualTask
 from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Equal, Attrib
-from SpiffWorkflow.specs.Join import Join
-from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.specs.StartTask import StartTask
-from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.bpmn2.specs.EndEvent import EndEvent
 
 
@@ -55,11 +52,6 @@ class TaskParser(object):
 
         self.task = self.create_task()
 
-        if not self.handles_multiple_incoming():
-            incoming = self.process_xpath('.//bpmn2:sequenceFlow[@targetRef="%s"]' % self.get_id())
-            if len(incoming) > 1:
-                raise NotImplementedError('Multiple incoming flows are not supported for tasks of type %s', self.spec_class.__name__)
-
         children = []
         outgoing = self.process_xpath('.//bpmn2:sequenceFlow[@sourceRef="%s"]' % self.get_id())
         if len(outgoing) > 1 and not self.handles_multiple_outgoing():
@@ -96,11 +88,11 @@ class TaskParser(object):
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         self.task.connect_outgoing(outgoing_task, sequence_flow_node.get('name', None))
 
-    def handles_multiple_incoming(self):
-        return False
-
     def handles_multiple_outgoing(self):
         return False
+
+    def is_parallel_branching(self):
+        return len(self.task.outputs) > 1
 
 class StartEventParser(TaskParser):
     def create_task(self):
@@ -120,9 +112,6 @@ class EndEventParser(TaskParser):
         task = self.spec_class(self.spec, self.get_task_spec_name(), is_terminate_event=terminateEventDefinition, description=self.node.get('name', None))
         task.connect(self.spec.end)
         return task
-
-    def handles_multiple_incoming(self):
-        return True
 
 
 class UserTaskParser(TaskParser):
@@ -147,19 +136,23 @@ class ExclusiveGatewayParser(TaskParser):
     def handles_multiple_outgoing(self):
         return True
 
-class ParallelGatewayParser(TaskParser):
-    def handles_multiple_incoming(self):
-        return True
+    def is_parallel_branching(self):
+        return False
 
+class ParallelGatewayParser(TaskParser):
     def handles_multiple_outgoing(self):
         return True
 
 class CallActivityParser(TaskParser):
     def create_task(self):
-
-        wf_spec = self.parser.get_process_spec(self.node.get('calledElement'))
+        wf_spec = self.get_subprocess_parser().get_spec()
         return self.spec_class(self.spec, self.get_task_spec_name(), wf_spec, description=self.node.get('name', None))
 
+    def is_parallel_branching(self):
+        return self.get_subprocess_parser().is_parallel_branching
+
+    def get_subprocess_parser(self):
+        return self.parser.get_process_parser(self.node.get('calledElement'))
 
 class ProcessParser(object):
 
@@ -182,6 +175,8 @@ class ProcessParser(object):
         self.spec = BpmnProcessSpec(name=self.get_id())
         self.parsing_started = False
         self.is_parsed = False
+        self.is_parallel_branching = False
+
 
     def is_called(self):
         called_by = self.root_xpath('//bpmn2:callActivity[@calledElement="%s"]' % self.get_id())
@@ -192,12 +187,17 @@ class ProcessParser(object):
 
     def parse_node(self,node):
         (node_parser, spec_class) = self.PARSER_CLASSES[node.tag]
-        return node_parser(self, spec_class, node).parse_node()
+        np = node_parser(self, spec_class, node)
+        task_spec = np.parse_node()
+        if np.is_parallel_branching():
+            self.is_parallel_branching = True
+        return task_spec
 
     def parse(self):
         start_node = one(self.xpath('.//bpmn2:startEvent'))
         self.parsing_started = True
         self.parse_node(start_node)
+        self.spec.is_single_threaded = not self.is_parallel_branching
         self.is_parsed = True
 
     def get_spec(self):
@@ -215,8 +215,8 @@ class Parser(object):
         self.xpath = xpath_eval(self.doc)
         self.process_parsers = {}
 
-    def get_process_spec(self, id):
-        return self.process_parsers[id].get_spec()
+    def get_process_parser(self, id):
+        return self.process_parsers[id]
 
     def parse(self):
         processes = self.xpath('//bpmn2:process')
@@ -231,7 +231,7 @@ class Parser(object):
         if len(root_processes) != 1:
             raise NotImplementedError('The BPMN file must have a single root process (i.e. one that is not called by another process)')
 
-        return self.get_process_spec(root_processes[0].get_id())
+        return self.process_parsers[root_processes[0].get_id()].get_spec()
 
 
 
