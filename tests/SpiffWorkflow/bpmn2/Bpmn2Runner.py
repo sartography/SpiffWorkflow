@@ -37,7 +37,7 @@ def main():
 
             for task in user_tasks:
                 for choice in task.task_spec.get_user_choices():
-                    choice_description = '%s [%s]' % (choice, task.task_spec.description)
+                    choice_description = '%s - %s [%s]' % (task.task_spec.lane, choice or 'OK', task.task_spec.description)
                     options.append(choice_description)
                     option_lookup[len(options)-1] = (task, choice)
 
