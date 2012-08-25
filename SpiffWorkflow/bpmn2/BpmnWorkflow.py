@@ -16,7 +16,7 @@ class BpmnWorkflow(Workflow):
     def ready_to_end(self,end_event):
 
         complete_path = {}
-        for end_task in self.get_tasks_with_name('End'):
+        for end_task in self.get_tasks_with_name(self.spec.end.name):
             if not end_task._is_finished() and not end_task.parent == end_event:
                 t = end_task
                 task = end_task.parent

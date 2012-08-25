@@ -125,3 +125,31 @@ class WorkflowSpec(object):
         @return: The resulting instance.
         """
         return serializer.deserialize_workflow_spec(s_state, **kwargs)
+
+    def get_dump(self, verbose=False):
+        done = set()
+
+        def recursive_dump(task_spec, indent):
+            if task_spec in done:
+                return  '[shown earlier] %s (%s:%s)' % (task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
+
+            done.add(task_spec)
+            dump = '%s (%s:%s)' % (task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
+            if verbose:
+                if task_spec.inputs:
+                    dump += indent + '-  IN: ' + ','.join(['%s (%s)' % (t.name, hex(id(t))) for t in task_spec.inputs]) + '\n'
+                if task_spec.outputs:
+                    dump += indent + '- OUT: ' + ','.join(['%s (%s)' % (t.name, hex(id(t))) for t in task_spec.outputs]) + '\n'
+            do_lines = len(task_spec.outputs) > 1
+            for i, t in enumerate(task_spec.outputs):
+                do_lines = do_lines and i < len(task_spec.outputs)
+                dump += indent + '   --> ' + recursive_dump(t,indent+('   |   ' if i+1 < len(task_spec.outputs) else '       '))
+            return dump
+
+
+        dump = recursive_dump(self.start, '')
+
+        return dump
+
+    def dump(self):
+        print self.get_dump()
