@@ -78,6 +78,12 @@ class TaskParser(object):
 
         return self.task
 
+    def get_lane(self):
+        lane_match = self.process_xpath('.//bpmn2:lane/bpmn2:flowNodeRef[text()="%s"]/..' % self.get_id())
+        assert len(lane_match)<= 1
+        return lane_match[0].get('name') if lane_match else None
+
+
     def get_task_spec_name(self, target_ref=None):
         return '%s.%s' %(self.process_parser.get_id(), target_ref or self.get_id())
 
@@ -85,7 +91,7 @@ class TaskParser(object):
         return self.node.get('id')
 
     def create_task(self):
-        return self.spec_class(self.spec, self.get_task_spec_name(), description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.get_task_spec_name(), lane=self.get_lane(), description=self.node.get('name', None))
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         self.task.connect_outgoing(outgoing_task, sequence_flow_node.get('name', None))
