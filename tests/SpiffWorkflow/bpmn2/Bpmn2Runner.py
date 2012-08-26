@@ -52,8 +52,7 @@ def main():
                 workflow.dump()
             else:
                 (task, choice) = option_lookup[selected[0]]
-                task.set_attribute(choice=choice)
-                task.complete()
+                task.task_spec.do_choice(task, choice)
 
 
 

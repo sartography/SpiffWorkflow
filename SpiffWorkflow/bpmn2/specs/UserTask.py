@@ -14,3 +14,7 @@ class UserTask(Simple, BpmnSpecMixin):
         if isinstance(next_node, ExclusiveGateway):
             return next_node.get_outgoing_sequence_names()
         return self.get_outgoing_sequence_names()
+
+    def do_choice(self, task, choice):
+        task.set_attribute(choice=choice)
+        task.complete()

@@ -197,7 +197,7 @@ class ProcessParser(object):
         start_node = one(self.xpath('.//bpmn2:startEvent'))
         self.parsing_started = True
         self.parse_node(start_node)
-        self.spec.is_single_threaded = not self.is_parallel_branching
+        self.spec._is_single_threaded = not self.is_parallel_branching
         self.is_parsed = True
 
     def get_spec(self):

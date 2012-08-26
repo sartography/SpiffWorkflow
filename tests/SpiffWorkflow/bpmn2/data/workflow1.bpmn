@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="ASCII"?>
+<model:definitions xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di_1="http://www.omg.org/spec/DD/20100524/DI" xmlns:model="http://www.omg.org/spec/BPMN/20100524/MODEL" exporter="BonitaSoft" exporterVersion="5.7" expressionLanguage="http://groovy.codehaus.org/" targetNamespace="http://bonitasoft.com/MOC_Best_Case">
+  <model:collaboration id="MOC_Best_Case">
+    <model:documentation></model:documentation>
+    <model:participant id="Initiator">
+      <model:documentation>Person who takes the first action to start the process</model:documentation>
+    </model:participant>
+    <model:participant id="_xm_z4O7mEeG6ILSEFG-uBA" name="MOC" processRef="MOC"/>
+    <model:participant id="_xnCQIO7mEeG6ILSEFG-uBA" name="Stage 1" processRef="Stage_1"/>
+    <model:participant id="_xnDeQO7mEeG6ILSEFG-uBA" name="Stage 2" processRef="Stage_2"/>
+  </model:collaboration>
+  <model:process id="MOC" name="MOC">
+    <model:documentation></model:documentation>
+    <model:startEvent id="Start1" name="Start1">
+      <model:documentation></model:documentation>
+    </model:startEvent>
+    <model:callActivity id="Stage_1" name="Stage 1" calledElement="Stage_1">
+      <model:documentation></model:documentation>
+    </model:callActivity>
+    <model:endEvent id="Minor" name="Minor">
+      <model:documentation></model:documentation>
+      <model:terminateEventDefinition id="_xnAa8O7mEeG6ILSEFG-uBA"/>
+    </model:endEvent>
+    <model:exclusiveGateway id="Stage_1_End" name="Stage 1 End">
+      <model:documentation></model:documentation>
+    </model:exclusiveGateway>
+    <model:endEvent id="Cancelled" name="Cancelled">
+      <model:documentation></model:documentation>
+      <model:terminateEventDefinition id="_xnAa8e7mEeG6ILSEFG-uBA"/>
+    </model:endEvent>
+    <model:callActivity id="Stage_2" name="Stage 2" calledElement="Stage_2">
+      <model:documentation></model:documentation>
+    </model:callActivity>
+    <model:exclusiveGateway id="Stage_2_End" name="Stage 2 End">
+      <model:documentation></model:documentation>
+    </model:exclusiveGateway>
+    <model:manualTask id="Classify_MOC" name="Classify MOC">
+      <model:documentation>Awaiting Classification</model:documentation>
+    </model:manualTask>
+    <model:exclusiveGateway id="Classification" name="Classification">
+      <model:documentation></model:documentation>
+    </model:exclusiveGateway>
+    <model:endEvent id="Major_" name="Major ">
+      <model:documentation></model:documentation>
+      <model:terminateEventDefinition id="_xnBCAO7mEeG6ILSEFG-uBA"/>
+    </model:endEvent>
+    <model:sequenceFlow id="_Ncr7Wu3JEeGmos22R0FTgg" sourceRef="Start1" targetRef="Stage_1">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_Ncr7XO3JEeGmos22R0FTgg" sourceRef="Stage_1" targetRef="Stage_1_End">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Rejected" name="Rejected" sourceRef="Stage_1_End" targetRef="Cancelled">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>end_event=='Cancelled'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Approved" name="Approved" sourceRef="Stage_1_End" targetRef="Stage_2">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>end_event = 'Approved'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_B7_X8O3MEeGmos22R0FTgg" sourceRef="Stage_2" targetRef="Stage_2_End">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Approved" name="Approved" sourceRef="Stage_2_End" targetRef="Classify_MOC">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>result == 'Approved'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Rejected" name="Rejected" sourceRef="Stage_2_End" targetRef="Cancelled">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>result == 'Rejected'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Sent_Back" name="Sent Back" sourceRef="Stage_2_End" targetRef="Stage_1">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>result == 'Sent Back'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_bgNnAO32EeG6ILSEFG-uBA" sourceRef="Classify_MOC" targetRef="Classification">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Minor_MOC" name="Minor MOC" sourceRef="Classification" targetRef="Minor">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>minor</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Major_MOC" name="Major MOC" sourceRef="Classification" targetRef="Major_">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>Major</model:conditionExpression>
+    </model:sequenceFlow>
+  </model:process>
+  <model:process id="Stage_1" name="Stage 1">
+    <model:documentation></model:documentation>
+    <model:laneSet id="Stage 1_laneSet">
+      <model:lane id="MOC_Originator" name="MOC Originator">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Start</model:flowNodeRef>
+        <model:flowNodeRef>Prepare_MOC_Proposal</model:flowNodeRef>
+      </model:lane>
+      <model:lane id="Deparment_GM" name="Deparment GM">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Review</model:flowNodeRef>
+        <model:flowNodeRef>Review_Result</model:flowNodeRef>
+        <model:flowNodeRef>Rejected</model:flowNodeRef>
+      </model:lane>
+      <model:lane id="MOC_Coordinator" name="MOC Coordinator">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Record_on_MOC_agenda</model:flowNodeRef>
+        <model:flowNodeRef>Approved</model:flowNodeRef>
+      </model:lane>
+    </model:laneSet>
+    <model:startEvent id="Start" name="Start">
+      <model:documentation></model:documentation>
+    </model:startEvent>
+    <model:manualTask id="Prepare_MOC_Proposal" name="Prepare MOC Proposal">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:manualTask id="Review" name="Review">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:exclusiveGateway id="Review_Result" name="Review Result">
+      <model:documentation></model:documentation>
+    </model:exclusiveGateway>
+    <model:endEvent id="Rejected" name="Rejected">
+      <model:documentation></model:documentation>
+      <model:terminateEventDefinition id="_xnC3MO7mEeG6ILSEFG-uBA"/>
+    </model:endEvent>
+    <model:manualTask id="Record_on_MOC_agenda" name="Record on MOC agenda">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:endEvent id="Approved" name="Approved">
+      <model:documentation></model:documentation>
+      <model:terminateEventDefinition id="_xnC3Me7mEeG6ILSEFG-uBA"/>
+    </model:endEvent>
+    <model:sequenceFlow id="_Ncr7be3JEeGmos22R0FTgg" sourceRef="Start" targetRef="Prepare_MOC_Proposal">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_Ncr7b-3JEeGmos22R0FTgg" name="Submit" sourceRef="Prepare_MOC_Proposal" targetRef="Review">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_Ncr7ce3JEeGmos22R0FTgg" sourceRef="Review" targetRef="Review_Result">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_Ncr7c-3JEeGmos22R0FTgg" name="Send Back" sourceRef="Review_Result" targetRef="Prepare_MOC_Proposal">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>choice = 'Send Back'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_Ncr7de3JEeGmos22R0FTgg" name="Approve" sourceRef="Review_Result" targetRef="Record_on_MOC_agenda">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>choice = 'Approve'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Recorded" name="Recorded" sourceRef="Record_on_MOC_agenda" targetRef="Approved">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Reject" name="Reject" sourceRef="Review_Result" targetRef="Rejected">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>choice == 'Reject'</model:conditionExpression>
+    </model:sequenceFlow>
+  </model:process>
+  <model:process id="Stage_2" name="Stage 2">
+    <model:documentation></model:documentation>
+    <model:laneSet id="Stage 2_laneSet">
+      <model:lane id="Document_Controller" name="Document Controller">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Register_MOC_Proposal_Form</model:flowNodeRef>
+        <model:flowNodeRef>Start2</model:flowNodeRef>
+        <model:flowNodeRef>Rejected</model:flowNodeRef>
+      </model:lane>
+      <model:lane id="MOC_Commitee" name="MOC Commitee">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Proposal_Form_Review</model:flowNodeRef>
+        <model:flowNodeRef>Commitee_Review_Result</model:flowNodeRef>
+        <model:flowNodeRef>Review_Study_Report__MOC_Commitee_</model:flowNodeRef>
+        <model:flowNodeRef>MOC_Commitee_Study_Review_Result</model:flowNodeRef>
+        <model:flowNodeRef>Approved</model:flowNodeRef>
+      </model:lane>
+      <model:lane id="MOC_Study_Lead" name="MOC Study Lead">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Prepare_Study_Report</model:flowNodeRef>
+      </model:lane>
+      <model:lane id="Technical_Services" name="Technical Services">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Review_Study_Report__Tech_</model:flowNodeRef>
+        <model:flowNodeRef>Technical_Review_Result</model:flowNodeRef>
+        <model:flowNodeRef>Sent_Back</model:flowNodeRef>
+      </model:lane>
+    </model:laneSet>
+    <model:manualTask id="Register_MOC_Proposal_Form" name="Register MOC Proposal Form">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:startEvent id="Start2" name="Start2">
+      <model:documentation></model:documentation>
+    </model:startEvent>
+    <model:endEvent id="Rejected" name="Rejected">
+      <model:documentation></model:documentation>
+      <model:terminateEventDefinition id="_xnDeQe7mEeG6ILSEFG-uBA"/>
+    </model:endEvent>
+    <model:manualTask id="Proposal_Form_Review" name="Proposal Form Review">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:exclusiveGateway id="Commitee_Review_Result" name="Commitee Review Result">
+      <model:documentation></model:documentation>
+    </model:exclusiveGateway>
+    <model:manualTask id="Review_Study_Report__MOC_Commitee_" name="Review Study Report (MOC Commitee)">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:exclusiveGateway id="MOC_Commitee_Study_Review_Result" name="MOC Commitee Study Review Result">
+      <model:documentation></model:documentation>
+    </model:exclusiveGateway>
+    <model:endEvent id="Approved" name="Approved">
+      <model:documentation></model:documentation>
+      <model:terminateEventDefinition id="_xnEFUO7mEeG6ILSEFG-uBA"/>
+    </model:endEvent>
+    <model:manualTask id="Prepare_Study_Report" name="Prepare Study Report">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:manualTask id="Review_Study_Report__Tech_" name="Review Study Report (Tech)">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:exclusiveGateway id="Technical_Review_Result" name="Technical Review Result">
+      <model:documentation></model:documentation>
+    </model:exclusiveGateway>
+    <model:endEvent id="Sent_Back" name="Sent Back">
+      <model:documentation></model:documentation>
+      <model:terminateEventDefinition id="_xnEFUe7mEeG6ILSEFG-uBA"/>
+    </model:endEvent>
+    <model:sequenceFlow id="_fRWIYO3MEeGmos22R0FTgg" sourceRef="Start2" targetRef="Register_MOC_Proposal_Form">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Submit" name="Submit" sourceRef="Register_MOC_Proposal_Form" targetRef="Proposal_Form_Review">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_C_4ocO3NEeGmos22R0FTgg" sourceRef="Proposal_Form_Review" targetRef="Commitee_Review_Result">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Reject" name="Reject" sourceRef="Commitee_Review_Result" targetRef="Rejected">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>choice == 'Reject'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_LDWdsO3PEeGmos22R0FTgg" sourceRef="Review_Study_Report__Tech_" targetRef="Technical_Review_Result">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Reject" name="Reject" sourceRef="Technical_Review_Result" targetRef="Rejected">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>choice == 'Reject'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Commitee_Review_Result" targetRef="Prepare_Study_Report">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>choice == 'Appove'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Submit" name="Submit" sourceRef="Prepare_Study_Report" targetRef="Review_Study_Report__Tech_">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Technical_Review_Result" targetRef="Review_Study_Report__MOC_Commitee_">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>choice == 'Approve'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Send_Back" name="Send Back" sourceRef="Technical_Review_Result" targetRef="Sent_Back">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>option == 'Send Back'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_wD8lEO3bEeG6ILSEFG-uBA" sourceRef="Review_Study_Report__MOC_Commitee_" targetRef="MOC_Commitee_Study_Review_Result">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Reject" name="Reject" sourceRef="MOC_Commitee_Study_Review_Result" targetRef="Rejected">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>choice == 'Reject'</model:conditionExpression>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Approve" name="Approve" sourceRef="MOC_Commitee_Study_Review_Result" targetRef="Approved">
+      <model:documentation></model:documentation>
+      <model:conditionExpression>choice=='Approve'</model:conditionExpression>
+    </model:sequenceFlow>
+  </model:process>
+  <di:BPMNDiagram name="MOC-Best-Case">
+    <di:BPMNPlane id="plane_MOC_Best_Case" bpmnElement="MOC_Best_Case">
+      <di:BPMNShape id="_NcsibO3JEeGmos22R0FTgg" bpmnElement="MOC" isHorizontal="true">
+        <dc:Bounds height="379.0" width="1352.0" x="30.0" y="30.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Ncsib-3JEeGmos22R0FTgg" bpmnElement="Start1">
+        <dc:Bounds height="34.0" width="30.0" x="82.0" y="64.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Ncsic-3JEeGmos22R0FTgg" bpmnElement="Stage_1">
+        <dc:Bounds height="50.0" width="100.0" x="197.0" y="71.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Ncsidu3JEeGmos22R0FTgg" bpmnElement="Minor">
+        <dc:Bounds height="34.0" width="30.0" x="999.0" y="304.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_nUeYsO3JEeGmos22R0FTgg" bpmnElement="Stage_1_End">
+        <dc:Bounds height="43.0" width="43.0" x="358.0" y="80.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_sDS4QO3JEeGmos22R0FTgg" bpmnElement="Cancelled">
+        <dc:Bounds height="34.0" width="30.0" x="493.0" y="47.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_vN12wO3LEeGmos22R0FTgg" bpmnElement="Stage_2">
+        <dc:Bounds height="50.0" width="100.0" x="330.0" y="195.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_IN3fgO3pEeG6ILSEFG-uBA" bpmnElement="Stage_2_End">
+        <dc:Bounds height="43.0" width="43.0" x="358.0" y="304.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_USIPsO32EeG6ILSEFG-uBA" bpmnElement="Classify_MOC">
+        <dc:Bounds height="50.0" width="100.0" x="606.0" y="210.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_bR4QEO32EeG6ILSEFG-uBA" bpmnElement="Classification">
+        <dc:Bounds height="43.0" width="43.0" x="804.0" y="235.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_ceFkgO32EeG6ILSEFG-uBA" bpmnElement="Major_">
+        <dc:Bounds height="34.0" width="30.0" x="954.0" y="144.0"/>
+      </di:BPMNShape>
+      <di:BPMNEdge id="_Ncsite3JEeGmos22R0FTgg" bpmnElement="_Ncr7Wu3JEeGmos22R0FTgg">
+        <di_1:waypoint x="112.0" y="92.0"/>
+        <di_1:waypoint x="197.0" y="92.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_Ncsivu3JEeGmos22R0FTgg" bpmnElement="_Ncr7XO3JEeGmos22R0FTgg">
+        <di_1:waypoint x="297.0" y="101.0"/>
+        <di_1:waypoint x="358.0" y="101.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_tk3_wO3JEeGmos22R0FTgg" bpmnElement="Rejected">
+        <di_1:waypoint x="379.0" y="80.0"/>
+        <di_1:waypoint x="379.0" y="70.0"/>
+        <di_1:waypoint x="493.0" y="70.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_zqXscO3LEeGmos22R0FTgg" bpmnElement="Approved">
+        <di_1:waypoint x="379.0" y="122.0"/>
+        <di_1:waypoint x="379.0" y="195.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_B8AmEO3MEeGmos22R0FTgg" bpmnElement="_B7_X8O3MEeGmos22R0FTgg">
+        <di_1:waypoint x="384.0" y="245.0"/>
+        <di_1:waypoint x="384.0" y="308.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_TT0gQO3pEeG6ILSEFG-uBA" bpmnElement="Approved">
+        <di_1:waypoint x="396.0" y="330.0"/>
+        <di_1:waypoint x="619.0" y="330.0"/>
+        <di_1:waypoint x="619.0" y="260.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_cAVkcO3pEeG6ILSEFG-uBA" bpmnElement="Rejected">
+        <di_1:waypoint x="401.0" y="325.0"/>
+        <di_1:waypoint x="451.0" y="325.0"/>
+        <di_1:waypoint x="451.0" y="275.0"/>
+        <di_1:waypoint x="499.0" y="275.0"/>
+        <di_1:waypoint x="499.0" y="81.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_f07QYO3pEeG6ILSEFG-uBA" bpmnElement="Sent_Back">
+        <di_1:waypoint x="358.0" y="325.0"/>
+        <di_1:waypoint x="239.0" y="325.0"/>
+        <di_1:waypoint x="239.0" y="121.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_bgO1IO32EeG6ILSEFG-uBA" bpmnElement="_bgNnAO32EeG6ILSEFG-uBA">
+        <di_1:waypoint x="706.0" y="236.0"/>
+        <di_1:waypoint x="756.0" y="236.0"/>
+        <di_1:waypoint x="756.0" y="253.0"/>
+        <di_1:waypoint x="806.0" y="253.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_gPdkYO32EeG6ILSEFG-uBA" bpmnElement="Minor_MOC">
+        <di_1:waypoint x="844.0" y="253.0"/>
+        <di_1:waypoint x="921.0" y="253.0"/>
+        <di_1:waypoint x="921.0" y="315.0"/>
+        <di_1:waypoint x="999.0" y="315.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_iem8gO32EeG6ILSEFG-uBA" bpmnElement="Major_MOC">
+        <di_1:waypoint x="839.0" y="248.0"/>
+        <di_1:waypoint x="904.0" y="248.0"/>
+        <di_1:waypoint x="904.0" y="173.0"/>
+        <di_1:waypoint x="954.0" y="173.0"/>
+      </di:BPMNEdge>
+      <di:BPMNShape id="_Ncsif-3JEeGmos22R0FTgg" bpmnElement="Stage_1" isHorizontal="true">
+        <dc:Bounds height="778.0" width="1775.0" x="30.0" y="429.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Ncsigu3JEeGmos22R0FTgg" bpmnElement="MOC_Originator" isHorizontal="true">
+        <dc:Bounds height="339.0" width="1753.0" x="52.0" y="429.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Ncsihe3JEeGmos22R0FTgg" bpmnElement="Start">
+        <dc:Bounds height="34.0" width="30.0" x="163.0" y="537.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Ncsiie3JEeGmos22R0FTgg" bpmnElement="Prepare_MOC_Proposal">
+        <dc:Bounds height="60.0" width="120.0" x="254.0" y="529.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Ncsike3JEeGmos22R0FTgg" bpmnElement="Deparment_GM" isHorizontal="true">
+        <dc:Bounds height="339.0" width="1713.0" x="52.0" y="768.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_NcsilO3JEeGmos22R0FTgg" bpmnElement="Review">
+        <dc:Bounds height="50.0" width="100.0" x="259.0" y="896.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Ncsil-3JEeGmos22R0FTgg" bpmnElement="Review_Result">
+        <dc:Bounds height="43.0" width="43.0" x="692.0" y="899.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_UBE1YO3JEeGmos22R0FTgg" bpmnElement="Rejected">
+        <dc:Bounds height="34.0" width="30.0" x="1082.0" y="912.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_NcsioO3JEeGmos22R0FTgg" bpmnElement="MOC_Coordinator" isHorizontal="true">
+        <dc:Bounds height="100.0" width="1713.0" x="52.0" y="1107.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Ncsio-3JEeGmos22R0FTgg" bpmnElement="Record_on_MOC_agenda">
+        <dc:Bounds height="50.0" width="100.0" x="673.0" y="1132.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Ncsipu3JEeGmos22R0FTgg" bpmnElement="Approved">
+        <dc:Bounds height="34.0" width="30.0" x="1082.0" y="1140.0"/>
+      </di:BPMNShape>
+      <di:BPMNEdge id="_Ncsixu3JEeGmos22R0FTgg" bpmnElement="_Ncr7be3JEeGmos22R0FTgg">
+        <di_1:waypoint x="193.0" y="556.0"/>
+        <di_1:waypoint x="254.0" y="556.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_Ncsize3JEeGmos22R0FTgg" bpmnElement="_Ncr7b-3JEeGmos22R0FTgg">
+        <di_1:waypoint x="305.0" y="589.0"/>
+        <di_1:waypoint x="305.0" y="896.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_NctJdu3JEeGmos22R0FTgg" bpmnElement="_Ncr7ce3JEeGmos22R0FTgg">
+        <di_1:waypoint x="359.0" y="920.0"/>
+        <di_1:waypoint x="692.0" y="920.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_NctJfe3JEeGmos22R0FTgg" bpmnElement="_Ncr7c-3JEeGmos22R0FTgg">
+        <di_1:waypoint x="718.0" y="903.0"/>
+        <di_1:waypoint x="718.0" y="577.0"/>
+        <di_1:waypoint x="374.0" y="577.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_NctJhO3JEeGmos22R0FTgg" bpmnElement="_Ncr7de3JEeGmos22R0FTgg">
+        <di_1:waypoint x="715.0" y="940.0"/>
+        <di_1:waypoint x="715.0" y="1132.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_NctJjO3JEeGmos22R0FTgg" bpmnElement="Recorded">
+        <di_1:waypoint x="773.0" y="1155.0"/>
+        <di_1:waypoint x="1082.0" y="1155.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_ZKeYIO3JEeGmos22R0FTgg" bpmnElement="Reject">
+        <di_1:waypoint x="726.0" y="929.0"/>
+        <di_1:waypoint x="1082.0" y="929.0"/>
+      </di:BPMNEdge>
+      <di:BPMNShape id="_qraNYO3LEeGmos22R0FTgg" bpmnElement="Stage_2" isHorizontal="true">
+        <dc:Bounds height="876.0" width="1352.0" x="30.0" y="1227.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_MfQiYO3MEeGmos22R0FTgg" bpmnElement="Document_Controller" isHorizontal="true">
+        <dc:Bounds height="250.0" width="1330.0" x="52.0" y="1227.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_PzmoAO3MEeGmos22R0FTgg" bpmnElement="Register_MOC_Proposal_Form">
+        <dc:Bounds height="60.0" width="120.0" x="259.0" y="1319.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_exQ6IO3MEeGmos22R0FTgg" bpmnElement="Start2">
+        <dc:Bounds height="34.0" width="30.0" x="144.0" y="1335.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_EQNn4O3NEeGmos22R0FTgg" bpmnElement="Rejected">
+        <dc:Bounds height="34.0" width="30.0" x="1104.0" y="1319.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_UvLxMO3MEeGmos22R0FTgg" bpmnElement="MOC_Commitee" isHorizontal="true">
+        <dc:Bounds height="297.0" width="1330.0" x="52.0" y="1477.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_lfnBcO3MEeGmos22R0FTgg" bpmnElement="Proposal_Form_Review">
+        <dc:Bounds height="60.0" width="120.0" x="269.0" y="1577.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_A9y04O3NEeGmos22R0FTgg" bpmnElement="Commitee_Review_Result">
+        <dc:Bounds height="43.0" width="43.0" x="514.0" y="1585.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_I9PhQO3ZEeGmos22R0FTgg" bpmnElement="Review_Study_Report__MOC_Commitee_">
+        <dc:Bounds height="79.0" width="158.0" x="678.0" y="1659.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_v1ZywO3bEeG6ILSEFG-uBA" bpmnElement="MOC_Commitee_Study_Review_Result">
+        <dc:Bounds height="43.0" width="43.0" x="927.0" y="1686.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_n82PMO3oEeG6ILSEFG-uBA" bpmnElement="Approved">
+        <dc:Bounds height="34.0" width="30.0" x="1269.0" y="1704.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_cziMsO3NEeGmos22R0FTgg" bpmnElement="MOC_Study_Lead" isHorizontal="true">
+        <dc:Bounds height="168.0" width="1330.0" x="52.0" y="1774.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_iQ-QUO3OEeGmos22R0FTgg" bpmnElement="Prepare_Study_Report">
+        <dc:Bounds height="93.0" width="186.0" x="269.0" y="1794.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_6zjOQO3OEeGmos22R0FTgg" bpmnElement="Technical_Services" isHorizontal="true">
+        <dc:Bounds height="161.0" width="1330.0" x="52.0" y="1942.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_-wUl0O3OEeGmos22R0FTgg" bpmnElement="Review_Study_Report__Tech_">
+        <dc:Bounds height="74.0" width="149.0" x="279.0" y="1974.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_LnJuUO3PEeGmos22R0FTgg" bpmnElement="Technical_Review_Result">
+        <dc:Bounds height="43.0" width="43.0" x="548.0" y="1989.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_94GY0O3YEeGmos22R0FTgg" bpmnElement="Sent_Back">
+        <dc:Bounds height="34.0" width="30.0" x="1192.0" y="2031.0"/>
+      </di:BPMNShape>
+      <di:BPMNEdge id="_fRWvce3MEeGmos22R0FTgg" bpmnElement="_fRWIYO3MEeGmos22R0FTgg">
+        <di_1:waypoint x="174.0" y="1361.0"/>
+        <di_1:waypoint x="216.0" y="1361.0"/>
+        <di_1:waypoint x="216.0" y="1354.0"/>
+        <di_1:waypoint x="259.0" y="1354.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_0Ha_YO3MEeGmos22R0FTgg" bpmnElement="Submit">
+        <di_1:waypoint x="325.0" y="1379.0"/>
+        <di_1:waypoint x="325.0" y="1478.0"/>
+        <di_1:waypoint x="328.0" y="1478.0"/>
+        <di_1:waypoint x="328.0" y="1577.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_C_52kO3NEeGmos22R0FTgg" bpmnElement="_C_4ocO3NEeGmos22R0FTgg">
+        <di_1:waypoint x="389.0" y="1613.0"/>
+        <di_1:waypoint x="520.0" y="1613.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_G6998O3NEeGmos22R0FTgg" bpmnElement="Reject">
+        <di_1:waypoint x="548.0" y="1615.0"/>
+        <di_1:waypoint x="1123.0" y="1615.0"/>
+        <di_1:waypoint x="1123.0" y="1353.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_LDXEwO3PEeGmos22R0FTgg" bpmnElement="_LDWdsO3PEeGmos22R0FTgg">
+        <di_1:waypoint x="428.0" y="2010.0"/>
+        <di_1:waypoint x="548.0" y="2010.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_SXNF0e3PEeGmos22R0FTgg" bpmnElement="Reject">
+        <di_1:waypoint x="586.0" y="2005.0"/>
+        <di_1:waypoint x="1114.0" y="2005.0"/>
+        <di_1:waypoint x="1114.0" y="1353.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_Zu3P4O3PEeGmos22R0FTgg" bpmnElement="Approve">
+        <di_1:waypoint x="526.0" y="1618.0"/>
+        <di_1:waypoint x="526.0" y="1735.0"/>
+        <di_1:waypoint x="437.0" y="1735.0"/>
+        <di_1:waypoint x="437.0" y="1794.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_al8o4O3PEeGmos22R0FTgg" bpmnElement="Submit">
+        <di_1:waypoint x="353.0" y="1887.0"/>
+        <di_1:waypoint x="353.0" y="1930.0"/>
+        <di_1:waypoint x="336.0" y="1930.0"/>
+        <di_1:waypoint x="336.0" y="1974.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_lFuO4O3ZEeGmos22R0FTgg" bpmnElement="Approve">
+        <di_1:waypoint x="575.0" y="1995.0"/>
+        <di_1:waypoint x="575.0" y="1866.0"/>
+        <di_1:waypoint x="678.0" y="1866.0"/>
+        <di_1:waypoint x="678.0" y="1738.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_Akgp0O3bEeG6ILSEFG-uBA" bpmnElement="Send_Back">
+        <di_1:waypoint x="569.0" y="2032.0"/>
+        <di_1:waypoint x="569.0" y="2047.0"/>
+        <di_1:waypoint x="1192.0" y="2047.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_wD_BUO3bEeG6ILSEFG-uBA" bpmnElement="_wD8lEO3bEeG6ILSEFG-uBA">
+        <di_1:waypoint x="836.0" y="1687.0"/>
+        <di_1:waypoint x="882.0" y="1687.0"/>
+        <di_1:waypoint x="882.0" y="1704.0"/>
+        <di_1:waypoint x="929.0" y="1704.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_HokF8O3cEeG6ILSEFG-uBA" bpmnElement="Reject">
+        <di_1:waypoint x="955.0" y="1692.0"/>
+        <di_1:waypoint x="955.0" y="1522.0"/>
+        <di_1:waypoint x="1111.0" y="1522.0"/>
+        <di_1:waypoint x="1111.0" y="1353.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_sAZkMO3oEeG6ILSEFG-uBA" bpmnElement="Approve">
+        <di_1:waypoint x="968.0" y="1706.0"/>
+        <di_1:waypoint x="1269.0" y="1706.0"/>
+      </di:BPMNEdge>
+    </di:BPMNPlane>
+  </di:BPMNDiagram>
+</model:definitions>
