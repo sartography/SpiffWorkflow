@@ -117,7 +117,7 @@ class BpmnWorkflow(Workflow):
         return [t for t in self.task_tree  if t.task_spec.name == target_task]
 
     def ready_to_end(self,end_event):
-
+        #Hmm.. Should maybe be using workflow.cancel() or something here?
         complete_path = {}
         for end_task in self.get_tasks_with_name(self.spec.end.name):
             if not end_task._is_finished() and not end_task.parent == end_event:
