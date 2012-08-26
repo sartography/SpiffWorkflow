@@ -11,6 +11,10 @@ class RouteNode(object):
         self.task_spec = task_spec
         self.outgoing = [outgoing_route_node] if outgoing_route_node else []
 
+    def get_outgoing_by_spec(self, task_spec):
+        m = filter(lambda r: r.task_spec == task_spec, self.outgoing)
+        return m[0] if m else None
+
 class BpmnProcessSpecState(object):
 
     def __init__(self, spec):
@@ -30,7 +34,7 @@ class BpmnProcessSpecState(object):
         for spec in reversed(route):
             outgoing_route_node = RouteNode(spec, outgoing_route_node)
         if self.route:
-            self.merge_routes(self.route, outgoing_route_node)
+            self.merge_routes(outgoing_route_node)
         else:
             self.route = outgoing_route_node
 
@@ -59,9 +63,17 @@ class BpmnProcessSpecState(object):
         task._set_state(Task.COMPLETED | (task.state & Task.TRIGGERED))
         task._update_children(target_children_specs)
 
-    def merge_routes(self, *routes):
-        #TODO: this is required for multi-threaded workflows
-        raise NotImplementedError('I haven\'t done this yet')
+    def merge_routes(self, new_route):
+        self._merge_routes(self.route, new_route)
+
+    def _merge_routes(self, target, src):
+        assert target.task_spec == src.task_spec
+        for out_route in src.outgoing:
+            target_out_route = target.get_outgoing_by_spec(out_route.task_spec)
+            if target_out_route:
+                self._merge_routes(target_out_route, out_route)
+            else:
+                target.outgoing.append(out_route)
 
     def breadth_first_search(self, task_name, starting_route):
         q = deque()
@@ -91,27 +103,29 @@ class BpmnWorkflow(Workflow):
 
     def restore_workflow_state(self, state):
         #This currently only works for single threaded workflows
-        assert self.spec.is_single_threaded()
         if state == 'COMPLETE':
             self.cancel(success=True)
             return
         s = BpmnProcessSpecState(self.spec)
-        s.add_path_to_ready_task(state)
+        states = state.split(';')
+        for ready_task in states:
+            s.add_path_to_ready_task(ready_task)
         s.go(self)
 
 
     def _get_workflow_state(self):
-        assert self.spec.is_single_threaded()
         ready_tasks = self.get_tasks(state=Task.READY)
         if not ready_tasks:
             return 'COMPLETE'
-        assert len(ready_tasks) == 1
-        s = ready_tasks[0].task_spec.name
-        w = ready_tasks[0].workflow
-        while w.outer_workflow and w.outer_workflow != w:
-            s = "%s:%s" % (w.name, s)
-            w = w.outer_workflow
-        return s
+        states = []
+        for task in ready_tasks:
+            s = task.task_spec.name
+            w = task.workflow
+            while w.outer_workflow and w.outer_workflow != w:
+                s = "%s:%s" % (w.name, s)
+                w = w.outer_workflow
+            states.append(s)
+        return ';'.join(sorted(states))
 
     def get_tasks_with_name(self, target_task):
         return [t for t in self.task_tree  if t.task_spec.name == target_task]
