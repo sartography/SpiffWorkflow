@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="ASCII"?>
+<model:definitions xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di_1="http://www.omg.org/spec/DD/20100524/DI" xmlns:model="http://www.omg.org/spec/BPMN/20100524/MODEL" exporter="BonitaSoft" exporterVersion="5.7" expressionLanguage="http://groovy.codehaus.org/" targetNamespace="http://bonitasoft.com/Approvals">
+  <model:collaboration id="Approvals">
+    <model:documentation></model:documentation>
+    <model:participant id="Initiator">
+      <model:documentation>Person who takes the first action to start the process</model:documentation>
+    </model:participant>
+    <model:participant id="_auWnIO-1EeG6ILSEFG-uBA" name="Approvals" processRef="Approvals"/>
+    <model:participant id="_auX1QO-1EeG6ILSEFG-uBA" name="First Approval Wins" processRef="First_Approval_Wins"/>
+    <model:participant id="_auYcUO-1EeG6ILSEFG-uBA" name="Parallel Approvals SP" processRef="Parallel_Approvals_SP"/>
+  </model:collaboration>
+  <model:process id="Approvals" name="Approvals">
+    <model:documentation></model:documentation>
+    <model:laneSet id="Approvals_laneSet">
+      <model:lane id="Test" name="Test">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Start1</model:flowNodeRef>
+        <model:flowNodeRef>First_Approval_Wins</model:flowNodeRef>
+        <model:flowNodeRef>End1</model:flowNodeRef>
+        <model:flowNodeRef>First_Approval_Wins_Done</model:flowNodeRef>
+        <model:flowNodeRef>Parallel_Approvals_Done</model:flowNodeRef>
+        <model:flowNodeRef>Parallel_SP</model:flowNodeRef>
+        <model:flowNodeRef>Parallel_SP_Done</model:flowNodeRef>
+      </model:lane>
+      <model:lane id="Supervisor" name="Supervisor">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Supervisor_Approval__P_</model:flowNodeRef>
+        <model:flowNodeRef>Gateway4</model:flowNodeRef>
+        <model:flowNodeRef>Gateway5</model:flowNodeRef>
+      </model:lane>
+      <model:lane id="Manager" name="Manager">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Manager_Approval__P_</model:flowNodeRef>
+      </model:lane>
+    </model:laneSet>
+    <model:startEvent id="Start1" name="Start1">
+      <model:documentation></model:documentation>
+    </model:startEvent>
+    <model:callActivity id="First_Approval_Wins" name="First Approval Wins" calledElement="First_Approval_Wins">
+      <model:documentation></model:documentation>
+    </model:callActivity>
+    <model:endEvent id="End1" name="End1">
+      <model:documentation></model:documentation>
+    </model:endEvent>
+    <model:manualTask id="First_Approval_Wins_Done" name="First Approval Wins Done">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:manualTask id="Parallel_Approvals_Done" name="Parallel Approvals Done">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:callActivity id="Parallel_SP" name="Parallel SP" calledElement="Parallel_Approvals_SP">
+      <model:documentation></model:documentation>
+    </model:callActivity>
+    <model:manualTask id="Parallel_SP_Done" name="Parallel SP Done">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:manualTask id="Supervisor_Approval__P_" name="Supervisor Approval (P)">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:parallelGateway id="Gateway4" name="Gateway4">
+      <model:documentation></model:documentation>
+    </model:parallelGateway>
+    <model:parallelGateway id="Gateway5" name="Gateway5">
+      <model:documentation></model:documentation>
+    </model:parallelGateway>
+    <model:manualTask id="Manager_Approval__P_" name="Manager Approval (P)">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:sequenceFlow id="_IcV3AO4CEeG6ILSEFG-uBA" sourceRef="Start1" targetRef="First_Approval_Wins">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_vVCwgO4DEeG6ILSEFG-uBA" sourceRef="First_Approval_Wins" targetRef="First_Approval_Wins_Done">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="On_to_Parallel_Approvals" name="On to Parallel Approvals" sourceRef="First_Approval_Wins_Done" targetRef="Gateway4">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_dceXwO6YEeG6ILSEFG-uBA" sourceRef="Gateway4" targetRef="Manager_Approval__P_">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_d_Hx0O6YEeG6ILSEFG-uBA" sourceRef="Gateway4" targetRef="Supervisor_Approval__P_">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Supervisor_Approval__P_" targetRef="Gateway5">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="On_To_Parallel_SP" name="On To Parallel SP" sourceRef="Parallel_Approvals_Done" targetRef="Parallel_SP">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Manager_Approval__P_" targetRef="Gateway5">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="OK" name="OK" sourceRef="Parallel_SP_Done" targetRef="End1">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_76Vy8O6ZEeG6ILSEFG-uBA" sourceRef="Parallel_SP" targetRef="Parallel_SP_Done">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_E8AnwO6aEeG6ILSEFG-uBA" sourceRef="Gateway5" targetRef="Parallel_Approvals_Done">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+  </model:process>
+  <model:process id="First_Approval_Wins" name="First Approval Wins">
+    <model:documentation></model:documentation>
+    <model:laneSet id="First Approval Wins_laneSet">
+      <model:lane id="Supervisor" name="Supervisor">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Supervisor_Approval</model:flowNodeRef>
+        <model:flowNodeRef>Start2</model:flowNodeRef>
+        <model:flowNodeRef>Supervisor_Approved</model:flowNodeRef>
+      </model:lane>
+      <model:lane id="Manager" name="Manager">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Manager_Approval</model:flowNodeRef>
+        <model:flowNodeRef>Manager_Approved</model:flowNodeRef>
+      </model:lane>
+    </model:laneSet>
+    <model:manualTask id="Supervisor_Approval" name="Supervisor Approval">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:startEvent id="Start2" name="Start2">
+      <model:documentation></model:documentation>
+    </model:startEvent>
+    <model:endEvent id="Supervisor_Approved" name="Supervisor Approved">
+      <model:documentation></model:documentation>
+      <model:terminateEventDefinition id="_auX1Qe-1EeG6ILSEFG-uBA"/>
+    </model:endEvent>
+    <model:manualTask id="Manager_Approval" name="Manager Approval">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:endEvent id="Manager_Approved" name="Manager Approved">
+      <model:documentation></model:documentation>
+      <model:terminateEventDefinition id="_auX1Qu-1EeG6ILSEFG-uBA"/>
+    </model:endEvent>
+    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Supervisor_Approval" targetRef="Supervisor_Approved">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Manager_Approval" targetRef="Manager_Approved">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_CtMukO7hEeG6ILSEFG-uBA" sourceRef="Start2" targetRef="Supervisor_Approval">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_DBwCQO7hEeG6ILSEFG-uBA" sourceRef="Start2" targetRef="Manager_Approval">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+  </model:process>
+  <model:process id="Parallel_Approvals_SP" name="Parallel Approvals SP">
+    <model:documentation></model:documentation>
+    <model:laneSet id="Parallel Approvals SP_laneSet">
+      <model:lane id="Supervisor" name="Supervisor">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Start3</model:flowNodeRef>
+        <model:flowNodeRef>Supervisor_Approval</model:flowNodeRef>
+        <model:flowNodeRef>End2</model:flowNodeRef>
+      </model:lane>
+      <model:lane id="Manager" name="Manager">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Manager_Approval</model:flowNodeRef>
+      </model:lane>
+      <model:lane id="Operator" name="Operator">
+        <model:documentation></model:documentation>
+        <model:flowNodeRef>Step1</model:flowNodeRef>
+      </model:lane>
+    </model:laneSet>
+    <model:startEvent id="Start3" name="Start3">
+      <model:documentation></model:documentation>
+    </model:startEvent>
+    <model:manualTask id="Supervisor_Approval" name="Supervisor Approval">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:endEvent id="End2" name="End2">
+      <model:documentation></model:documentation>
+    </model:endEvent>
+    <model:manualTask id="Manager_Approval" name="Manager Approval">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:manualTask id="Step1" name="Operator Approval">
+      <model:documentation></model:documentation>
+    </model:manualTask>
+    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Supervisor_Approval" targetRef="End2">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Manager_Approval" targetRef="End2">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_InMVgO6ZEeG6ILSEFG-uBA" sourceRef="Start3" targetRef="Step1">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="_JEeucO6ZEeG6ILSEFG-uBA" sourceRef="Start3" targetRef="Manager_Approval">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Step1" targetRef="Supervisor_Approval">
+      <model:documentation></model:documentation>
+    </model:sequenceFlow>
+  </model:process>
+  <di:BPMNDiagram name="Approvals">
+    <di:BPMNPlane id="plane_Approvals" bpmnElement="Approvals">
+      <di:BPMNShape id="_Ib2u0O4CEeG6ILSEFG-uBA" bpmnElement="Approvals" isHorizontal="true">
+        <dc:Bounds height="724.0" width="1352.0" x="30.0" y="30.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_H6ddQO6XEeG6ILSEFG-uBA" bpmnElement="Test" isHorizontal="true">
+        <dc:Bounds height="329.0" width="1330.0" x="52.0" y="30.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_IcCVAO4CEeG6ILSEFG-uBA" bpmnElement="Start1">
+        <dc:Bounds height="34.0" width="30.0" x="92.0" y="95.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_R6kE8O4CEeG6ILSEFG-uBA" bpmnElement="First_Approval_Wins">
+        <dc:Bounds height="74.0" width="148.0" x="206.0" y="95.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_FRlL8O6WEeG6ILSEFG-uBA" bpmnElement="End1">
+        <dc:Bounds height="34.0" width="30.0" x="1045.0" y="170.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_8wLWIO6WEeG6ILSEFG-uBA" bpmnElement="First_Approval_Wins_Done">
+        <dc:Bounds height="84.0" width="168.0" x="192.0" y="190.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_oV8bsO6YEeG6ILSEFG-uBA" bpmnElement="Parallel_Approvals_Done">
+        <dc:Bounds height="74.0" width="148.0" x="522.0" y="190.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_Q-TKYO6ZEeG6ILSEFG-uBA" bpmnElement="Parallel_SP">
+        <dc:Bounds height="50.0" width="100.0" x="735.0" y="107.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_4T7s8O6ZEeG6ILSEFG-uBA" bpmnElement="Parallel_SP_Done">
+        <dc:Bounds height="74.0" width="148.0" x="865.0" y="117.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_rvrNEO6XEeG6ILSEFG-uBA" bpmnElement="Supervisor" isHorizontal="true">
+        <dc:Bounds height="250.0" width="1330.0" x="52.0" y="359.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_8zU7UO6XEeG6ILSEFG-uBA" bpmnElement="Supervisor_Approval__P_">
+        <dc:Bounds height="83.0" width="166.0" x="403.0" y="459.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_aVYD8O6YEeG6ILSEFG-uBA" bpmnElement="Gateway4">
+        <dc:Bounds height="43.0" width="43.0" x="211.0" y="408.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_CesQwO6aEeG6ILSEFG-uBA" bpmnElement="Gateway5">
+        <dc:Bounds height="43.0" width="43.0" x="613.0" y="479.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_vgLDMO6XEeG6ILSEFG-uBA" bpmnElement="Manager" isHorizontal="true">
+        <dc:Bounds height="145.0" width="1330.0" x="52.0" y="609.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_JXN5sO6YEeG6ILSEFG-uBA" bpmnElement="Manager_Approval__P_">
+        <dc:Bounds height="60.0" width="120.0" x="419.0" y="639.0"/>
+      </di:BPMNShape>
+      <di:BPMNEdge id="_IcWeEO4CEeG6ILSEFG-uBA" bpmnElement="_IcV3AO4CEeG6ILSEFG-uBA">
+        <di_1:waypoint x="122.0" y="122.0"/>
+        <di_1:waypoint x="206.0" y="122.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_vVDXkO4DEeG6ILSEFG-uBA" bpmnElement="_vVCwgO4DEeG6ILSEFG-uBA">
+        <di_1:waypoint x="311.0" y="169.0"/>
+        <di_1:waypoint x="311.0" y="190.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_DYxlUO6YEeG6ILSEFG-uBA" bpmnElement="On_to_Parallel_Approvals">
+        <di_1:waypoint x="240.0" y="274.0"/>
+        <di_1:waypoint x="240.0" y="415.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_dcfl4O6YEeG6ILSEFG-uBA" bpmnElement="_dceXwO6YEeG6ILSEFG-uBA">
+        <di_1:waypoint x="236.0" y="447.0"/>
+        <di_1:waypoint x="236.0" y="668.0"/>
+        <di_1:waypoint x="419.0" y="668.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_d_I_8O6YEeG6ILSEFG-uBA" bpmnElement="_d_Hx0O6YEeG6ILSEFG-uBA">
+        <di_1:waypoint x="248.0" y="434.0"/>
+        <di_1:waypoint x="325.0" y="434.0"/>
+        <di_1:waypoint x="325.0" y="480.0"/>
+        <di_1:waypoint x="403.0" y="480.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_vsd9UO6YEeG6ILSEFG-uBA" bpmnElement="Approve">
+        <di_1:waypoint x="569.0" y="487.0"/>
+        <di_1:waypoint x="592.0" y="487.0"/>
+        <di_1:waypoint x="592.0" y="496.0"/>
+        <di_1:waypoint x="616.0" y="496.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_yTd0wO6YEeG6ILSEFG-uBA" bpmnElement="On_To_Parallel_SP">
+        <di_1:waypoint x="670.0" y="194.0"/>
+        <di_1:waypoint x="720.0" y="194.0"/>
+        <di_1:waypoint x="720.0" y="173.0"/>
+        <di_1:waypoint x="745.0" y="173.0"/>
+        <di_1:waypoint x="745.0" y="157.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_34HwIO6YEeG6ILSEFG-uBA" bpmnElement="Approve">
+        <di_1:waypoint x="539.0" y="668.0"/>
+        <di_1:waypoint x="626.0" y="668.0"/>
+        <di_1:waypoint x="626.0" y="514.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_UUS10O6ZEeG6ILSEFG-uBA" bpmnElement="OK">
+        <di_1:waypoint x="1013.0" y="180.0"/>
+        <di_1:waypoint x="1045.0" y="180.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_76XBEO6ZEeG6ILSEFG-uBA" bpmnElement="_76Vy8O6ZEeG6ILSEFG-uBA">
+        <di_1:waypoint x="835.0" y="135.0"/>
+        <di_1:waypoint x="850.0" y="135.0"/>
+        <di_1:waypoint x="850.0" y="137.0"/>
+        <di_1:waypoint x="865.0" y="137.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_E8B14O6aEeG6ILSEFG-uBA" bpmnElement="_E8AnwO6aEeG6ILSEFG-uBA">
+        <di_1:waypoint x="628.0" y="485.0"/>
+        <di_1:waypoint x="628.0" y="264.0"/>
+      </di:BPMNEdge>
+      <di:BPMNShape id="_R6hBoO4CEeG6ILSEFG-uBA" bpmnElement="First_Approval_Wins" isHorizontal="true">
+        <dc:Bounds height="500.0" width="1352.0" x="30.0" y="774.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_sDQsIO4CEeG6ILSEFG-uBA" bpmnElement="Supervisor" isHorizontal="true">
+        <dc:Bounds height="250.0" width="1330.0" x="52.0" y="774.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_R6vrIe4CEeG6ILSEFG-uBA" bpmnElement="Supervisor_Approval">
+        <dc:Bounds height="50.0" width="100.0" x="320.0" y="858.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_VgS1gO4CEeG6ILSEFG-uBA" bpmnElement="Start2">
+        <dc:Bounds height="34.0" width="30.0" x="134.0" y="843.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_jja8kO4DEeG6ILSEFG-uBA" bpmnElement="Supervisor_Approved">
+        <dc:Bounds height="34.0" width="30.0" x="538.0" y="876.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_ttNsgO4CEeG6ILSEFG-uBA" bpmnElement="Manager" isHorizontal="true">
+        <dc:Bounds height="250.0" width="1330.0" x="52.0" y="1024.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_jf_DgO4CEeG6ILSEFG-uBA" bpmnElement="Manager_Approval">
+        <dc:Bounds height="50.0" width="100.0" x="304.0" y="1124.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_oUPnQO4DEeG6ILSEFG-uBA" bpmnElement="Manager_Approved">
+        <dc:Bounds height="34.0" width="30.0" x="522.0" y="1134.0"/>
+      </di:BPMNShape>
+      <di:BPMNEdge id="_mAyW4O4DEeG6ILSEFG-uBA" bpmnElement="Approve">
+        <di_1:waypoint x="420.0" y="886.0"/>
+        <di_1:waypoint x="479.0" y="886.0"/>
+        <di_1:waypoint x="479.0" y="892.0"/>
+        <di_1:waypoint x="538.0" y="892.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_qIrZUO4DEeG6ILSEFG-uBA" bpmnElement="Approve">
+        <di_1:waypoint x="404.0" y="1153.0"/>
+        <di_1:waypoint x="463.0" y="1153.0"/>
+        <di_1:waypoint x="463.0" y="1147.0"/>
+        <di_1:waypoint x="522.0" y="1147.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_CtMuku7hEeG6ILSEFG-uBA" bpmnElement="_CtMukO7hEeG6ILSEFG-uBA">
+        <di_1:waypoint x="164.0" y="872.0"/>
+        <di_1:waypoint x="242.0" y="872.0"/>
+        <di_1:waypoint x="242.0" y="880.0"/>
+        <di_1:waypoint x="320.0" y="880.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_DBxQYO7hEeG6ILSEFG-uBA" bpmnElement="_DBwCQO7hEeG6ILSEFG-uBA">
+        <di_1:waypoint x="149.0" y="877.0"/>
+        <di_1:waypoint x="149.0" y="1149.0"/>
+        <di_1:waypoint x="304.0" y="1149.0"/>
+      </di:BPMNEdge>
+      <di:BPMNShape id="_Zk-u8O4uEeG6ILSEFG-uBA" bpmnElement="Parallel_Approvals_SP" isHorizontal="true">
+        <dc:Bounds height="630.0" width="1352.0" x="30.0" y="1294.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_f_FroO4uEeG6ILSEFG-uBA" bpmnElement="Supervisor" isHorizontal="true">
+        <dc:Bounds height="280.0" width="1330.0" x="52.0" y="1394.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_uEKI4O4uEeG6ILSEFG-uBA" bpmnElement="Start3">
+        <dc:Bounds height="34.0" width="30.0" x="134.0" y="1530.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_vTJEgO4uEeG6ILSEFG-uBA" bpmnElement="Supervisor_Approval">
+        <dc:Bounds height="50.0" width="100.0" x="493.0" y="1522.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_K4QgkO6WEeG6ILSEFG-uBA" bpmnElement="End2">
+        <dc:Bounds height="34.0" width="30.0" x="799.0" y="1530.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_j4eYAO4uEeG6ILSEFG-uBA" bpmnElement="Manager" isHorizontal="true">
+        <dc:Bounds height="250.0" width="1330.0" x="52.0" y="1674.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_y4gBoO4uEeG6ILSEFG-uBA" bpmnElement="Manager_Approval">
+        <dc:Bounds height="50.0" width="100.0" x="364.0" y="1795.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_RkTswO7hEeG6ILSEFG-uBA" bpmnElement="Operator" isHorizontal="true">
+        <dc:Bounds height="100.0" width="1330.0" x="52.0" y="1294.0"/>
+      </di:BPMNShape>
+      <di:BPMNShape id="_VVzBYO7hEeG6ILSEFG-uBA" bpmnElement="Step1">
+        <dc:Bounds height="50.0" width="100.0" x="364.0" y="1324.0"/>
+      </di:BPMNShape>
+      <di:BPMNEdge id="_-dnqoO4uEeG6ILSEFG-uBA" bpmnElement="Approve">
+        <di_1:waypoint x="593.0" y="1554.0"/>
+        <di_1:waypoint x="799.0" y="1554.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="__RQHAO4uEeG6ILSEFG-uBA" bpmnElement="Approve">
+        <di_1:waypoint x="464.0" y="1825.0"/>
+        <di_1:waypoint x="631.0" y="1825.0"/>
+        <di_1:waypoint x="631.0" y="1558.0"/>
+        <di_1:waypoint x="799.0" y="1558.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_InOKsO6ZEeG6ILSEFG-uBA" bpmnElement="_InMVgO6ZEeG6ILSEFG-uBA">
+        <di_1:waypoint x="164.0" y="1558.0"/>
+        <di_1:waypoint x="264.0" y="1558.0"/>
+        <di_1:waypoint x="264.0" y="1365.0"/>
+        <di_1:waypoint x="364.0" y="1365.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_JEgjoO6ZEeG6ILSEFG-uBA" bpmnElement="_JEeucO6ZEeG6ILSEFG-uBA">
+        <di_1:waypoint x="149.0" y="1564.0"/>
+        <di_1:waypoint x="149.0" y="1634.0"/>
+        <di_1:waypoint x="307.0" y="1634.0"/>
+        <di_1:waypoint x="307.0" y="1812.0"/>
+        <di_1:waypoint x="364.0" y="1812.0"/>
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_W9jpYO7hEeG6ILSEFG-uBA" bpmnElement="Approve">
+        <di_1:waypoint x="464.0" y="1356.0"/>
+        <di_1:waypoint x="532.0" y="1356.0"/>
+        <di_1:waypoint x="532.0" y="1522.0"/>
+      </di:BPMNEdge>
+    </di:BPMNPlane>
+  </di:BPMNDiagram>
+</model:definitions>

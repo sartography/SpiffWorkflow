@@ -140,10 +140,9 @@ class WorkflowSpec(object):
                     dump += indent + '-  IN: ' + ','.join(['%s (%s)' % (t.name, hex(id(t))) for t in task_spec.inputs]) + '\n'
                 if task_spec.outputs:
                     dump += indent + '- OUT: ' + ','.join(['%s (%s)' % (t.name, hex(id(t))) for t in task_spec.outputs]) + '\n'
-            do_lines = len(task_spec.outputs) > 1
-            for i, t in enumerate(task_spec.outputs):
-                do_lines = do_lines and i < len(task_spec.outputs)
-                dump += indent + '   --> ' + recursive_dump(t,indent+('   |   ' if i+1 < len(task_spec.outputs) else '       '))
+            sub_specs = ([task_spec.spec.start] if hasattr(task_spec, 'spec') else []) + task_spec.outputs
+            for i, t in enumerate(sub_specs):
+                dump += indent + '   --> ' + recursive_dump(t,indent+('   |   ' if i+1 < len(sub_specs) else '       '))
             return dump
 
 
