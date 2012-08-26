@@ -16,5 +16,5 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
         TaskSpec.test(self)
 
     def _create_workflow_spec(self, my_task):
-        return BpmnWorkflow(self.spec, parent = my_task.workflow.outer_workflow)
+        return BpmnWorkflow(self.spec, name=self.name, parent = my_task.workflow.outer_workflow)
 
