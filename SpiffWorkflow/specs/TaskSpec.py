@@ -247,11 +247,18 @@ class TaskSpec(object):
             child.task_spec._predict(child, seen[:], looked_ahead + 1)
 
     def _predict_hook(self, my_task):
+        # If the task's status is not predicted, we default to FUTURE
+        # for all it's outputs.
+        # Otherwise, copy my own state to the children.
         if my_task._is_definite():
-            child_state = Task.FUTURE
+            state = Task.FUTURE
         else:
-            child_state = Task.LIKELY
-        my_task._update_children(self.outputs, child_state)
+            state = my_task.state
+
+        my_task._sync_children(self.outputs, state)
+        for child in my_task.children:
+            if not child._is_definite():
+                child._set_state(state)
 
     def _update_state(self, my_task):
         """
@@ -403,7 +410,9 @@ class TaskSpec(object):
         @return: True on success, False otherwise.
         """
         # If we have more than one output, implicitly split.
-        my_task._update_children(self.outputs)
+        my_task._sync_children(self.outputs)
+        for child in my_task.children:
+            child.task_spec._update_state(child)
 
     def serialize(self, serializer, **kwargs):
         """

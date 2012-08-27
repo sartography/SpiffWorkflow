@@ -84,7 +84,9 @@ class MultiChoice(TaskSpec):
         self.choice = choice
 
     def _predict_hook(self, my_task):
-        my_task._update_children(self.outputs, Task.MAYBE)
+        # First make sure that all outputs are already present in the
+        # task tree. Default to MAYBE for all outputs.
+        my_task._sync_children(self.outputs, Task.MAYBE)
 
     def _on_complete_hook(self, my_task):
         """
@@ -100,7 +102,9 @@ class MultiChoice(TaskSpec):
                 continue
             outputs.append(self._parent.get_task_spec_from_name(output))
 
-        my_task._update_children(outputs)
+        my_task._sync_children(outputs)
+        for child in my_task.children:
+            child.task_spec._update_state(child)
 
     def serialize(self, serializer):
         return serializer._serialize_multi_choice(self)

@@ -74,10 +74,10 @@ class SubWorkflow(TaskSpec):
         for output in self.outputs:
             if output not in outputs:
                 outputs.insert(0, output)
-        if my_task._has_state(Task.LIKELY):
-            my_task._update_children(outputs, Task.LIKELY)
+        if my_task._is_definite():
+            my_task._sync_children(outputs, Task.FUTURE)
         else:
-            my_task._update_children(outputs, Task.FUTURE)
+            my_task._sync_children(outputs, Task.LIKELY)
 
     def _on_ready_before_hook(self, my_task):
         from SpiffWorkflow.storage import XmlSerializer
@@ -91,8 +91,9 @@ class SubWorkflow(TaskSpec):
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
 
         # Integrate the tree of the subworkflow into the tree of this workflow.
-        my_task._update_children(self.outputs, Task.FUTURE)
+        my_task._sync_children(self.outputs, Task.FUTURE)
         for child in my_task.children:
+            child.task_spec._update_state(child)
             child._inherit_attributes()
         for child in subworkflow.task_tree.children:
             my_task.children.insert(0, child)

@@ -284,12 +284,10 @@ class Task(object):
         if self._is_predicted() and state & self.PREDICTED_MASK == 0:
             msg = 'Attempt to add non-predicted child to predicted task'
             raise WorkflowException(self.task_spec, msg)
-        task = Task(self.workflow, task_spec, self)
+        task = Task(self.workflow, task_spec, self, state=state)
         task.thread_id = self.thread_id
         if state == self.READY:
             task._ready()
-        else:
-            task.state = state
         return task
 
     def _assign_new_thread_id(self, recursive=True):
@@ -309,76 +307,51 @@ class Task(object):
             child.thread_id = self.thread_id
         return self.thread_id
 
-    def _update_children(self, task_specs, state=None):
+    def _sync_children(self, task_specs, state=FUTURE):
         """
-        This method adds one child for each given TaskSpec, unless that
-        child already exists.
-        The state of COMPLETED tasks is never changed.
+        This method syncs up the task's children with the given list of task
+        specs. In other words::
 
-        If this method is passed a state:
-          - The state of triggered tasks is not changed.
-          - The state for all children is set to the given value.
+            - Add one child for each given TaskSpec, unless that child already
+              exists.
+            - Remove all children for which there is no spec in the given list,
+              unless it is a "triggered" task.
 
-        If this method is not passed a state:
-          - The state for all children is updated by calling the child's
-          _update_state() method.
-
-        If the task currently has a child that is not given in the TaskSpec,
-        the child is removed.
-        It is an error if the task has a non-LIKELY child that is
+        @note: It is an error if the task has a non-predicted child that is
         not given in the TaskSpecs.
 
         @type  task_specs: list(TaskSpec)
         @param task_specs: The list of task specs that may become children.
         @type  state: integer
-        @param state: The bitmask of states for newly added children.
+        @param state: The bitmask of states for the new children.
         """
         LOG.debug("Updating children for %s" % self.get_name())
         if task_specs is None:
             raise ValueError('"task_specs" argument is None')
-        if type(task_specs) != type([]):
-            task_specs = [task_specs]
-
-        # Create a list of all children that are no longer needed, and
-        # set the state of all others.
         add = task_specs[:]
+
+        # Create a list of all children that are no longer needed.
         remove = []
         for child in self.children:
-            # Must not be triggered or COMPLETED.
+            # Triggered tasks are never removed.
             if child.triggered:
-                if state is None:
-                    child.task_spec._update_state(child)
                 continue
-            if child._is_finished():
+
+            # Check whether the task needs to be removed.
+            if child.task_spec in add:
                 add.remove(child.task_spec)
                 continue
 
-            # Check whether the item needs to be added or removed.
-            if child.task_spec not in add:
-                if not self._is_definite():
-                    msg = 'Attempt to remove non-predicted %s' % child.get_name()
-                    raise WorkflowException(self.task_spec, msg)
-                remove.append(child)
-                continue
-            add.remove(child.task_spec)
+            # Non-predicted tasks must not be removed, so they HAVE to be in
+            # the given task spec list.
+            assert not child._is_definite()
+            remove.append(child)
 
-            # Update the state.
-            if state is not None:
-                child.state = state
-            else:
-                child.task_spec._update_state(child)
-
-        # Remove all children that are no longer specified.
+        # Remove and add the children accordingly.
         for child in remove:
             self.children.remove(child)
-
-        # Add a new child for each of the remaining tasks.
         for task_spec in add:
-            if state is not None:
-                self._add_child(task_spec, state)
-            else:
-                child = self._add_child(task_spec, self.LIKELY)
-                task_spec._update_state(child)
+            self._add_child(task_spec, state)
 
     def _set_likely_task(self, task_specs):
         if not isinstance(task_specs, list):

@@ -62,7 +62,7 @@ class ExclusiveChoice(MultiChoice):
             raise WorkflowException(self, 'A default output is required.')
 
     def _predict_hook(self, my_task):
-        my_task._update_children(self.outputs, Task.MAYBE)
+        MultiChoice._predict_hook(self, my_task)
         spec = self._parent.get_task_spec_from_name(self.default_task_spec)
         my_task._set_likely_task(spec)
 
@@ -74,8 +74,9 @@ class ExclusiveChoice(MultiChoice):
                 output = self._parent.get_task_spec_from_name(spec_name)
                 break
 
-        my_task._update_children(output)
-        return True
+        my_task._sync_children([output])
+        for child in my_task.children:
+            child.task_spec._update_state(child)
 
     def serialize(self, serializer):
         return serializer._serialize_exclusive_choice(self)

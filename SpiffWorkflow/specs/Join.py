@@ -213,7 +213,7 @@ class Join(TaskSpec):
         # case all other incoming tasks get cancelled (or never reach
         # the Join for other reasons, such as reaching a stub branch),
         # we need to revisit it.
-        my_task._set_state(Task.READY)
+        my_task._ready()
 
         # Update the state of our child objects.
         self._do_join(my_task)

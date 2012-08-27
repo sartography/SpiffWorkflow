@@ -120,10 +120,9 @@ class ThreadSplit(TaskSpec):
         for i in range(split_n):
             outputs.append(self.thread_starter)
         if my_task._is_definite():
-            child_state = Task.FUTURE
+            my_task._sync_children(outputs, Task.FUTURE)
         else:
-            child_state = Task.LIKELY
-        my_task._update_children(outputs, child_state)
+            my_task._sync_children(outputs, Task.LIKELY)
 
     def _on_complete_hook(self, my_task):
         # Split, and remember the number of splits in the context data.
@@ -135,7 +134,9 @@ class ThreadSplit(TaskSpec):
         outputs = []
         for i in range(split_n):
             outputs.append(self.thread_starter)
-        my_task._update_children(outputs)
+        my_task._sync_children(outputs)
+        for child in my_task.children:
+            child.task_spec._update_state(child)
 
     def serialize(self, serializer):
         return serializer._serialize_thread_split(self)
