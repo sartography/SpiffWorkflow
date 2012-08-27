@@ -38,9 +38,9 @@ def on_reached_cb(workflow, task, taken_path):
     #print task.get_attributes()
 
     # In workflows that load a subworkflow, the newly loaded children
-    # will not have on_ready_cb() assigned. By using this function, we
+    # will not have on_reached_cb() assigned. By using this function, we
     # re-assign the function in every step, thus making sure that new
-    # children also call on_ready_cb().
+    # children also call on_reached_cb().
     for child in task.children:
         track_task(child.task_spec, taken_path)
     return True
