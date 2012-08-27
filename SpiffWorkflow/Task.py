@@ -180,7 +180,10 @@ class Task(object):
             self.parent._child_added_notify(self)
 
     def __repr__(self):
-        return '<Task object (%s) at %s>' % (self.task_spec.name, hex(id(self)))
+        return '<Task object (%s) in state %s at %s>' % (
+            self.task_spec.name,
+            self.get_state_name(),
+            hex(id(self)))
 
     def _getstate(self):
         return self._state
