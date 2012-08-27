@@ -197,24 +197,26 @@ class Join(TaskSpec):
         return self._try_fire_structured(my_task, force)
 
     def _update_state_hook(self, my_task):
+        # Check whether enough incoming branches have completed.
         may_fire, waiting_tasks = self._try_fire(my_task)
-        if may_fire:
-            # If this is a cancelling join, cancel all incoming branches,
-            # except for the one that just completed.
-            if self.cancel_remaining:
-                for task in waiting_tasks:
-                    task.cancel()
-
-            # We do NOT set the task state to COMPLETED, because in
-            # case all other incoming tasks get cancelled (or never reach
-            # the Join for other reasons, such as reaching a stub branch),
-            # we need to revisit it.
-            my_task._set_state(Task.READY)
-
-            # Update the state of our child objects.
-            self._do_join(my_task)
-        else:
+        if not may_fire:
             my_task._set_state(Task.WAITING)
+            return
+
+        # If this is a cancelling join, cancel all incoming branches,
+        # except for the one that just completed.
+        if self.cancel_remaining:
+            for task in waiting_tasks:
+                task.cancel()
+
+        # We do NOT set the task state to COMPLETED, because in
+        # case all other incoming tasks get cancelled (or never reach
+        # the Join for other reasons, such as reaching a stub branch),
+        # we need to revisit it.
+        my_task._set_state(Task.READY)
+
+        # Update the state of our child objects.
+        self._do_join(my_task)
 
     def _do_join(self, my_task):
         # One Join spec may have multiple corresponding Task objects::
