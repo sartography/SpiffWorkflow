@@ -251,14 +251,14 @@ class TaskSpec(object):
         # for all it's outputs.
         # Otherwise, copy my own state to the children.
         if my_task._is_definite():
-            state = Task.FUTURE
+            best_state = Task.FUTURE
         else:
-            state = my_task.state
+            best_state = my_task.state
 
-        my_task._sync_children(self.outputs, state)
+        my_task._sync_children(self.outputs, best_state)
         for child in my_task.children:
             if not child._is_definite():
-                child._set_state(state)
+                child._set_state(best_state)
 
     def _update_state(self, my_task):
         """
