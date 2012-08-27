@@ -410,7 +410,6 @@ class TaskSpec(object):
         @return: True on success, False otherwise.
         """
         # If we have more than one output, implicitly split.
-        my_task._sync_children(self.outputs)
         for child in my_task.children:
             child.task_spec._update_state(child)
 

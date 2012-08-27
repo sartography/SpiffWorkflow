@@ -40,14 +40,14 @@ class TaskTest(unittest.TestCase):
         c3.state = Task.COMPLETED
 
         # Check whether the tree is built properly.
-        expected = """1/0: Task of Simple 1 State: FUTURE Children: 3
-  2/0: Task of Simple 2 State: FUTURE Children: 2
-    3/0: Task of Simple 3 State: FUTURE Children: 2
-      4/0: Task of Simple 4 State: FUTURE Children: 1
-        5/0: Task of Simple 5 State: FUTURE Children: 0
-      6/0: Task of Simple 6 State: FUTURE Children: 0
-    7/0: Task of Simple 7 State: FUTURE Children: 0
-  8/0: Task of Simple 8 State: FUTURE Children: 0
+        expected = """1/0: Task of Simple 1 State: MAYBE Children: 3
+  2/0: Task of Simple 2 State: MAYBE Children: 2
+    3/0: Task of Simple 3 State: MAYBE Children: 2
+      4/0: Task of Simple 4 State: MAYBE Children: 1
+        5/0: Task of Simple 5 State: MAYBE Children: 0
+      6/0: Task of Simple 6 State: MAYBE Children: 0
+    7/0: Task of Simple 7 State: MAYBE Children: 0
+  8/0: Task of Simple 8 State: MAYBE Children: 0
   9/0: Task of Simple 9 State: COMPLETED Children: 0"""
         self.assert_(expected == root.get_dump(),
                      'Expected:\n' + repr(expected) + '\n' + \
@@ -63,7 +63,7 @@ class TaskTest(unittest.TestCase):
 
         # Run the iterator test.
         result = ''
-        for thetask in Task.Iterator(root, Task.FUTURE):
+        for thetask in Task.Iterator(root, Task.MAYBE):
             result += thetask.get_dump(0, False) + '\n'
         self.assert_(expected2 == result,
                      'Expected:\n' + expected2 + '\n' + \

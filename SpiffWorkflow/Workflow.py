@@ -72,7 +72,7 @@ class Workflow(object):
 
         # Prevent the root task from being executed.
         self.task_tree.state = Task.COMPLETED
-        start                = self.task_tree._add_child(self.spec.start)
+        start = self.task_tree._add_child(self.spec.start, state=Task.FUTURE)
 
         self.spec.start._predict(start)
         if 'parent' not in kwargs:

@@ -51,14 +51,17 @@ class Choose(Trigger):
         self.context = context
         self.choice  = choice is not None and choice or []
 
-
     def _on_complete_hook(self, my_task):
         context = my_task.workflow.get_task_spec_from_name(self.context)
+        triggered = []
         for task in my_task.workflow.task_tree:
             if task.thread_id != my_task.thread_id:
                 continue
             if task.task_spec == context:
                 task.trigger(self.choice)
+                triggered.append(task)
+        for task in triggered:
+            context._predict(task)
         TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):

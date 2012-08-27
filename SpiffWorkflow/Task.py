@@ -157,7 +157,7 @@ class Task(object):
     # Pool for assigning a unique thread id to every new Task.
     thread_id_pool = 0
 
-    def __init__(self, workflow, task_spec, parent=None, state=FUTURE):
+    def __init__(self, workflow, task_spec, parent=None, state=MAYBE):
         """
         Constructor.
         """
@@ -268,7 +268,7 @@ class Task(object):
     def _is_definite(self):
         return self._has_state(self.DEFINITE_MASK)
 
-    def _add_child(self, task_spec, state=FUTURE):
+    def _add_child(self, task_spec, state=MAYBE):
         """
         Adds a new child and assigns the given TaskSpec to it.
 
@@ -307,7 +307,7 @@ class Task(object):
             child.thread_id = self.thread_id
         return self.thread_id
 
-    def _sync_children(self, task_specs, state=FUTURE):
+    def _sync_children(self, task_specs, state=MAYBE):
         """
         This method syncs up the task's children with the given list of task
         specs. In other words::
@@ -344,7 +344,9 @@ class Task(object):
 
             # Non-predicted tasks must not be removed, so they HAVE to be in
             # the given task spec list.
-            assert not child._is_definite()
+            if child._is_definite():
+                raise WorkflowException(self.task_spec,
+                    'removal of non-predicted child %s' % repr(child))
             remove.append(child)
 
         # Remove and add the children accordingly.

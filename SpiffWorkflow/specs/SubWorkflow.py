@@ -77,7 +77,7 @@ class SubWorkflow(TaskSpec):
         if my_task._is_definite():
             my_task._sync_children(outputs, Task.FUTURE)
         else:
-            my_task._sync_children(outputs, Task.LIKELY)
+            my_task._sync_children(outputs, my_task.state)
 
     def _on_ready_before_hook(self, my_task):
         from SpiffWorkflow.storage import XmlSerializer

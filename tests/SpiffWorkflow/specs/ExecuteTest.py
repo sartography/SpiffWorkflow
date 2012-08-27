@@ -37,6 +37,7 @@ class ExecuteTest(TaskSpecTest):
         expected = 'Start\n  testtask\n'
         workflow = run_workflow(self, self.wf_spec, expected, '')
         task = workflow.get_task(3)
+        self.assertEqual(task.task_spec.name, 'testtask')
         self.assertEqual(task.state_history, [Task.FUTURE,
                                               Task.WAITING,
                                               Task.READY,

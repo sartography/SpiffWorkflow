@@ -95,7 +95,7 @@ class MultiInstance(TaskSpec):
 
     def _on_complete_hook(self, my_task):
         outputs = self._get_predicted_outputs(my_task)
-        my_task._sync_children(outputs)
+        my_task._sync_children(outputs, Task.FUTURE)
         for child in my_task.children:
             child.task_spec._update_state(child)
 

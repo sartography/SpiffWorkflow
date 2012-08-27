@@ -82,11 +82,35 @@ class MultiChoice(TaskSpec):
         Lets a caller narrow down the choice by using a Choose trigger.
         """
         self.choice = choice
+        # The caller needs to make sure that predict() is called.
 
     def _predict_hook(self, my_task):
-        # First make sure that all outputs are already present in the
-        # task tree. Default to MAYBE for all outputs.
-        my_task._sync_children(self.outputs, Task.MAYBE)
+        if self.choice:
+            outputs = [self._parent.get_task_spec_from_name(o)
+                       for o in self.choice]
+        else:
+            outputs = self.outputs
+
+        # Default to MAYBE for all conditional outputs, default to LIKELY
+        # for unconditional ones. We can not default to FUTURE, because
+        # a call to trigger() may override the unconditional paths.
+        my_task._sync_children(outputs)
+        if not my_task._is_definite():
+            best_state = my_task.state
+        else:
+            best_state = Task.LIKELY
+
+        # Collect a list of all unconditional outputs.
+        outputs = []
+        for condition, output in self.cond_task_specs:
+            if condition is None:
+                outputs.append(self._parent.get_task_spec_from_name(output))
+
+        for child in my_task.children:
+            if child._is_definite():
+                continue
+            if child.task_spec in outputs:
+                child._set_state(best_state)
 
     def _on_complete_hook(self, my_task):
         """
@@ -96,13 +120,16 @@ class MultiChoice(TaskSpec):
         # Find all matching conditions.
         outputs = []
         for condition, output in self.cond_task_specs:
-            if condition is not None and not condition._matches(my_task):
-                continue
             if self.choice is not None and output not in self.choice:
+                continue
+            if condition is None:
+                outputs.append(self._parent.get_task_spec_from_name(output))
+                continue
+            if not condition._matches(my_task):
                 continue
             outputs.append(self._parent.get_task_spec_from_name(output))
 
-        my_task._sync_children(outputs)
+        my_task._sync_children(outputs, Task.FUTURE)
         for child in my_task.children:
             child.task_spec._update_state(child)
 

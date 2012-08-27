@@ -134,7 +134,7 @@ class ThreadSplit(TaskSpec):
         outputs = []
         for i in range(split_n):
             outputs.append(self.thread_starter)
-        my_task._sync_children(outputs)
+        my_task._sync_children(outputs, Task.FUTURE)
         for child in my_task.children:
             child.task_spec._update_state(child)
 

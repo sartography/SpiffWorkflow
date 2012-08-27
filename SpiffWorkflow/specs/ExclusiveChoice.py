@@ -62,7 +62,11 @@ class ExclusiveChoice(MultiChoice):
             raise WorkflowException(self, 'A default output is required.')
 
     def _predict_hook(self, my_task):
-        MultiChoice._predict_hook(self, my_task)
+        # If the task's status is not predicted, we default to MAYBE
+        # for all it's outputs except the default choice, which is
+        # LIKELY.
+        # Otherwise, copy my own state to the children.
+        my_task._sync_children(self.outputs)
         spec = self._parent.get_task_spec_from_name(self.default_task_spec)
         my_task._set_likely_task(spec)
 
@@ -74,7 +78,7 @@ class ExclusiveChoice(MultiChoice):
                 output = self._parent.get_task_spec_from_name(spec_name)
                 break
 
-        my_task._sync_children([output])
+        my_task._sync_children([output], Task.FUTURE)
         for child in my_task.children:
             child.task_spec._update_state(child)
 
