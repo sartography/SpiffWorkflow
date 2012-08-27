@@ -57,13 +57,13 @@ class Trigger(TaskSpec):
         when _on_complete() is called.
         """
         self.queued += 1
-        # All tasks that have already completed need to be put into
-        # READY again.
+        # All tasks that have already completed need to be put back to
+        # READY.
         for thetask in my_task.workflow.task_tree:
             if thetask.thread_id != my_task.thread_id:
                 continue
             if thetask.task_spec == self and thetask._has_state(Task.COMPLETED):
-                thetask.state = Task.FUTURE
+                thetask._set_state(Task.FUTURE, True)
                 thetask._ready()
 
     def _on_complete_hook(self, my_task):

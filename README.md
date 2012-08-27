@@ -186,3 +186,7 @@ However, there is some locking and mutex code in place.
 ### State Transitions
 
 ![state-diagram.png](https://github.com/knipknap/SpiffWorkflow/raw/master/doc/figures/state-diagram.png)
+
+The order of these state transitions is violated only in one case: A Trigger
+task may add additional work to a task that was already COMPLETED, causing it
+to change the state back to FUTURE.

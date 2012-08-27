@@ -71,13 +71,15 @@ class Task(object):
     created to allow for visualizing the workflow at a time where
     the required decisions have not yet been made.
     """
-    FUTURE    =   1
-    LIKELY    =   2
-    MAYBE     =   4
-    WAITING   =   8
-    READY     =  16
-    CANCELLED =  32
-    COMPLETED =  64
+    # Note: The states in this list are ordered in the sequence in which
+    # they may appear. Do not change.
+    MAYBE     =  1
+    LIKELY    =  2
+    FUTURE    =  4
+    WAITING   =  8
+    READY     = 16
+    COMPLETED = 32
+    CANCELLED = 64
 
     FINISHED_MASK      = CANCELLED | COMPLETED
     DEFINITE_MASK      = FUTURE | WAITING | READY | FINISHED_MASK
@@ -188,17 +190,27 @@ class Task(object):
     def _getstate(self):
         return self._state
 
-    def _setstate(self, value):
-        if self._state != value:
-            if __debug__:
-                old = self.get_state_name()
-            self._state = value
-            if __debug__:
-                self.log.append("Moving '%s' from %s to %s" % (self.get_name(),
-                        old, self.get_state_name()))
-            self.state_history.append(value)
-            LOG.debug("Moving '%s' (spec=%s) from %s to %s" % (self.get_name(),
-                        self.task_spec.name, old, self.get_state_name()))
+    def _setstate(self, value, force=False):
+        """
+        Setting force to True allows for changing a state after it
+        COMPLETED. This would otherwise be invalid.
+        """
+        if self._state == value:
+            return
+        if value < self._state and not force:
+            raise WorkflowException(self.task_spec,
+                                    'state went from %s to %s!' % (
+                                        self.get_state_name(),
+                                        self.state_names[value]))
+        if __debug__:
+            old = self.get_state_name()
+        self._state = value
+        if __debug__:
+            self.log.append("Moving '%s' from %s to %s" % (self.get_name(),
+                    old, self.get_state_name()))
+        self.state_history.append(value)
+        LOG.debug("Moving '%s' (spec=%s) from %s to %s" % (self.get_name(),
+                    self.task_spec.name, old, self.get_state_name()))
 
     def _delstate(self):
         del self._state
@@ -249,8 +261,12 @@ class Task(object):
         for task in drop:
             self.children.remove(task)
 
-    def _set_state(self, state):
-        self.state = state
+    def _set_state(self, state, force=True):
+        """
+        Setting force to True allows for changing a state after it
+        COMPLETED. This would otherwise be invalid.
+        """
+        self._setstate(state, True)
         self.last_state_change = time.time()
 
     def _has_state(self, state):
