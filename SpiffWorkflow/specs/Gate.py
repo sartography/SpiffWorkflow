@@ -47,7 +47,6 @@ class Gate(TaskSpec):
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.context = context
 
-
     def _update_state_hook(self, my_task):
         context_task = my_task.workflow.get_task_spec_from_name(self.context)
         root_task    = my_task.workflow.task_tree
@@ -56,9 +55,8 @@ class Gate(TaskSpec):
                 continue
             if not task._has_state(Task.COMPLETED):
                 my_task._set_state(Task.WAITING)
-                return False
-        return TaskSpec._update_state_hook(self, my_task)
-
+                return
+        super(Gate, self)._update_state_hook(my_task)
 
     def serialize(self, serializer):
         return serializer._serialize_gate(self)

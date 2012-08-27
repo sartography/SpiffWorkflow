@@ -52,8 +52,7 @@ class Transform(TaskSpec):
             for transform in self.transforms:
                 LOG.debug("Executing transform", extra=dict(data=transform))
                 exec(transform)
-        result = super(Transform, self)._update_state_hook(my_task)
-        return result
+        super(Transform, self)._update_state_hook(my_task)
 
     def serialize(self, serializer):
         s_state = serializer._serialize_simple(self)

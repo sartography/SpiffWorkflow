@@ -71,10 +71,8 @@ class Execute(TaskSpec):
     def _update_state_hook(self, my_task):
         if not self._try_fire(my_task):
             my_task.state = Task.WAITING
-            result = False
-        else:
-            result = super(Execute, self)._update_state_hook(my_task)
-        return result
+            return
+        super(Execute, self)._update_state_hook(my_task)
 
     def serialize(self, serializer):
         return serializer._serialize_execute(self)

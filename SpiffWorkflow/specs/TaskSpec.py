@@ -231,6 +231,8 @@ class TaskSpec(object):
         @type  looked_ahead: integer
         @param looked_ahead: The depth of the predicted path so far.
         """
+        if my_task._is_finished():
+            return
         if seen is None:
             seen = []
         elif self in seen:
@@ -258,12 +260,7 @@ class TaskSpec(object):
         completes it makes sure to call this method so we can react.
         """
         my_task._inherit_attributes()
-        if not self._update_state_hook(my_task):
-            LOG.debug("_update_state_hook for %s was not positive, so not "
-                    "going to READY state" % my_task.get_name())
-            return
-        self.entered_event.emit(my_task.workflow, my_task)
-        my_task._ready()
+        self._update_state_hook(my_task)
 
     def _update_state_hook(self, my_task):
         """
@@ -281,9 +278,10 @@ class TaskSpec(object):
                 "is_finished=%s" % (self.name, my_task.parent.get_name(),
                 my_task.parent.get_state_name(),
                 my_task.parent._is_finished()))
-        if my_task.parent._is_finished():
-            return True
-        return False
+        if not my_task.parent._is_finished():
+            return
+        self.entered_event.emit(my_task.workflow, my_task)
+        my_task._ready()
 
     def _on_ready(self, my_task):
         """

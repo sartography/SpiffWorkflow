@@ -47,9 +47,10 @@ class AcquireMutex(TaskSpec):
     def _update_state_hook(self, my_task):
         mutex = my_task.workflow._get_mutex(self.mutex)
         if mutex.testandset():
-            return True
+            self.entered_event.emit(my_task.workflow, my_task)
+            my_task._ready()
+            return
         my_task._set_state(Task.WAITING)
-        return False
 
     def serialize(self, serializer):
         return serializer._serialize_acquire_mutex(self)

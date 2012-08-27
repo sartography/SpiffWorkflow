@@ -42,12 +42,6 @@ class StartTask(TaskSpec):
         """
         raise WorkflowException(self, 'StartTask can not have any inputs.')
 
-    def _update_state(self, my_task):
-        if not self._update_state_hook(my_task):
-            return
-        self.entered_event.emit(my_task.workflow, my_task)
-        my_task._ready()
-
     def test(self):
         """
         Checks whether all required attributes are set. Throws an exception

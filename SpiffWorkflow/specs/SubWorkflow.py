@@ -118,12 +118,8 @@ class SubWorkflow(TaskSpec):
                 for assignment in self.out_assign:
                     assignment.assign(subworkflow, child)
 
-                # Alright, abusing that hook and sending the signal is 
-                # just evil but it works.
-                if not child.task_spec._update_state_hook(child):
-                    return
-                child.task_spec.entered_event.emit(child.workflow, child)
-                child._ready()
+                # Alright, abusing that hook is just evil but it works.
+                child.task_spec._update_state_hook(child)
 
     def _on_complete_hook(self, my_task):
         for child in my_task.children:
