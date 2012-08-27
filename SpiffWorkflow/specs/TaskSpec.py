@@ -296,8 +296,6 @@ class TaskSpec(object):
 
         @type  my_task: Task
         @param my_task: The associated task in the task tree.
-        @rtype:  boolean
-        @return: True on success, False otherwise.
         """
         assert my_task is not None
         self.test()
@@ -306,7 +304,7 @@ class TaskSpec(object):
         for lock in self.locks:
             mutex = my_task.workflow._get_mutex(lock)
             if not mutex.testandset():
-                return False
+                return
 
         # Assign variables, if so requested.
         for assignment in self.pre_assign:
@@ -318,9 +316,7 @@ class TaskSpec(object):
         self._on_ready_hook(my_task)
 
         # Run user code, if any.
-        result = self.ready_event.emit(my_task.workflow, my_task)
-
-        if result:
+        if self.ready_event.emit(my_task.workflow, my_task):
             # Assign variables, if so requested.
             for assignment in self.post_assign:
                 assignment.assign(my_task, my_task)
@@ -331,7 +327,6 @@ class TaskSpec(object):
             mutex.unlock()
 
         self.finished_event.emit(my_task.workflow, my_task)
-        return result
 
     def _on_ready_before_hook(self, my_task):
         """

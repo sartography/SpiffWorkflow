@@ -473,7 +473,7 @@ class Task(object):
         if self._has_state(self.COMPLETED) or self._has_state(self.CANCELLED):
             return
         self._set_state(self.READY)
-        return self.task_spec._on_ready(self)
+        self.task_spec._on_ready(self)
 
     def get_name(self):
         return str(self.task_spec.name)
