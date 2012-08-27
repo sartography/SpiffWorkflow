@@ -275,9 +275,6 @@ class TaskSpec(object):
         Returning non-False will cause the task to go into READY.
         Returning any other value will cause no action.
         """
-        if not my_task.parent._is_finished():
-            assert my_task.state != Task.WAITING
-            my_task.state = Task.FUTURE
         if my_task._is_predicted():
             self._predict(my_task)
         LOG.debug("'%s'._update_state_hook says parent (%s, state=%s) "
