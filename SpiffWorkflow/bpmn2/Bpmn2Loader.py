@@ -172,17 +172,6 @@ class ScriptTaskParser(TaskParser):
 
 class ProcessParser(object):
 
-    PARSER_CLASSES = {
-        full_tag('startEvent')          : (StartEventParser, StartTask),
-        full_tag('endEvent')            : (EndEventParser, EndEvent),
-        full_tag('userTask')            : (UserTaskParser, UserTask),
-        full_tag('manualTask')          : (ManualTaskParser, ManualTask),
-        full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
-        full_tag('parallelGateway')     : (ParallelGatewayParser, ParallelGateway),
-        full_tag('callActivity')        : (CallActivityParser, CallActivity),
-        full_tag('scriptTask')          : (ScriptTaskParser, ScriptTask),
-        }
-
     def __init__(self, p, node):
         self.parser = p
         self.node = node
@@ -199,7 +188,7 @@ class ProcessParser(object):
         return self.node.get('name', default=self.get_id())
 
     def parse_node(self,node):
-        (node_parser, spec_class) = self.PARSER_CLASSES[node.tag]
+        (node_parser, spec_class) = self.parser.get_parser_class(node.tag)
         np = node_parser(self, spec_class, node)
         task_spec = np.parse_node()
         if np.is_parallel_branching():
@@ -223,9 +212,28 @@ class ProcessParser(object):
 
 class Parser(object):
 
+    PARSER_CLASSES = {
+        full_tag('startEvent')          : (StartEventParser, StartTask),
+        full_tag('endEvent')            : (EndEventParser, EndEvent),
+        full_tag('userTask')            : (UserTaskParser, UserTask),
+        full_tag('manualTask')          : (ManualTaskParser, ManualTask),
+        full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
+        full_tag('parallelGateway')     : (ParallelGatewayParser, ParallelGateway),
+        full_tag('callActivity')        : (CallActivityParser, CallActivity),
+        full_tag('scriptTask')          : (ScriptTaskParser, ScriptTask),
+        }
+
+    OVERRIDE_PARSER_CLASSES = {}
+
     def __init__(self):
         self.process_parsers = {}
         self.process_parsers_by_name = {}
+
+    def get_parser_class(self, tag):
+        if tag in self.OVERRIDE_PARSER_CLASSES:
+            return self.OVERRIDE_PARSER_CLASSES[tag]
+        else:
+            return self.PARSER_CLASSES[tag]
 
     def get_process_parser(self, process_id_or_name):
         if process_id_or_name in self.process_parsers_by_name:
