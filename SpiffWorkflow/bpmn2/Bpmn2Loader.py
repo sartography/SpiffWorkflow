@@ -4,6 +4,7 @@ from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn2.specs.ManualTask import ManualTask
 from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
+from SpiffWorkflow.bpmn2.specs.ScriptTask import ScriptTask
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Equal, Attrib
 from SpiffWorkflow.specs.StartTask import StartTask
@@ -161,6 +162,14 @@ class CallActivityParser(TaskParser):
             calledElement = one(signavioMetaData).get('metaValue')
         return self.parser.get_process_parser(calledElement)
 
+class ScriptTaskParser(TaskParser):
+    def create_task(self):
+        script = self.get_script()
+        return self.spec_class(self.spec, self.get_task_spec_name(), script, description=self.node.get('name', None))
+
+    def get_script(self):
+        return one(self.xpath('.//bpmn2:script')).text
+
 class ProcessParser(object):
 
     PARSER_CLASSES = {
@@ -171,6 +180,7 @@ class ProcessParser(object):
         full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
         full_tag('parallelGateway')     : (ParallelGatewayParser, ParallelGateway),
         full_tag('callActivity')        : (CallActivityParser, CallActivity),
+        full_tag('scriptTask')          : (ScriptTaskParser, ScriptTask),
         }
 
     def __init__(self, p, node):
