@@ -239,6 +239,10 @@ class Parser(object):
             processes = xpath('//bpmn2:process')
             for process in processes:
                 process_parser = ProcessParser(self, process)
+                if process_parser.get_id() in self.process_parsers:
+                    raise ValueError('Duplicate processes with ID "%s"', process_parser.get_id())
+                if process_parser.get_name() in self.process_parsers_by_name:
+                    raise ValueError('Duplicate processes with name "%s"', process_parser.get_name())
                 self.process_parsers[process_parser.get_id()] = process_parser
                 self.process_parsers_by_name[process_parser.get_name()] = process_parser
 
