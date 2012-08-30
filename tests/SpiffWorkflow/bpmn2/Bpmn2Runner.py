@@ -6,12 +6,14 @@ from tests.SpiffWorkflow.bpmn2.ConsoleMenu import Console_App_Menu
 
 __author__ = 'matth'
 
+WORKFLOW_FILES = '/home/matth/work/git/customers-git/moc/bpmn/Test-Workflows/*.bpmn20.xml'
+WORKFLOW_NAME = 'Test Workflows'
 
 def main():
 
     p = Parser()
-    p.add_bpmn_files_by_glob('/home/matth/work/git/customers-git/moc/bpmn/MOC/*.bpmn20.xml')
-    spec = p.get_spec('MOC')
+    p.add_bpmn_files_by_glob(WORKFLOW_FILES)
+    spec = p.get_spec(WORKFLOW_NAME)
 
     workflow = BpmnWorkflow(spec)
 
