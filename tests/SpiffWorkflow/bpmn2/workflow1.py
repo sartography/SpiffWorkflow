@@ -9,12 +9,11 @@ __author__ = 'matth'
 
 class WorkflowTest(unittest.TestCase):
 
-    def load_workflow_spec(self, filename):
-        f = open(os.path.join(os.path.split(__file__)[0], 'data', filename), 'r')
-        with(f):
-            p = Parser(f)
-            spec = p.parse()
-        return spec
+    def load_workflow_spec(self, filename, process_name):
+        f = os.path.join(os.path.dirname(__file__), 'data', filename)
+        p = Parser()
+        p.add_bpmn_file(f)
+        return p.get_spec(process_name)
 
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None):
         if with_save_load:
@@ -58,7 +57,7 @@ class Workflow1Test(WorkflowTest):
         self.spec = self.load_workflow1_spec()
 
     def load_workflow1_spec(self):
-        return self.load_workflow_spec('workflow1.bpmn')
+        return self.load_workflow_spec('workflow1.bpmn', 'MOC')
 
     def testRunThroughHappy(self):
 
@@ -133,7 +132,7 @@ class ApprovalsTest(WorkflowTest):
         #                        |                                                --> End (Simple)
         #                        --> Approvals.Supervisor_Approval__P_ (ManualTask)
         #                               --> [shown earlier] Approvals.Gateway5 (ParallelGateway)
-        return self.load_workflow_spec('Approvals.bpmn')
+        return self.load_workflow_spec('Approvals.bpmn', 'Approvals')
 
     def testRunThroughHappy(self):
 
