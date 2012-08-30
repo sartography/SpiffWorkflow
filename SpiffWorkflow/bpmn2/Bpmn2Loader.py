@@ -1,3 +1,4 @@
+import glob
 from SpiffWorkflow.bpmn2.specs.BpmnProcessSpec import BpmnProcessSpec
 from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
@@ -27,9 +28,10 @@ def first(nodes):
         return None
 
 BPMN2_NS='http://www.omg.org/spec/BPMN/20100524/MODEL'
+SIGNAVIO_NS='http://www.signavio.com'
 
 def xpath_eval(node):
-    namespaces = {'bpmn2':BPMN2_NS}
+    namespaces = {'bpmn2':BPMN2_NS, 'signavio':SIGNAVIO_NS}
     return etree.XPathEvaluator(node, namespaces=namespaces)
 
 def full_tag(tag):
@@ -43,7 +45,6 @@ class TaskParser(object):
         self.process_parser = process_parser
         self.spec_class = spec_class
         self.process_xpath = self.process_parser.xpath
-        self.root_xpath = self.process_parser.parser.xpath
         self.spec = self.process_parser.spec
         self.node = node
         self.xpath = xpath_eval(node)
@@ -152,7 +153,13 @@ class CallActivityParser(TaskParser):
         return self.get_subprocess_parser().is_parallel_branching
 
     def get_subprocess_parser(self):
-        return self.parser.get_process_parser(self.node.get('calledElement'))
+        calledElement = self.node.get('calledElement', None)
+        if not calledElement:
+            signavioMetaData = self.xpath('.//signavio:signavioMetaData[@metaKey="entry"]')
+            if not signavioMetaData:
+                raise ValueError('No "calledElement" attribute or Signavio "Subprocess reference" present.' )
+            calledElement = one(signavioMetaData).get('metaValue')
+        return self.parser.get_process_parser(calledElement)
 
 class ProcessParser(object):
 
@@ -168,8 +175,6 @@ class ProcessParser(object):
 
     def __init__(self, p, node):
         self.parser = p
-        self.doc = p.doc
-        self.root_xpath = p.xpath
         self.node = node
         self.xpath = xpath_eval(node)
         self.spec = BpmnProcessSpec(name=self.get_id())
@@ -177,13 +182,11 @@ class ProcessParser(object):
         self.is_parsed = False
         self.is_parallel_branching = False
 
-
-    def is_called(self):
-        called_by = self.root_xpath('//bpmn2:callActivity[@calledElement="%s"]' % self.get_id())
-        return called_by and len(called_by) > 0
-
     def get_id(self):
         return self.node.get('id')
+
+    def get_name(self):
+        return self.node.get('name', default=self.get_id())
 
     def parse_node(self,node):
         (node_parser, spec_class) = self.PARSER_CLASSES[node.tag]
@@ -210,28 +213,37 @@ class ProcessParser(object):
 
 class Parser(object):
 
-    def __init__(self, f):
-        self.doc = etree.parse(f)
-        self.xpath = xpath_eval(self.doc)
+    def __init__(self):
         self.process_parsers = {}
+        self.process_parsers_by_name = {}
 
-    def get_process_parser(self, id):
-        return self.process_parsers[id]
+    def get_process_parser(self, process_id_or_name):
+        if process_id_or_name in self.process_parsers_by_name:
+            return self.process_parsers_by_name[process_id_or_name]
+        else:
+            return self.process_parsers[process_id_or_name]
 
-    def parse(self):
-        processes = self.xpath('//bpmn2:process')
-        root_processes = []
-        for process in processes:
-            process_parser = ProcessParser(self, process)
-            self.process_parsers[process_parser.get_id()] = process_parser
+    def add_bpmn_file(self, filename):
+        self.add_bpmn_files([filename])
 
-            if not process_parser.is_called():
-                root_processes.append(process_parser)
+    def add_bpmn_files_by_glob(self, g):
+        self.add_bpmn_files(glob.glob(g))
 
-        if len(root_processes) != 1:
-            raise NotImplementedError('The BPMN file must have a single root process (i.e. one that is not called by another process)')
+    def add_bpmn_files(self, filenames):
+        for filename in filenames:
+            f = open(filename, 'r')
+            try:
+                xpath = xpath_eval(etree.parse(f))
+            finally:
+                f.close()
+            processes = xpath('//bpmn2:process')
+            for process in processes:
+                process_parser = ProcessParser(self, process)
+                self.process_parsers[process_parser.get_id()] = process_parser
+                self.process_parsers_by_name[process_parser.get_name()] = process_parser
 
-        return self.process_parsers[root_processes[0].get_id()].get_spec()
+    def get_spec(self, process_id_or_name):
+        return self.get_process_parser(process_id_or_name).get_spec()
 
 
 

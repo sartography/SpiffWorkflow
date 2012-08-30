@@ -9,11 +9,9 @@ __author__ = 'matth'
 
 def main():
 
-    #f = open('/home/matth/Desktop/MOC.bpmn', 'r')
-    f = open('/home/matth/Desktop/Approvals.bpmn', 'r')
-    with(f):
-        p = Parser(f)
-        spec = p.parse()
+    p = Parser()
+    p.add_bpmn_files_by_glob('/home/matth/work/git/customers-git/moc/bpmn/MOC/*.bpmn20.xml')
+    spec = p.get_spec('MOC')
 
     workflow = BpmnWorkflow(spec)
 
