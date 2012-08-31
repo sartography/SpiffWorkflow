@@ -2,6 +2,7 @@ from collections import deque
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Workflow import Workflow
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
+from SpiffWorkflow.operators import Operator
 from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
 
 __author__ = 'matth'
@@ -43,9 +44,12 @@ class BpmnProcessSpecState(object):
 
     def _go(self, task, route_node):
         assert task.task_spec == route_node.task_spec
-        if route_node.outgoing:
+        if not route_node.outgoing:
+            task.task_spec._update_state(task)
+        else:
             if not task._is_finished():
                 if isinstance(task.task_spec, SubWorkflow) and task.task_spec.spec.start in [o.task_spec for o in route_node.outgoing]:
+                    task.task_spec._update_state(task)
                     assert task.state == Task.READY
                     #We're going in to the subprocess
                     task.complete()
@@ -53,15 +57,22 @@ class BpmnProcessSpecState(object):
                     self.complete_task_silent(task, [n.task_spec for n in route_node.outgoing])
             for n in route_node.outgoing:
                 matching_child = filter(lambda t: t.task_spec == n.task_spec, task.children)
+                if len(matching_child) != 1:
+                    print matching_child
                 assert len(matching_child) == 1
                 self._go(matching_child[0], n)
 
     def complete_task_silent(self, task, target_children_specs):
         if task._is_finished():
             return
-        assert task.state == Task.READY
-        task._set_state(Task.COMPLETED | (task.state & Task.TRIGGERED))
-        task._update_children(target_children_specs)
+        task._set_state(Task.COMPLETED)
+
+        task.children = []
+        for task_spec in target_children_specs:
+            task._add_child(task_spec)
+
+
+
 
     def merge_routes(self, new_route):
         self._merge_routes(self.route, new_route)
@@ -89,7 +100,21 @@ class BpmnProcessSpecState(object):
                     q.append(route + [child])
         return None
 
+class BpmnCondition(Operator):
+
+    def __init__(self, *args):
+        if len(args) > 1:
+            raise TypeError("Too many arguments")
+        super(BpmnCondition, self).__init__(*args)
+
+    def _matches(self, task):
+        return task.workflow.script_engine.evaluate(task, self.args[0])
+
+
 class BpmnScriptEngine(object):
+
+    def evaluate(self, task, condition):
+        return condition._matches(task)
 
     def execute(self, task, script):
         exec script
