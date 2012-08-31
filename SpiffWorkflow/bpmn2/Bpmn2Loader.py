@@ -1,4 +1,5 @@
 import glob
+from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnCondition
 from SpiffWorkflow.bpmn2.specs.BpmnProcessSpec import BpmnProcessSpec
 from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
@@ -129,11 +130,8 @@ class ExclusiveGatewayParser(TaskParser):
         if not self.task.outputs:
             #We need a default, it might as well be this one
             self.task.connect(outgoing_task)
-        cond = self.create_condition(outgoing_task, outgoing_task_node, sequence_flow_node)
+        cond = BpmnCondition(self.parser.parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node))
         self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('name', None))
-
-    def create_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
-        return Equal(Attrib('choice'), sequence_flow_node.get('name', None))
 
     def handles_multiple_outgoing(self):
         return True
@@ -263,6 +261,9 @@ class Parser(object):
                     raise ValueError('Duplicate processes with name "%s"', process_parser.get_name())
                 self.process_parsers[process_parser.get_id()] = process_parser
                 self.process_parsers_by_name[process_parser.get_name()] = process_parser
+
+    def parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
+        return Equal(Attrib('choice'), sequence_flow_node.get('name', None))
 
     def get_spec(self, process_id_or_name):
         return self.get_process_parser(process_id_or_name).get_spec()
