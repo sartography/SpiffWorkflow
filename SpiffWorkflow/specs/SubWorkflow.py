@@ -78,7 +78,7 @@ class SubWorkflow(TaskSpec):
         else:
             my_task._sync_children(outputs, my_task.state)
 
-    def _create_workflow_spec(self, my_task):
+    def _create_subworkflow(self, my_task):
         from SpiffWorkflow.storage import XmlSerializer
         from SpiffWorkflow.specs import WorkflowSpec
         file           = valueof(my_task, self.file)
@@ -89,7 +89,7 @@ class SubWorkflow(TaskSpec):
         return SpiffWorkflow.Workflow(wf_spec, parent = outer_workflow)
 
     def _on_ready_before_hook(self, my_task):
-        subworkflow    = self._create_workflow_spec(my_task)
+        subworkflow    = self._create_subworkflow(my_task)
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
 
         # Integrate the tree of the subworkflow into the tree of this workflow.
