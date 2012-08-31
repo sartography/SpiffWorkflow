@@ -89,12 +89,17 @@ class BpmnProcessSpecState(object):
                     q.append(route + [child])
         return None
 
+class BpmnScriptEngine(object):
+
+    def execute(self, task, script):
+        exec script
 
 class BpmnWorkflow(Workflow):
 
-    def __init__(self, workflow_spec, name=None, **kwargs):
+    def __init__(self, workflow_spec, name=None, script_engine=None, **kwargs):
         super(BpmnWorkflow, self).__init__(workflow_spec, **kwargs)
         self.name = name or workflow_spec.name
+        self.script_engine = script_engine or BpmnScriptEngine()
 
     def find_task_by_name(self, target_task):
         matches = sorted(self.get_tasks_with_name(target_task), key=lambda t: t.id)

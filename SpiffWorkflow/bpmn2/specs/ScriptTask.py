@@ -9,5 +9,5 @@ class ScriptTask(Simple, BpmnSpecMixin):
         self.script = script
 
     def _on_ready_hook(self, task):
-        exec(self.script)
+        task.workflow.script_engine.execute(task, self.script)
 
