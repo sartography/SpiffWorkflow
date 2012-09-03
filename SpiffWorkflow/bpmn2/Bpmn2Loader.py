@@ -3,7 +3,9 @@ from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnCondition
 from SpiffWorkflow.bpmn2.specs.BpmnProcessSpec import BpmnProcessSpec
 from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
+from SpiffWorkflow.bpmn2.specs.IntermediateCatchEvent import IntermediateCatchEvent
 from SpiffWorkflow.bpmn2.specs.ManualTask import ManualTask
+from SpiffWorkflow.bpmn2.specs.MessageEvent import MessageEvent
 from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.bpmn2.specs.ScriptTask import ScriptTask
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
@@ -172,6 +174,14 @@ class ScriptTaskParser(TaskParser):
     def get_script(self):
         return one(self.xpath('.//bpmn2:script')).text
 
+class IntermediateCatchEventParser(TaskParser):
+    def create_task(self):
+        event_spec = self.get_event_spec()
+        return self.spec_class(self.spec, self.get_task_spec_name(), event_spec, description=self.node.get('name', None))
+
+    def get_event_spec(self):
+        return MessageEvent()
+
 class ProcessParser(object):
 
     def __init__(self, p, node):
@@ -222,7 +232,9 @@ class Parser(object):
         full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
         full_tag('parallelGateway')     : (ParallelGatewayParser, ParallelGateway),
         full_tag('callActivity')        : (CallActivityParser, CallActivity),
-        full_tag('scriptTask')          : (ScriptTaskParser, ScriptTask),
+        full_tag('scriptTask')                : (ScriptTaskParser, ScriptTask),
+        full_tag('intermediateCatchEvent')    : (IntermediateCatchEventParser, IntermediateCatchEvent),
+
         }
 
     OVERRIDE_PARSER_CLASSES = {}

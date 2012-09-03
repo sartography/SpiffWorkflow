@@ -12,33 +12,41 @@ class WorkflowTest(unittest.TestCase):
     def load_workflow_spec(self, filename, process_name):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
         p = Parser()
-        p.add_bpmn_file(f)
+        p.add_bpmn_files_by_glob(f)
         return p.get_spec(process_name)
 
-    def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None):
+    def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:
             self.save_restore()
 
         self.workflow.do_engine_steps()
         tasks = self.workflow.get_tasks(Task.READY)
-        self._do_single_step(step_name, tasks, set_attribs)
+        self._do_single_step(step_name, tasks, set_attribs, choice)
 
-    def do_next_named_step(self, step_name, with_save_load=False, set_attribs=None):
+    def do_next_named_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:
             self.save_restore()
 
         self.workflow.do_engine_steps()
-        tasks = filter(lambda t: t.task_spec.name == step_name, self.workflow.get_tasks(Task.READY))
-        self._do_single_step(step_name, tasks, set_attribs)
+        tasks = filter(lambda t: t.task_spec.name == step_name or t.task_spec.description == step_name, self.workflow.get_tasks(Task.READY))
+        self._do_single_step(step_name, tasks, set_attribs, choice)
 
     def assertTaskNotReady(self, step_name):
-        tasks = filter(lambda t: t.task_spec.name == step_name, self.workflow.get_tasks(Task.READY))
+        tasks = filter(lambda t: t.task_spec.name == step_name or t.task_spec.description == step_name, self.workflow.get_tasks(Task.READY))
         self.assertEquals([], tasks)
 
-    def _do_single_step(self, step_name, tasks, set_attribs=None):
+    def _do_single_step(self, step_name, tasks, set_attribs=None, choice=None):
 
         self.assertEqual(len(tasks), 1)
-        self.assertEqual(tasks[0].task_spec.name, step_name)
+
+        self.assertTrue(tasks[0].task_spec.name == step_name or tasks[0].task_spec.description == step_name,
+            'Expected step %s, got %s (%s)' % (step_name, tasks[0].task_spec.description, tasks[0].task_spec.name))
+        if not set_attribs:
+            set_attribs = {}
+
+        if choice:
+            set_attribs['choice'] = choice
+
         if set_attribs:
             tasks[0].set_attribute(**set_attribs)
         tasks[0].complete()
