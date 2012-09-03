@@ -126,6 +126,10 @@ class BpmnWorkflow(Workflow):
         self.name = name or workflow_spec.name
         self.script_engine = script_engine or BpmnScriptEngine()
 
+    def accept_message(self, message):
+        for my_task in Task.Iterator(self.task_tree, Task.WAITING):
+            my_task.task_spec.accept_message(my_task, message)
+
     def find_task_by_name(self, target_task):
         matches = sorted(self.get_tasks_with_name(target_task), key=lambda t: t.id)
         assert len(matches) > 0

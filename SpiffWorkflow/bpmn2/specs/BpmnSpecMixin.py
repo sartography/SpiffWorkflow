@@ -23,4 +23,6 @@ class BpmnSpecMixin(TaskSpec):
     def get_outgoing_sequence_names(self):
         return self.outgoing_names.keys()
 
+    def accept_message(self, my_task, message):
+        return False
 
