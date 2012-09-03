@@ -67,9 +67,14 @@ class TaskParser(object):
                 c = self.process_parser.parse_node(target_node)
             children.append((c, target_node, sequence_flow))
 
+        if children:
+            default_outgoing = self.node.get('default')
+            if not default_outgoing:
+                (c, target_node, sequence_flow) = children[0]
+                default_outgoing = sequence_flow.get('id')
 
-        for (c, target_node, sequence_flow) in children:
-            self.connect_outgoing(c, target_node, sequence_flow)
+            for (c, target_node, sequence_flow) in children:
+                self.connect_outgoing(c, target_node, sequence_flow, sequence_flow.get('id') == default_outgoing)
 
         return self.task
 
@@ -88,7 +93,7 @@ class TaskParser(object):
     def create_task(self):
         return self.spec_class(self.spec, self.get_task_spec_name(), lane=self.get_lane(), description=self.node.get('name', None))
 
-    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
+    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
         self.task.connect_outgoing(outgoing_task, sequence_flow_node.get('name', None))
 
     def handles_multiple_outgoing(self):
@@ -101,7 +106,7 @@ class StartEventParser(TaskParser):
     def create_task(self):
         return self.spec.start
 
-    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
+    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
         self.task.connect(outgoing_task)
 
     def handles_multiple_outgoing(self):
@@ -125,13 +130,12 @@ class ManualTaskParser(UserTaskParser):
 
 class ExclusiveGatewayParser(TaskParser):
 
-    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node):
-
-        if not self.task.outputs:
-            #We need a default, it might as well be this one
+    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
+        if is_default:
             self.task.connect(outgoing_task)
-        cond = BpmnCondition(self.parser.parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node))
-        self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('name', None))
+        else:
+            cond = BpmnCondition(self.parser.parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node))
+            self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('name', None))
 
     def handles_multiple_outgoing(self):
         return True
