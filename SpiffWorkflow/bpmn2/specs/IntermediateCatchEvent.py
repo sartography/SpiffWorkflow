@@ -6,7 +6,7 @@ __author__ = 'matth'
 
 class IntermediateCatchEvent(Simple, BpmnSpecMixin):
 
-    def __init__(self, parent, name, event_spec, **kwargs):
+    def __init__(self, parent, name, event_spec=None, **kwargs):
         super(IntermediateCatchEvent, self).__init__(parent, name, **kwargs)
         self.event_spec = event_spec
 
