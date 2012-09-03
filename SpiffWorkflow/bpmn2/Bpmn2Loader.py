@@ -134,7 +134,7 @@ class ExclusiveGatewayParser(TaskParser):
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
         if is_default:
-            self.task.connect(outgoing_task)
+            super(ExclusiveGatewayParser, self).connect_outgoing(outgoing_task, outgoing_task_node, sequence_flow_node, is_default)
         else:
             cond = BpmnCondition(self.parser.parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node))
             self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('name', None))
