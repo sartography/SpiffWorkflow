@@ -1,9 +1,9 @@
 from SpiffWorkflow.bpmn2.specs.BpmnSpecMixin import BpmnSpecMixin
-from SpiffWorkflow.specs.Simple import Simple
+from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
 
 __author__ = 'matth'
 
-class EndEvent(Simple, BpmnSpecMixin):
+class EndEvent(ParallelGateway, BpmnSpecMixin):
 
     def __init__(self, parent, name, is_terminate_event=False, **kwargs):
         super(EndEvent, self).__init__(parent, name, **kwargs)

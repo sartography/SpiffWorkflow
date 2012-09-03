@@ -30,7 +30,7 @@ class BpmnProcessSpecState(object):
             route = self.breadth_first_task_search(task_name, route)
             route = route + [route[-1].spec.start]
         route = self.breadth_first_transition_search(parts[-1], route)
-        assert route is not None, 'No path found for route \'%s\'' % full_task_name
+        assert route is not None, 'No path found for route \'%s\'' % full_transition_name
         outgoing_route_node = None
         for spec in reversed(route):
             outgoing_route_node = RouteNode(spec, outgoing_route_node)
@@ -38,6 +38,27 @@ class BpmnProcessSpecState(object):
             self.merge_routes(outgoing_route_node)
         else:
             self.route = outgoing_route_node
+
+    def dump(self):
+        print self.get_dump()
+
+    def get_dump(self):
+        def recursive_dump(route_node, indent, verbose=False):
+
+            task_spec = route_node.task_spec
+            dump = '%s (%s:%s)' % (task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
+            if verbose:
+                if task_spec.inputs:
+                    dump += indent + '-  IN: ' + ','.join(['%s (%s)' % (t.name, hex(id(t))) for t in task_spec.inputs]) + '\n'
+                if task_spec.outputs:
+                    dump += indent + '- OUT: ' + ','.join(['%s (%s)' % (t.name, hex(id(t))) for t in task_spec.outputs]) + '\n'
+
+            for i, t in enumerate(route_node.outgoing):
+                dump += indent + '   --> ' + recursive_dump(t,indent+('   |   ' if i+1 < len(route_node.outgoing) else '       '))
+            return dump
+
+        dump = recursive_dump(self.route, '')
+        return dump
 
     def go(self, workflow):
         self._go(workflow.task_tree.children[0], self.route)
