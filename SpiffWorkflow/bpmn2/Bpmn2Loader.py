@@ -180,7 +180,12 @@ class IntermediateCatchEventParser(TaskParser):
         return self.spec_class(self.spec, self.get_task_spec_name(), event_spec, description=self.node.get('name', None))
 
     def get_event_spec(self):
-        return MessageEvent()
+        messageEventDefinition = first(self.xpath('.//bpmn2:messageEventDefinition'))
+        if messageEventDefinition is not None:
+            messageRef = first(self.xpath('.//bpmn2:messageRef'))
+            message = messageRef.get('name') if messageRef is not None else self.node.get('name')
+            return MessageEvent(message)
+        raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node) )
 
 class ProcessParser(object):
 
