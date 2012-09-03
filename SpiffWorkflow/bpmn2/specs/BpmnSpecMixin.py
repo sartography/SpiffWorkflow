@@ -44,3 +44,12 @@ class BpmnSpecMixin(TaskSpec):
     def accept_message(self, my_task, message):
         return False
 
+    def _on_complete_hook(self, my_task):
+        super(BpmnSpecMixin, self)._on_complete_hook(my_task)
+        if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
+            my_task.parent.task_spec._child_complete_hook(my_task)
+
+    def _child_complete_hook(self, child_task):
+        pass
+
+

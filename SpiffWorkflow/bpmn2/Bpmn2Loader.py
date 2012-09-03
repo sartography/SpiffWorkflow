@@ -1,5 +1,6 @@
 import glob
 from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnCondition
+from SpiffWorkflow.bpmn2.specs.BoundaryEvent import BoundaryEvent, BoundaryEventParent
 from SpiffWorkflow.bpmn2.specs.BpmnProcessSpec import BpmnProcessSpec
 from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
@@ -58,6 +59,19 @@ class TaskParser(object):
 
         self.task = self.create_task()
 
+        boundary_event_nodes = self.process_xpath('.//bpmn2:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
+        if boundary_event_nodes:
+            parent_task = BoundaryEventParent(self.spec, '%s.BoundaryEventParent' % self.get_id(), self.task, lane=self.task.lane)
+            self.process_parser.parsed_nodes[self.node.get('id')] = parent_task
+
+            parent_task.connect_outgoing(self.task, '%s.FromBoundaryEventParent' % self.get_id(), None)
+            for boundary_event in boundary_event_nodes:
+                b = self.process_parser.parse_node(boundary_event)
+                parent_task.connect_outgoing(b, '%s.FromBoundaryEventParent' % boundary_event.get('id'), None)
+        else:
+            self.process_parser.parsed_nodes[self.node.get('id')] = self.task
+
+
         children = []
         outgoing = self.process_xpath('.//bpmn2:sequenceFlow[@sourceRef="%s"]' % self.get_id())
         if len(outgoing) > 1 and not self.handles_multiple_outgoing():
@@ -65,9 +79,7 @@ class TaskParser(object):
         for sequence_flow in outgoing:
             target_ref = sequence_flow.get('targetRef')
             target_node = one(self.process_xpath('.//bpmn2:*[@id="%s"]' % target_ref))
-            c = self.spec.task_specs.get(self.get_task_spec_name(target_ref), None)
-            if c is None:
-                c = self.process_parser.parse_node(target_node)
+            c = self.process_parser.parse_node(target_node)
             children.append((c, target_node, sequence_flow))
 
         if children:
@@ -79,7 +91,7 @@ class TaskParser(object):
             for (c, target_node, sequence_flow) in children:
                 self.connect_outgoing(c, target_node, sequence_flow, sequence_flow.get('id') == default_outgoing)
 
-        return self.task
+        return parent_task if boundary_event_nodes else self.task
 
     def get_lane(self):
         lane_match = self.process_xpath('.//bpmn2:lane/bpmn2:flowNodeRef[text()="%s"]/..' % self.get_id())
@@ -187,6 +199,12 @@ class IntermediateCatchEventParser(TaskParser):
             return MessageEvent(message)
         raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node) )
 
+class BoundaryEventParser(IntermediateCatchEventParser):
+    def create_task(self):
+        event_spec = self.get_event_spec()
+        cancel_activity = self.node.get('cancelActivity', default='false').lower() == 'true'
+        return self.spec_class(self.spec, self.get_task_spec_name(), cancel_activity=cancel_activity, event_spec=event_spec, description=self.node.get('name', None))
+
 class ProcessParser(object):
 
     def __init__(self, p, node):
@@ -197,6 +215,7 @@ class ProcessParser(object):
         self.parsing_started = False
         self.is_parsed = False
         self.is_parallel_branching = False
+        self.parsed_nodes = {}
 
     def get_id(self):
         return self.node.get('id')
@@ -205,11 +224,15 @@ class ProcessParser(object):
         return self.node.get('name', default=self.get_id())
 
     def parse_node(self,node):
+        if node.get('id') in self.parsed_nodes:
+            return self.parsed_nodes[node.get('id')]
+
         (node_parser, spec_class) = self.parser.get_parser_class(node.tag)
         np = node_parser(self, spec_class, node)
         task_spec = np.parse_node()
         if np.is_parallel_branching():
             self.is_parallel_branching = True
+
         return task_spec
 
     def parse(self):
@@ -237,8 +260,10 @@ class Parser(object):
         full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
         full_tag('parallelGateway')     : (ParallelGatewayParser, ParallelGateway),
         full_tag('callActivity')        : (CallActivityParser, CallActivity),
-        full_tag('scriptTask')                : (ScriptTaskParser, ScriptTask),
-        full_tag('intermediateCatchEvent')    : (IntermediateCatchEventParser, IntermediateCatchEvent),
+        full_tag('scriptTask')                  : (ScriptTaskParser, ScriptTask),
+        full_tag('intermediateCatchEvent')      : (IntermediateCatchEventParser, IntermediateCatchEvent),
+        full_tag('boundaryEvent')               : (BoundaryEventParser, BoundaryEvent),
+
 
         }
 
