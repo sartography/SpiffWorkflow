@@ -80,29 +80,23 @@ class Workflow1Test(WorkflowTest):
 
         self.workflow = BpmnWorkflow(self.spec)
 
-        self.assertEquals(self.workflow.get_workflow_state(), 'MOC.Stage_1:Stage_1.Prepare_MOC_Proposal')
+        self.save_restore()
 
         self.do_next_exclusive_step('Stage_1.Prepare_MOC_Proposal')
 
-        self.assertEquals(self.workflow.get_workflow_state(), 'MOC.Stage_1:Stage_1.Review')
-
-        self.restore('MOC.Stage_1:Stage_1.Prepare_MOC_Proposal')
-
-        self.assertEquals(self.workflow.get_workflow_state(), 'MOC.Stage_1:Stage_1.Prepare_MOC_Proposal')
-
-        self.do_next_exclusive_step('Stage_1.Prepare_MOC_Proposal')
-
-        self.assertEquals(self.workflow.get_workflow_state(), 'MOC.Stage_1:Stage_1.Review')
+        self.save_restore()
 
         self.do_next_exclusive_step('Stage_1.Review', set_attribs={'choice': 'Approve'})
+        self.save_restore()
         self.do_next_exclusive_step('Stage_1.Record_on_MOC_agenda')
+        self.save_restore()
+
         self.do_next_exclusive_step('Stage_2.Register_MOC_Proposal_Form')
-        self.assertEquals(self.workflow.get_workflow_state(), 'MOC.Stage_2:Stage_2.Proposal_Form_Review')
+        self.save_restore()
 
         self.do_next_exclusive_step('Stage_2.Proposal_Form_Review', set_attribs={'choice': 'Approve'})
 
-        self.restore('MOC.Stage_2:Stage_2.Proposal_Form_Review')
-        self.do_next_exclusive_step('Stage_2.Proposal_Form_Review', set_attribs={'choice': 'Approve'})
+        self.save_restore()
 
 
 class ApprovalsTest(WorkflowTest):
@@ -147,7 +141,6 @@ class ApprovalsTest(WorkflowTest):
         self.workflow = BpmnWorkflow(self.spec)
 
         self.do_next_named_step('First_Approval_Wins.Manager_Approval')
-        #self.do_next_named_step('First_Approval_Wins.Supervisor_Approval')
         self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
 
         self.do_next_named_step('Approvals.Manager_Approval__P_')
@@ -163,7 +156,6 @@ class ApprovalsTest(WorkflowTest):
 
         self.workflow = BpmnWorkflow(self.spec)
 
-        #self.do_next_named_step('First_Approval_Wins.Manager_Approval')
         self.do_next_named_step('First_Approval_Wins.Supervisor_Approval')
         self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
 
@@ -181,21 +173,16 @@ class ApprovalsTest(WorkflowTest):
         self.workflow = BpmnWorkflow(self.spec)
 
         self.do_next_named_step('First_Approval_Wins.Manager_Approval')
-        #self.do_next_named_step('First_Approval_Wins.Supervisor_Approval')
-        self.assertEquals('Approvals.First_Approval_Wins_Done', self.workflow.get_workflow_state())
         self.save_restore()
         self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
 
-        self.assertEquals('Approvals.Manager_Approval__P_;Approvals.Supervisor_Approval__P_', self.workflow.get_workflow_state())
         self.save_restore()
         self.do_next_named_step('Approvals.Supervisor_Approval__P_')
         self.do_next_named_step('Approvals.Manager_Approval__P_')
         self.do_next_exclusive_step('Approvals.Parallel_Approvals_Done')
 
-        self.assertEquals('Approvals.Parallel_SP:Parallel_Approvals_SP.Manager_Approval;Approvals.Parallel_SP:Parallel_Approvals_SP.Step1', self.workflow.get_workflow_state())
         self.save_restore()
         self.do_next_named_step('Parallel_Approvals_SP.Manager_Approval')
-        self.assertEquals('Approvals.Parallel_SP:Parallel_Approvals_SP.Step1', self.workflow.get_workflow_state())
         self.do_next_exclusive_step('Parallel_Approvals_SP.Step1')
         self.do_next_exclusive_step('Parallel_Approvals_SP.Supervisor_Approval')
         self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
@@ -206,12 +193,9 @@ class ApprovalsTest(WorkflowTest):
         self.workflow = BpmnWorkflow(self.spec)
 
         self.do_next_named_step('First_Approval_Wins.Manager_Approval')
-        #self.do_next_named_step('First_Approval_Wins.Supervisor_Approval')
-        self.assertEquals('Approvals.First_Approval_Wins_Done', self.workflow.get_workflow_state())
         self.save_restore()
         self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
 
-        self.assertEquals('Approvals.Manager_Approval__P_;Approvals.Supervisor_Approval__P_', self.workflow.get_workflow_state())
         self.save_restore()
         self.do_next_named_step('Approvals.Supervisor_Approval__P_')
         self.save_restore()
@@ -219,11 +203,9 @@ class ApprovalsTest(WorkflowTest):
         self.save_restore()
         self.do_next_exclusive_step('Approvals.Parallel_Approvals_Done')
 
-        self.assertEquals('Approvals.Parallel_SP:Parallel_Approvals_SP.Manager_Approval;Approvals.Parallel_SP:Parallel_Approvals_SP.Step1', self.workflow.get_workflow_state())
         self.save_restore()
         self.do_next_named_step('Parallel_Approvals_SP.Manager_Approval')
         self.save_restore()
-        self.assertEquals('Approvals.Parallel_SP:Parallel_Approvals_SP.Step1', self.workflow.get_workflow_state())
         self.do_next_exclusive_step('Parallel_Approvals_SP.Step1')
         self.save_restore()
         self.do_next_exclusive_step('Parallel_Approvals_SP.Supervisor_Approval')

@@ -72,7 +72,7 @@
     <model:sequenceFlow id="_vVCwgO4DEeG6ILSEFG-uBA" sourceRef="First_Approval_Wins" targetRef="First_Approval_Wins_Done">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="On_to_Parallel_Approvals" name="On to Parallel Approvals" sourceRef="First_Approval_Wins_Done" targetRef="Gateway4">
+    <model:sequenceFlow id="On_to_Parallel_Approvals1" name="On to Parallel Approvals" sourceRef="First_Approval_Wins_Done" targetRef="Gateway4">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
     <model:sequenceFlow id="_dceXwO6YEeG6ILSEFG-uBA" sourceRef="Gateway4" targetRef="Manager_Approval__P_">
@@ -81,16 +81,16 @@
     <model:sequenceFlow id="_d_Hx0O6YEeG6ILSEFG-uBA" sourceRef="Gateway4" targetRef="Supervisor_Approval__P_">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Supervisor_Approval__P_" targetRef="Gateway5">
+    <model:sequenceFlow id="Approve2" name="Approve" sourceRef="Supervisor_Approval__P_" targetRef="Gateway5">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="On_To_Parallel_SP" name="On To Parallel SP" sourceRef="Parallel_Approvals_Done" targetRef="Parallel_SP">
+    <model:sequenceFlow id="On_To_Parallel_SP3" name="On To Parallel SP" sourceRef="Parallel_Approvals_Done" targetRef="Parallel_SP">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Manager_Approval__P_" targetRef="Gateway5">
+    <model:sequenceFlow id="Approve4" name="Approve" sourceRef="Manager_Approval__P_" targetRef="Gateway5">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="OK" name="OK" sourceRef="Parallel_SP_Done" targetRef="End1">
+    <model:sequenceFlow id="OK5" name="OK" sourceRef="Parallel_SP_Done" targetRef="End1">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
     <model:sequenceFlow id="_76Vy8O6ZEeG6ILSEFG-uBA" sourceRef="Parallel_SP" targetRef="Parallel_SP_Done">
@@ -132,10 +132,10 @@
       <model:documentation></model:documentation>
       <model:terminateEventDefinition id="_auX1Qu-1EeG6ILSEFG-uBA"/>
     </model:endEvent>
-    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Supervisor_Approval" targetRef="Supervisor_Approved">
+    <model:sequenceFlow id="Approve6" name="Approve" sourceRef="Supervisor_Approval" targetRef="Supervisor_Approved">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Manager_Approval" targetRef="Manager_Approved">
+    <model:sequenceFlow id="Approve7" name="Approve" sourceRef="Manager_Approval" targetRef="Manager_Approved">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
     <model:sequenceFlow id="_CtMukO7hEeG6ILSEFG-uBA" sourceRef="Start2" targetRef="Supervisor_Approval">
@@ -178,10 +178,10 @@
     <model:manualTask id="Step1" name="Operator Approval">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Supervisor_Approval" targetRef="End2">
+    <model:sequenceFlow id="Approve8" name="Approve" sourceRef="Supervisor_Approval" targetRef="End2">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Manager_Approval" targetRef="End2">
+    <model:sequenceFlow id="Approve9" name="Approve" sourceRef="Manager_Approval" targetRef="End2">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
     <model:sequenceFlow id="_InMVgO6ZEeG6ILSEFG-uBA" sourceRef="Start3" targetRef="Step1">
@@ -190,7 +190,7 @@
     <model:sequenceFlow id="_JEeucO6ZEeG6ILSEFG-uBA" sourceRef="Start3" targetRef="Manager_Approval">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="Approve" name="Approve" sourceRef="Step1" targetRef="Supervisor_Approval">
+    <model:sequenceFlow id="Approve10" name="Approve" sourceRef="Step1" targetRef="Supervisor_Approval">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
   </model:process>

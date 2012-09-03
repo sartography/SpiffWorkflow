@@ -27,6 +27,11 @@ class MessagesTest(WorkflowTest):
 
         self.assertEquals('Test Message', self.workflow.get_tasks(Task.READY)[0].task_spec.description)
 
+        self.workflow.do_engine_steps()
+        self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
+
+        self.assertEquals('Select Test', self.workflow.get_tasks(Task.READY)[0].task_spec.description)
+
     def testRunThroughSaveAndRestore(self):
 
         self.workflow = BpmnWorkflow(self.spec)
@@ -45,7 +50,7 @@ class MessagesTest(WorkflowTest):
 
         self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
 
-        self.assertEquals('Test Message', self.workflow.get_tasks(Task.READY)[0].task_spec.description)
+        self.assertEquals('Select Test', self.workflow.get_tasks(Task.READY)[0].task_spec.description)
 
 
 

@@ -22,14 +22,14 @@ class BpmnProcessSpecState(object):
         self.spec = spec
         self.route = None
 
-    def add_path_to_ready_task(self, full_task_name):
-        task_names = full_task_name.split(':')
+    def add_path_to_transition(self, full_transition_name):
+        parts = full_transition_name.split(':')
         #find a route passing through each task:
         route = [self.spec.start]
-        for task_name in task_names[:-1]:
-            route = self.breadth_first_search(task_name, route)
+        for task_name in parts[:-1]:
+            route = self.breadth_first_task_search(task_name, route)
             route = route + [route[-1].spec.start]
-        route = self.breadth_first_search(task_names[-1], route)
+        route = self.breadth_first_transition_search(parts[-1], route)
         assert route is not None, 'No path found for route \'%s\'' % full_task_name
         outgoing_route_node = None
         for spec in reversed(route):
@@ -71,9 +71,6 @@ class BpmnProcessSpecState(object):
         for task_spec in target_children_specs:
             task._add_child(task_spec)
 
-
-
-
     def merge_routes(self, new_route):
         self._merge_routes(self.route, new_route)
 
@@ -86,14 +83,24 @@ class BpmnProcessSpecState(object):
             else:
                 target.outgoing.append(out_route)
 
-    def breadth_first_search(self, task_name, starting_route):
+    def breadth_first_transition_search(self, transition_id, starting_route):
+        return self._breadth_first_search(starting_route, transition_id=transition_id)
+
+    def breadth_first_task_search(self, task_name, starting_route):
+        return self._breadth_first_search(starting_route, task_name=task_name)
+
+    def _breadth_first_search(self, starting_route, task_name=None, transition_id=None):
         q = deque()
         done = set()
         q.append(starting_route)
         while q:
             route = q.popleft()
-            if route[-1].name == task_name and not route[-1] == starting_route[-1]:
-                return route
+            if not route[-1] == starting_route[-1]:
+                if task_name and route[-1].name == task_name:
+                    return route
+                if transition_id and route[-1].has_outgoing_sequence_flow(transition_id):
+                    route.append(route[-1].get_outgoing_sequence_flow_by_id(transition_id).task_spec)
+                    return route
             for child in route[-1].outputs:
                 if child not in done:
                     done.add(child)
@@ -136,24 +143,23 @@ class BpmnWorkflow(Workflow):
         return matches[0]
 
     def restore_workflow_state(self, state):
-        #This currently only works for single threaded workflows
         if state == 'COMPLETE':
             self.cancel(success=True)
             return
         s = BpmnProcessSpecState(self.spec)
         states = state.split(';')
-        for ready_task in states:
-            s.add_path_to_ready_task(ready_task)
+        for transition in states:
+            s.add_path_to_transition(transition)
         s.go(self)
 
 
     def _get_workflow_state(self):
-        ready_tasks = self.get_tasks(state=Task.READY)
-        if not ready_tasks:
+        active_tasks = self.get_tasks(state=(Task.READY | Task.WAITING))
+        if not active_tasks:
             return 'COMPLETE'
         states = []
-        for task in ready_tasks:
-            s = task.task_spec.name
+        for task in active_tasks:
+            s = task.parent.task_spec.get_outgoing_sequence_flow_by_spec(task.task_spec).id
             w = task.workflow
             while w.outer_workflow and w.outer_workflow != w:
                 s = "%s:%s" % (w.name, s)

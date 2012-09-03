@@ -8,6 +8,7 @@ from SpiffWorkflow.bpmn2.specs.ManualTask import ManualTask
 from SpiffWorkflow.bpmn2.specs.MessageEvent import MessageEvent
 from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.bpmn2.specs.ScriptTask import ScriptTask
+from SpiffWorkflow.bpmn2.specs.StartEvent import StartEvent
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Equal, Attrib
 from SpiffWorkflow.specs.StartTask import StartTask
@@ -96,7 +97,7 @@ class TaskParser(object):
         return self.spec_class(self.spec, self.get_task_spec_name(), lane=self.get_lane(), description=self.node.get('name', None))
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
-        self.task.connect_outgoing(outgoing_task, sequence_flow_node.get('name', None))
+        self.task.connect_outgoing(outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None))
 
     def handles_multiple_outgoing(self):
         return False
@@ -106,10 +107,9 @@ class TaskParser(object):
 
 class StartEventParser(TaskParser):
     def create_task(self):
-        return self.spec.start
-
-    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
-        self.task.connect(outgoing_task)
+        t = super(StartEventParser, self).create_task()
+        self.spec.start.connect(t)
+        return t
 
     def handles_multiple_outgoing(self):
         return True
@@ -120,7 +120,7 @@ class EndEventParser(TaskParser):
 
         terminateEventDefinition = self.xpath('.//bpmn2:terminateEventDefinition')
         task = self.spec_class(self.spec, self.get_task_spec_name(), is_terminate_event=terminateEventDefinition, description=self.node.get('name', None))
-        task.connect(self.spec.end)
+        task.connect_outgoing(self.spec.end, '%s.ToEndJoin'%self.node.get('id'), None)
         return task
 
 
@@ -137,7 +137,7 @@ class ExclusiveGatewayParser(TaskParser):
             super(ExclusiveGatewayParser, self).connect_outgoing(outgoing_task, outgoing_task_node, sequence_flow_node, is_default)
         else:
             cond = BpmnCondition(self.parser.parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node))
-            self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('name', None))
+            self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None))
 
     def handles_multiple_outgoing(self):
         return True
@@ -230,7 +230,7 @@ class ProcessParser(object):
 class Parser(object):
 
     PARSER_CLASSES = {
-        full_tag('startEvent')          : (StartEventParser, StartTask),
+        full_tag('startEvent')          : (StartEventParser, StartEvent),
         full_tag('endEvent')            : (EndEventParser, EndEvent),
         full_tag('userTask')            : (UserTaskParser, UserTask),
         full_tag('manualTask')          : (ManualTaskParser, ManualTask),
