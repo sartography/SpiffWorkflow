@@ -10,6 +10,7 @@ from SpiffWorkflow.bpmn2.specs.MessageEvent import MessageEvent
 from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.bpmn2.specs.ScriptTask import ScriptTask
 from SpiffWorkflow.bpmn2.specs.StartEvent import StartEvent
+from SpiffWorkflow.bpmn2.specs.TimerEvent import TimerEvent
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Equal, Attrib
 from SpiffWorkflow.specs.StartTask import StartTask
@@ -194,10 +195,23 @@ class IntermediateCatchEventParser(TaskParser):
     def get_event_spec(self):
         messageEventDefinition = first(self.xpath('.//bpmn2:messageEventDefinition'))
         if messageEventDefinition is not None:
-            messageRef = first(self.xpath('.//bpmn2:messageRef'))
-            message = messageRef.get('name') if messageRef is not None else self.node.get('name')
-            return MessageEvent(message)
+            return self.get_message_event_spec(messageEventDefinition)
+
+        timerEventDefinition = first(self.xpath('.//bpmn2:timerEventDefinition'))
+        if timerEventDefinition is not None:
+            return self.get_timer_event_spec(timerEventDefinition)
+
         raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node) )
+
+    def get_message_event_spec(self, messageEventDefinition):
+        messageRef = first(self.xpath('.//bpmn2:messageRef'))
+        message = messageRef.get('name') if messageRef is not None else self.node.get('name')
+        return MessageEvent(message)
+
+    def get_timer_event_spec(self, timerEventDefinition):
+        timeDate = first(self.xpath('.//bpmn2:timeDate'))
+        return TimerEvent(timeDate.text)
+
 
 class BoundaryEventParser(IntermediateCatchEventParser):
     def create_task(self):

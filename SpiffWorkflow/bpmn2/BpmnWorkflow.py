@@ -255,6 +255,10 @@ class BpmnWorkflow(Workflow):
         self.do_engine_steps()
         return filter(lambda t: isinstance(t.task_spec, UserTask), self.get_tasks(Task.READY))
 
+    def refresh_waiting_tasks(self):
+        for my_task in self.get_tasks(Task.WAITING):
+            my_task.task_spec._update_state(my_task)
+
     def get_waiting_tasks(self):
         self.do_engine_steps()
         return self.get_tasks(Task.WAITING)
