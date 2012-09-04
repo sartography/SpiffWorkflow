@@ -1,5 +1,5 @@
 import glob
-from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnCondition
+from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnCondition, BpmnWorkflow
 from SpiffWorkflow.bpmn2.specs.BoundaryEvent import BoundaryEvent, BoundaryEventParent
 from SpiffWorkflow.bpmn2.specs.BpmnProcessSpec import BpmnProcessSpec
 from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
@@ -165,7 +165,7 @@ class ParallelGatewayParser(TaskParser):
 class CallActivityParser(TaskParser):
     def create_task(self):
         wf_spec = self.get_subprocess_parser().get_spec()
-        return self.spec_class(self.spec, self.get_task_spec_name(), wf_spec, description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.get_task_spec_name(), wf_spec=wf_spec, wf_class=self.parser.WORKFLOW_CLASS, description=self.node.get('name', None))
 
     def is_parallel_branching(self):
         return self.get_subprocess_parser().is_parallel_branching
@@ -282,6 +282,8 @@ class Parser(object):
         }
 
     OVERRIDE_PARSER_CLASSES = {}
+
+    WORKFLOW_CLASS = BpmnWorkflow
 
     def __init__(self):
         self.process_parsers = {}
