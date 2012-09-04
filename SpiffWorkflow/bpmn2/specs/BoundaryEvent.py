@@ -14,8 +14,9 @@ class BoundaryEventParent(BpmnSpecMixin):
     def _child_complete_hook(self, child_task):
         if child_task.task_spec == self.main_child_task_spec or self.should_cancel(child_task.task_spec):
             for sibling in child_task.parent.children:
-                if sibling != child_task and not sibling._is_finished():
-                    sibling.cancel()
+                if sibling != child_task:
+                    if sibling.task_spec == self.main_child_task_spec or (isinstance(sibling.task_spec, BoundaryEvent) and not sibling._is_finished()):
+                        sibling.cancel()
             for t in child_task.workflow._get_waiting_tasks():
                 t.task_spec._update_state(t)
 

@@ -23,3 +23,7 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
     def get_workflow_class(self):
         return BpmnWorkflow
 
+    def _on_subworkflow_completed(self, subworkflow, my_task):
+        super(CallActivity,self)._on_subworkflow_completed(subworkflow, my_task)
+        if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
+            my_task.parent.task_spec._child_complete_hook(my_task)
