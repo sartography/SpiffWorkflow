@@ -27,6 +27,8 @@ def main():
 
     workflow = BpmnWorkflow(spec)
 
+    print spec.get_all_lanes()
+
     exit_flag = None
     while not exit_flag:
 
