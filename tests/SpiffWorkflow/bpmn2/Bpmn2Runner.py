@@ -21,21 +21,7 @@ def main():
 
     f = open(os.path.join(HTML_OUTDIR, WORKFLOW_NAME.replace(' ', '-') + '.html'), 'w')
     try:
-        workflows = []
-        for spec, svg in spec.get_svg_depth_first():
-            workflows.append(E.H1(spec.description))
-            workflows.append(E.P(svg))
-
-        html = E.HTML(
-                E.HEAD(
-                    E.TITLE(WORKFLOW_NAME)
-                ),
-                E.BODY(
-                    *workflows
-                )
-            )
-
-        f.write(lxml.html.tostring(html, pretty_print=True))
+        f.write(spec.to_html_string())
     finally:
         f.close()
 

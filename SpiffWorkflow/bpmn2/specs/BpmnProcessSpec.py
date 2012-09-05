@@ -1,6 +1,8 @@
+import lxml
 from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
+from lxml.html import builder as E
 
 __author__ = 'matth'
 
@@ -21,15 +23,10 @@ class BpmnProcessSpec(WorkflowSpec):
     def is_single_threaded(self):
         return self._is_single_threaded
 
-    def get_svg_depth_first(self):
+    def _get_specs_depth_first(self):
 
         done = set()
-        svg_done = set()
-        if self.svg is not None:
-            svg_list = [(self, self.svg)]
-            svg_done.add(self.svg)
-        else:
-            svg_list = []
+        specs = [self]
 
         def recursive_find(task_spec):
             if task_spec in done:
@@ -38,9 +35,7 @@ class BpmnProcessSpec(WorkflowSpec):
             done.add(task_spec)
 
             if hasattr(task_spec, 'spec'):
-                if task_spec.spec.svg is not None and task_spec.spec.svg not in svg_done:
-                    svg_done.add(task_spec.spec.svg)
-                    svg_list.append((task_spec.spec, task_spec.spec.svg))
+                specs.append(task_spec.spec)
                 recursive_find(task_spec.spec.start)
 
             for t in task_spec.outputs:
@@ -48,6 +43,29 @@ class BpmnProcessSpec(WorkflowSpec):
 
         recursive_find(self.start)
 
-        return svg_list
+        return specs
+
+    def to_html(self):
+        workflows = []
+        svg_done = set()
+        for spec in self._get_specs_depth_first():
+            if not spec.svg in svg_done:
+                workflows.append(E.P(spec.svg))
+                svg_done.add(spec.svg)
+
+        html = E.HTML(
+            E.HEAD(
+                E.TITLE(self.description)
+            ),
+            E.BODY(
+                E.H1(self.description),
+                *workflows
+            )
+        )
+
+        return html
+
+    def to_html_string(self):
+        return lxml.html.tostring(self.to_html(), pretty_print=True)
 
 
