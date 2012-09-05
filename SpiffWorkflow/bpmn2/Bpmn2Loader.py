@@ -1,4 +1,5 @@
 import glob
+import os
 from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnCondition, BpmnWorkflow
 from SpiffWorkflow.bpmn2.specs.BoundaryEvent import BoundaryEvent, BoundaryEventParent
 from SpiffWorkflow.bpmn2.specs.BpmnProcessSpec import BpmnProcessSpec
@@ -221,15 +222,16 @@ class BoundaryEventParser(IntermediateCatchEventParser):
 
 class ProcessParser(object):
 
-    def __init__(self, p, node):
+    def __init__(self, p, node, svg):
         self.parser = p
         self.node = node
         self.xpath = xpath_eval(node)
-        self.spec = BpmnProcessSpec(name=self.get_id())
+        self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), svg=svg)
         self.parsing_started = False
         self.is_parsed = False
         self.is_parallel_branching = False
         self.parsed_nodes = {}
+        self.svg = svg
 
     def get_id(self):
         return self.node.get('id')
@@ -314,9 +316,22 @@ class Parser(object):
                 xpath = xpath_eval(etree.parse(f))
             finally:
                 f.close()
+
+            svg = None
+            if filename.endswith('.bpmn20.xml'):
+                signavio_file = filename[:-len('.bpmn20.xml')] + '.signavio.xml'
+                if os.path.exists(signavio_file):
+                    f = open(signavio_file, 'r')
+                    try:
+                        signavio_tree = etree.parse(f)
+                        svg_node = one(signavio_tree.xpath('.//svg-representation'))
+                        svg = etree.fromstring(svg_node.text)
+                    finally:
+                        f.close()
+
             processes = xpath('//bpmn2:process')
             for process in processes:
-                process_parser = ProcessParser(self, process)
+                process_parser = ProcessParser(self, process, svg)
                 if process_parser.get_id() in self.process_parsers:
                     raise ValueError('Duplicate processes with ID "%s"', process_parser.get_id())
                 if process_parser.get_name() in self.process_parsers_by_name:
