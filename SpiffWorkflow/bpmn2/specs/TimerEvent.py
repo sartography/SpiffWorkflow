@@ -9,8 +9,14 @@ class TimerEvent(Event):
         self.dateTime = dateTime
 
     def has_fired(self, my_task):
-        if not my_task.get_attribute(self.dateTime, None):
+        dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
+        if dt is None:
             return False
-        return datetime.datetime.now() > my_task.get_attribute(self.dateTime)
+        if dt.tzinfo:
+            tz = dt.tzinfo
+            now =  tz.fromutc(datetime.datetime.utcnow().replace(tzinfo=tz))
+        else:
+            now = datetime.datetime.now()
+        return now > dt
 
 

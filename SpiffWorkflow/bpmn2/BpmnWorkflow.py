@@ -119,7 +119,7 @@ class BpmnProcessSpecState(object):
             if not route[-1] == starting_route[-1]:
                 if task_name and route[-1].name == task_name:
                     return route
-                if transition_id and route[-1].has_outgoing_sequence_flow(transition_id):
+                if transition_id and hasattr(route[-1], 'has_outgoing_sequence_flow') and route[-1].has_outgoing_sequence_flow(transition_id):
                     route.append(route[-1].get_outgoing_sequence_flow_by_id(transition_id).task_spec)
                     return route
             for child in route[-1].outputs:
@@ -141,8 +141,11 @@ class BpmnCondition(Operator):
 
 class BpmnScriptEngine(object):
 
-    def evaluate(self, task, condition):
-        return condition._matches(task)
+    def evaluate(self, task, expression):
+        if isinstance(expression, basestring):
+            return task.get_attribute(expression, None)
+        else:
+            return expression._matches(task)
 
     def execute(self, task, script):
         exec script
@@ -172,7 +175,6 @@ class BpmnWorkflow(Workflow):
         for transition in states:
             s.add_path_to_transition(transition)
         s.go(self)
-
 
     def _get_workflow_state(self):
         active_tasks = self.get_tasks(state=(Task.READY | Task.WAITING))
