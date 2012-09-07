@@ -14,4 +14,4 @@ class MessageEvent(Event):
         return True
 
     def get_description(self):
-        return '\'%\'' % self.message
+        return '\'%s\'' % self.message
