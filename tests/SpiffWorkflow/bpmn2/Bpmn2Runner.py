@@ -10,8 +10,8 @@ from lxml.html import builder as E
 __author__ = 'matth'
 
 HTML_OUTDIR = '/home/matth/Desktop/'
-WORKFLOW_FILES = '/home/matth/work/git/customers-git/moc/bpmn/Action/Action.bpmn20.xml'
-WORKFLOW_NAME = 'Action'
+WORKFLOW_FILES = '/home/matth/work/git/customers-git/moc/bpmn/MOC/MOC-All-In-One.bpmn20.xml'
+WORKFLOW_NAME = 'MOC'
 
 def main():
 

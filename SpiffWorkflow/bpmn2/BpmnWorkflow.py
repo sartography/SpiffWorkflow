@@ -16,6 +16,9 @@ class RouteNode(object):
         m = filter(lambda r: r.task_spec == task_spec, self.outgoing)
         return m[0] if m else None
 
+class UnrecoverableWorkflowChange(Exception):
+    pass
+
 class BpmnProcessSpecState(object):
 
     def __init__(self, spec):
@@ -28,9 +31,12 @@ class BpmnProcessSpecState(object):
         route = [self.spec.start]
         for task_name in parts[:-1]:
             route = self.breadth_first_task_search(task_name, route)
+            if route is None:
+                raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % full_transition_name)
             route = route + [route[-1].spec.start]
         route = self.breadth_first_transition_search(parts[-1], route)
-        assert route is not None, 'No path found for route \'%s\'' % full_transition_name
+        if route is None:
+            raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % full_transition_name)
         outgoing_route_node = None
         for spec in reversed(route):
             outgoing_route_node = RouteNode(spec, outgoing_route_node)
