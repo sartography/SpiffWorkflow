@@ -69,7 +69,7 @@ class BpmnProcessSpecState(object):
             task.task_spec._update_state(task)
         else:
             if not task._is_finished():
-                if isinstance(task.task_spec, SubWorkflow) and task.task_spec.spec.start in [o.task_spec for o in route_node.outgoing]:
+                if issubclass(task.task_spec.__class__, SubWorkflow) and task.task_spec.spec.start in [o.task_spec for o in route_node.outgoing]:
                     task.task_spec._update_state(task)
                     assert task.state == Task.READY
                     #We're going in to the subprocess
@@ -204,15 +204,15 @@ class BpmnWorkflow(Workflow):
         return [t for t in self.task_tree  if t.task_spec.name == target_task]
 
     def do_engine_steps(self):
-        engine_steps = filter(lambda t: not isinstance(t.task_spec, UserTask), self.get_tasks(Task.READY))
+        engine_steps = filter(lambda t: not issubclass(t.task_spec.__class__, UserTask), self.get_tasks(Task.READY))
         while engine_steps:
             for task in engine_steps:
                 task.complete()
-            engine_steps = filter(lambda t: not isinstance(t.task_spec, UserTask), self.get_tasks(Task.READY))
+            engine_steps = filter(lambda t: not issubclass(t.task_spec.__class__, UserTask), self.get_tasks(Task.READY))
 
     def get_ready_user_tasks(self):
         self.do_engine_steps()
-        return filter(lambda t: isinstance(t.task_spec, UserTask), self.get_tasks(Task.READY))
+        return filter(lambda t: issubclass(t.task_spec.__class__, UserTask), self.get_tasks(Task.READY))
 
     def refresh_waiting_tasks(self):
         for my_task in self.get_tasks(Task.WAITING):
