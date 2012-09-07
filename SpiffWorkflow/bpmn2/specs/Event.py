@@ -11,3 +11,6 @@ class Event(object):
     def accept_message(self, my_task, message):
         return False
 
+    def get_description(self):
+        pass
+

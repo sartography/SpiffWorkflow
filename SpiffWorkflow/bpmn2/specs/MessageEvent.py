@@ -13,3 +13,5 @@ class MessageEvent(Event):
         self.fire(my_task)
         return True
 
+    def get_description(self):
+        return '\'%\'' % self.message

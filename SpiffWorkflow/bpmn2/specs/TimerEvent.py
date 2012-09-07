@@ -5,7 +5,8 @@ __author__ = 'matth'
 
 class TimerEvent(Event):
 
-    def __init__(self, dateTime):
+    def __init__(self, label, dateTime):
+        self.label = label
         self.dateTime = dateTime
 
     def has_fired(self, my_task):
@@ -18,5 +19,8 @@ class TimerEvent(Event):
         else:
             now = datetime.datetime.now()
         return now > dt
+
+    def get_description(self):
+        return self.label
 
 

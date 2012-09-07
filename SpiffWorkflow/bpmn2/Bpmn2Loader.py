@@ -211,7 +211,7 @@ class IntermediateCatchEventParser(TaskParser):
 
     def get_timer_event_spec(self, timerEventDefinition):
         timeDate = first(self.xpath('.//bpmn2:timeDate'))
-        return TimerEvent(timeDate.text)
+        return TimerEvent(self.node.get('name', timeDate.text), timeDate.text)
 
 
 class BoundaryEventParser(IntermediateCatchEventParser):
