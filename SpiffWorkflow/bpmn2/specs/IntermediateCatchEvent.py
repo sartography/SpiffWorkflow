@@ -16,7 +16,8 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
         else:
             if not my_task.state == Task.WAITING:
                 my_task._set_state(Task.WAITING)
-                self._on_enter_waiting_state(my_task)
+                if not my_task.workflow.is_busy_with_restore():
+                    self._on_enter_waiting_state(my_task)
             return False
 
     def _on_enter_waiting_state(self, my_task):

@@ -156,6 +156,7 @@ class BpmnWorkflow(Workflow):
         super(BpmnWorkflow, self).__init__(workflow_spec, **kwargs)
         self.name = name or workflow_spec.name
         self.script_engine = script_engine or BpmnScriptEngine()
+        self._is_busy_with_restore = False
 
     def accept_message(self, message):
         for my_task in Task.Iterator(self.task_tree, Task.WAITING):
@@ -167,14 +168,23 @@ class BpmnWorkflow(Workflow):
         return matches[0]
 
     def restore_workflow_state(self, state):
-        if state == 'COMPLETE':
-            self.cancel(success=True)
-            return
-        s = BpmnProcessSpecState(self.spec)
-        states = state.split(';')
-        for transition in states:
-            s.add_path_to_transition(transition)
-        s.go(self)
+        self._is_busy_with_restore = True
+        try:
+            if state == 'COMPLETE':
+                self.cancel(success=True)
+                return
+            s = BpmnProcessSpecState(self.spec)
+            states = state.split(';')
+            for transition in states:
+                s.add_path_to_transition(transition)
+            s.go(self)
+        finally:
+            self._is_busy_with_restore = False
+
+    def is_busy_with_restore(self):
+        if self.outer_workflow == self:
+            return self._is_busy_with_restore
+        return self.outer_workflow.is_busy_with_restore()
 
     def _get_workflow_state(self):
         active_tasks = self.get_tasks(state=(Task.READY | Task.WAITING))
