@@ -1,8 +1,8 @@
 import os
 import unittest
 from SpiffWorkflow.Task import Task
-from SpiffWorkflow.bpmn2.Bpmn2Loader import Parser
 from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnWorkflow
+from tests.SpiffWorkflow.bpmn2.Bpmn2LoaderForTests import TestBpmnParser
 
 __author__ = 'matth'
 
@@ -11,7 +11,7 @@ class WorkflowTest(unittest.TestCase):
 
     def load_workflow_spec(self, filename, process_name):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
-        p = Parser()
+        p = TestBpmnParser()
         p.add_bpmn_files_by_glob(f)
         return p.get_spec(process_name)
 

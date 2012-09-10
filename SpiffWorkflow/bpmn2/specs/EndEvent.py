@@ -24,5 +24,4 @@ class EndEvent(ParallelGateway, BpmnSpecMixin):
 
             my_task.workflow.refresh_waiting_tasks()
 
-        my_task.set_attribute(choice=self.description)
         super(EndEvent, self)._on_complete_hook(my_task)

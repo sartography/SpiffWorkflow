@@ -52,37 +52,37 @@
     </model:sequenceFlow>
     <model:sequenceFlow id="Rejected" name="Rejected" sourceRef="Stage_1_End" targetRef="Cancelled">
       <model:documentation></model:documentation>
-      <model:conditionExpression>end_event=='Cancelled'</model:conditionExpression>
+      <model:conditionExpression>choice=='Cancelled'</model:conditionExpression>
     </model:sequenceFlow>
     <model:sequenceFlow id="Approved" name="Approved" sourceRef="Stage_1_End" targetRef="Stage_2">
       <model:documentation></model:documentation>
-      <model:conditionExpression>end_event = 'Approved'</model:conditionExpression>
+      <model:conditionExpression>choice == 'Approved'</model:conditionExpression>
     </model:sequenceFlow>
     <model:sequenceFlow id="_B7_X8O3MEeGmos22R0FTgg" sourceRef="Stage_2" targetRef="Stage_2_End">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
     <model:sequenceFlow id="Approved" name="Approved" sourceRef="Stage_2_End" targetRef="Classify_MOC">
       <model:documentation></model:documentation>
-      <model:conditionExpression>result == 'Approved'</model:conditionExpression>
+      <model:conditionExpression>choice == 'Approved'</model:conditionExpression>
     </model:sequenceFlow>
     <model:sequenceFlow id="Rejected" name="Rejected" sourceRef="Stage_2_End" targetRef="Cancelled">
       <model:documentation></model:documentation>
-      <model:conditionExpression>result == 'Rejected'</model:conditionExpression>
+      <model:conditionExpression>choice == 'Rejected'</model:conditionExpression>
     </model:sequenceFlow>
     <model:sequenceFlow id="Sent_Back" name="Sent Back" sourceRef="Stage_2_End" targetRef="Stage_1">
       <model:documentation></model:documentation>
-      <model:conditionExpression>result == 'Sent Back'</model:conditionExpression>
+      <model:conditionExpression>choice == 'Sent Back'</model:conditionExpression>
     </model:sequenceFlow>
     <model:sequenceFlow id="_bgNnAO32EeG6ILSEFG-uBA" sourceRef="Classify_MOC" targetRef="Classification">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
     <model:sequenceFlow id="Minor_MOC" name="Minor MOC" sourceRef="Classification" targetRef="Minor">
       <model:documentation></model:documentation>
-      <model:conditionExpression>minor</model:conditionExpression>
+      <model:conditionExpression>choice == 'Minor MOC'</model:conditionExpression>
     </model:sequenceFlow>
     <model:sequenceFlow id="Major_MOC" name="Major MOC" sourceRef="Classification" targetRef="Major_">
       <model:documentation></model:documentation>
-      <model:conditionExpression>Major</model:conditionExpression>
+      <model:conditionExpression>choice == 'Major MOC'</model:conditionExpression>
     </model:sequenceFlow>
   </model:process>
   <model:process id="Stage_1" name="Stage 1">
@@ -139,11 +139,11 @@
     </model:sequenceFlow>
     <model:sequenceFlow id="_Ncr7c-3JEeGmos22R0FTgg" name="Send Back" sourceRef="Review_Result" targetRef="Prepare_MOC_Proposal">
       <model:documentation></model:documentation>
-      <model:conditionExpression>choice = 'Send Back'</model:conditionExpression>
+      <model:conditionExpression>choice == 'Send Back'</model:conditionExpression>
     </model:sequenceFlow>
     <model:sequenceFlow id="_Ncr7de3JEeGmos22R0FTgg" name="Approve" sourceRef="Review_Result" targetRef="Record_on_MOC_agenda">
       <model:documentation></model:documentation>
-      <model:conditionExpression>choice = 'Approve'</model:conditionExpression>
+      <model:conditionExpression>choice == 'Approve'</model:conditionExpression>
     </model:sequenceFlow>
     <model:sequenceFlow id="Recorded" name="Recorded" sourceRef="Record_on_MOC_agenda" targetRef="Approved">
       <model:documentation></model:documentation>

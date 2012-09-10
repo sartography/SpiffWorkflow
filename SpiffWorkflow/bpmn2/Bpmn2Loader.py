@@ -150,8 +150,10 @@ class ExclusiveGatewayParser(TaskParser):
         if is_default:
             super(ExclusiveGatewayParser, self).connect_outgoing(outgoing_task, outgoing_task_node, sequence_flow_node, is_default)
         else:
-            cond = BpmnCondition(self.parser.parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node))
-            self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None))
+            cond = self.parser.parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node)
+            if cond is None:
+                raise ValueError('Non-default exclusive outgoing sequence flow without condition')
+            self.task.connect_outgoing_if(BpmnCondition(cond), outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None))
 
     def handles_multiple_outgoing(self):
         return True
@@ -279,8 +281,6 @@ class Parser(object):
         full_tag('scriptTask')                  : (ScriptTaskParser, ScriptTask),
         full_tag('intermediateCatchEvent')      : (IntermediateCatchEventParser, IntermediateCatchEvent),
         full_tag('boundaryEvent')               : (BoundaryEventParser, BoundaryEvent),
-
-
         }
 
     OVERRIDE_PARSER_CLASSES = {}
@@ -340,7 +340,11 @@ class Parser(object):
                 self.process_parsers_by_name[process_parser.get_name()] = process_parser
 
     def parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
-        return "choice == '%s'" % sequence_flow_node.get('name', None)
+        xpath = xpath_eval(sequence_flow_node)
+        conditionExpression = first(xpath('.//bpmn2:conditionExpression'))
+        if conditionExpression is None:
+            return None
+        return conditionExpression.text
 
     def get_spec(self, process_id_or_name):
         return self.get_process_parser(process_id_or_name).get_spec()

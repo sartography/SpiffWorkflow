@@ -9,7 +9,7 @@ __author__ = 'matth'
 class CallActivity(SubWorkflow, BpmnSpecMixin):
 
     def __init__(self, parent, name, wf_spec=None, wf_class=None, **kwargs):
-        super(CallActivity, self).__init__(parent, name, None, out_assign=[Assign('choice', 'choice')], **kwargs)
+        super(CallActivity, self).__init__(parent, name, None, **kwargs)
         self.spec = wf_spec
         self.wf_class = wf_class
 
