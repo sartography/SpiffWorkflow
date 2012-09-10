@@ -213,16 +213,19 @@ class BpmnWorkflow(Workflow):
     def get_tasks_with_name(self, target_task):
         return [t for t in self.task_tree  if t.task_spec.name == target_task]
 
+    def _is_engine_task(self, task_spec):
+        return not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task()
+
     def do_engine_steps(self):
-        engine_steps = filter(lambda t: not issubclass(t.task_spec.__class__, UserTask), self.get_tasks(Task.READY))
+        engine_steps = filter(lambda t: self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
         while engine_steps:
             for task in engine_steps:
                 task.complete()
-            engine_steps = filter(lambda t: not issubclass(t.task_spec.__class__, UserTask), self.get_tasks(Task.READY))
+            engine_steps = filter(lambda t: self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
 
     def get_ready_user_tasks(self):
         self.do_engine_steps()
-        return filter(lambda t: issubclass(t.task_spec.__class__, UserTask), self.get_tasks(Task.READY))
+        return filter(lambda t: not self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
 
     def refresh_waiting_tasks(self):
         for my_task in self.get_tasks(Task.WAITING):

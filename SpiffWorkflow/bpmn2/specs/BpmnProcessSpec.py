@@ -20,6 +20,9 @@ class BpmnProcessSpec(WorkflowSpec):
         self.svg = svg
         self.description = description
 
+    def is_engine_task(self):
+        return True
+
     def is_single_threaded(self):
         return self._is_single_threaded
 
