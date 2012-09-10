@@ -539,7 +539,7 @@ class ActionManagementTest(WorkflowTest):
         self.do_next_named_step("Start Work")
         self.workflow.do_engine_steps()
 
-        self.do_next_named_step("Complete Work")
+        self.do_next_named_step("Complete Work", choice="Done")
         self.workflow.do_engine_steps()
 
         self.assertTrue(self.workflow.is_completed())
@@ -570,7 +570,7 @@ class ActionManagementTest(WorkflowTest):
         self.assertNotEquals('Finish Time', self.workflow.get_tasks(Task.WAITING)[0].task_spec.description)
 
 
-        self.do_next_named_step("Complete Work")
+        self.do_next_named_step("Complete Work", choice="Done")
         self.workflow.do_engine_steps()
 
         self.assertTrue(self.workflow.is_completed())

@@ -340,7 +340,7 @@ class Parser(object):
                 self.process_parsers_by_name[process_parser.get_name()] = process_parser
 
     def parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
-        return Equal(Attrib('choice'), sequence_flow_node.get('name', None))
+        return "choice == '%s'" % sequence_flow_node.get('name', None)
 
     def get_spec(self, process_id_or_name):
         return self.get_process_parser(process_id_or_name).get_spec()
