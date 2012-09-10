@@ -13,8 +13,6 @@ from SpiffWorkflow.bpmn2.specs.ScriptTask import ScriptTask
 from SpiffWorkflow.bpmn2.specs.StartEvent import StartEvent
 from SpiffWorkflow.bpmn2.specs.TimerEvent import TimerEvent
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
-from SpiffWorkflow.operators import Equal, Attrib
-from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.bpmn2.specs.EndEvent import EndEvent
 
 

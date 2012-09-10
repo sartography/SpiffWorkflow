@@ -1,7 +1,6 @@
 from collections import deque
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Workflow import Workflow
-from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Operator
 from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
 
@@ -172,10 +171,23 @@ class BpmnWorkflow(Workflow):
         for my_task in Task.Iterator(self.task_tree, Task.WAITING):
             my_task.task_spec.accept_message(my_task, message)
 
-    def find_task_by_name(self, target_task):
-        matches = sorted(self.get_tasks_with_name(target_task), key=lambda t: t.id)
-        assert len(matches) > 0
-        return matches[0]
+    def get_workflow_state(self):
+        self.do_engine_steps()
+        return self._get_workflow_state()
+
+    def _get_workflow_state(self):
+        active_tasks = self.get_tasks(state=(Task.READY | Task.WAITING))
+        if not active_tasks:
+            return 'COMPLETE'
+        states = []
+        for task in active_tasks:
+            s = task.parent.task_spec.get_outgoing_sequence_flow_by_spec(task.task_spec).id
+            w = task.workflow
+            while w.outer_workflow and w.outer_workflow != w:
+                s = "%s:%s" % (w.name, s)
+                w = w.outer_workflow
+            states.append(s)
+        return ';'.join(sorted(states))
 
     def restore_workflow_state(self, state):
         self._is_busy_with_restore = True
@@ -196,23 +208,6 @@ class BpmnWorkflow(Workflow):
             return self._is_busy_with_restore
         return self.outer_workflow.is_busy_with_restore()
 
-    def _get_workflow_state(self):
-        active_tasks = self.get_tasks(state=(Task.READY | Task.WAITING))
-        if not active_tasks:
-            return 'COMPLETE'
-        states = []
-        for task in active_tasks:
-            s = task.parent.task_spec.get_outgoing_sequence_flow_by_spec(task.task_spec).id
-            w = task.workflow
-            while w.outer_workflow and w.outer_workflow != w:
-                s = "%s:%s" % (w.name, s)
-                w = w.outer_workflow
-            states.append(s)
-        return ';'.join(sorted(states))
-
-    def get_tasks_with_name(self, target_task):
-        return [t for t in self.task_tree  if t.task_spec.name == target_task]
-
     def _is_engine_task(self, task_spec):
         return not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task()
 
@@ -223,18 +218,15 @@ class BpmnWorkflow(Workflow):
                 task.complete()
             engine_steps = filter(lambda t: self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
 
-    def get_ready_user_tasks(self):
-        self.do_engine_steps()
-        return filter(lambda t: not self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
-
     def refresh_waiting_tasks(self):
         for my_task in self.get_tasks(Task.WAITING):
             my_task.task_spec._update_state(my_task)
+
+    def get_ready_user_tasks(self):
+        self.do_engine_steps()
+        return filter(lambda t: not self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
 
     def get_waiting_tasks(self):
         self.do_engine_steps()
         return self.get_tasks(Task.WAITING)
 
-    def get_workflow_state(self):
-        self.do_engine_steps()
-        return self._get_workflow_state()
