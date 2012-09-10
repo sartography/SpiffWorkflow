@@ -4,6 +4,7 @@ from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.bpmn2.Bpmn2Loader import Parser
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
+from tests.SpiffWorkflow.bpmn2.Bpmn2LoaderForTests import TestBpmnParser
 from tests.SpiffWorkflow.bpmn2.ConsoleMenu import Console_App_Menu
 from lxml.html import builder as E
 
@@ -15,7 +16,7 @@ WORKFLOW_NAME = 'MOC'
 
 def main():
 
-    p = Parser()
+    p = TestBpmnParser()
     p.add_bpmn_files_by_glob(WORKFLOW_FILES)
     spec = p.get_spec(WORKFLOW_NAME)
 
