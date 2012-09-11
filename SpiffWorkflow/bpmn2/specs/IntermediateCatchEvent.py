@@ -11,7 +11,8 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
         self.event_spec = event_spec
 
     def _update_state_hook(self, my_task):
-        if self.event_spec.has_fired(my_task):
+        target_state = getattr(my_task, '_bpmn_load_target_state', None)
+        if target_state == Task.READY or (not my_task.workflow.is_busy_with_restore() and self.event_spec.has_fired(my_task)):
             return super(IntermediateCatchEvent, self)._update_state_hook(my_task)
         else:
             if not my_task.state == Task.WAITING:

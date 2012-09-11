@@ -52,6 +52,8 @@ class WorkflowTest(unittest.TestCase):
         tasks[0].complete()
 
     def save_restore(self):
+        self.workflow.do_engine_steps()
+        self.workflow.refresh_waiting_tasks()
         state = self.workflow.get_workflow_state()
         self.restore(state)
 

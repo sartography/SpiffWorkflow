@@ -52,4 +52,9 @@ class BpmnSpecMixin(TaskSpec):
     def _child_complete_hook(self, child_task):
         pass
 
+    def _on_cancel(self, my_task):
+        super(BpmnSpecMixin, self)._on_cancel(my_task)
+        my_task.workflow._task_cancelled_notify(my_task)
+
+
 

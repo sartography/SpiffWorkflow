@@ -10,6 +10,7 @@ class RouteNode(object):
     def __init__(self, task_spec, outgoing_route_node=None):
         self.task_spec = task_spec
         self.outgoing = [outgoing_route_node] if outgoing_route_node else []
+        self.state = None
 
     def get_outgoing_by_spec(self, task_spec):
         m = filter(lambda r: r.task_spec == task_spec, self.outgoing)
@@ -28,17 +29,21 @@ class BpmnProcessSpecState(object):
         parts = full_transition_name.split(':')
         #find a route passing through each task:
         route = [self.spec.start]
-        for task_name in parts[:-1]:
+        for task_name in parts[:-2]:
             route = self.breadth_first_task_search(task_name, route)
             if route is None:
                 raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % full_transition_name)
             route = route + [route[-1].spec.start]
-        route = self.breadth_first_transition_search(parts[-1], route)
+        route = self.breadth_first_transition_search(parts[-2], route)
         if route is None:
             raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % full_transition_name)
         outgoing_route_node = None
         for spec in reversed(route):
             outgoing_route_node = RouteNode(spec, outgoing_route_node)
+            if not outgoing_route_node.outgoing and parts[-1] == 'W':
+                outgoing_route_node.state = Task.WAITING
+            else:
+                outgoing_route_node.state = Task.READY
         if self.route:
             self.merge_routes(outgoing_route_node)
         else:
@@ -71,6 +76,8 @@ class BpmnProcessSpecState(object):
     def _go(self, task, route_node):
         assert task.task_spec == route_node.task_spec
         if not route_node.outgoing:
+            assert route_node.state is not None
+            setattr(task, '_bpmn_load_target_state', route_node.state)
             task.task_spec._update_state(task)
         else:
             if not task._is_finished():
@@ -83,8 +90,6 @@ class BpmnProcessSpecState(object):
                     self.complete_task_silent(task, [n.task_spec for n in route_node.outgoing])
             for n in route_node.outgoing:
                 matching_child = filter(lambda t: t.task_spec == n.task_spec, task.children)
-                if len(matching_child) != 1:
-                    print matching_child
                 assert len(matching_child) == 1
                 self._go(matching_child[0], n)
 
@@ -161,18 +166,18 @@ class BpmnScriptEngine(object):
 
 class BpmnWorkflow(Workflow):
 
-    def __init__(self, workflow_spec, name=None, script_engine=None, **kwargs):
+    def __init__(self, workflow_spec, name=None, script_engine=None, read_only=False, **kwargs):
         super(BpmnWorkflow, self).__init__(workflow_spec, **kwargs)
         self.name = name or workflow_spec.name
         self.script_engine = script_engine or BpmnScriptEngine()
         self._is_busy_with_restore = False
+        self.read_only = read_only
 
     def accept_message(self, message):
         for my_task in Task.Iterator(self.task_tree, Task.WAITING):
             my_task.task_spec.accept_message(my_task, message)
 
     def get_workflow_state(self):
-        self.do_engine_steps()
         return self._get_workflow_state()
 
     def _get_workflow_state(self):
@@ -181,7 +186,7 @@ class BpmnWorkflow(Workflow):
             return 'COMPLETE'
         states = []
         for task in active_tasks:
-            s = task.parent.task_spec.get_outgoing_sequence_flow_by_spec(task.task_spec).id
+            s = task.parent.task_spec.get_outgoing_sequence_flow_by_spec(task.task_spec).id + (":W" if task.state == Task.WAITING else ":R")
             w = task.workflow
             while w.outer_workflow and w.outer_workflow != w:
                 s = "%s:%s" % (w.name, s)
@@ -212,6 +217,7 @@ class BpmnWorkflow(Workflow):
         return not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task()
 
     def do_engine_steps(self):
+        assert not self.read_only
         engine_steps = filter(lambda t: self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
         while engine_steps:
             for task in engine_steps:
@@ -219,14 +225,20 @@ class BpmnWorkflow(Workflow):
             engine_steps = filter(lambda t: self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
 
     def refresh_waiting_tasks(self):
+        assert not self.read_only
         for my_task in self.get_tasks(Task.WAITING):
             my_task.task_spec._update_state(my_task)
 
     def get_ready_user_tasks(self):
-        self.do_engine_steps()
         return filter(lambda t: not self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
 
     def get_waiting_tasks(self):
-        self.do_engine_steps()
         return self.get_tasks(Task.WAITING)
+
+    def _task_completed_notify(self, task):
+        assert (not self.read_only) or self.is_busy_with_restore()
+        super(BpmnWorkflow, self)._task_completed_notify(task)
+
+    def _task_cancelled_notify(self, task):
+        assert (not self.read_only) or self.is_busy_with_restore()
 
