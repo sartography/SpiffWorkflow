@@ -175,6 +175,8 @@ class BpmnWorkflow(Workflow):
 
     def accept_message(self, message):
         assert not self.read_only
+        self.refresh_waiting_tasks()
+        self.do_engine_steps()
         for my_task in Task.Iterator(self.task_tree, Task.WAITING):
             my_task.task_spec.accept_message(my_task, message)
 
