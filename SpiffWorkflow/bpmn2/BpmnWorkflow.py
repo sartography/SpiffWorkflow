@@ -174,6 +174,7 @@ class BpmnWorkflow(Workflow):
         self.read_only = read_only
 
     def accept_message(self, message):
+        assert not self.read_only
         for my_task in Task.Iterator(self.task_tree, Task.WAITING):
             my_task.task_spec.accept_message(my_task, message)
 
@@ -241,4 +242,5 @@ class BpmnWorkflow(Workflow):
 
     def _task_cancelled_notify(self, task):
         assert (not self.read_only) or self.is_busy_with_restore()
+
 
