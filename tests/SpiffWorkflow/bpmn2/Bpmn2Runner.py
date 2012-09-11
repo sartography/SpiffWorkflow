@@ -20,22 +20,17 @@ def main():
     exit_flag = None
     while not exit_flag:
 
-        auto_tasks = filter(lambda t: not isinstance(t.task_spec, UserTask), workflow.get_tasks(Task.READY))
-        while auto_tasks:
-            for task in auto_tasks:
-                task.complete()
-            auto_tasks = filter(lambda t: not isinstance(t.task_spec, UserTask), workflow.get_tasks(Task.READY))
+        workflow.refresh_waiting_tasks()
+        workflow.do_engine_steps()
 
-        user_tasks = filter(lambda t: isinstance(t.task_spec, UserTask), workflow.get_tasks(Task.READY))
-
-        if not user_tasks:
+        if workflow.is_completed():
             exit_flag = True
         else:
 
-            options = ['Exit', 'View Workflow State']
+            options = ['Exit', 'View Spec', 'View Workflow State']
             option_lookup = {}
 
-            for task in user_tasks:
+            for task in workflow.get_ready_user_tasks():
                 for choice in task.task_spec.get_user_choices():
                     choice_description = '%s - %s [%s]' % (task.task_spec.lane, choice or 'OK', task.task_spec.description)
                     options.append(choice_description)
@@ -48,13 +43,13 @@ def main():
             selected = menu.option()
             if selected[2] == 'Exit':
                 exit_flag = True
+            elif selected[2] == 'View Spec':
+                workflow.spec.dump()
             elif selected[2] == 'View Workflow State':
                 workflow.dump()
             else:
                 (task, choice) = option_lookup[selected[0]]
                 task.task_spec.do_choice(task, choice)
-
-
 
 
 if __name__ == '__main__':
