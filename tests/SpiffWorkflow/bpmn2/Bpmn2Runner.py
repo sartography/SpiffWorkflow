@@ -1,34 +1,21 @@
-import os
-import lxml
+import sys
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnWorkflow
-from SpiffWorkflow.bpmn2.Bpmn2Loader import Parser
 from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
 from tests.SpiffWorkflow.bpmn2.Bpmn2LoaderForTests import TestBpmnParser
 from tests.SpiffWorkflow.bpmn2.ConsoleMenu import Console_App_Menu
-from lxml.html import builder as E
 
 __author__ = 'matth'
 
-HTML_OUTDIR = '/home/matth/Desktop/'
-WORKFLOW_FILES = '/home/matth/work/git/customers-git/moc/bpmn/MOC/MOC-All-In-One.bpmn20.xml'
-WORKFLOW_NAME = 'MOC'
-
 def main():
+    workflow_files = sys.argv[1]
+    workflow_name = sys.argv[2]
 
     p = TestBpmnParser()
-    p.add_bpmn_files_by_glob(WORKFLOW_FILES)
-    spec = p.get_spec(WORKFLOW_NAME)
-
-    f = open(os.path.join(HTML_OUTDIR, WORKFLOW_NAME.replace(' ', '-') + '.html'), 'w')
-    try:
-        f.write(spec.to_html_string())
-    finally:
-        f.close()
+    p.add_bpmn_files_by_glob(workflow_files)
+    spec = p.get_spec(workflow_name)
 
     workflow = BpmnWorkflow(spec)
-
-    print spec.get_all_lanes()
 
     exit_flag = None
     while not exit_flag:
