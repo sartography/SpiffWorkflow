@@ -42,8 +42,8 @@ class TestBpmnParser(Bpmn2Loader.Parser):
         Bpmn2Loader.full_tag('callActivity')        : (Bpmn2Loader.CallActivityParser, TestCallActivity),
         }
 
-    def parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
-        cond = super(TestBpmnParser, self).parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node)
+    def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node):
+        cond = super(TestBpmnParser, self).parse_condition(condition_expression,outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node)
         if cond is not None:
             return cond
         return "choice == '%s'" % sequence_flow_node.get('name', None)

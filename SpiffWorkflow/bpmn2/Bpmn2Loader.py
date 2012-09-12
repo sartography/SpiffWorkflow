@@ -148,7 +148,7 @@ class ExclusiveGatewayParser(TaskParser):
         if is_default:
             super(ExclusiveGatewayParser, self).connect_outgoing(outgoing_task, outgoing_task_node, sequence_flow_node, is_default)
         else:
-            cond = self.parser.parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node)
+            cond = self.parser._parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node)
             if cond is None:
                 raise ValueError('Non-default exclusive outgoing sequence flow without condition')
             self.task.connect_outgoing_if(BpmnCondition(cond), outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None))
@@ -337,12 +337,15 @@ class Parser(object):
                 self.process_parsers[process_parser.get_id()] = process_parser
                 self.process_parsers_by_name[process_parser.get_name()] = process_parser
 
-    def parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
+    def _parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         xpath = xpath_eval(sequence_flow_node)
-        conditionExpression = first(xpath('.//bpmn2:conditionExpression'))
-        if conditionExpression is None:
-            return None
-        return conditionExpression.text
+        condition_expression_node = conditionExpression = first(xpath('.//bpmn2:conditionExpression'))
+        if conditionExpression is not None:
+            conditionExpression = conditionExpression.text
+        return self.parse_condition(conditionExpression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node)
+
+    def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node):
+        return condition_expression
 
     def get_spec(self, process_id_or_name):
         return self.get_process_parser(process_id_or_name).get_spec()
