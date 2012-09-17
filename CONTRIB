@@ -1,0 +1,49 @@
+Guide for Contributors
+#######################
+
+Coding style:
+
+  Please follow PEP8: http://www.python.org/dev/peps/pep-0008/
+
+Testing:
+
+  Non-public classes and methods MUST be prefixed by _. This is also important
+  because the test and API documentation machinery makes assumtions based on
+  this convention.
+
+  Every added public class MUST have a corresponding unit test. The tests are
+  placed in the following directory: tests/SpiffWorkflow/
+  The test directory layout mirrors the source code directory layout, e.g.
+    SpiffWorkflow/specs/Join.py
+  has a corresponding test in
+    tests/SpiffWorkflow/specs/JoinTest.py
+
+  The unit test for each class MUST have a CORRELATE class attribute that points
+  to the tested class. (The test machinery uses this attribute to find untested
+  methods.)
+
+  Each commit MUST NOT break functionality. In other words, the code in the
+  repository should function at any time, and all test MUST pass.
+
+Documentation:
+
+  Every public class and function or method MUST include API documentation. The
+  documentation MUST cover the method's arguments and return values.
+
+  Write inline documentation generously.
+
+Repository:
+
+  Make sure that each commit contains related changes only. E.g. don't fix
+  two unrelated bugs in one commit, or introduce a new feature while refactoring
+  another part of the program in the same commit. When in doubt, use multiple
+  small commits. In general, most commits should be relatively small unless they
+  are plain additions.
+
+Licensing:
+
+  You have to agree to licensing under the lGPLv3, and every added file MUST
+  include a copyright header.
+
+  If you modify a file and add a chunk of at least 7 lines in size, please add
+  yourself to the copyright header of that file.
