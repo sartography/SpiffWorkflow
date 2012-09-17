@@ -7,7 +7,11 @@ from lxml.html import builder as E
 __author__ = 'matth'
 
 class EndJoin(ParallelGateway):
-    pass
+
+    def _on_complete_hook(self, my_task):
+        super(EndJoin, self)._on_complete_hook(my_task)
+        my_task.workflow.attributes.update(my_task.get_attributes())
+
 
 class BpmnProcessSpec(WorkflowSpec):
 
