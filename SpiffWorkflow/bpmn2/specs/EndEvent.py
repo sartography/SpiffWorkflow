@@ -14,7 +14,9 @@ class EndEvent(ParallelGateway, BpmnSpecMixin):
         if self.is_terminate_event:
             #Cancel other branches in this workflow:
             for active_task in my_task.workflow.get_tasks(Task.READY | Task.WAITING):
-                if active_task.workflow == my_task.workflow:
+                if active_task.task_spec == my_task.workflow.spec.end:
+                    continue
+                elif active_task.workflow == my_task.workflow:
                     active_task.cancel()
                 else:
                     active_task.workflow.cancel()
