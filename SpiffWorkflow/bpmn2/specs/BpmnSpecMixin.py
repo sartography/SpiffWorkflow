@@ -62,36 +62,30 @@ class BpmnSpecMixin(TaskSpec):
     ################################################
 
     def _on_complete_hook(self, my_task):
-        r = super(BpmnSpecMixin, self)._on_complete_hook(my_task)
-        if r:
-            if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
-                my_task.parent.task_spec._child_complete_hook(my_task)
-            if not my_task.workflow.is_busy_with_restore():
-                self.entering_complete_state(my_task)
-        return r
+        super(BpmnSpecMixin, self)._on_complete_hook(my_task)
+        if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
+            my_task.parent.task_spec._child_complete_hook(my_task)
+        if not my_task.workflow.is_busy_with_restore():
+            self.entering_complete_state(my_task)
 
     def _child_complete_hook(self, child_task):
         pass
 
     def _on_cancel(self, my_task):
-        r = super(BpmnSpecMixin, self)._on_cancel(my_task)
-        if r:
-            my_task.workflow._task_cancelled_notify(my_task)
-            if not my_task.workflow.is_busy_with_restore():
-                self.entering_cancelled_state(my_task)
-        return r
+        super(BpmnSpecMixin, self)._on_cancel(my_task)
+        my_task.workflow._task_cancelled_notify(my_task)
+        if not my_task.workflow.is_busy_with_restore():
+            self.entering_cancelled_state(my_task)
 
     def _update_state_hook(self, my_task):
         prev_state = my_task.state
-        r = super(BpmnSpecMixin, self)._update_state_hook(my_task)
-        if r and prev_state != Task.WAITING and my_task.state == Task.WAITING and not my_task.workflow.is_busy_with_restore():
+        super(BpmnSpecMixin, self)._update_state_hook(my_task)
+        if prev_state != Task.WAITING and my_task.state == Task.WAITING and not my_task.workflow.is_busy_with_restore():
             self.entering_waiting_state(my_task)
-        return r
 
     def _on_ready_before_hook(self, my_task):
-        r = super(BpmnSpecMixin, self)._on_ready_before_hook(my_task)
-        if r and not my_task.workflow.is_busy_with_restore():
+        super(BpmnSpecMixin, self)._on_ready_before_hook(my_task)
+        if not my_task.workflow.is_busy_with_restore():
             self.entering_ready_state(my_task)
-        return r
 
 

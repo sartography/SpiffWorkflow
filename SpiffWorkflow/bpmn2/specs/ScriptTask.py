@@ -10,8 +10,7 @@ class ScriptTask(Simple, BpmnSpecMixin):
 
     def _on_ready_hook(self, task):
         if task.workflow.is_busy_with_restore():
-            return True
+            return
         assert not task.workflow.read_only
         task.workflow.script_engine.execute(task, self.script)
-        return True
 
