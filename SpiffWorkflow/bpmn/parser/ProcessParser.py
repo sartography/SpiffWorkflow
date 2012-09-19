@@ -1,5 +1,5 @@
 from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
-from SpiffWorkflow.bpmn.storage.util import *
+from SpiffWorkflow.bpmn.parser.util import *
 
 __author__ = 'matth'
 

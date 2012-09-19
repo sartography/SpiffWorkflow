@@ -11,9 +11,9 @@ from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask
 from SpiffWorkflow.bpmn.specs.StartEvent import StartEvent
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
-from SpiffWorkflow.bpmn.storage.ProcessParser import ProcessParser
-from SpiffWorkflow.bpmn.storage.util import *
-from SpiffWorkflow.bpmn.storage.task_parsers import *
+from SpiffWorkflow.bpmn.parser.ProcessParser import ProcessParser
+from SpiffWorkflow.bpmn.parser.util import *
+from SpiffWorkflow.bpmn.parser.task_parsers import *
 
 __author__ = 'matth'
 

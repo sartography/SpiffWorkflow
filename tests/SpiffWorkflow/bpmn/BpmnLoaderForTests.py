@@ -1,11 +1,10 @@
-from SpiffWorkflow.bpmn.storage import BpmnLoader
 from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
-from SpiffWorkflow.bpmn.storage.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.storage.task_parsers import UserTaskParser, EndEventParser, CallActivityParser
-from SpiffWorkflow.bpmn.storage.util import full_tag
+from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
+from SpiffWorkflow.bpmn.parser.task_parsers import UserTaskParser, EndEventParser, CallActivityParser
+from SpiffWorkflow.bpmn.parser.util import full_tag
 from SpiffWorkflow.operators import Assign
 
 __author__ = 'matth'

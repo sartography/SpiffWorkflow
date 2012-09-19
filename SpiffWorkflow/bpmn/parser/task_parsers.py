@@ -1,8 +1,8 @@
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnCondition
 from SpiffWorkflow.bpmn.specs.MessageEvent import MessageEvent
 from SpiffWorkflow.bpmn.specs.TimerEvent import TimerEvent
-from SpiffWorkflow.bpmn.storage.TaskParser import TaskParser
-from SpiffWorkflow.bpmn.storage.util import *
+from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
+from SpiffWorkflow.bpmn.parser.util import *
 
 __author__ = 'matth'
 
