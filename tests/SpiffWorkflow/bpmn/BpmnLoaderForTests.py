@@ -3,6 +3,7 @@ from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
+from SpiffWorkflow.bpmn.storage.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.storage.task_parsers import UserTaskParser, EndEventParser, CallActivityParser
 from SpiffWorkflow.bpmn.storage.util import full_tag
 from SpiffWorkflow.operators import Assign
@@ -37,7 +38,7 @@ class TestCallActivity(CallActivity):
     def __init__(self, parent, name, **kwargs):
         super(TestCallActivity, self).__init__(parent, name, out_assign=[Assign('choice', 'end_event')], **kwargs)
 
-class TestBpmnParser(BpmnLoader.Parser):
+class TestBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
         full_tag('userTask')            : (UserTaskParser, TestUserTask),
         full_tag('endEvent')            : (EndEventParser, TestEndEvent),

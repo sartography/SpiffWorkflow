@@ -20,7 +20,7 @@ __author__ = 'matth'
 
 from lxml import etree
 
-class Parser(object):
+class BpmnParser(object):
 
     PARSER_CLASSES = {
         full_tag('startEvent')          : (StartEventParser, StartEvent),
