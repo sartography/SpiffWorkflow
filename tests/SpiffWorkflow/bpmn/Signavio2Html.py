@@ -1,5 +1,5 @@
 import sys
-from tests.SpiffWorkflow.bpmn.Bpmn2LoaderForTests import TestBpmnParser
+from tests.SpiffWorkflow.bpmn.BpmnLoaderForTests import TestBpmnParser
 
 __author__ = 'matth'
 

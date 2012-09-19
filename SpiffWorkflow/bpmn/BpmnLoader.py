@@ -33,15 +33,15 @@ def first(nodes):
     else:
         return None
 
-BPMN2_NS='http://www.omg.org/spec/BPMN/20100524/MODEL'
+BPMN_MODEL_NS='http://www.omg.org/spec/BPMN/20100524/MODEL'
 SIGNAVIO_NS='http://www.signavio.com'
 
 def xpath_eval(node):
-    namespaces = {'bpmn2':BPMN2_NS, 'signavio':SIGNAVIO_NS}
+    namespaces = {'bpmn':BPMN_MODEL_NS, 'signavio':SIGNAVIO_NS}
     return etree.XPathEvaluator(node, namespaces=namespaces)
 
 def full_tag(tag):
-    return '{%s}%s' % (BPMN2_NS, tag)
+    return '{%s}%s' % (BPMN_MODEL_NS, tag)
 
 
 class TaskParser(object):
@@ -59,7 +59,7 @@ class TaskParser(object):
 
         self.task = self.create_task()
 
-        boundary_event_nodes = self.process_xpath('.//bpmn2:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
+        boundary_event_nodes = self.process_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
         if boundary_event_nodes:
             parent_task = BoundaryEventParent(self.spec, '%s.BoundaryEventParent' % self.get_id(), self.task, lane=self.task.lane)
             self.process_parser.parsed_nodes[self.node.get('id')] = parent_task
@@ -73,12 +73,12 @@ class TaskParser(object):
 
 
         children = []
-        outgoing = self.process_xpath('.//bpmn2:sequenceFlow[@sourceRef="%s"]' % self.get_id())
+        outgoing = self.process_xpath('.//bpmn:sequenceFlow[@sourceRef="%s"]' % self.get_id())
         if len(outgoing) > 1 and not self.handles_multiple_outgoing():
             raise NotImplementedError('Multiple outgoing flows are not supported for tasks of type %s', self.spec_class.__name__)
         for sequence_flow in outgoing:
             target_ref = sequence_flow.get('targetRef')
-            target_node = one(self.process_xpath('.//bpmn2:*[@id="%s"]' % target_ref))
+            target_node = one(self.process_xpath('.//bpmn:*[@id="%s"]' % target_ref))
             c = self.process_parser.parse_node(target_node)
             children.append((c, target_node, sequence_flow))
 
@@ -94,7 +94,7 @@ class TaskParser(object):
         return parent_task if boundary_event_nodes else self.task
 
     def get_lane(self):
-        lane_match = self.process_xpath('.//bpmn2:lane/bpmn2:flowNodeRef[text()="%s"]/..' % self.get_id())
+        lane_match = self.process_xpath('.//bpmn:lane/bpmn:flowNodeRef[text()="%s"]/..' % self.get_id())
         assert len(lane_match)<= 1
         return lane_match[0].get('name') if lane_match else None
 
@@ -130,7 +130,7 @@ class EndEventParser(TaskParser):
 
     def create_task(self):
 
-        terminateEventDefinition = self.xpath('.//bpmn2:terminateEventDefinition')
+        terminateEventDefinition = self.xpath('.//bpmn:terminateEventDefinition')
         task = self.spec_class(self.spec, self.get_task_spec_name(), is_terminate_event=terminateEventDefinition, description=self.node.get('name', None))
         task.connect_outgoing(self.spec.end, '%s.ToEndJoin'%self.node.get('id'), None)
         return task
@@ -186,7 +186,7 @@ class ScriptTaskParser(TaskParser):
         return self.spec_class(self.spec, self.get_task_spec_name(), script, description=self.node.get('name', None))
 
     def get_script(self):
-        return one(self.xpath('.//bpmn2:script')).text
+        return one(self.xpath('.//bpmn:script')).text
 
 class IntermediateCatchEventParser(TaskParser):
     def create_task(self):
@@ -194,23 +194,23 @@ class IntermediateCatchEventParser(TaskParser):
         return self.spec_class(self.spec, self.get_task_spec_name(), event_spec, description=self.node.get('name', None))
 
     def get_event_spec(self):
-        messageEventDefinition = first(self.xpath('.//bpmn2:messageEventDefinition'))
+        messageEventDefinition = first(self.xpath('.//bpmn:messageEventDefinition'))
         if messageEventDefinition is not None:
             return self.get_message_event_spec(messageEventDefinition)
 
-        timerEventDefinition = first(self.xpath('.//bpmn2:timerEventDefinition'))
+        timerEventDefinition = first(self.xpath('.//bpmn:timerEventDefinition'))
         if timerEventDefinition is not None:
             return self.get_timer_event_spec(timerEventDefinition)
 
         raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node) )
 
     def get_message_event_spec(self, messageEventDefinition):
-        messageRef = first(self.xpath('.//bpmn2:messageRef'))
+        messageRef = first(self.xpath('.//bpmn:messageRef'))
         message = messageRef.get('name') if messageRef is not None else self.node.get('name')
         return MessageEvent(message)
 
     def get_timer_event_spec(self, timerEventDefinition):
-        timeDate = first(self.xpath('.//bpmn2:timeDate'))
+        timeDate = first(self.xpath('.//bpmn:timeDate'))
         return TimerEvent(self.node.get('name', timeDate.text), timeDate.text)
 
 
@@ -252,7 +252,7 @@ class ProcessParser(object):
         return task_spec
 
     def parse(self):
-        start_node = one(self.xpath('.//bpmn2:startEvent'))
+        start_node = one(self.xpath('.//bpmn:startEvent'))
         self.parsing_started = True
         self.parse_node(start_node)
         self.spec._is_single_threaded = not self.is_parallel_branching
@@ -327,7 +327,7 @@ class Parser(object):
                     finally:
                         f.close()
 
-            processes = xpath('//bpmn2:process')
+            processes = xpath('//bpmn:process')
             for process in processes:
                 process_parser = ProcessParser(self, process, svg)
                 if process_parser.get_id() in self.process_parsers:
@@ -339,7 +339,7 @@ class Parser(object):
 
     def _parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         xpath = xpath_eval(sequence_flow_node)
-        condition_expression_node = conditionExpression = first(xpath('.//bpmn2:conditionExpression'))
+        condition_expression_node = conditionExpression = first(xpath('.//bpmn:conditionExpression'))
         if conditionExpression is not None:
             conditionExpression = conditionExpression.text
         return self.parse_condition(conditionExpression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node)
