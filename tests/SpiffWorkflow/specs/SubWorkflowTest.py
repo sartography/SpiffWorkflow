@@ -14,6 +14,15 @@ from SpiffWorkflow.Workflow import Workflow
 class TaskSpecTest(unittest.TestCase):
     CORRELATE = SubWorkflow
 
+    def testConstructor(self):
+        pass #FIXME
+
+    def testSerialize(self):
+        pass #FIXME
+
+    def testTest(self):
+        pass #FIXME
+
     def load_workflow_spec(self, folder, f):
         file = os.path.join(os.path.dirname(__file__), '..', 'data', 'spiff', folder, f)
         serializer    = XmlSerializer()

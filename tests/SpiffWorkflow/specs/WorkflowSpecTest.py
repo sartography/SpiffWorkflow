@@ -30,6 +30,12 @@ class WorkflowSpecTest(unittest.TestCase):
     def testGetTaskSpecFromName(self):
         pass #FIXME
 
+    def testGetDump(self):
+        pass #FIXME
+
+    def testDump(self):
+        pass #FIXME
+
     def doPickleSingle(self, workflow, expected_path):
         taken_path = track_workflow(workflow.spec)
 
