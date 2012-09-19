@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn import Bpmn2Loader
+from SpiffWorkflow.bpmn import BpmnLoader
 from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
@@ -35,11 +35,11 @@ class TestCallActivity(CallActivity):
     def __init__(self, parent, name, **kwargs):
         super(TestCallActivity, self).__init__(parent, name, out_assign=[Assign('choice', 'end_event')], **kwargs)
 
-class TestBpmnParser(Bpmn2Loader.Parser):
+class TestBpmnParser(BpmnLoader.Parser):
     OVERRIDE_PARSER_CLASSES = {
-        Bpmn2Loader.full_tag('userTask')            : (Bpmn2Loader.UserTaskParser, TestUserTask),
-        Bpmn2Loader.full_tag('endEvent')            : (Bpmn2Loader.EndEventParser, TestEndEvent),
-        Bpmn2Loader.full_tag('callActivity')        : (Bpmn2Loader.CallActivityParser, TestCallActivity),
+        BpmnLoader.full_tag('userTask')            : (BpmnLoader.UserTaskParser, TestUserTask),
+        BpmnLoader.full_tag('endEvent')            : (BpmnLoader.EndEventParser, TestEndEvent),
+        BpmnLoader.full_tag('callActivity')        : (BpmnLoader.CallActivityParser, TestCallActivity),
         }
 
     def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node):
