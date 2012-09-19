@@ -3,12 +3,12 @@ import datetime
 import time
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn2.workflow1 import WorkflowTest
+from tests.SpiffWorkflow.bpmn2.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
 
-class MessagesTest(WorkflowTest):
+class MessagesTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.spec = self.load_spec()
 
@@ -53,7 +53,7 @@ class MessagesTest(WorkflowTest):
 
 
 
-class MessageInterruptsTest(WorkflowTest):
+class MessageInterruptsTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.spec = self.load_spec()
         #self.spec.dump()
@@ -149,7 +149,7 @@ class MessageInterruptsTest(WorkflowTest):
         self.workflow.do_engine_steps()
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
-class MessageInterruptsSpTest(WorkflowTest):
+class MessageInterruptsSpTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.spec = self.load_spec()
 
@@ -201,7 +201,7 @@ class MessageInterruptsSpTest(WorkflowTest):
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 
-class MessageNonInterruptsSpTest(WorkflowTest):
+class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.spec = self.load_spec()
 
@@ -315,7 +315,7 @@ class MessageNonInterruptsSpTest(WorkflowTest):
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 
-class MessageNonInterruptTest(WorkflowTest):
+class MessageNonInterruptTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.spec = self.load_spec()
         #self.spec.dump()
@@ -478,7 +478,7 @@ class MessageNonInterruptTest(WorkflowTest):
         self.workflow.do_engine_steps()
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
-class TimerIntermediateTest(WorkflowTest):
+class TimerIntermediateTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.spec = self.load_spec()
 
@@ -508,7 +508,7 @@ class TimerIntermediateTest(WorkflowTest):
         self.workflow.do_engine_steps()
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
-class ActionManagementTest(WorkflowTest):
+class ActionManagementTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.spec = self.load_spec()
         self.workflow = BpmnWorkflow(self.spec)
