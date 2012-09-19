@@ -1,50 +1,8 @@
-import os
 import unittest
-from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn2.Bpmn2LoaderForTests import TestBpmnParser
 from tests.SpiffWorkflow.bpmn2.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
-
-class Workflow1Test(BpmnWorkflowTestCase):
-    def setUp(self):
-        self.spec = self.load_workflow1_spec()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('workflow1.bpmn', 'MOC')
-
-    def testRunThroughHappy(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.do_next_exclusive_step('Stage_1.Prepare_MOC_Proposal')
-        self.do_next_exclusive_step('Stage_1.Review', set_attribs={'choice': 'Approve'})
-        self.do_next_exclusive_step('Stage_1.Record_on_MOC_agenda')
-        self.do_next_exclusive_step('Stage_2.Register_MOC_Proposal_Form')
-        self.do_next_exclusive_step('Stage_2.Proposal_Form_Review', set_attribs={'choice': 'Approve'})
-
-    def testSaveRestore(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-
-        self.save_restore()
-
-        self.do_next_exclusive_step('Stage_1.Prepare_MOC_Proposal')
-
-        self.save_restore()
-
-        self.do_next_exclusive_step('Stage_1.Review', set_attribs={'choice': 'Approve'})
-        self.save_restore()
-        self.do_next_exclusive_step('Stage_1.Record_on_MOC_agenda')
-        self.save_restore()
-
-        self.do_next_exclusive_step('Stage_2.Register_MOC_Proposal_Form')
-        self.save_restore()
-
-        self.do_next_exclusive_step('Stage_2.Proposal_Form_Review', set_attribs={'choice': 'Approve'})
-
-        self.save_restore()
-
 
 class ApprovalsTest(BpmnWorkflowTestCase):
     def setUp(self):
@@ -224,6 +182,6 @@ class ApprovalsTest(BpmnWorkflowTestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(Workflow1Test)
+    return unittest.TestLoader().loadTestsFromTestCase(ApprovalsTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity = 2).run(suite())
