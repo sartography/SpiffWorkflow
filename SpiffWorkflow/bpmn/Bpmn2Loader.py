@@ -1,19 +1,19 @@
 import glob
 import os
-from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnCondition, BpmnWorkflow
-from SpiffWorkflow.bpmn2.specs.BoundaryEvent import BoundaryEvent, BoundaryEventParent
-from SpiffWorkflow.bpmn2.specs.BpmnProcessSpec import BpmnProcessSpec
-from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
-from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
-from SpiffWorkflow.bpmn2.specs.IntermediateCatchEvent import IntermediateCatchEvent
-from SpiffWorkflow.bpmn2.specs.ManualTask import ManualTask
-from SpiffWorkflow.bpmn2.specs.MessageEvent import MessageEvent
-from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
-from SpiffWorkflow.bpmn2.specs.ScriptTask import ScriptTask
-from SpiffWorkflow.bpmn2.specs.StartEvent import StartEvent
-from SpiffWorkflow.bpmn2.specs.TimerEvent import TimerEvent
-from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
-from SpiffWorkflow.bpmn2.specs.EndEvent import EndEvent
+from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnCondition, BpmnWorkflow
+from SpiffWorkflow.bpmn.specs.BoundaryEvent import BoundaryEvent, BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
+from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
+from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
+from SpiffWorkflow.bpmn.specs.IntermediateCatchEvent import IntermediateCatchEvent
+from SpiffWorkflow.bpmn.specs.ManualTask import ManualTask
+from SpiffWorkflow.bpmn.specs.MessageEvent import MessageEvent
+from SpiffWorkflow.bpmn.specs.ParallelGateway import ParallelGateway
+from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask
+from SpiffWorkflow.bpmn.specs.StartEvent import StartEvent
+from SpiffWorkflow.bpmn.specs.TimerEvent import TimerEvent
+from SpiffWorkflow.bpmn.specs.UserTask import UserTask
+from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
 
 
 __author__ = 'matth'

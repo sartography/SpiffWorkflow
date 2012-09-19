@@ -1,6 +1,6 @@
 from SpiffWorkflow.Task import Task
-from SpiffWorkflow.bpmn2.specs.BpmnSpecMixin import BpmnSpecMixin
-from SpiffWorkflow.bpmn2.specs.IntermediateCatchEvent import IntermediateCatchEvent
+from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
+from SpiffWorkflow.bpmn.specs.IntermediateCatchEvent import IntermediateCatchEvent
 
 __author__ = 'matth'
 

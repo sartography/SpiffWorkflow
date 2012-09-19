@@ -2,8 +2,8 @@ import unittest
 import datetime
 import time
 from SpiffWorkflow.Task import Task
-from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn2.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
+from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 

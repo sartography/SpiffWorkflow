@@ -1,5 +1,5 @@
 import lxml
-from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
+from SpiffWorkflow.bpmn.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from lxml.html import builder as E

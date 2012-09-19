@@ -1,8 +1,8 @@
-from SpiffWorkflow.bpmn2 import Bpmn2Loader
-from SpiffWorkflow.bpmn2.specs.CallActivity import CallActivity
-from SpiffWorkflow.bpmn2.specs.EndEvent import EndEvent
-from SpiffWorkflow.bpmn2.specs.ExclusiveGateway import ExclusiveGateway
-from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
+from SpiffWorkflow.bpmn import Bpmn2Loader
+from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
+from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
+from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
+from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.operators import Assign
 
 __author__ = 'matth'

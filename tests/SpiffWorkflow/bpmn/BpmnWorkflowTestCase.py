@@ -1,8 +1,8 @@
 import os
 import unittest
 from SpiffWorkflow.Task import Task
-from SpiffWorkflow.bpmn2.BpmnWorkflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn2.Bpmn2LoaderForTests import TestBpmnParser
+from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
+from tests.SpiffWorkflow.bpmn.Bpmn2LoaderForTests import TestBpmnParser
 
 __author__ = 'matth'
 

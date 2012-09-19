@@ -1,5 +1,5 @@
 import logging
-from SpiffWorkflow.bpmn2.specs.BpmnSpecMixin import BpmnSpecMixin
+from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 from SpiffWorkflow.specs.Join import Join
 
 LOG = logging.getLogger(__name__)

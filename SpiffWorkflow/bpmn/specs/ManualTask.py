@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn2.specs.UserTask import UserTask
+from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 
 __author__ = 'matth'
 

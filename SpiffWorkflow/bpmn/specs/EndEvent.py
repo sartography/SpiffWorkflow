@@ -1,5 +1,5 @@
-from SpiffWorkflow.bpmn2.specs.BpmnSpecMixin import BpmnSpecMixin
-from SpiffWorkflow.bpmn2.specs.ParallelGateway import ParallelGateway
+from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
+from SpiffWorkflow.bpmn.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.Task import Task
 
 __author__ = 'matth'

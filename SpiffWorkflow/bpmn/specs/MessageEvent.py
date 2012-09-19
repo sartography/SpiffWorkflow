@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn2.specs.Event import Event
+from SpiffWorkflow.bpmn.specs.Event import Event
 
 __author__ = 'matth'
 
