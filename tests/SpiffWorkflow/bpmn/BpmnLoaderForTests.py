@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn import BpmnLoader
+from SpiffWorkflow.bpmn.storage import BpmnLoader
 from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
