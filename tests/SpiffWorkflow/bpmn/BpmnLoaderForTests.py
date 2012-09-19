@@ -3,6 +3,8 @@ from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
+from SpiffWorkflow.bpmn.storage.task_parsers import UserTaskParser, EndEventParser, CallActivityParser
+from SpiffWorkflow.bpmn.storage.util import full_tag
 from SpiffWorkflow.operators import Assign
 
 __author__ = 'matth'
@@ -37,9 +39,9 @@ class TestCallActivity(CallActivity):
 
 class TestBpmnParser(BpmnLoader.Parser):
     OVERRIDE_PARSER_CLASSES = {
-        BpmnLoader.full_tag('userTask')            : (BpmnLoader.UserTaskParser, TestUserTask),
-        BpmnLoader.full_tag('endEvent')            : (BpmnLoader.EndEventParser, TestEndEvent),
-        BpmnLoader.full_tag('callActivity')        : (BpmnLoader.CallActivityParser, TestCallActivity),
+        full_tag('userTask')            : (UserTaskParser, TestUserTask),
+        full_tag('endEvent')            : (EndEventParser, TestEndEvent),
+        full_tag('callActivity')        : (CallActivityParser, TestCallActivity),
         }
 
     def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node):
