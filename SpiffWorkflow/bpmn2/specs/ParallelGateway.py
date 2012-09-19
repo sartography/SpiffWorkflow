@@ -1,5 +1,8 @@
+import logging
 from SpiffWorkflow.bpmn2.specs.BpmnSpecMixin import BpmnSpecMixin
 from SpiffWorkflow.specs.Join import Join
+
+LOG = logging.getLogger(__name__)
 
 __author__ = 'matth'
 
@@ -26,3 +29,11 @@ class ParallelGateway(Join, BpmnSpecMixin):
                 waiting_tasks.append(task)
 
         return force or len(waiting_tasks) == 0, waiting_tasks
+
+    def _update_state_hook(self, my_task):
+        if my_task._is_predicted():
+            self._predict(my_task)
+        if not my_task.parent._is_finished():
+            return
+
+        super(ParallelGateway, self)._update_state_hook(my_task)
