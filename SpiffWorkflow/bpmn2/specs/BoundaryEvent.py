@@ -1,8 +1,8 @@
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn2.specs.BpmnSpecMixin import BpmnSpecMixin
 from SpiffWorkflow.bpmn2.specs.IntermediateCatchEvent import IntermediateCatchEvent
 
 __author__ = 'matth'
-
 
 class BoundaryEventParent(BpmnSpecMixin):
 
@@ -19,10 +19,23 @@ class BoundaryEventParent(BpmnSpecMixin):
             for t in child_task.workflow._get_waiting_tasks():
                 t.task_spec._update_state(t)
 
+    def _predict_hook(self, my_task):
+        # We default to MAYBE
+        # for all it's outputs except the main child, which is
+        # FUTURE, if my task is definite, otherwise, my own state.
+        my_task._sync_children(self.outputs, state=Task.MAYBE)
+
+        if my_task._is_definite():
+            state = Task.FUTURE
+        else:
+            state = my_task.state
+
+        for child in my_task.children:
+            if child.task_spec == self.main_child_task_spec:
+                child._set_state(state)
+
     def should_cancel(self, task_spec):
         return isinstance(task_spec, BoundaryEvent) and task_spec.cancel_activity()
-
-
 
 class BoundaryEvent(IntermediateCatchEvent):
 
