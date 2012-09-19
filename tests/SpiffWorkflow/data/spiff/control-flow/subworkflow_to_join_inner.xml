@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Pattern 10 (Block Task to Sub-Workflow Decomposition) - Sub-Workflow</description>
+
+    <start-task>
+        <successor>first</successor>
+    </start-task>
+
+    <task name="first">
+        <successor>last</successor>
+    </task>
+
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>
+
