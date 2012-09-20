@@ -1,4 +1,5 @@
 from collections import deque
+import json
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.specs import SubWorkflow
@@ -26,25 +27,21 @@ class _BpmnProcessSpecState(object):
         self.spec = spec
         self.route = None
 
-    def add_path_to_transition(self, full_transition_name):
-        parts = full_transition_name.split(':')
+    def add_path_to_transition(self, transition, state, workflow_parents):
         #find a route passing through each task:
         route = [self.spec.start]
-        for task_name in parts[:-2]:
+        for task_name in workflow_parents:
             route = self.breadth_first_task_search(task_name, route)
             if route is None:
-                raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % full_transition_name)
+                raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % transition)
             route = route + [route[-1].spec.start]
-        route = self.breadth_first_transition_search(parts[-2], route)
+        route = self.breadth_first_transition_search(transition, route)
         if route is None:
-            raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % full_transition_name)
+            raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % transition)
         outgoing_route_node = None
         for spec in reversed(route):
             outgoing_route_node = _RouteNode(spec, outgoing_route_node)
-            if not outgoing_route_node.outgoing and parts[-1] == 'W':
-                outgoing_route_node.state = Task.WAITING
-            else:
-                outgoing_route_node.state = Task.READY
+            outgoing_route_node.state = state
         if self.route:
             self.merge_routes(outgoing_route_node)
         else:
@@ -142,6 +139,8 @@ class _BpmnProcessSpecState(object):
 
 class MinimalistWorkflowSerializer(Serializer):
 
+    STATE_SPEC_VERSION = 1
+
     def serialize_workflow(self, workflow, include_spec=True,**kwargs):
         if include_spec:
             raise NotImplementedError('Including the spec serialization with the workflow state is not implemented.')
@@ -159,28 +158,53 @@ class MinimalistWorkflowSerializer(Serializer):
 
     def _get_workflow_state(self, workflow):
         active_tasks = workflow.get_tasks(state=(Task.READY | Task.WAITING))
-        if not active_tasks:
-            return 'COMPLETE'
         states = []
+
         for task in active_tasks:
-            s = task.parent.task_spec.get_outgoing_sequence_flow_by_spec(task.task_spec).id + (":W" if task.state == Task.WAITING else ":R")
+            transition = task.parent.task_spec.get_outgoing_sequence_flow_by_spec(task.task_spec).id
             w = task.workflow
+            workflow_parents = []
             while w.outer_workflow and w.outer_workflow != w:
-                s = "%s:%s" % (w.name, s)
+                workflow_parents.append(w.name)
                 w = w.outer_workflow
-            states.append(s)
-        return ';'.join(sorted(states))
+            state = ("W" if task.state == Task.WAITING else "R")
+            states.append([transition, workflow_parents, state])
+
+        compacted_states = []
+        for state in sorted(states, key=lambda s:",".join([s[0], s[2], (':'.join(s[1]))])):
+            if state[-1] == 'R':
+                state.pop()
+            if state[-1] == []:
+                state.pop()
+            if len(state) == 1:
+                state = state[0]
+            compacted_states.append(state)
+
+        state_list = compacted_states+[self.STATE_SPEC_VERSION]
+        state_s = json.dumps(state_list)[1:-1]
+        return state_s
 
     def _restore_workflow_state(self, workflow, state):
+        state_list = json.loads('['+state+']')
+        #We only have one version right now:
+        assert state_list[-1] == self.STATE_SPEC_VERSION
+
+        s = _BpmnProcessSpecState(workflow.spec)
+
+        for state in state_list[:-1]:
+            if isinstance(state, basestring):
+                state = [state]
+            transition = state[0]
+            workflow_parents = state[1] if len(state)>1 else []
+            state = (Task.WAITING if len(state)>2 and state[2] == 'W' else Task.READY)
+
+            s.add_path_to_transition(transition, state, workflow_parents)
+
         workflow._is_busy_with_restore = True
         try:
-            if state == 'COMPLETE':
+            if len(state_list) <= 1:
                 workflow.cancel(success=True)
                 return
-            s = _BpmnProcessSpecState(workflow.spec)
-            states = state.split(';')
-            for transition in states:
-                s.add_path_to_transition(transition)
             s.go(workflow)
         finally:
             workflow._is_busy_with_restore = False
