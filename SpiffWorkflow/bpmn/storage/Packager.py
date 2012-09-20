@@ -1,3 +1,5 @@
+import ConfigParser
+from StringIO import StringIO
 import glob
 from lxml import etree
 import zipfile
@@ -14,10 +16,11 @@ class Packager(object):
 
     PARSER_CLASS = BpmnParser
 
-    def __init__(self, package_file, meta_data=None):
+    def __init__(self, package_file, entry_point_process, meta_data=None):
         self.package_file = package_file
+        self.entry_point_process = entry_point_process
         self.parser = self.PARSER_CLASS()
-        self.meta_data = meta_data or {}
+        self.meta_data = meta_data or []
         self.input_files = []
         self.input_path_prefix = None
 
@@ -30,7 +33,7 @@ class Packager(object):
     def add_bpmn_files(self, filenames):
         self.input_files += filenames
 
-    def create_package(self, entry_point_process):
+    def create_package(self):
 
         #Check that all files exist (and calculate the longest shared path prefix):
         self.input_path_prefix = None
@@ -46,23 +49,26 @@ class Packager(object):
 
         #Check that we can parse it fine:
         self.parser.add_bpmn_files(self.input_files)
-        wf_spec = self.parser.get_spec(entry_point_process)
+        self.wf_spec = self.parser.get_spec(self.entry_point_process)
 
         #Now package everything:
-        package = zipfile.ZipFile(self.package_file, "w", compression=zipfile.ZIP_DEFLATED)
+        package_zip = zipfile.ZipFile(self.package_file, "w", compression=zipfile.ZIP_DEFLATED)
+
+        self.write_meta_data(package_zip)
+
         done_files = set()
-        for spec in wf_spec.get_specs_depth_first():
+        for spec in self.wf_spec.get_specs_depth_first():
             filename = spec.file
             if not filename in done_files:
                 done_files.add(filename)
-                package.write(filename, "%s.bpmn" % spec.name)
+                package_zip.write(filename, "%s.bpmn" % spec.name)
 
-                package.write(filename, "src/" + self._get_zip_path(filename))
+                package_zip.write(filename, "src/" + self._get_zip_path(filename))
 
                 if filename.endswith('.bpmn20.xml'):
                     signavio_file = filename[:-len('.bpmn20.xml')] + '.signavio.xml'
                     if os.path.exists(signavio_file):
-                        package.write(signavio_file, "src/" + self._get_zip_path(signavio_file))
+                        package_zip.write(signavio_file, "src/" + self._get_zip_path(signavio_file))
 
                         f = open(signavio_file, 'r')
                         try:
@@ -71,10 +77,20 @@ class Packager(object):
                             f.close()
                         svg_node = one(signavio_tree.xpath('.//svg-representation'))
                         svg = etree.fromstring(svg_node.text)
-                        package.writestr("%s.svg" % spec.name, etree.tostring(svg,pretty_print=True))
+                        package_zip.writestr("%s.svg" % spec.name, etree.tostring(svg,pretty_print=True))
 
 
+    def write_meta_data(self, package_zip):
+        config = ConfigParser.SafeConfigParser()
 
+        config.add_section('MetaData')
+        config.set('MetaData', 'entry_point_process', self.wf_spec.name)
+        for k, v in self.meta_data:
+            config.set('MetaData', k, v)
+
+        ini = StringIO()
+        config.write(ini)
+        package_zip.writestr("metadata.ini", ini.getvalue())
 
     def _get_zip_path(self, filename):
         p = os.path.abspath(filename)[len(self.input_path_prefix):].replace(os.path.sep, '/')
@@ -121,10 +137,17 @@ def main(packager_class=None):
     if not packager_class:
         packager_class = Packager
 
-    packager = packager_class(package_file=options.package_file)
+    meta_data = []
+    meta_data.append(('spiff_version', get_version()))
+    if options.target_engine:
+        meta_data.append(('target_engine', options.target_engine))
+    if options.target_engine:
+        meta_data.append(('target_engine_version', options.target_engine_version))
+
+    packager = packager_class(package_file=options.package_file, entry_point_process=options.entry_point_process, meta_data=meta_data)
     for a in args:
         packager.add_bpmn_files_by_glob(a)
-    packager.create_package(options.entry_point_process)
+    packager.create_package()
 
 if __name__ == '__main__':
     main()
