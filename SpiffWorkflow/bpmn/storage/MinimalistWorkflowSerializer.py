@@ -1,6 +1,8 @@
 from collections import deque
 from SpiffWorkflow.Task import Task
+from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.specs import SubWorkflow
+from SpiffWorkflow.storage.Serializer import Serializer
 
 __author__ = 'matth'
 
@@ -136,3 +138,49 @@ class _BpmnProcessSpecState(object):
                     done.add(child)
                     q.append(route + [child])
         return None
+
+
+class MinimalistWorkflowSerializer(Serializer):
+
+    def serialize_workflow(self, workflow, include_spec=True,**kwargs):
+        if include_spec:
+            raise NotImplementedError('Including the spec serialization with the workflow state is not implemented.')
+        return self._get_workflow_state(workflow)
+
+    def deserialize_workflow(self, s_state, workflow_spec=None, read_only=False, **kwargs):
+        if workflow_spec is None:
+            raise NotImplementedError('Including the spec serialization with the workflow state is not implemented. A \'workflow_spec\' must be provided.')
+        workflow = self.new_workflow(workflow_spec, read_only=read_only)
+        self._restore_workflow_state(workflow, s_state)
+        return workflow
+
+    def new_workflow(self, workflow_spec, read_only=False):
+        return BpmnWorkflow(workflow_spec, read_only=read_only)
+
+    def _get_workflow_state(self, workflow):
+        active_tasks = workflow.get_tasks(state=(Task.READY | Task.WAITING))
+        if not active_tasks:
+            return 'COMPLETE'
+        states = []
+        for task in active_tasks:
+            s = task.parent.task_spec.get_outgoing_sequence_flow_by_spec(task.task_spec).id + (":W" if task.state == Task.WAITING else ":R")
+            w = task.workflow
+            while w.outer_workflow and w.outer_workflow != w:
+                s = "%s:%s" % (w.name, s)
+                w = w.outer_workflow
+            states.append(s)
+        return ';'.join(sorted(states))
+
+    def _restore_workflow_state(self, workflow, state):
+        workflow._is_busy_with_restore = True
+        try:
+            if state == 'COMPLETE':
+                workflow.cancel(success=True)
+                return
+            s = _BpmnProcessSpecState(workflow.spec)
+            states = state.split(';')
+            for transition in states:
+                s.add_path_to_transition(transition)
+            s.go(workflow)
+        finally:
+            workflow._is_busy_with_restore = False

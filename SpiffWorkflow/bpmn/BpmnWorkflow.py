@@ -1,7 +1,6 @@
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Workflow import Workflow
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
-from SpiffWorkflow.bpmn.storage.MinimalistWorkflowSerializer import _BpmnProcessSpecState
 
 __author__ = 'matth'
 
@@ -20,37 +19,6 @@ class BpmnWorkflow(Workflow):
         self.do_engine_steps()
         for my_task in Task.Iterator(self.task_tree, Task.WAITING):
             my_task.task_spec.accept_message(my_task, message)
-
-    def get_workflow_state(self):
-        return self._get_workflow_state()
-
-    def _get_workflow_state(self):
-        active_tasks = self.get_tasks(state=(Task.READY | Task.WAITING))
-        if not active_tasks:
-            return 'COMPLETE'
-        states = []
-        for task in active_tasks:
-            s = task.parent.task_spec.get_outgoing_sequence_flow_by_spec(task.task_spec).id + (":W" if task.state == Task.WAITING else ":R")
-            w = task.workflow
-            while w.outer_workflow and w.outer_workflow != w:
-                s = "%s:%s" % (w.name, s)
-                w = w.outer_workflow
-            states.append(s)
-        return ';'.join(sorted(states))
-
-    def restore_workflow_state(self, state):
-        self._is_busy_with_restore = True
-        try:
-            if state == 'COMPLETE':
-                self.cancel(success=True)
-                return
-            s = _BpmnProcessSpecState(self.spec)
-            states = state.split(';')
-            for transition in states:
-                s.add_path_to_transition(transition)
-            s.go(self)
-        finally:
-            self._is_busy_with_restore = False
 
     def is_busy_with_restore(self):
         if self.outer_workflow == self:
