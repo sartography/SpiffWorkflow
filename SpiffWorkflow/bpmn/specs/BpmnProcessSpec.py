@@ -80,8 +80,8 @@ class BpmnProcessSpec(WorkflowSpec):
         workflows = []
         svg_done = set()
         for spec in self.get_specs_depth_first():
-            if not spec.svg in svg_done:
-                workflows.append(E.P(spec.svg))
+            if spec.svg and not spec.svg in svg_done:
+                workflows.append(E.P(spec.svg.getroot()))
                 svg_done.add(spec.svg)
 
         html = E.HTML(

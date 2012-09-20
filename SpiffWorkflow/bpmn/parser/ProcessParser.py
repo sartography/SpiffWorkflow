@@ -5,7 +5,7 @@ __author__ = 'matth'
 
 class ProcessParser(object):
 
-    def __init__(self, p, node, svg, filename=None):
+    def __init__(self, p, node, svg=None, filename=None):
         self.parser = p
         self.node = node
         self.xpath = xpath_eval(node)

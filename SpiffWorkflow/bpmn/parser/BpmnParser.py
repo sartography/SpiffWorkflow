@@ -66,31 +66,23 @@ class BpmnParser(object):
         for filename in filenames:
             f = open(filename, 'r')
             try:
-                xpath = xpath_eval(etree.parse(f))
+                self.add_bpmn_fp(f, None, filename)
             finally:
                 f.close()
 
-            svg = None
-            if filename.endswith('.bpmn20.xml'):
-                signavio_file = filename[:-len('.bpmn20.xml')] + '.signavio.xml'
-                if os.path.exists(signavio_file):
-                    f = open(signavio_file, 'r')
-                    try:
-                        signavio_tree = etree.parse(f)
-                        svg_node = one(signavio_tree.xpath('.//svg-representation'))
-                        svg = etree.fromstring(svg_node.text)
-                    finally:
-                        f.close()
+    def add_bpmn_fp(self, fp, svg_fp=None, filename=None):
+        xpath = xpath_eval(etree.parse(fp))
+        svg = etree.parse(svg_fp) if svg_fp is not None else None
 
-            processes = xpath('//bpmn:process')
-            for process in processes:
-                process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename)
-                if process_parser.get_id() in self.process_parsers:
-                    raise ValueError('Duplicate processes with ID "%s"', process_parser.get_id())
-                if process_parser.get_name() in self.process_parsers_by_name:
-                    raise ValueError('Duplicate processes with name "%s"', process_parser.get_name())
-                self.process_parsers[process_parser.get_id()] = process_parser
-                self.process_parsers_by_name[process_parser.get_name()] = process_parser
+        processes = xpath('//bpmn:process')
+        for process in processes:
+            process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename)
+            if process_parser.get_id() in self.process_parsers:
+                raise ValueError('Duplicate processes with ID "%s"', process_parser.get_id())
+            if process_parser.get_name() in self.process_parsers_by_name:
+                raise ValueError('Duplicate processes with name "%s"', process_parser.get_name())
+            self.process_parsers[process_parser.get_id()] = process_parser
+            self.process_parsers_by_name[process_parser.get_name()] = process_parser
 
     def _parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
         xpath = xpath_eval(sequence_flow_node)

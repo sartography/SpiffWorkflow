@@ -1,6 +1,7 @@
 import ConfigParser
 from StringIO import StringIO
 import glob
+import inspect
 from lxml import etree
 import zipfile
 from optparse import OptionParser, OptionGroup
@@ -14,6 +15,7 @@ __author__ = 'matth'
 
 class Packager(object):
 
+    METADATA_FILE = "metadata.ini"
     PARSER_CLASS = BpmnParser
 
     def __init__(self, package_file, entry_point_process, meta_data=None, editor=None):
@@ -68,6 +70,8 @@ class Packager(object):
 
                 self._call_editor_hook('package_for_editor', spec, filename)
 
+        self.package_zip.close()
+
     def _call_editor_hook(self, hook, *args, **kwargs):
         if self.editor:
             hook_func = getattr(self, "%s_%s" % (hook, self.editor), None)
@@ -95,12 +99,17 @@ class Packager(object):
         config.set('MetaData', 'entry_point_process', self.wf_spec.name)
         if self.editor:
             config.set('MetaData', 'editor', self.editor)
+
         for k, v in self.meta_data:
             config.set('MetaData', k, v)
 
+        if not self.PARSER_CLASS == BpmnParser:
+            config.set('MetaData', 'parser_class_module', inspect.getmodule(self.PARSER_CLASS).__name__)
+            config.set('MetaData', 'parser_class', self.PARSER_CLASS.__name__)
+
         ini = StringIO()
         config.write(ini)
-        self.package_zip.writestr("metadata.ini", ini.getvalue())
+        self.package_zip.writestr(self.METADATA_FILE, ini.getvalue())
 
     def _get_zip_path(self, filename):
         p = os.path.abspath(filename)[len(self.input_path_prefix):].replace(os.path.sep, '/')
