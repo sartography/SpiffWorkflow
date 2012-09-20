@@ -117,62 +117,89 @@ class Packager(object):
             p = p[1:]
         return p
 
-def get_version():
-    try:
-        import pkg_resources  # part of setuptools
-        version = pkg_resources.require("SpiffWorkflow")[0].version
-    except Exception, ex:
-        version = 'DEV'
-    return version
+    @classmethod
+    def get_version(cls):
+        try:
+            import pkg_resources  # part of setuptools
+            version = pkg_resources.require("SpiffWorkflow")[0].version
+        except Exception, ex:
+            version = 'DEV'
+        return version
+
+    @classmethod
+    def create_option_parser(cls):
+        return OptionParser(
+            usage="%prog [options] -o <package file> -p <entry point process> <input BPMN files ...>",
+            version="SpiffWorkflow BPMN Packager %s" % (cls.get_version()))
+
+    @classmethod
+    def add_main_options(cls, parser):
+        parser.add_option("-o", "--output", dest="package_file",
+            help="create the BPMN package in the specified file")
+        parser.add_option("-p", "--process", dest="entry_point_process",
+            help="specify the entry point process")
+
+        group = OptionGroup(parser, "BPMN Editor Options",
+            "These options are not required, but may be provided to activate special features of supported BPMN editors.")
+        group.add_option("--editor", dest="editor",
+            help="editors with special support: signavio")
+        parser.add_option_group(group)
+
+    @classmethod
+    def add_additional_options(cls, parser):
+        group = OptionGroup(parser, "Target Engine Options",
+            "These options are not required, but may be provided if a specific BPMN application engine is targeted.")
+        group.add_option("-e", "--target-engine", dest="target_engine",
+            help="target the specified BPMN application engine")
+        group.add_option("-t", "--target-version", dest="target_engine_version",
+            help="target the specified version of the BPMN application engine")
+        parser.add_option_group(group)
+
+    @classmethod
+    def check_args(cls, options, args, parser):
+        if not args:
+            parser.error("no input files specified")
+        if not options.package_file:
+            parser.error("no package file specified")
+        if not options.entry_point_process:
+            parser.error("no entry point process specified")
+
+    @classmethod
+    def create_meta_data(cls, options, args, parser):
+        meta_data = []
+        meta_data.append(('spiff_version', cls.get_version()))
+        if options.target_engine:
+            meta_data.append(('target_engine', options.target_engine))
+        if options.target_engine:
+            meta_data.append(('target_engine_version', options.target_engine_version))
+        return meta_data
+
+    @classmethod
+    def main(cls):
+        parser = cls.create_option_parser()
+
+        cls.add_main_options(parser)
+
+        cls.add_additional_options(parser)
+
+        (options, args) = parser.parse_args()
+
+        cls.check_args(options, args, parser)
+
+        meta_data = cls.create_meta_data(options, args, parser)
+
+        packager = cls(package_file=options.package_file, entry_point_process=options.entry_point_process, meta_data=meta_data, editor=options.editor)
+        for a in args:
+            packager.add_bpmn_files_by_glob(a)
+        packager.create_package()
 
 def main(packager_class=None):
-    parser = OptionParser(usage="%prog [options] -o <package file> -p <entry point process> <input BPMN files ...>", version="SpiffWorkflow BPMN Packager %s" % (get_version()))
-    parser.add_option("-o", "--output", dest="package_file",
-        help="create the BPMN package in the specified file")
-    parser.add_option("-p", "--process", dest="entry_point_process",
-        help="specify the entry point process")
-
-    group = OptionGroup(parser, "BPMN Editor Options",
-        "These options are not required, but may be provided to activate special features of supported BPMN editors.")
-    group.add_option("--editor", dest="editor",
-        help="editors with special support: signavio")
-    parser.add_option_group(group)
-
-    group = OptionGroup(parser, "Target Engine Options",
-        "These options are not required, but may be provided if a specific BPMN application engine is targeted.")
-    group.add_option("-e", "--target-engine", dest="target_engine",
-        help="target the specified BPMN application engine")
-    group.add_option("-t", "--target-version", dest="target_engine_version",
-        help="target the specified version of the BPMN application engine")
-    parser.add_option_group(group)
-
-    parser.add_option("-q", "--quiet",
-        action="store_false", dest="verbose", default=True,
-        help="don't print status messages to stdout")
-
-    (options, args) = parser.parse_args()
-
-    if not args:
-        parser.error("no input files specified")
-    if not options.package_file:
-        parser.error("no package file specified")
-    if not options.entry_point_process:
-        parser.error("no entry point process specified")
 
     if not packager_class:
         packager_class = Packager
 
-    meta_data = []
-    meta_data.append(('spiff_version', get_version()))
-    if options.target_engine:
-        meta_data.append(('target_engine', options.target_engine))
-    if options.target_engine:
-        meta_data.append(('target_engine_version', options.target_engine_version))
+    packager_class.main()
 
-    packager = packager_class(package_file=options.package_file, entry_point_process=options.entry_point_process, meta_data=meta_data, editor=options.editor)
-    for a in args:
-        packager.add_bpmn_files_by_glob(a)
-    packager.create_package()
 
 if __name__ == '__main__':
     main()
