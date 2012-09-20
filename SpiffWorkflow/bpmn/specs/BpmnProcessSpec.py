@@ -54,7 +54,7 @@ class BpmnProcessSpec(WorkflowSpec):
 
         return lanes
 
-    def _get_specs_depth_first(self):
+    def get_specs_depth_first(self):
 
         done = set()
         specs = [self]
@@ -79,7 +79,7 @@ class BpmnProcessSpec(WorkflowSpec):
     def to_html(self):
         workflows = []
         svg_done = set()
-        for spec in self._get_specs_depth_first():
+        for spec in self.get_specs_depth_first():
             if not spec.svg in svg_done:
                 workflows.append(E.P(spec.svg))
                 svg_done.add(spec.svg)

@@ -5,11 +5,11 @@ __author__ = 'matth'
 
 class ProcessParser(object):
 
-    def __init__(self, p, node, svg):
+    def __init__(self, p, node, svg, filename=None):
         self.parser = p
         self.node = node
         self.xpath = xpath_eval(node)
-        self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), svg=svg)
+        self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), svg=svg, filename=filename)
         self.parsing_started = False
         self.is_parsed = False
         self.is_parallel_branching = False

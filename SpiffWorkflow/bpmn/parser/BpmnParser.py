@@ -84,7 +84,7 @@ class BpmnParser(object):
 
             processes = xpath('//bpmn:process')
             for process in processes:
-                process_parser = self.PROCESS_PARSER_CLASS(self, process, svg)
+                process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename)
                 if process_parser.get_id() in self.process_parsers:
                     raise ValueError('Duplicate processes with ID "%s"', process_parser.get_id())
                 if process_parser.get_name() in self.process_parsers_by_name:
