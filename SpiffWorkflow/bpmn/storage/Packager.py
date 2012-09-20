@@ -1,8 +1,10 @@
 import glob
+from lxml import etree
 import zipfile
 from optparse import OptionParser, OptionGroup
 import os
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
+from SpiffWorkflow.bpmn.parser.util import one
 
 
 __author__ = 'matth'
@@ -61,6 +63,18 @@ class Packager(object):
                     signavio_file = filename[:-len('.bpmn20.xml')] + '.signavio.xml'
                     if os.path.exists(signavio_file):
                         package.write(signavio_file, "src/" + self._get_zip_path(signavio_file))
+
+                        f = open(signavio_file, 'r')
+                        try:
+                            signavio_tree = etree.parse(f)
+                        finally:
+                            f.close()
+                        svg_node = one(signavio_tree.xpath('.//svg-representation'))
+                        svg = etree.fromstring(svg_node.text)
+                        package.writestr("%s.svg" % spec.name, etree.tostring(svg,pretty_print=True))
+
+
+
 
     def _get_zip_path(self, filename):
         p = os.path.abspath(filename)[len(self.input_path_prefix):].replace(os.path.sep, '/')
