@@ -1,4 +1,3 @@
-from StringIO import StringIO
 import sys
 from SpiffWorkflow.bpmn.storage.BpmnSerializer import BpmnSerializer
 from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
@@ -10,12 +9,8 @@ def main():
     workflow_name = sys.argv[2]
     output_file = sys.argv[3]
 
-    s = StringIO()
-    p = PackagerForTests(s, workflow_name, meta_data=[], editor='signavio')
-    p.add_bpmn_files_by_glob(workflow_files)
-    p.create_package()
-
-    spec = BpmnSerializer().deserialize_workflow_spec(s.getvalue())
+    spec = BpmnSerializer().deserialize_workflow_spec(
+        PackagerForTests.package_in_memory(workflow_name, workflow_files))
 
     f = open(output_file, 'w')
     try:

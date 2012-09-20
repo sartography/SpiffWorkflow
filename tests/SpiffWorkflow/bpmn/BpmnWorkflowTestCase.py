@@ -2,7 +2,8 @@ import os
 import unittest
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnLoaderForTests import TestBpmnParser
+from SpiffWorkflow.bpmn.storage.BpmnSerializer import BpmnSerializer
+from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
 __author__ = 'matth'
 
@@ -11,9 +12,9 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def load_workflow_spec(self, filename, process_name):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
-        p = TestBpmnParser()
-        p.add_bpmn_files_by_glob(f)
-        return p.get_spec(process_name)
+
+        return BpmnSerializer().deserialize_workflow_spec(
+            PackagerForTests.package_in_memory(process_name, f))
 
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:
