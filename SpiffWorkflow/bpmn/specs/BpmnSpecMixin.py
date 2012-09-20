@@ -1,7 +1,18 @@
 from SpiffWorkflow.Task import Task
+from SpiffWorkflow.operators import Operator
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
 
 __author__ = 'matth'
+
+class _BpmnCondition(Operator):
+
+    def __init__(self, *args):
+        if len(args) > 1:
+            raise TypeError("Too many arguments")
+        super(_BpmnCondition, self).__init__(*args)
+
+    def _matches(self, task):
+        return task.workflow.script_engine.evaluate(task, self.args[0])
 
 class SequenceFlow(object):
     def __init__(self, id, name, task_spec):
@@ -25,7 +36,7 @@ class BpmnSpecMixin(TaskSpec):
         self.outgoing_sequence_flows_by_id[sequence_flow_id] = s
 
     def connect_outgoing_if(self, condition, taskspec, sequence_flow_id, sequence_flow_name):
-        self.connect_if(condition, taskspec)
+        self.connect_if(_BpmnCondition(condition), taskspec)
         s = SequenceFlow(sequence_flow_id, sequence_flow_name, taskspec)
         self.outgoing_sequence_flows[taskspec.name] = s
         self.outgoing_sequence_flows_by_id[sequence_flow_id] = s

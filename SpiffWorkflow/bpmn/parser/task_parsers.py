@@ -1,4 +1,3 @@
-from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnCondition
 from SpiffWorkflow.bpmn.specs.MessageEvent import MessageEvent
 from SpiffWorkflow.bpmn.specs.TimerEvent import TimerEvent
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
@@ -41,7 +40,7 @@ class ExclusiveGatewayParser(TaskParser):
             cond = self.parser._parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node)
             if cond is None:
                 raise ValueError('Non-default exclusive outgoing sequence flow without condition')
-            self.task.connect_outgoing_if(BpmnCondition(cond), outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None))
+            self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None))
 
     def handles_multiple_outgoing(self):
         return True

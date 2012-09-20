@@ -14,11 +14,9 @@ from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.parser.ProcessParser import ProcessParser
 from SpiffWorkflow.bpmn.parser.util import *
 from SpiffWorkflow.bpmn.parser.task_parsers import *
+from lxml import etree
 
 __author__ = 'matth'
-
-
-from lxml import etree
 
 class BpmnParser(object):
 
