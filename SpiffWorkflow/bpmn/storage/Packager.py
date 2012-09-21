@@ -91,12 +91,19 @@ class Packager(object):
             else:
                 self.input_path_prefix = os.path.abspath(filename)
 
-        #Check that we can parse it fine:
-        fixed_bpmn = {}
+        #Parse all of the XML:
+        self.bpmn = {}
         for filename in self.input_files:
             bpmn = etree.parse(filename)
+            self.bpmn[os.path.abspath(filename)] = bpmn
+
+        #Now run through pre-parsing and validation:
+        for filename, bpmn in self.bpmn.iteritems():
             bpmn = self.pre_parse_and_validate(bpmn, filename)
-            fixed_bpmn[os.path.abspath(filename)] = bpmn
+            self.bpmn[os.path.abspath(filename)] = bpmn
+
+        #Now check that we can parse it fine:
+        for filename, bpmn in self.bpmn.iteritems():
             self.parser.add_bpmn_xml(bpmn, filename=filename)
 
         self.wf_spec = self.parser.get_spec(self.entry_point_process)
@@ -112,7 +119,7 @@ class Packager(object):
             if not filename in done_files:
                 done_files.add(filename)
 
-                bpmn = fixed_bpmn[os.path.abspath(filename)]
+                bpmn = self.bpmn[os.path.abspath(filename)]
                 self.package_zip.writestr("%s.bpmn" % spec.name, etree.tostring(bpmn))
 
                 self.package_zip.write(filename, "src/" + self._get_zip_path(filename))
@@ -168,8 +175,18 @@ class Packager(object):
                 signavioMetaData = xpath_eval(node, extra_ns={'signavio':SIGNAVIO_NS})('.//signavio:signavioMetaData[@metaKey="entry"]')
                 if not signavioMetaData:
                     raise ValidationException('No Signavio "Subprocess reference" specified.', node=node, filename=filename)
-                calledElement = one(signavioMetaData).get('metaValue')
-                node.set('calledElement', calledElement)
+                subprocess_reference = one(signavioMetaData).get('metaValue')
+                matches = []
+                for b in self.bpmn.itervalues():
+                    for p in xpath_eval(b)(".//bpmn:process"):
+                        if p.get('name', p.get('id', None)) == subprocess_reference:
+                            matches.append(p)
+                if not matches:
+                    raise ValidationException("No matching process definition found for '%s'." % subprocess_reference, node=node, filename=filename)
+                if len(matches) != 1:
+                    raise ValidationException("More than one matching process definition found for '%s'." % subprocess_reference, node=node, filename=filename)
+
+                node.set('calledElement', matches[0].get('id'))
 
     def _call_editor_hook(self, hook, *args, **kwargs):
         if self.editor:

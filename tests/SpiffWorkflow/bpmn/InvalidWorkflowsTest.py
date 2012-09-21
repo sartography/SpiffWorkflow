@@ -65,8 +65,8 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
             self.load_workflow_spec('Invalid-Workflows/Subprocess-Not-Found.bpmn20.xml', 'Subprocess Not Found')
             self.fail("self.load_workflow_spec('Invalid-Workflows/Subprocess-Not-Found.bpmn20.xml', 'Subprocess Not Found') should fail.")
         except ValidationException, ex:
-            self.assertTrue('KeyError(\'Missing subprocess\'' in ('%r'%ex),
-                '\'KeyError(\'Missing subprocess\'\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('No matching process definition found for \'Missing subprocess\'.' in ('%r'%ex),
+                '\'No matching process definition found for \'Missing subprocess\'.\' should be a substring of error message: \'%r\'' % ex)
             self.assertTrue('line 35' in ('%r'%ex),
                 '\'line 35\' should be a substring of error message: \'%r\'' % ex)
             self.assertTrue('Subprocess-Not-Found.bpmn20.xml' in ('%r'%ex),
