@@ -9,9 +9,16 @@ __author__ = 'matth'
 
 
 class UnrecoverableWorkflowChange(Exception):
+    """
+    This is thrown if the workflow cannot be restored because the workflow spec has changed, and the
+    identified transitions no longer exist.
+    """
     pass
 
 class _RouteNode(object):
+    """
+    Private helper class
+    """
     def __init__(self, task_spec, outgoing_route_node=None):
         self.task_spec = task_spec
         self.outgoing = [outgoing_route_node] if outgoing_route_node else []
@@ -22,6 +29,9 @@ class _RouteNode(object):
         return m[0] if m else None
 
 class _BpmnProcessSpecState(object):
+    """
+    Private helper class
+    """
 
     def __init__(self, spec):
         self.spec = spec
@@ -164,15 +174,48 @@ class _BpmnProcessSpecState(object):
 
 
 class CompactWorkflowSerializer(Serializer):
+    """
+    This class provides an implementation of serialize_workflow and deserialize_workflow that produces a
+    compact representation of the workflow state, that can be stored in a database column or reasonably small
+    size.
+
+    It records ONLY enough information to identify the transition leading in to each WAITING or READY state,
+    along with the state of that task. This is generally enough to resurrect a running BPMN workflow instance,
+    with some limitations.
+
+    Limitations:
+    1. The compact representation does not include any workflow or task attributes. It is the responsibility of the
+    calling application to record whatever attributes are relevant to it, and set them on the restored workflow.
+    2. The restoring process will not produce exactly the same workflow tree - it finds the SHORTEST route to
+    the saved READY and WAITING tasks, not the route that was actually taken. This means that the tree cannot be
+    interrogated for historical information about the workflow. However, the workflow does follow the same logic
+    paths as would have been followed by the original workflow.
+
+    """
 
     STATE_SPEC_VERSION = 1
 
-    def serialize_workflow(self, workflow, include_spec=True,**kwargs):
+    def serialize_workflow_spec(self, wf_spec, **kwargs):
+        raise NotImplementedError("The CompactWorkflowSerializer only supports workflow serialization.")
+
+    def deserialize_workflow_spec(self, s_state, **kwargs):
+        raise NotImplementedError("The CompactWorkflowSerializer only supports workflow serialization.")
+
+    def serialize_workflow(self, workflow, include_spec=False,**kwargs):
+        """
+        :param workflow: the workflow instance to serialize
+        :param include_spec: Always set to False (The CompactWorkflowSerializer only supports workflow serialization)
+        """
         if include_spec:
             raise NotImplementedError('Including the spec serialization with the workflow state is not implemented.')
         return self._get_workflow_state(workflow)
 
     def deserialize_workflow(self, s_state, workflow_spec=None, read_only=False, **kwargs):
+        """
+        :param s_state: the state of the workflow as returned by serialize_workflow
+        :param workflow_spec: the Workflow Spec of the workflow (CompactWorkflowSerializer only supports workflow serialization)
+        :param read_only: (Optional) True if the workflow should be restored in READ ONLY mode
+        """
         if workflow_spec is None:
             raise NotImplementedError('Including the spec serialization with the workflow state is not implemented. A \'workflow_spec\' must be provided.')
         workflow = self.new_workflow(workflow_spec, read_only=read_only)
@@ -212,8 +255,8 @@ class CompactWorkflowSerializer(Serializer):
 
     def _restore_workflow_state(self, workflow, state):
         state_list = json.loads('['+state+']')
-        #We only have one version right now:
-        assert state_list[-1] == self.STATE_SPEC_VERSION
+
+        self._check_spec_version(state_list[-1])
 
         s = _BpmnProcessSpecState(workflow.spec)
 
@@ -234,3 +277,7 @@ class CompactWorkflowSerializer(Serializer):
             s.go(workflow)
         finally:
             workflow._busy_with_restore = False
+
+    def _check_spec_version(self, v):
+        #We only have one version right now:
+        assert v == self.STATE_SPEC_VERSION
