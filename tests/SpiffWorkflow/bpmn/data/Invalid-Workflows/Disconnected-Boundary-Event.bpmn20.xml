@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:signavio="http://www.signavio.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Signavio Process Editor, http://www.signavio.com" exporterVersion="" expressionLanguage="http://www.w3.org/1999/XPath" id="sid-4695fa80-b72a-46a2-b2de-b891ef72d351" targetNamespace="http://www.signavio.com/bpmn20" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
-   <collaboration id="sid-c55b388a-1815-4b88-b54b-4a41a71c1724">
-      <participant id="sid-4FD44FD9-7798-49B9-B364-1BCDD573C827" name="Disconnected Boundary Event" processRef="sid-88d4b66b-b43c-4bad-9d30-dfc2ecb0313f">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:signavio="http://www.signavio.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Signavio Process Editor, http://www.signavio.com" exporterVersion="" expressionLanguage="http://www.w3.org/1999/XPath" id="sid-4959781f-bad4-452b-a5f6-6097e65912ca" targetNamespace="http://www.signavio.com/bpmn20" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
+   <collaboration id="sid-f09d213c-6c10-452a-b18c-2887a60da0e6">
+      <participant id="sid-4FD44FD9-7798-49B9-B364-1BCDD573C827" name="Disconnected Boundary Event" processRef="sid-d9cd9a99-82b7-4db7-a9b3-74e1312f49a7">
          <extensionElements>
             <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
          </extensionElements>
       </participant>
-      <participant id="sid-15306CB0-C0EE-4A9C-8B78-79CAA357EE3C" name="Subprocess for Disconnected Boundary Event" processRef="sid-0395de04-264d-4d75-99b4-1dd09c6b5575">
+      <participant id="sid-15306CB0-C0EE-4A9C-8B78-79CAA357EE3C" name="Subprocess for Disconnected Boundary Event" processRef="sid-0af22f9e-cea8-4c52-9dc8-ea64ad992cca">
          <extensionElements>
             <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
          </extensionElements>
       </participant>
    </collaboration>
-   <process id="sid-88d4b66b-b43c-4bad-9d30-dfc2ecb0313f" isClosed="false" isExecutable="false" name="Disconnected Boundary Event" processType="None">
-      <laneSet id="sid-f3039701-ffe9-472a-b679-283b050a19a6">
+   <process id="sid-d9cd9a99-82b7-4db7-a9b3-74e1312f49a7" isClosed="false" isExecutable="false" name="Disconnected Boundary Event" processType="None">
+      <laneSet id="sid-148d747a-a1f3-410c-9b24-d4bc54121d96">
          <lane id="sid-3D0056E3-493D-4E62-BCD0-B4AAC4654DBD" name="Tester">
             <extensionElements>
                <signavio:signavioMetaData metaKey="bgcolor" metaValue=""/>
@@ -35,7 +35,7 @@
       <callActivity completionQuantity="1" id="sid-617B0E1F-42DB-4D40-9B4C-ED631BF6E43A" isForCompensation="false" name="Subprocess for Message Non Interrupt SP" startQuantity="1">
          <extensionElements>
             <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
-            <signavio:signavioMetaData metaKey="entry" metaValue="Subprocess for Message Non Interrupt SP"/>
+            <signavio:signavioMetaData metaKey="entry" metaValue="Subprocess for Disconnected Boundary Event"/>
          </extensionElements>
          <incoming>sid-F1DA0EEB-68EF-47E3-A6EA-5E2D25B6B34D</incoming>
          <outgoing>sid-3204DA36-1068-4F48-99DD-1DBAC909A08B</outgoing>
@@ -66,7 +66,7 @@
             <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
          </extensionElements>
          <outgoing>sid-2E189291-49E9-41CF-8865-D7B3D57D4464</outgoing>
-         <messageEventDefinition id="sid-0f3c892b-0659-4db0-b63a-78ff63856229"/>
+         <messageEventDefinition id="sid-d92c30bc-dd48-493a-a735-44c267aa0ee4"/>
       </intermediateCatchEvent>
       <sequenceFlow id="sid-2E189291-49E9-41CF-8865-D7B3D57D4464" name="" sourceRef="sid-84C7CE67-D0B6-486A-B097-486DA924FF9D" targetRef="sid-4B320727-A78F-47E7-98CF-F589994A1C64"/>
       <sequenceFlow id="sid-F1DA0EEB-68EF-47E3-A6EA-5E2D25B6B34D" name="" sourceRef="sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F" targetRef="sid-617B0E1F-42DB-4D40-9B4C-ED631BF6E43A"/>
@@ -78,8 +78,8 @@
          <text>This not actually connected to the subprocess task - it's just on top</text>
       </textAnnotation>
    </process>
-   <process id="sid-0395de04-264d-4d75-99b4-1dd09c6b5575" isClosed="false" isExecutable="false" name="Subprocess for Disconnected Boundary Event" processType="None">
-      <laneSet id="sid-470932ee-64fc-4102-8a59-2bf18cceb8af">
+   <process id="sid-0af22f9e-cea8-4c52-9dc8-ea64ad992cca" isClosed="false" isExecutable="false" name="Subprocess for Disconnected Boundary Event" processType="None">
+      <laneSet id="sid-ac0bebce-11f7-4c17-b891-b2bbe559517a">
          <lane id="sid-BD8CA42D-62D9-455E-8E85-55FF66E439AB" name="Tester">
             <extensionElements>
                <signavio:signavioMetaData metaKey="bgcolor" metaValue=""/>
@@ -111,8 +111,8 @@
       <sequenceFlow id="sid-9D819E98-CD45-48A5-9F8D-B36047118934" name="" sourceRef="sid-7ED4D4F6-491F-4317-A37D-51C86F911524" targetRef="sid-137E71C6-FE26-418B-AFC0-1083027370F7"/>
       <sequenceFlow id="sid-04951D4B-FEAF-4D8E-924F-6B14AB63B83B" name="Done" sourceRef="sid-137E71C6-FE26-418B-AFC0-1083027370F7" targetRef="sid-D99DD91F-8C51-4913-872A-DBBB5C7BE66C"/>
    </process>
-   <bpmndi:BPMNDiagram id="sid-eca5f105-5faa-4598-819a-1dff809e3c49">
-      <bpmndi:BPMNPlane bpmnElement="sid-c55b388a-1815-4b88-b54b-4a41a71c1724" id="sid-110a5b8e-ee50-4bf6-a9d2-68f5e28b4403">
+   <bpmndi:BPMNDiagram id="sid-c3be42ea-ddf0-4eec-992d-58dcd2a9c495">
+      <bpmndi:BPMNPlane bpmnElement="sid-f09d213c-6c10-452a-b18c-2887a60da0e6" id="sid-ad7d7cd7-3c58-4f4b-bf42-72f486689b03">
          <bpmndi:BPMNShape bpmnElement="sid-4FD44FD9-7798-49B9-B364-1BCDD573C827" id="sid-4FD44FD9-7798-49B9-B364-1BCDD573C827_gui" isHorizontal="true">
             <omgdc:Bounds height="353.0" width="841.0" x="120.0" y="51.0"/>
          </bpmndi:BPMNShape>
