@@ -78,6 +78,24 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
             self.assertTrue('Subprocess for Subprocess Not Found' in ('%r'%ex),
                 '\'Subprocess for Subprocess Not Found\' should be a substring of error message: \'%r\'' % ex)
 
+    def testRecursiveSubprocesses(self):
+        try:
+            self.load_workflow_spec('Invalid-Workflows/Recursive-Subprocesses.bpmn20.xml', 'Recursive Subprocesses')
+            self.fail("self.load_workflow_spec('Invalid-Workflows/Recursive-Subprocesses.bpmn20.xml', 'Recursive Subprocesses') should fail.")
+        except ValidationException, ex:
+            self.assertTrue('Recursive call Activities are not supported' in ('%r'%ex),
+                '\'Recursive call Activities are not supported\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('line 97' in ('%r'%ex),
+                '\'line 97\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('Recursive-Subprocesses.bpmn20.xml' in ('%r'%ex),
+                '\'Recursive-Subprocesses.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('callActivity' in ('%r'%ex),
+                '\'callActivity\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('sid-10515BFA-0CEC-4B8B-B3BE-E717DEBA6D89' in ('%r'%ex),
+                '\'sid-10515BFA-0CEC-4B8B-B3BE-E717DEBA6D89\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('Recursive Subprocesses (callback!)' in ('%r'%ex),
+                '\'Recursive Subprocesses (callback!)\' should be a substring of error message: \'%r\'' % ex)
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(InvalidWorkflowsTest)
 if __name__ == '__main__':
