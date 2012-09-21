@@ -1,3 +1,4 @@
+from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.specs.MessageEvent import MessageEvent
 from SpiffWorkflow.bpmn.specs.TimerEvent import TimerEvent
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
@@ -55,7 +56,7 @@ class ExclusiveGatewayParser(TaskParser):
         else:
             cond = self.parser._parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node)
             if cond is None:
-                raise ValueError('Non-default exclusive outgoing sequence flow without condition')
+                raise ValidationException('Non-default exclusive outgoing sequence flow without condition', sequence_flow_node, self.process_parser.filename)
             self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None))
 
     def handles_multiple_outgoing(self):
@@ -85,6 +86,8 @@ class CallActivityParser(TaskParser):
             if not signavioMetaData:
                 raise ValueError('No "calledElement" attribute or Signavio "Subprocess reference" present.' )
             calledElement = one(signavioMetaData).get('metaValue')
+        if not calledElement:
+            raise ValidationException('No "calledElement" attribute for Call Activity.', node=self.node, filename=self.process_parser.filename)
         return self.parser.get_process_parser(calledElement)
 
 class ScriptTaskParser(TaskParser):

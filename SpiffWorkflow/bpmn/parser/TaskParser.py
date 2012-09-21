@@ -1,3 +1,4 @@
+from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
 from SpiffWorkflow.bpmn.parser.util import *
 
@@ -33,41 +34,46 @@ class TaskParser(object):
         Parse this node, and all children, returning the connected task spec.
         """
 
-        self.task = self.create_task()
+        try:
+            self.task = self.create_task()
 
-        boundary_event_nodes = self.process_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
-        if boundary_event_nodes:
-            parent_task = _BoundaryEventParent(self.spec, '%s.BoundaryEventParent' % self.get_id(), self.task, lane=self.task.lane)
-            self.process_parser.parsed_nodes[self.node.get('id')] = parent_task
+            boundary_event_nodes = self.process_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
+            if boundary_event_nodes:
+                parent_task = _BoundaryEventParent(self.spec, '%s.BoundaryEventParent' % self.get_id(), self.task, lane=self.task.lane)
+                self.process_parser.parsed_nodes[self.node.get('id')] = parent_task
 
-            parent_task.connect_outgoing(self.task, '%s.FromBoundaryEventParent' % self.get_id(), None)
-            for boundary_event in boundary_event_nodes:
-                b = self.process_parser.parse_node(boundary_event)
-                parent_task.connect_outgoing(b, '%s.FromBoundaryEventParent' % boundary_event.get('id'), None)
-        else:
-            self.process_parser.parsed_nodes[self.node.get('id')] = self.task
+                parent_task.connect_outgoing(self.task, '%s.FromBoundaryEventParent' % self.get_id(), None)
+                for boundary_event in boundary_event_nodes:
+                    b = self.process_parser.parse_node(boundary_event)
+                    parent_task.connect_outgoing(b, '%s.FromBoundaryEventParent' % boundary_event.get('id'), None)
+            else:
+                self.process_parser.parsed_nodes[self.node.get('id')] = self.task
 
 
-        children = []
-        outgoing = self.process_xpath('.//bpmn:sequenceFlow[@sourceRef="%s"]' % self.get_id())
-        if len(outgoing) > 1 and not self.handles_multiple_outgoing():
-            raise NotImplementedError('Multiple outgoing flows are not supported for tasks of type %s', self.spec_class.__name__)
-        for sequence_flow in outgoing:
-            target_ref = sequence_flow.get('targetRef')
-            target_node = one(self.process_xpath('.//bpmn:*[@id="%s"]' % target_ref))
-            c = self.process_parser.parse_node(target_node)
-            children.append((c, target_node, sequence_flow))
+            children = []
+            outgoing = self.process_xpath('.//bpmn:sequenceFlow[@sourceRef="%s"]' % self.get_id())
+            if len(outgoing) > 1 and not self.handles_multiple_outgoing():
+                raise ValidationException('Multiple outgoing flows are not supported for tasks of type', node=self.node, filename=self.process_parser.filename)
+            for sequence_flow in outgoing:
+                target_ref = sequence_flow.get('targetRef')
+                target_node = one(self.process_xpath('.//bpmn:*[@id="%s"]' % target_ref))
+                c = self.process_parser.parse_node(target_node)
+                children.append((c, target_node, sequence_flow))
 
-        if children:
-            default_outgoing = self.node.get('default')
-            if not default_outgoing:
-                (c, target_node, sequence_flow) = children[0]
-                default_outgoing = sequence_flow.get('id')
+            if children:
+                default_outgoing = self.node.get('default')
+                if not default_outgoing:
+                    (c, target_node, sequence_flow) = children[0]
+                    default_outgoing = sequence_flow.get('id')
 
-            for (c, target_node, sequence_flow) in children:
-                self.connect_outgoing(c, target_node, sequence_flow, sequence_flow.get('id') == default_outgoing)
+                for (c, target_node, sequence_flow) in children:
+                    self.connect_outgoing(c, target_node, sequence_flow, sequence_flow.get('id') == default_outgoing)
 
-        return parent_task if boundary_event_nodes else self.task
+            return parent_task if boundary_event_nodes else self.task
+        except ValidationException, vx:
+            raise
+        except Exception, ex:
+            raise ValidationException("%r"%(ex), node=self.node, filename=self.process_parser.filename)
 
     def get_lane(self):
         """

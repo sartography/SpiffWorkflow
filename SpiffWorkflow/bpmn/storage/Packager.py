@@ -6,7 +6,8 @@ from lxml import etree
 import zipfile
 from optparse import OptionParser, OptionGroup
 import os
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser, ValidationException
+from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
+from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.parser.util import *
 
 

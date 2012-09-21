@@ -1,5 +1,6 @@
 import glob
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.specs.BoundaryEvent import BoundaryEvent
 from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
@@ -16,42 +17,6 @@ from SpiffWorkflow.bpmn.parser.task_parsers import *
 from lxml import etree
 
 __author__ = 'matth'
-
-class ValidationException(Exception):
-    """
-    A ValidationException should be thrown with enough information for the user
-    to diagnose the problem and sort it out.
-
-    If available, please provide the offending XML node and filename.
-    """
-
-    def __init__(self, msg, node = None, filename = None, *args, **kwargs):
-        if node is not None:
-            self.tag = self._shorten_tag(node.tag)
-            self.id = node.get('id', '<Unknown>')
-            self.name = node.get('name', '<Unknown>')
-            self.sourceline = node.sourceline or '<Unknown>'
-        else:
-            self.tag = '<Unknown>'
-            self.id = '<Unknown>'
-            self.name = '<Unknown>'
-            self.sourceline = '<Unknown>'
-        self.filename = filename or '<Unknown File>'
-        message = '%s\nSource Details: %s (id:%s), name \'%s\', line %s in %s' % (
-            msg, self.tag, self.id, self.name, self.sourceline, self.filename)
-
-        super(ValidationException, self).__init__(message, *args, **kwargs)
-
-    @classmethod
-    def _shorten_tag(cls, tag):
-        prefix = '{%s}' % BPMN_MODEL_NS
-        if tag.startswith(prefix):
-            return 'bpmn:' + tag[len(prefix):]
-        prefix = '{%s}' % SIGNAVIO_NS
-        if tag.startswith(prefix):
-            return 'signavio:' + tag[len(prefix):]
-        return tag
-
 
 class BpmnParser(object):
     """
@@ -93,8 +58,9 @@ class BpmnParser(object):
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
             return self.OVERRIDE_PARSER_CLASSES[tag]
-        else:
+        elif tag in self.PARSER_CLASSES:
             return self.PARSER_CLASSES[tag]
+        raise NotImplementedError('There is no support implemented for this task type.')
 
     def get_process_parser(self, process_id_or_name):
         """
@@ -141,9 +107,9 @@ class BpmnParser(object):
         for process in processes:
             process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename)
             if process_parser.get_id() in self.process_parsers:
-                raise ValueError('Duplicate processes with ID "%s"', process_parser.get_id())
+                raise ValidationException('Duplicate process ID', node=process, filename=filename)
             if process_parser.get_name() in self.process_parsers_by_name:
-                raise ValueError('Duplicate processes with name "%s"', process_parser.get_name())
+                raise ValidationException('Duplicate process name', node=process, filename=filename)
             self.process_parsers[process_parser.get_id()] = process_parser
             self.process_parsers_by_name[process_parser.get_name()] = process_parser
 

@@ -26,6 +26,7 @@ class ProcessParser(object):
         self.is_parsed = False
         self.parsed_nodes = {}
         self.svg = svg
+        self.filename = filename
 
     def get_id(self):
         """

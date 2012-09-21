@@ -1,9 +1,5 @@
 import unittest
-import datetime
-import time
-from SpiffWorkflow.Task import Task
-from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.parser.BpmnParser import ValidationException
+from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
