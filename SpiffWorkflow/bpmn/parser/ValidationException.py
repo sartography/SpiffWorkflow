@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn.parser.util import BPMN_MODEL_NS, SIGNAVIO_NS
+from SpiffWorkflow.bpmn.parser.util import BPMN_MODEL_NS
 
 class ValidationException(Exception):
     """
@@ -30,8 +30,5 @@ class ValidationException(Exception):
         prefix = '{%s}' % BPMN_MODEL_NS
         if tag.startswith(prefix):
             return 'bpmn:' + tag[len(prefix):]
-        prefix = '{%s}' % SIGNAVIO_NS
-        if tag.startswith(prefix):
-            return 'signavio:' + tag[len(prefix):]
         return tag
 

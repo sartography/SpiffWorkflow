@@ -13,6 +13,7 @@ from SpiffWorkflow.bpmn.parser.util import *
 
 __author__ = 'matth'
 
+SIGNAVIO_NS='http://www.signavio.com'
 
 class Packager(object):
     """
@@ -91,9 +92,11 @@ class Packager(object):
                 self.input_path_prefix = os.path.abspath(filename)
 
         #Check that we can parse it fine:
+        fixed_bpmn = {}
         for filename in self.input_files:
             bpmn = etree.parse(filename)
             bpmn = self.pre_parse_and_validate(bpmn, filename)
+            fixed_bpmn[os.path.abspath(filename)] = bpmn
             self.parser.add_bpmn_xml(bpmn, filename=filename)
 
         self.wf_spec = self.parser.get_spec(self.entry_point_process)
@@ -108,7 +111,9 @@ class Packager(object):
             filename = spec.file
             if not filename in done_files:
                 done_files.add(filename)
-                self.package_zip.write(filename, "%s.bpmn" % spec.name)
+
+                bpmn = fixed_bpmn[os.path.abspath(filename)]
+                self.package_zip.writestr("%s.bpmn" % spec.name, etree.tostring(bpmn))
 
                 self.package_zip.write(filename, "src/" + self._get_zip_path(filename))
 
@@ -142,9 +147,11 @@ class Packager(object):
 
         This must return the updated bpmn object (or a replacement)
         """
-        self._check_for_disconnected_boundary_events(bpmn, filename)
+        self._check_for_disconnected_boundary_events_signavio(bpmn, filename)
+        self._fix_call_activities_signavio(bpmn, filename)
+        return bpmn
 
-    def _check_for_disconnected_boundary_events(self, bpmn, filename):
+    def _check_for_disconnected_boundary_events_signavio(self, bpmn, filename):
         #signavio sometimes disconnects a BoundaryEvent from it's owning task
         #They then show up as intermediateCatchEvents without any incoming sequence flows
         xpath = xpath_eval(bpmn)
@@ -154,6 +161,15 @@ class Packager(object):
                 raise ValidationException('Intermediate Catch Event has no incoming sequences. This might be a Boundary Event that has been disconnected.',
                 node=catch_event, filename=filename)
 
+    def _fix_call_activities_signavio(self, bpmn, filename):
+        for node in xpath_eval(bpmn)(".//bpmn:callActivity"):
+            calledElement = node.get('calledElement', None)
+            if not calledElement:
+                signavioMetaData = xpath_eval(node, extra_ns={'signavio':SIGNAVIO_NS})('.//signavio:signavioMetaData[@metaKey="entry"]')
+                if not signavioMetaData:
+                    raise ValidationException('No Signavio "Subprocess reference" specified.', node=node, filename=filename)
+                calledElement = one(signavioMetaData).get('metaValue')
+                node.set('calledElement', calledElement)
 
     def _call_editor_hook(self, hook, *args, **kwargs):
         if self.editor:

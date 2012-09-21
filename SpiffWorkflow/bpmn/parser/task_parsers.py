@@ -88,11 +88,6 @@ class CallActivityParser(TaskParser):
     def get_subprocess_parser(self):
         calledElement = self.node.get('calledElement', None)
         if not calledElement:
-            signavioMetaData = self.xpath('.//signavio:signavioMetaData[@metaKey="entry"]')
-            if not signavioMetaData:
-                raise ValueError('No "calledElement" attribute or Signavio "Subprocess reference" present.' )
-            calledElement = one(signavioMetaData).get('metaValue')
-        if not calledElement:
             raise ValidationException('No "calledElement" attribute for Call Activity.', node=self.node, filename=self.process_parser.filename)
         return self.parser.get_process_parser(calledElement)
 

@@ -3,7 +3,6 @@ from lxml import etree
 __author__ = 'matth'
 
 BPMN_MODEL_NS='http://www.omg.org/spec/BPMN/20100524/MODEL'
-SIGNAVIO_NS='http://www.signavio.com'
 
 def one(nodes,or_none=False):
     """
@@ -23,12 +22,14 @@ def first(nodes):
     else:
         return None
 
-def xpath_eval(node):
+def xpath_eval(node, extra_ns=None):
     """
     Returns an XPathEvaluator, with namespace prefixes 'bpmn' for http://www.omg.org/spec/BPMN/20100524/MODEL,
-    and 'signavio' for http://www.signavio.com
+    and additional specified ones
     """
-    namespaces = {'bpmn':BPMN_MODEL_NS, 'signavio':SIGNAVIO_NS}
+    namespaces = {'bpmn':BPMN_MODEL_NS}
+    if extra_ns:
+        namespaces.update(extra_ns)
     return etree.XPathEvaluator(node, namespaces=namespaces)
 
 def full_tag(tag):
