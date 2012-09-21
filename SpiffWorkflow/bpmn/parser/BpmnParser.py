@@ -20,6 +20,7 @@ __author__ = 'matth'
 class BpmnParser(object):
     """
     The BpmnParser class is a pluggable base class that manages the parsing of a set of BPMN files.
+    It is intended that this class will be overriden by an application that implements a BPMN engine.
 
     Extension points:
     OVERRIDE_PARSER_CLASSES provides a map from full BPMN tag name to a TaskParser and Task class.
