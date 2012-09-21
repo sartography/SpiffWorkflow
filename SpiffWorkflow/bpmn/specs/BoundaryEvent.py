@@ -4,14 +4,14 @@ from SpiffWorkflow.bpmn.specs.IntermediateCatchEvent import IntermediateCatchEve
 
 __author__ = 'matth'
 
-class BoundaryEventParent(BpmnSpecMixin):
+class _BoundaryEventParent(BpmnSpecMixin):
 
     def __init__(self, parent, name, main_child_task_spec, lane=None, **kwargs):
-        super(BoundaryEventParent, self).__init__(parent, name, lane=lane, **kwargs)
+        super(_BoundaryEventParent, self).__init__(parent, name, lane=lane, **kwargs)
         self.main_child_task_spec = main_child_task_spec
 
     def _child_complete_hook(self, child_task):
-        if child_task.task_spec == self.main_child_task_spec or self.should_cancel(child_task.task_spec):
+        if child_task.task_spec == self.main_child_task_spec or self._should_cancel(child_task.task_spec):
             for sibling in child_task.parent.children:
                 if sibling != child_task:
                     if sibling.task_spec == self.main_child_task_spec or (isinstance(sibling.task_spec, BoundaryEvent) and not sibling._is_finished()):
@@ -34,14 +34,11 @@ class BoundaryEventParent(BpmnSpecMixin):
             if child.task_spec == self.main_child_task_spec:
                 child._set_state(state)
 
-    def should_cancel(self, task_spec):
-        return isinstance(task_spec, BoundaryEvent) and task_spec.cancel_activity()
+    def _should_cancel(self, task_spec):
+        return issubclass(task_spec.__class__, BoundaryEvent) and task_spec._cancel_activity
 
 class BoundaryEvent(IntermediateCatchEvent):
 
     def __init__(self, parent, name, cancel_activity=None, event_spec=None, **kwargs):
         super(BoundaryEvent, self).__init__(parent, name, event_spec=event_spec, **kwargs)
         self._cancel_activity = cancel_activity
-
-    def cancel_activity(self):
-        return self._cancel_activity

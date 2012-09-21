@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn.specs.BoundaryEvent import BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
 from SpiffWorkflow.bpmn.parser.util import *
 
 __author__ = 'matth'
@@ -37,7 +37,7 @@ class TaskParser(object):
 
         boundary_event_nodes = self.process_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
         if boundary_event_nodes:
-            parent_task = BoundaryEventParent(self.spec, '%s.BoundaryEventParent' % self.get_id(), self.task, lane=self.task.lane)
+            parent_task = _BoundaryEventParent(self.spec, '%s.BoundaryEventParent' % self.get_id(), self.task, lane=self.task.lane)
             self.process_parser.parsed_nodes[self.node.get('id')] = parent_task
 
             parent_task.connect_outgoing(self.task, '%s.FromBoundaryEventParent' % self.get_id(), None)
