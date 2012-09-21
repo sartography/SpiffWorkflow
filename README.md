@@ -43,3 +43,6 @@ A reasonable subset of the BPMN notation is supported, including the following e
 The following is an example of a BPMN workflow:
 
 ![action-management.png](https://github.com/matthewhampton/SpiffWorkflow/raw/samuel_review_fixes/doc/figures/action-management.png)
+
+Please refer to http://www.bpmn.org/ for details.
+
