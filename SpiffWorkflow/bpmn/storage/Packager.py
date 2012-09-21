@@ -117,12 +117,31 @@ class Packager(object):
         self.package_zip.close()
 
     def pre_parse_and_validate(self, bpmn, filename):
+        """
+        A subclass can override this method to provide additional parseing or validation.
+        It should call the parent method first.
 
+        :param bpmn: an lxml tree of the bpmn content
+        :param filename: the source file name
+
+        This must return the updated bpmn object (or a replacement)
+        """
         bpmn = self._call_editor_hook('pre_parse_and_validate', bpmn, filename) or bpmn
 
         return bpmn
 
     def pre_parse_and_validate_signavio(self, bpmn, filename):
+        """
+        This is the Signavio specific editor hook for pre-parsing and validation.
+
+        A subclass can override this method to provide additional parseing or validation.
+        It should call the parent method first.
+
+        :param bpmn: an lxml tree of the bpmn content
+        :param filename: the source file name
+
+        This must return the updated bpmn object (or a replacement)
+        """
         self._check_for_disconnected_boundary_events(bpmn, filename)
 
     def _check_for_disconnected_boundary_events(self, bpmn, filename):
