@@ -8,6 +8,10 @@ __author__ = 'matth'
 from lxml import etree
 
 class StartEventParser(TaskParser):
+    """
+    Parses a Start Event, and connects it to the internal spec.start task.
+    """
+
     def create_task(self):
         t = super(StartEventParser, self).create_task()
         self.spec.start.connect(t)
@@ -17,6 +21,9 @@ class StartEventParser(TaskParser):
         return True
 
 class EndEventParser(TaskParser):
+    """
+    Parses and End Event. This also checks whether it should be a terminating end event.
+    """
 
     def create_task(self):
 
@@ -26,12 +33,21 @@ class EndEventParser(TaskParser):
         return task
 
 class UserTaskParser(TaskParser):
+    """
+    Base class for parsing User Tasks
+    """
     pass
 
 class ManualTaskParser(UserTaskParser):
+    """
+    Base class for parsing Manual Tasks. Currently assumes that Manual Tasks should be treated the same way as User Tasks.
+    """
     pass
 
 class ExclusiveGatewayParser(TaskParser):
+    """
+    Parses an Exclusive Gateway, setting up the outgoing conditions appropriately.
+    """
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
         if is_default:
@@ -49,10 +65,18 @@ class ExclusiveGatewayParser(TaskParser):
         return False
 
 class ParallelGatewayParser(TaskParser):
+    """
+    Parses a Parallel Gateway.
+    """
+
     def handles_multiple_outgoing(self):
         return True
 
 class CallActivityParser(TaskParser):
+    """
+    Parses a CallActivity node. This also supports the not-quite-correct BPMN that Signavio produces (which does not have a calledElement attribute).
+    """
+
     def create_task(self):
         wf_spec = self.get_subprocess_parser().get_spec()
         return self.spec_class(self.spec, self.get_task_spec_name(), wf_spec=wf_spec, wf_class=self.parser.WORKFLOW_CLASS, description=self.node.get('name', None))
@@ -70,19 +94,34 @@ class CallActivityParser(TaskParser):
         return self.parser.get_process_parser(calledElement)
 
 class ScriptTaskParser(TaskParser):
+    """
+    Parses a script task
+    """
+
     def create_task(self):
         script = self.get_script()
         return self.spec_class(self.spec, self.get_task_spec_name(), script, description=self.node.get('name', None))
 
     def get_script(self):
+        """
+        Gets the script content from the node. A subclass can override this method, if the script needs
+        to be pre-parsed. The result of this call will be passed to the Script Engine for execution.
+        """
         return one(self.xpath('.//bpmn:script')).text
 
 class IntermediateCatchEventParser(TaskParser):
+    """
+    Parses an Intermediate Catch Event. This currently onlt supports Message and Timer event definitions.
+    """
+
     def create_task(self):
         event_spec = self.get_event_spec()
         return self.spec_class(self.spec, self.get_task_spec_name(), event_spec, description=self.node.get('name', None))
 
     def get_event_spec(self):
+        """
+        Parse the event definition node, and return an instance of Event
+        """
         messageEventDefinition = first(self.xpath('.//bpmn:messageEventDefinition'))
         if messageEventDefinition is not None:
             return self.get_message_event_spec(messageEventDefinition)
@@ -94,16 +133,28 @@ class IntermediateCatchEventParser(TaskParser):
         raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node) )
 
     def get_message_event_spec(self, messageEventDefinition):
+        """
+        Parse the messageEventDefinition node and return an instance of MessageEvent
+        """
         messageRef = first(self.xpath('.//bpmn:messageRef'))
         message = messageRef.get('name') if messageRef is not None else self.node.get('name')
         return MessageEvent(message)
 
     def get_timer_event_spec(self, timerEventDefinition):
+        """
+        Parse the timerEventDefinition node and return an instance of TimerEvent
+
+        This currently only supports the timeDate node for specifying an expiry time for the timer.
+        """
         timeDate = first(self.xpath('.//bpmn:timeDate'))
         return TimerEvent(self.node.get('name', timeDate.text), timeDate.text)
 
 
 class BoundaryEventParser(IntermediateCatchEventParser):
+    """
+    Parse a Catching Boundary Event. This extends the IntermediateCatchEventParser in order to parse the event definition.
+    """
+
     def create_task(self):
         event_spec = self.get_event_spec()
         cancel_activity = self.node.get('cancelActivity', default='false').lower() == 'true'
