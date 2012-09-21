@@ -60,6 +60,24 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
             self.assertTrue('Multiple Start Events' in ('%r'%ex),
                 '\'Multiple Start Events\' should be a substring of error message: \'%r\'' % ex)
 
+    def testSubprocessNotFound(self):
+        try:
+            self.load_workflow_spec('Invalid-Workflows/Subprocess-Not-Found.bpmn20.xml', 'Subprocess Not Found')
+            self.fail("self.load_workflow_spec('Invalid-Workflows/Subprocess-Not-Found.bpmn20.xml', 'Subprocess Not Found') should fail.")
+        except ValidationException, ex:
+            self.assertTrue('KeyError(\'Missing subprocess\'' in ('%r'%ex),
+                '\'KeyError(\'Missing subprocess\'\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('line 35' in ('%r'%ex),
+                '\'line 35\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('Subprocess-Not-Found.bpmn20.xml' in ('%r'%ex),
+                '\'Subprocess-Not-Found.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('callActivity' in ('%r'%ex),
+                '\'callActivity\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('sid-617B0E1F-42DB-4D40-9B4C-ED631BF6E43A' in ('%r'%ex),
+                '\'sid-617B0E1F-42DB-4D40-9B4C-ED631BF6E43A\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('Subprocess for Subprocess Not Found' in ('%r'%ex),
+                '\'Subprocess for Subprocess Not Found\' should be a substring of error message: \'%r\'' % ex)
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(InvalidWorkflowsTest)
 if __name__ == '__main__':
