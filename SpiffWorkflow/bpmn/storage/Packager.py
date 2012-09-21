@@ -14,11 +14,38 @@ __author__ = 'matth'
 
 
 class Packager(object):
+    """
+    The Packager class pre-parses a set of BPMN files (together with their SVG representation),
+    validates the contents and then produces a ZIP-based archive containing the pre-parsed
+    BPMN and SVG files, the source files (for reference) and a metadata.ini file that contains
+    enough information to create a BpmnProcessSpec instance from the archive (e.g. the ID of the
+    entry point process).
+
+    This class can be extended and any public method overridden to do additional validation / parsing
+    or to package additional metadata.
+
+    Extension point:
+    PARSER_CLASS: provide the class that should be used to parse the BPMN files. The fully-qualified
+    name will be included in the metadata.ini file, so that the BpmnSerializer can instantiate the right
+    parser to deal with the package.
+
+    Editor hooks:
+    package_for_editor_<editor name>(self, spec, filename): Called once for each BPMN file. Should add any additional files to the archive.
+
+    """
 
     METADATA_FILE = "metadata.ini"
     PARSER_CLASS = BpmnParser
 
     def __init__(self, package_file, entry_point_process, meta_data=None, editor=None):
+        """
+        Constructor.
+
+        :param package_file: a file-like object where the contents of the package must be written to
+        :param entry_point_process: the name or ID of the entry point process
+        :param meta_data: A list of meta-data tuples to include in the metadata.ini file (in addition to the standard ones)
+        :param editor: The name of the editor used to create the source BPMN / SVG files. This activates additional hook method calls. (optional)
+        """
         self.package_file = package_file
         self.entry_point_process = entry_point_process
         self.parser = self.PARSER_CLASS()
@@ -28,15 +55,27 @@ class Packager(object):
         self.editor = editor
 
     def add_bpmn_file(self, filename):
+        """
+        Add the given BPMN filename to the packager's set.
+        """
         self.add_bpmn_files([filename])
 
     def add_bpmn_files_by_glob(self, g):
+        """
+        Add all filenames matching the provided pattern (e.g. *.bpmn) to the packager's set.
+        """
         self.add_bpmn_files(glob.glob(g))
 
     def add_bpmn_files(self, filenames):
+        """
+        Add all filenames in the given list to the packager's set.
+        """
         self.input_files += filenames
 
     def create_package(self):
+        """
+        Creates the package, writing the data out to the provided file-like object.
+        """
 
         #Check that all files exist (and calculate the longest shared path prefix):
         self.input_path_prefix = None
@@ -79,6 +118,9 @@ class Packager(object):
                 hook_func(*args, **kwargs)
 
     def package_for_editor_signavio(self, spec, filename):
+        """
+        Adds the SVG files to the archive for this BPMN file.
+        """
         signavio_file = filename[:-len('.bpmn20.xml')] + '.signavio.xml'
         if os.path.exists(signavio_file):
             self.package_zip.write(signavio_file, "src/" + self._get_zip_path(signavio_file))
@@ -93,6 +135,9 @@ class Packager(object):
             self.package_zip.writestr("%s.svg" % spec.name, etree.tostring(svg,pretty_print=True))
 
     def write_meta_data(self):
+        """
+        Writes the metadata.ini file to the archive.
+        """
         config = ConfigParser.SafeConfigParser()
 
         config.add_section('MetaData')
@@ -128,12 +173,18 @@ class Packager(object):
 
     @classmethod
     def create_option_parser(cls):
+        """
+        Override in subclass if required.
+        """
         return OptionParser(
             usage="%prog [options] -o <package file> -p <entry point process> <input BPMN files ...>",
             version="SpiffWorkflow BPMN Packager %s" % (cls.get_version()))
 
     @classmethod
     def add_main_options(cls, parser):
+        """
+        Override in subclass if required.
+        """
         parser.add_option("-o", "--output", dest="package_file",
             help="create the BPMN package in the specified file")
         parser.add_option("-p", "--process", dest="entry_point_process",
@@ -147,6 +198,9 @@ class Packager(object):
 
     @classmethod
     def add_additional_options(cls, parser):
+        """
+        Override in subclass if required.
+        """
         group = OptionGroup(parser, "Target Engine Options",
             "These options are not required, but may be provided if a specific BPMN application engine is targeted.")
         group.add_option("-e", "--target-engine", dest="target_engine",
@@ -157,6 +211,9 @@ class Packager(object):
 
     @classmethod
     def check_args(cls, options, args, parser):
+        """
+        Override in subclass if required.
+        """
         if not args:
             parser.error("no input files specified")
         if not options.package_file:
@@ -166,6 +223,9 @@ class Packager(object):
 
     @classmethod
     def create_meta_data(cls, options, args, parser):
+        """
+        Override in subclass if required.
+        """
         meta_data = []
         meta_data.append(('spiff_version', cls.get_version()))
         if options.target_engine:
@@ -194,12 +254,14 @@ class Packager(object):
         packager.create_package()
 
 def main(packager_class=None):
+    """
+    :param packager_class: The Packager class to use. Default: Packager.
+    """
 
     if not packager_class:
         packager_class = Packager
 
     packager_class.main()
-
 
 if __name__ == '__main__':
     main()

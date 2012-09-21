@@ -9,8 +9,27 @@ from SpiffWorkflow.storage.Serializer import Serializer
 __author__ = 'matth'
 
 class BpmnSerializer(Serializer):
+    """
+    The BpmnSerializer class provides support for deserializing a Bpmn Workflow Spec from a BPMN package.
+    The BPMN package must have been created using the Packager class (from SpiffWorkflow.bpmn.storage.Packager).
+
+    It will also use the appropriate subclass of BpmnParser, if one is included in the metadata.ini file.
+    """
+
+    def serialize_workflow_spec(self, wf_spec, **kwargs):
+        raise NotImplementedError("The BpmnSerializer class cannot be used to serialize. BPMN authoring should be done using a supported editor.")
+
+    def serialize_workflow(self, workflow, **kwargs):
+        raise NotImplementedError("The BPMN standard does not provide a specification for serializing a running workflow.")
+
+    def deserialize_workflow(self, s_state, **kwargs):
+        raise NotImplementedError("The BPMN standard does not provide a specification for serializing a running workflow.")
 
     def deserialize_workflow_spec(self, s_state, filename=None):
+        """
+        :param s_state: a byte-string with the contents of the packaged workflow archive, or a file-like object.
+        :param filename: the name of the package file.
+        """
         if isinstance(s_state, basestring):
             s_state = StringIO(s_state)
 
