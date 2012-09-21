@@ -12,7 +12,7 @@
   <model:process id="Approvals" name="Approvals">
     <model:documentation></model:documentation>
     <model:laneSet id="Approvals_laneSet">
-      <model:lane id="Test" name="Test">
+      <model:lane id="Approvals.Test" name="Test">
         <model:documentation></model:documentation>
         <model:flowNodeRef>Start1</model:flowNodeRef>
         <model:flowNodeRef>First_Approval_Wins</model:flowNodeRef>
@@ -22,175 +22,175 @@
         <model:flowNodeRef>Parallel_SP</model:flowNodeRef>
         <model:flowNodeRef>Parallel_SP_Done</model:flowNodeRef>
       </model:lane>
-      <model:lane id="Supervisor" name="Supervisor">
+      <model:lane id="Approvals.Supervisor" name="Supervisor">
         <model:documentation></model:documentation>
         <model:flowNodeRef>Supervisor_Approval__P_</model:flowNodeRef>
         <model:flowNodeRef>Gateway4</model:flowNodeRef>
         <model:flowNodeRef>Gateway5</model:flowNodeRef>
       </model:lane>
-      <model:lane id="Manager" name="Manager">
+      <model:lane id="Approvals.Manager" name="Manager">
         <model:documentation></model:documentation>
         <model:flowNodeRef>Manager_Approval__P_</model:flowNodeRef>
       </model:lane>
     </model:laneSet>
-    <model:startEvent id="Start1" name="Start1">
+    <model:startEvent id="Approvals.Start1" name="Start1">
       <model:documentation></model:documentation>
     </model:startEvent>
-    <model:callActivity id="First_Approval_Wins" name="First Approval Wins" calledElement="First_Approval_Wins">
+    <model:callActivity id="Approvals.First_Approval_Wins" name="First Approval Wins" calledElement="First_Approval_Wins">
       <model:documentation></model:documentation>
     </model:callActivity>
-    <model:endEvent id="End1" name="End1">
+    <model:endEvent id="Approvals.End1" name="End1">
       <model:documentation></model:documentation>
     </model:endEvent>
-    <model:manualTask id="First_Approval_Wins_Done" name="First Approval Wins Done">
+    <model:manualTask id="Approvals.First_Approval_Wins_Done" name="First Approval Wins Done">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:manualTask id="Parallel_Approvals_Done" name="Parallel Approvals Done">
+    <model:manualTask id="Approvals.Parallel_Approvals_Done" name="Parallel Approvals Done">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:callActivity id="Parallel_SP" name="Parallel SP" calledElement="Parallel_Approvals_SP">
+    <model:callActivity id="Approvals.Parallel_SP" name="Parallel SP" calledElement="Parallel_Approvals_SP">
       <model:documentation></model:documentation>
     </model:callActivity>
-    <model:manualTask id="Parallel_SP_Done" name="Parallel SP Done">
+    <model:manualTask id="Approvals.Parallel_SP_Done" name="Parallel SP Done">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:manualTask id="Supervisor_Approval__P_" name="Supervisor Approval (P)">
+    <model:manualTask id="Approvals.Supervisor_Approval__P_" name="Supervisor Approval (P)">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:parallelGateway id="Gateway4" name="Gateway4">
+    <model:parallelGateway id="Approvals.Gateway4" name="Gateway4">
       <model:documentation></model:documentation>
     </model:parallelGateway>
-    <model:parallelGateway id="Gateway5" name="Gateway5">
+    <model:parallelGateway id="Approvals.Gateway5" name="Gateway5">
       <model:documentation></model:documentation>
     </model:parallelGateway>
-    <model:manualTask id="Manager_Approval__P_" name="Manager Approval (P)">
+    <model:manualTask id="Approvals.Manager_Approval__P_" name="Manager Approval (P)">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:sequenceFlow id="_IcV3AO4CEeG6ILSEFG-uBA" sourceRef="Start1" targetRef="First_Approval_Wins">
+    <model:sequenceFlow id="_IcV3AO4CEeG6ILSEFG-uBA" sourceRef="Approvals.Start1" targetRef="Approvals.First_Approval_Wins">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="_vVCwgO4DEeG6ILSEFG-uBA" sourceRef="First_Approval_Wins" targetRef="First_Approval_Wins_Done">
+    <model:sequenceFlow id="_vVCwgO4DEeG6ILSEFG-uBA" sourceRef="Approvals.First_Approval_Wins" targetRef="Approvals.First_Approval_Wins_Done">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="On_to_Parallel_Approvals1" name="On to Parallel Approvals" sourceRef="First_Approval_Wins_Done" targetRef="Gateway4">
+    <model:sequenceFlow id="On_to_Parallel_Approvals1" name="On to Parallel Approvals" sourceRef="Approvals.First_Approval_Wins_Done" targetRef="Approvals.Gateway4">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="_dceXwO6YEeG6ILSEFG-uBA" sourceRef="Gateway4" targetRef="Manager_Approval__P_">
+    <model:sequenceFlow id="_dceXwO6YEeG6ILSEFG-uBA" sourceRef="Approvals.Gateway4" targetRef="Approvals.Manager_Approval__P_">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="_d_Hx0O6YEeG6ILSEFG-uBA" sourceRef="Gateway4" targetRef="Supervisor_Approval__P_">
+    <model:sequenceFlow id="_d_Hx0O6YEeG6ILSEFG-uBA" sourceRef="Approvals.Gateway4" targetRef="Approvals.Supervisor_Approval__P_">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="Approve2" name="Approve" sourceRef="Supervisor_Approval__P_" targetRef="Gateway5">
+    <model:sequenceFlow id="Approve2" name="Approve" sourceRef="Approvals.Supervisor_Approval__P_" targetRef="Approvals.Gateway5">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="On_To_Parallel_SP3" name="On To Parallel SP" sourceRef="Parallel_Approvals_Done" targetRef="Parallel_SP">
+    <model:sequenceFlow id="On_To_Parallel_SP3" name="On To Parallel SP" sourceRef="Approvals.Parallel_Approvals_Done" targetRef="Approvals.Parallel_SP">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="Approve4" name="Approve" sourceRef="Manager_Approval__P_" targetRef="Gateway5">
+    <model:sequenceFlow id="Approve4" name="Approve" sourceRef="Approvals.Manager_Approval__P_" targetRef="Approvals.Gateway5">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="OK5" name="OK" sourceRef="Parallel_SP_Done" targetRef="End1">
+    <model:sequenceFlow id="OK5" name="OK" sourceRef="Approvals.Parallel_SP_Done" targetRef="Approvals.End1">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="_76Vy8O6ZEeG6ILSEFG-uBA" sourceRef="Parallel_SP" targetRef="Parallel_SP_Done">
+    <model:sequenceFlow id="_76Vy8O6ZEeG6ILSEFG-uBA" sourceRef="Approvals.Parallel_SP" targetRef="Approvals.Parallel_SP_Done">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="_E8AnwO6aEeG6ILSEFG-uBA" sourceRef="Gateway5" targetRef="Parallel_Approvals_Done">
+    <model:sequenceFlow id="_E8AnwO6aEeG6ILSEFG-uBA" sourceRef="Approvals.Gateway5" targetRef="Approvals.Parallel_Approvals_Done">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
   </model:process>
   <model:process id="First_Approval_Wins" name="First Approval Wins">
     <model:documentation></model:documentation>
-    <model:laneSet id="First Approval Wins_laneSet">
-      <model:lane id="Supervisor" name="Supervisor">
+    <model:laneSet id="First_Approval_Wins.First Approval Wins_laneSet">
+      <model:lane id="First_Approval_Wins.Supervisor" name="Supervisor">
         <model:documentation></model:documentation>
         <model:flowNodeRef>Supervisor_Approval</model:flowNodeRef>
         <model:flowNodeRef>Start2</model:flowNodeRef>
         <model:flowNodeRef>Supervisor_Approved</model:flowNodeRef>
       </model:lane>
-      <model:lane id="Manager" name="Manager">
+      <model:lane id="First_Approval_Wins.Manager" name="Manager">
         <model:documentation></model:documentation>
         <model:flowNodeRef>Manager_Approval</model:flowNodeRef>
         <model:flowNodeRef>Manager_Approved</model:flowNodeRef>
       </model:lane>
     </model:laneSet>
-    <model:manualTask id="Supervisor_Approval" name="Supervisor Approval">
+    <model:manualTask id="First_Approval_Wins.Supervisor_Approval" name="Supervisor Approval">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:startEvent id="Start2" name="Start2">
+    <model:startEvent id="First_Approval_Wins.Start2" name="Start2">
       <model:documentation></model:documentation>
     </model:startEvent>
-    <model:endEvent id="Supervisor_Approved" name="Supervisor Approved">
+    <model:endEvent id="First_Approval_Wins.Supervisor_Approved" name="Supervisor Approved">
       <model:documentation></model:documentation>
       <model:terminateEventDefinition id="_auX1Qe-1EeG6ILSEFG-uBA"/>
     </model:endEvent>
-    <model:manualTask id="Manager_Approval" name="Manager Approval">
+    <model:manualTask id="First_Approval_Wins.Manager_Approval" name="Manager Approval">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:endEvent id="Manager_Approved" name="Manager Approved">
+    <model:endEvent id="First_Approval_Wins.Manager_Approved" name="Manager Approved">
       <model:documentation></model:documentation>
       <model:terminateEventDefinition id="_auX1Qu-1EeG6ILSEFG-uBA"/>
     </model:endEvent>
-    <model:sequenceFlow id="Approve6" name="Approve" sourceRef="Supervisor_Approval" targetRef="Supervisor_Approved">
+    <model:sequenceFlow id="Approve6" name="Approve" sourceRef="First_Approval_Wins.Supervisor_Approval" targetRef="First_Approval_Wins.Supervisor_Approved">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="Approve7" name="Approve" sourceRef="Manager_Approval" targetRef="Manager_Approved">
+    <model:sequenceFlow id="Approve7" name="Approve" sourceRef="First_Approval_Wins.Manager_Approval" targetRef="First_Approval_Wins.Manager_Approved">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="_CtMukO7hEeG6ILSEFG-uBA" sourceRef="Start2" targetRef="Supervisor_Approval">
+    <model:sequenceFlow id="_CtMukO7hEeG6ILSEFG-uBA" sourceRef="First_Approval_Wins.Start2" targetRef="First_Approval_Wins.Supervisor_Approval">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="_DBwCQO7hEeG6ILSEFG-uBA" sourceRef="Start2" targetRef="Manager_Approval">
+    <model:sequenceFlow id="_DBwCQO7hEeG6ILSEFG-uBA" sourceRef="First_Approval_Wins.Start2" targetRef="First_Approval_Wins.Manager_Approval">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
   </model:process>
   <model:process id="Parallel_Approvals_SP" name="Parallel Approvals SP">
     <model:documentation></model:documentation>
-    <model:laneSet id="Parallel Approvals SP_laneSet">
-      <model:lane id="Supervisor" name="Supervisor">
+    <model:laneSet id="Parallel_Approvals_SP.Parallel Approvals SP_laneSet">
+      <model:lane id="Parallel_Approvals_SP.Supervisor" name="Supervisor">
         <model:documentation></model:documentation>
         <model:flowNodeRef>Start3</model:flowNodeRef>
         <model:flowNodeRef>Supervisor_Approval</model:flowNodeRef>
         <model:flowNodeRef>End2</model:flowNodeRef>
       </model:lane>
-      <model:lane id="Manager" name="Manager">
+      <model:lane id="Parallel_Approvals_SP.Manager" name="Manager">
         <model:documentation></model:documentation>
         <model:flowNodeRef>Manager_Approval</model:flowNodeRef>
       </model:lane>
-      <model:lane id="Operator" name="Operator">
+      <model:lane id="Parallel_Approvals_SP.Operator" name="Operator">
         <model:documentation></model:documentation>
         <model:flowNodeRef>Step1</model:flowNodeRef>
       </model:lane>
     </model:laneSet>
-    <model:startEvent id="Start3" name="Start3">
+    <model:startEvent id="Parallel_Approvals_SP.Start3" name="Start3">
       <model:documentation></model:documentation>
     </model:startEvent>
-    <model:manualTask id="Supervisor_Approval" name="Supervisor Approval">
+    <model:manualTask id="Parallel_Approvals_SP.Supervisor_Approval" name="Supervisor Approval">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:endEvent id="End2" name="End2">
+    <model:endEvent id="Parallel_Approvals_SP.End2" name="End2">
       <model:documentation></model:documentation>
     </model:endEvent>
-    <model:manualTask id="Manager_Approval" name="Manager Approval">
+    <model:manualTask id="Parallel_Approvals_SP.Manager_Approval" name="Manager Approval">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:manualTask id="Step1" name="Operator Approval">
+    <model:manualTask id="Parallel_Approvals_SP.Step1" name="Operator Approval">
       <model:documentation></model:documentation>
     </model:manualTask>
-    <model:sequenceFlow id="Approve8" name="Approve" sourceRef="Supervisor_Approval" targetRef="End2">
+    <model:sequenceFlow id="Approve8" name="Approve" sourceRef="Parallel_Approvals_SP.Supervisor_Approval" targetRef="Parallel_Approvals_SP.End2">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="Approve9" name="Approve" sourceRef="Manager_Approval" targetRef="End2">
+    <model:sequenceFlow id="Approve9" name="Approve" sourceRef="Parallel_Approvals_SP.Manager_Approval" targetRef="Parallel_Approvals_SP.End2">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="_InMVgO6ZEeG6ILSEFG-uBA" sourceRef="Start3" targetRef="Step1">
+    <model:sequenceFlow id="_InMVgO6ZEeG6ILSEFG-uBA" sourceRef="Parallel_Approvals_SP.Start3" targetRef="Parallel_Approvals_SP.Step1">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="_JEeucO6ZEeG6ILSEFG-uBA" sourceRef="Start3" targetRef="Manager_Approval">
+    <model:sequenceFlow id="_JEeucO6ZEeG6ILSEFG-uBA" sourceRef="Parallel_Approvals_SP.Start3" targetRef="Parallel_Approvals_SP.Manager_Approval">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
-    <model:sequenceFlow id="Approve10" name="Approve" sourceRef="Step1" targetRef="Supervisor_Approval">
+    <model:sequenceFlow id="Approve10" name="Approve" sourceRef="Parallel_Approvals_SP.Step1" targetRef="Parallel_Approvals_SP.Supervisor_Approval">
       <model:documentation></model:documentation>
     </model:sequenceFlow>
   </model:process>
