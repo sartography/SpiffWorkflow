@@ -169,6 +169,15 @@ class Packager(object):
                 node=catch_event, filename=filename)
 
     def _fix_call_activities_signavio(self, bpmn, filename):
+        """
+        Signavio produces slightly invalid BPMN for call activity nodes... It is supposed to put a reference to the id of the called process
+        in to the calledElement attribute. Instead it stores a string (which is the name of the process - not its ID, in our interpretation)
+        in an extension tag.
+
+        This code gets the name of the 'subprocess reference', finds a process with a matching name, and sets the calledElement attribute
+        to the id of the process.
+
+        """
         for node in xpath_eval(bpmn)(".//bpmn:callActivity"):
             calledElement = node.get('calledElement', None)
             if not calledElement:
