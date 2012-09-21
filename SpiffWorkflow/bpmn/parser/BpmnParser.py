@@ -6,6 +6,7 @@ from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.IntermediateCatchEvent import IntermediateCatchEvent
 from SpiffWorkflow.bpmn.specs.ManualTask import ManualTask
+from SpiffWorkflow.bpmn.specs.NoneTask import NoneTask
 from SpiffWorkflow.bpmn.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask
 from SpiffWorkflow.bpmn.specs.StartEvent import StartEvent
@@ -34,6 +35,7 @@ class BpmnParser(object):
         full_tag('startEvent')          : (StartEventParser, StartEvent),
         full_tag('endEvent')            : (EndEventParser, EndEvent),
         full_tag('userTask')            : (UserTaskParser, UserTask),
+        full_tag('task')                : (NoneTaskParser, NoneTask),
         full_tag('manualTask')          : (ManualTaskParser, ManualTask),
         full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
         full_tag('parallelGateway')     : (ParallelGatewayParser, ParallelGateway),
