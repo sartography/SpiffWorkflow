@@ -60,7 +60,7 @@ class BpmnParser(object):
             return self.OVERRIDE_PARSER_CLASSES[tag]
         elif tag in self.PARSER_CLASSES:
             return self.PARSER_CLASSES[tag]
-        raise NotImplementedError('There is no support implemented for this task type.')
+        return None, None
 
     def get_process_parser(self, process_id_or_name):
         """

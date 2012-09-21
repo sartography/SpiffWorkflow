@@ -96,6 +96,23 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
             self.assertTrue('Recursive Subprocesses (callback!)' in ('%r'%ex),
                 '\'Recursive Subprocesses (callback!)\' should be a substring of error message: \'%r\'' % ex)
 
+    def testUnsupportedTask(self):
+        try:
+            self.load_workflow_spec('Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'Unsupported Task')
+            self.fail("self.load_workflow_spec('Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'Unsupported Task') should fail.")
+        except ValidationException, ex:
+            self.assertTrue('There is no support implemented for this task type' in ('%r'%ex),
+                '\'There is no support implemented for this task type\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('line 63' in ('%r'%ex),
+                '\'line 63\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('Unsupported-Task.bpmn20.xml' in ('%r'%ex),
+                '\'Unsupported-Task.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('businessRuleTask' in ('%r'%ex),
+                '\'businessRuleTask\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('sid-75EEAB28-3B69-4282-B91A-0F3C97931834' in ('%r'%ex),
+                '\'sid-75EEAB28-3B69-4282-B91A-0F3C97931834\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('Business Rule Task' in ('%r'%ex),
+                '\'Business Rule Task\' should be a substring of error message: \'%r\'' % ex)
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(InvalidWorkflowsTest)
 if __name__ == '__main__':
