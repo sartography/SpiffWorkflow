@@ -1,6 +1,6 @@
 __author__ = 'matth'
 
-class Event(object):
+class EventSpec(object):
     """
     The Event class is used by Catching Intermediate and Boundary Event tasks to know whether
     to proceed.

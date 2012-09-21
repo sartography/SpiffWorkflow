@@ -1,9 +1,9 @@
 import datetime
-from SpiffWorkflow.bpmn.specs.Event import Event
+from SpiffWorkflow.bpmn.specs.EventSpec import EventSpec
 
 __author__ = 'matth'
 
-class TimerEvent(Event):
+class TimerEvent(EventSpec):
 
     def __init__(self, label, dateTime):
         self.label = label

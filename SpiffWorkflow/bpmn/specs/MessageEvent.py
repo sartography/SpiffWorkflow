@@ -1,8 +1,8 @@
-from SpiffWorkflow.bpmn.specs.Event import Event
+from SpiffWorkflow.bpmn.specs.EventSpec import EventSpec
 
 __author__ = 'matth'
 
-class MessageEvent(Event):
+class MessageEvent(EventSpec):
 
     def __init__(self, message):
         self.message = message
