@@ -10,7 +10,7 @@ class BpmnWorkflow(Workflow):
         super(BpmnWorkflow, self).__init__(workflow_spec, **kwargs)
         self.name = name or workflow_spec.name
         self.script_engine = script_engine or BpmnScriptEngine()
-        self._is_busy_with_restore = False
+        self._busy_with_restore = False
         self.read_only = read_only
 
     def accept_message(self, message):
@@ -20,10 +20,10 @@ class BpmnWorkflow(Workflow):
         for my_task in Task.Iterator(self.task_tree, Task.WAITING):
             my_task.task_spec.accept_message(my_task, message)
 
-    def is_busy_with_restore(self):
+    def _is_busy_with_restore(self):
         if self.outer_workflow == self:
-            return self._is_busy_with_restore
-        return self.outer_workflow.is_busy_with_restore()
+            return self._busy_with_restore
+        return self.outer_workflow._is_busy_with_restore()
 
     def _is_engine_task(self, task_spec):
         return not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task()
@@ -48,10 +48,10 @@ class BpmnWorkflow(Workflow):
         return self.get_tasks(Task.WAITING)
 
     def _task_completed_notify(self, task):
-        assert (not self.read_only) or self.is_busy_with_restore()
+        assert (not self.read_only) or self._is_busy_with_restore()
         super(BpmnWorkflow, self)._task_completed_notify(task)
 
     def _task_cancelled_notify(self, task):
-        assert (not self.read_only) or self.is_busy_with_restore()
+        assert (not self.read_only) or self._is_busy_with_restore()
 
 

@@ -226,11 +226,11 @@ class CompactWorkflowSerializer(Serializer):
 
             s.add_path_to_transition(transition, state, workflow_parents)
 
-        workflow._is_busy_with_restore = True
+        workflow._busy_with_restore = True
         try:
             if len(state_list) <= 1:
                 workflow.cancel(success=True)
                 return
             s.go(workflow)
         finally:
-            workflow._is_busy_with_restore = False
+            workflow._busy_with_restore = False
