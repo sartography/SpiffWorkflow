@@ -7,7 +7,7 @@ import zipfile
 from optparse import OptionParser, OptionGroup
 import os
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.parser.util import one
+from SpiffWorkflow.bpmn.parser.util import *
 
 
 __author__ = 'matth'
@@ -120,6 +120,19 @@ class Packager(object):
         bpmn = self._call_editor_hook('pre_parse_and_validate', bpmn, filename) or bpmn
 
         return bpmn
+
+    def pre_parse_and_validate_signavio(self, bpmn, filename):
+        self._check_for_disconnected_boundary_events(bpmn)
+
+    def _check_for_disconnected_boundary_events(self, bpmn):
+        #signavio sometimes disconnects a BoundaryEvent from it's owning task
+        #They then show up as intermediateCatchEvents without any incoming sequence flows
+        xpath = xpath_eval(bpmn)
+        for catch_event in xpath('.//bpmn:intermediateCatchEvent'):
+            incoming = xpath('.//bpmn:sequenceFlow[@targetRef="%s"]' % catch_event.get('id'))
+            if not incoming:
+                raise ValueError('Intermediate Catch Event: %s [id:%s] has no incoming sequences. This might be a Boundary Event that has been disconnected.'
+                    % (catch_event.get('name', 'unnamed'), catch_event.get('id')))
 
 
     def _call_editor_hook(self, hook, *args, **kwargs):
