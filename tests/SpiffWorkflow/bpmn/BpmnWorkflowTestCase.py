@@ -55,6 +55,8 @@ class BpmnWorkflowTestCase(unittest.TestCase):
     def save_restore(self):
         state = self._get_workflow_state()
         self.restore(state)
+        #We should still have the same state:
+        self.assertEquals(state, self._get_workflow_state())
 
     def restore(self, state):
         self.workflow = CompactWorkflowSerializer().deserialize_workflow(state, workflow_spec=self.spec)

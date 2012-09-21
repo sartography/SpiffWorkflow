@@ -71,7 +71,7 @@ class _BpmnProcessSpecState(object):
     def go(self, workflow):
         leaf_tasks = []
         self._go(workflow.task_tree.children[0], self.route, leaf_tasks)
-        for task in leaf_tasks:
+        for task in sorted(leaf_tasks, key=lambda t: 0 if getattr(t, '_bpmn_load_target_state', Task.READY) == Task.READY else 1):
             task.task_spec._update_state(task)
             task._inherit_attributes()
             if hasattr(task, '_bpmn_load_target_state'):
