@@ -38,7 +38,15 @@ class _BoundaryEventParent(BpmnSpecMixin):
         return issubclass(task_spec.__class__, BoundaryEvent) and task_spec._cancel_activity
 
 class BoundaryEvent(IntermediateCatchEvent):
+    """
+    Task Spec for a bpmn:boundaryEvent node.
+    """
 
     def __init__(self, parent, name, cancel_activity=None, event_spec=None, **kwargs):
+        """
+        Constructor.
+
+        :param cancel_activity: True if this is a Cancelling boundary event.
+        """
         super(BoundaryEvent, self).__init__(parent, name, event_spec=event_spec, **kwargs)
         self._cancel_activity = cancel_activity

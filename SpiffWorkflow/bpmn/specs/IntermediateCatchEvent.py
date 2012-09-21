@@ -5,8 +5,16 @@ from SpiffWorkflow.specs.Simple import Simple
 __author__ = 'matth'
 
 class IntermediateCatchEvent(Simple, BpmnSpecMixin):
+    """
+    Task Spec for a bpmn:intermediateCatchEvent node.
+    """
 
     def __init__(self, parent, name, event_spec=None, **kwargs):
+        """
+        Constructor.
+
+        :param event_spec: the EventSpec that we must wait for.
+        """
         super(IntermediateCatchEvent, self).__init__(parent, name, **kwargs)
         self.event_spec = event_spec
 

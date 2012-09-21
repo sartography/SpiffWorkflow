@@ -5,8 +5,17 @@ from SpiffWorkflow.specs.TaskSpec import TaskSpec
 __author__ = 'matth'
 
 class CallActivity(SubWorkflow, BpmnSpecMixin):
+    """
+    Task Spec for a bpmn:callActivity node.
+    """
 
     def __init__(self, parent, name, wf_spec=None, wf_class=None, **kwargs):
+        """
+        Constructor.
+
+        :param wf_spec: the BpmnProcessSpec for the sub process.
+        :param wf_class: the BpmnWorkflow class to instantiate
+        """
         super(CallActivity, self).__init__(parent, name, None, **kwargs)
         self.spec = wf_spec
         self.wf_class = wf_class
@@ -21,6 +30,9 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
             parent = my_task.workflow.outer_workflow)
 
     def get_workflow_class(self):
+        """
+        Returns the workflow class to instantiate for the sub workflow
+        """
         return self.wf_class
 
     def _on_subworkflow_completed(self, subworkflow, my_task):

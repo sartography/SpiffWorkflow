@@ -5,8 +5,16 @@ from SpiffWorkflow.Task import Task
 __author__ = 'matth'
 
 class EndEvent(ParallelGateway, BpmnSpecMixin):
+    """
+    Task Spec for a bpmn:endEvent node.
+    """
 
     def __init__(self, parent, name, is_terminate_event=False, **kwargs):
+        """
+        Constructor.
+
+        :param is_terminate_event: True if this is a terminating end event
+        """
         super(EndEvent, self).__init__(parent, name, **kwargs)
         self.is_terminate_event = is_terminate_event
 
