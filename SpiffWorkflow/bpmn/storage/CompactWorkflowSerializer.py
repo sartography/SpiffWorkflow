@@ -163,7 +163,7 @@ class _BpmnProcessSpecState(object):
         return None
 
 
-class MinimalistWorkflowSerializer(Serializer):
+class CompactWorkflowSerializer(Serializer):
 
     STATE_SPEC_VERSION = 1
 

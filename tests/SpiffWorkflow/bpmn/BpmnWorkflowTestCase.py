@@ -1,9 +1,8 @@
 import os
 import unittest
 from SpiffWorkflow.Task import Task
-from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.storage.BpmnSerializer import BpmnSerializer
-from SpiffWorkflow.bpmn.storage.MinimalistWorkflowSerializer import MinimalistWorkflowSerializer
+from SpiffWorkflow.bpmn.storage.CompactWorkflowSerializer import CompactWorkflowSerializer
 from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
 __author__ = 'matth'
@@ -58,13 +57,13 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         self.restore(state)
 
     def restore(self, state):
-        self.workflow = MinimalistWorkflowSerializer().deserialize_workflow(state, workflow_spec=self.spec)
+        self.workflow = CompactWorkflowSerializer().deserialize_workflow(state, workflow_spec=self.spec)
 
     def get_read_only_workflow(self):
         state = self._get_workflow_state()
-        return MinimalistWorkflowSerializer().deserialize_workflow(state, workflow_spec=self.spec, read_only=True)
+        return CompactWorkflowSerializer().deserialize_workflow(state, workflow_spec=self.spec, read_only=True)
 
     def _get_workflow_state(self):
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
-        return MinimalistWorkflowSerializer().serialize_workflow(self.workflow, include_spec=False)
+        return CompactWorkflowSerializer().serialize_workflow(self.workflow, include_spec=False)
