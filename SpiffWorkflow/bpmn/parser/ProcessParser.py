@@ -24,7 +24,6 @@ class ProcessParser(object):
         self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), svg=svg, filename=filename)
         self.parsing_started = False
         self.is_parsed = False
-        self.is_parallel_branching = False
         self.parsed_nodes = {}
         self.svg = svg
 
@@ -52,8 +51,6 @@ class ProcessParser(object):
         (node_parser, spec_class) = self.parser._get_parser_class(node.tag)
         np = node_parser(self, spec_class, node)
         task_spec = np.parse_node()
-        if np.is_parallel_branching():
-            self.is_parallel_branching = True
 
         return task_spec
 
@@ -61,7 +58,6 @@ class ProcessParser(object):
         start_node = one(self.xpath('.//bpmn:startEvent'))
         self.parsing_started = True
         self.parse_node(start_node)
-        self.spec._is_single_threaded = not self.is_parallel_branching
         self.is_parsed = True
 
     def get_spec(self):

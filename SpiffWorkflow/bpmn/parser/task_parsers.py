@@ -61,9 +61,6 @@ class ExclusiveGatewayParser(TaskParser):
     def handles_multiple_outgoing(self):
         return True
 
-    def is_parallel_branching(self):
-        return False
-
 class ParallelGatewayParser(TaskParser):
     """
     Parses a Parallel Gateway.
@@ -80,9 +77,6 @@ class CallActivityParser(TaskParser):
     def create_task(self):
         wf_spec = self.get_subprocess_parser().get_spec()
         return self.spec_class(self.spec, self.get_task_spec_name(), wf_spec=wf_spec, wf_class=self.parser.WORKFLOW_CLASS, description=self.node.get('name', None))
-
-    def is_parallel_branching(self):
-        return self.get_subprocess_parser().is_parallel_branching
 
     def get_subprocess_parser(self):
         calledElement = self.node.get('calledElement', None)

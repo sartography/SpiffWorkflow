@@ -108,11 +108,3 @@ class TaskParser(object):
         A subclass should override this method if the task supports multiple outgoing sequence flows.
         """
         return False
-
-    def is_parallel_branching(self):
-        """
-        A subclass should override this method to indicate whether this task represents a parallel branch point.
-
-        By default this returns true is more than one outgoing sequence flows.
-        """
-        return len(self.task.outputs) > 1

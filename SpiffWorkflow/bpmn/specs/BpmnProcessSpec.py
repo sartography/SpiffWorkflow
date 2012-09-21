@@ -14,21 +14,23 @@ class _EndJoin(ParallelGateway):
 
 
 class BpmnProcessSpec(WorkflowSpec):
+    """
+    This class represents the specification of a BPMN process workflow. This specialises the
+    standard Spiff WorkflowSpec class with a few extra methods and attributes.
+    """
 
     def __init__(self, name=None, description=None, filename=None, svg=None):
+        """
+        Constructor.
+
+        :param svg: This provides the SVG representation of the workflow as an LXML node. (optional)
+        """
         super(BpmnProcessSpec, self).__init__(name=name, filename=filename)
         self.end = _EndJoin(self, '%s.EndJoin' % (self.name))
         end = Simple(self, 'End')
         end.follow(self.end)
-        self._is_single_threaded = None
         self.svg = svg
         self.description = description
-
-    def is_engine_task(self):
-        return True
-
-    def is_single_threaded(self):
-        return self._is_single_threaded
 
     def get_all_lanes(self):
 
