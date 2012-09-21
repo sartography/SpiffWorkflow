@@ -26,7 +26,7 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
         self._predict(my_task)
 
     def accept_message(self, my_task, message):
-        if my_task.state == Task.WAITING and self.event_spec.accept_message(my_task, message):
+        if my_task.state == Task.WAITING and self.event_spec._accept_message(my_task, message):
             self._update_state(my_task)
             return True
         return False
