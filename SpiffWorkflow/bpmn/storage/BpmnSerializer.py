@@ -1,5 +1,6 @@
 import ConfigParser
 from StringIO import StringIO
+from lxml import etree
 import zipfile
 import os
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
@@ -55,15 +56,17 @@ class BpmnSerializer(Serializer):
             if len(parts) == 2 and not parts[0] and parts[1].lower().endswith('.bpmn'):
                 #It is in the root of the ZIP and is a BPMN file
                 try:
-                    svg_fp = StringIO(package_zip.read(info.filename[:-5]+'.svg'))
+                    svg = etree.parse(StringIO(package_zip.read(info.filename[:-5]+'.svg')))
                 except KeyError, e:
-                    svg_fp = None
+                    svg = None
 
                 bpmn_fp = package_zip.open(info)
                 try:
-                    parser.add_bpmn_fp(bpmn_fp, svg_fp=svg_fp, filename='%s:%s' % (filename, info.filename))
+                    bpmn = etree.parse(bpmn_fp)
                 finally:
                     bpmn_fp.close()
+
+                parser.add_bpmn_xml(bpmn, svg=svg, filename='%s:%s' % (filename, info.filename))
 
         return parser.get_spec(config.get('MetaData', 'entry_point_process'))
 

@@ -88,19 +88,18 @@ class BpmnParser(object):
         for filename in filenames:
             f = open(filename, 'r')
             try:
-                self.add_bpmn_fp(f, None, filename)
+                self.add_bpmn_xml(etree.parse(f), filename=filename)
             finally:
                 f.close()
 
-    def add_bpmn_fp(self, fp, svg_fp=None, filename=None):
+    def add_bpmn_xml(self, bpmn, svg=None, filename=None):
         """
-        Add the given file-like object to the parser's set.
+        Add the given lxml representation of the BPMN file to the parser's set.
 
-        :param svg_fp: Optionally, provide a file-like object for the SVG representation of the BPMN file
+        :param svg_fp: Optionally, provide a the lxml representation for the SVG of the BPMN file
         :param filename: Optionally, provide the source filename.
         """
-        xpath = xpath_eval(etree.parse(fp))
-        svg = etree.parse(svg_fp) if svg_fp is not None else None
+        xpath = xpath_eval(bpmn)
 
         processes = xpath('//bpmn:process')
         for process in processes:
