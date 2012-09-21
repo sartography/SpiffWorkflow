@@ -3,11 +3,22 @@ from SpiffWorkflow.bpmn.specs.EventSpec import EventSpec
 __author__ = 'matth'
 
 class MessageEvent(EventSpec):
+    """
+    The MessageEvent spec is the implementation of EventSpec used for Catching Message Events.
+    """
 
     def __init__(self, message):
+        """
+        Constructor.
+
+        :param message: The message to wait for.
+        """
         self.message = message
 
     def has_fired(self, my_task):
+        """
+        Returns true if the message was received while the task was in a WAITING state.
+        """
         return my_task._get_internal_attribute('event_fired', False)
 
     def get_description(self):
