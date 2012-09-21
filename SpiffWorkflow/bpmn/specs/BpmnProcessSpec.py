@@ -6,10 +6,10 @@ from lxml.html import builder as E
 
 __author__ = 'matth'
 
-class EndJoin(ParallelGateway):
+class _EndJoin(ParallelGateway):
 
     def _on_complete_hook(self, my_task):
-        super(EndJoin, self)._on_complete_hook(my_task)
+        super(_EndJoin, self)._on_complete_hook(my_task)
         my_task.workflow.attributes.update(my_task.get_attributes())
 
 
@@ -17,7 +17,7 @@ class BpmnProcessSpec(WorkflowSpec):
 
     def __init__(self, name=None, description=None, filename=None, svg=None):
         super(BpmnProcessSpec, self).__init__(name=name, filename=filename)
-        self.end = EndJoin(self, '%s.EndJoin' % (self.name))
+        self.end = _EndJoin(self, '%s.EndJoin' % (self.name))
         end = Simple(self, 'End')
         end.follow(self.end)
         self._is_single_threaded = None
