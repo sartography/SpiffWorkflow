@@ -154,7 +154,7 @@ class _BpmnProcessSpecState(object):
                 if task_name and route[-1].name == task_name:
                     return route
                 if transition_id and hasattr(route[-1], 'has_outgoing_sequence_flow') and route[-1].has_outgoing_sequence_flow(transition_id):
-                    route.append(route[-1].get_outgoing_sequence_flow_by_id(transition_id).task_spec)
+                    route.append(route[-1].get_outgoing_sequence_flow_by_id(transition_id).target_task_spec)
                     return route
             for child in route[-1].outputs:
                 if child not in done:
