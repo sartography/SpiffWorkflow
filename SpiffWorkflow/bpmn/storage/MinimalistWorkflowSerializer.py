@@ -31,11 +31,11 @@ class _BpmnProcessSpecState(object):
         #find a route passing through each task:
         route = [self.spec.start]
         for task_name in workflow_parents:
-            route = self.breadth_first_task_search(task_name, route)
+            route = self._breadth_first_task_search(task_name, route)
             if route is None:
                 raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % transition)
             route = route + [route[-1].spec.start]
-        route = self.breadth_first_transition_search(transition, route)
+        route = self._breadth_first_transition_search(transition, route)
         if route is None:
             raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % transition)
         outgoing_route_node = None
@@ -43,7 +43,7 @@ class _BpmnProcessSpecState(object):
             outgoing_route_node = _RouteNode(spec, outgoing_route_node)
             outgoing_route_node.state = state
         if self.route:
-            self.merge_routes(outgoing_route_node)
+            self._merge_routes(self.route, outgoing_route_node)
         else:
             self.route = outgoing_route_node
 
@@ -73,7 +73,9 @@ class _BpmnProcessSpecState(object):
         self._go(workflow.task_tree.children[0], self.route, leaf_tasks)
         for task in leaf_tasks:
             task.task_spec._update_state(task)
-            delattr(task, '_bpmn_load_target_state')
+            task._inherit_attributes()
+            if hasattr(task, '_bpmn_load_target_state'):
+                delattr(task, '_bpmn_load_target_state')
 
     def _go(self, task, route_node, leaf_tasks):
         assert task.task_spec == route_node.task_spec
@@ -84,18 +86,17 @@ class _BpmnProcessSpecState(object):
         else:
             if not task._is_finished():
                 if issubclass(task.task_spec.__class__, SubWorkflow) and task.task_spec.spec.start in [o.task_spec for o in route_node.outgoing]:
-                    task.task_spec._update_state(task)
-                    assert task.state == Task.READY
-                    #We're going in to the subprocess
-                    task.complete()
+                    self._go_in_to_subworkflow(task, [n.task_spec for n in route_node.outgoing])
                 else:
-                    self.complete_task_silent(task, [n.task_spec for n in route_node.outgoing])
+                    self._complete_task_silent(task, [n.task_spec for n in route_node.outgoing])
             for n in route_node.outgoing:
                 matching_child = filter(lambda t: t.task_spec == n.task_spec, task.children)
                 assert len(matching_child) == 1
                 self._go(matching_child[0], n, leaf_tasks)
 
-    def complete_task_silent(self, task, target_children_specs):
+    def _complete_task_silent(self, task, target_children_specs):
+        #This method simulates the completing of a task, but without hooks being called, and targeting a specific
+        #subset of the children
         if task._is_finished():
             return
         task._set_state(Task.COMPLETED)
@@ -104,8 +105,29 @@ class _BpmnProcessSpecState(object):
         for task_spec in target_children_specs:
             task._add_child(task_spec)
 
-    def merge_routes(self, new_route):
-        self._merge_routes(self.route, new_route)
+    def _go_in_to_subworkflow(self, my_task, target_children_specs):
+        #This method simulates the entering of a subworkflow, but without hooks being called, and targeting a specific
+        #subset of the entry tasks in the subworkflow. It creates the new workflow instance and merges it in to the tree
+        #This is based on SubWorkflow._on_ready_before_hook(..)
+        if my_task._is_finished():
+            return
+
+        subworkflow    = my_task.task_spec._create_subworkflow(my_task)
+        subworkflow.completed_event.connect(my_task.task_spec._on_subworkflow_completed, my_task)
+
+        # Create the children (these are the tasks that follow the subworkflow, on completion:
+        my_task.children = []
+        my_task._sync_children(my_task.task_spec.outputs, Task.FUTURE)
+
+        # Integrate the tree of the subworkflow into the tree of this workflow.
+        for child in subworkflow.task_tree.children:
+            if child.task_spec in target_children_specs:
+                my_task.children.insert(0, child)
+                child.parent = my_task
+
+        my_task._set_internal_attribute(subworkflow = subworkflow)
+
+        my_task._set_state(Task.COMPLETED)
 
     def _merge_routes(self, target, src):
         assert target.task_spec == src.task_spec
@@ -116,10 +138,10 @@ class _BpmnProcessSpecState(object):
             else:
                 target.outgoing.append(out_route)
 
-    def breadth_first_transition_search(self, transition_id, starting_route):
+    def _breadth_first_transition_search(self, transition_id, starting_route):
         return self._breadth_first_search(starting_route, transition_id=transition_id)
 
-    def breadth_first_task_search(self, task_name, starting_route):
+    def _breadth_first_task_search(self, task_name, starting_route):
         return self._breadth_first_search(starting_route, task_name=task_name)
 
     def _breadth_first_search(self, starting_route, task_name=None, transition_id=None):
