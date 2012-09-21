@@ -69,14 +69,18 @@ class _BpmnProcessSpecState(object):
         return dump
 
     def go(self, workflow):
-        self._go(workflow.task_tree.children[0], self.route)
+        leaf_tasks = []
+        self._go(workflow.task_tree.children[0], self.route, leaf_tasks)
+        for task in leaf_tasks:
+            task.task_spec._update_state(task)
+            delattr(task, '_bpmn_load_target_state')
 
-    def _go(self, task, route_node):
+    def _go(self, task, route_node, leaf_tasks):
         assert task.task_spec == route_node.task_spec
         if not route_node.outgoing:
             assert route_node.state is not None
             setattr(task, '_bpmn_load_target_state', route_node.state)
-            task.task_spec._update_state(task)
+            leaf_tasks.append(task)
         else:
             if not task._is_finished():
                 if issubclass(task.task_spec.__class__, SubWorkflow) and task.task_spec.spec.start in [o.task_spec for o in route_node.outgoing]:
@@ -89,7 +93,7 @@ class _BpmnProcessSpecState(object):
             for n in route_node.outgoing:
                 matching_child = filter(lambda t: t.task_spec == n.task_spec, task.children)
                 assert len(matching_child) == 1
-                self._go(matching_child[0], n)
+                self._go(matching_child[0], n, leaf_tasks)
 
     def complete_task_silent(self, task, target_children_specs):
         if task._is_finished():
