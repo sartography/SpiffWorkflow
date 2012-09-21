@@ -4,8 +4,20 @@ from SpiffWorkflow.bpmn.parser.util import *
 __author__ = 'matth'
 
 class ProcessParser(object):
+    """
+    Parses a single BPMN process, including all of the tasks within that process.
+    """
 
     def __init__(self, p, node, svg=None, filename=None):
+        """
+        Constructor.
+
+        :param p: the owning BpmnParser instance
+        :param node: the XML node for the process
+        :param svg: the SVG representation of this process (optional)
+        :param filename: the source BPMN filename (optional)
+
+        """
         self.parser = p
         self.node = node
         self.xpath = xpath_eval(node)
@@ -17,12 +29,23 @@ class ProcessParser(object):
         self.svg = svg
 
     def get_id(self):
+        """
+        Returns the process ID
+        """
         return self.node.get('id')
 
     def get_name(self):
+        """
+        Returns the process name (or ID, if no name is included in the file)
+        """
         return self.node.get('name', default=self.get_id())
 
     def parse_node(self,node):
+        """
+        Parses the specified child task node, and returns the task spec.
+        This can be called by a TaskParser instance, that is owned by this ProcessParser.
+        """
+
         if node.get('id') in self.parsed_nodes:
             return self.parsed_nodes[node.get('id')]
 
@@ -34,7 +57,7 @@ class ProcessParser(object):
 
         return task_spec
 
-    def parse(self):
+    def _parse(self):
         start_node = one(self.xpath('.//bpmn:startEvent'))
         self.parsing_started = True
         self.parse_node(start_node)
@@ -42,11 +65,14 @@ class ProcessParser(object):
         self.is_parsed = True
 
     def get_spec(self):
+        """
+        Parse this process (if it has not already been parsed), and return the workflow spec.
+        """
         if self.is_parsed:
             return self.spec
         if self.parsing_started:
             raise NotImplementedError('Recursive call Activities are not supported.')
-        self.parse()
+        self._parse()
         return self.get_spec()
 
 
