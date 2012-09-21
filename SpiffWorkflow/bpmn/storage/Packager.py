@@ -90,7 +90,11 @@ class Packager(object):
                 self.input_path_prefix = os.path.abspath(filename)
 
         #Check that we can parse it fine:
-        self.parser.add_bpmn_files(self.input_files)
+        for filename in self.input_files:
+            bpmn = etree.parse(filename)
+            bpmn = self.pre_parse_and_validate(bpmn, filename)
+            self.parser.add_bpmn_xml(bpmn, filename=filename)
+
         self.wf_spec = self.parser.get_spec(self.entry_point_process)
 
         #Now package everything:
@@ -111,11 +115,19 @@ class Packager(object):
 
         self.package_zip.close()
 
+    def pre_parse_and_validate(self, bpmn, filename):
+
+        bpmn = self._call_editor_hook('pre_parse_and_validate', bpmn, filename) or bpmn
+
+        return bpmn
+
+
     def _call_editor_hook(self, hook, *args, **kwargs):
         if self.editor:
             hook_func = getattr(self, "%s_%s" % (hook, self.editor), None)
             if hook_func:
-                hook_func(*args, **kwargs)
+                return hook_func(*args, **kwargs)
+        return None
 
     def package_for_editor_signavio(self, spec, filename):
         """
