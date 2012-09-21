@@ -33,6 +33,9 @@ class BpmnProcessSpec(WorkflowSpec):
         self.description = description
 
     def get_all_lanes(self):
+        """
+        Returns a set of the distinct lane names used in the process (including called activities)
+        """
 
         done = set()
         lanes = set()
@@ -57,6 +60,9 @@ class BpmnProcessSpec(WorkflowSpec):
         return lanes
 
     def get_specs_depth_first(self):
+        """
+        Get the specs for all processes (including called ones), in depth first order.
+        """
 
         done = set()
         specs = [self]
@@ -79,6 +85,10 @@ class BpmnProcessSpec(WorkflowSpec):
         return specs
 
     def to_html(self):
+        """
+        Returns an lxml HTML node with a document describing the process. This is only supported
+        if the editor provided an SVG representation.
+        """
         workflows = []
         svg_done = set()
         for spec in self.get_specs_depth_first():
@@ -99,6 +109,10 @@ class BpmnProcessSpec(WorkflowSpec):
         return html
 
     def to_html_string(self):
+        """
+        Returns an HTML string, with a document describing the process. This is only supported
+        if the editor provided an SVG representation.
+        """
         return lxml.html.tostring(self.to_html(), pretty_print=True)
 
 
