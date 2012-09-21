@@ -7,6 +7,9 @@ LOG = logging.getLogger(__name__)
 __author__ = 'matth'
 
 class ParallelGateway(Join, BpmnSpecMixin):
+    """
+    Task Spec for a bpmn:parallelGateway node.
+    """
 
     def _try_fire_unstructured(self, my_task, force=False):
         # Look at the tree to find all places where this task is used.

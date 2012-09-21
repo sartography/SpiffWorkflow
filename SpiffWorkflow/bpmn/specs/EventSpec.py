@@ -2,7 +2,7 @@ __author__ = 'matth'
 
 class EventSpec(object):
     """
-    The Event class is used by Catching Intermediate and Boundary Event tasks to know whether
+    The EventSpec class is used by Catching Intermediate and Boundary Event tasks to know whether
     to proceed.
     """
 
