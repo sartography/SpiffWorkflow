@@ -26,7 +26,7 @@ class ProcessParser(object):
         if node.get('id') in self.parsed_nodes:
             return self.parsed_nodes[node.get('id')]
 
-        (node_parser, spec_class) = self.parser.get_parser_class(node.tag)
+        (node_parser, spec_class) = self.parser._get_parser_class(node.tag)
         np = node_parser(self, spec_class, node)
         task_spec = np.parse_node()
         if np.is_parallel_branching():

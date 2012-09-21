@@ -1,5 +1,4 @@
 import glob
-import os
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.specs.BoundaryEvent import BoundaryEvent
 from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
@@ -19,6 +18,15 @@ from lxml import etree
 __author__ = 'matth'
 
 class BpmnParser(object):
+    """
+    The BpmnParser class is a pluggable base class that manages the parsing of a set of BPMN files.
+
+    Extension points:
+    OVERRIDE_PARSER_CLASSES provides a map from full BPMN tag name to a TaskParser and Task class.
+    PROCESS_PARSER_CLASS provides a subclass of ProcessParser
+    WORKFLOW_CLASS provides a subclass of BpmnWorkflow
+
+    """
 
     PARSER_CLASSES = {
         full_tag('startEvent')          : (StartEventParser, StartEvent),
@@ -39,28 +47,43 @@ class BpmnParser(object):
     WORKFLOW_CLASS = BpmnWorkflow
 
     def __init__(self):
+        """
+        Constructor.
+        """
         self.process_parsers = {}
         self.process_parsers_by_name = {}
 
-    def get_parser_class(self, tag):
+    def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
             return self.OVERRIDE_PARSER_CLASSES[tag]
         else:
             return self.PARSER_CLASSES[tag]
 
     def get_process_parser(self, process_id_or_name):
+        """
+        Returns the ProcessParser for the given process ID or name. It matches by name first.
+        """
         if process_id_or_name in self.process_parsers_by_name:
             return self.process_parsers_by_name[process_id_or_name]
         else:
             return self.process_parsers[process_id_or_name]
 
     def add_bpmn_file(self, filename):
+        """
+        Add the given BPMN filename to the parser's set.
+        """
         self.add_bpmn_files([filename])
 
     def add_bpmn_files_by_glob(self, g):
+        """
+        Add all filenames matching the provided pattern (e.g. *.bpmn) to the parser's set.
+        """
         self.add_bpmn_files(glob.glob(g))
 
     def add_bpmn_files(self, filenames):
+        """
+        Add all filenames in the given list to the parser's set.
+        """
         for filename in filenames:
             f = open(filename, 'r')
             try:
@@ -69,6 +92,12 @@ class BpmnParser(object):
                 f.close()
 
     def add_bpmn_fp(self, fp, svg_fp=None, filename=None):
+        """
+        Add the given file-like object to the parser's set.
+
+        :param svg_fp: Optionally, provide a file-like object for the SVG representation of the BPMN file
+        :param filename: Optionally, provide the source filename.
+        """
         xpath = xpath_eval(etree.parse(fp))
         svg = etree.parse(svg_fp) if svg_fp is not None else None
 
@@ -90,9 +119,17 @@ class BpmnParser(object):
         return self.parse_condition(conditionExpression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node)
 
     def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node):
+        """
+        Pre-parse the given condition expression, and return the parsed version. The returned version will be passed to the Script Engine
+        for evaluation.
+        """
         return condition_expression
 
     def get_spec(self, process_id_or_name):
+        """
+        Parses the required subset of the BPMN files, in order to provide an instance of BpmnProcessSpec (i.e. WorkflowSpec)
+        for the given process ID or name. The Name is matched first.
+        """
         return self.get_process_parser(process_id_or_name).get_spec()
 
 
