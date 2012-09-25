@@ -14,6 +14,7 @@ from SpiffWorkflow.bpmn.parser.util import *
 __author__ = 'matth'
 
 SIGNAVIO_NS='http://www.signavio.com'
+CONFIG_SECTION_NAME = "Packager Options"
 
 class Packager(object):
     """
@@ -276,6 +277,10 @@ class Packager(object):
             help="create the BPMN package in the specified file")
         parser.add_option("-p", "--process", dest="entry_point_process",
             help="specify the entry point process")
+        parser.add_option("-c", "--config-file", dest="config_file",
+            help="specify a config file to use")
+        parser.add_option("-i", "--initialise-config-file", action="store_true", dest="init_config_file", default=False,
+            help="create a new config file from the specified options")
 
         group = OptionGroup(parser, "BPMN Editor Options",
             "These options are not required, but may be provided to activate special features of supported BPMN editors.")
@@ -297,7 +302,7 @@ class Packager(object):
         parser.add_option_group(group)
 
     @classmethod
-    def check_args(cls, options, args, parser):
+    def check_args(cls, config, options, args, parser):
         """
         Override in subclass if required.
         """
@@ -307,6 +312,36 @@ class Packager(object):
             parser.error("no package file specified")
         if not options.entry_point_process:
             parser.error("no entry point process specified")
+
+
+    @classmethod
+    def merge_options_and_config(cls, config, options, args):
+        """
+        Override in subclass if required.
+        """
+        if args:
+            config.set(CONFIG_SECTION_NAME, 'input_files', ','.join(args))
+        elif config.has_option(CONFIG_SECTION_NAME, 'input_files'):
+            for i in config.get(CONFIG_SECTION_NAME, 'input_files').split(','):
+                args.append(i)
+
+        cls.merge_option_and_config_str('package_file', config, options)
+        cls.merge_option_and_config_str('entry_point_process', config, options)
+        cls.merge_option_and_config_str('target_engine', config, options)
+        cls.merge_option_and_config_str('target_engine_version', config, options)
+        cls.merge_option_and_config_str('editor', config, options)
+
+    @classmethod
+    def merge_option_and_config_str(cls, option_name, config, options):
+        """
+        Utility method to merge an option and config, with the option taking precedence
+        """
+
+        opt = getattr(options, option_name, None)
+        if opt:
+            config.set(CONFIG_SECTION_NAME, option_name, opt)
+        elif config.has_option(CONFIG_SECTION_NAME, option_name):
+            setattr(options, option_name, config.get(CONFIG_SECTION_NAME, option_name))
 
     @classmethod
     def create_meta_data(cls, options, args, parser):
@@ -331,7 +366,22 @@ class Packager(object):
 
         (options, args) = parser.parse_args()
 
-        cls.check_args(options, args, parser)
+        config = ConfigParser.SafeConfigParser()
+        if options.config_file:
+            config.read(options.config_file)
+        if not config.has_section(CONFIG_SECTION_NAME):
+            config.add_section(CONFIG_SECTION_NAME)
+
+        cls.merge_options_and_config(config, options, args)
+        if options.init_config_file:
+            if not options.config_file:
+                parser.error("no config file specified - cannot initialise config file")
+            f = open(options.config_file, "w")
+            with f:
+                config.write(f)
+                return
+
+        cls.check_args(config, options, args, parser)
 
         meta_data = cls.create_meta_data(options, args, parser)
 
