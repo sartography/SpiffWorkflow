@@ -1,6 +1,11 @@
+import logging
+import sys
+import traceback
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
 from SpiffWorkflow.bpmn.parser.util import *
+
+LOG = logging.getLogger(__name__)
 
 __author__ = 'matth'
 
@@ -73,6 +78,9 @@ class TaskParser(object):
         except ValidationException, vx:
             raise
         except Exception, ex:
+            exc_info = sys.exc_info()
+            tb =  "".join(traceback.format_exception(exc_info[0], exc_info[1], exc_info[2]))
+            LOG.error("%r\n%s", ex, tb)
             raise ValidationException("%r"%(ex), node=self.node, filename=self.process_parser.filename)
 
     def get_lane(self):
