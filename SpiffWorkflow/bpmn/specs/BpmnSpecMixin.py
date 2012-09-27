@@ -24,7 +24,7 @@ class SequenceFlow(object):
         Constructor.
         """
         self.id = id
-        self.name = name
+        self.name = name.strip() if name else name
         self.target_task_spec = target_task_spec
 
 class BpmnSpecMixin(TaskSpec):
