@@ -129,6 +129,17 @@ class BpmnParser(object):
         """
         return condition_expression
 
+    def _parse_documentation(self, node, xpath=None):
+        xpath = xpath or xpath_eval(node)
+        documentation_node = first(xpath('.//bpmn:documentation'))
+        return self.parse_documentation(documentation_node, node, xpath)
+
+    def parse_documentation(self, documentation_node, node, node_xpath):
+        """
+        Pre-parse the documentation node for the given node and return the text.
+        """
+        return None if documentation_node is None else documentation_node.text
+
     def get_spec(self, process_id_or_name):
         """
         Parses the required subset of the BPMN files, in order to provide an instance of BpmnProcessSpec (i.e. WorkflowSpec)

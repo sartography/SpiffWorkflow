@@ -30,7 +30,7 @@ class EndEventParser(TaskParser):
 
         terminateEventDefinition = self.xpath('.//bpmn:terminateEventDefinition')
         task = self.spec_class(self.spec, self.get_task_spec_name(), is_terminate_event=terminateEventDefinition, description=self.node.get('name', None))
-        task.connect_outgoing(self.spec.end, '%s.ToEndJoin'%self.node.get('id'), None)
+        task.connect_outgoing(self.spec.end, '%s.ToEndJoin'%self.node.get('id'), None, None)
         return task
 
 class UserTaskParser(TaskParser):
@@ -63,7 +63,7 @@ class ExclusiveGatewayParser(TaskParser):
             cond = self.parser._parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node)
             if cond is None:
                 raise ValidationException('Non-default exclusive outgoing sequence flow without condition', sequence_flow_node, self.process_parser.filename)
-            self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None))
+            self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None), self.parser._parse_documentation(sequence_flow_node))
 
     def handles_multiple_outgoing(self):
         return True

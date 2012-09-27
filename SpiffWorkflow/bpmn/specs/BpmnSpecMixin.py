@@ -19,12 +19,13 @@ class SequenceFlow(object):
     Keeps information relating to a sequence flow
     """
 
-    def __init__(self, id, name, target_task_spec):
+    def __init__(self, id, name, documentation, target_task_spec):
         """
         Constructor.
         """
         self.id = id
         self.name = name.strip() if name else name
+        self.documentation = documentation
         self.target_task_spec = target_task_spec
 
 class BpmnSpecMixin(TaskSpec):
@@ -43,8 +44,9 @@ class BpmnSpecMixin(TaskSpec):
         self.outgoing_sequence_flows = {}
         self.outgoing_sequence_flows_by_id = {}
         self.lane = lane
+        self.documentation = None
 
-    def connect_outgoing(self, taskspec, sequence_flow_id, sequence_flow_name):
+    def connect_outgoing(self, taskspec, sequence_flow_id, sequence_flow_name, documentation):
         """
         Connect this task spec to the indicated child.
 
@@ -52,11 +54,11 @@ class BpmnSpecMixin(TaskSpec):
         :param sequence_flow_name: The name of the connecting sequenceFlow node.
         """
         self.connect(taskspec)
-        s = SequenceFlow(sequence_flow_id, sequence_flow_name, taskspec)
+        s = SequenceFlow(sequence_flow_id, sequence_flow_name, documentation, taskspec)
         self.outgoing_sequence_flows[taskspec.name] = s
         self.outgoing_sequence_flows_by_id[sequence_flow_id] = s
 
-    def connect_outgoing_if(self, condition, taskspec, sequence_flow_id, sequence_flow_name):
+    def connect_outgoing_if(self, condition, taskspec, sequence_flow_id, sequence_flow_name, documentation):
         """
         Connect this task spec to the indicated child, if the condition evaluates to true.
         This should only be called if the task has a connect_if method (e.g. ExclusiveGateway).
@@ -65,7 +67,7 @@ class BpmnSpecMixin(TaskSpec):
         :param sequence_flow_name: The name of the connecting sequenceFlow node.
         """
         self.connect_if(_BpmnCondition(condition), taskspec)
-        s = SequenceFlow(sequence_flow_id, sequence_flow_name, taskspec)
+        s = SequenceFlow(sequence_flow_id, sequence_flow_name, documentation, taskspec)
         self.outgoing_sequence_flows[taskspec.name] = s
         self.outgoing_sequence_flows_by_id[sequence_flow_id] = s
 
@@ -92,6 +94,12 @@ class BpmnSpecMixin(TaskSpec):
         Returns a list of the names of outgoing sequences. Some may be None.
         """
         return sorted([s.name for s in self.outgoing_sequence_flows_by_id.itervalues()])
+
+    def get_outgoing_sequences(self):
+        """
+        Returns a list of the names of outgoing sequences. Some may be None.
+        """
+        return self.outgoing_sequence_flows_by_id.itervalues()
 
     def accept_message(self, my_task, message):
         """
