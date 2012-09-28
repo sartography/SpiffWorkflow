@@ -61,16 +61,18 @@ class Event(object):
         Connects the event with the given callback.
         When the signal is emitted, the callback is invoked.
 
-        @note: The signal handler is stored with a hard reference, so you
-        need to make sure to call L{disconnect()} if you want the handler
-        to be garbage collected.
+        .. note::
 
-        @type  callback: object
-        @param callback: The callback function.
-        @type  args: tuple
-        @param args: Optional arguments passed to the callback.
-        @type  kwargs: dict
-        @param kwargs: Optional keyword arguments passed to the callback.
+            The signal handler is stored with a hard reference, so you
+            need to make sure to call L{disconnect()} if you want the handler
+            to be garbage collected.
+
+        :type  callback: object
+        :param callback: The callback function.
+        :type  args: tuple
+        :param args: Optional arguments passed to the callback.
+        :type  kwargs: dict
+        :param kwargs: Optional keyword arguments passed to the callback.
         """
         if self.is_connected(callback):
             raise AttributeError('callback is already connected')
@@ -85,18 +87,20 @@ class Event(object):
         The signal is automatically disconnected as soon as the handler
         is garbage collected.
 
-        @note: Storing signal handlers as weak references means that if
-        your handler is a local function, it may be garbage collected. To
-        prevent this, use L{connect()} instead.
+        .. note::
 
-        @type  callback: object
-        @param callback: The callback function.
-        @type  args: tuple
-        @param args: Optional arguments passed to the callback.
-        @type  kwargs: dict
-        @param kwargs: Optional keyword arguments passed to the callback.
-        @rtype:  L{Exscript.util.weakmethod.WeakMethod}
-        @return: The newly created weak reference to the callback.
+            Storing signal handlers as weak references means that if
+            your handler is a local function, it may be garbage collected. To
+            prevent this, use L{connect()} instead.
+
+        :type  callback: object
+        :param callback: The callback function.
+        :type  args: tuple
+        :param args: Optional arguments passed to the callback.
+        :type  kwargs: dict
+        :param kwargs: Optional keyword arguments passed to the callback.
+        :rtype:  L{Exscript.util.weakmethod.WeakMethod}
+        :returns: The newly created weak reference to the callback.
         """
         if self.lock is None:
             self.lock = Lock()
@@ -113,8 +117,8 @@ class Event(object):
         """
         Returns the number of connected subscribers.
 
-        @rtype:  int
-        @return: The number of subscribers.
+        :rtype:  int
+        :returns: The number of subscribers.
         """
         hard = self.hard_subscribers and len(self.hard_subscribers) or 0
         weak = self.weak_subscribers and len(self.weak_subscribers) or 0
@@ -136,10 +140,10 @@ class Event(object):
         """
         Returns True if the event is connected to the given function.
 
-        @type  callback: object
-        @param callback: The callback function.
-        @rtype:  bool
-        @return: Whether the signal is connected to the given function.
+        :type  callback: object
+        :param callback: The callback function.
+        :rtype:  bool
+        :returns: Whether the signal is connected to the given function.
         """
         index = self._weakly_connected_index(callback)
         if index is not None:
@@ -155,12 +159,12 @@ class Event(object):
         callbacks are invoked and the return value of the callback is
         returned to the caller of emit().
 
-        @type  args: tuple
-        @param args: Optional arguments passed to the callbacks.
-        @type  kwargs: dict
-        @param kwargs: Optional keyword arguments passed to the callbacks.
-        @rtype:  object
-        @return: Returns None if all callbacks returned None. Returns
+        :type  args: tuple
+        :param args: Optional arguments passed to the callbacks.
+        :type  kwargs: dict
+        :param kwargs: Optional keyword arguments passed to the callbacks.
+        :rtype:  object
+        :returns: Returns None if all callbacks returned None. Returns
                  the return value of the last invoked callback otherwise.
         """
         if self.hard_subscribers is not None:
@@ -210,8 +214,8 @@ class Event(object):
         """
         Disconnects the signal from the given function.
 
-        @type  callback: object
-        @param callback: The callback function.
+        :type  callback: object
+        :param callback: The callback function.
         """
         if self.weak_subscribers is not None:
             with self.lock:

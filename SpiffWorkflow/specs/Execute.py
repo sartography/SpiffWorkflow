@@ -36,14 +36,14 @@ class Execute(TaskSpec):
         """
         Constructor.
 
-        @type  parent: TaskSpec
-        @param parent: A reference to the parent task spec.
-        @type  name: str
-        @param name: The name of the task spec.
-        @type  args: list
-        @param args: args to pass to process (first arg is the command).
-        @type  kwargs: dict
-        @param kwargs: kwargs to pass-through to TaskSpec initializer.
+        :type  parent: TaskSpec
+        :param parent: A reference to the parent task spec.
+        :type  name: str
+        :param name: The name of the task spec.
+        :type  args: list
+        :param args: args to pass to process (first arg is the command).
+        :type  kwargs: dict
+        :param kwargs: kwargs to pass-through to TaskSpec initializer.
         """
         assert parent  is not None
         assert name    is not None

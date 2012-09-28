@@ -52,8 +52,8 @@ class WeakMethod(object):
         Returns the referenced method/function if it is still alive.
         Returns None otherwise.
 
-        @rtype:  callable|None
-        @return: The referenced function if it is still alive.
+        :rtype:  callable|None
+        :returns: The referenced function if it is still alive.
         """
         raise NotImplementedError()
 
@@ -62,8 +62,8 @@ class WeakMethod(object):
         Returns True if the referenced function is still alive, False
         otherwise.
 
-        @rtype:  bool
-        @return: Whether the referenced function is still alive.
+        :rtype:  bool
+        :returns: Whether the referenced function is still alive.
         """
         return self.get_function() is not None
 
@@ -72,8 +72,8 @@ class WeakMethod(object):
         Proxied to the underlying function or method. Raises L{DeadMethodCalled}
         if the referenced function is dead.
 
-        @rtype:  object
-        @return: Whatever the referenced function returned.
+        :rtype:  object
+        :returns: Whatever the referenced function returned.
         """
         method = self.get_function()
         if method is None:
@@ -111,10 +111,10 @@ def ref(function, callback = None):
     If the callback argument is not None, it is called as soon
     as the referenced function is garbage deleted.
 
-    @type  function: callable
-    @param function: The function to reference.
-    @type  callback: callable
-    @param callback: Called when the function dies.
+    :type  function: callable
+    :param function: The function to reference.
+    :type  callback: callable
+    :param callback: Called when the function dies.
     """
     try:
         function.__func__

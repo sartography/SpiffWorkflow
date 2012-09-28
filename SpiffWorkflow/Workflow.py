@@ -119,12 +119,12 @@ class Workflow(object):
         Returns the value of the attribute with the given name, or the given
         default value if the attribute does not exist.
 
-        @type  name: string
-        @param name: An attribute name.
-        @type  default: obj
-        @param default: Return this value if the attribute does not exist.
-        @rtype:  obj
-        @return: The value of the attribute.
+        :type  name: string
+        :param name: An attribute name.
+        :type  default: obj
+        :param default: Return this value if the attribute does not exist.
+        :rtype:  obj
+        :returns: The value of the attribute.
         """
         return self.attributes.get(name, default)
 
@@ -132,8 +132,8 @@ class Workflow(object):
         """
         Cancels all open tasks in the workflow.
 
-        @type  success: boolean
-        @param success: Whether the Workflow should be marked as successfully
+        :type  success: boolean
+        :param success: Whether the Workflow should be marked as successfully
                         completed.
         """
         self.success = success
@@ -148,10 +148,10 @@ class Workflow(object):
         """
         Returns the task spec with the given name.
 
-        @type  name: string
-        @param name: The name of the task.
-        @rtype:  TaskSpec
-        @return: The task spec with the given name.
+        :type  name: string
+        :param name: The name of the task.
+        :rtype:  TaskSpec
+        :returns: The task spec with the given name.
         """
         return self.spec.get_task_spec_from_name(name)
 
@@ -159,10 +159,10 @@ class Workflow(object):
         """
         Returns the task with the given id.
 
-        @type id:integer
-        @param id: The id of a task.
-        @rtype: Task
-        @return: The task with the given id.
+        :type id:integer
+        :param id: The id of a task.
+        :rtype: Task
+        :returns: The task with the given id.
         """
         tasks = [task for task in self.get_tasks() if task.id == id]
         return tasks[0] if len(tasks) == 1 else None
@@ -171,10 +171,10 @@ class Workflow(object):
         """
         Returns a list of Task objects with the given state.
 
-        @type  state: integer
-        @param state: A bitmask of states.
-        @rtype:  list[Task]
-        @return: A list of tasks.
+        :type  state: integer
+        :param state: A bitmask of states.
+        :rtype:  list[Task]
+        :returns: A list of tasks.
         """
         return [t for t in Task.Iterator(self.task_tree, state)]
 
@@ -182,8 +182,8 @@ class Workflow(object):
         """
         Runs the task with the given id.
 
-        @type  task_id: integer
-        @param task_id: The id of the Task object.
+        :type  task_id: integer
+        :param task_id: The id of the Task object.
         """
         if task_id is None:
             raise WorkflowException(self.spec, 'task_id is None')
@@ -198,13 +198,13 @@ class Workflow(object):
         Runs the next task.
         Returns True if completed, False otherwise.
 
-        @type  pick_up: boolean
-        @param pick_up: When True, this method attempts to choose the next
+        :type  pick_up: boolean
+        :param pick_up: When True, this method attempts to choose the next
                         task not by searching beginning at the root, but by
                         searching from the position at which the last call
                         of complete_next() left off.
-        @rtype:  boolean
-        @return: True if all tasks were completed, False otherwise.
+        :rtype:  boolean
+        :returns: True if all tasks were completed, False otherwise.
         """
         # Try to pick up where we left off.
         blacklist = []
@@ -244,8 +244,8 @@ class Workflow(object):
         Runs all branches until completion. This is a convenience wrapper
         around complete_next(), and the pick_up argument is passed along.
 
-        @type  pick_up: boolean
-        @param pick_up: Passed on to each call of complete_next().
+        :type  pick_up: boolean
+        :param pick_up: Passed on to each call of complete_next().
         """
         while self.complete_next(pick_up):
             pass
@@ -255,8 +255,8 @@ class Workflow(object):
         Returns a complete dump of the current internal task tree for
         debugging.
 
-        @rtype:  string
-        @return: The debug information.
+        :rtype:  string
+        :returns: The debug information.
         """
         return self.task_tree.get_dump()
 
@@ -271,12 +271,12 @@ class Workflow(object):
         """
         Serializes a Workflow instance using the provided serializer.
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @type  kwargs: dict
-        @param kwargs: Passed to the serializer.
-        @rtype:  object
-        @return: The serialized workflow.
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :type  kwargs: dict
+        :param kwargs: Passed to the serializer.
+        :rtype:  object
+        :returns: The serialized workflow.
         """
         return serializer.serialize_workflow(self, **kwargs)
 
@@ -285,13 +285,13 @@ class Workflow(object):
         """
         Deserializes a Workflow instance using the provided serializer.
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @type  s_state: object
-        @param s_state: The serialized workflow.
-        @type  kwargs: dict
-        @param kwargs: Passed to the serializer.
-        @rtype:  Workflow
-        @return: The workflow instance.
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :type  s_state: object
+        :param s_state: The serialized workflow.
+        :type  kwargs: dict
+        :param kwargs: Passed to the serializer.
+        :rtype:  Workflow
+        :returns: The workflow instance.
         """
         return serializer.deserialize_workflow(s_state, **kwargs)

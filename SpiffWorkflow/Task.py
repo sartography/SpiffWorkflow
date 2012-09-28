@@ -288,12 +288,12 @@ class Task(object):
         """
         Adds a new child and assigns the given TaskSpec to it.
 
-        @type  task_spec: TaskSpec
-        @param task_spec: The task spec that is assigned to the new child.
-        @type  state: integer
-        @param state: The bitmask of states for the new child.
-        @rtype:  Task
-        @return: The new child task.
+        :type  task_spec: TaskSpec
+        :param task_spec: The task spec that is assigned to the new child.
+        :type  state: integer
+        :param state: The bitmask of states for the new child.
+        :rtype:  Task
+        :returns: The new child task.
         """
         if task_spec is None:
             raise ValueError(self, '_add_child() requires a TaskSpec')
@@ -310,10 +310,10 @@ class Task(object):
         """
         Assigns a new thread id to the task.
 
-        @type  recursive: boolean
-        @param recursive: Whether to assign the id to children recursively.
-        @rtype:  boolean
-        @return: The new thread id.
+        :type  recursive: boolean
+        :param recursive: Whether to assign the id to children recursively.
+        :rtype:  boolean
+        :returns: The new thread id.
         """
         self.__class__.thread_id_pool += 1
         self.thread_id = self.__class__.thread_id_pool
@@ -333,13 +333,15 @@ class Task(object):
             - Remove all children for which there is no spec in the given list,
               unless it is a "triggered" task.
 
-        @note: It is an error if the task has a non-predicted child that is
-        not given in the TaskSpecs.
+        .. note::
 
-        @type  task_specs: list(TaskSpec)
-        @param task_specs: The list of task specs that may become children.
-        @type  state: integer
-        @param state: The bitmask of states for the new children.
+           It is an error if the task has a non-predicted child that is
+           not given in the TaskSpecs.
+
+        :type  task_specs: list(TaskSpec)
+        :param task_specs: The list of task specs that may become children.
+        :type  state: integer
+        :param state: The bitmask of states for the new children.
         """
         LOG.debug("Updating children for %s" % self.get_name())
         if task_specs is None:
@@ -388,10 +390,10 @@ class Task(object):
         Returns True if parent is in the list of ancestors, returns False
         otherwise.
 
-        @type  parent: Task
-        @param parent: The parent that is searched in the ancestors.
-        @rtype:  boolean
-        @return: Whether the parent was found.
+        :type  parent: Task
+        :param parent: The parent that is searched in the ancestors.
+        :rtype:  boolean
+        :returns: Whether the parent was found.
         """
         if self.parent is None:
             return False
@@ -405,10 +407,10 @@ class Task(object):
         as a parent.
         If no such ancestor was found, the root task is returned.
 
-        @type  parent_task_spec: TaskSpec
-        @param parent_task_spec: The wanted ancestor.
-        @rtype:  Task
-        @return: The child of the given ancestor.
+        :type  parent_task_spec: TaskSpec
+        :param parent_task_spec: The wanted ancestor.
+        :rtype:  Task
+        :returns: The child of the given ancestor.
         """
         if self.parent is None:
             return self
@@ -420,10 +422,10 @@ class Task(object):
         """
         Returns any descendants that have the given task spec assigned.
 
-        @type  task_spec: TaskSpec
-        @param task_spec: The wanted task spec.
-        @rtype:  list(Task)
-        @return: The tasks objects that are attached to the given task spec.
+        :type  task_spec: TaskSpec
+        :param task_spec: The wanted task spec.
+        :rtype:  list(Task)
+        :returns: The tasks objects that are attached to the given task spec.
         """
         tasks = []
         if self.task_spec == task_spec:
@@ -439,10 +441,10 @@ class Task(object):
         Returns the ancestor that has the given task spec assigned.
         If no such ancestor was found, the root task is returned.
 
-        @type  task_spec: TaskSpec
-        @param task_spec: The wanted task spec.
-        @rtype:  Task
-        @return: The ancestor.
+        :type  task_spec: TaskSpec
+        :param task_spec: The wanted task spec.
+        :rtype:  Task
+        :returns: The ancestor.
         """
         if self.parent is None:
             return self
@@ -455,10 +457,10 @@ class Task(object):
         Returns the ancestor that has a task with the given name assigned.
         Returns None if no such ancestor was found.
 
-        @type  name: str
-        @param name: The name of the wanted task.
-        @rtype:  Task
-        @return: The ancestor.
+        :type  name: str
+        :param name: The name of the wanted task.
+        :rtype:  Task
+        :returns: The ancestor.
         """
         if self.parent is None:
             return None
@@ -502,12 +504,12 @@ class Task(object):
         Returns the value of the property with the given name, or the given
         default value if the property does not exist.
 
-        @type  name: str
-        @param name: A property name.
-        @type  default: obj
-        @param default: Return this value if the property does not exist.
-        @rtype:  obj
-        @return: The value of the property.
+        :type  name: str
+        :param name: A property name.
+        :type  default: obj
+        :param default: Return this value if the property does not exist.
+        :rtype:  obj
+        :returns: The value of the property.
         """
         return self.task_spec.get_property(name, default)
 
@@ -515,8 +517,8 @@ class Task(object):
         """
         Returns a dictionary containing all properties.
 
-        @rtype:  dict
-        @return: Maps property names to values.
+        :rtype:  dict
+        :returns: Maps property names to values.
         """
         return self.task_spec.properties
 
@@ -549,12 +551,12 @@ class Task(object):
         Returns the value of the attribute with the given name, or the given
         default value if the attribute does not exist.
 
-        @type  name: str
-        @param name: An attribute name.
-        @type  default: obj
-        @param default: Return this value if the attribute does not exist.
-        @rtype:  obj
-        @return: The value of the attribute.
+        :type  name: str
+        :param name: An attribute name.
+        :type  default: obj
+        :param default: Return this value if the attribute does not exist.
+        :rtype:  obj
+        :returns: The value of the attribute.
         """
         return self.attributes.get(name, default)
 
@@ -592,8 +594,8 @@ class Task(object):
         """
         Returns the subtree as a string for debugging.
 
-        @rtype:  str
-        @return: The debug information.
+        :rtype:  str
+        :returns: The debug information.
         """
         dbg  = (' ' * indent * 2)
         dbg += '%s/'           % self.id

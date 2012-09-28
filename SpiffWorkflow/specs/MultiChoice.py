@@ -30,12 +30,12 @@ class MultiChoice(TaskSpec):
         """
         Constructor.
         
-        @type  parent: TaskSpec
-        @param parent: A reference to the parent task spec.
-        @type  name: str
-        @param name: The name of the task spec.
-        @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :type  parent: TaskSpec
+        :param parent: A reference to the parent task spec.
+        :type  name: str
+        :param name: The name of the task spec.
+        :type  kwargs: dict
+        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.cond_task_specs = []

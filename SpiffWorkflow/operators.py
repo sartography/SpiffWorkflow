@@ -31,10 +31,10 @@ class Attrib(object):
         """
         Serializes the instance using the provided serializer.
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @rtype:  object
-        @return: The serialized object.
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :rtype:  object
+        :returns: The serialized object.
         """
         return serializer._serialize_attrib(self)
 
@@ -43,10 +43,10 @@ class Attrib(object):
         """
         Serializes the instance using the provided serializer.
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @rtype:  object
-        @return: The serialized object.
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :rtype:  object
+        :returns: The serialized object.
         """
         return serializer._deserialize_attrib(cls, s_state)
 
@@ -63,10 +63,10 @@ class PathAttrib(object):
         """
         Serializes the instance using the provided serializer.
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @rtype:  object
-        @return: The serialized object.
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :rtype:  object
+        :returns: The serialized object.
         """
         return serializer._serialize_pathattrib(self)
 
@@ -75,10 +75,10 @@ class PathAttrib(object):
         """
         Serializes the instance using the provided serializer.
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @rtype:  object
-        @return: The serialized object.
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :rtype:  object
+        :returns: The serialized object.
         """
         return serializer._deserialize_pathattrib(cls, s_state)
 
@@ -97,18 +97,18 @@ class Assign(object):
         """
         Constructor.
 
-        @type  left_attribute: str
-        @param left_attribute: The name of the attribute to which the value
+        :type  left_attribute: str
+        :param left_attribute: The name of the attribute to which the value
                                is assigned.
-        @type  right: object
-        @param right: A static value that, when given, is assigned to
+        :type  right: object
+        :param right: A static value that, when given, is assigned to
                       left_attribute.
-        @type  right_attribute: str
-        @param right_attribute: When given, the attribute with the given
+        :type  right_attribute: str
+        :param right_attribute: When given, the attribute with the given
                                 name is used as the source (instead of the
                                 static value).
-        @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :type  kwargs: dict
+        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         if not right_attribute and not right:
             raise ValueError('require argument: right_attribute or right')
@@ -177,10 +177,10 @@ class Operator(object):
         """
         Serializes the instance using the provided serializer.
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @rtype:  object
-        @return: The serialized object.
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :rtype:  object
+        :returns: The serialized object.
         """
         return serializer._serialize_operator(self)
 
@@ -189,10 +189,10 @@ class Operator(object):
         """
         Serializes the instance using the provided serializer.
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @rtype:  object
-        @return: The serialized object.
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :rtype:  object
+        :returns: The serialized object.
         """
         return serializer._deserialize_operator(s_state)
 

@@ -89,22 +89,22 @@ class Celery(TaskSpec):
         it is not always serializable). When deserialized, the async_call attr
         is reset in the _try_fire call.
 
-        @type  parent: TaskSpec
-        @param parent: A reference to the parent task spec.
-        @type  name: str
-        @param name: The name of the task spec.
-        @type  call: str
-        @param call: The name of the celery task that needs to be called.
-        @type  call_args: list
-        @param call_args: args to pass to celery task.
-        @type  result_key: str
-        @param result_key: The key to use to store the results of the call in
+        :type  parent: TaskSpec
+        :param parent: A reference to the parent task spec.
+        :type  name: str
+        :param name: The name of the task spec.
+        :type  call: str
+        :param call: The name of the celery task that needs to be called.
+        :type  call_args: list
+        :param call_args: args to pass to celery task.
+        :type  result_key: str
+        :param result_key: The key to use to store the results of the call in
                 task.attributes. If None, then dicts are expanded into
                 attributes and values are stored in 'result'.
-        @param merge_results: merge the results in instead of overwriting existing
+        :param merge_results: merge the results in instead of overwriting existing
                 fields.
-        @type  kwargs: dict
-        @param kwargs: kwargs to pass to celery task.
+        :type  kwargs: dict
+        :param kwargs: kwargs to pass to celery task.
         """
         if not have_celery:
             raise Exception("Unable to import python-celery imports.")

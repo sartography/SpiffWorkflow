@@ -64,26 +64,26 @@ class Join(TaskSpec):
         """
         Constructor.
 
-        @type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
-        @param parent: A reference to the parent (usually a workflow).
-        @type  name: string
-        @param name: A name for the task.
-        @type  split_task: str or None
-        @param split_task: The name of the task spec that was previously
+        :type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
+        :param parent: A reference to the parent (usually a workflow).
+        :type  name: string
+        :param name: A name for the task.
+        :type  split_task: str or None
+        :param split_task: The name of the task spec that was previously
                            used to split the branch. If this is None,
                            the most recent branch split is merged.
-        @type  threshold: int or L{SpiffWorkflow.operators.Attrib}
-        @param threshold: Specifies how many incoming branches need to
+        :type  threshold: int or L{SpiffWorkflow.operators.Attrib}
+        :param threshold: Specifies how many incoming branches need to
                           complete before the task triggers. When the limit
                           is reached, the task fires but still expects all
                           other branches to complete.
                           You may also pass an attribute, in which case
                           the value is resolved at runtime.
-        @type  cancel: bool
-        @param cancel: When True, any remaining incoming branches are
+        :type  cancel: bool
+        :param cancel: When True, any remaining incoming branches are
                        cancelled as soon as the discriminator is activated.
-        @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :type  kwargs: dict
+        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.split_task = split_task

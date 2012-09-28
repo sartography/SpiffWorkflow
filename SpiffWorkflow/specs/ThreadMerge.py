@@ -34,15 +34,15 @@ class ThreadMerge(Join):
         """
         Constructor.
         
-        @type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
-        @param parent: A reference to the parent (usually a workflow).
-        @type  name: string
-        @param name: A name for the task.
-        @type  split_task: str
-        @param split_task: The name of the task spec that was previously
+        :type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
+        :param parent: A reference to the parent (usually a workflow).
+        :type  name: string
+        :param name: A name for the task.
+        :type  split_task: str
+        :param split_task: The name of the task spec that was previously
                            used to split the branch.
-        @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.specs.Join}.
+        :type  kwargs: dict
+        :param kwargs: See L{SpiffWorkflow.specs.Join}.
         """
         assert split_task is not None
         Join.__init__(self, parent, name, split_task, **kwargs)

@@ -29,18 +29,18 @@ class Transform(TaskSpec):
         """
         Constructor.
 
-        @type  parent: TaskSpec
-        @param parent: A reference to the parent task spec.
-        @type  name: str
-        @param name: The name of the task spec.
-        @type  transforms: list
-        @param transforms: The commands that this task will execute to
+        :type  parent: TaskSpec
+        :param parent: A reference to the parent task spec.
+        :type  name: str
+        :param name: The name of the task spec.
+        :type  transforms: list
+        :param transforms: The commands that this task will execute to
                         transform data. The commands will be executed using the
                         python 'exec' function. Accessing inputs and outputs is
                         achieved by referencing the my_task.* and self.*
                         variables'
-        @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :type  kwargs: dict
+        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         assert parent  is not None
         assert name    is not None

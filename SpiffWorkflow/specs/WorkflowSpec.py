@@ -48,10 +48,10 @@ class WorkflowSpec(object):
         """
         Returns the task with the given name.
 
-        @type  name: str
-        @param name: The name of the task spec.
-        @rtype:  TaskSpec
-        @return: The task spec with the given name.
+        :type  name: str
+        :param name: The name of the task spec.
+        :rtype:  TaskSpec
+        :returns: The task spec with the given name.
         """
         return self.task_specs[name]
 
@@ -101,12 +101,12 @@ class WorkflowSpec(object):
         """
         Serializes the instance using the provided serializer.
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @type  kwargs: dict
-        @param kwargs: Passed to the serializer.
-        @rtype:  object
-        @return: The serialized object.
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :type  kwargs: dict
+        :param kwargs: Passed to the serializer.
+        :rtype:  object
+        :returns: The serialized object.
         """
         return serializer.serialize_workflow_spec(self, **kwargs)
 
@@ -115,13 +115,13 @@ class WorkflowSpec(object):
         """
         Deserializes a WorkflowSpec instance using the provided serializer.
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @type  s_state: object
-        @param s_state: The serialized workflow specification object.
-        @type  kwargs: dict
-        @param kwargs: Passed to the serializer.
-        @rtype:  WorkflowSpec
-        @return: The resulting instance.
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :type  s_state: object
+        :param s_state: The serialized workflow specification object.
+        :type  kwargs: dict
+        :param kwargs: Passed to the serializer.
+        :rtype:  WorkflowSpec
+        :returns: The resulting instance.
         """
         return serializer.deserialize_workflow_spec(s_state, **kwargs)

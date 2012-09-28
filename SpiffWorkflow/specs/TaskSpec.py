@@ -28,19 +28,19 @@ class TaskSpec(object):
     This class implements an abstract base type for all tasks.
 
     Tasks provide the following signals:
-      - B{entered}: called when the state changes to READY or WAITING, at a
+      - **entered**: called when the state changes to READY or WAITING, at a
         time where properties are not yet initialized.
-      - B{reached}: called when the state changes to READY or WAITING, at a
+      - **reached**: called when the state changes to READY or WAITING, at a
         time where properties are already initialized using property_assign
         and pre-assign.
-      - B{ready}: called when the state changes to READY, at a time where
+      - **ready**: called when the state changes to READY, at a time where
         properties are already initialized using property_assign and
         pre-assign.
-      - B{completed}: called when the state changes to COMPLETED, at a time
+      - **completed**: called when the state changes to COMPLETED, at a time
         before the post-assign variables are assigned.
-      - B{cancelled}: called when the state changes to CANCELLED, at a time
+      - **cancelled**: called when the state changes to CANCELLED, at a time
         before the post-assign variables are assigned.
-      - B{finished}: called when the state changes to COMPLETED or CANCELLED,
+      - **finished**: called when the state changes to COMPLETED or CANCELLED,
         at the last possible time after the post-assign variables are
         assigned and mutexes are released.
 
@@ -69,22 +69,22 @@ class TaskSpec(object):
         Similarly, "defines" are properties that, once defined, can no
         longer be modified.
 
-        @type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
-        @param parent: A reference to the parent (usually a workflow).
-        @type  name: string
-        @param name: A name for the task.
-        @type    lock: list(str)
-        @keyword lock: A list of mutex names. The mutex is acquired
-                       on entry of execute() and released on leave of
-                       execute().
-        @type    properties: dict((str, object))
-        @keyword properties: name/value pairs
-        @type    defines: dict((str, object))
-        @keyword defines: name/value pairs
-        @type    pre_assign: list((str, object))
-        @keyword pre_assign: a list of name/value pairs
-        @type    post_assign: list((str, object))
-        @keyword post_assign: a list of name/value pairs
+        :type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
+        :param parent: A reference to the parent (usually a workflow).
+        :type  name: string
+        :param name: A name for the task.
+        :type  lock: list(str)
+        :param lock: A list of mutex names. The mutex is acquired
+                     on entry of execute() and released on leave of
+                     execute().
+        :type  properties: dict((str, object))
+        :param properties: name/value pairs
+        :type  defines: dict((str, object))
+        :param defines: name/value pairs
+        :type  pre_assign: list((str, object))
+        :param pre_assign: a list of name/value pairs
+        :type  post_assign: list((str, object))
+        :param post_assign: a list of name/value pairs
         """
         assert parent is not None
         assert name   is not None
@@ -119,8 +119,8 @@ class TaskSpec(object):
         """
         Called by the previous task to let us know that it exists.
 
-        @type  taskspec: TaskSpec
-        @param taskspec: The task by which this method is executed.
+        :type  taskspec: TaskSpec
+        :param taskspec: The task by which this method is executed.
         """
         self.inputs.append(taskspec)
 
@@ -144,10 +144,10 @@ class TaskSpec(object):
         destination task, i.e. those which have destination as a
         descendant.
 
-        @type  my_task: Task
-        @param my_task: The associated task in the task tree.
-        @type  destination: Task
-        @param destination: The destination task.
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
+        :type  destination: Task
+        :param destination: The destination task.
         """
         return my_task.children
 
@@ -156,8 +156,8 @@ class TaskSpec(object):
         Returns the list of threads that were activated in the previous
         call of execute().
 
-        @type  my_task: Task
-        @param my_task: The associated task in the task tree.
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
         """
         return my_task.children
 
@@ -176,10 +176,10 @@ class TaskSpec(object):
         Returns the value of the property with the given name, or the given
         default value if the property does not exist.
 
-        @type  name: string
-        @param name: A property name.
-        @type  default: string
-        @param default: This value is returned if the property does not exist.
+        :type  name: string
+        :param name: A property name.
+        :type  default: string
+        :param default: This value is returned if the property does not exist.
         """
         return self.properties.get(name, default)
 
@@ -188,8 +188,8 @@ class TaskSpec(object):
         Connect the *following* task to this one. In other words, the
         given task is added as an output task.
 
-        @type  taskspec: TaskSpec
-        @param taskspec: The new output task.
+        :type  taskspec: TaskSpec
+        :param taskspec: The new output task.
         """
         self.outputs.append(taskspec)
         taskspec._connect_notify(self)
@@ -203,8 +203,8 @@ class TaskSpec(object):
         code - ex: my_task.follow(the_other_task)
         Adding it after being confused by .connect one times too many!
 
-        @type  taskspec: TaskSpec
-        @param taskspec: The task to follow.
+        :type  taskspec: TaskSpec
+        :param taskspec: The task to follow.
         """
         taskspec.connect(self)
 
@@ -224,12 +224,12 @@ class TaskSpec(object):
 
         Should NOT be overwritten! Instead, overwrite _predict_hook().
 
-        @type  my_task: Task
-        @param my_task: The associated task in the task tree.
-        @type  seen: list[taskspec]
-        @param seen: A list of already visited tasks.
-        @type  looked_ahead: integer
-        @param looked_ahead: The depth of the predicted path so far.
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
+        :type  seen: list[taskspec]
+        :param seen: A list of already visited tasks.
+        :type  looked_ahead: integer
+        :param looked_ahead: The depth of the predicted path so far.
         """
         if my_task._is_finished():
             return
@@ -294,8 +294,8 @@ class TaskSpec(object):
         """
         Return True on success, False otherwise.
 
-        @type  my_task: Task
-        @param my_task: The associated task in the task tree.
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
         """
         assert my_task is not None
         self.test()
@@ -332,8 +332,8 @@ class TaskSpec(object):
         """
         A hook into _on_ready() that does the task specific work.
 
-        @type  my_task: Task
-        @param my_task: The associated task in the task tree.
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
         """
         pass
 
@@ -341,8 +341,8 @@ class TaskSpec(object):
         """
         A hook into _on_ready() that does the task specific work.
 
-        @type  my_task: Task
-        @param my_task: The associated task in the task tree.
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
         """
         pass
 
@@ -351,8 +351,8 @@ class TaskSpec(object):
         May be called by another task to cancel the operation before it was
         completed.
 
-        @type  my_task: Task
-        @param my_task: The associated task in the task tree.
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
         """
         self.cancelled_event.emit(my_task.workflow, my_task)
 
@@ -361,10 +361,10 @@ class TaskSpec(object):
         May be called by another task to trigger a task-specific
         event.
 
-        @type  my_task: Task
-        @param my_task: The associated task in the task tree.
-        @rtype:  boolean
-        @return: True on success, False otherwise.
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
+        :rtype:  boolean
+        :returns: True on success, False otherwise.
         """
         raise NotImplementedError("Trigger not supported by this task.")
 
@@ -373,10 +373,10 @@ class TaskSpec(object):
         Return True on success, False otherwise. Should not be overwritten,
         overwrite _on_complete_hook() instead.
 
-        @type  my_task: Task
-        @param my_task: The associated task in the task tree.
-        @rtype:  boolean
-        @return: True on success, False otherwise.
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
+        :rtype:  boolean
+        :returns: True on success, False otherwise.
         """
         assert my_task is not None
 
@@ -399,10 +399,10 @@ class TaskSpec(object):
         """
         A hook into _on_complete() that does the task specific work.
 
-        @type  my_task: Task
-        @param my_task: The associated task in the task tree.
-        @rtype:  bool
-        @return: True on success, False otherwise.
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
+        :rtype:  bool
+        :returns: True on success, False otherwise.
         """
         # If we have more than one output, implicitly split.
         for child in my_task.children:
@@ -412,16 +412,18 @@ class TaskSpec(object):
         """
         Serializes the instance using the provided serializer.
 
-        @note: The events of a TaskSpec are not serialized. If you
-        use them, make sure to re-connect them once the spec is
-        deserialized.
+        .. note::
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @type  kwargs: dict
-        @param kwargs: Passed to the serializer.
-        @rtype:  object
-        @return: The serialized object.
+            The events of a TaskSpec are not serialized. If you
+            use them, make sure to re-connect them once the spec is
+            deserialized.
+
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :type  kwargs: dict
+        :param kwargs: Passed to the serializer.
+        :rtype:  object
+        :returns: The serialized object.
         """
         return serializer._serialize_task_spec(self, **kwargs)
 
@@ -430,20 +432,22 @@ class TaskSpec(object):
         """
         Deserializes the instance using the provided serializer.
 
-        @note: The events of a TaskSpec are not serialized. If you
-        use them, make sure to re-connect them once the spec is
-        deserialized.
+        .. note::
 
-        @type  serializer: L{SpiffWorkflow.storage.Serializer}
-        @param serializer: The serializer to use.
-        @type  wf_spec: L{SpiffWorkflow.spec.WorkflowSpec}
-        @param wf_spec: An instance of the WorkflowSpec.
-        @type  s_state: object
-        @param s_state: The serialized task specification object.
-        @type  kwargs: dict
-        @param kwargs: Passed to the serializer.
-        @rtype:  TaskSpec
-        @return: The task specification instance.
+            The events of a TaskSpec are not serialized. If you
+            use them, make sure to re-connect them once the spec is
+            deserialized.
+
+        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :param serializer: The serializer to use.
+        :type  wf_spec: L{SpiffWorkflow.spec.WorkflowSpec}
+        :param wf_spec: An instance of the WorkflowSpec.
+        :type  s_state: object
+        :param s_state: The serialized task specification object.
+        :type  kwargs: dict
+        :param kwargs: Passed to the serializer.
+        :rtype:  TaskSpec
+        :returns: The task specification instance.
         """
         instance = cls(wf_spec, s_state['name'])
         return serializer._deserialize_task_spec(wf_spec,

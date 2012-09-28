@@ -31,17 +31,17 @@ class Choose(Trigger):
         """
         Constructor.
 
-        @type  parent: TaskSpec
-        @param parent: A reference to the parent task spec.
-        @type  name: str
-        @param name: The name of the task spec.
-        @type  context: str
-        @param context: The name of the MultiChoice that is instructed to
+        :type  parent: TaskSpec
+        :param parent: A reference to the parent task spec.
+        :type  name: str
+        :param name: The name of the task spec.
+        :type  context: str
+        :param context: The name of the MultiChoice that is instructed to
                         select the specified outputs.
-        @type  choice: list(TaskSpec)
-        @param choice: The list of task specs that is selected.
-        @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :type  choice: list(TaskSpec)
+        :param choice: The list of task specs that is selected.
+        :type  kwargs: dict
+        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         assert parent is not None
         assert name is not None

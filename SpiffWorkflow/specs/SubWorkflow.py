@@ -40,18 +40,18 @@ class SubWorkflow(TaskSpec):
         """
         Constructor.
 
-        @type  parent: TaskSpec
-        @param parent: A reference to the parent task spec.
-        @type  name: str
-        @param name: The name of the task spec.
-        @type  file: str
-        @param file: The name of a file containing a workflow.
-        @type  in_assign: list(str)
-        @param in_assign: The names of attributes to carry over.
-        @type  out_assign: list(str)
-        @param out_assign: The names of attributes to carry back.
-        @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :type  parent: TaskSpec
+        :param parent: A reference to the parent task spec.
+        :type  name: str
+        :param name: The name of the task spec.
+        :type  file: str
+        :param file: The name of a file containing a workflow.
+        :type  in_assign: list(str)
+        :param in_assign: The names of attributes to carry over.
+        :type  out_assign: list(str)
+        :param out_assign: The names of attributes to carry back.
+        :type  kwargs: dict
+        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         assert parent is not None
         assert name is not None

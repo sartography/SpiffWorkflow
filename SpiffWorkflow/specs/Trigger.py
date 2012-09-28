@@ -31,16 +31,16 @@ class Trigger(TaskSpec):
         """
         Constructor.
 
-        @type  parent: TaskSpec
-        @param parent: A reference to the parent task spec.
-        @type  name: str
-        @param name: The name of the task spec.
-        @type  context: list(str)
-        @param context: A list of the names of tasks that are to be triggered.
-        @type  times: int or None
-        @param times: The number of signals before the trigger fires.
-        @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :type  parent: TaskSpec
+        :param parent: A reference to the parent task spec.
+        :type  name: str
+        :param name: The name of the task spec.
+        :type  context: list(str)
+        :param context: A list of the names of tasks that are to be triggered.
+        :type  times: int or None
+        :param times: The number of signals before the trigger fires.
+        :type  kwargs: dict
+        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         assert parent  is not None
         assert name    is not None
@@ -70,10 +70,10 @@ class Trigger(TaskSpec):
         """
         A hook into _on_complete() that does the task specific work.
 
-        @type  my_task: Task
-        @param my_task: A task in which this method is executed.
-        @rtype:  bool
-        @return: True on success, False otherwise.
+        :type  my_task: Task
+        :param my_task: A task in which this method is executed.
+        :rtype:  bool
+        :returns: True on success, False otherwise.
         """
         for i in range(self.times + self.queued):
             for task_name in self.context:

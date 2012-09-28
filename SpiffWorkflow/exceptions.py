@@ -16,15 +16,21 @@
 
 
 class WorkflowException(Exception):
+    """
+    Base class for all SpiffWorkflow-generated exceptions.
+    """
+
     def __init__(self, sender, error):
         """
         Standard exception class.
 
-        sender -- the task that threw the exception.
-        error -- string
+        :param sender: the task that threw the exception.
+        :type sender: Task
+        :param error: a human readable error message
+        :type error: string
         """
         Exception.__init__(self, '%s: %s' % (sender.name, error))
-        self.sender = sender
+        self.sender = sender # Points to the Task that generated the exception.
 
 
 class StorageException(Exception):

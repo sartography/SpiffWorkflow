@@ -29,12 +29,12 @@ class ExclusiveChoice(MultiChoice):
         """
         Constructor.
         
-        @type  parent: TaskSpec
-        @param parent: A reference to the parent task spec.
-        @type  name: str
-        @param name: The name of the task spec.
-        @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :type  parent: TaskSpec
+        :param parent: A reference to the parent task spec.
+        :type  name: str
+        :param name: The name of the task spec.
+        :type  kwargs: dict
+        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         MultiChoice.__init__(self, parent, name, **kwargs)
         self.default_task_spec = None
@@ -44,8 +44,8 @@ class ExclusiveChoice(MultiChoice):
         Connects the task spec that is executed if no other condition
         matches.
 
-        @type  task_spec: TaskSpec
-        @param task_spec: The following task spec.
+        :type  task_spec: TaskSpec
+        :param task_spec: The following task spec.
         """
         assert self.default_task_spec is None
         self.outputs.append(task_spec)

@@ -38,17 +38,17 @@ class ThreadSplit(TaskSpec):
         """
         Constructor.
         
-        @type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
-        @param parent: A reference to the parent (usually a workflow).
-        @type  name: string
-        @param name: A name for the task.
-        @type  times: int or None
-        @param times: The number of tasks to create.
-        @type  times_attribute: str or None
-        @param times_attribute: The name of an attribute that specifies
+        :type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
+        :param parent: A reference to the parent (usually a workflow).
+        :type  name: string
+        :param name: A name for the task.
+        :type  times: int or None
+        :param times: The number of tasks to create.
+        :type  times_attribute: str or None
+        :param times_attribute: The name of an attribute that specifies
                                 the number of outgoing tasks.
-        @type  kwargs: dict
-        @param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :type  kwargs: dict
+        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
         if not times_attribute and not times:
             raise ValueError('require times or times_attribute argument')
