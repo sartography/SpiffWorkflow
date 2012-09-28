@@ -107,7 +107,7 @@ class BpmnParser(object):
 
         processes = xpath('//bpmn:process')
         for process in processes:
-            process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename)
+            process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename, doc_xpath=xpath)
             if process_parser.get_id() in self.process_parsers:
                 raise ValidationException('Duplicate process ID', node=process, filename=filename)
             if process_parser.get_name() in self.process_parsers_by_name:
@@ -129,12 +129,12 @@ class BpmnParser(object):
         """
         return condition_expression
 
-    def _parse_documentation(self, node, xpath=None):
+    def _parse_documentation(self, node, task_parser=None, xpath=None):
         xpath = xpath or xpath_eval(node)
         documentation_node = first(xpath('.//bpmn:documentation'))
-        return self.parse_documentation(documentation_node, node, xpath)
+        return self.parse_documentation(documentation_node, node, xpath, task_parser=task_parser)
 
-    def parse_documentation(self, documentation_node, node, node_xpath):
+    def parse_documentation(self, documentation_node, node, node_xpath, task_parser=None):
         """
         Pre-parse the documentation node for the given node and return the text.
         """

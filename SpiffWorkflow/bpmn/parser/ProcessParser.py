@@ -9,7 +9,7 @@ class ProcessParser(object):
     Parses a single BPMN process, including all of the tasks within that process.
     """
 
-    def __init__(self, p, node, svg=None, filename=None):
+    def __init__(self, p, node, svg=None, filename=None, doc_xpath=None):
         """
         Constructor.
 
@@ -21,6 +21,7 @@ class ProcessParser(object):
         """
         self.parser = p
         self.node = node
+        self.doc_xpath = doc_xpath
         self.xpath = xpath_eval(node)
         self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), svg=svg, filename=filename)
         self.parsing_started = False
