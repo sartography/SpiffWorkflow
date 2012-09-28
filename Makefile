@@ -1,49 +1,41 @@
 NAME=SpiffWorkflow
 VERSION=`python setup.py --version`
-PACKAGE=$(NAME)-$(VERSION)-1
 PREFIX=/usr/local/
+BIN_DIR=$(PREFIX)/bin
+SITE_DIR=$(PREFIX)`python -c "import sys; from distutils.sysconfig import get_python_lib; print get_python_lib()[len(sys.prefix):]"`
 DISTDIR=/pub/code/releases/spiff_workflow
-
-###################################################################
-# Project-specific targets.
-###################################################################
-DEPENDS=spiff-workflow
-
-svn-environment:
-	mkdir -p $(NAME)
-	cd $(NAME); for PKG in $(DEPENDS); do \
-		svn checkout http://$$PKG.googlecode.com/svn/trunk/ $$PKG; \
-	done
-
-git-environment:
-	mkdir -p $(NAME)
-	cd spiff; for PKG in $(DEPENDS); do \
-		git svn init http://$$PKG.googlecode.com/svn/trunk/ $$PKG; \
-		cd $$PKG; \
-		git svn fetch; \
-		cd -; \
-	done
 
 ###################################################################
 # Standard targets.
 ###################################################################
+.PHONY : clean
 clean:
 	find . -name "*.pyc" -o -name "*.pyo" | xargs -n1 rm -f
 	find . -name "*.egg-info" | xargs -n1 rm -r
 	rm -Rf build
+	cd doc; make clean
 
+.PHONY : dist-clean
 dist-clean: clean
-	rm -Rf dist $(PACKAGE)*
+	rm -Rf dist
 
+.PHONY : doc
 doc:
 	cd doc; make
 
 install:
-	python setup.py install --prefix $(PREFIX)
+	mkdir -p $(SITE_DIR)
+	./version.sh
+	export PYTHONPATH=$(SITE_DIR):$(PYTHONPATH); \
+	python setup.py install --prefix $(PREFIX) \
+		                    --install-scripts $(BIN_DIR) \
+		                    --install-lib $(SITE_DIR)
+	./version.sh --reset
 
 uninstall:
 	# Sorry, Python's distutils support no such action yet.
 
+.PHONY : tests
 tests:
 	cd tests/$(NAME); \
 		[ -e run_suite.* ] && ./run_suite.* || [ ! -e run_suite.* ]
@@ -52,14 +44,20 @@ tests:
 # Package builders.
 ###################################################################
 targz:
+	./version.sh
 	python setup.py sdist --formats gztar
+	./version.sh --reset
 
 tarbz:
+	./version.sh
 	python setup.py sdist --formats bztar
+	./version.sh --reset
 
 deb:
+	./version.sh
 	debuild -S -sa
 	cd ..; sudo pbuilder build $(NAME)_$(VERSION)-0ubuntu1.dsc; cd -
+	./version.sh --reset
 
 dist: targz tarbz
 
@@ -70,5 +68,6 @@ dist-publish: dist
 	mkdir -p $(DISTDIR)/
 	mv dist/* $(DISTDIR)
 
+.PHONY : doc-publish
 doc-publish:
 	cd doc; make publish
