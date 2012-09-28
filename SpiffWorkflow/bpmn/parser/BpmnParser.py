@@ -115,14 +115,14 @@ class BpmnParser(object):
             self.process_parsers[process_parser.get_id()] = process_parser
             self.process_parsers_by_name[process_parser.get_name()] = process_parser
 
-    def _parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node):
+    def _parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node, task_parser=None):
         xpath = xpath_eval(sequence_flow_node)
         condition_expression_node = conditionExpression = first(xpath('.//bpmn:conditionExpression'))
         if conditionExpression is not None:
             conditionExpression = conditionExpression.text
-        return self.parse_condition(conditionExpression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node)
+        return self.parse_condition(conditionExpression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node, task_parser)
 
-    def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node):
+    def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node, task_parser):
         """
         Pre-parse the given condition expression, and return the parsed version. The returned version will be passed to the Script Engine
         for evaluation.

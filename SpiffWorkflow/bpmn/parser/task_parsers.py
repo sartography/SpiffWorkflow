@@ -60,7 +60,7 @@ class ExclusiveGatewayParser(TaskParser):
         if is_default:
             super(ExclusiveGatewayParser, self).connect_outgoing(outgoing_task, outgoing_task_node, sequence_flow_node, is_default)
         else:
-            cond = self.parser._parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node)
+            cond = self.parser._parse_condition(outgoing_task, outgoing_task_node, sequence_flow_node, task_parser=self)
             if cond is None:
                 raise ValidationException('Non-default exclusive outgoing sequence flow without condition', sequence_flow_node, self.process_parser.filename)
             self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get('name', None), self.parser._parse_documentation(sequence_flow_node, task_parser=self))
@@ -145,7 +145,7 @@ class IntermediateCatchEventParser(TaskParser):
         This currently only supports the timeDate node for specifying an expiry time for the timer.
         """
         timeDate = first(self.xpath('.//bpmn:timeDate'))
-        return TimerEvent(self.node.get('name', timeDate.text), timeDate.text)
+        return TimerEvent(self.node.get('name', timeDate.text), self.parser.parse_condition(timeDate.text, None, None, None, None, self))
 
 
 class BoundaryEventParser(IntermediateCatchEventParser):
