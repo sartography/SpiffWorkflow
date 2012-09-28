@@ -41,11 +41,14 @@ apidocs:
 	python mkapidoc.py
 
 clean:
-	rm -Rf api handbook
+	rm -Rf api handbook html
 	rm -f *.aux *.log *.out *.pdf *.toc figures/*.png
 
+sphinx:
+	cd ..; ./version.sh
+	sphinx-build . html
+	cd ..; ./version.sh --reset
+
 publish: handbook apidocs
-	ssh root@debain.org "mkdir -p $(PUBLISH_PATH)"
 	rsync -azr handbook/* api/* $(PUBLISH_HOST):$(PUBLISH_PATH)/
-	ssh $(PUBLISH_HOST) "chown -R www-data:www-data $(PUBLISH_PATH)/"
 	make clean
