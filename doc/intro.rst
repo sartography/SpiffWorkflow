@@ -70,7 +70,8 @@ A WorkflowSpec is built by chaining TaskSpecs together in a tree. You can either
 
 For a full list of all TaskSpecs see the `SpiffWorkflow.specs<https://github.com/knipknap/SpiffWorkflow/tree/master/SpiffWorkflow/specs>` module. All classes have full API documentation. To understand better how each individual subtype of TaskSpec works, look at `the workflow patterns<http://www.workflowpatterns.com>` web site; especially the flash animations showing how each type of task works.
 
-*Note: The TaskSpec classes named "ThreadXXXX" create logical threads based on the model in http://www.workflowpatterns.com. There is no Python threading implemented.*
+.. HINT::
+   The TaskSpec classes named "ThreadXXXX" create logical threads based on the model in http://www.workflowpatterns.com. There is no Python threading implemented.
 
 Running a workflow
 ^^^^^^^^^^^^^^^^^^
