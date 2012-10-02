@@ -1,6 +1,7 @@
 import ConfigParser
 from StringIO import StringIO
 import glob
+import hashlib
 import inspect
 from lxml import etree
 import zipfile
@@ -38,6 +39,7 @@ class Packager(object):
     """
 
     METADATA_FILE = "metadata.ini"
+    MANIFEST_FILE = "manifest.ini"
     PARSER_CLASS = BpmnParser
 
     def __init__(self, package_file, entry_point_process, meta_data=None, editor=None):
@@ -56,6 +58,7 @@ class Packager(object):
         self.input_files = []
         self.input_path_prefix = None
         self.editor = editor
+        self.manifest = {}
 
     def add_bpmn_file(self, filename):
         """
@@ -86,11 +89,11 @@ class Packager(object):
             if not os.path.isfile(filename):
                 raise ValueError('%s does not exist or is not a file' % filename)
             if self.input_path_prefix:
-                full = os.path.abspath(filename)
+                full = os.path.abspath(os.path.dirname(filename))
                 while not full.startswith(self.input_path_prefix) and self.input_path_prefix:
                     self.input_path_prefix = self.input_path_prefix[:-1]
             else:
-                self.input_path_prefix = os.path.abspath(filename)
+                self.input_path_prefix = os.path.abspath(os.path.dirname(filename))
 
         #Parse all of the XML:
         self.bpmn = {}
@@ -112,8 +115,6 @@ class Packager(object):
         #Now package everything:
         self.package_zip = zipfile.ZipFile(self.package_file, "w", compression=zipfile.ZIP_DEFLATED)
 
-        self.write_meta_data()
-
         done_files = set()
         for spec in self.wf_spec.get_specs_depth_first():
             filename = spec.file
@@ -121,13 +122,56 @@ class Packager(object):
                 done_files.add(filename)
 
                 bpmn = self.bpmn[os.path.abspath(filename)]
-                self.package_zip.writestr("%s.bpmn" % spec.name, etree.tostring(bpmn))
+                self.write_to_package_zip("%s.bpmn" % spec.name, etree.tostring(bpmn))
 
-                self.package_zip.write(filename, "src/" + self._get_zip_path(filename))
+                self.write_file_to_package_zip("src/" + self._get_zip_path(filename), filename)
 
                 self._call_editor_hook('package_for_editor', spec, filename)
 
+        self.write_meta_data()
+        self.write_manifest()
+
         self.package_zip.close()
+
+    def write_file_to_package_zip(self, filename, src_filename):
+        """
+        Writes a local file in to the zip file and adds it to the manifest dictionary
+        :param filename: The zip file name
+        :param src_filename: the local file name
+
+        """
+        f = open(src_filename)
+        with f:
+            data = f.read()
+        self.manifest[filename] = hashlib.md5(data).hexdigest().lower()
+        self.package_zip.write(src_filename, filename)
+
+    def write_to_package_zip(self, filename, data):
+        """
+        Writes data to the zip file and adds it to the manifest dictionary
+        :param filename: The zip file name
+        :param data: the data
+
+        """
+        self.manifest[filename] = hashlib.md5(data).hexdigest().lower()
+        self.package_zip.writestr(filename, data)
+
+    def write_manifest(self):
+        """
+        Write the manifest content to the zip file. It must be a predictable order.
+        """
+        config = ConfigParser.SafeConfigParser()
+
+        config.add_section('Manifest')
+
+        for f in sorted(self.manifest.keys()):
+            config.set('Manifest', f.replace('\\', '/').lower(), self.manifest[f])
+
+        ini = StringIO()
+        config.write(ini)
+        self.manifest_data = ini.getvalue()
+        self.package_zip.writestr(self.MANIFEST_FILE, self.manifest_data)
+
 
     def pre_parse_and_validate(self, bpmn, filename):
         """
@@ -211,7 +255,7 @@ class Packager(object):
         """
         signavio_file = filename[:-len('.bpmn20.xml')] + '.signavio.xml'
         if os.path.exists(signavio_file):
-            self.package_zip.write(signavio_file, "src/" + self._get_zip_path(signavio_file))
+            self.write_file_to_package_zip("src/" + self._get_zip_path(signavio_file), signavio_file)
 
             f = open(signavio_file, 'r')
             try:
@@ -220,7 +264,7 @@ class Packager(object):
                 f.close()
             svg_node = one(signavio_tree.xpath('.//svg-representation'))
             svg = etree.fromstring(svg_node.text)
-            self.package_zip.writestr("%s.svg" % spec.name, etree.tostring(svg,pretty_print=True))
+            self.write_to_package_zip("%s.svg" % spec.name, etree.tostring(svg,pretty_print=True))
 
     def write_meta_data(self):
         """
@@ -242,7 +286,7 @@ class Packager(object):
 
         ini = StringIO()
         config.write(ini)
-        self.package_zip.writestr(self.METADATA_FILE, ini.getvalue())
+        self.write_to_package_zip(self.METADATA_FILE, ini.getvalue())
 
     def _get_zip_path(self, filename):
         p = os.path.abspath(filename)[len(self.input_path_prefix):].replace(os.path.sep, '/')
