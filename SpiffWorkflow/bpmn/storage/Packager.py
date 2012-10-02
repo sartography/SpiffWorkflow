@@ -346,13 +346,13 @@ class Packager(object):
         parser.add_option_group(group)
 
     @classmethod
-    def check_args(cls, config, options, args, parser):
+    def check_args(cls, config, options, args, parser, package_file=None):
         """
         Override in subclass if required.
         """
         if not args:
             parser.error("no input files specified")
-        if not options.package_file:
+        if not (package_file or options.package_file):
             parser.error("no package file specified")
         if not options.entry_point_process:
             parser.error("no entry point process specified")
@@ -367,6 +367,8 @@ class Packager(object):
             config.set(CONFIG_SECTION_NAME, 'input_files', ','.join(args))
         elif config.has_option(CONFIG_SECTION_NAME, 'input_files'):
             for i in config.get(CONFIG_SECTION_NAME, 'input_files').split(','):
+                if not os.path.isabs(i):
+                    i = os.path.abspath(os.path.join(os.path.dirname(options.config_file), i))
                 args.append(i)
 
         cls.merge_option_and_config_str('package_file', config, options)
@@ -401,14 +403,14 @@ class Packager(object):
         return meta_data
 
     @classmethod
-    def main(cls):
+    def main(cls, argv=None, package_file=None):
         parser = cls.create_option_parser()
 
         cls.add_main_options(parser)
 
         cls.add_additional_options(parser)
 
-        (options, args) = parser.parse_args()
+        (options, args) = parser.parse_args(args=argv)
 
         config = ConfigParser.SafeConfigParser()
         if options.config_file:
@@ -425,14 +427,16 @@ class Packager(object):
                 config.write(f)
                 return
 
-        cls.check_args(config, options, args, parser)
+        cls.check_args(config, options, args, parser, package_file)
 
         meta_data = cls.create_meta_data(options, args, parser)
 
-        packager = cls(package_file=options.package_file, entry_point_process=options.entry_point_process, meta_data=meta_data, editor=options.editor)
+        packager = cls(package_file=package_file or options.package_file, entry_point_process=options.entry_point_process, meta_data=meta_data, editor=options.editor)
         for a in args:
             packager.add_bpmn_files_by_glob(a)
         packager.create_package()
+
+        return packager
 
 def main(packager_class=None):
     """
