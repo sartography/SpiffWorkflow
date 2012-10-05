@@ -1,8 +1,7 @@
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
-from SpiffWorkflow.bpmn.specs.MessageEvent import MessageEvent
-from SpiffWorkflow.bpmn.specs.TimerEvent import TimerEvent
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.util import *
+from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition, MessageEventDefinition
 
 __author__ = 'matth'
 
@@ -132,20 +131,20 @@ class IntermediateCatchEventParser(TaskParser):
 
     def get_message_event_spec(self, messageEventDefinition):
         """
-        Parse the messageEventDefinition node and return an instance of MessageEvent
+        Parse the messageEventDefinition node and return an instance of MessageEventDefinition
         """
         messageRef = first(self.xpath('.//bpmn:messageRef'))
         message = messageRef.get('name') if messageRef is not None else self.node.get('name')
-        return MessageEvent(message)
+        return MessageEventDefinition(message)
 
     def get_timer_event_spec(self, timerEventDefinition):
         """
-        Parse the timerEventDefinition node and return an instance of TimerEvent
+        Parse the timerEventDefinition node and return an instance of TimerEventDefinition
 
         This currently only supports the timeDate node for specifying an expiry time for the timer.
         """
         timeDate = first(self.xpath('.//bpmn:timeDate'))
-        return TimerEvent(self.node.get('name', timeDate.text), self.parser.parse_condition(timeDate.text, None, None, None, None, self))
+        return TimerEventDefinition(self.node.get('name', timeDate.text), self.parser.parse_condition(timeDate.text, None, None, None, None, self))
 
 
 class BoundaryEventParser(IntermediateCatchEventParser):

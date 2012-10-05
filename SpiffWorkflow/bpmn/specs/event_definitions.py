@@ -1,8 +1,10 @@
+import datetime
+
 __author__ = 'matth'
 
-class EventSpec(object):
+class CatchingEventDefinition(object):
     """
-    The EventSpec class is used by Catching Intermediate and Boundary Event tasks to know whether
+    The CatchingEventDefinition class is used by Catching Intermediate and Boundary Event tasks to know whether
     to proceed.
     """
 
@@ -22,3 +24,75 @@ class EventSpec(object):
 
     def _accept_message(self, my_task, message):
         return False
+
+class ThrowingEventDefinition(object):
+    """
+    This class is for future functionality. It will define the methods needed on an event definition
+    that can be Thrown.
+    """
+
+class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
+    """
+    The MessageEventDefinition is the implementation of event definition used for Message Events.
+    """
+
+    def __init__(self, message):
+        """
+        Constructor.
+
+        :param message: The message to wait for.
+        """
+        self.message = message
+
+    def has_fired(self, my_task):
+        """
+        Returns true if the message was received while the task was in a WAITING state.
+        """
+        return my_task._get_internal_attribute('event_fired', False)
+
+    def get_description(self):
+        return '\'%s\'' % self.message
+
+    def _accept_message(self, my_task, message):
+        if message != self.message:
+            return False
+        self._fire(my_task)
+        return True
+
+    def _fire(self, my_task):
+        my_task._set_internal_attribute(event_fired=True)
+
+
+class TimerEventDefinition(CatchingEventDefinition):
+    """
+    The TimerEventDefinition is the implementation of event definition used for Catching Timer Events
+    (Timer events aren't thrown).
+    """
+
+    def __init__(self, label, dateTime):
+        """
+        Constructor.
+
+        :param label: The label of the event. Used for the description.
+        :param dateTime: The dateTime expression for the expiry time. This is passed to the Script Engine and
+        must evaluate to a datetime.datetime instance.
+        """
+        self.label = label
+        self.dateTime = dateTime
+
+    def has_fired(self, my_task):
+        """
+        The Timer is considered to have fired if the evaluated dateTime expression is before datetime.datetime.now()
+        """
+        dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
+        if dt is None:
+            return False
+        if dt.tzinfo:
+            tz = dt.tzinfo
+            now =  tz.fromutc(datetime.datetime.utcnow().replace(tzinfo=tz))
+        else:
+            now = datetime.datetime.now()
+        return now > dt
+
+    def get_description(self):
+        return self.label
