@@ -32,6 +32,9 @@ class CatchingEventDefinition(object):
     def _accept_message(self, my_task, message):
         return False
 
+    def _fire(self, my_task):
+        my_task._set_internal_attribute(event_fired=True)
+
 class ThrowingEventDefinition(object):
     """
     This class is for future functionality. It will define the methods needed on an event definition
@@ -62,9 +65,6 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
             return False
         self._fire(my_task)
         return True
-
-    def _fire(self, my_task):
-        my_task._set_internal_attribute(event_fired=True)
 
 
 class TimerEventDefinition(CatchingEventDefinition):
