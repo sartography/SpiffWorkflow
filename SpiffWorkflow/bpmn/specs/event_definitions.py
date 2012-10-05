@@ -29,13 +29,6 @@ class CatchingEventDefinition(object):
         """
         return my_task._get_internal_attribute('event_fired', False)
 
-    def get_description(self):
-        """
-        This should return a human readable description of the event. It is used to produce a
-        useful description to provide to the user.
-        """
-        pass
-
     def _accept_message(self, my_task, message):
         return False
 
@@ -63,9 +56,6 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         Returns true if the message was received while the task was in a WAITING state.
         """
         return my_task._get_internal_attribute('event_fired', False)
-
-    def get_description(self):
-        return '\'%s\'' % self.message
 
     def _accept_message(self, my_task, message):
         if message != self.message:
@@ -107,6 +97,3 @@ class TimerEventDefinition(CatchingEventDefinition):
         else:
             now = datetime.datetime.now()
         return now > dt
-
-    def get_description(self):
-        return self.label
