@@ -23,18 +23,18 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
     Task Spec for a bpmn:intermediateCatchEvent node.
     """
 
-    def __init__(self, parent, name, event_spec=None, **kwargs):
+    def __init__(self, parent, name, event_definition=None, **kwargs):
         """
         Constructor.
 
-        :param event_spec: the EventSpec that we must wait for.
+        :param event_definition: the EventDefinition that we must wait for.
         """
         super(IntermediateCatchEvent, self).__init__(parent, name, **kwargs)
-        self.event_spec = event_spec
+        self.event_definition = event_definition
 
     def _update_state_hook(self, my_task):
         target_state = getattr(my_task, '_bpmn_load_target_state', None)
-        if target_state == Task.READY or (not my_task.workflow._is_busy_with_restore() and self.event_spec.has_fired(my_task)):
+        if target_state == Task.READY or (not my_task.workflow._is_busy_with_restore() and self.event_definition.has_fired(my_task)):
             super(IntermediateCatchEvent, self)._update_state_hook(my_task)
         else:
             if not my_task.parent._is_finished():
@@ -48,7 +48,7 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
         self._predict(my_task)
 
     def accept_message(self, my_task, message):
-        if my_task.state == Task.WAITING and self.event_spec._accept_message(my_task, message):
+        if my_task.state == Task.WAITING and self.event_definition._accept_message(my_task, message):
             self._update_state(my_task)
             return True
         return False

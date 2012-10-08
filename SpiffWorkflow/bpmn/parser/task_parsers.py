@@ -125,24 +125,24 @@ class IntermediateCatchEventParser(TaskParser):
     """
 
     def create_task(self):
-        event_spec = self.get_event_spec()
-        return self.spec_class(self.spec, self.get_task_spec_name(), event_spec, description=self.node.get('name', None))
+        event_definition = self.get_event_definition()
+        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, description=self.node.get('name', None))
 
-    def get_event_spec(self):
+    def get_event_definition(self):
         """
         Parse the event definition node, and return an instance of Event
         """
         messageEventDefinition = first(self.xpath('.//bpmn:messageEventDefinition'))
         if messageEventDefinition is not None:
-            return self.get_message_event_spec(messageEventDefinition)
+            return self.get_message_event_definition(messageEventDefinition)
 
         timerEventDefinition = first(self.xpath('.//bpmn:timerEventDefinition'))
         if timerEventDefinition is not None:
-            return self.get_timer_event_spec(timerEventDefinition)
+            return self.get_timer_event_definition(timerEventDefinition)
 
         raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node) )
 
-    def get_message_event_spec(self, messageEventDefinition):
+    def get_message_event_definition(self, messageEventDefinition):
         """
         Parse the messageEventDefinition node and return an instance of MessageEventDefinition
         """
@@ -150,7 +150,7 @@ class IntermediateCatchEventParser(TaskParser):
         message = messageRef.get('name') if messageRef is not None else self.node.get('name')
         return MessageEventDefinition(message)
 
-    def get_timer_event_spec(self, timerEventDefinition):
+    def get_timer_event_definition(self, timerEventDefinition):
         """
         Parse the timerEventDefinition node and return an instance of TimerEventDefinition
 
@@ -166,6 +166,6 @@ class BoundaryEventParser(IntermediateCatchEventParser):
     """
 
     def create_task(self):
-        event_spec = self.get_event_spec()
+        event_definition = self.get_event_definition()
         cancel_activity = self.node.get('cancelActivity', default='false').lower() == 'true'
-        return self.spec_class(self.spec, self.get_task_spec_name(), cancel_activity=cancel_activity, event_spec=event_spec, description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.get_task_spec_name(), cancel_activity=cancel_activity, event_definition=event_definition, description=self.node.get('name', None))

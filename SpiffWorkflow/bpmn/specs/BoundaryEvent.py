@@ -56,11 +56,11 @@ class BoundaryEvent(IntermediateCatchEvent):
     Task Spec for a bpmn:boundaryEvent node.
     """
 
-    def __init__(self, parent, name, cancel_activity=None, event_spec=None, **kwargs):
+    def __init__(self, parent, name, cancel_activity=None, event_definition=None, **kwargs):
         """
         Constructor.
 
         :param cancel_activity: True if this is a Cancelling boundary event.
         """
-        super(BoundaryEvent, self).__init__(parent, name, event_spec=event_spec, **kwargs)
+        super(BoundaryEvent, self).__init__(parent, name, event_definition=event_definition, **kwargs)
         self._cancel_activity = cancel_activity
