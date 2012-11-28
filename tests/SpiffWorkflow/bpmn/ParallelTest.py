@@ -99,6 +99,73 @@ class ParallelMultipleSplitsTest(BpmnWorkflowTestCase):
 
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
+class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
+    def setUp(self):
+        self.spec = self.load_spec()
+
+    def load_spec(self):
+        return self.load_workflow_spec('Test-Workflows/Parallel-Then-Exclusive.bpmn20.xml', 'Parallel Then Exclusive')
+
+    def testRunThroughParallelTaskFirst(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Parallel Task')
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Choice 1', choice='Yes')
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('Yes Task')
+        self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+    def testRunThroughChoiceFirst(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Choice 1', choice='Yes')
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('Parallel Task')
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Yes Task')
+        self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+    def testRunThroughChoiceThreadCompleteFirst(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Choice 1', choice='Yes')
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('Yes Task')
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Parallel Task')
+        self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ParallelJoinLongTest)
 if __name__ == '__main__':
