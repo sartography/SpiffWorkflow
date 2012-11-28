@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:signavio="http://www.signavio.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Signavio Process Editor, http://www.signavio.com" exporterVersion="" expressionLanguage="http://www.w3.org/1999/XPath" id="sid-44cabb62-94c2-402d-9e4e-d21f6729e4a1" targetNamespace="http://www.signavio.com/bpmn20" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
-   <collaboration id="sid-d88c2567-923f-4848-8b6d-b322c8bfeaf2">
-      <participant id="sid-F3998B48-8B47-4EBF-9690-2459891DF29F" name="Test Workflows" processRef="sid-acf1d96a-4ea1-4e94-b8e4-9d0639e4cc65">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:signavio="http://www.signavio.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Signavio Process Editor, http://www.signavio.com" exporterVersion="" expressionLanguage="http://www.w3.org/1999/XPath" id="sid-c540b3ee-540a-4e4f-8614-7803696b9910" targetNamespace="http://www.signavio.com/bpmn20" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
+   <collaboration id="sid-70c35a28-03d0-4c9d-a009-2f24f6cc7ae9">
+      <participant id="sid-F3998B48-8B47-4EBF-9690-2459891DF29F" name="Test Workflows" processRef="sid-b0903a88-fe74-4f93-b912-47b815ea8d1c">
          <extensionElements>
             <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
          </extensionElements>
       </participant>
    </collaboration>
-   <process id="sid-acf1d96a-4ea1-4e94-b8e4-9d0639e4cc65" isClosed="false" isExecutable="false" name="Test Workflows" processType="None">
-      <laneSet id="sid-7fa7d4b4-29cb-4369-a886-a05c1232106a">
+   <process id="sid-b0903a88-fe74-4f93-b912-47b815ea8d1c" isClosed="false" isExecutable="false" name="Test Workflows" processType="None">
+      <laneSet id="sid-edaa3f58-bb13-4482-930d-e23976d816a1">
          <lane id="sid-7A923A68-8A4D-47F1-9CCD-8584C3992369" name="Test Runner">
             <extensionElements>
                <signavio:signavioMetaData metaKey="bgcolor" metaValue=""/>
@@ -101,8 +101,8 @@
       <sequenceFlow id="sid-BFCB2CAC-CE5B-4EA2-8A4D-339D7D5894A4" name="Message Non Interrupt" sourceRef="sid-1192E625-131C-46FE-B872-20C4533EA7DE" targetRef="sid-60507DE6-5A96-4C88-A322-E3451526EB33"/>
       <sequenceFlow id="sid-EC51B1C2-2A2D-4515-90CF-9CDCF31A8A44" name="" sourceRef="sid-60507DE6-5A96-4C88-A322-E3451526EB33" targetRef="sid-464B8E64-10B4-4158-BDEE-11144CE20306"/>
    </process>
-   <bpmndi:BPMNDiagram id="sid-d1348fa2-a745-4fd8-9e5b-f7019dc4d584">
-      <bpmndi:BPMNPlane bpmnElement="sid-d88c2567-923f-4848-8b6d-b322c8bfeaf2" id="sid-1b5a31de-8916-4348-a137-26321305fec1">
+   <bpmndi:BPMNDiagram id="sid-a37ca73c-40c4-480b-b59d-f89de335318b">
+      <bpmndi:BPMNPlane bpmnElement="sid-70c35a28-03d0-4c9d-a009-2f24f6cc7ae9" id="sid-9588aae0-f5a5-4b8d-84c3-f9ce34d54f32">
          <bpmndi:BPMNShape bpmnElement="sid-F3998B48-8B47-4EBF-9690-2459891DF29F" id="sid-F3998B48-8B47-4EBF-9690-2459891DF29F_gui" isHorizontal="true">
             <omgdc:Bounds height="583.0" width="710.0" x="30.0" y="30.0"/>
          </bpmndi:BPMNShape>
