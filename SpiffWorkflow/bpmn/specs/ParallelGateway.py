@@ -13,8 +13,10 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+from collections import deque
 
 import logging
+from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 from SpiffWorkflow.specs.Join import Join
 
@@ -26,26 +28,37 @@ class ParallelGateway(Join, BpmnSpecMixin):
     """
 
     def _try_fire_unstructured(self, my_task, force=False):
-        # Look at the tree to find all places where this task is used.
+        # Look at the tree to find all ready and waiting tasks (excluding ourself).
         tasks = []
-        for task in my_task.workflow.get_tasks():
+        for task in my_task.workflow.get_tasks(Task.READY | Task.WAITING):
             if task.thread_id != my_task.thread_id:
                 continue
-            if task.task_spec != my_task.task_spec:
+            if task.task_spec == my_task.task_spec:
                 continue
-            if not task._is_finished():
-                tasks.append(task)
+            tasks.append(task)
 
-        # Look up which tasks have a parent that is not already complete.
+        # Are any of those tasks a potential ancestor to this task?
         waiting_tasks = []
-        completed = 0
         for task in tasks:
-            if task.parent is None or task.parent._is_finished():
-                completed += 1
-            else:
+            if self._is_descendant(self, task.task_spec):
                 waiting_tasks.append(task)
 
         return force or len(waiting_tasks) == 0, waiting_tasks
+
+    def _is_descendant(self, task_spec, starting_node):
+        q = deque()
+        done = set()
+        q.append(starting_node)
+        while q:
+            n = q.popleft()
+            if n == task_spec:
+                return True
+            for child in n.outputs:
+                if child not in done:
+                    done.add(child)
+                    q.append(child)
+        return False
+
 
     def _update_state_hook(self, my_task):
         if my_task._is_predicted():
