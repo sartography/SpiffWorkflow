@@ -376,10 +376,10 @@ class ParallelLoopingAfterJoinTest(BpmnWorkflowTestCase):
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def test1(self):
-        self._do_test(['1', '2', '2A', '2B', '2 Done', ('Retry?', 'No'), 'Done'])
+        self._do_test(['Go', '1', '2', '2A', '2B', '2 Done', ('Retry?', 'No'), 'Done'])
 
     def test2(self):
-        self._do_test(['1', '2', '2A', '2B', '2 Done', ('Retry?', 'Yes'), 'Retrying', '1', '2', '2A', '2B', '2 Done', ('Retry?', 'No'), 'Done'])
+        self._do_test(['Go', '1', '2', '2A', '2B', '2 Done', ('Retry?', 'Yes'), 'Go', '1', '2', '2A', '2B', '2 Done', ('Retry?', 'No'), 'Done'])
 
 
 def suite():

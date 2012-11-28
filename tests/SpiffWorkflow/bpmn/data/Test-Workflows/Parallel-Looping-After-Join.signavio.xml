@@ -141,12 +141,12 @@
               ],
               "bounds": {
                 "lowerRight": {
-                  "x": 205,
-                  "y": 67
+                  "x": 264,
+                  "y": 130
                 },
                 "upperLeft": {
-                  "x": 165,
-                  "y": 27
+                  "x": 224,
+                  "y": 90
                 }
               },
               "dockers": []
@@ -875,7 +875,7 @@
               "resourceId": "sid-E7904BFA-1F17-478E-91C9-C8A5B64190C9",
               "properties": {
                 "processid": "",
-                "name": "Retrying",
+                "name": "Go",
                 "documentation": "",
                 "auditing": "",
                 "monitoring": "",
@@ -935,11 +935,11 @@
               ],
               "bounds": {
                 "lowerRight": {
-                  "x": 694,
+                  "x": 417,
                   "y": 95
                 },
                 "upperLeft": {
-                  "x": 594,
+                  "x": 317,
                   "y": 15
                 }
               },
@@ -974,52 +974,6 @@
       "dockers": []
     },
     {
-      "resourceId": "sid-F3994F51-FE54-4910-A1F4-E5895AA1A612",
-      "properties": {
-        "name": "",
-        "documentation": "",
-        "auditing": "",
-        "monitoring": "",
-        "conditiontype": "None",
-        "conditionexpression": "",
-        "isimmediate": "",
-        "showdiamondmarker": "",
-        "bordercolor": "#000000"
-      },
-      "stencil": {
-        "id": "SequenceFlow"
-      },
-      "childShapes": [],
-      "outgoing": [
-        {
-          "resourceId": "sid-349F8C0C-45EA-489C-84DD-1D944F48D778"
-        }
-      ],
-      "bounds": {
-        "lowerRight": {
-          "x": 314.703125,
-          "y": 137
-        },
-        "upperLeft": {
-          "x": 220.21875,
-          "y": 137
-        }
-      },
-      "dockers": [
-        {
-          "x": 15,
-          "y": 15
-        },
-        {
-          "x": 20,
-          "y": 20
-        }
-      ],
-      "target": {
-        "resourceId": "sid-349F8C0C-45EA-489C-84DD-1D944F48D778"
-      }
-    },
-    {
       "resourceId": "sid-7E15C71B-DE9E-4788-B140-A647C99FDC94",
       "properties": {
         "name": "",
@@ -1043,12 +997,12 @@
       ],
       "bounds": {
         "lowerRight": {
-          "x": 509.12606698976384,
-          "y": 227.5999412218596
+          "x": 509.91566872222205,
+          "y": 237.80959683769714
         },
         "upperLeft": {
-          "x": 348.66494863523616,
-          "y": 144.3316994031404
+          "x": 409.67417502777795,
+          "y": 205.40524691230286
         }
       },
       "dockers": [
@@ -1089,12 +1043,12 @@
       ],
       "bounds": {
         "lowerRight": {
-          "x": 335.5,
-          "y": 213.3984375
+          "x": 394.5,
+          "y": 254
         },
         "upperLeft": {
-          "x": 281,
-          "y": 158
+          "x": 331.65625,
+          "y": 220.7265625
         }
       },
       "dockers": [
@@ -1103,12 +1057,8 @@
           "y": 20.5
         },
         {
-          "x": 335.5,
-          "y": 185.5
-        },
-        {
-          "x": 281,
-          "y": 185.5
+          "x": 394.5,
+          "y": 254
         },
         {
           "x": 50,
@@ -1715,18 +1665,22 @@
       ],
       "bounds": {
         "lowerRight": {
-          "x": 794.4630612216376,
-          "y": 404.77734533870495
+          "x": 794.5,
+          "y": 404.77734375
         },
         "upperLeft": {
-          "x": 794.0720950283624,
-          "y": 185.44531091129505
+          "x": 567.86328125,
+          "y": 145
         }
       },
       "dockers": [
         {
           "x": 20.5,
           "y": 20.5
+        },
+        {
+          "x": 794.5,
+          "y": 145
         },
         {
           "x": 50,
@@ -1761,12 +1715,12 @@
       ],
       "bounds": {
         "lowerRight": {
-          "x": 743.7472040726377,
-          "y": 144.1779804373932
+          "x": 466.32349991649926,
+          "y": 194.0170053193119
         },
         "upperLeft": {
-          "x": 355.30553030236223,
-          "y": 137.8239726876068
+          "x": 408.80931258350074,
+          "y": 167.9595571806881
         }
       },
       "dockers": [
@@ -1781,6 +1735,56 @@
       ],
       "target": {
         "resourceId": "sid-349F8C0C-45EA-489C-84DD-1D944F48D778"
+      }
+    },
+    {
+      "resourceId": "sid-F3994F51-FE54-4910-A1F4-E5895AA1A612",
+      "properties": {
+        "name": "",
+        "documentation": "",
+        "auditing": "",
+        "monitoring": "",
+        "conditiontype": "None",
+        "conditionexpression": "",
+        "isimmediate": "",
+        "showdiamondmarker": false,
+        "bordercolor": "#000000"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-E7904BFA-1F17-478E-91C9-C8A5B64190C9"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 466.0333584559269,
+          "y": 141.68509648493833
+        },
+        "upperLeft": {
+          "x": 220.765625,
+          "y": 137
+        }
+      },
+      "dockers": [
+        {
+          "x": 15,
+          "y": 15
+        },
+        {
+          "x": 394,
+          "y": 137
+        },
+        {
+          "x": 50,
+          "y": 40
+        }
+      ],
+      "target": {
+        "resourceId": "sid-E7904BFA-1F17-478E-91C9-C8A5B64190C9"
       }
     }
   ],
@@ -2286,7 +2290,7 @@
                                         </g>
                                         <g id="svg-sid-349F8C0C-45EA-489C-84DD-1D944F48D778">
                                             <g class="stencils"
-                                               transform="translate(165, 27)">
+                                               transform="translate(224, 90)">
                                                 <g class="me">
                                                     <g id="sid-6F583603-A27A-4B80-AAA3-F370F79E1B96"
                                                        title="Parallel Gateway">
@@ -2333,7 +2337,7 @@
                                             <g class="controls">
                                                 <g class="dockers"/>
                                                 <g class="magnets"
-                                                   transform="translate(165, 27)">
+                                                   transform="translate(224, 90)">
                                                     <g pointer-events="all"
                                                        display="none"
                                                        transform="translate(12.5, 12.5)">
@@ -5586,7 +5590,7 @@
                                         </g>
                                         <g id="svg-sid-E7904BFA-1F17-478E-91C9-C8A5B64190C9">
                                             <g class="stencils"
-                                               transform="translate(594, 15)">
+                                               transform="translate(317, 15)">
                                                 <g class="me">
                                                     <g pointer-events="fill"
                                                        oryx:minimumSize="50 40"
@@ -5651,8 +5655,8 @@
                                                               text-anchor="middle">
                                                             <tspan x="50" y="40"
                                                                    dy="5"
-                                                                   id="ext-gen1112">
-                                                                Retrying
+                                                                   id="ext-gen1316">
+                                                                Go
                                                             </tspan>
                                                         </text>
                                                         <g id="sid-4B374B65-B8EA-4FAD-939C-A5F9794B299DmanualTask"
@@ -5880,7 +5884,7 @@
                                             <g class="controls">
                                                 <g class="dockers"/>
                                                 <g class="magnets"
-                                                   transform="translate(594, 15)">
+                                                   transform="translate(317, 15)">
                                                     <g pointer-events="all"
                                                        display="none"
                                                        transform="translate(-7, 12)">
@@ -6053,38 +6057,12 @@
                 </g>
             </g>
             <g class="edge">
-                <g id="svg-sid-F3994F51-FE54-4910-A1F4-E5895AA1A612">
-                    <g class="stencils">
-                        <g class="me">
-                            <g pointer-events="painted">
-                                <path id="sid-E5F93056-7540-46FF-8C79-B82E95BE22D6_1"
-                                      d="M220.21875 137L314.703125 137 "
-                                      stroke="black" fill="none"
-                                      stroke-width="2" stroke-linecap="round"
-                                      stroke-linejoin="round"
-                                      marker-start="url(#sid-E5F93056-7540-46FF-8C79-B82E95BE22D6start)"
-                                      marker-end="url(#sid-E5F93056-7540-46FF-8C79-B82E95BE22D6end)"/>
-                            </g>
-                            <text id="sid-E5F93056-7540-46FF-8C79-B82E95BE22D6text_name"
-                                  x="228" y="129" oryx:edgePosition="startTop"
-                                  stroke-width="0pt" letter-spacing="-0.01px"
-                                  transform="rotate(360 220 137)"
-                                  oryx:fontSize="12" text-anchor="start"/>
-                        </g>
-                        <g class="children" style="overflow:hidden"/>
-                        <g class="edge"/>
-                    </g>
-                    <g class="controls">
-                        <g class="dockers"/>
-                        <g class="magnets"/>
-                    </g>
-                </g>
                 <g id="svg-sid-7E15C71B-DE9E-4788-B140-A647C99FDC94">
                     <g class="stencils">
                         <g class="me">
                             <g pointer-events="painted">
                                 <path id="sid-2BDAA7FF-3ACF-4C4D-B8E9-753136F05C80_1"
-                                      d="M348.66494863523616 144.3316994031404L509.12606698976384 227.5999412218596 "
+                                      d="M409.67417502777795 205.40524691230286L509.91566872222205 237.80959683769714 "
                                       stroke="black" fill="none"
                                       stroke-width="2" stroke-linecap="round"
                                       stroke-linejoin="round"
@@ -6092,9 +6070,9 @@
                                       marker-end="url(#sid-2BDAA7FF-3ACF-4C4D-B8E9-753136F05C80end)"/>
                             </g>
                             <text id="sid-2BDAA7FF-3ACF-4C4D-B8E9-753136F05C80text_name"
-                                  x="356" y="136" oryx:edgePosition="startTop"
+                                  x="417" y="197" oryx:edgePosition="startTop"
                                   stroke-width="0pt" letter-spacing="-0.01px"
-                                  transform="rotate(27.426196099988033 348 144)"
+                                  transform="rotate(17.914092448420035 409 205)"
                                   oryx:fontSize="12" text-anchor="start"/>
                         </g>
                         <g class="children" style="overflow:hidden"/>
@@ -6110,7 +6088,7 @@
                         <g class="me">
                             <g pointer-events="painted">
                                 <path id="sid-A825B3D6-DB37-41A5-A32F-CD917661490A_1"
-                                      d="M335.5 158L335.5 185.5 L281 185.5 L281 213.3984375 "
+                                      d="M394.5 220.7265625L394.5 254 L331.65625 254 "
                                       stroke="black" fill="none"
                                       stroke-width="2" stroke-linecap="round"
                                       stroke-linejoin="round"
@@ -6118,9 +6096,9 @@
                                       marker-end="url(#sid-A825B3D6-DB37-41A5-A32F-CD917661490Aend)"/>
                             </g>
                             <text id="sid-A825B3D6-DB37-41A5-A32F-CD917661490Atext_name"
-                                  x="327" y="150" oryx:edgePosition="startTop"
+                                  x="386" y="212" oryx:edgePosition="startTop"
                                   stroke-width="0pt" letter-spacing="-0.01px"
-                                  transform="rotate(-90 335 158)"
+                                  transform="rotate(-90 394 220)"
                                   oryx:fontSize="12" text-anchor="end"/>
                         </g>
                         <g class="children" style="overflow:hidden"/>
@@ -6452,7 +6430,7 @@
                         <g class="me">
                             <g pointer-events="painted">
                                 <path id="sid-393DA62F-F1D7-4DCC-ACB8-3BF8BF7435BF_1"
-                                      d="M794.4630612216376 404.77734533870495L794.0720950283624 185.44531091129505 "
+                                      d="M794.5 404.77734375L794.5 145 L567.86328125 145 "
                                       stroke="black" fill="none"
                                       stroke-width="2" stroke-linecap="round"
                                       stroke-linejoin="round"
@@ -6460,11 +6438,11 @@
                                       marker-end="url(#sid-393DA62F-F1D7-4DCC-ACB8-3BF8BF7435BFend)"/>
                             </g>
                             <text id="sid-393DA62F-F1D7-4DCC-ACB8-3BF8BF7435BFtext_name"
-                                  x="786" y="396" oryx:edgePosition="startTop"
+                                  x="802" y="396" oryx:edgePosition="startTop"
                                   stroke-width="0pt" letter-spacing="-0.01px"
-                                  transform="rotate(89.89786859388632 794 404)"
-                                  oryx:fontSize="12" text-anchor="end">
-                                <tspan dy="0" x="786" y="396">
+                                  transform="rotate(270 794 404)"
+                                  oryx:fontSize="12" text-anchor="start">
+                                <tspan dy="0" x="802" y="396">
                                     Yes
                                 </tspan>
                             </text>
@@ -6482,7 +6460,7 @@
                         <g class="me">
                             <g pointer-events="painted">
                                 <path id="sid-4E27FA3C-D7FE-4FB1-80EF-9CFF2BD634DA_1"
-                                      d="M743.7472040726377 144.1779804373932L355.30553030236223 137.8239726876068 "
+                                      d="M466.32349991649926 167.9595571806881L408.80931258350074 194.0170053193119 "
                                       stroke="black" fill="none"
                                       stroke-width="2" stroke-linecap="round"
                                       stroke-linejoin="round"
@@ -6490,10 +6468,36 @@
                                       marker-end="url(#sid-4E27FA3C-D7FE-4FB1-80EF-9CFF2BD634DAend)"/>
                             </g>
                             <text id="sid-4E27FA3C-D7FE-4FB1-80EF-9CFF2BD634DAtext_name"
-                                  x="735" y="136" oryx:edgePosition="startTop"
+                                  x="458" y="159" oryx:edgePosition="startTop"
                                   stroke-width="0pt" letter-spacing="-0.01px"
-                                  transform="rotate(0.9371429124395831 743 144)"
+                                  transform="rotate(-24.37343693354549 466 167)"
                                   oryx:fontSize="12" text-anchor="end"/>
+                        </g>
+                        <g class="children" style="overflow:hidden"/>
+                        <g class="edge"/>
+                    </g>
+                    <g class="controls">
+                        <g class="dockers"/>
+                        <g class="magnets"/>
+                    </g>
+                </g>
+                <g id="svg-sid-F3994F51-FE54-4910-A1F4-E5895AA1A612">
+                    <g class="stencils">
+                        <g class="me">
+                            <g pointer-events="painted">
+                                <path id="sid-E5F93056-7540-46FF-8C79-B82E95BE22D6_1"
+                                      d="M220.765625 137L394 137 L466.0333584559269 141.68509648493833 "
+                                      stroke="black" fill="none"
+                                      stroke-width="2" stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      marker-start="url(#sid-E5F93056-7540-46FF-8C79-B82E95BE22D6start)"
+                                      marker-end="url(#sid-E5F93056-7540-46FF-8C79-B82E95BE22D6end)"/>
+                            </g>
+                            <text id="sid-E5F93056-7540-46FF-8C79-B82E95BE22D6text_name"
+                                  x="228" y="129" oryx:edgePosition="startTop"
+                                  stroke-width="0pt" letter-spacing="-0.01px"
+                                  transform="rotate(360 220 137)"
+                                  oryx:fontSize="12" text-anchor="start"/>
                         </g>
                         <g class="children" style="overflow:hidden"/>
                         <g class="edge"/>
