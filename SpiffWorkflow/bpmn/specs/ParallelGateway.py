@@ -40,15 +40,22 @@ class ParallelGateway(Join, BpmnSpecMixin):
         # Are any of those tasks a potential ancestor to this task?
         waiting_tasks = []
         for task in tasks:
-            if self._is_descendant(self, task.task_spec):
+            if self._is_descendant(self, task):
                 waiting_tasks.append(task)
 
         return force or len(waiting_tasks) == 0, waiting_tasks
 
-    def _is_descendant(self, task_spec, starting_node):
+    def _is_descendant(self, task_spec, task):
         q = deque()
         done = set()
-        q.append(starting_node)
+
+        #We must skip ancestors of the task - so that loops don't make everything a descendent of everything!
+        p = task.parent
+        while (p != None and not p.task_spec in done):
+            done.add(p.task_spec)
+            p = p.parent
+
+        q.append(task.task_spec)
         while q:
             n = q.popleft()
             if n == task_spec:

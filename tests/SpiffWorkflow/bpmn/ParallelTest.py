@@ -348,6 +348,40 @@ class ParallelMultipleSplitsAndJoinsTest(BpmnWorkflowTestCase):
         self._do_test(['1', '1B', '1A', '1 Done', '!Done', '2', '2B', '2A', '2 Done', 'Done'])
 
 
+class ParallelLoopingAfterJoinTest(BpmnWorkflowTestCase):
+    def setUp(self):
+        self.spec = self.load_spec()
+
+    def load_spec(self):
+        return self.load_workflow_spec('Test-Workflows/Parallel-Looping-After-Join.bpmn20.xml', 'Parallel Looping After Join')
+
+    def _do_test(self, order):
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+        for s in order:
+            choice = None
+            if isinstance(s, tuple):
+                s,choice = s
+            if s.startswith('!'):
+                logging.info("Checking that we cannot do '%s'", s[1:])
+                self.assertRaises(AssertionError, self.do_next_named_step, s[1:], choice=choice)
+            else:
+                if choice is not None:
+                    logging.info("Doing step '%s' (with choice='%s')", s, choice)
+                else:
+                    logging.info("Doing step '%s'", s)
+                self.do_next_named_step(s, choice=choice)
+            self.workflow.do_engine_steps()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+    def test1(self):
+        self._do_test(['1', '2', '2A', '2B', '2 Done', ('Retry?', 'No'), 'Done'])
+
+    def test2(self):
+        self._do_test(['1', '2', '2A', '2B', '2 Done', ('Retry?', 'Yes'), 'Retrying', '1', '2', '2A', '2B', '2 Done', ('Retry?', 'No'), 'Done'])
+
+
 def suite():
     return unittest.TestLoader().loadTestsFromModule(sys.modules[__name__])
 if __name__ == '__main__':
