@@ -1,7 +1,6 @@
 import unittest
-import datetime
 import logging
-import time
+import sys
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -350,6 +349,6 @@ class ParallelMultipleSplitsAndJoinsTest(BpmnWorkflowTestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ParallelJoinLongTest)
+    return unittest.TestLoader().loadTestsFromModule(sys.modules[__name__])
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity = 2).run(suite())
