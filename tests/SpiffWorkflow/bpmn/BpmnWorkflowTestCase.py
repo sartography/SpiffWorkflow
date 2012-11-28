@@ -38,7 +38,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def _do_single_step(self, step_name, tasks, set_attribs=None, choice=None):
 
-        self.assertEqual(len(tasks), 1)
+        self.assertEqual(len(tasks), 1, 'Did not find one task for \'%s\' (got %d)' % (step_name, len(tasks)))
 
         self.assertTrue(tasks[0].task_spec.name == step_name or tasks[0].task_spec.description == step_name,
             'Expected step %s, got %s (%s)' % (step_name, tasks[0].task_spec.description, tasks[0].task_spec.name))

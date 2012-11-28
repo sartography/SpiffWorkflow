@@ -1,5 +1,6 @@
 import unittest
 import datetime
+import logging
 import time
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
@@ -314,6 +315,38 @@ class ParallelOnePathEndsTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+class ParallelMultipleSplitsAndJoinsTest(BpmnWorkflowTestCase):
+    def setUp(self):
+        self.spec = self.load_spec()
+
+    def load_spec(self):
+        return self.load_workflow_spec('Test-Workflows/Parallel-Multiple-Splits-And-Joins.bpmn20.xml', 'Parallel Multiple Splits And Joins')
+
+    def _do_test(self, order):
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+        for s in order:
+            if s.startswith('!'):
+                logging.info("Checking that we cannot do '%s'", s[1:])
+                self.assertRaises(AssertionError, self.do_next_named_step, s[1:])
+            else:
+                self.do_next_named_step(s)
+            self.workflow.do_engine_steps()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+    def test1(self):
+        self._do_test(['1', '!Done', '2', '1A', '!Done', '2A', '1B', '2B', '!Done', '1 Done', '!Done', '2 Done', 'Done'])
+
+    def test2(self):
+        self._do_test(['1', '!Done', '1A', '1B', '1 Done', '!Done', '2', '2A', '2B', '2 Done', 'Done'])
+
+    def test3(self):
+        self._do_test(['1', '2', '!Done', '1B', '2B', '!2 Done', '1A', '!Done', '2A', '1 Done', '!Done', '2 Done', 'Done'])
+
+    def test4(self):
+        self._do_test(['1', '1B', '1A', '1 Done', '!Done', '2', '2B', '2A', '2 Done', 'Done'])
 
 
 def suite():
