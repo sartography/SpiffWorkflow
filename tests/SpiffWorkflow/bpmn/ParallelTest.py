@@ -166,6 +166,62 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
 
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
+class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
+    def setUp(self):
+        self.spec = self.load_spec()
+
+    def load_spec(self):
+        return self.load_workflow_spec('Test-Workflows/Parallel-Through-Same-Task.bpmn20.xml', 'Parallel Through Same Task')
+
+    def testRunThroughFirstRepeatTaskFirst(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Repeated Task')
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Choice 1', choice='Yes')
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('Yes Task')
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Repeated Task')
+        self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+    def testRepeatTasksReadyTogether(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Choice 1', choice='Yes')
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('Yes Task')
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        ready_tasks = self.workflow.get_tasks(Task.READY)
+        self.assertEquals(2, len(ready_tasks))
+        self.assertEquals('Repeated Task', ready_tasks[0].task_spec.description)
+        ready_tasks[0].complete()
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Repeated Task')
+        self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ParallelJoinLongTest)
 if __name__ == '__main__':
