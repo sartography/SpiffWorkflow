@@ -37,8 +37,8 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
                 '\'No-Start-Event.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
             self.assertTrue('process' in ('%r'%ex),
                 '\'process\' should be a substring of error message: \'%r\'' % ex)
-            self.assertTrue('sid-bf1225ef-8efb-4695-ac8e-d140eacea914' in ('%r'%ex),
-                '\'sid-bf1225ef-8efb-4695-ac8e-d140eacea914\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('sid-669ddebf-4196-41ee-8b04-bcc90bc5f983' in ('%r'%ex),
+                '\'sid-669ddebf-4196-41ee-8b04-bcc90bc5f983\' should be a substring of error message: \'%r\'' % ex)
             self.assertTrue('No Start Event' in ('%r'%ex),
                 '\'No Start Event\' should be a substring of error message: \'%r\'' % ex)
 
@@ -55,8 +55,8 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
                 '\'Multiple-Start-Events.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
             self.assertTrue('process' in ('%r'%ex),
                 '\'process\' should be a substring of error message: \'%r\'' % ex)
-            self.assertTrue('sid-2ce8a57d-c2ad-4908-9e52-e9e8f61cdecc' in ('%r'%ex),
-                '\'sid-2ce8a57d-c2ad-4908-9e52-e9e8f61cdecc\' should be a substring of error message: \'%r\'' % ex)
+            self.assertTrue('sid-1e457abc-2ee3-4d60-a4df-d2ddf5b18c2b' in ('%r'%ex),
+                '\'sid-1e457abc-2ee3-4d60-a4df-d2ddf5b18c2b\' should be a substring of error message: \'%r\'' % ex)
             self.assertTrue('Multiple Start Events' in ('%r'%ex),
                 '\'Multiple Start Events\' should be a substring of error message: \'%r\'' % ex)
 
