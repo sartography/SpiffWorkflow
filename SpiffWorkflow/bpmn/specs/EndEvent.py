@@ -15,10 +15,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-from SpiffWorkflow.bpmn.specs.ParallelGateway import ParallelGateway
 from SpiffWorkflow.Task import Task
 
-class EndEvent(ParallelGateway, BpmnSpecMixin):
+class EndEvent(BpmnSpecMixin):
     """
     Task Spec for a bpmn:endEvent node.
     """
