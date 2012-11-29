@@ -370,6 +370,7 @@ class ParallelLoopingAfterJoinTest(BpmnWorkflowTestCase):
                     logging.info("Doing step '%s' (with choice='%s')", s, choice)
                 else:
                     logging.info("Doing step '%s'", s)
+                logging.debug(self.workflow.get_dump())
                 self.do_next_named_step(s, choice=choice)
             self.workflow.do_engine_steps()
 
