@@ -51,7 +51,7 @@ class _BpmnProcessSpecState(object):
         self.spec = spec
         self.route = None
 
-    def add_path_to_transition(self, transition, state, workflow_parents):
+    def get_path_to_transition(self, transition, state, workflow_parents):
         #find a route passing through each task:
         route = [self.spec.start]
         for task_name in workflow_parents:
@@ -66,6 +66,9 @@ class _BpmnProcessSpecState(object):
         for spec in reversed(route):
             outgoing_route_node = _RouteNode(spec, outgoing_route_node)
             outgoing_route_node.state = state
+        return outgoing_route_node
+
+    def add_route(self, outgoing_route_node):
         if self.route:
             self._merge_routes(self.route, outgoing_route_node)
         else:
@@ -283,6 +286,7 @@ class CompactWorkflowSerializer(Serializer):
 
         s = _BpmnProcessSpecState(workflow.spec)
 
+        routes = []
         for state in state_list[:-1]:
             if isinstance(state, basestring):
                 state = [state]
@@ -290,7 +294,9 @@ class CompactWorkflowSerializer(Serializer):
             workflow_parents = state[1] if len(state)>1 else []
             state = (Task.WAITING if len(state)>2 and state[2] == 'W' else Task.READY)
 
-            s.add_path_to_transition(transition, state, workflow_parents)
+            routes.append(s.get_path_to_transition(transition, state, workflow_parents))
+        for r in routes:
+            s.add_route(r)
 
         workflow._busy_with_restore = True
         try:

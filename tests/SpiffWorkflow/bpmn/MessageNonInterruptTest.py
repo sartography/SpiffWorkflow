@@ -57,6 +57,7 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Acknowledge Non-Interrupt Message')
+        self.workflow.do_engine_steps()
         self.save_restore()
 
         self.workflow.do_engine_steps()
@@ -64,6 +65,7 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Do Something That Takes A Long Time')
+        self.workflow.do_engine_steps()
         self.save_restore()
 
         self.workflow.do_engine_steps()
