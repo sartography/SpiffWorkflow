@@ -32,6 +32,8 @@ class ParallelGateway(UnstructuredJoin):
         for task in my_task.workflow.get_tasks(Task.READY | Task.WAITING):
             if task.thread_id != my_task.thread_id:
                 continue
+            if task.workflow != my_task.workflow:
+                continue
             if task.task_spec == my_task.task_spec:
                 continue
             tasks.append(task)

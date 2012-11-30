@@ -15,12 +15,28 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 import lxml
-from SpiffWorkflow.bpmn.specs.ParallelGateway import ParallelGateway
+from SpiffWorkflow.Task import Task
+from SpiffWorkflow.bpmn.specs.UnstructuredJoin import UnstructuredJoin
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from lxml.html import builder as E
 
-class _EndJoin(ParallelGateway):
+class _EndJoin(UnstructuredJoin):
+
+    def _try_fire_unstructured(self, my_task, force=False):
+        # Look at the tree to find all ready and waiting tasks (excluding ourself).
+        # The EndJoin waits for everyone!
+        waiting_tasks = []
+        for task in my_task.workflow.get_tasks(Task.READY | Task.WAITING):
+            if task.thread_id != my_task.thread_id:
+                continue
+            if task.task_spec == my_task.task_spec:
+                continue
+            if task.workflow != my_task.workflow:
+                continue
+            waiting_tasks.append(task)
+
+        return force or len(waiting_tasks) == 0, waiting_tasks
 
     def _on_complete_hook(self, my_task):
         super(_EndJoin, self)._on_complete_hook(my_task)
