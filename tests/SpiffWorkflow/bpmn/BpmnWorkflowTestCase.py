@@ -29,8 +29,25 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             self.save_restore()
 
         self.workflow.do_engine_steps()
-        tasks = filter(lambda t: t.task_spec.name == step_name or t.task_spec.description == step_name, self.workflow.get_tasks(Task.READY))
-        self._do_single_step(step_name, tasks, set_attribs, choice, only_one_instance=only_one_instance)
+        step_name_path = step_name.split("|")
+        def is_match(t):
+            if not (t.task_spec.name == step_name_path[-1] or t.task_spec.description == step_name_path[-1]):
+                return False
+            for parent_name in step_name_path[:-1]:
+                p = t.parent
+                found = False
+                while (p and p != p.parent):
+                    if (p.task_spec.name == parent_name or p.task_spec.description == parent_name):
+                        found = True
+                        break
+                    p = p.parent
+                if not found:
+                    return False
+            return True
+
+        tasks = filter(lambda t: is_match(t), self.workflow.get_tasks(Task.READY))
+
+        self._do_single_step(step_name_path[-1], tasks, set_attribs, choice, only_one_instance=only_one_instance)
 
     def assertTaskNotReady(self, step_name):
         tasks = filter(lambda t: t.task_spec.name == step_name or t.task_spec.description == step_name, self.workflow.get_tasks(Task.READY))
@@ -40,6 +57,8 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
         if only_one_instance:
             self.assertEqual(len(tasks), 1, 'Did not find one task for \'%s\' (got %d)' % (step_name, len(tasks)))
+        else:
+            self.assertNotEqual(len(tasks), 0, 'Did not find any tasks for \'%s\'' % (step_name))
 
         self.assertTrue(tasks[0].task_spec.name == step_name or tasks[0].task_spec.description == step_name,
             'Expected step %s, got %s (%s)' % (step_name, tasks[0].task_spec.description, tasks[0].task_spec.name))

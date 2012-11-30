@@ -390,6 +390,50 @@ class ParallelManyThreadsAtSamePointTest(AbstractParallelTest):
         self._do_test(['1', '2', 'Done', '3', '4', 'Done', 'Done', 'Done'], only_one_instance=False, save_restore=True)
 
 
+class ParallelManyThreadsAtSamePointTestNested(AbstractParallelTest):
+    def setUp(self):
+        self.spec = self.load_spec()
+
+    def load_spec(self):
+        return self.load_workflow_spec('Test-Workflows/Parallel-Many-Threads-At-Same-Point-Nested.bpmn20.xml', 'Parallel Many Threads At Same Point Nested')
+
+    def test_depth_first(self):
+        instructions = []
+        for split1 in ['SP 1','SP 2']:
+            for sp in ['A', 'B']:
+                for split2 in ['1','2']:
+                    for t in ['A', 'B']:
+                        instructions.append(split1+sp+"|"+split2+t)
+                    instructions.append(split1+sp+"|"+'Inner Done')
+                    instructions.append("!"+split1+sp+"|"+'Inner Done')
+
+            instructions.append('Outer Done')
+            instructions.append("!Outer Done")
+
+        logging.info('Doing test with instructions: %s', instructions)
+        self._do_test(instructions, only_one_instance=False, save_restore=True)
+
+    def test_breadth_first(self):
+        instructions = []
+        for t in ['A', 'B']:
+            for split2 in ['1','2']:
+                for sp in ['A', 'B']:
+                    for split1 in ['SP 1','SP 2']:
+                        instructions.append(split1+sp+"|"+split2+t)
+
+        for split1 in ['SP 1','SP 2']:
+            for sp in ['A', 'B']:
+                for split2 in ['1','2']:
+                    instructions += [split1+sp+"|"+'Inner Done']
+
+        for split1 in ['SP 1','SP 2']:
+            instructions += ['Outer Done']
+
+        logging.info('Doing test with instructions: %s', instructions)
+        self._do_test(instructions, only_one_instance=False, save_restore=True)
+
+
+
 def suite():
     return unittest.TestLoader().loadTestsFromModule(sys.modules[__name__])
 if __name__ == '__main__':
