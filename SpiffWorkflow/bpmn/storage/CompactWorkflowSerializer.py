@@ -54,6 +54,9 @@ class _RouteNode(object):
         return l
 
     def contains(self, other_route):
+        if isinstance(other_route, list):
+            return self.to_list()[0:len(other_route)]==other_route
+
         #This only works before merging
         assert len(other_route.outgoing) <= 1, "contains(..) cannot be called after a merge"
         assert len(self.outgoing) <= 1, "contains(..) cannot be called after a merge"
@@ -79,10 +82,12 @@ class _BpmnProcessSpecState(object):
     def get_path_to_transition(self, transition, state, workflow_parents, taken_routes=None):
         #find a route passing through each task:
         route = [self.spec.start]
+        route_to_parent_complete = None
         for task_name in workflow_parents:
             route = self._breadth_first_task_search(task_name, route)
             if route is None:
                 raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % transition)
+            route_to_parent_complete = route + [route[-1].outputs[0]]
             route = route + [route[-1].spec.start]
         route = self._breadth_first_transition_search(transition, route, taken_routes=taken_routes)
         if route is None:
@@ -91,7 +96,7 @@ class _BpmnProcessSpecState(object):
         for spec in reversed(route):
             outgoing_route_node = _RouteNode(spec, outgoing_route_node)
             outgoing_route_node.state = state
-        return outgoing_route_node
+        return outgoing_route_node, route_to_parent_complete
 
     def add_route(self, outgoing_route_node):
         if self.route:
@@ -214,7 +219,7 @@ class _BpmnProcessSpecState(object):
                     if taken_routes:
                         final_route = route + [spec]
                         for taken in taken_routes:
-                            t = taken.to_list()
+                            t = taken.to_list() if not isinstance(taken, list) else taken
                             if final_route[0:len(t)]==t:
                                 spec = None
                                 break
@@ -336,7 +341,8 @@ class CompactWorkflowSerializer(Serializer):
             workflow_parents = state[1] if len(state)>1 else []
             state = (Task.WAITING if len(state)>2 and state[2] == 'W' else Task.READY)
 
-            routes.append((s.get_path_to_transition(transition, state, workflow_parents), transition, state, workflow_parents))
+            route, route_to_parent_complete = s.get_path_to_transition(transition, state, workflow_parents)
+            routes.append((route, route_to_parent_complete, transition, state, workflow_parents))
 
         retry=True
         retry_count = 0
@@ -344,22 +350,27 @@ class CompactWorkflowSerializer(Serializer):
             if retry_count>100:
                 raise ValueError('Maximum retry limit exceeded searching for unique paths')
             retry = False
+
             for i in range(len(routes)):
-                route, transition, state, workflow_parents = routes[i]
+                route, route_to_parent_complete, transition, state, workflow_parents = routes[i]
 
                 for j in range(len(routes)):
                     if i == j:
                         continue
                     other_route = routes[j][0]
-                    if route.contains(other_route):
-                        taken_routes = filter(lambda r: r!=route, [r[0] for r in routes])
-                        route = s.get_path_to_transition(transition, state, workflow_parents, taken_routes=taken_routes)
+                    route_to_parent_complete = routes[j][1]
+                    if route.contains(other_route) or (route_to_parent_complete and route.contains(route_to_parent_complete)):
+                        taken_routes = filter(lambda r: r[0]!=route, routes)
+                        taken_routes = filter(lambda r: r, [r[0] for r in taken_routes] + [r[1] for r in taken_routes])
+                        route, route_to_parent_complete = s.get_path_to_transition(transition, state, workflow_parents, taken_routes=taken_routes)
                         for r in taken_routes:
                             assert not route.contains(r)
-                        routes[i] = route, transition, state, workflow_parents
+                        routes[i] = route, route_to_parent_complete, transition, state, workflow_parents
                         retry=True
                         retry_count += 1
                         break
+                if retry:
+                    break
 
         for r in routes:
             s.add_route(r[0])
