@@ -20,6 +20,7 @@ from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.specs.BoundaryEvent import BoundaryEvent
 from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
+from SpiffWorkflow.bpmn.specs.InclusiveGateway import InclusiveGateway
 from SpiffWorkflow.bpmn.specs.IntermediateCatchEvent import IntermediateCatchEvent
 from SpiffWorkflow.bpmn.specs.ManualTask import ManualTask
 from SpiffWorkflow.bpmn.specs.NoneTask import NoneTask
@@ -53,6 +54,7 @@ class BpmnParser(object):
         full_tag('manualTask')          : (ManualTaskParser, ManualTask),
         full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
         full_tag('parallelGateway')     : (ParallelGatewayParser, ParallelGateway),
+        full_tag('inclusiveGateway')     : (InclusiveGatewayParser, InclusiveGateway),
         full_tag('callActivity')        : (CallActivityParser, CallActivity),
         full_tag('scriptTask')                  : (ScriptTaskParser, ScriptTask),
         full_tag('intermediateCatchEvent')      : (IntermediateCatchEventParser, IntermediateCatchEvent),

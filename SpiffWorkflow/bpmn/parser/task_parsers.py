@@ -88,6 +88,17 @@ class ParallelGatewayParser(TaskParser):
     def handles_multiple_outgoing(self):
         return True
 
+class InclusiveGatewayParser(TaskParser):
+    """
+    Parses an Inclusive Gateway.
+    """
+
+    def handles_multiple_outgoing(self):
+        """
+        At the moment I haven't implemented support for diverging inclusive gateways
+        """
+        return False
+
 class CallActivityParser(TaskParser):
     """
     Parses a CallActivity node. This also supports the not-quite-correct BPMN that Signavio produces (which does not have a calledElement attribute).
