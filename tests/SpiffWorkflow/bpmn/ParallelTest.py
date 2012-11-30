@@ -331,13 +331,19 @@ class AbstractParallelTest(BpmnWorkflowTestCase):
                     logging.info("Doing step '%s' (with choice='%s')", s, choice)
                 else:
                     logging.info("Doing step '%s'", s)
-                logging.debug(self.workflow.get_dump())
+                #logging.debug(self.workflow.get_dump())
                 self.do_next_named_step(s, choice=choice,only_one_instance=only_one_instance)
             self.workflow.do_engine_steps()
             if save_restore:
+                #logging.debug("Before SaveRestore: \n%s" % self.workflow.get_dump())
                 self.save_restore()
 
-        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+        self.workflow.do_engine_steps()
+        unfinished = self.workflow.get_tasks(Task.READY | Task.WAITING)
+        if unfinished:
+            logging.debug("Unfinished tasks: %s", unfinished)
+            logging.debug(self.workflow.get_dump())
+        self.assertEquals(0, len(unfinished))
 
 class ParallelMultipleSplitsAndJoinsTest(AbstractParallelTest):
     def setUp(self):
@@ -406,6 +412,8 @@ class ParallelManyThreadsAtSamePointTestNested(AbstractParallelTest):
                         instructions.append(split1+sp+"|"+split2+t)
                     instructions.append(split1+sp+"|"+'Inner Done')
                     instructions.append("!"+split1+sp+"|"+'Inner Done')
+                if sp =='A':
+                    instructions.append("!Outer Done")
 
             instructions.append('Outer Done')
             instructions.append("!Outer Done")

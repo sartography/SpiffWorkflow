@@ -99,9 +99,16 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
 
 
     def _update_state_hook(self, my_task):
+
         if my_task._is_predicted():
             self._predict(my_task)
         if not my_task.parent._is_finished():
             return
 
+        target_state = getattr(my_task, '_bpmn_load_target_state', None)
+        if target_state == Task.WAITING:
+            my_task._set_state(Task.WAITING)
+            return
+
+        logging.debug('UnstructuredJoin._update_state_hook: %s (%s) - Children: %s', self.name, self.description, len(my_task.children))
         super(UnstructuredJoin, self)._update_state_hook(my_task)

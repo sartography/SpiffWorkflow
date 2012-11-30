@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+import logging
 
 import lxml
 from SpiffWorkflow.Task import Task
@@ -32,9 +33,20 @@ class _EndJoin(UnstructuredJoin):
                 continue
             if task.task_spec == my_task.task_spec:
                 continue
-            if task.workflow != my_task.workflow:
-                continue
-            waiting_tasks.append(task)
+
+            is_mine = False
+            w = task.workflow
+            if w == my_task.workflow:
+                is_mine = True
+            while w and w.outer_workflow != w:
+                w = w.outer_workflow
+                if w == my_task.workflow:
+                    is_mine = True
+            if is_mine:
+                waiting_tasks.append(task)
+
+        if len(waiting_tasks)==0:
+            logging.debug('Endjoin Task ready: %s (ready/waiting tasks: %s)', my_task, list(my_task.workflow.get_tasks(Task.READY | Task.WAITING)))
 
         return force or len(waiting_tasks) == 0, waiting_tasks
 

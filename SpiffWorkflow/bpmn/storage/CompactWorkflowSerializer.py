@@ -123,6 +123,7 @@ class _BpmnProcessSpecState(object):
     def go(self, workflow):
         leaf_tasks = []
         self._go(workflow.task_tree.children[0], self.route, leaf_tasks)
+        logging.debug('Leaf tasks after load, before _update_state: %s', leaf_tasks)
         for task in sorted(leaf_tasks, key=lambda t: 0 if getattr(t, '_bpmn_load_target_state', Task.READY) == Task.READY else 1):
             task.task_spec._update_state(task)
             task._inherit_attributes()
@@ -170,6 +171,9 @@ class _BpmnProcessSpecState(object):
         # Create the children (these are the tasks that follow the subworkflow, on completion:
         my_task.children = []
         my_task._sync_children(my_task.task_spec.outputs, Task.FUTURE)
+        for t in my_task.children:
+            t.task_spec._predict(t)
+
 
         # Integrate the tree of the subworkflow into the tree of this workflow.
         for child in subworkflow.task_tree.children:

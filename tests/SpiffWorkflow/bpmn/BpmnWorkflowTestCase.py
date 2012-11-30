@@ -1,3 +1,4 @@
+import logging
 import os
 import unittest
 from SpiffWorkflow.Task import Task
@@ -74,9 +75,16 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def save_restore(self):
         state = self._get_workflow_state()
+        logging.debug('Saving state: %s', state)
+        before_dump = self.workflow.get_dump()
         self.restore(state)
         #We should still have the same state:
-        self.assertEquals(state, self._get_workflow_state())
+        after_dump = self.workflow.get_dump()
+        after_state = self._get_workflow_state()
+        if state != after_state:
+            logging.debug("Before save:\n%s", before_dump)
+            logging.debug("After save:\n%s", after_dump)
+        self.assertEquals(state, after_state)
 
     def restore(self, state):
         self.workflow = CompactWorkflowSerializer().deserialize_workflow(state, workflow_spec=self.spec)
