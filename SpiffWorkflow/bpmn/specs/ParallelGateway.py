@@ -17,12 +17,11 @@ from collections import deque
 
 import logging
 from SpiffWorkflow.Task import Task
-from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-from SpiffWorkflow.specs.Join import Join
+from SpiffWorkflow.bpmn.specs.UnstructuredJoin import UnstructuredJoin
 
 LOG = logging.getLogger(__name__)
 
-class ParallelGateway(Join, BpmnSpecMixin):
+class ParallelGateway(UnstructuredJoin):
     """
     Task Spec for a bpmn:parallelGateway node.
     """
@@ -45,70 +44,6 @@ class ParallelGateway(Join, BpmnSpecMixin):
 
         return force or len(waiting_tasks) == 0, waiting_tasks
 
-    def _do_join(self, my_task):
-        # Copied from Join parent class
-        #  This has some changes that might be bugfixes, but I'm not sure enough to do them in the subclass
-
-        # One Join spec may have multiple corresponding Task objects::
-        #
-        #     - Due to the MultiInstance pattern.
-        #     - Due to the ThreadSplit pattern.
-        #
-        # When using the MultiInstance pattern, we want to join across
-        # the resulting task instances. When using the ThreadSplit
-        # pattern, we only join within the same thread. (Both patterns
-        # may also be mixed.)
-        #
-        # We are looking for all task instances that must be joined.
-        # We limit our search by starting at the split point.
-        if self.split_task:
-            split_task = my_task.workflow.get_task_spec_from_name(self.split_task)
-            split_task = my_task._find_ancestor(split_task)
-        else:
-            split_task = my_task.workflow.task_tree
-
-        # Identify all corresponding task instances within the thread.
-        # Also remember which of those instances was most recently changed,
-        # because we are making this one the instance that will
-        # continue the thread of control. In other words, we will continue
-        # to build the task tree underneath the most recently changed task.
-        last_changed = None
-        thread_tasks = []
-        for task in split_task._find_any(self):
-            # Ignore tasks from other threads.
-            if task.thread_id != my_task.thread_id:
-                continue
-
-            # Ignore my outgoing branches.
-            if task._is_descendant_of(my_task):
-                continue
-            # Ignore completed tasks (this is for loop handling)
-            if task._is_finished():
-                continue
-
-            # We have found a matching instance.
-            thread_tasks.append(task)
-
-            # Check whether the state of the instance was recently
-            # changed.
-            changed = task.parent.last_state_change
-            if last_changed is None\
-            or changed > last_changed.parent.last_state_change:
-                last_changed = task
-
-        # Mark the identified task instances as COMPLETED. The exception
-        # is the most recently changed task, for which we assume READY.
-        # By setting the state to READY only, we allow for calling
-        # L{Task.complete()}, which leads to the task tree being
-        # (re)built underneath the node.
-        for task in thread_tasks:
-            if task == last_changed:
-                self.entered_event.emit(my_task.workflow, my_task)
-                task._ready()
-            else:
-                task.state = Task.COMPLETED
-                task._drop_children()
-
     def _is_descendant(self, task_spec, task):
         q = deque()
         done = set()
@@ -129,12 +64,3 @@ class ParallelGateway(Join, BpmnSpecMixin):
                     done.add(child)
                     q.append(child)
         return False
-
-
-    def _update_state_hook(self, my_task):
-        if my_task._is_predicted():
-            self._predict(my_task)
-        if not my_task.parent._is_finished():
-            return
-
-        super(ParallelGateway, self)._update_state_hook(my_task)
