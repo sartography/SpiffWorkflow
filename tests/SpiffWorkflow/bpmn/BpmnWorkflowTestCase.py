@@ -24,21 +24,22 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         tasks = self.workflow.get_tasks(Task.READY)
         self._do_single_step(step_name, tasks, set_attribs, choice)
 
-    def do_next_named_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
+    def do_next_named_step(self, step_name, with_save_load=False, set_attribs=None, choice=None, only_one_instance=True):
         if with_save_load:
             self.save_restore()
 
         self.workflow.do_engine_steps()
         tasks = filter(lambda t: t.task_spec.name == step_name or t.task_spec.description == step_name, self.workflow.get_tasks(Task.READY))
-        self._do_single_step(step_name, tasks, set_attribs, choice)
+        self._do_single_step(step_name, tasks, set_attribs, choice, only_one_instance=only_one_instance)
 
     def assertTaskNotReady(self, step_name):
         tasks = filter(lambda t: t.task_spec.name == step_name or t.task_spec.description == step_name, self.workflow.get_tasks(Task.READY))
         self.assertEquals([], tasks)
 
-    def _do_single_step(self, step_name, tasks, set_attribs=None, choice=None):
+    def _do_single_step(self, step_name, tasks, set_attribs=None, choice=None, only_one_instance=True):
 
-        self.assertEqual(len(tasks), 1, 'Did not find one task for \'%s\' (got %d)' % (step_name, len(tasks)))
+        if only_one_instance:
+            self.assertEqual(len(tasks), 1, 'Did not find one task for \'%s\' (got %d)' % (step_name, len(tasks)))
 
         self.assertTrue(tasks[0].task_spec.name == step_name or tasks[0].task_spec.description == step_name,
             'Expected step %s, got %s (%s)' % (step_name, tasks[0].task_spec.description, tasks[0].task_spec.name))

@@ -16,6 +16,7 @@
 
 from collections import deque
 import json
+import logging
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.specs import SubWorkflow
@@ -42,6 +43,30 @@ class _RouteNode(object):
         m = filter(lambda r: r.task_spec == task_spec, self.outgoing)
         return m[0] if m else None
 
+    def to_list(self):
+        l = []
+        n = self
+        while n.outgoing:
+            assert len(n.outgoing) == 1, "to_list(..) cannot be called after a merge"
+            l.append(n.task_spec)
+            n = n.outgoing[0]
+        l.append(n.task_spec)
+        return l
+
+    def contains(self, other_route):
+        #This only works before merging
+        assert len(other_route.outgoing) <= 1, "contains(..) cannot be called after a merge"
+        assert len(self.outgoing) <= 1, "contains(..) cannot be called after a merge"
+
+        if other_route.task_spec == self.task_spec:
+            if other_route.outgoing and self.outgoing:
+                return self.outgoing[0].contains(other_route.outgoing[0])
+            elif self.outgoing:
+                return True
+            elif not other_route.outgoing:
+                return True
+        return False
+
 class _BpmnProcessSpecState(object):
     """
     Private helper class
@@ -51,7 +76,7 @@ class _BpmnProcessSpecState(object):
         self.spec = spec
         self.route = None
 
-    def get_path_to_transition(self, transition, state, workflow_parents):
+    def get_path_to_transition(self, transition, state, workflow_parents, taken_routes=None):
         #find a route passing through each task:
         route = [self.spec.start]
         for task_name in workflow_parents:
@@ -59,7 +84,7 @@ class _BpmnProcessSpecState(object):
             if route is None:
                 raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % transition)
             route = route + [route[-1].spec.start]
-        route = self._breadth_first_transition_search(transition, route)
+        route = self._breadth_first_transition_search(transition, route, taken_routes=taken_routes)
         if route is None:
             raise UnrecoverableWorkflowChange('No path found for route \'%s\'' % transition)
         outgoing_route_node = None
@@ -165,13 +190,13 @@ class _BpmnProcessSpecState(object):
             else:
                 target.outgoing.append(out_route)
 
-    def _breadth_first_transition_search(self, transition_id, starting_route):
-        return self._breadth_first_search(starting_route, transition_id=transition_id)
+    def _breadth_first_transition_search(self, transition_id, starting_route, taken_routes=None):
+        return self._breadth_first_search(starting_route, transition_id=transition_id, taken_routes=taken_routes)
 
     def _breadth_first_task_search(self, task_name, starting_route):
         return self._breadth_first_search(starting_route, task_name=task_name)
 
-    def _breadth_first_search(self, starting_route, task_name=None, transition_id=None):
+    def _breadth_first_search(self, starting_route, task_name=None, transition_id=None, taken_routes=None):
         q = deque()
         done = set()
         q.append(starting_route)
@@ -181,12 +206,25 @@ class _BpmnProcessSpecState(object):
                 if task_name and route[-1].name == task_name:
                     return route
                 if transition_id and hasattr(route[-1], 'has_outgoing_sequence_flow') and route[-1].has_outgoing_sequence_flow(transition_id):
-                    route.append(route[-1].get_outgoing_sequence_flow_by_id(transition_id).target_task_spec)
-                    return route
+                    spec = route[-1].get_outgoing_sequence_flow_by_id(transition_id).target_task_spec
+                    if taken_routes:
+                        final_route = route + [spec]
+                        for taken in taken_routes:
+                            t = taken.to_list()
+                            if final_route[0:len(t)]==t:
+                                spec = None
+                                break
+                    if spec:
+                        route.append(spec)
+                        return route
             for child in route[-1].outputs:
-                if child not in done:
-                    done.add(child)
-                    q.append(route + [child])
+                new_route = route + [child]
+                if len(new_route) > 10000:
+                    raise ValueError('Maximum looping limit exceeded searching for path to %s' % (task_name or transition_id))
+                new_route_r = tuple(new_route)
+                if new_route_r not in done:
+                    done.add(new_route_r)
+                    q.append(new_route)
         return None
 
 
@@ -294,9 +332,33 @@ class CompactWorkflowSerializer(Serializer):
             workflow_parents = state[1] if len(state)>1 else []
             state = (Task.WAITING if len(state)>2 and state[2] == 'W' else Task.READY)
 
-            routes.append(s.get_path_to_transition(transition, state, workflow_parents))
+            routes.append((s.get_path_to_transition(transition, state, workflow_parents), transition, state, workflow_parents))
+
+        retry=True
+        retry_count = 0
+        while (retry):
+            if retry_count>100:
+                raise ValueError('Maximum retry limit exceeded searching for unique paths')
+            retry = False
+            for i in range(len(routes)):
+                route, transition, state, workflow_parents = routes[i]
+
+                for j in range(len(routes)):
+                    if i == j:
+                        continue
+                    other_route = routes[j][0]
+                    if route.contains(other_route):
+                        taken_routes = filter(lambda r: r!=route, [r[0] for r in routes])
+                        route = s.get_path_to_transition(transition, state, workflow_parents, taken_routes=taken_routes)
+                        for r in taken_routes:
+                            assert not route.contains(r)
+                        routes[i] = route, transition, state, workflow_parents
+                        retry=True
+                        retry_count += 1
+                        break
+
         for r in routes:
-            s.add_route(r)
+            s.add_route(r[0])
 
         workflow._busy_with_restore = True
         try:
