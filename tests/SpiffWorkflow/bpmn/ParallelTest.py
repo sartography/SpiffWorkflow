@@ -166,6 +166,11 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
 
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
+class ParallelThenExlusiveNoInclusiveTest(ParallelThenExlusiveTest):
+
+    def load_spec(self):
+        return self.load_workflow_spec('Test-Workflows/Parallel-Then-Exclusive-No-Inclusive.bpmn20.xml', 'Parallel Then Exclusive No Inclusive')
+
 class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.spec = self.load_spec()
