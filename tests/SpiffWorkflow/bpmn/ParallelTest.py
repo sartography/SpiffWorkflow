@@ -263,6 +263,83 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
 
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
+
+    def testNoRouteRepeatTaskFirst(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+        self.save_restore()
+
+        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Repeated Task')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        #The inclusive gateway allows this to pass through (since there is a route to it on the same sequence flow)
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.do_next_named_step('Choice 1', choice='No')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.do_next_named_step('No Task')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+    def testNoRouteNoTaskFirst(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+        self.save_restore()
+
+        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Choice 1', choice='No')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.do_next_named_step('No Task')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Repeated Task')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+    def testNoRouteNoFirstThenRepeating(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+        self.save_restore()
+
+        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Choice 1', choice='No')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Repeated Task')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('No Task')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+        self.save_restore()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
 class ParallelOnePathEndsTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.spec = self.load_spec()
