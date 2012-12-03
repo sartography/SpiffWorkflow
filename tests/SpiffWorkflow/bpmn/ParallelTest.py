@@ -22,18 +22,18 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
 
         self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
 
-        self.do_next_named_step('Thread 1 - Choose', choice='Yes')
+        self.do_next_named_step('Thread 1 - Choose', choice='Yes', with_save_load=True)
         self.workflow.do_engine_steps()
-        self.do_next_named_step('Thread 2 - Choose', choice='Yes')
+        self.do_next_named_step('Thread 2 - Choose', choice='Yes', with_save_load=True)
         self.workflow.do_engine_steps()
 
         for i in range(1,13):
-            self.do_next_named_step('Thread 1 - Task %d' % i)
+            self.do_next_named_step('Thread 1 - Task %d' % i, with_save_load=True)
             self.workflow.do_engine_steps()
-            self.do_next_named_step('Thread 2 - Task %d' % i)
+            self.do_next_named_step('Thread 2 - Task %d' % i, with_save_load=True)
             self.workflow.do_engine_steps()
 
-        self.do_next_named_step('Done')
+        self.do_next_named_step('Done', with_save_load=True)
         self.workflow.do_engine_steps()
 
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
@@ -45,7 +45,7 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
 
         self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
 
-        self.do_next_named_step('Thread 1 - Choose', choice='Yes')
+        self.do_next_named_step('Thread 1 - Choose', choice='Yes', with_save_load=True)
         self.workflow.do_engine_steps()
         for i in range(1,13):
             self.do_next_named_step('Thread 1 - Task %d' % i)
@@ -54,14 +54,70 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
         self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
         self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
 
-        self.do_next_named_step('Thread 2 - Choose', choice='Yes')
+        self.do_next_named_step('Thread 2 - Choose', choice='Yes', with_save_load=True)
         self.workflow.do_engine_steps()
         for i in range(1,13):
-            self.do_next_named_step('Thread 2 - Task %d' % i)
+            self.do_next_named_step('Thread 2 - Task %d' % i, with_save_load=True)
             self.workflow.do_engine_steps()
 
-        self.do_next_named_step('Done')
+        self.do_next_named_step('Done', with_save_load=True)
         self.workflow.do_engine_steps()
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
+    def load_spec(self):
+        return self.load_workflow_spec('Test-Workflows/Parallel-Join-Long-Inclusive.bpmn20.xml', 'Parallel Join Long Inclusive')
+
+    def testRunThroughThread1FirstThenNo(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Thread 1 - Choose', choice='Yes', with_save_load=True)
+        self.workflow.do_engine_steps()
+        for i in range(1,13):
+            self.do_next_named_step('Thread 1 - Task %d' % i)
+            self.workflow.do_engine_steps()
+
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
+
+        self.do_next_named_step('Thread 2 - Choose', choice='No', with_save_load=True)
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('Done', with_save_load=True)
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('Thread 2 - No Task', with_save_load=True)
+        self.workflow.do_engine_steps()
+
+
+        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+
+    def testNoFirstThenThread1(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+
+        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Thread 2 - Choose', choice='No', with_save_load=True)
+        self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Thread 1 - Choose', choice='Yes', with_save_load=True)
+        self.workflow.do_engine_steps()
+        for i in range(1,13):
+            self.do_next_named_step('Thread 1 - Task %d' % i)
+            self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done', with_save_load=True)
+        self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Thread 2 - No Task', with_save_load=True)
+        self.workflow.do_engine_steps()
+
 
         self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
