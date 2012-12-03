@@ -103,9 +103,7 @@ class TaskParser(object):
         """
         Return the name of the lane that contains this task
         """
-        lane_match = self.process_xpath('.//bpmn:lane/bpmn:flowNodeRef[text()="%s"]/..' % self.get_id())
-        assert len(lane_match)<= 1
-        return lane_match[0].get('name') if lane_match else None
+        return self.process_parser.get_lane(self.get_id())
 
 
     def get_task_spec_name(self, target_ref=None):

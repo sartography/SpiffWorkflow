@@ -73,6 +73,14 @@ class ProcessParser(object):
 
         return task_spec
 
+    def get_lane(self, id):
+        """
+        Return the name of the lane that contains the specified task
+        """
+        lane_match = self.xpath('.//bpmn:lane/bpmn:flowNodeRef[text()="%s"]/..' % id)
+        assert len(lane_match)<= 1
+        return lane_match[0].get('name') if lane_match else None
+
     def _parse(self):
         start_node_list = self.xpath('.//bpmn:startEvent')
         if not start_node_list:
