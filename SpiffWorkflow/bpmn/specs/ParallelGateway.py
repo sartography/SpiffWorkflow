@@ -37,7 +37,7 @@ class ParallelGateway(UnstructuredJoin):
 
     """
 
-    def _try_fire_unstructured(self, my_task, force=False):
+    def _get_inputs_with_tokens(self, my_task):
         # Look at the tree to find all places where this task is used.
         tasks = []
         for task in my_task.workflow.task_tree:
@@ -61,6 +61,11 @@ class ParallelGateway(UnstructuredJoin):
                 completed_inputs.add(task.parent.task_spec)
             else:
                 waiting_tasks.append(task.parent)
+
+        return completed_inputs, waiting_tasks
+
+    def _try_fire_unstructured(self, my_task, force=False):
+        completed_inputs, waiting_tasks = self._get_inputs_with_tokens(my_task)
 
         # If the threshold was reached, get ready to fire.
         return force or len(completed_inputs) >= len(self.inputs), waiting_tasks

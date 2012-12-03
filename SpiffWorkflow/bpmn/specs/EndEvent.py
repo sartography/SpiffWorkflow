@@ -22,7 +22,7 @@ class EndEvent(BpmnSpecMixin):
     Task Spec for a bpmn:endEvent node.
 
     From the specification of BPMN (http://www.omg.org/spec/BPMN/2.0/PDF - document number:formal/2011-01-03):
-    For a “terminate” End Event, the Process is abnormally terminated—no other ongoing Process instances are
+    For a "terminate" End Event, the Process is abnormally terminated - no other ongoing Process instances are
     affected.
 
     For all other End Events, the behavior associated with the Event type is performed, e.g., the associated Message is

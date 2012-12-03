@@ -42,6 +42,7 @@ class InclusiveGateway(UnstructuredJoin):
     Upon execution, a token is consumed from each incoming Sequence Flow that has a token. A token will be
     produced on some of the outgoing Sequence Flows.
 
+    TODO: Not implemented: At the moment, we can't handle having more than one token at a single incoming sequence
     TODO: At the moment only converging Inclusive Gateways are supported.
 
     In order to determine the outgoing Sequence Flows that receive a token,
