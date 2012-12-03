@@ -32,7 +32,7 @@ from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.parser.ProcessParser import ProcessParser
 from SpiffWorkflow.bpmn.parser.util import *
 from SpiffWorkflow.bpmn.parser.task_parsers import *
-from lxml import etree
+import xml.etree.ElementTree as ET
 
 class BpmnParser(object):
     """
@@ -108,7 +108,7 @@ class BpmnParser(object):
         for filename in filenames:
             f = open(filename, 'r')
             try:
-                self.add_bpmn_xml(etree.parse(f), filename=filename)
+                self.add_bpmn_xml(ET.parse(f), filename=filename)
             finally:
                 f.close()
 

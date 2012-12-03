@@ -14,7 +14,6 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-from lxml import etree
 
 BPMN_MODEL_NS='http://www.omg.org/spec/BPMN/20100524/MODEL'
 
@@ -44,7 +43,7 @@ def xpath_eval(node, extra_ns=None):
     namespaces = {'bpmn':BPMN_MODEL_NS}
     if extra_ns:
         namespaces.update(extra_ns)
-    return etree.XPathEvaluator(node, namespaces=namespaces)
+    return lambda path: node.findall(path, namespaces)
 
 def full_tag(tag):
     """
