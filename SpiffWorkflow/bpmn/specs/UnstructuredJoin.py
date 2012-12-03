@@ -30,6 +30,33 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
     def _try_fire_unstructured(self, my_task, force=False):
         raise NotImplementedError("Please implement this in the subclass")
 
+    def _get_inputs_with_tokens(self, my_task):
+        # Look at the tree to find all places where this task is used.
+        tasks = []
+        for task in my_task.workflow.task_tree:
+            if task.thread_id != my_task.thread_id:
+                continue
+            if task.workflow != my_task.workflow:
+                continue
+            if task.task_spec != self:
+                continue
+            if task._is_finished():
+                continue
+            tasks.append(task)
+
+        # Look up which tasks have parent's completed.
+        waiting_tasks = []
+        completed_inputs = set()
+        for task in tasks:
+            if task.parent._has_state(Task.COMPLETED) and (task._has_state(Task.WAITING) or task == my_task):
+                if task.parent.task_spec in completed_inputs:
+                    raise NotImplementedError("Unsupported looping behaviour: two threads waiting on the same sequence flow.")
+                completed_inputs.add(task.parent.task_spec)
+            else:
+                waiting_tasks.append(task.parent)
+
+        return completed_inputs, waiting_tasks
+
     def _do_join(self, my_task):
         # Copied from Join parent class
         #  This has some minor changes
