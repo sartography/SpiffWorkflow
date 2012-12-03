@@ -43,6 +43,8 @@ class ProcessParser(object):
         self.parsed_nodes = {}
         self.svg = svg
         self.filename = filename
+        self.id_to_lane_lookup = None
+        self._init_lane_lookup()
 
     def get_id(self):
         """
@@ -77,9 +79,17 @@ class ProcessParser(object):
         """
         Return the name of the lane that contains the specified task
         """
-        lane_match = self.xpath('.//bpmn:lane/bpmn:flowNodeRef[text()="%s"]/..' % id)
-        assert len(lane_match)<= 1
-        return lane_match[0].get('name') if lane_match else None
+        return self.id_to_lane_lookup.get(id, None)
+
+    def _init_lane_lookup(self):
+        self.id_to_lane_lookup = {}
+        for lane in self.xpath('.//bpmn:lane'):
+            name = lane.get('name')
+            if name:
+                for ref in xpath_eval(lane)('bpmn:flowNodeRef'):
+                    id = ref.get('id', None)
+                    if id:
+                        self.id_to_lane_lookup[id] = name
 
     def _parse(self):
         start_node_list = self.xpath('.//bpmn:startEvent')
