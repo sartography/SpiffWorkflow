@@ -101,6 +101,10 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
             if task._is_finished():
                 continue
 
+            #For an inclusive join, this can happen - it's a future join
+            if not task.parent._is_finished():
+                continue
+
             # We have found a matching instance.
             thread_tasks.append(task)
 

@@ -61,7 +61,8 @@ class InclusiveGateway(UnstructuredJoin):
     """
 
     def _try_fire_unstructured(self, my_task, force=False):
-        # Look at the tree to find all ready and waiting tasks (excluding ourself).
+
+        # Look at the tree to find all ready and waiting tasks (excluding ones that are our completed inputs).
         tasks = []
         for task in my_task.workflow.get_tasks(Task.READY | Task.WAITING):
             if task.thread_id != my_task.thread_id:
@@ -72,23 +73,22 @@ class InclusiveGateway(UnstructuredJoin):
                 continue
             tasks.append(task)
 
-        # Are any of those tasks a potential ancestor to this task?
+        inputs_with_tokens, waiting_tasks = self._get_inputs_with_tokens(my_task)
+        inputs_without_tokens = filter(lambda i: i not in inputs_with_tokens, self.inputs)
+
         waiting_tasks = []
         for task in tasks:
-            if self._is_descendant(self, task):
-                waiting_tasks.append(task)
+            if self._has_directed_path_to(task, self, without_using_sequence_flow_from=inputs_with_tokens):
+                if not self._has_directed_path_to(task, self, without_using_sequence_flow_from=inputs_without_tokens):
+                    waiting_tasks.append(task)
 
         return force or len(waiting_tasks) == 0, waiting_tasks
 
-    def _is_descendant(self, task_spec, task):
+    def _has_directed_path_to(self, task, task_spec, without_using_sequence_flow_from=None):
         q = deque()
         done = set()
 
-        #We must skip ancestors of the task - so that loops don't make everything a descendent of everything!
-        p = task.parent
-        while (p != None and not p.task_spec in done and not p.task_spec==task_spec):
-            done.add(p.task_spec)
-            p = p.parent
+        without_using_sequence_flow_from = set(without_using_sequence_flow_from or [])
 
         q.append(task.task_spec)
         while q:
@@ -96,7 +96,7 @@ class InclusiveGateway(UnstructuredJoin):
             if n == task_spec:
                 return True
             for child in n.outputs:
-                if child not in done:
+                if child not in done and not (n in without_using_sequence_flow_from and child==task_spec):
                     done.add(child)
                     q.append(child)
         return False
