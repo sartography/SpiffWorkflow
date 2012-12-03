@@ -27,6 +27,36 @@ class InclusiveGateway(UnstructuredJoin):
     """
     Task Spec for a bpmn:parallelGateway node.
     From the specification of BPMN (http://www.omg.org/spec/BPMN/2.0/PDF - document number:formal/2011-01-03):
+
+    The Inclusive Gateway is activated if
+     * At least one incoming Sequence Flow has at least one token and
+     * For every directed path formed by sequence flow that
+        * starts with a Sequence Flow f of the diagram that has a token,
+        * ends with an incoming Sequence Flow of the inclusive gateway that has no token, and
+        * does not visit the Inclusive Gateway.
+     * There is also a directed path formed by Sequence Flow that
+        * starts with f,
+        * ends with an incoming Sequence Flow of the inclusive gateway that has a token, and
+        * does not visit the Inclusive Gateway.
+
+    Upon execution, a token is consumed from each incoming Sequence Flow that has a token. A token will be
+    produced on some of the outgoing Sequence Flows.
+
+    TODO: At the moment only converging Inclusive Gateways are supported.
+
+    In order to determine the outgoing Sequence Flows that receive a token,
+    all conditions on the outgoing Sequence Flows are evaluated. The evaluation
+    does not have to respect a certain order.
+
+    For every condition which evaluates to true, a token MUST be passed on
+    the respective Sequence Flow.
+
+    If and only if none of the conditions evaluates to true, the token is passed
+    on the default Sequence Flow.
+
+    In case all conditions evaluate to false and a default flow has not been
+    specified, the Inclusive Gateway throws an exception.
+
     """
 
     def _try_fire_unstructured(self, my_task, force=False):

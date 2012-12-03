@@ -20,6 +20,17 @@ from SpiffWorkflow.Task import Task
 class EndEvent(BpmnSpecMixin):
     """
     Task Spec for a bpmn:endEvent node.
+
+    From the specification of BPMN (http://www.omg.org/spec/BPMN/2.0/PDF - document number:formal/2011-01-03):
+    For a “terminate” End Event, the Process is abnormally terminated—no other ongoing Process instances are
+    affected.
+
+    For all other End Events, the behavior associated with the Event type is performed, e.g., the associated Message is
+    sent for a Message End Event, the associated signal is sent for a Signal End Event, and so on. The Process
+    instance is then completed, if and only if the following two conditions hold:
+     * All start nodes of the Process have been visited. More precisely, all Start Events have been triggered, and for all
+    starting Event-Based Gateways, one of the associated Events has been triggered.
+     * There is no token remaining within the Process instance.
     """
 
     def __init__(self, parent, name, is_terminate_event=False, **kwargs):
