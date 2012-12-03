@@ -77,7 +77,7 @@ class TaskParser(object):
                 raise ValidationException('Multiple outgoing flows are not supported for tasks of type', node=self.node, filename=self.process_parser.filename)
             for sequence_flow in outgoing:
                 target_ref = sequence_flow.get('targetRef')
-                target_node = one(self.process_xpath('.//bpmn:*[@id="%s"]' % target_ref))
+                target_node = one(self.process_xpath('.//*[@id="%s"]' % target_ref))
                 c = self.process_parser.parse_node(target_node)
                 children.append((c, target_node, sequence_flow))
 

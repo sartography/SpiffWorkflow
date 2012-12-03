@@ -14,13 +14,11 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import logging
-
-import lxml
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn.specs.UnstructuredJoin import UnstructuredJoin
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
-from lxml.html import builder as E
+import xml.etree.ElementTree as ET
 
 class _EndJoin(UnstructuredJoin):
 
@@ -128,25 +126,23 @@ class BpmnProcessSpec(WorkflowSpec):
 
     def to_html(self):
         """
-        Returns an lxml HTML node with a document describing the process. This is only supported
+        Returns an etree HTML node with a document describing the process. This is only supported
         if the editor provided an SVG representation.
         """
-        workflows = []
+        html = ET.Element('html')
+        head = ET.SubElement(html, 'head')
+        title = ET.SubElement(head, 'title')
+        title.text = self.description
+        body = ET.SubElement(html, 'body')
+        h1 = ET.SubElement(body, 'h1')
+        h1.text = self.description
+
         svg_done = set()
         for spec in self.get_specs_depth_first():
             if spec.svg and not spec.svg in svg_done:
-                workflows.append(E.P(spec.svg.getroot()))
+                p = ET.SubElement(body, 'p')
+                p.append(spec.svg.getroot())
                 svg_done.add(spec.svg)
-
-        html = E.HTML(
-            E.HEAD(
-                E.TITLE(self.description)
-            ),
-            E.BODY(
-                E.H1(self.description),
-                *workflows
-            )
-        )
 
         return html
 
@@ -155,6 +151,6 @@ class BpmnProcessSpec(WorkflowSpec):
         Returns an HTML string, with a document describing the process. This is only supported
         if the editor provided an SVG representation.
         """
-        return lxml.html.tostring(self.to_html(), pretty_print=True)
+        return ET.tostring(self.to_html())
 
 

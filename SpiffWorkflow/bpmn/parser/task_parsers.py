@@ -18,7 +18,7 @@ from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.util import *
 from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition, MessageEventDefinition
-from lxml import etree
+import xml.etree.ElementTree as ET
 
 class StartEventParser(TaskParser):
     """
@@ -151,7 +151,7 @@ class IntermediateCatchEventParser(TaskParser):
         if timerEventDefinition is not None:
             return self.get_timer_event_definition(timerEventDefinition)
 
-        raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node) )
+        raise NotImplementedError('Unsupported Intermediate Catch Event: %r', ET.tostring(self.node) )
 
     def get_message_event_definition(self, messageEventDefinition):
         """

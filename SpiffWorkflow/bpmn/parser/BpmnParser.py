@@ -116,12 +116,12 @@ class BpmnParser(object):
         """
         Add the given lxml representation of the BPMN file to the parser's set.
 
-        :param svg_fp: Optionally, provide a the lxml representation for the SVG of the BPMN file
+        :param svg_fp: Optionally, provide the etree representation for the SVG of the BPMN file
         :param filename: Optionally, provide the source filename.
         """
         xpath = xpath_eval(bpmn)
 
-        processes = xpath('//bpmn:process')
+        processes = xpath('.//bpmn:process')
         for process in processes:
             process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename, doc_xpath=xpath)
             if process_parser.get_id() in self.process_parsers:

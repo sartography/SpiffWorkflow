@@ -29,7 +29,7 @@ class ValidationException(Exception):
             self.tag = self._shorten_tag(node.tag)
             self.id = node.get('id', '<Unknown>')
             self.name = node.get('name', '<Unknown>')
-            self.sourceline = node.sourceline or '<Unknown>'
+            self.sourceline = getattr(node, 'sourceline', '<Unknown>')
         else:
             self.tag = '<Unknown>'
             self.id = '<Unknown>'

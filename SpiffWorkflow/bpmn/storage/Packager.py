@@ -19,7 +19,7 @@ from StringIO import StringIO
 import glob
 import hashlib
 import inspect
-from lxml import etree
+import xml.etree.ElementTree as ET
 import zipfile
 from optparse import OptionParser, OptionGroup
 import os
@@ -111,7 +111,7 @@ class Packager(object):
         #Parse all of the XML:
         self.bpmn = {}
         for filename in self.input_files:
-            bpmn = etree.parse(filename)
+            bpmn = ET.parse(filename)
             self.bpmn[os.path.abspath(filename)] = bpmn
 
         #Now run through pre-parsing and validation:
@@ -135,7 +135,7 @@ class Packager(object):
                 done_files.add(filename)
 
                 bpmn = self.bpmn[os.path.abspath(filename)]
-                self.write_to_package_zip("%s.bpmn" % spec.name, etree.tostring(bpmn))
+                self.write_to_package_zip("%s.bpmn" % spec.name, ET.tostring(bpmn.getroot()))
 
                 self.write_file_to_package_zip("src/" + self._get_zip_path(filename), filename)
 
@@ -272,12 +272,12 @@ class Packager(object):
 
             f = open(signavio_file, 'r')
             try:
-                signavio_tree = etree.parse(f)
+                signavio_tree = ET.parse(f)
             finally:
                 f.close()
-            svg_node = one(signavio_tree.xpath('.//svg-representation'))
-            svg = etree.fromstring(svg_node.text)
-            self.write_to_package_zip("%s.svg" % spec.name, etree.tostring(svg,pretty_print=True))
+            svg_node = one(signavio_tree.findall('.//svg-representation'))
+            svg = ET.fromstring(svg_node.text)
+            self.write_to_package_zip("%s.svg" % spec.name, ET.tostring(svg))
 
     def write_meta_data(self):
         """
