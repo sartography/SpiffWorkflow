@@ -87,7 +87,7 @@ class ProcessParser(object):
             name = lane.get('name')
             if name:
                 for ref in xpath_eval(lane)('bpmn:flowNodeRef'):
-                    id = ref.get('id', None)
+                    id = ref.text
                     if id:
                         self.id_to_lane_lookup[id] = name
 
