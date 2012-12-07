@@ -70,7 +70,7 @@ class BpmnSerializer(Serializer):
             if len(parts) == 2 and not parts[0] and parts[1].lower().endswith('.bpmn'):
                 #It is in the root of the ZIP and is a BPMN file
                 try:
-                    svg = ET.parse(StringIO(package_zip.read(info.filename[:-5]+'.svg')))
+                    svg = package_zip.read(info.filename[:-5]+'.svg')
                 except KeyError, e:
                     svg = None
 

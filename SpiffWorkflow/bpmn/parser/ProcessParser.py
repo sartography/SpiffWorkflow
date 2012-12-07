@@ -29,7 +29,7 @@ class ProcessParser(object):
 
         :param p: the owning BpmnParser instance
         :param node: the XML node for the process
-        :param svg: the SVG representation of this process (optional)
+        :param svg: the SVG representation of this process as a string (optional)
         :param filename: the source BPMN filename (optional)
 
         """

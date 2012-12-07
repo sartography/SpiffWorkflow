@@ -116,7 +116,7 @@ class BpmnParser(object):
         """
         Add the given lxml representation of the BPMN file to the parser's set.
 
-        :param svg_fp: Optionally, provide the etree representation for the SVG of the BPMN file
+        :param svg: Optionally, provide the text data for the SVG of the BPMN file
         :param filename: Optionally, provide the source filename.
         """
         xpath = xpath_eval(bpmn)

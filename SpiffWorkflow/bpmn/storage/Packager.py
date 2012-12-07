@@ -276,8 +276,7 @@ class Packager(object):
             finally:
                 f.close()
             svg_node = one(signavio_tree.findall('.//svg-representation'))
-            svg = ET.fromstring(svg_node.text)
-            self.write_to_package_zip("%s.svg" % spec.name, ET.tostring(svg))
+            self.write_to_package_zip("%s.svg" % spec.name, svg_node.text)
 
     def write_meta_data(self):
         """

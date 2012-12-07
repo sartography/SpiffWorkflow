@@ -124,7 +124,7 @@ class BpmnProcessSpec(WorkflowSpec):
 
         return specs
 
-    def to_html(self):
+    def to_html_string(self):
         """
         Returns an etree HTML node with a document describing the process. This is only supported
         if the editor provided an SVG representation.
@@ -136,21 +136,19 @@ class BpmnProcessSpec(WorkflowSpec):
         body = ET.SubElement(html, 'body')
         h1 = ET.SubElement(body, 'h1')
         h1.text = self.description
+        span = ET.SubElement(body, 'span')
+        span.text = '___CONTENT___'
 
+        html_text = ET.tostring(html)
+
+        svg_content = ''
         svg_done = set()
         for spec in self.get_specs_depth_first():
             if spec.svg and not spec.svg in svg_done:
-                p = ET.SubElement(body, 'p')
-                p.append(spec.svg.getroot())
+                svg_content += '<p>' + spec.svg + "</p>"
                 svg_done.add(spec.svg)
+        return html_text.replace('___CONTENT___',svg_content)
 
-        return html
 
-    def to_html_string(self):
-        """
-        Returns an HTML string, with a document describing the process. This is only supported
-        if the editor provided an SVG representation.
-        """
-        return ET.tostring(self.to_html())
 
 
