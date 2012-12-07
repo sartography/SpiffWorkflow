@@ -18,9 +18,10 @@ A reasonable subset of the BPMN notation is supported, including the following e
   4. User and Manual Tasks
   5. Script Task
   6. Exclusive Gateway
-  7. Parallel Gateway
-  8. Intermediate Catch Events (Timer and Message)
-  9. Boundary Events (Timer and Message, interrupting and non-interrupting)
+  7. Inclusive Gateway (converging only)
+  8. Parallel Gateway
+  9. Intermediate Catch Events (Timer and Message)
+  10. Boundary Events (Timer and Message, interrupting and non-interrupting)
 
 .. figure:: figures/action-management.png
    :alt: Example BPMN Workflow
