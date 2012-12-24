@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import logging
 import time
-
+from uuid import uuid4
 from SpiffWorkflow.exceptions import WorkflowException
 
 LOG = logging.getLogger(__name__)
@@ -173,7 +173,7 @@ class Task(object):
         self.state_history       = [state]
         self.log                 = []
         self.task_spec           = task_spec
-        self.id                  = workflow.task_id_assigner.get_new_id()
+        self.id                  = uuid4()
         self.thread_id           = self.__class__.thread_id_pool
         self.last_state_change   = time.time()
         self.attributes          = {}

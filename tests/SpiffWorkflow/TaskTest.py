@@ -2,13 +2,11 @@ import sys, unittest, re, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from SpiffWorkflow import Task
-from SpiffWorkflow.Workflow import TaskIdAssigner
 from SpiffWorkflow.specs import WorkflowSpec, Simple
 from SpiffWorkflow.exceptions import WorkflowException
 
 class MockWorkflow(object):
-    def __init__(self):
-        self.task_id_assigner = TaskIdAssigner()
+    pass
 
 class TaskTest(unittest.TestCase):
     def setUp(self):
@@ -40,34 +38,36 @@ class TaskTest(unittest.TestCase):
         c3.state = Task.COMPLETED
 
         # Check whether the tree is built properly.
-        expected = """1/0: Task of Simple 1 State: MAYBE Children: 3
-  2/0: Task of Simple 2 State: MAYBE Children: 2
-    3/0: Task of Simple 3 State: MAYBE Children: 2
-      4/0: Task of Simple 4 State: MAYBE Children: 1
-        5/0: Task of Simple 5 State: MAYBE Children: 0
-      6/0: Task of Simple 6 State: MAYBE Children: 0
-    7/0: Task of Simple 7 State: MAYBE Children: 0
-  8/0: Task of Simple 8 State: MAYBE Children: 0
-  9/0: Task of Simple 9 State: COMPLETED Children: 0"""
-        self.assert_(expected == root.get_dump(),
-                     'Expected:\n' + repr(expected) + '\n' + \
+        expected = """!/0: Task of Simple 1 State: MAYBE Children: 3
+  !/0: Task of Simple 2 State: MAYBE Children: 2
+    !/0: Task of Simple 3 State: MAYBE Children: 2
+      !/0: Task of Simple 4 State: MAYBE Children: 1
+        !/0: Task of Simple 5 State: MAYBE Children: 0
+      !/0: Task of Simple 6 State: MAYBE Children: 0
+    !/0: Task of Simple 7 State: MAYBE Children: 0
+  !/0: Task of Simple 8 State: MAYBE Children: 0
+  !/0: Task of Simple 9 State: COMPLETED Children: 0"""
+        expected = re.compile(expected.replace('!', r'([0-9a-f\-]+)'))
+        self.assert_(expected.match(root.get_dump()),
+                     'Expected:\n' + repr(expected.pattern) + '\n' + \
                      'but got:\n'  + repr(root.get_dump()))
 
         # Now remove one line from the expected output for testing the
         # filtered iterator.
         expected2 = ''
-        for line in expected.split('\n'):
+        for line in expected.pattern.split('\n'):
             if line.find('Simple 9') >= 0:
                 continue
             expected2 += line.lstrip() + '\n'
+        expected2 = re.compile(expected2)
 
         # Run the iterator test.
         result = ''
         for thetask in Task.Iterator(root, Task.MAYBE):
             result += thetask.get_dump(0, False) + '\n'
-        self.assert_(expected2 == result,
-                     'Expected:\n' + expected2 + '\n' + \
-                     'but got:\n'  + result)
+        self.assert_(expected2.match(result),
+                     'Expected:\n' + repr(expected2.pattern) + '\n' + \
+                     'but got:\n'  + repr(result))
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TaskTest)

@@ -22,16 +22,6 @@ from Task import Task
 
 LOG = logging.getLogger(__name__)
 
-
-class TaskIdAssigner(object):
-    def __init__(self):
-        self.id_pool = 0
-
-    def get_new_id(self):
-        self.id_pool += 1
-        return self.id_pool
-
-
 class Workflow(object):
     """
     The engine that executes a workflow.
@@ -50,7 +40,6 @@ class Workflow(object):
         assert workflow_spec is not None
         LOG.debug("__init__ Workflow instance: %s" % self.__str__())
         self.spec = workflow_spec
-        self.task_id_assigner = TaskIdAssigner()
         self.attributes = {}
         self.outer_workflow = kwargs.get('parent', self)
         self.locks = {}

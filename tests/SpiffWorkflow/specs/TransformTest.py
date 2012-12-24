@@ -38,8 +38,8 @@ class TransformTest(TaskSpecTest):
 
         expected = 'Start\n  First\n    Second\n      Last\n'
         workflow = run_workflow(self, self.wf_spec, expected, '')
-        first = workflow.get_task(3)
-        last = workflow.get_task(5)
+        first = workflow.get_tasks_from_spec_name('First')[0]
+        last = workflow.get_tasks_from_spec_name('Last')[0]
         self.assertEqual(first.attributes.get('foo'), 1)
         self.assertEqual(last.attributes.get('foo'), 2)
         self.assertEqual(last.attributes.get('copy'), 2)
