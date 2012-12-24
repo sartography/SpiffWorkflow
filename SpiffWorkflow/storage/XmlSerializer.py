@@ -64,9 +64,9 @@ class XmlSerializer(Serializer):
             kwargs['right_attribute'] = attrib
         return operators.Assign(name, **kwargs)
 
-    def _deserialize_property(self, workflow, start_node):
+    def _deserialize_data(self, workflow, start_node):
         """
-        Reads a "property" or "define" tag from the given node.
+        Reads a "data" or "define" tag from the given node.
         
         start_node -- the xml node (xml.dom.minidom.Node)
         """
@@ -179,7 +179,7 @@ class XmlSerializer(Serializer):
         file            = start_node.getAttribute('file').lower()
         file_field      = start_node.getAttribute('file-field').lower()
         kwargs          = {'lock':        [],
-                           'properties':  {},
+                           'data':        {},
                            'defines':     {},
                            'pre_assign':  [],
                            'post_assign': []}
@@ -229,11 +229,12 @@ class XmlSerializer(Serializer):
             elif node.nodeName == 'conditional-successor':
                 successors.append(self._deserialize_condition(workflow, node))
             elif node.nodeName == 'define':
-                key, value = self._deserialize_property(workflow, node)
+                key, value = self._deserialize_data(workflow, node)
                 kwargs['defines'][key] = value
-            elif node.nodeName == 'property':
-                key, value = self._deserialize_property(workflow, node)
-                kwargs['properties'][key] = value
+            # "property" tag exists for backward compatibility.
+            elif node.nodeName == 'data' or node.nodeName == 'property':
+                key, value = self._deserialize_data(workflow, node)
+                kwargs['data'][key] = value
             elif node.nodeName == 'pre-assign':
                 kwargs['pre_assign'].append(self._deserialize_assign(workflow, node))
             elif node.nodeName == 'post-assign':

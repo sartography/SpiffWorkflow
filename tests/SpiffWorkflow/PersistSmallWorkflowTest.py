@@ -74,7 +74,7 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         Tests the that deserialized workflow matches the original workflow
         """
         old_workflow = self.workflow
-        old_workflow.spec.start.set_property(marker=True)
+        old_workflow.spec.start.set_data(marker=True)
         serializer = DictionarySerializer()
         serialized_workflow = old_workflow.serialize(serializer)
 
@@ -82,7 +82,7 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         new_workflow = Workflow.deserialize(serializer, serialized_workflow)
 
         self.assertEqual(len(new_workflow.get_tasks()), len(old_workflow.get_tasks()))
-        self.assertEqual(new_workflow.spec.start.get_property('marker'), old_workflow.spec.start.get_property('marker'))
+        self.assertEqual(new_workflow.spec.start.get_data('marker'), old_workflow.spec.start.get_data('marker'))
         self.assertEqual(1, len([t for t in new_workflow.get_tasks() if t.task_spec.name == 'Start']))
         self.assertEqual(1, len([t for t in new_workflow.get_tasks() if t.task_spec.name == 'Root']))
 

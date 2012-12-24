@@ -499,28 +499,19 @@ class Task(object):
                 state_name.append(name)
         return '|'.join(state_name)
 
-    def get_property(self, name, default=None):
+    def get_spec_data(self, name=None, default=None):
         """
-        Returns the value of the property with the given name, or the given
-        default value if the property does not exist.
+        Returns the value of the spec data with the given name, or the given
+        default value if the spec data does not exist.
 
         :type  name: str
-        :param name: A property name.
+        :param name: The name of the spec data field.
         :type  default: obj
-        :param default: Return this value if the property does not exist.
+        :param default: Return this value if the spec data does not exist.
         :rtype:  obj
-        :returns: The value of the property.
+        :returns: The value of the spec data.
         """
-        return self.task_spec.get_property(name, default)
-
-    def get_properties(self):
-        """
-        Returns a dictionary containing all properties.
-
-        :rtype:  dict
-        :returns: Maps property names to values.
-        """
-        return self.task_spec.properties
+        return self.task_spec.get_data(name, default)
 
     def _set_internal_attribute(self, **kwargs):
         """

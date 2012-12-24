@@ -116,7 +116,7 @@ class Celery(TaskSpec):
         self.call = call
         self.args = call_args
         self.merge_results = merge_results
-        skip = 'properties', 'defines', 'pre_assign', 'post_assign', 'lock'
+        skip = 'data', 'defines', 'pre_assign', 'post_assign', 'lock'
         self.kwargs = dict(i for i in kwargs.iteritems() if i[0] not in skip)
         self.result_key = result_key
         LOG.debug("Celery task '%s' created to call '%s'" % (name, call))

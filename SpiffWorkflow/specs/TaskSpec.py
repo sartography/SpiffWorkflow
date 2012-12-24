@@ -29,12 +29,12 @@ class TaskSpec(object):
 
     Tasks provide the following signals:
       - **entered**: called when the state changes to READY or WAITING, at a
-        time where properties are not yet initialized.
+        time where spec data is not yet initialized.
       - **reached**: called when the state changes to READY or WAITING, at a
-        time where properties are already initialized using property_assign
+        time where spec data is already initialized using data_assign
         and pre-assign.
       - **ready**: called when the state changes to READY, at a time where
-        properties are already initialized using property_assign and
+        spec data is already initialized using data_assign and
         pre-assign.
       - **completed**: called when the state changes to COMPLETED, at a time
         before the post-assign variables are assigned.
@@ -60,14 +60,14 @@ class TaskSpec(object):
 
     def __init__(self, parent, name, **kwargs):
         """
-        Constructor. May also have properties/attributes passed.
+        Constructor.
 
-        The difference between the assignment of a property using
-        properties versus pre_assign and post_assign is that
-        changes made using properties are task-local, i.e. they are
+        The difference between the assignment of a data value using
+        the data argument versus pre_assign and post_assign is that
+        changes made using data are task-local, i.e. they are
         not visible to other tasks.
-        Similarly, "defines" are properties that, once defined, can no
-        longer be modified.
+        Similarly, "defines" are spec data fields that, once defined, can
+        no longer be modified.
 
         :type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
         :param parent: A reference to the parent (usually a workflow).
@@ -77,8 +77,8 @@ class TaskSpec(object):
         :param lock: A list of mutex names. The mutex is acquired
                      on entry of execute() and released on leave of
                      execute().
-        :type  properties: dict((str, object))
-        :param properties: name/value pairs
+        :type  data: dict((str, object))
+        :param data: name/value pairs
         :type  defines: dict((str, object))
         :param defines: name/value pairs
         :type  pre_assign: list((str, object))
@@ -96,7 +96,7 @@ class TaskSpec(object):
         self.outputs     = []
         self.manual      = False
         self.internal    = False  # Only for easing debugging.
-        self.properties  = kwargs.get('properties',  {})
+        self.data        = kwargs.get('data',        {})
         self.defines     = kwargs.get('defines',     {})
         self.pre_assign  = kwargs.get('pre_assign',  [])
         self.post_assign = kwargs.get('post_assign', [])
@@ -112,7 +112,7 @@ class TaskSpec(object):
         self.finished_event  = Event()
 
         self._parent._add_notify(self)
-        self.properties.update(self.defines)
+        self.data.update(self.defines)
         assert self.id is not None
 
     def _connect_notify(self, taskspec):
@@ -161,27 +161,27 @@ class TaskSpec(object):
         """
         return my_task.children
 
-    def set_property(self, **kwargs):
+    def set_data(self, **kwargs):
         """
-        Defines the given property name/value pairs.
+        Defines the given data field(s) using the given name/value pairs.
         """
         for key in kwargs:
             if key in self.defines:
-                msg = "Property %s can not be modified" % key
+                msg = "Spec data %s can not be modified" % key
                 raise WorkflowException(self, msg)
-        self.properties.update(kwargs)
+        self.data.update(kwargs)
 
-    def get_property(self, name, default=None):
+    def get_data(self, name, default=None):
         """
-        Returns the value of the property with the given name, or the given
-        default value if the property does not exist.
+        Returns the value of the data field with the given name, or the
+        given default value if the data was not defined.
 
         :type  name: string
-        :param name: A property name.
+        :param name: The name of the data field.
         :type  default: string
-        :param default: This value is returned if the property does not exist.
+        :param default: Returned if the data field is not defined.
         """
-        return self.properties.get(name, default)
+        return self.data.get(name, default)
 
     def connect(self, taskspec):
         """

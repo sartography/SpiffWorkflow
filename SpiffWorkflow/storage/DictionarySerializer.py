@@ -114,7 +114,7 @@ class DictionarySerializer(Serializer):
         s_state['class'] = module_name + '.' + spec.__class__.__name__
         s_state['inputs'] = [t.name for t in spec.inputs]
         s_state['outputs'] = [t.name for t in spec.outputs]
-        s_state['properties'] = self._serialize_dict(spec.properties)
+        s_state['data'] = self._serialize_dict(spec.data)
         s_state['defines'] = self._serialize_dict(spec.defines)
         s_state['pre_assign'] = self._serialize_list(spec.pre_assign)
         s_state['post_assign'] = self._serialize_list(spec.post_assign)
@@ -131,7 +131,7 @@ class DictionarySerializer(Serializer):
         spec.manual = s_state['manual']
         spec.internal = s_state['internal']
         spec.lookahead = s_state['lookahead']
-        spec.properties = self._deserialize_dict(s_state['properties'])
+        spec.data = self._deserialize_dict(s_state['data'])
         spec.defines = self._deserialize_dict(s_state['defines'])
         spec.pre_assign = self._deserialize_list(s_state['pre_assign'])
         spec.post_assign = self._deserialize_list(s_state['post_assign'])

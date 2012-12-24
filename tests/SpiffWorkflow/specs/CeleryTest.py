@@ -58,7 +58,7 @@ class CeleryTest(TaskSpecTest):
         data = {u'inputs': [u'Wait:1'], u'lookahead': 2, u'description': u'',
           u'outputs': [], u'args': [[u'Attrib', u'ip'], [u'spiff:value',
           u'dc455016e2e04a469c01a866f11c0854']], u'manual': False,
-          u'properties': {u'R': u'1'}, u'locks': [], u'pre_assign': [],
+          u'data': {u'R': u'1'}, u'locks': [], u'pre_assign': [],
           u'call': u'call.x',
           u'internal': False, u'post_assign': [], u'id': 8,
           u'result_key': None, u'defines': {u'R': u'1'},

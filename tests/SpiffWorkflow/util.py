@@ -23,13 +23,13 @@ def on_reached_cb(workflow, task, taken_path):
             continue
         atts.append('='.join((key, str(value))))
 
-    # Collect a list of all task properties.
+    # Collect a list of all task data.
     props = []
-    for key, value in task.get_properties().iteritems():
+    for key, value in task.task_spec.data.iteritems():
         props.append('='.join((key, str(value))))
     #print "REACHED:", task.get_name(), atts, props
 
-    # Store the list of attributes and properties in the workflow.
+    # Store the list of attributes and data in the workflow.
     atts  = ';'.join(atts)
     props = ';'.join(props)
     old   = task.get_attribute('data', '')
