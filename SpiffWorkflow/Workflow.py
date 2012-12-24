@@ -167,6 +167,18 @@ class Workflow(object):
         tasks = [task for task in self.get_tasks() if task.id == id]
         return tasks[0] if len(tasks) == 1 else None
 
+    def get_tasks_from_spec_name(self, name):
+        """
+        Returns all tasks whose spec has the given name.
+
+        @type name: str
+        @param name: The name of a task spec.
+        @rtype: Task
+        @return: The task that relates to the spec with the given name.
+        """
+        return [task for task in self.get_tasks()
+                if task.task_spec.name == name]
+
     def get_tasks(self, state=Task.ANY_MASK):
         """
         Returns a list of Task objects with the given state.
