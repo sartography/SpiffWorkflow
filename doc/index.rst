@@ -4,3 +4,4 @@
    intro
    features
    internals
+   bpmn

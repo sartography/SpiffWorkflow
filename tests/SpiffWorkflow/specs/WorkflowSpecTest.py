@@ -6,7 +6,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 import pickle
 from random import randint
-from util import track_workflow
+try:
+    from util import track_workflow
+except ImportError, e:
+    from tests.SpiffWorkflow.util import track_workflow
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.specs import Join, WorkflowSpec
 from SpiffWorkflow.storage import XmlSerializer
@@ -25,6 +28,12 @@ class WorkflowSpecTest(unittest.TestCase):
         self.assertEqual('my spec', spec.name)
 
     def testGetTaskSpecFromName(self):
+        pass #FIXME
+
+    def testGetDump(self):
+        pass #FIXME
+
+    def testDump(self):
         pass #FIXME
 
     def doPickleSingle(self, workflow, expected_path):
