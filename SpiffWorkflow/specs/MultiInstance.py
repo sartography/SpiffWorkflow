@@ -22,7 +22,7 @@ class MultiInstance(TaskSpec):
     """
     When executed, this task performs a split on the current task.
     The number of outgoing tasks depends on the runtime value of a
-    specified attribute.
+    specified data field.
     If more than one input is connected, the task performs an implicit
     multi merge.
 
@@ -70,7 +70,7 @@ class MultiInstance(TaskSpec):
             output._predict(new_task)
 
     def _get_predicted_outputs(self, my_task):
-        split_n = my_task._get_internal_attribute('splits', 1)
+        split_n = my_task._get_internal_data('splits', 1)
 
         # Predict the outputs.
         outputs = []
@@ -82,7 +82,7 @@ class MultiInstance(TaskSpec):
         split_n = valueof(my_task, self.times)
         if split_n is None:
             return
-        my_task._set_internal_attribute(splits = split_n)
+        my_task._set_internal_data(splits = split_n)
 
         # Create the outgoing tasks.
         outputs = []

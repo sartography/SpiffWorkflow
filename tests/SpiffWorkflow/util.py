@@ -3,16 +3,16 @@ from SpiffWorkflow import Workflow, Task
 
 def on_reached_cb(workflow, task, taken_path):
     reached_key = "%s_reached" % str(task.get_name())
-    n_reached   = task.get_attribute(reached_key, 0) + 1
-    task.set_attribute(**{reached_key:       n_reached,
-                          'two':             2,
-                          'three':           3,
-                          'test_attribute1': 'false',
-                          'test_attribute2': 'true'})
+    n_reached   = task.get_data(reached_key, 0) + 1
+    task.set_data(**{reached_key:       n_reached,
+                     'two':             2,
+                     'three':           3,
+                     'test_attribute1': 'false',
+                     'test_attribute2': 'true'})
 
-    # Collect a list of all attributes.
+    # Collect a list of all data.
     atts = []
-    for key, value in task.get_attributes().iteritems():
+    for key, value in task.data.iteritems():
         if key in ['data',
                    'two',
                    'three',
@@ -29,13 +29,12 @@ def on_reached_cb(workflow, task, taken_path):
         props.append('='.join((key, str(value))))
     #print "REACHED:", task.get_name(), atts, props
 
-    # Store the list of attributes and data in the workflow.
+    # Store the list of data in the workflow.
     atts  = ';'.join(atts)
     props = ';'.join(props)
-    old   = task.get_attribute('data', '')
+    old   = task.get_data('data', '')
     data  = task.get_name() + ': ' + atts + '/' + props + '\n'
-    task.set_attribute(data = old + data)
-    #print task.get_attributes()
+    task.set_data(data = old + data)
 
     # In workflows that load a subworkflow, the newly loaded children
     # will not have on_reached_cb() assigned. By using this function, we
@@ -46,10 +45,9 @@ def on_reached_cb(workflow, task, taken_path):
     return True
 
 def on_complete_cb(workflow, task, taken_path):
-    # Record the path in an attribute.
+    # Record the path.
     indent = '  ' * (task._get_depth() - 1)
     taken_path.append('%s%s' % (indent, task.get_name()))
-    #print "COMPLETED:", task.get_name(), task.get_attributes()
     return True
 
 def track_task(task_spec, taken_path):
@@ -103,9 +101,9 @@ def run_workflow(test, wf_spec, expected_path, expected_data):
         error     += '%s\n'        % taken_path
         test.assert_(taken_path == expected_path, error)
 
-    # Check attribute availibility.
+    # Check data availibility.
     if expected_data is not None:
-        result   = workflow.get_attribute('data', '')
+        result   = workflow.get_data('data', '')
         error    = 'Expected:\n'
         error   += '%s\n'        % expected_data
         error   += 'but got:\n'

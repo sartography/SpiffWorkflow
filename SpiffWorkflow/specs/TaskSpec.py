@@ -266,7 +266,7 @@ class TaskSpec(object):
         state of this task in the workflow. For example, if a predecessor
         completes it makes sure to call this method so we can react.
         """
-        my_task._inherit_attributes()
+        my_task._inherit_data()
         self._update_state_hook(my_task)
 
     def _update_state_hook(self, my_task):

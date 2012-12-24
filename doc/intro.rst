@@ -123,10 +123,10 @@ The order of these state transitions is violated only in one case: A *Trigger* t
 Associating data with a workflow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
-The difference between *specification objects* and *derivation tree objects* is also important when choosing how to store data in a workflow. Spiff Workflow supports storing data in two ways, both of which are not to be confused with their Python equivalents.
+The difference between *specification objects* and *derivation tree objects* is also important when choosing how to store data in a workflow. Spiff Workflow supports storing data in two ways:
 
-- **Properties** are stored in the TaskSpec object. In other words, if a task causes a property to change, that change is reflected to all other instances in the derivation tree that use the TaskSpec object.
-- **Attributes** are local to the Task object, but are carried along to the children of each Task object in the derivation tree.
+- **Task spec data** is stored in the TaskSpec object. In other words, if a task causes task spec data to change, that change is reflected to all other instances in the derivation tree that use the TaskSpec object.
+- **Task data** is local to the Task object, but is carried along to the children of each Task object in the derivation tree as the workflow progresses.
 
 Other documentation
 ^^^^^^^^^^^^^^^^^^^

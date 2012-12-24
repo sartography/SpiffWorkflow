@@ -122,28 +122,28 @@ class Assign(object):
         if self.right is not None:
             right = self.right
         else:
-            right = from_obj.get_attribute(self.right_attribute)
-        to_obj.set_attribute(**{str(self.left_attribute): right})
+            right = from_obj.get_data(self.right_attribute)
+        to_obj.set_data(**{str(self.left_attribute): right})
 
 
 def valueof(scope, op):
     if op is None:
         return None
     elif isinstance(op, Attrib):
-        if op.name not in scope.attributes:
-            LOG.debug("Attrib('%s') not present in task '%s' attributes" %
+        if op.name not in scope.data:
+            LOG.debug("Attrib('%s') not present in task '%s' data" %
                     (op.name, scope.get_name()))
-        return scope.get_attribute(op.name)
+        return scope.get_data(op.name)
     elif isinstance(op, PathAttrib):
         if not op.path:
             return None
         parts = op.path.split('/')
-        data = scope.attributes
+        data = scope.data
         for part in parts:
             if part not in data:
                 LOG.debug("PathAttrib('%s') not present in task '%s' "
-                        "attributes" % (op.path, scope.get_name()),
-                        extra=dict(data=scope.attributes))
+                        "data" % (op.path, scope.get_name()),
+                        extra=dict(data=scope.data))
                 return None
             data = data[part]  # move down the path
         return data

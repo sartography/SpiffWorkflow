@@ -8,7 +8,7 @@
     </start-task>
 
     <task name="first">
-        <property name="data_attribute" value="at_first" />
+        <data name="data_attribute" value="at_first" />
         <successor>last</successor>
     </task>
 

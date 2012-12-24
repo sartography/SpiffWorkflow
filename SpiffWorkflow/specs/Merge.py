@@ -23,9 +23,9 @@ LOG = logging.getLogger(__name__)
 
 
 class Merge(Join):
-    """Same as Join, but merges all input attributes instead of just parents'
+    """Same as Join, but merges all input data instead of just parents'
 
-    Note: attributes that have conflicting names will be overwritten"""
+    Note: data fields that have conflicting names will be overwritten"""
     def _do_join(self, my_task):
         # Merge all inputs (in order)
         for input_spec in self.inputs:
@@ -34,9 +34,9 @@ class Merge(Join):
             for task in tasks:
                 LOG.debug("Merging %s (%s) into %s" % (task.get_name(),
                         task.get_state_name(), self.name),
-                        extra=dict(data=task.attributes))
-                _log_overwrites(my_task.attributes, task.attributes)
-                merge_dictionary(my_task.attributes, task.attributes)
+                        extra=dict(data=task.data))
+                _log_overwrites(my_task.data, task.data)
+                merge_dictionary(my_task.data, task.data)
         return super(Merge, self)._do_join(my_task)
 
     @classmethod

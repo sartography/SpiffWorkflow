@@ -9,9 +9,6 @@ Think of a derivation tree as tree of execution paths (some, but not all, of whi
 You can serialize/deserialize specs and open standards like OpenWFE are supported (and others can be coded in easily). You can also serialize/deserialize a running workflow (it will pull in its spec as
 well).
 
-Another important distinction is between properties and attributes. Properties belong to TaskSpecs. They are static at run-time and belong to the design of the workflow. Attributes are dynamic and assigned to
-Tasks (nodes in the execution path).
-
 There's a decent eventing model that allows you to tie in to and receive events (for each task, you can get event notifications from its TaskSpec). The events correspond with how the processing is going in the derivation tree, not necessarily how the workflow as a whole is moving.
 See `TaskSpec.py<https://github.com/knipknap/SpiffWorkflow/blob/master/SpiffWorkflow/specs/TaskSpec.py>` for docs on events.
 

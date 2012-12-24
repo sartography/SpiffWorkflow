@@ -165,19 +165,19 @@ class Task(object):
         """
         assert workflow  is not None
         assert task_spec is not None
-        self.workflow            = workflow
-        self.parent              = parent
-        self.children            = []
-        self._state              = state
-        self.triggered           = False
-        self.state_history       = [state]
-        self.log                 = []
-        self.task_spec           = task_spec
-        self.id                  = uuid4()
-        self.thread_id           = self.__class__.thread_id_pool
-        self.last_state_change   = time.time()
-        self.attributes          = {}
-        self.internal_attributes = {}
+        self.workflow = workflow
+        self.parent = parent
+        self.children = []
+        self._state = state
+        self.triggered = False
+        self.state_history = [state]
+        self.log = []
+        self.task_spec = task_spec
+        self.id = uuid4()
+        self.thread_id = self.__class__.thread_id_pool
+        self.last_state_change = time.time()
+        self.data = {}
+        self.internal_data = {}
         if parent is not None:
             self.parent._child_added_notify(self)
 
@@ -513,46 +513,43 @@ class Task(object):
         """
         return self.task_spec.get_data(name, default)
 
-    def _set_internal_attribute(self, **kwargs):
+    def _set_internal_data(self, **kwargs):
         """
         Defines the given attribute/value pairs.
         """
-        self.internal_attributes.update(kwargs)
+        self.internal_data.update(kwargs)
 
-    def _get_internal_attribute(self, name, default=None):
-        return self.internal_attributes.get(name, default)
+    def _get_internal_data(self, name, default=None):
+        return self.internal_data.get(name, default)
 
-    def set_attribute(self, **kwargs):
+    def set_data(self, **kwargs):
         """
         Defines the given attribute/value pairs.
         """
-        self.attributes.update(kwargs)
+        self.data.update(kwargs)
 
-    def _inherit_attributes(self):
+    def _inherit_data(self):
         """
-        Inherits the attributes from the parent.
+        Inherits the data from the parent.
         """
-        LOG.debug("'%s' inheriting attributes from '%s'" % (self.get_name(),
+        LOG.debug("'%s' inheriting data from '%s'" % (self.get_name(),
                 self.parent.get_name()),
-                extra=dict(data=self.parent.attributes))
-        self.set_attribute(**self.parent.attributes)
+                extra=dict(data=self.parent.data))
+        self.set_data(**self.parent.data)
 
-    def get_attribute(self, name, default=None):
+    def get_data(self, name, default=None):
         """
-        Returns the value of the attribute with the given name, or the given
-        default value if the attribute does not exist.
+        Returns the value of the data field with the given name, or the given
+        default value if the data field does not exist.
 
         :type  name: str
-        :param name: An attribute name.
+        :param name: A data field name.
         :type  default: obj
-        :param default: Return this value if the attribute does not exist.
+        :param default: Return this value if the data field does not exist.
         :rtype:  obj
-        :returns: The value of the attribute.
+        :returns: The value of the data field
         """
-        return self.attributes.get(name, default)
-
-    def get_attributes(self):
-        return self.attributes
+        return self.data.get(name, default)
 
     def cancel(self):
         """

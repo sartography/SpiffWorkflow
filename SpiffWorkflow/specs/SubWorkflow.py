@@ -47,9 +47,9 @@ class SubWorkflow(TaskSpec):
         :type  file: str
         :param file: The name of a file containing a workflow.
         :type  in_assign: list(str)
-        :param in_assign: The names of attributes to carry over.
+        :param in_assign: The names of data fields to carry over.
         :type  out_assign: list(str)
-        :param out_assign: The names of attributes to carry back.
+        :param out_assign: The names of data fields to carry back.
         :type  kwargs: dict
         :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
@@ -94,16 +94,16 @@ class SubWorkflow(TaskSpec):
         my_task._sync_children(self.outputs, Task.FUTURE)
         for child in my_task.children:
             child.task_spec._update_state(child)
-            child._inherit_attributes()
+            child._inherit_data()
         for child in subworkflow.task_tree.children:
             my_task.children.insert(0, child)
             child.parent = my_task
 
-        my_task._set_internal_attribute(subworkflow = subworkflow)
+        my_task._set_internal_data(subworkflow = subworkflow)
 
     def _on_ready_hook(self, my_task):
         # Assign variables, if so requested.
-        subworkflow = my_task._get_internal_attribute('subworkflow')
+        subworkflow = my_task._get_internal_data('subworkflow')
         for child in subworkflow.task_tree.children:
             for assignment in self.in_assign:
                 assignment.assign(my_task, child)

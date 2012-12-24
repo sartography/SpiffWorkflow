@@ -26,7 +26,7 @@ class Workflow(object):
     """
     The engine that executes a workflow.
     It is a essentially a facility for managing all branches.
-    A Workflow is also the place that holds the attributes of a running workflow.
+    A Workflow is also the place that holds the data of a running workflow.
     """
 
     def __init__(self, workflow_spec, deserializing=False, **kwargs):
@@ -40,7 +40,7 @@ class Workflow(object):
         assert workflow_spec is not None
         LOG.debug("__init__ Workflow instance: %s" % self.__str__())
         self.spec = workflow_spec
-        self.attributes = {}
+        self.data = {}
         self.outer_workflow = kwargs.get('parent', self)
         self.locks = {}
         self.last_task = None
@@ -87,7 +87,7 @@ class Workflow(object):
 
     def _task_completed_notify(self, task):
         if task.get_name() == 'End':
-            self.attributes.update(task.get_attributes())
+            self.data.update(task.data)
         # Update the state of every WAITING task.
         for thetask in self._get_waiting_tasks():
             thetask.task_spec._update_state(thetask)
@@ -103,19 +103,19 @@ class Workflow(object):
             self.locks[name] = mutex()
         return self.locks[name]
 
-    def get_attribute(self, name, default=None):
+    def get_data(self, name, default=None):
         """
-        Returns the value of the attribute with the given name, or the given
-        default value if the attribute does not exist.
+        Returns the value of the data field with the given name, or the given
+        default value if the data field does not exist.
 
         :type  name: string
-        :param name: An attribute name.
+        :param name: A data field name.
         :type  default: obj
-        :param default: Return this value if the attribute does not exist.
+        :param default: Return this value if the data field does not exist.
         :rtype:  obj
-        :returns: The value of the attribute.
+        :returns: The value of the data field.
         """
-        return self.attributes.get(name, default)
+        return self.data.get(name, default)
 
     def cancel(self, success=False):
         """
