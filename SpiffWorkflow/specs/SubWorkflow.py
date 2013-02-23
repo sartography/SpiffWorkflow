@@ -55,8 +55,7 @@ class SubWorkflow(TaskSpec):
         """
         assert parent is not None
         assert name is not None
-        assert file is not None
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        super(SubWorkflow, self).__init__(parent, name, **kwargs)
         self.file       = None
         self.in_assign  = in_assign is not None and in_assign or []
         self.out_assign = out_assign is not None and out_assign or []
@@ -79,7 +78,7 @@ class SubWorkflow(TaskSpec):
         else:
             my_task._sync_children(outputs, my_task.state)
 
-    def _on_ready_before_hook(self, my_task):
+    def _create_subworkflow(self, my_task):
         from SpiffWorkflow.storage import XmlSerializer
         from SpiffWorkflow.specs import WorkflowSpec
         file           = valueof(my_task, self.file)
@@ -87,7 +86,10 @@ class SubWorkflow(TaskSpec):
         xml            = open(file).read()
         wf_spec        = WorkflowSpec.deserialize(serializer, xml, filename = file)
         outer_workflow = my_task.workflow.outer_workflow
-        subworkflow    = SpiffWorkflow.Workflow(wf_spec, parent = outer_workflow)
+        return SpiffWorkflow.Workflow(wf_spec, parent = outer_workflow)
+
+    def _on_ready_before_hook(self, my_task):
+        subworkflow    = self._create_subworkflow(my_task)
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
 
         # Integrate the tree of the subworkflow into the tree of this workflow.

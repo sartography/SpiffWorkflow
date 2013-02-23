@@ -11,6 +11,10 @@ It's main design goals are the following:
 
 You can find a list of supported workflow patterns in :ref:`features`.
 
+In addition, Spiff Workflow provides a parser and workflow emulation
+layer that can be used to create executable Spiff Workflow specifications
+from Business Process Model and Notation (BPMN) documents. See :ref:`bpmn_page`.
+
 General Concept
 ---------------
 
@@ -122,7 +126,7 @@ The order of these state transitions is violated only in one case: A *Trigger* t
 
 Associating data with a workflow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- 
+
 The difference between *specification objects* and *derivation tree objects* is also important when choosing how to store data in a workflow. Spiff Workflow supports storing data in two ways:
 
 - **Task spec data** is stored in the TaskSpec object. In other words, if a task causes task spec data to change, that change is reflected to all other instances in the derivation tree that use the TaskSpec object.
