@@ -458,6 +458,10 @@ class DictionarySerializer(Serializer):
         # task_tree
         workflow.task_tree = self._deserialize_task(workflow, s_state['task_tree'])
 
+        # Re-connect parents
+        for task in workflow.get_tasks():
+            task.parent = workflow.get_task(task.parent)
+
         return workflow
 
     def _serialize_task(self, task, skip_children=False):
@@ -505,7 +509,9 @@ class DictionarySerializer(Serializer):
         task.id = s_state['id']
 
         # parent
-        task.parent = workflow.get_task(s_state['parent'])
+        # as the task_tree might not be complete yet
+        # keep the ids so they can be processed at the end
+        task.parent = s_state['parent']
 
         # children
         task.children = [self._deserialize_task(workflow, c) for c in s_state['children']]
