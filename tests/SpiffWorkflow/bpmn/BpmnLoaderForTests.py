@@ -23,13 +23,13 @@ class TestUserTask(UserTask):
         return self.get_outgoing_sequence_names()
 
     def do_choice(self, task, choice):
-        task.set_attribute(choice=choice)
+        task.set_data(choice=choice)
         task.complete()
 
 class TestEndEvent(EndEvent):
 
     def _on_complete_hook(self, my_task):
-        my_task.set_attribute(end_event=self.description)
+        my_task.set_data(end_event=self.description)
         super(TestEndEvent, self)._on_complete_hook(my_task)
 
 class TestCallActivity(CallActivity):

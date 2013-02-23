@@ -27,13 +27,13 @@ class CatchingEventDefinition(object):
         This should return True if the event has occurred (i.e. the task may move from WAITING
         to READY). This will be called multiple times.
         """
-        return my_task._get_internal_attribute('event_fired', False)
+        return my_task._get_internal_data('event_fired', False)
 
     def _accept_message(self, my_task, message):
         return False
 
     def _fire(self, my_task):
-        my_task._set_internal_attribute(event_fired=True)
+        my_task._set_internal_data(event_fired=True)
 
 class ThrowingEventDefinition(object):
     """
@@ -58,7 +58,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         """
         Returns true if the message was received while the task was in a WAITING state.
         """
-        return my_task._get_internal_attribute('event_fired', False)
+        return my_task._get_internal_data('event_fired', False)
 
     def _accept_message(self, my_task, message):
         if message != self.message:

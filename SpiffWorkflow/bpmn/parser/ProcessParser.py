@@ -111,6 +111,3 @@ class ProcessParser(object):
             raise NotImplementedError('Recursive call Activities are not supported.')
         self._parse()
         return self.get_spec()
-
-
-

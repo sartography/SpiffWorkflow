@@ -34,7 +34,7 @@ class BpmnScriptEngine(object):
         if isinstance(expression, Operator):
             return expression._matches(task)
         else:
-            return self._eval(task, expression, **task.get_attributes())
+            return self._eval(task, expression, **task.data)
 
     def execute(self, task, script):
         """

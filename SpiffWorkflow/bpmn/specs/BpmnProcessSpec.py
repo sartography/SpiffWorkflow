@@ -50,7 +50,7 @@ class _EndJoin(UnstructuredJoin):
 
     def _on_complete_hook(self, my_task):
         super(_EndJoin, self)._on_complete_hook(my_task)
-        my_task.workflow.attributes.update(my_task.get_attributes())
+        my_task.workflow.data.update(my_task.data)
 
 
 class BpmnProcessSpec(WorkflowSpec):

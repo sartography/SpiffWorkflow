@@ -131,7 +131,7 @@ class _BpmnProcessSpecState(object):
         logging.debug('Leaf tasks after load, before _update_state: %s', leaf_tasks)
         for task in sorted(leaf_tasks, key=lambda t: 0 if getattr(t, '_bpmn_load_target_state', Task.READY) == Task.READY else 1):
             task.task_spec._update_state(task)
-            task._inherit_attributes()
+            task._inherit_data()
             if hasattr(task, '_bpmn_load_target_state'):
                 delattr(task, '_bpmn_load_target_state')
 
@@ -186,7 +186,7 @@ class _BpmnProcessSpecState(object):
                 my_task.children.insert(0, child)
                 child.parent = my_task
 
-        my_task._set_internal_attribute(subworkflow = subworkflow)
+        my_task._set_internal_data(subworkflow = subworkflow)
 
         my_task._set_state(Task.COMPLETED)
 
@@ -248,8 +248,8 @@ class CompactWorkflowSerializer(Serializer):
     with some limitations.
 
     Limitations:
-    1. The compact representation does not include any workflow or task attributes. It is the responsibility of the
-    calling application to record whatever attributes are relevant to it, and set them on the restored workflow.
+    1. The compact representation does not include any workflow or task data. It is the responsibility of the
+    calling application to record whatever data is relevant to it, and set it on the restored workflow.
     2. The restoring process will not produce exactly the same workflow tree - it finds the SHORTEST route to
     the saved READY and WAITING tasks, not the route that was actually taken. This means that the tree cannot be
     interrogated for historical information about the workflow. However, the workflow does follow the same logic

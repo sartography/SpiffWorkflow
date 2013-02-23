@@ -70,7 +70,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             set_attribs['choice'] = choice
 
         if set_attribs:
-            tasks[0].set_attribute(**set_attribs)
+            tasks[0].set_data(**set_attribs)
         tasks[0].complete()
 
     def save_restore(self):
