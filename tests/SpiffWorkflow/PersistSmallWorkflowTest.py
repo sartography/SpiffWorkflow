@@ -86,6 +86,23 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         self.assertEqual(1, len([t for t in new_workflow.get_tasks() if t.task_spec.name == 'Start']))
         self.assertEqual(1, len([t for t in new_workflow.get_tasks() if t.task_spec.name == 'Root']))
 
+    def testDeserialization(self):
+        """
+        Tests the that deserialized workflow can be completed.
+        """
+        old_workflow = self.workflow
+
+        old_workflow.complete_next()
+        self.assertEquals('task_a2', old_workflow.last_task.get_name())
+        serializer = DictionarySerializer()
+        serialized_workflow = old_workflow.serialize(serializer)
+
+        serializer = DictionarySerializer()
+        new_workflow = Workflow.deserialize(serializer, serialized_workflow)
+        self.assertEquals('task_a2', old_workflow.last_task.get_name())
+        new_workflow.complete_all()
+        self.assertEquals('task_a2', old_workflow.last_task.get_name())
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(PersistSmallWorkflowTest)
