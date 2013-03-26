@@ -315,8 +315,8 @@ class DictionarySerializer(Serializer):
     def _serialize_sub_workflow(self, spec):
         s_state = self._serialize_task_spec(spec)
         s_state['file'] = spec.file
-        s_state['in_assign'] = self._serialize_dict(spec.in_assign)
-        s_state['out_assign'] = self._serialize_dict(spec.out_assign)
+        s_state['in_assign'] = self._serialize_list(spec.in_assign)
+        s_state['out_assign'] = self._serialize_list(spec.out_assign)
         return s_state
 
     def _deserialize_sub_workflow(self, wf_spec, s_state):
