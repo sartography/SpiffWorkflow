@@ -19,6 +19,7 @@ from ThreadSplit import ThreadSplit
 from Transform import Transform
 from Trigger import Trigger
 from WorkflowSpec import WorkflowSpec
+from TaskSpec import TaskSpec
 
 import inspect
 __all__ = [name for name, obj in locals().items()
