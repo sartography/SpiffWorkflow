@@ -214,7 +214,9 @@ class Workflow(object):
                 iter = Task.Iterator(self.last_task, Task.READY)
                 next = iter.next()
             except:
+                LOG.exception('Caught exception in iterator loop')
                 next = None
+
             self.last_task = None
             if next is not None:
                 if next.complete():
