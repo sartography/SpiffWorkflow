@@ -30,11 +30,11 @@ class DictionarySerializer(Serializer):
         return dict((k, marshal.loads(b64decode(v)))
                     for k, v in s_state.iteritems())
 
-    def _serialize_list(self, thedict):
-        return [(k, b64encode(marshal.dumps(v))) for k, v in thedict]
+    def _serialize_list(self, thelist):
+        return [b64encode(marshal.dumps(v)) for v in thelist]
 
     def _deserialize_list(self, s_state):
-        return [(k, b64decode(marshal.loads(v))) for k, v in s_state]
+        return [b64decode(marshal.loads(v)) for v in s_state]
 
     def _serialize_attrib(self, attrib):
         return attrib.name
