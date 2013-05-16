@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-import marshal
+import pickle
 from base64 import b64encode, b64decode
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.util.impl import get_class
@@ -23,18 +23,18 @@ from SpiffWorkflow.storage.Serializer import Serializer
 
 class DictionarySerializer(Serializer):
     def _serialize_dict(self, thedict):
-        return dict((k, b64encode(marshal.dumps(v)))
+        return dict((k, b64encode(pickle.dumps(v)))
                     for k, v in thedict.iteritems())
 
     def _deserialize_dict(self, s_state):
-        return dict((k, marshal.loads(b64decode(v)))
+        return dict((k, pickle.loads(b64decode(v)))
                     for k, v in s_state.iteritems())
 
     def _serialize_list(self, thelist):
-        return [b64encode(marshal.dumps(v)) for v in thelist]
+        return [b64encode(pickle.dumps(v)) for v in thelist]
 
     def _deserialize_list(self, s_state):
-        return [b64decode(marshal.loads(v)) for v in s_state]
+        return [pickle.loads(b64decode(v)) for v in s_state]
 
     def _serialize_attrib(self, attrib):
         return attrib.name
@@ -239,7 +239,7 @@ class DictionarySerializer(Serializer):
     def _serialize_join(self, spec):
         s_state = self._serialize_task_spec(spec)
         s_state['split_task'] = spec.split_task
-        s_state['threshold'] = b64encode(marshal.dumps(spec.threshold))
+        s_state['threshold'] = b64encode(pickle.dumps(spec.threshold))
         s_state['cancel_remaining'] = spec.cancel_remaining
         return s_state
 
@@ -247,7 +247,7 @@ class DictionarySerializer(Serializer):
         spec = Join(wf_spec,
                     s_state['name'],
                     split_task = s_state['split_task'],
-                    threshold = marshal.loads(b64decode(s_state['threshold'])),
+                    threshold = pickle.loads(b64decode(s_state['threshold'])),
                     cancel = s_state['cancel_remaining'])
         self._deserialize_task_spec(wf_spec, s_state, spec = spec)
         return spec

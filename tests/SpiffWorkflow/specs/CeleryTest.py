@@ -1,13 +1,13 @@
 import os
 import sys
 import unittest
+import pickle
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-
 from TaskSpecTest import TaskSpecTest
 from SpiffWorkflow.specs import Celery, WorkflowSpec
 from SpiffWorkflow.operators import Attrib
 from SpiffWorkflow.storage import DictionarySerializer
-
+from base64 import b64encode
 
 class CeleryTest(TaskSpecTest):
     CORRELATE = Celery
@@ -54,14 +54,18 @@ class CeleryTest(TaskSpecTest):
         kw_defined2 = Celery.deserialize(serializer, new_wf_spec, data)
         self.assertIsInstance(kw_defined2.kwargs['some_ref'], Attrib)
 
+
+        args = [b64encode(pickle.dumps(v)) for v in [Attrib('the_attribute'), u'ip', u'dc455016e2e04a469c01a866f11c0854']]
+
+        data = { u'R': b64encode(pickle.dumps(u'1'))}
         # Comes from live data. Bug not identified, but there we are...
         data = {u'inputs': [u'Wait:1'], u'lookahead': 2, u'description': u'',
-          u'outputs': [], u'args': [[u'Attrib', u'ip'], [u'spiff:value',
-          u'dc455016e2e04a469c01a866f11c0854']], u'manual': False,
-          u'data': {u'R': u'1'}, u'locks': [], u'pre_assign': [],
+                u'outputs': [], u'args': args,
+          u'manual': False,
+          u'data': data, u'locks': [], u'pre_assign': [],
           u'call': u'call.x',
           u'internal': False, u'post_assign': [], u'id': 8,
-          u'result_key': None, u'defines': {u'R': u'1'},
+          u'result_key': None, u'defines': data,
           u'class': u'SpiffWorkflow.specs.Celery.Celery',
           u'name': u'RS1:1'}
         Celery.deserialize(serializer, new_wf_spec, data)
