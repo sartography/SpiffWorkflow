@@ -21,7 +21,7 @@ class ExecuteTest(TaskSpecTest):
                        args=self.cmd_args)
 
     def setUp(self):
-        self.cmd_args = "ping", "-c", "1", "-t", "1", "127.0.0.1"
+        self.cmd_args = ["python", "ExecuteProcessMock.py"]
         TaskSpecTest.setUp(self)
 
     def testConstructor(self):
