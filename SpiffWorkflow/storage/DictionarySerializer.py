@@ -12,6 +12,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import marshal
+import uuid
 from base64 import b64encode, b64decode
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.util.impl import get_class
@@ -469,13 +470,14 @@ class DictionarySerializer(Serializer):
         s_state = dict()
 
         # id
-        s_state['id'] = task.id
+        s_state['id'] = str(task.id)
 
         # workflow
         #s_state['workflow'] = task.workflow.id
 
         # parent
-        s_state['parent'] = task.parent.id if not task.parent is None else None
+        s_state['parent'] = (str(task.parent.id) if task.parent is not None
+                             else None)
 
         # children
         if not skip_children:
@@ -506,12 +508,18 @@ class DictionarySerializer(Serializer):
         task = Task(workflow, task_spec)
 
         # id
-        task.id = s_state['id']
+        task.id = (s_state['id'] if isinstance(s_state['id'], uuid.UUID)
+                    else uuid.UUID(s_state['id']))
 
         # parent
         # as the task_tree might not be complete yet
         # keep the ids so they can be processed at the end
-        task.parent = s_state['parent']
+        if isinstance(s_state['parent'], uuid.UUID):
+            task.parent = s_state['parent'] 
+        elif s_state['parent']:
+            task.parent = uuid.UUID(s_state['parent'])
+        else:
+            task.parent = None 
 
         # children
         task.children = [self._deserialize_task(workflow, c) for c in s_state['children']]
