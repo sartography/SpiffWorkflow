@@ -12,11 +12,21 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import json
+import uuid
 from SpiffWorkflow.storage import DictionarySerializer
 from SpiffWorkflow.storage.Serializer import Serializer
 
 _dictserializer = DictionarySerializer()
 
+def object_hook(dct):
+    if 'uuid' in dct:
+        return uuid.UUID(dct['uuid'])
+    return dct
+
+def default(obj):
+    if isinstance(obj, uuid.UUID):
+        return {'uuid': obj.hex}
+    raise TypeError('%r is not JSON serializable' % obj)
 
 class JSONSerializer(Serializer):
     def serialize_workflow_spec(self, wf_spec, **kwargs):
@@ -29,8 +39,8 @@ class JSONSerializer(Serializer):
 
     def serialize_workflow(self, workflow, **kwargs):
         thedict = _dictserializer.serialize_workflow(workflow, **kwargs)
-        return json.dumps(thedict)
+        return json.dumps(thedict, default=default)
 
     def deserialize_workflow(self, s_state, **kwargs):
-        thedict = json.loads(s_state)
+        thedict = json.loads(s_state, object_hook=object_hook)
         return _dictserializer.deserialize_workflow(thedict, **kwargs)
