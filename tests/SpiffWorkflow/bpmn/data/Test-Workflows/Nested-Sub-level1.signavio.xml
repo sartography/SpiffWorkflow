@@ -1,0 +1,1574 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oryxmodel>
+<description>First sublevel of nested subprocesses</description>
+<type>BPMN 2.0</type>
+<json-representation><![CDATA[{
+  "resourceId": "canvas",
+  "properties": {
+    "name": "",
+    "documentation": "",
+    "auditing": "",
+    "monitoring": "",
+    "version": "",
+    "author": "",
+    "language": "English",
+    "namespaces": "",
+    "targetnamespace": "http://www.signavio.com/bpmn20",
+    "expressionlanguage": "http://www.w3.org/1999/XPath",
+    "typelanguage": "http://www.w3.org/2001/XMLSchema",
+    "creationdate": "",
+    "modificationdate": "",
+    "orientation": "horizontal"
+  },
+  "stencil": {
+    "id": "BPMNDiagram"
+  },
+  "childShapes": [
+    {
+      "resourceId": "sid-D3F78BF5-F082-4CB1-A327-392A11A67616",
+      "properties": {
+        "name": "Nested level 1",
+        "documentation": "",
+        "auditing": "",
+        "monitoring": "",
+        "boundaryvisible": true,
+        "processname": "",
+        "status": "None",
+        "processcategories": "",
+        "processdocumentation": "",
+        "multiinstance": "",
+        "minimum": 2,
+        "maximum": 2,
+        "processtype": "None",
+        "isclosed": "",
+        "isexecutable": "",
+        "bgcolor": "#ffffff",
+        "bordercolor": "#000000",
+        "processid": ""
+      },
+      "stencil": {
+        "id": "Pool"
+      },
+      "childShapes": [
+        {
+          "resourceId": "sid-A8C6B92F-D06F-40B0-9690-5532F53EA9D8",
+          "properties": {
+            "name": "Tester",
+            "documentation": "",
+            "auditing": "",
+            "monitoring": "",
+            "bordercolor": "#000000",
+            "parentpool": "",
+            "parentlane": "",
+            "showcaption": true,
+            "bgcolor": ""
+          },
+          "stencil": {
+            "id": "Lane"
+          },
+          "childShapes": [
+            {
+              "resourceId": "sid-23EF7D0F-BC6E-45ED-A47D-22CEBCE0BE5A",
+              "properties": {
+                "name": "",
+                "documentation": "",
+                "auditing": "",
+                "monitoring": "",
+                "dataoutputassociations": "",
+                "dataoutput": "",
+                "outputset": "",
+                "bgcolor": "#ffffff",
+                "bordercolor": "#000000",
+                "processid": "",
+                "trigger": "None"
+              },
+              "stencil": {
+                "id": "StartNoneEvent"
+              },
+              "childShapes": [],
+              "outgoing": [
+                {
+                  "resourceId": "sid-27BA998B-1FEE-4CBA-86D5-8C5968F1478D"
+                }
+              ],
+              "bounds": {
+                "lowerRight": {
+                  "x": 86,
+                  "y": 116
+                },
+                "upperLeft": {
+                  "x": 56,
+                  "y": 86
+                }
+              },
+              "dockers": []
+            },
+            {
+              "resourceId": "sid-64E2EF25-F986-4834-8C3B-C3533746113E",
+              "properties": {
+                "name": "",
+                "documentation": "",
+                "auditing": "",
+                "monitoring": "",
+                "datainputassociations": "",
+                "datainput": "",
+                "inputset": "",
+                "bgcolor": "#ffffff",
+                "bordercolor": "#000000",
+                "trigger": "None"
+              },
+              "stencil": {
+                "id": "EndNoneEvent"
+              },
+              "childShapes": [],
+              "outgoing": [],
+              "bounds": {
+                "lowerRight": {
+                  "x": 513,
+                  "y": 110
+                },
+                "upperLeft": {
+                  "x": 485,
+                  "y": 82
+                }
+              },
+              "dockers": []
+            },
+            {
+              "resourceId": "sid-1B59DCD2-83A0-4687-B7BE-83625395572E",
+              "properties": {
+                "processid": "",
+                "name": "Action2",
+                "documentation": "",
+                "auditing": "",
+                "monitoring": "",
+                "categories": "",
+                "isforcompensation": "",
+                "callacitivity": "",
+                "tasktype": "User",
+                "implementation": "webService",
+                "instantiate": "",
+                "script": "",
+                "scriptformat": "",
+                "bgcolor": "#ffffcc",
+                "looptype": "None",
+                "bordercolor": "#000000",
+                "j5_status_change": "",
+                "j5_checklists": "",
+                "j5_completion_conditions": ""
+              },
+              "stencil": {
+                "id": "Task"
+              },
+              "childShapes": [],
+              "outgoing": [
+                {
+                  "resourceId": "sid-02F2C617-DFEE-44AE-AAED-145AF2E2D946"
+                }
+              ],
+              "bounds": {
+                "lowerRight": {
+                  "x": 240,
+                  "y": 122
+                },
+                "upperLeft": {
+                  "x": 140,
+                  "y": 42
+                }
+              },
+              "dockers": []
+            },
+            {
+              "resourceId": "sid-BC014079-199F-4720-95CD-244B0ACB6DE1",
+              "properties": {
+                "name": "Nested level 2",
+                "documentation": "",
+                "auditing": "",
+                "monitoring": "",
+                "categories": "",
+                "isforcompensation": "",
+                "callacitivity": true,
+                "subprocesstype": "Embedded",
+                "isatransaction": "",
+                "isadhoc": "",
+                "entry": "Nested level 2",
+                "diagramref": "",
+                "processref": "",
+                "looptype": "None",
+                "bgcolor": "#ffffcc",
+                "processid": "",
+                "activitytype": "Sub-Process",
+                "bordercolor": "#000000"
+              },
+              "stencil": {
+                "id": "CollapsedSubprocess"
+              },
+              "childShapes": [],
+              "outgoing": [
+                {
+                  "resourceId": "sid-B8192BBF-7DB4-4AA1-8990-5017C30130A8"
+                }
+              ],
+              "bounds": {
+                "lowerRight": {
+                  "x": 420,
+                  "y": 137
+                },
+                "upperLeft": {
+                  "x": 320,
+                  "y": 57
+                }
+              },
+              "dockers": []
+            }
+          ],
+          "outgoing": [],
+          "bounds": {
+            "lowerRight": {
+              "x": 594,
+              "y": 211
+            },
+            "upperLeft": {
+              "x": 30,
+              "y": 0
+            }
+          },
+          "dockers": []
+        }
+      ],
+      "outgoing": [],
+      "bounds": {
+        "lowerRight": {
+          "x": 769,
+          "y": 244
+        },
+        "upperLeft": {
+          "x": 175,
+          "y": 33
+        }
+      },
+      "dockers": []
+    },
+    {
+      "resourceId": "sid-27BA998B-1FEE-4CBA-86D5-8C5968F1478D",
+      "properties": {
+        "name": "",
+        "documentation": "",
+        "auditing": "",
+        "monitoring": "",
+        "conditiontype": "None",
+        "conditionexpression": "",
+        "isimmediate": "",
+        "showdiamondmarker": "",
+        "bordercolor": "#000000"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-1B59DCD2-83A0-4687-B7BE-83625395572E"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 344.671875,
+          "y": 134
+        },
+        "upperLeft": {
+          "x": 291.4375,
+          "y": 115
+        }
+      },
+      "dockers": [
+        {
+          "x": 15,
+          "y": 15
+        },
+        {
+          "x": 318,
+          "y": 134
+        },
+        {
+          "x": 318,
+          "y": 115
+        },
+        {
+          "x": 50,
+          "y": 40
+        }
+      ],
+      "target": {
+        "resourceId": "sid-1B59DCD2-83A0-4687-B7BE-83625395572E"
+      }
+    },
+    {
+      "resourceId": "sid-02F2C617-DFEE-44AE-AAED-145AF2E2D946",
+      "properties": {
+        "name": "",
+        "documentation": "",
+        "auditing": "",
+        "monitoring": "",
+        "conditiontype": "None",
+        "conditionexpression": "",
+        "isimmediate": "",
+        "showdiamondmarker": "",
+        "bordercolor": "#000000"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-BC014079-199F-4720-95CD-244B0ACB6DE1"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 524.78125,
+          "y": 130
+        },
+        "upperLeft": {
+          "x": 445.21875,
+          "y": 115
+        }
+      },
+      "dockers": [
+        {
+          "x": 50,
+          "y": 40
+        },
+        {
+          "x": 485,
+          "y": 115
+        },
+        {
+          "x": 485,
+          "y": 130
+        },
+        {
+          "x": 50,
+          "y": 40
+        }
+      ],
+      "target": {
+        "resourceId": "sid-BC014079-199F-4720-95CD-244B0ACB6DE1"
+      }
+    },
+    {
+      "resourceId": "sid-B8192BBF-7DB4-4AA1-8990-5017C30130A8",
+      "properties": {
+        "name": "Finish",
+        "documentation": "",
+        "auditing": "",
+        "monitoring": "",
+        "conditiontype": "None",
+        "conditionexpression": "",
+        "isimmediate": "",
+        "showdiamondmarker": "",
+        "bordercolor": "#000000"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-64E2EF25-F986-4834-8C3B-C3533746113E"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 689.921875,
+          "y": 130
+        },
+        "upperLeft": {
+          "x": 625.62890625,
+          "y": 129
+        }
+      },
+      "dockers": [
+        {
+          "x": 50,
+          "y": 40
+        },
+        {
+          "x": 657.5,
+          "y": 130
+        },
+        {
+          "x": 657.5,
+          "y": 129
+        },
+        {
+          "x": 14,
+          "y": 14
+        }
+      ],
+      "target": {
+        "resourceId": "sid-64E2EF25-F986-4834-8C3B-C3533746113E"
+      }
+    }
+  ],
+  "bounds": {
+    "lowerRight": {
+      "x": 1485,
+      "y": 1050
+    },
+    "upperLeft": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "stencilset": {
+    "url": "/gemsbok-spiff/editor/stencilsets//bpmn2.0/bpmn2.0.json",
+    "namespace": "http://b3mn.org/stencilset/bpmn2.0#"
+  },
+  "ssextensions": [
+    "http://sjsoft.com/oryx-editor/stencilsets/extensions/bpmn2.0-sjsoft-j5#"
+  ]
+}]]></json-representation>
+<svg-representation><![CDATA[
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:oryx="http://oryx-editor.org"
+     id="sid-72E54229-9CC7-4C47-ABCA-79DCABAEB1D5" width="644" height="261"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:svg="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="sid-0FB2D0E5-2AFC-43CA-B801-7D197F383142start" refX="1"
+                refY="5" markerUnits="userSpaceOnUse" markerWidth="17"
+                markerHeight="11" orient="auto">
+            <path id="sid-0FB2D0E5-2AFC-43CA-B801-7D197F383142conditional"
+                  d="M 0 6 L 8 1 L 15 5 L 8 9 L 1 5" fill="white"
+                  stroke="#000000" stroke-width="1" display="none"/>
+            <path id="sid-0FB2D0E5-2AFC-43CA-B801-7D197F383142default"
+                  d="M 5 0 L 11 10" fill="white" stroke="#000000"
+                  stroke-width="1" display="none"/>
+        </marker>
+        <marker id="sid-0FB2D0E5-2AFC-43CA-B801-7D197F383142end" refX="15"
+                refY="6" markerUnits="userSpaceOnUse" markerWidth="15"
+                markerHeight="12" orient="auto">
+            <path id="sid-0FB2D0E5-2AFC-43CA-B801-7D197F383142arrowhead"
+                  d="M 0 1 L 15 6 L 0 11z" fill="black" stroke="#000000"
+                  stroke-linejoin="round" stroke-width="2"/>
+        </marker>
+        <marker id="sid-D19C3FF2-EB94-4905-AA0F-8BA70E44F5EEstart" refX="1"
+                refY="5" markerUnits="userSpaceOnUse" markerWidth="17"
+                markerHeight="11" orient="auto">
+            <path id="sid-D19C3FF2-EB94-4905-AA0F-8BA70E44F5EEconditional"
+                  d="M 0 6 L 8 1 L 15 5 L 8 9 L 1 5" fill="white"
+                  stroke="#000000" stroke-width="1" display="none"/>
+            <path id="sid-D19C3FF2-EB94-4905-AA0F-8BA70E44F5EEdefault"
+                  d="M 5 0 L 11 10" fill="white" stroke="#000000"
+                  stroke-width="1" display="none"/>
+        </marker>
+        <marker id="sid-D19C3FF2-EB94-4905-AA0F-8BA70E44F5EEend" refX="15"
+                refY="6" markerUnits="userSpaceOnUse" markerWidth="15"
+                markerHeight="12" orient="auto">
+            <path id="sid-D19C3FF2-EB94-4905-AA0F-8BA70E44F5EEarrowhead"
+                  d="M 0 1 L 15 6 L 0 11z" fill="black" stroke="#000000"
+                  stroke-linejoin="round" stroke-width="2"/>
+        </marker>
+        <marker id="sid-2C241D96-96AA-4744-9594-AF8C457A0DF6start" refX="1"
+                refY="5" markerUnits="userSpaceOnUse" markerWidth="17"
+                markerHeight="11" orient="auto">
+            <path id="sid-2C241D96-96AA-4744-9594-AF8C457A0DF6conditional"
+                  d="M 0 6 L 8 1 L 15 5 L 8 9 L 1 5" fill="white"
+                  stroke="#000000" stroke-width="1" display="none"/>
+            <path id="sid-2C241D96-96AA-4744-9594-AF8C457A0DF6default"
+                  d="M 5 0 L 11 10" fill="white" stroke="#000000"
+                  stroke-width="1" display="none"/>
+        </marker>
+        <marker id="sid-2C241D96-96AA-4744-9594-AF8C457A0DF6end" refX="15"
+                refY="6" markerUnits="userSpaceOnUse" markerWidth="15"
+                markerHeight="12" orient="auto">
+            <path id="sid-2C241D96-96AA-4744-9594-AF8C457A0DF6arrowhead"
+                  d="M 0 1 L 15 6 L 0 11z" fill="black" stroke="#000000"
+                  stroke-linejoin="round" stroke-width="2"/>
+        </marker>
+    </defs>
+    <g stroke="black" font-family="Verdana, sans-serif" font-size-adjust="none"
+       font-style="normal" font-variant="normal" font-weight="normal"
+       line-heigth="normal" font-size="12">
+        <g class="stencils" transform="translate(-150, -8)">
+            <g class="me"/>
+            <g class="children">
+                <g id="svg-sid-D3F78BF5-F082-4CB1-A327-392A11A67616">
+                    <g class="stencils" transform="translate(175, 33)">
+                        <g class="me">
+                            <g pointer-events="none"
+                               id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FC"
+                               title="Pool">
+                                <defs id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FC_sid-A17B5777-CBD2-4882-A27C-2574A6FD78FC_9">
+                                    <radialGradient id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCbackground"
+                                                    cx="0%" cy="10%" r="100%"
+                                                    fx="20%" fy="10%">
+                                        <stop offset="0%" stop-color="#ffffff"
+                                              stop-opacity="1"
+                                              id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FC_sid-A17B5777-CBD2-4882-A27C-2574A6FD78FC_10"/>
+                                        <stop id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCfill_el"
+                                              offset="100%" stop-color="#ffffff"
+                                              stop-opacity="1"/>
+                                    </radialGradient>
+                                </defs>
+                                <rect id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCc"
+                                      oryx:resize="vertical horizontal" x="0"
+                                      y="0" width="594" height="211"
+                                      stroke="#000000"
+                                      fill="url(#sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCbackground) white"
+                                      fill-opacity="0.3" display="inherit"/>
+                                <rect id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCcaption"
+                                      oryx:anchors="left top bottom" x="0" y="0"
+                                      width="30" height="211" stroke="#000000"
+                                      stroke-width="1"
+                                      fill="url(#sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCbackground) white"
+                                      pointer-events="all" display="inherit"/>
+                                <rect id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCcaptionDisableAntialiasing"
+                                      oryx:anchors="left top bottom" x="0" y="0"
+                                      width="30" height="211" stroke="#000000"
+                                      stroke-width="1"
+                                      fill="url(#sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCbackground) white"
+                                      pointer-events="all" display="inherit"/>
+                                <text x="13" y="105" font-size="12"
+                                      id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCtext_name"
+                                      oryx:fittoelem="caption"
+                                      oryx:align="middle center"
+                                      oryx:anchors="left" oryx:rotate="270"
+                                      fill="black" stroke="black"
+                                      stroke-width="0pt"
+                                      letter-spacing="-0.01px"
+                                      transform="rotate(270 13 105)"
+                                      oryx:fontSize="12" text-anchor="middle">
+                                    <tspan x="13" y="105" dy="5">
+                                        Nested level 1
+                                    </tspan>
+                                </text>
+                                <g id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCmultiInstance"
+                                   display="none">
+                                    <path id="sid-A17B5777-CBD2-4882-A27C-2574A6FD78FCmultiinstancepath"
+                                          oryx:anchors="bottom" fill="none"
+                                          stroke="#000000"
+                                          d=" M293 201  v8  M297 201  v8  M301 201  v8 "
+                                          stroke-width="2"/>
+                                </g>
+                            </g>
+                        </g>
+                        <g class="children" style="overflow:hidden">
+                            <g id="svg-sid-A8C6B92F-D06F-40B0-9690-5532F53EA9D8">
+                                <g class="stencils" transform="translate(30, 0)">
+                                    <g class="me">
+                                        <g pointer-events="none"
+                                           id="sid-50B94386-108F-4890-937C-11017C32AC41"
+                                           title="Lane">
+                                            <defs id="sid-50B94386-108F-4890-937C-11017C32AC41_sid-50B94386-108F-4890-937C-11017C32AC41_3">
+                                                <radialGradient id="sid-50B94386-108F-4890-937C-11017C32AC41background"
+                                                                cx="0%" cy="10%"
+                                                                r="200%"
+                                                                fx="20%"
+                                                                fy="10%">
+                                                    <stop offset="0%"
+                                                          stop-color="#ffffff"
+                                                          stop-opacity="0"
+                                                          id="sid-50B94386-108F-4890-937C-11017C32AC41_sid-50B94386-108F-4890-937C-11017C32AC41_4"/>
+                                                    <stop id="sid-50B94386-108F-4890-937C-11017C32AC41fill_el"
+                                                          offset="100%"
+                                                          stop-color="#ffffff"
+                                                          stop-opacity="0"/>
+                                                </radialGradient>
+                                            </defs>
+                                            <rect id="sid-50B94386-108F-4890-937C-11017C32AC41border"
+                                                  oryx:resize="vertical horizontal"
+                                                  x="0" y="0" width="564"
+                                                  height="211" stroke="#000000"
+                                                  stroke-width="1"
+                                                  fill="url(#sid-50B94386-108F-4890-937C-11017C32AC41background) white"
+                                                  pointer-events="none"/>
+                                            <path stroke="#000000"
+                                                  stroke-width="1" fill="none"
+                                                  d=" M0 0  L0 211 "
+                                                  oryx:anchors="left top bottom"
+                                                  id="sid-50B94386-108F-4890-937C-11017C32AC41captionDisableAntialiasing"
+                                                  display="inherit"/>
+                                            undefined
+                                            <text x="13" y="105"
+                                                  oryx:rotate="270"
+                                                  font-size="12"
+                                                  id="sid-50B94386-108F-4890-937C-11017C32AC41text_name"
+                                                  oryx:align="middle center"
+                                                  oryx:anchors="left"
+                                                  oryx:fittoelem="caption"
+                                                  fill="black" stroke="black"
+                                                  stroke-width="0pt"
+                                                  letter-spacing="-0.01px"
+                                                  display="inherit"
+                                                  transform="rotate(270 13 105)"
+                                                  oryx:fontSize="12"
+                                                  text-anchor="middle">
+                                                <tspan x="13" y="105" dy="5">
+                                                    Tester
+                                                </tspan>
+                                            </text>
+                                        </g>
+                                    </g>
+                                    <g class="children" style="overflow:hidden">
+                                        <g id="svg-sid-23EF7D0F-BC6E-45ED-A47D-22CEBCE0BE5A">
+                                            <g class="stencils"
+                                               transform="translate(56, 86)">
+                                                <g class="me">
+                                                    <g pointer-events="fill"
+                                                       id="sid-501BC72D-548E-4034-9380-BEEEC893B069"
+                                                       title="Start Event">
+                                                        <defs id="sid-501BC72D-548E-4034-9380-BEEEC893B069_sid-501BC72D-548E-4034-9380-BEEEC893B069_5">
+                                                            <radialGradient id="sid-501BC72D-548E-4034-9380-BEEEC893B069background"
+                                                                            cx="10%"
+                                                                            cy="10%"
+                                                                            r="100%"
+                                                                            fx="10%"
+                                                                            fy="10%">
+                                                                <stop offset="0%"
+                                                                      stop-color="#ffffff"
+                                                                      stop-opacity="1"
+                                                                      id="sid-501BC72D-548E-4034-9380-BEEEC893B069_sid-501BC72D-548E-4034-9380-BEEEC893B069_6"/>
+                                                                <stop id="sid-501BC72D-548E-4034-9380-BEEEC893B069fill_el"
+                                                                      offset="100%"
+                                                                      stop-color="#ffffff"
+                                                                      stop-opacity="1"/>
+                                                            </radialGradient>
+                                                        </defs>
+                                                        <circle id="sid-501BC72D-548E-4034-9380-BEEEC893B069bg_frame"
+                                                                cx="15" cy="15"
+                                                                r="15"
+                                                                stroke="#000000"
+                                                                fill="url(#sid-501BC72D-548E-4034-9380-BEEEC893B069background) white"
+                                                                stroke-width="1"/>
+                                                        <text font-size="11"
+                                                              id="sid-501BC72D-548E-4034-9380-BEEEC893B069text_name"
+                                                              x="15" y="32"
+                                                              oryx:align="top center"
+                                                              stroke="black"
+                                                              stroke-width="0pt"
+                                                              letter-spacing="-0.01px"
+                                                              transform="rotate(0 15 32)"
+                                                              oryx:fontSize="11"
+                                                              text-anchor="middle"/>
+                                                    </g>
+                                                </g>
+                                                <g class="children"
+                                                   style="overflow:hidden"/>
+                                                <g class="edge"/>
+                                            </g>
+                                            <g class="controls">
+                                                <g class="dockers"/>
+                                                <g class="magnets"
+                                                   transform="translate(56, 86)">
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(7, 7)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                </g>
+                                            </g>
+                                        </g>
+                                        <g id="svg-sid-64E2EF25-F986-4834-8C3B-C3533746113E">
+                                            <g class="stencils"
+                                               transform="translate(485, 82)">
+                                                <g class="me">
+                                                    <g pointer-events="fill"
+                                                       id="sid-9A88FE67-0500-4C1F-9411-008F0ED1631C"
+                                                       title="End Event">
+                                                        <defs id="sid-9A88FE67-0500-4C1F-9411-008F0ED1631C_sid-9A88FE67-0500-4C1F-9411-008F0ED1631C_5">
+                                                            <radialGradient id="sid-9A88FE67-0500-4C1F-9411-008F0ED1631Cbackground"
+                                                                            cx="10%"
+                                                                            cy="10%"
+                                                                            r="100%"
+                                                                            fx="10%"
+                                                                            fy="10%">
+                                                                <stop offset="0%"
+                                                                      stop-color="#ffffff"
+                                                                      stop-opacity="1"
+                                                                      id="sid-9A88FE67-0500-4C1F-9411-008F0ED1631C_sid-9A88FE67-0500-4C1F-9411-008F0ED1631C_6"/>
+                                                                <stop id="sid-9A88FE67-0500-4C1F-9411-008F0ED1631Cfill_el"
+                                                                      offset="100%"
+                                                                      stop-color="#ffffff"
+                                                                      stop-opacity="1"/>
+                                                            </radialGradient>
+                                                        </defs>
+                                                        <circle id="sid-9A88FE67-0500-4C1F-9411-008F0ED1631Cbg_frame"
+                                                                cx="14" cy="14"
+                                                                r="14"
+                                                                stroke="#000000"
+                                                                fill="url(#sid-9A88FE67-0500-4C1F-9411-008F0ED1631Cbackground) white"
+                                                                stroke-width="3"/>
+                                                        <text font-size="11"
+                                                              id="sid-9A88FE67-0500-4C1F-9411-008F0ED1631Ctext_name"
+                                                              x="14" y="30"
+                                                              oryx:align="top center"
+                                                              stroke="black"
+                                                              stroke-width="0pt"
+                                                              letter-spacing="-0.01px"
+                                                              transform="rotate(0 14 30)"
+                                                              oryx:fontSize="11"
+                                                              text-anchor="middle"/>
+                                                    </g>
+                                                </g>
+                                                <g class="children"
+                                                   style="overflow:hidden"/>
+                                                <g class="edge"/>
+                                            </g>
+                                            <g class="controls">
+                                                <g class="dockers"/>
+                                                <g class="magnets"
+                                                   transform="translate(485, 82)">
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(6, 6)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                </g>
+                                            </g>
+                                        </g>
+                                        <g id="svg-sid-1B59DCD2-83A0-4687-B7BE-83625395572E">
+                                            <g class="stencils"
+                                               transform="translate(140, 42)">
+                                                <g class="me">
+                                                    <g pointer-events="fill"
+                                                       oryx:minimumSize="50 40"
+                                                       id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BF"
+                                                       title="Task">
+                                                        <defs id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BF_sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BF_17">
+                                                            <radialGradient id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFbackground"
+                                                                            cx="10%"
+                                                                            cy="10%"
+                                                                            r="100%"
+                                                                            fx="10%"
+                                                                            fy="10%">
+                                                                <stop offset="0%"
+                                                                      stop-color="#ffffff"
+                                                                      stop-opacity="1"
+                                                                      id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BF_sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BF_18"/>
+                                                                <stop id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFfill_el"
+                                                                      offset="100%"
+                                                                      stop-color="#ffffcc"
+                                                                      stop-opacity="1"/>
+                                                            </radialGradient>
+                                                        </defs>
+                                                        <rect id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFtext_frame"
+                                                              oryx:anchors="bottom top right left"
+                                                              x="1" y="1"
+                                                              width="94"
+                                                              height="79"
+                                                              rx="10" ry="10"
+                                                              stroke="none"
+                                                              stroke-width="0"
+                                                              fill="none"/>
+                                                        <rect id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFcallActivity"
+                                                              oryx:resize="vertical horizontal"
+                                                              oryx:anchors="bottom top right left"
+                                                              x="0" y="0"
+                                                              width="100"
+                                                              height="80"
+                                                              rx="10" ry="10"
+                                                              stroke="#000000"
+                                                              stroke-width="4"
+                                                              fill="none"
+                                                              display="none"/>
+                                                        <rect id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFbg_frame"
+                                                              oryx:resize="vertical horizontal"
+                                                              x="0" y="0"
+                                                              width="100"
+                                                              height="80"
+                                                              rx="10" ry="10"
+                                                              stroke="#000000"
+                                                              stroke-width="1"
+                                                              fill="url(#sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFbackground) #ffffcc"/>
+                                                        <text font-size="12"
+                                                              id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFtext_name"
+                                                              x="50" y="40"
+                                                              oryx:align="middle center"
+                                                              oryx:fittoelem="text_frame"
+                                                              stroke="black"
+                                                              stroke-width="0pt"
+                                                              letter-spacing="-0.01px"
+                                                              transform="rotate(0 50 40)"
+                                                              oryx:fontSize="12"
+                                                              text-anchor="middle">
+                                                            <tspan x="50" y="40"
+                                                                   dy="5">
+                                                                Action2
+                                                            </tspan>
+                                                        </text>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFmanualTask"
+                                                           transform="scale(0.7,0.7) translate(8,8)"
+                                                           display="none">
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFhand"
+                                                                  stroke="#000000"
+                                                                  stroke-width="1"
+                                                                  style="opacity:1;fill:none;fill-opacity:1;"
+                                                                  d="M0.5,3.751l4.083-3.25c0,0,11.166,0.083,12.083,0.083s-2.417,2.917-1.5,2.917     s11.667,0,12.584,0c1.166,1.708-0.168,3.167-0.834,3.667s0.875,1.917-1,4.417c-0.75,0.25,0.75,1.875-1.333,3.333     c-1.167,0.583,0.583,1.542-1.25,2.833c-1.167,0-20.833,0.083-20.833,0.083l-2-1.333V3.751z"/>
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFfinger"
+                                                                  style="opacity:1;fill:none; stroke-width:2"
+                                                                  stroke="#000000"
+                                                                  d="M 13.5 7 L 27 7"/>
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFfinger1"
+                                                                  style="opacity:1;fill:none; stroke-width:2"
+                                                                  stroke="#000000"
+                                                                  d="M 13.5 11 L 26 11"/>
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFfinger2"
+                                                                  style="opacity:1;fill:none; stroke-width:1.5"
+                                                                  stroke="#000000"
+                                                                  d="M 14 14.5 L 25 14.5"/>
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFthumb"
+                                                                  style="opacity:1;fill:none; stroke-width:1.5"
+                                                                  stroke="#000000"
+                                                                  d="M 8.2 3.1 L 15 3.1"/>
+                                                        </g>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFbusinessRuleTask"
+                                                           transform="scale(0.7,0.7) translate(8,8)"
+                                                           display="none">
+                                                            <rect oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFtop"
+                                                                  x="0" y="0"
+                                                                  width="22"
+                                                                  height="4"
+                                                                  style="opacity:1;fill:#B3B1B3;fill-opacity:1;"
+                                                                  stroke="#000000"/>
+                                                            <rect oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFrect"
+                                                                  x="0" y="4"
+                                                                  style="opacity:1;fill:none;"
+                                                                  stroke="#000000"
+                                                                  width="22"
+                                                                  height="12"/>
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFrow"
+                                                                  style="opacity:1;fill:none;"
+                                                                  stroke="#000000"
+                                                                  d="M 0 10 L 22 10"/>
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFcol"
+                                                                  style="opacity:1; fill:none;"
+                                                                  stroke="#000000"
+                                                                  d="M 7 4 L 7 16"/>
+                                                        </g>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFscriptTask"
+                                                           transform="scale(0.7,0.7) translate(8,8)"
+                                                           display="none">
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFpaper"
+                                                                  style="opacity:1;fill:none;"
+                                                                  stroke="#000000"
+                                                                  d="M6.402,0.5h14.5c0,0-5.833,2.833-5.833,5.583s4.417,6,4.417,9.167    s-4.167,5.083-4.167,5.083H0.235c0,0,5-2.667,5-5s-4.583-6.75-4.583-9.25S6.402,0.5,6.402,0.5z"/>
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFline1"
+                                                                  style="opacity:1;fill:none;stroke-width:1.5"
+                                                                  stroke="#000000"
+                                                                  d="M 3.5 4.5 L 13.5 4.5"/>
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFline2"
+                                                                  style="opacity:1;fill:none;stroke-width:1.5"
+                                                                  stroke="#000000"
+                                                                  d="M 3.8 8.5 L 13.8 8.5"/>
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFline3"
+                                                                  style="opacity:1;fill:none;stroke-width:1.5"
+                                                                  stroke="#000000"
+                                                                  d="M 6.3 12.5 L 16.3 12.5"/>
+                                                            <path oryx:anchors="top left"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFline4"
+                                                                  style="opacity:1;fill:none;stroke-width:1.5"
+                                                                  stroke="#000000"
+                                                                  d="M 6.5 16.5 L 16.5 16.5"/>
+                                                        </g>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFuserTask"
+                                                           transform="scale(0.7,0.7) translate(8,8)"
+                                                           display="inherit">
+                                                            <path id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFuserTaskpath"
+                                                                  oryx:anchors="top left"
+                                                                  style="opacity:1;fill:#F4F6F7;"
+                                                                  stroke="#000000"
+                                                                  d="M0.585,24.167h24.083v-7.833c0,0-2.333-3.917-7.083-5.167h-9.25    c-4.417,1.333-7.833,5.75-7.833,5.75L0.585,24.167z"/>
+                                                            <path id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFuserTaskpath2"
+                                                                  oryx:anchors="top left"
+                                                                  style="opacity:1;fill:none;"
+                                                                  stroke="#000000"
+                                                                  d="M 6 20 L 6 24"/>
+                                                            <path id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFuserTaskpath3"
+                                                                  oryx:anchors="top left"
+                                                                  style="opacity:1;fill:none;"
+                                                                  stroke="#000000"
+                                                                  d="M 20 20 L 20 24"/>
+                                                            <circle id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFuserTaskcircle"
+                                                                    oryx:anchors="top left"
+                                                                    fill="#000000"
+                                                                    stroke="#000000"
+                                                                    cx="13.002"
+                                                                    cy="5.916"
+                                                                    r="5.417"/>
+                                                            <path id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFuserTaskpath4"
+                                                                  oryx:anchors="top left"
+                                                                  style="opacity:1;fill:#F0EFF0;"
+                                                                  stroke="#000000"
+                                                                  d="M8.043,7.083c0,0,2.814-2.426,5.376-1.807s4.624-0.693,4.624-0.693    c0.25,1.688,0.042,3.75-1.458,5.584c0,0,1.083,0.75,1.083,1.5s0.125,1.875-1,3s-5.5,1.25-6.75,0S8.668,12.834,8.668,12    s0.583-1.25,1.25-1.917C8.835,9.5,7.419,7.708,8.043,7.083z"/>
+                                                        </g>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFserviceTask"
+                                                           transform="scale(0.7,0.7) translate(8,8)"
+                                                           display="none">
+                                                            <polygon oryx:anchors="top left"
+                                                                     id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFteethForeground"
+                                                                     style="opacity:1;fill:#ffffff;"
+                                                                     stroke="#000000"
+                                                                     points="15.392,5.064 17.954,2.502 20.347,4.895 17.786,7.455     18.729,9.732 22.353,9.732 22.353,13.115 18.731,13.115 17.788,15.392 20.351,17.955 17.958,20.347 15.397,17.786 13.12,18.729     13.12,22.353 9.737,22.353 9.737,18.731 7.46,17.788 4.897,20.35 2.506,17.958 5.066,15.397 4.124,13.12 0.5,13.12 0.5,9.737     4.121,9.737 5.065,7.461 2.503,4.898 4.895,2.506 7.455,5.066 9.732,4.125 9.732,0.5 13.116,0.5 13.116,4.121 "/>
+                                                            <circle oryx:anchors="top left"
+                                                                    id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFringForeground"
+                                                                    style="opacity:1;fill:none;"
+                                                                    stroke="#000000"
+                                                                    cx="11.427"
+                                                                    cy="11.426"
+                                                                    r="3.714"/>
+                                                            <polygon oryx:anchors="top left"
+                                                                     id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFteethBackground"
+                                                                     style="opacity:1;fill:#ffffff;"
+                                                                     stroke="#000000"
+                                                                     points="21.392,11.064 23.954,8.502 26.347,10.895 23.786,13.455     24.729,15.732 28.353,15.732 28.353,19.115 24.731,19.115 23.788,21.392 26.351,23.955 23.958,26.347 21.397,23.786 19.12,24.729     19.12,28.353 15.737,28.353 15.737,24.731 13.46,23.788 10.897,26.35 8.506,23.958 11.066,21.397 10.124,19.12 6.5,19.12     6.5,15.737 10.121,15.737 11.065,13.461 8.503,10.898 10.895,8.506 13.455,11.066 15.732,10.125 15.732,6.5 19.116,6.5     19.116,10.121 "/>
+                                                            <circle oryx:anchors="top left"
+                                                                    id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFringBackground"
+                                                                    style="opacity:1;fill:none;"
+                                                                    stroke="#000000"
+                                                                    cx="17.427"
+                                                                    cy="17.426"
+                                                                    r="3.714"/>
+                                                        </g>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFsendTask"
+                                                           display="none">
+                                                            <path id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFsendTaskpath"
+                                                                  oryx:anchors="left top"
+                                                                  stroke="#000000"
+                                                                  fill="black"
+                                                                  stroke-width="1"
+                                                                  d="M8,11 L8,21 L24,21 L24,11 L16,17z"/>
+                                                            <path id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFsendTaskpath2"
+                                                                  oryx:anchors="left top"
+                                                                  stroke="#000000"
+                                                                  fill="black"
+                                                                  stroke-width="1"
+                                                                  d="M7,10 L16,17 L25 10z"/>
+                                                        </g>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFreceiveTask"
+                                                           display="none">
+                                                            <path id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFreceiveTaskpath"
+                                                                  oryx:anchors="left top"
+                                                                  stroke="#000000"
+                                                                  fill="none"
+                                                                  stroke-width="1"
+                                                                  d="M8,11 L8,21 L24,21 L24,11z M8,11 L16,17 L24,11"/>
+                                                            <circle id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFinstantiate"
+                                                                    cx="16"
+                                                                    cy="16"
+                                                                    r="13"
+                                                                    stroke="#000000"
+                                                                    fill="none"
+                                                                    stroke-width="1"
+                                                                    display="none"/>
+                                                        </g>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFnone"
+                                                           display="none"/>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFloop"
+                                                           display="none">
+                                                            <path oryx:anchors="bottom"
+                                                                  stroke="#000000"
+                                                                  style="opacity:1;fill:none;fill-opacity:1;;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:2.0999999;stroke-dasharray:none;stroke-opacity:1"
+                                                                  id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFpath2396"
+                                                                  d="M 49.5,72 L 49.5,75 L 46.5,75 M 49.5,75 A 4.875,4.875 0 1 1 53.5,75"/>
+                                                        </g>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFparallel"
+                                                           display="none">
+                                                            <path id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFparallelpath"
+                                                                  oryx:anchors="bottom"
+                                                                  fill="none"
+                                                                  stroke="#000000"
+                                                                  d="M46 65 v10 M50 65 v10 M54 65 v10"
+                                                                  stroke-width="2"/>
+                                                        </g>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFsequential"
+                                                           display="none">
+                                                            <path id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFsequentialpath"
+                                                                  oryx:anchors="bottom"
+                                                                  fill="none"
+                                                                  stroke="#000000"
+                                                                  stroke-width="2"
+                                                                  d="M45,67 h10 M45,71 h10 M45,75 h10"/>
+                                                        </g>
+                                                        <g id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFcompensation"
+                                                           display="none">
+                                                            <path id="sid-084A586B-7A5B-4A0C-A31D-DEADE7C129BFcompensationpath"
+                                                                  oryx:anchors="bottom"
+                                                                  fill="none"
+                                                                  stroke="#000000"
+                                                                  d="M 50 70 L 55 65 L 55 75z M44.7 70 L49.7 75 L 49.7 65z"
+                                                                  stroke-width="1"
+                                                                  transform="translate(-13)"/>
+                                                        </g>
+                                                    </g>
+                                                </g>
+                                                <g class="children"
+                                                   style="overflow:hidden"/>
+                                                <g class="edge"/>
+                                            </g>
+                                            <g class="controls">
+                                                <g class="dockers"/>
+                                                <g class="magnets"
+                                                   transform="translate(140, 42)">
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(-7, 12)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(-7, 32)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(-7, 52)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(17, 71)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(42, 71)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(67, 71)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(91, 12)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(91, 32)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(91, 52)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(17, -7)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(42, -7)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(67, -7)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(42, 32)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                </g>
+                                            </g>
+                                        </g>
+                                        <g id="svg-sid-BC014079-199F-4720-95CD-244B0ACB6DE1">
+                                            <g class="stencils"
+                                               transform="translate(320, 57)">
+                                                <g class="me">
+                                                    <g pointer-events="fill"
+                                                       oryx:minimumSize="80 60"
+                                                       id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECE"
+                                                       title="Collapsed Subprocess">
+                                                        <defs id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECE_sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECE_17">
+                                                            <radialGradient id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEbackground"
+                                                                            cx="10%"
+                                                                            cy="10%"
+                                                                            r="100%"
+                                                                            fx="10%"
+                                                                            fy="10%">
+                                                                <stop offset="0%"
+                                                                      stop-color="#ffffff"
+                                                                      stop-opacity="1"
+                                                                      id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECE_sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECE_18"/>
+                                                                <stop id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEfill_el"
+                                                                      offset="100%"
+                                                                      stop-color="#ffffcc"
+                                                                      stop-opacity="1"/>
+                                                            </radialGradient>
+                                                        </defs>
+                                                        <rect id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEtext_frame"
+                                                              oryx:anchors="bottom top right left"
+                                                              x="1" y="1"
+                                                              width="94"
+                                                              height="79"
+                                                              rx="10" ry="10"
+                                                              stroke="none"
+                                                              stroke-width="0"
+                                                              fill="none"/>
+                                                        <rect id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEbg_frame"
+                                                              oryx:anchors="bottom top right left"
+                                                              x="0" y="0"
+                                                              width="100"
+                                                              height="80"
+                                                              rx="10" ry="10"
+                                                              stroke="#000000"
+                                                              stroke-width="1"
+                                                              fill="url(#sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEbackground) #ffffcc"/>
+                                                        <rect id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEcallActivity"
+                                                              oryx:resize="vertical horizontal"
+                                                              oryx:anchors="bottom top right left"
+                                                              x="0" y="0"
+                                                              width="100"
+                                                              height="80"
+                                                              rx="10" ry="10"
+                                                              stroke="#000000"
+                                                              stroke-width="4"
+                                                              fill="none"
+                                                              display="inherit"/>
+                                                        <rect id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEborder"
+                                                              oryx:anchors="top bottom left right"
+                                                              oryx:resize="vertical horizontal"
+                                                              x="2.5" y="2.5"
+                                                              width="95"
+                                                              height="75" rx="8"
+                                                              ry="8"
+                                                              stroke="#000000"
+                                                              stroke-width="1"
+                                                              fill="none"
+                                                              display="none"/>
+                                                        <text font-size="12"
+                                                              id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEtext_name"
+                                                              x="50" y="40"
+                                                              oryx:align="middle center"
+                                                              oryx:fittoelem="text_frame"
+                                                              stroke="black"
+                                                              stroke-width="0pt"
+                                                              letter-spacing="-0.01px"
+                                                              transform="rotate(0 50 40)"
+                                                              oryx:fontSize="12"
+                                                              text-anchor="middle">
+                                                            <tspan x="50" y="40"
+                                                                   dy="5"
+                                                                   id="ext-gen825">
+                                                                Nested level 2
+                                                            </tspan>
+                                                        </text>
+                                                        <g id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEb"
+                                                           oryx:anchors="bottom"
+                                                           transform="translate(1)">
+                                                            <rect id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEplusborder"
+                                                                  oryx:anchors="bottom"
+                                                                  x="43" y="66"
+                                                                  width="14"
+                                                                  height="14"
+                                                                  fill="none"
+                                                                  stroke="#000000"
+                                                                  stroke-width="1"/>
+                                                            <path id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEplus"
+                                                                  oryx:anchors="bottom"
+                                                                  fill="none"
+                                                                  stroke="#000000"
+                                                                  d="M50 68 v10 M 45 73 h10"
+                                                                  stroke-width="1"/>
+                                                        </g>
+                                                        <g id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEnone"
+                                                           display="inherit"/>
+                                                        <g id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEloop"
+                                                           display="none">
+                                                            <path oryx:anchors="bottom"
+                                                                  stroke="#000000"
+                                                                  style="opacity:1;fill:none;fill-opacity:1;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:2.0999999;stroke-dasharray:none;stroke-opacity:1"
+                                                                  id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEpath2396"
+                                                                  d="M 49.5,72 L 49.5,75 L 46.5,75 M 49.5,75 A 4.875,4.875 0 1 1 53.5,75"
+                                                                  transform="translate(-15.5)"/>
+                                                        </g>
+                                                        <g id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEparallel"
+                                                           display="none">
+                                                            <path id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEparallelpath"
+                                                                  oryx:anchors="bottom"
+                                                                  fill="none"
+                                                                  stroke="#000000"
+                                                                  d="M46 65 v10 M50 65 v10 M54 65 v10"
+                                                                  stroke-width="2"
+                                                                  transform="translate(-14)"/>
+                                                        </g>
+                                                        <g id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEsequential"
+                                                           display="none">
+                                                            <path id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEsequentialpath"
+                                                                  oryx:anchors="bottom"
+                                                                  fill="none"
+                                                                  stroke="#000000"
+                                                                  stroke-width="2"
+                                                                  d="M45,67 h10 M45,71 h10 M45,75 h10"
+                                                                  transform="translate(-14)"/>
+                                                        </g>
+                                                        <g id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEadhoc"
+                                                           transform="translate(16)"
+                                                           display="none">
+                                                            <path id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEadhocpath"
+                                                                  d="m 55,70 0,2.0343 c -0.54305,0.60192 -1.04853,1.0324 -1.51647,1.29142 -0.46216,0.25908 -0.94744,0.38857 -1.4558,0.38857 -0.57194,0 -1.23628,-0.22473 -1.99307,-0.67428 -0.0577,-0.0306 -0.10111,-0.0534 -0.12999,-0.0687 -0.0346,-0.0228 -0.0896,-0.0533 -0.16464,-0.0915 -0.80878,-0.47234 -1.4558,-0.70857 -1.94107,-0.70857 -0.46217,0 -0.91566,0.14858 -1.36047,0.44576 -0.44485,0.2895 -0.92434,0.75046 -1.43849,1.38285 l 0,-2.03429 c 0.54881,-0.60194 1.05431,-1.0324 1.51647,-1.29147 0.46793,-0.26666 0.9532,-0.39999 1.45581,-0.39999 0.57191,0 1.24205,0.22856 2.01039,0.68574 0.0461,0.0308 0.0838,0.0533 0.11266,0.0687 0.0404,0.0228 0.0982,0.0533 0.1733,0.0913 0.803,0.4724 1.45002,0.70861 1.94108,0.70857 0.44481,4e-5 0.88676,-0.14475 1.32581,-0.43429 0.43905,-0.2895 0.9272,-0.75425 1.46448,-1.39428"
+                                                                  oryx:anchors="bottom"
+                                                                  stroke="#000000"
+                                                                  fill="black"
+                                                                  stroke-width="1"/>
+                                                        </g>
+                                                        <g id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEcompensation"
+                                                           display="none">
+                                                            <path id="sid-7613EC73-E8D0-4CC8-A532-AF8F2D41BECEcompensationpath"
+                                                                  oryx:anchors="bottom"
+                                                                  fill="none"
+                                                                  stroke="#000000"
+                                                                  d="M 50 70 L 55 65 L 55 75z M44.7 70 L49.7 75 L 49.7 65z"
+                                                                  stroke-width="1"
+                                                                  transform="translate(-27,0)"/>
+                                                        </g>
+                                                    </g>
+                                                </g>
+                                                <g class="children"
+                                                   style="overflow:hidden"/>
+                                                <g class="edge"/>
+                                            </g>
+                                            <g class="controls">
+                                                <g class="dockers"/>
+                                                <g class="magnets"
+                                                   transform="translate(320, 57)">
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(-7, 12)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(-7, 32)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(-7, 52)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(17, 71)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(42, 71)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(67, 71)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(91, 12)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(91, 32)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(91, 52)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(17, -7)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(42, -7)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(67, -7)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                    <g pointer-events="all"
+                                                       display="none"
+                                                       transform="translate(42, 32)">
+                                                        <circle cx="8" cy="8"
+                                                                r="4"
+                                                                stroke="none"
+                                                                fill="red"
+                                                                fill-opacity="0.3"/>
+                                                    </g>
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </g>
+                                    <g class="edge"/>
+                                </g>
+                                <g class="controls">
+                                    <g class="dockers"/>
+                                    <g class="magnets"
+                                       transform="translate(30, 0)">
+                                        <g pointer-events="all" display="none"
+                                           transform="translate(274, 97.5)">
+                                            <circle cx="8" cy="8" r="4"
+                                                    stroke="none" fill="red"
+                                                    fill-opacity="0.3"/>
+                                        </g>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                        <g class="edge"/>
+                    </g>
+                    <g class="controls">
+                        <g class="dockers"/>
+                        <g class="magnets" transform="translate(175, 33)">
+                            <g pointer-events="all" display="none"
+                               transform="translate(-8, 96.65599999999998)">
+                                <circle cx="8" cy="8" r="4" stroke="none"
+                                        fill="red" fill-opacity="0.3"/>
+                            </g>
+                            <g pointer-events="all" display="none"
+                               transform="translate(288.01, 202)">
+                                <circle cx="8" cy="8" r="4" stroke="none"
+                                        fill="red" fill-opacity="0.3"/>
+                            </g>
+                            <g pointer-events="all" display="none"
+                               transform="translate(585, 96.65599999999998)">
+                                <circle cx="8" cy="8" r="4" stroke="none"
+                                        fill="red" fill-opacity="0.3"/>
+                            </g>
+                            <g pointer-events="all" display="none"
+                               transform="translate(288.01, -8)">
+                                <circle cx="8" cy="8" r="4" stroke="none"
+                                        fill="red" fill-opacity="0.3"/>
+                            </g>
+                            <g pointer-events="all" display="none"
+                               transform="translate(288.01, 96.65599999999998)">
+                                <circle cx="8" cy="8" r="4" stroke="none"
+                                        fill="red" fill-opacity="0.3"/>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+            <g class="edge">
+                <g id="svg-sid-27BA998B-1FEE-4CBA-86D5-8C5968F1478D">
+                    <g class="stencils">
+                        <g class="me">
+                            <g pointer-events="painted">
+                                <path id="sid-0FB2D0E5-2AFC-43CA-B801-7D197F383142_1"
+                                      d="M291.4375 134L318 134 L318 115 L344.671875 115 "
+                                      stroke="black" fill="none"
+                                      stroke-width="2" stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      marker-start="url(#sid-0FB2D0E5-2AFC-43CA-B801-7D197F383142start)"
+                                      marker-end="url(#sid-0FB2D0E5-2AFC-43CA-B801-7D197F383142end)"/>
+                            </g>
+                            <text id="sid-0FB2D0E5-2AFC-43CA-B801-7D197F383142text_name"
+                                  x="299" y="126" oryx:edgePosition="startTop"
+                                  stroke-width="0pt" letter-spacing="-0.01px"
+                                  transform="rotate(360 291 134)"
+                                  oryx:fontSize="12" text-anchor="start"/>
+                        </g>
+                        <g class="children" style="overflow:hidden"/>
+                        <g class="edge"/>
+                    </g>
+                    <g class="controls">
+                        <g class="dockers"/>
+                        <g class="magnets"/>
+                    </g>
+                </g>
+                <g id="svg-sid-02F2C617-DFEE-44AE-AAED-145AF2E2D946">
+                    <g class="stencils">
+                        <g class="me">
+                            <g pointer-events="painted">
+                                <path id="sid-D19C3FF2-EB94-4905-AA0F-8BA70E44F5EE_1"
+                                      d="M445.21875 115L485 115 L485 130 L524.78125 130 "
+                                      stroke="black" fill="none"
+                                      stroke-width="2" stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      marker-start="url(#sid-D19C3FF2-EB94-4905-AA0F-8BA70E44F5EEstart)"
+                                      marker-end="url(#sid-D19C3FF2-EB94-4905-AA0F-8BA70E44F5EEend)"/>
+                            </g>
+                            <text id="sid-D19C3FF2-EB94-4905-AA0F-8BA70E44F5EEtext_name"
+                                  x="453" y="107" oryx:edgePosition="startTop"
+                                  stroke-width="0pt" letter-spacing="-0.01px"
+                                  transform="rotate(360 445 115)"
+                                  oryx:fontSize="12" text-anchor="start"/>
+                        </g>
+                        <g class="children" style="overflow:hidden"/>
+                        <g class="edge"/>
+                    </g>
+                    <g class="controls">
+                        <g class="dockers"/>
+                        <g class="magnets"/>
+                    </g>
+                </g>
+                <g id="svg-sid-B8192BBF-7DB4-4AA1-8990-5017C30130A8">
+                    <g class="stencils">
+                        <g class="me">
+                            <g pointer-events="painted">
+                                <path id="sid-2C241D96-96AA-4744-9594-AF8C457A0DF6_1"
+                                      d="M625.62890625 130L657.5 130 L657.5 129 L689.921875 129 "
+                                      stroke="black" fill="none"
+                                      stroke-width="2" stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      marker-start="url(#sid-2C241D96-96AA-4744-9594-AF8C457A0DF6start)"
+                                      marker-end="url(#sid-2C241D96-96AA-4744-9594-AF8C457A0DF6end)"/>
+                            </g>
+                            <text id="sid-2C241D96-96AA-4744-9594-AF8C457A0DF6text_name"
+                                  x="633" y="122" oryx:edgePosition="startTop"
+                                  stroke-width="0pt" letter-spacing="-0.01px"
+                                  transform="rotate(360 625 130)"
+                                  oryx:fontSize="12" text-anchor="start">
+                                <tspan dy="0" x="633" y="122">
+                                    Finish
+                                </tspan>
+                            </text>
+                        </g>
+                        <g class="children" style="overflow:hidden"/>
+                        <g class="edge"/>
+                    </g>
+                    <g class="controls">
+                        <g class="dockers"/>
+                        <g class="magnets"/>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>]]></svg-representation>
+</oryxmodel>
