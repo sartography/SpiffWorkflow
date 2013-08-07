@@ -41,7 +41,7 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
         return self.get_workflow_class()(self.spec, name=self.name,
             read_only = my_task.workflow.read_only,
             script_engine=my_task.workflow.outer_workflow.script_engine,
-            parent = my_task.workflow.outer_workflow)
+            parent = my_task.workflow)
 
     def get_workflow_class(self):
         """
