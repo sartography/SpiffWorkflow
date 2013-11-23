@@ -93,7 +93,8 @@ if __name__ == '__main__':
     else:
         print('Syntax:', sys.argv[0], '[verbosity]')
         print('Default verbosity is 2')
-        sys.exit(1)
+        sys.exit(2)
 
     # Run.
-    unittest.TextTestRunner(verbosity = verbosity).run(recursive_suite())
+    results = unittest.TextTestRunner(verbosity = verbosity).run(recursive_suite())
+    sys.exit(0 if results.wasSuccessful() else 1)
