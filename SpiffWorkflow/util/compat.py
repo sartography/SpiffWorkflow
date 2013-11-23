@@ -1,7 +1,11 @@
 try:
+    # python 2
     from mutex import mutex
+    import ConfigParser as configparser
 
 except ImportError:
+    # python 3
+    import configparser
     from threading import Lock
 
     class mutex(object):
