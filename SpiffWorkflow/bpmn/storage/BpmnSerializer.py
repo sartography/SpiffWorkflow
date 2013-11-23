@@ -16,7 +16,7 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-import configparser
+from SpiffWorkflow.util.compat import configparser
 from io import BytesIO, TextIOWrapper
 import xml.etree.ElementTree as ET
 import zipfile
@@ -60,7 +60,12 @@ class BpmnSerializer(Serializer):
 
         parser_class = BpmnParser
 
-        parser_class_module = config.get('MetaData', 'parser_class_module', fallback=None)
+        try:
+            parser_class_module = config.get('MetaData', 'parser_class_module', fallback=None)
+        except TypeError:
+            # unfortunately the fallback= does not exist on python 2
+            parser_class_module = config.get('MetaData', 'parser_class_module', None)
+
         if parser_class_module:
             mod = __import__(parser_class_module, fromlist=[config.get('MetaData', 'parser_class')])
             parser_class = getattr(mod, config.get('MetaData', 'parser_class'))

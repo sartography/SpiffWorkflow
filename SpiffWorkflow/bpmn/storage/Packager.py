@@ -16,8 +16,14 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-import configparser
-from io import StringIO
+from SpiffWorkflow.util.compat import configparser
+try:
+    # need to be lax on python 2; although io.StringIO exists,
+    # it does not accept type str!
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 import glob
 import hashlib
 import inspect
