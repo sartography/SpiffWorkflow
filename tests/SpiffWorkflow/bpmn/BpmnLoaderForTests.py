@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
 from __future__ import division
 from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
