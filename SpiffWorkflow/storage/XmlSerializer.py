@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007-2012 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -104,7 +106,7 @@ class XmlSerializer(Serializer):
         term2_attrib = node.getAttribute('right-field')
         term2_value  = node.getAttribute('right-value')
         kwargs       = {}
-        if not _op_map.has_key(op):
+        if op not in _op_map:
             _exc('Invalid operator')
         if term1_attrib != '' and term1_value != '':
             _exc('Both, left-field and left-value attributes found')
@@ -183,13 +185,13 @@ class XmlSerializer(Serializer):
                            'defines':     {},
                            'pre_assign':  [],
                            'post_assign': []}
-        if not _spec_map.has_key(nodetype):
+        if nodetype not in _spec_map:
             _exc('Invalid task type "%s"' % nodetype)
         if nodetype == 'start-task':
             name = 'start'
         if name == '':
             _exc('Invalid task name "%s"' % name)
-        if read_specs.has_key(name):
+        if name in read_specs:
             _exc('Duplicate task name "%s"' % name)
         if cancel != '' and cancel != u'0':
             kwargs['cancel'] = True
@@ -302,7 +304,7 @@ class XmlSerializer(Serializer):
                 workflow_spec.name = child_node.firstChild.nodeValue
             elif child_node.nodeName == 'description':
                 workflow_spec.description = child_node.firstChild.nodeValue
-            elif _spec_map.has_key(child_node.nodeName.lower()):
+            elif child_node.nodeName.lower() in _spec_map:
                 self._deserialize_task_spec(workflow_spec, child_node, read_specs)
             else:
                 _exc('Unknown node: %s' % child_node.nodeName)
@@ -314,7 +316,7 @@ class XmlSerializer(Serializer):
         for name in read_specs:
             spec, successors = read_specs[name]
             for condition, successor_name in successors:
-                if not read_specs.has_key(successor_name):
+                if successor_name not in read_specs:
                     _exc('Unknown successor: "%s"' % successor_name)
                 successor, foo = read_specs[successor_name]
                 if condition is None:

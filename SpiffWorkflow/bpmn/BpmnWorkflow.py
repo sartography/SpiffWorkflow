@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -59,11 +61,11 @@ class BpmnWorkflow(Workflow):
         READY User tasks, or WAITING tasks left.
         """
         assert not self.read_only
-        engine_steps = filter(lambda t: self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
+        engine_steps = list([t for t in self.get_tasks(Task.READY) if self._is_engine_task(t.task_spec)])
         while engine_steps:
             for task in engine_steps:
                 task.complete()
-            engine_steps = filter(lambda t: self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
+            engine_steps = list([t for t in self.get_tasks(Task.READY) if self._is_engine_task(t.task_spec)])
 
     def refresh_waiting_tasks(self):
         """
@@ -78,7 +80,7 @@ class BpmnWorkflow(Workflow):
         """
         Returns a list of User Tasks that are READY for user action
         """
-        return filter(lambda t: not self._is_engine_task(t.task_spec), self.get_tasks(Task.READY))
+        return [t for t in self.get_tasks(Task.READY) if not self._is_engine_task(t.task_spec)]
 
     def get_waiting_tasks(self):
         """

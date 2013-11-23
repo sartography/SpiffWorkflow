@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
+from __future__ import division
 import unittest
 import datetime
 import time
@@ -69,7 +73,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
         self.assertNotEquals('Finish Time', self.workflow.get_tasks(Task.WAITING)[0].task_spec.description)
 
-        overdue_escalation_task = filter(lambda t:t.task_spec.description=='Overdue Escalation', self.workflow.get_tasks())
+        overdue_escalation_task = [t for t in self.workflow.get_tasks() if t.task_spec.description=='Overdue Escalation']
         self.assertEquals(1, len(overdue_escalation_task))
         overdue_escalation_task = overdue_escalation_task[0]
         self.assertEquals(Task.COMPLETED, overdue_escalation_task.state)

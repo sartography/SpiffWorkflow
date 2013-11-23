@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
+from __future__ import division
 import sys, unittest, re, os
 dirname = os.path.dirname(__file__)
 data_dir = os.path.join(dirname, '..', 'data')
@@ -16,13 +20,11 @@ class SerializerTest(unittest.TestCase):
         self.serializer = None
         self.serial_type = None
 
-    def compare_serialized(self, state1, state2):
-        return state1 == state2
-
     def testConstructor(self):
         Serializer()
 
     def testSerializeWorkflowSpec(self):
+        self.maxDiff = None
         if self.serializer is None:
             return
 
@@ -32,13 +34,15 @@ class SerializerTest(unittest.TestCase):
         serialized2 = wf_spec.serialize(self.serializer)
         self.assert_(isinstance(serialized1, self.serial_type))
         self.assert_(isinstance(serialized2, self.serial_type))
-        self.compare_serialized(serialized1, serialized2)
-        self.assertEqual(serialized1, serialized2)
+        self.compareSerialization(serialized1, serialized2)
 
         # Test whether the restored workflow still works.
         path_file = os.path.join(data_dir, 'spiff', 'workflow1.path')
         path      = open(path_file).read()
         run_workflow(self, wf_spec, path, None)
+
+    def compareSerialization(self, s1, s2):
+        self.assertEqual(s1, s2)
 
     def testDeserializeWorkflowSpec(self):
         pass # Already covered in testSerializeWorkflowSpec()

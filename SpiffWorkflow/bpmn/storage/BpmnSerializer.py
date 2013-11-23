@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -14,8 +16,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-import ConfigParser
-from StringIO import StringIO
+from SpiffWorkflow.util.compat import configparser
+from io import BytesIO, TextIOWrapper
 import xml.etree.ElementTree as ET
 import zipfile
 import os
@@ -45,12 +47,12 @@ class BpmnSerializer(Serializer):
         :param s_state: a byte-string with the contents of the packaged workflow archive, or a file-like object.
         :param filename: the name of the package file.
         """
-        if isinstance(s_state, basestring):
-            s_state = StringIO(s_state)
+        if isinstance(s_state, (str, bytes)):
+            s_state = BytesIO(s_state)
 
         package_zip = zipfile.ZipFile(s_state, "r", compression=zipfile.ZIP_DEFLATED)
-        config = ConfigParser.SafeConfigParser()
-        ini_fp = package_zip.open(Packager.METADATA_FILE)
+        config = configparser.SafeConfigParser()
+        ini_fp = TextIOWrapper(package_zip.open(Packager.METADATA_FILE), encoding="UTF-8")
         try:
             config.readfp(ini_fp)
         finally:
@@ -58,7 +60,12 @@ class BpmnSerializer(Serializer):
 
         parser_class = BpmnParser
 
-        parser_class_module = config.get('MetaData', 'parser_class_module', None)
+        try:
+            parser_class_module = config.get('MetaData', 'parser_class_module', fallback=None)
+        except TypeError:
+            # unfortunately the fallback= does not exist on python 2
+            parser_class_module = config.get('MetaData', 'parser_class_module', None)
+
         if parser_class_module:
             mod = __import__(parser_class_module, fromlist=[config.get('MetaData', 'parser_class')])
             parser_class = getattr(mod, config.get('MetaData', 'parser_class'))
@@ -71,7 +78,7 @@ class BpmnSerializer(Serializer):
                 #It is in the root of the ZIP and is a BPMN file
                 try:
                     svg = package_zip.read(info.filename[:-5]+'.svg')
-                except KeyError, e:
+                except KeyError as e:
                     svg = None
 
                 bpmn_fp = package_zip.open(info)

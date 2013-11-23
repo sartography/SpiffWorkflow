@@ -1,9 +1,13 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
+from __future__ import division
 import os
 import sys
 import unittest
 import pickle
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-from TaskSpecTest import TaskSpecTest
+from .TaskSpecTest import TaskSpecTest
 from SpiffWorkflow.specs import Celery, WorkflowSpec
 from SpiffWorkflow.operators import Attrib
 from SpiffWorkflow.storage import DictionarySerializer
@@ -74,7 +78,7 @@ def suite():
     try:
         import celery
     except ImportError:
-        print "WARNING: Celery not found, not all tests are running!"
+        print("WARNING: Celery not found, not all tests are running!")
         return lambda x: None
     else:
         return unittest.TestLoader().loadTestsFromTestCase(CeleryTest)

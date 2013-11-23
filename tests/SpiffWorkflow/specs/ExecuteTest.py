@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
+from __future__ import division
 import os
 import sys
 import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from tests.SpiffWorkflow.util import run_workflow
-from TaskSpecTest import TaskSpecTest
+from .TaskSpecTest import TaskSpecTest
 from SpiffWorkflow import Task
 from SpiffWorkflow.specs import Execute
 
@@ -41,7 +45,7 @@ class ExecuteTest(TaskSpecTest):
                                               Task.WAITING,
                                               Task.READY,
                                               Task.COMPLETED])
-        self.assert_('127.0.0.1' in task.results[0])
+        self.assert_(b'127.0.0.1' in task.results[0])
 
 
 def suite():

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -17,6 +19,11 @@ import logging
 import re
 
 LOG = logging.getLogger(__name__)
+
+try:
+    unicode
+except:
+    unicode = str
 
 
 class Attrib(object):

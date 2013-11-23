@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 
 
 def merge_dictionary(dst, src):
