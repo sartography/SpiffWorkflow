@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import sys, unittest, re, os, glob
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -54,7 +56,7 @@ class PatternTest(unittest.TestCase):
                 if not filename.endswith(('.xml', '.py')):
                     continue
                 filename = os.path.join(dirname, filename)
-                print filename
+                print(filename)
                 self.run_pattern(filename)
 
 def suite():

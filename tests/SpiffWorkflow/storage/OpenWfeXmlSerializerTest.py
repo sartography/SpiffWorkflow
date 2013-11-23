@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import sys, unittest, re, os
 dirname = os.path.dirname(__file__)
 data_dir = os.path.join(dirname, '..', 'data')
@@ -6,7 +8,7 @@ sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 from SpiffWorkflow.storage import OpenWfeXmlSerializer
 from xml.parsers.expat import ExpatError
-from SerializerTest import SerializerTest
+from .SerializerTest import SerializerTest
 from PatternTest import run_workflow
 from SpiffWorkflow.specs import WorkflowSpec
 

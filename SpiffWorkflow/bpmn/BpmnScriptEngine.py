@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -40,7 +42,7 @@ class BpmnScriptEngine(object):
         """
         Execute the script, within the context of the specified task
         """
-        exec script
+        exec(script)
 
     def _eval(self, task, expression, **kwargs):
         locals().update(kwargs)

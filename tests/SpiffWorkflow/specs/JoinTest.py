@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import os
 import sys
 import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
-from TaskSpecTest import TaskSpecTest
+from .TaskSpecTest import TaskSpecTest
 from SpiffWorkflow.specs import Join
 from SpiffWorkflow import Workflow
 

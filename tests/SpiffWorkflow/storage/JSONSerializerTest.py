@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import sys, unittest, re, os
 dirname = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 from SpiffWorkflow.storage import JSONSerializer
-from SerializerTest import SerializerTest
+from .SerializerTest import SerializerTest
+import json
 
 class JSONSerializerTest(SerializerTest):
     CORRELATE = JSONSerializer
@@ -15,6 +18,9 @@ class JSONSerializerTest(SerializerTest):
 
     def testConstructor(self):
         JSONSerializer()
+
+    def compareSerialization(self, s1, s2):
+        self.assertEqual(json.loads(s1), json.loads(s2))
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(JSONSerializerTest)

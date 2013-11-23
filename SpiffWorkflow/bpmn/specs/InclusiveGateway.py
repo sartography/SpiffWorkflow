@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -74,7 +76,7 @@ class InclusiveGateway(UnstructuredJoin):
             tasks.append(task)
 
         inputs_with_tokens, waiting_tasks = self._get_inputs_with_tokens(my_task)
-        inputs_without_tokens = filter(lambda i: i not in inputs_with_tokens, self.inputs)
+        inputs_without_tokens = [i for i in self.inputs if i not in inputs_with_tokens]
 
         waiting_tasks = []
         for task in tasks:

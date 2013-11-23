@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import time
 from SpiffWorkflow import Workflow, Task
 
@@ -12,7 +14,7 @@ def on_reached_cb(workflow, task, taken_path):
 
     # Collect a list of all data.
     atts = []
-    for key, value in task.data.iteritems():
+    for key, value in task.data.items():
         if key in ['data',
                    'two',
                    'three',
@@ -25,7 +27,7 @@ def on_reached_cb(workflow, task, taken_path):
 
     # Collect a list of all task data.
     props = []
-    for key, value in task.task_spec.data.iteritems():
+    for key, value in task.task_spec.data.items():
         props.append('='.join((key, str(value))))
     #print "REACHED:", task.get_name(), atts, props
 

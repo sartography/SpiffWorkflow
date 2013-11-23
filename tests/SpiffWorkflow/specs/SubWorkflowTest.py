@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import sys
 import unittest
 import re
@@ -43,7 +45,7 @@ class TaskSpecTest(unittest.TestCase):
         ready_tasks = self.workflow.get_tasks(Task.READY)
         all_tasks = sorted([name] + other_ready_tasks)
         self.assertEquals(all_tasks, sorted([t.task_spec.name for t in ready_tasks]))
-        task = filter(lambda t: t.task_spec.name==name, ready_tasks)[0]
+        task = list([t for t in ready_tasks if t.task_spec.name==name])[0]
         task.complete()
 
 

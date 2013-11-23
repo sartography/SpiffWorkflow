@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -22,6 +24,11 @@ from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.specs import SubWorkflow
 from SpiffWorkflow.storage.Serializer import Serializer
 
+try:
+    basestring
+except:
+    basestring = str
+
 
 class UnrecoverableWorkflowChange(Exception):
     """
@@ -40,7 +47,7 @@ class _RouteNode(object):
         self.state = None
 
     def get_outgoing_by_spec(self, task_spec):
-        m = filter(lambda r: r.task_spec == task_spec, self.outgoing)
+        m = [r for r in self.outgoing if r.task_spec == task_spec]
         return m[0] if m else None
 
     def to_list(self):
@@ -105,7 +112,7 @@ class _BpmnProcessSpecState(object):
             self.route = outgoing_route_node
 
     def dump(self):
-        print self.get_dump()
+        print(self.get_dump())
 
     def get_dump(self):
         def recursive_dump(route_node, indent, verbose=False):
@@ -148,7 +155,7 @@ class _BpmnProcessSpecState(object):
                 else:
                     self._complete_task_silent(task, [n.task_spec for n in route_node.outgoing])
             for n in route_node.outgoing:
-                matching_child = filter(lambda t: t.task_spec == n.task_spec, task.children)
+                matching_child = [t for t in task.children if t.task_spec == n.task_spec]
                 assert len(matching_child) == 1
                 self._go(matching_child[0], n, leaf_tasks)
 
@@ -360,8 +367,8 @@ class CompactWorkflowSerializer(Serializer):
                     other_route = routes[j][0]
                     route_to_parent_complete = routes[j][1]
                     if route.contains(other_route) or (route_to_parent_complete and route.contains(route_to_parent_complete)):
-                        taken_routes = filter(lambda r: r[0]!=route, routes)
-                        taken_routes = filter(lambda r: r, [r[0] for r in taken_routes] + [r[1] for r in taken_routes])
+                        taken_routes = [r for r in routes if r[0]!=route]
+                        taken_routes = [r for r in [r[0] for r in taken_routes] + [r[1] for r in taken_routes] if r]
                         route, route_to_parent_complete = s.get_path_to_transition(transition, state, workflow_parents, taken_routes=taken_routes)
                         for r in taken_routes:
                             assert not route.contains(r)

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import logging
 import os
 import unittest
@@ -46,12 +48,12 @@ class BpmnWorkflowTestCase(unittest.TestCase):
                     return False
             return True
 
-        tasks = filter(lambda t: is_match(t), self.workflow.get_tasks(Task.READY))
+        tasks = list([t for t in self.workflow.get_tasks(Task.READY) if is_match(t)])
 
         self._do_single_step(step_name_path[-1], tasks, set_attribs, choice, only_one_instance=only_one_instance)
 
     def assertTaskNotReady(self, step_name):
-        tasks = filter(lambda t: t.task_spec.name == step_name or t.task_spec.description == step_name, self.workflow.get_tasks(Task.READY))
+        tasks = list([t for t in self.workflow.get_tasks(Task.READY) if t.task_spec.name == step_name or t.task_spec.description == step_name])
         self.assertEquals([], tasks)
 
     def _do_single_step(self, step_name, tasks, set_attribs=None, choice=None, only_one_instance=True):
