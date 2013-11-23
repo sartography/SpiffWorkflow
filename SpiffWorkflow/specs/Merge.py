@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -46,7 +48,7 @@ class Merge(Join):
 
 def _log_overwrites(dst, src):
     # Temporary: We log when we overwrite during debugging
-    for k, v in src.iteritems():
+    for k, v in src.items():
         if k in dst:
             if isinstance(v, dict) and isinstance(dst[k], dict):
                 log_overwrites(v, dst[k])

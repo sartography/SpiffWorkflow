@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import sys
 from SpiffWorkflow.bpmn.storage.BpmnSerializer import BpmnSerializer
 from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests

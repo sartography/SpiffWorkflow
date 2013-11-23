@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import sys, unittest, re, os
 dirname = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 from SpiffWorkflow.storage import DictionarySerializer
-from SerializerTest import SerializerTest
+from .SerializerTest import SerializerTest
 
 class DictionarySerializerTest(SerializerTest):
     CORRELATE = DictionarySerializer
@@ -14,14 +16,14 @@ class DictionarySerializerTest(SerializerTest):
         self.serial_type = dict
 
     def compare_serialized(self, dict1, dict2):
-        for key1, value1 in dict1.iteritems():
+        for key1, value1 in dict1.items():
             if key1 not in dict2:
                 raise Exception("Missing Key: " + key1)
             value2 = dict2[key1]
             if isinstance(value1, dict):
                 try:
                     self.compare_serialized(value1, value2)
-                except Exception, e:
+                except Exception as e:
                     raise Exception(key1 + '/' + str(e))
             else:
                 if value1 != value2:

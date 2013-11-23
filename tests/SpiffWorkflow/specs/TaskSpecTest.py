@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import sys
 import unittest
 import re

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from SpiffWorkflow import Task
 from SpiffWorkflow.exceptions import WorkflowException
-from TaskSpec import TaskSpec
+from .TaskSpec import TaskSpec
 
 class ReleaseMutex(TaskSpec):
     """

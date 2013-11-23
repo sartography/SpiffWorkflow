@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -14,11 +16,12 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import logging
-from mutex import mutex
+from .util.compat import mutex
+
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow import specs
 from SpiffWorkflow.util.event import Event
-from Task import Task
+from .Task import Task
 
 LOG = logging.getLogger(__name__)
 
@@ -266,7 +269,7 @@ class Workflow(object):
         Like get_dump(), but prints the output to the terminal instead of
         returning it.
         """
-        print self.task_tree.dump()
+        print(self.task_tree.dump())
 
     def serialize(self, serializer, **kwargs):
         """

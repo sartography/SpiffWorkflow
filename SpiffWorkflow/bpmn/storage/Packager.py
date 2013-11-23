@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -14,8 +16,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-import ConfigParser
-from StringIO import StringIO
+import configparser
+from io import StringIO
 import glob
 import hashlib
 import inspect
@@ -29,6 +31,13 @@ from SpiffWorkflow.bpmn.parser.util import *
 
 SIGNAVIO_NS='http://www.signavio.com'
 CONFIG_SECTION_NAME = "Packager Options"
+
+def md5hash(data):
+    if not isinstance(data, bytes):
+        data = data.encode('UTF-8')
+
+    return hashlib.md5(data).hexdigest().lower()
+
 
 class Packager(object):
     """
@@ -115,12 +124,12 @@ class Packager(object):
             self.bpmn[os.path.abspath(filename)] = bpmn
 
         #Now run through pre-parsing and validation:
-        for filename, bpmn in self.bpmn.iteritems():
+        for filename, bpmn in self.bpmn.items():
             bpmn = self.pre_parse_and_validate(bpmn, filename)
             self.bpmn[os.path.abspath(filename)] = bpmn
 
         #Now check that we can parse it fine:
-        for filename, bpmn in self.bpmn.iteritems():
+        for filename, bpmn in self.bpmn.items():
             self.parser.add_bpmn_xml(bpmn, filename=filename)
 
         self.wf_spec = self.parser.get_spec(self.entry_point_process)
@@ -156,7 +165,7 @@ class Packager(object):
         f = open(src_filename)
         with f:
             data = f.read()
-        self.manifest[filename] = hashlib.md5(data).hexdigest().lower()
+        self.manifest[filename] = md5hash(data)
         self.package_zip.write(src_filename, filename)
 
     def write_to_package_zip(self, filename, data):
@@ -166,14 +175,14 @@ class Packager(object):
         :param data: the data
 
         """
-        self.manifest[filename] = hashlib.md5(data).hexdigest().lower()
+        self.manifest[filename] = md5hash(data)
         self.package_zip.writestr(filename, data)
 
     def write_manifest(self):
         """
         Write the manifest content to the zip file. It must be a predictable order.
         """
-        config = ConfigParser.SafeConfigParser()
+        config = configparser.SafeConfigParser()
 
         config.add_section('Manifest')
 
@@ -244,7 +253,7 @@ class Packager(object):
                     raise ValidationException('No Signavio "Subprocess reference" specified.', node=node, filename=filename)
                 subprocess_reference = one(signavioMetaData).get('metaValue')
                 matches = []
-                for b in self.bpmn.itervalues():
+                for b in self.bpmn.values():
                     for p in xpath_eval(b)(".//bpmn:process"):
                         if p.get('name', p.get('id', None)) == subprocess_reference:
                             matches.append(p)
@@ -282,7 +291,7 @@ class Packager(object):
         """
         Writes the metadata.ini file to the archive.
         """
-        config = ConfigParser.SafeConfigParser()
+        config = configparser.SafeConfigParser()
 
         config.add_section('MetaData')
         config.set('MetaData', 'entry_point_process', self.wf_spec.name)
@@ -311,7 +320,7 @@ class Packager(object):
         try:
             import pkg_resources  # part of setuptools
             version = pkg_resources.require("SpiffWorkflow")[0].version
-        except Exception, ex:
+        except Exception as ex:
             version = 'DEV'
         return version
 
@@ -424,7 +433,7 @@ class Packager(object):
 
         (options, args) = parser.parse_args(args=argv)
 
-        config = ConfigParser.SafeConfigParser()
+        config = configparser.SafeConfigParser()
         if options.config_file:
             config.read(options.config_file)
         if not config.has_section(CONFIG_SECTION_NAME):

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import sys, unittest, re, os
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))

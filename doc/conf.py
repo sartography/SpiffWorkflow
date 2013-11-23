@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import division
+# -*- coding: utf-8 -*-
 #
 # Sphinx documentation build configuration file, created by
 # sphinx-quickstart.py on Sat Mar  8 21:47:50 2008.

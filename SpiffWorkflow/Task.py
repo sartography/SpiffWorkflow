@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -154,6 +156,9 @@ class Task(object):
                 next = self._next()
                 if next is not None:
                     return next
+
+        __next__ = next
+
 
 
     # Pool for assigning a unique thread id to every new Task.
@@ -494,7 +499,7 @@ class Task(object):
         Returns a textual representation of this Task's state.
         """
         state_name = []
-        for state, name in self.state_names.iteritems():
+        for state, name in self.state_names.items():
             if self._has_state(state):
                 state_name.append(name)
         return '|'.join(state_name)
@@ -602,4 +607,4 @@ class Task(object):
         """
         Prints the subtree as a string for debugging.
         """
-        print self.get_dump()
+        print(self.get_dump())

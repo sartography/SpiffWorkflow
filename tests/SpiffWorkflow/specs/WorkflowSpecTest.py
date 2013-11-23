@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 import os
 import sys
 import unittest
@@ -8,7 +10,7 @@ import pickle
 from random import randint
 try:
     from util import track_workflow
-except ImportError, e:
+except ImportError as e:
     from tests.SpiffWorkflow.util import track_workflow
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.specs import Join, WorkflowSpec
@@ -40,7 +42,7 @@ class WorkflowSpecTest(unittest.TestCase):
         taken_path = track_workflow(workflow.spec)
 
         # Execute a random number of steps.
-        for i in xrange(randint(0, len(workflow.spec.task_specs))):
+        for i in range(randint(0, len(workflow.spec.task_specs))):
             workflow.complete_next()
 
         # Store the workflow instance in a file.
@@ -71,8 +73,8 @@ class WorkflowSpecTest(unittest.TestCase):
         #taken_path = '\n'.join(taken_path) + '\n'
         if taken_path != expected_path:
             for taken, expected in zip(taken_path, expected_path):
-                print "TAKEN:   ", taken
-                print "EXPECTED:", expected
+                print("TAKEN:   ", taken)
+                print("EXPECTED:", expected)
         self.assertEqual(expected_path, taken_path)
 
     def testSerialize(self):
@@ -83,7 +85,7 @@ class WorkflowSpecTest(unittest.TestCase):
         expected_path = open(path_file).read().strip().split('\n')
         wf_spec       = WorkflowSpec.deserialize(serializer, xml)
 
-        for i in xrange(5):
+        for i in range(5):
             workflow = Workflow(wf_spec)
             self.doPickleSingle(workflow, expected_path)
 

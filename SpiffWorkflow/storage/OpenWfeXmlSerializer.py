@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -43,7 +45,7 @@ class OpenWfeXmlSerializer(Serializer):
         term1 = node.getAttribute('field-value')
         op    = node.nodeName.lower()
         term2 = node.getAttribute('other-value')
-        if not _op_map.has_key(op):
+        if op not in _op_map:
             raise StorageException('Invalid operator in XML file')
         return _op_map[op](operators.Attrib(term1),
                            operators.Attrib(term2))
@@ -78,7 +80,7 @@ class OpenWfeXmlSerializer(Serializer):
                 else:
                     assert False # Multiple conditions not yet supported.
             else:
-                print "Unknown type:", type
+                print("Unknown type:", type)
                 assert False # Unknown tag.
 
         # Model the if statement.
@@ -120,7 +122,7 @@ class OpenWfeXmlSerializer(Serializer):
                     last.connect(start)
                 last = end
             else:
-                print "Unknown type:", type
+                print("Unknown type:", type)
                 assert False # Unknown tag.
         return (first, last)
 
@@ -143,7 +145,7 @@ class OpenWfeXmlSerializer(Serializer):
                 multichoice.connect_if(None, start)
                 end.connect(synchronize)
             else:
-                print "Unknown type:", type
+                print("Unknown type:", type)
                 assert False # Unknown tag.
         return (multichoice, synchronize)
 
@@ -170,7 +172,7 @@ class OpenWfeXmlSerializer(Serializer):
             spec = specs.Simple(workflow, name)
             return spec, spec
         else:
-            print "Unknown type:", type
+            print("Unknown type:", type)
             assert False # Unknown tag.
 
     def _read_workflow(self, start_node):
@@ -194,7 +196,7 @@ class OpenWfeXmlSerializer(Serializer):
                 last_spec.connect(start)
                 last_spec = end
             else:
-                print "Unknown type:", type
+                print("Unknown type:", type)
                 assert False # Unknown tag.
 
         last_spec.connect(specs.Simple(workflow_spec, 'End'))
