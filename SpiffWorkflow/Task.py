@@ -157,6 +157,9 @@ class Task(object):
                 if next is not None:
                     return next
 
+        # Python 3 iterator protocol
+        __next__ = next
+
     # Pool for assigning a unique thread id to every new Task.
     thread_id_pool = 0
 
