@@ -24,7 +24,7 @@ from SpiffWorkflow.operators import valueof, Attrib, PathAttrib
 from SpiffWorkflow.util import merge_dictionary
 
 try:
-    from celery.app import default_app
+    from celery.app import app_or_default
     from celery.result import AsyncResult
 except ImportError:
     have_celery = False
@@ -133,8 +133,8 @@ class Celery(TaskSpec):
             kwargs = _eval_kwargs(self.kwargs, my_task)
         LOG.debug("%s (task id %s) calling %s" % (self.name, my_task.id,
                 self.call), extra=dict(data=dict(args=args, kwargs=kwargs)))
-        async_call = default_app.send_task(self.call, args=args, kwargs=kwargs)
-        my_task._set_internal_attribute(task_id=async_call.task_id)
+        async_call = app_or_default().send_task(self.call, args=args, kwargs=kwargs)
+        my_task._set_internal_data(task_id=async_call.task_id)
         my_task.async_call = async_call
         LOG.debug("'%s' called: %s" % (self.call, my_task.async_call.task_id))
 
@@ -144,10 +144,10 @@ class Celery(TaskSpec):
             raise WorkflowException(my_task, "Cannot refire a task that is not"
                     "in WAITING state")
         # Check state of existing call and abort it (save history)
-        if my_task._get_internal_attribute('task_id') is not None:
+        if my_task._get_internal_data('task_id') is not None:
             if not hasattr(my_task, 'async_call'):
-                task_id = my_task._get_internal_attribute('task_id')
-                my_task.async_call = default_app.AsyncResult(task_id)
+                task_id = my_task._get_internal_data('task_id')
+                my_task.async_call = app_or_default().AsyncResult(task_id)
                 my_task.deserialized = True
                 my_task.async_call.state  # manually refresh
             async_call = my_task.async_call
@@ -169,10 +169,10 @@ class Celery(TaskSpec):
         # Save history
         if 'task_id' in my_task.internal_attributes:
             # Save history for diagnostics/forensics
-            history = my_task._get_internal_attribute('task_history', [])
-            history.append(my_task._get_internal_attribute('task_id'))
+            history = my_task._get_internal_data('task_history', [])
+            history.append(my_task._get_internal_data('task_id'))
             del my_task.internal_attributes['task_id']
-            my_task._set_internal_attribute(task_history=history)
+            my_task._set_internal_data(task_history=history)
         if 'task_state' in my_task.internal_attributes:
             del my_task.internal_attributes['task_state']
         if 'error' in my_task.attributes:
@@ -187,9 +187,9 @@ class Celery(TaskSpec):
 
         # Deserialize async call if necessary
         if not hasattr(my_task, 'async_call') and \
-                my_task._get_internal_attribute('task_id') is not None:
-            task_id = my_task._get_internal_attribute('task_id')
-            my_task.async_call = default_app.AsyncResult(task_id)
+                my_task._get_internal_data('task_id') is not None:
+            task_id = my_task._get_internal_data('task_id')
+            my_task.async_call = app_or_default().AsyncResult(task_id)
             my_task.deserialized = True
             LOG.debug("Reanimate AsyncCall %s" % task_id)
 
@@ -207,18 +207,18 @@ class Celery(TaskSpec):
             info['traceback'] = my_task.async_call.traceback
             info['info'] = Serializable(my_task.async_call.info)
             info['state'] = my_task.async_call.state
-            my_task._set_internal_attribute(task_state=info)
+            my_task._set_internal_data(task_state=info)
         elif my_task.async_call.state == 'RETRY':
             info = {}
             info['traceback'] = my_task.async_call.traceback
             info['info'] = Serializable(my_task.async_call.info)
             info['state'] = my_task.async_call.state
-            my_task._set_internal_attribute(task_state=info)
+            my_task._set_internal_data(task_state=info)
         elif my_task.async_call.ready():
             result = my_task.async_call.result
             if isinstance(result, Exception):
                 LOG.warn("Celery call %s failed: %s" % (self.call, result))
-                my_task._set_internal_attribute(error=Serializable(result))
+                my_task._set_internal_data(error=Serializable(result))
                 return False
             LOG.debug("Completed celery call %s with result=%s" % (self.call,
                     result))
@@ -234,7 +234,7 @@ class Celery(TaskSpec):
             if self.merge_results:
                 merge_dictionary(my_task.attributes, data)
             else:
-                my_task.set_attribute(**data)
+                my_task.set_data(**data)
             return True
         else:
             LOG.debug("async_call.ready()=%s. TryFire for '%s' "

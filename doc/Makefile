@@ -5,7 +5,7 @@ clean:
 
 .PHONY : html
 html:
-	cd ..; ./version.sh
+	cd ..; ./version.sh --reset
 	sphinx-build . html
 	cd ..; ./version.sh --reset
 
