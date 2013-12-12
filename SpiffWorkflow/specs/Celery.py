@@ -101,8 +101,8 @@ class Celery(TaskSpec):
         :param call_args: args to pass to celery task.
         :type  result_key: str
         :param result_key: The key to use to store the results of the call in
-                task.attributes. If None, then dicts are expanded into
-                attributes and values are stored in 'result'.
+                task.data. If None, then dicts are expanded into
+                data and values are stored in 'result'.
         :param merge_results: merge the results in instead of overwriting existing
                 fields.
         :type  kwargs: dict
@@ -175,8 +175,8 @@ class Celery(TaskSpec):
             my_task._set_internal_data(task_history=history)
         if 'task_state' in my_task.internal_attributes:
             del my_task.internal_attributes['task_state']
-        if 'error' in my_task.attributes:
-            del my_task.attributes['error']
+        if 'error' in my_task.data:
+            del my_task.data['error']
         if hasattr(my_task, 'async_call'):
             delattr(my_task, 'async_call')
         if hasattr(my_task, 'deserialized'):
@@ -230,9 +230,9 @@ class Celery(TaskSpec):
                     data = result
                 else:
                     data = {'result': result}
-            # Load formatted result into attributes
+            # Load formatted result into data
             if self.merge_results:
-                merge_dictionary(my_task.attributes, data)
+                merge_dictionary(my_task.data, data)
             else:
                 my_task.set_data(**data)
             return True
