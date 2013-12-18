@@ -27,6 +27,10 @@ class Execute(TaskSpec):
     This class executes an external process, goes into WAITING until the
     process is complete, and returns the results of the execution.
 
+    Warning:
+        Never serialize a task with state WAITING, since subprocess
+        information will get inconsistent.
+
     Usage:
 
     task = Execute(spec, 'Ping', args=["ping", "-t", "1", "127.0.0.1"])
@@ -58,7 +62,6 @@ class Execute(TaskSpec):
             my_task.subprocess = subprocess.Popen(self.args,
                                                stderr=subprocess.STDOUT,
                                                stdout=subprocess.PIPE)
-
         if my_task.subprocess:
             my_task.subprocess.poll()
             if my_task.subprocess.returncode is None:
