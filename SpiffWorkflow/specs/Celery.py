@@ -87,9 +87,13 @@ class Celery(TaskSpec):
                  any_param=Attrib('result'))
 
         For serialization, the celery task_id is stored in internal_attributes,
-        but the celery async call is only storred as an attr of the task (since
+        but the celery async call is only stored as an attr of the task (since
         it is not always serializable). When deserialized, the async_call attr
         is reset in the _try_fire call.
+
+        Note:
+        Failed celery tasks will never progress to READY. You will have to
+        check for the internal_data['error'] attribute.
 
         :type  parent: TaskSpec
         :param parent: A reference to the parent task spec.
@@ -200,6 +204,7 @@ class Celery(TaskSpec):
         # Get call status (and manually refresh if deserialized)
         if getattr(my_task, "deserialized", False):
             my_task.async_call.state  # must manually refresh if deserialized
+
         if my_task.async_call.state == 'FAILURE':
             LOG.debug("Async Call for task '%s' failed: %s" % (
                     my_task.get_name(), my_task.async_call.info))
@@ -208,18 +213,19 @@ class Celery(TaskSpec):
             info['info'] = Serializable(my_task.async_call.info)
             info['state'] = my_task.async_call.state
             my_task._set_internal_data(task_state=info)
+            result = my_task.async_call.result
+            LOG.warn("Celery call %s failed: %s" % (self.call, result))
+            my_task._set_internal_data(error=Serializable(result))
+
         elif my_task.async_call.state == 'RETRY':
             info = {}
             info['traceback'] = my_task.async_call.traceback
             info['info'] = Serializable(my_task.async_call.info)
             info['state'] = my_task.async_call.state
             my_task._set_internal_data(task_state=info)
+
         elif my_task.async_call.ready():
             result = my_task.async_call.result
-            if isinstance(result, Exception):
-                LOG.warn("Celery call %s failed: %s" % (self.call, result))
-                my_task._set_internal_data(error=Serializable(result))
-                return False
             LOG.debug("Completed celery call %s with result=%s" % (self.call,
                     result))
             # Format result
@@ -240,7 +246,7 @@ class Celery(TaskSpec):
             LOG.debug("async_call.ready()=%s. TryFire for '%s' "
                     "returning False" % (my_task.async_call.ready(),
                             my_task.get_name()))
-            return False
+        return False
 
     def _update_state_hook(self, my_task):
         if not self._try_fire(my_task):
