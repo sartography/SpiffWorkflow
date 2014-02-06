@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.join(dirname, '..'))
 from PatternTest import run_workflow
 from SpiffWorkflow.storage.Serializer import Serializer
 from SpiffWorkflow.specs import WorkflowSpec
+from SpiffWorkflow import Workflow
 from data.spiff.workflow1 import TestWorkflowSpec
 
 class SerializerTest(unittest.TestCase):
@@ -47,10 +48,26 @@ class SerializerTest(unittest.TestCase):
         pass # Already covered in testSerializeWorkflowSpec()
 
     def testSerializeWorkflow(self):
-        pass #TODO
+        if self.serializer is None:
+            return
+        
+        # Get a workflow, run it to completion, and see if it serialises and
+        # deserialiases correctly.
+        path_file = os.path.join(data_dir, 'spiff', 'workflow1.path')
+        path      = open(path_file).read()
+        workflow  = run_workflow(self, self.wf_spec, path, None)
+
+        # Back to back testing, as with wf_spec
+        serialized1 = workflow.serialize(self.serializer)
+        restored_wf = Workflow.deserialize(self.serializer, serialized1)
+        serialized2 = restored_wf.serialize(self.serializer)
+        self.assert_(isinstance(serialized1, self.serial_type))
+        self.assert_(isinstance(serialized2, self.serial_type))
+        self.compareSerialization(serialized1, serialized2)
+
 
     def testDeserializeWorkflow(self):
-        pass #TODO
+        pass # Already covered in testSerializeWorkflow()
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(SerializerTest)

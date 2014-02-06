@@ -37,6 +37,9 @@ class OpenWfeXmlSerializerTest(SerializerTest):
 
         run_workflow(self, wf_spec, path, None)
 
+    def testSerializeWorkflow(self):
+        pass # Serialization not yet supported.
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(OpenWfeXmlSerializerTest)
 if __name__ == '__main__':
