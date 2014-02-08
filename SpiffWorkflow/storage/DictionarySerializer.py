@@ -161,7 +161,8 @@ class DictionarySerializer(Serializer):
         return s_state
 
     def _deserialize_cancel(self, wf_spec, s_state):
-        spec = Cancel(wf_spec, s_state['name'], success=cancel_successfully)
+        spec = Cancel(wf_spec, s_state['name'],
+                      success=s_state['cancel_successfully'])
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
@@ -169,8 +170,11 @@ class DictionarySerializer(Serializer):
         return self._serialize_trigger(spec)
 
     def _deserialize_cancel_task(self, wf_spec, s_state):
-        spec = CancelTask(wf_spec, s_state['name'])
-        self._deserialize_trigger(wf_spec, s_state, spec=spec)
+        spec = CancelTask(wf_spec,
+                          s_state['name'],
+                          s_state['context'],
+                          times=s_state['times'])
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_celery(self, spec):
