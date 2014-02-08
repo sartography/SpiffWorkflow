@@ -24,7 +24,7 @@ class SerializerTest(unittest.TestCase):
     def testConstructor(self):
         Serializer()
 
-    def testSerializeWorkflowSpec(self, path=None, data=None):
+    def testSerializeWorkflowSpec(self, path_file=None, data=None):
         if self.serializer is None:
             return
 
@@ -37,9 +37,14 @@ class SerializerTest(unittest.TestCase):
         self.compareSerialization(serialized1, serialized2)
 
         # Test whether the restored workflow still works.
-        if path is None:
+        if path_file is None:
             path_file = os.path.join(data_dir, 'spiff', 'workflow1.path')
             path      = open(path_file).read()
+        elif os.path.exists(path_file):
+            path = open(path_file).read()
+        else:
+            path = None
+
         run_workflow(self, wf_spec, path, data)
 
     def compareSerialization(self, s1, s2):
@@ -48,15 +53,21 @@ class SerializerTest(unittest.TestCase):
     def testDeserializeWorkflowSpec(self):
         pass # Already covered in testSerializeWorkflowSpec()
 
-    def testSerializeWorkflow(self, path=None, data=None):
+    def testSerializeWorkflow(self, path_file=None, data=None):
         if self.serializer is None:
             return
         
         # Get a workflow, run it to completion, and see if it serialises and
         # deserialiases correctly.
-        if path is None:
+        if path_file is None:
             path_file = os.path.join(data_dir, 'spiff', 'workflow1.path')
             path      = open(path_file).read()
+        elif os.path.exists(path_file):
+            path = open(path_file).read()
+        else:
+            path = None
+
+            
         workflow  = run_workflow(self, self.wf_spec, path, data)
 
         # Back to back testing, as with wf_spec
@@ -83,10 +94,7 @@ class SerializeEveryPatternTest(PatternTest):
     def run_pattern(self, filename):
         # Load the .path file.
         path_file = os.path.splitext(filename)[0] + '.path'
-        if os.path.exists(path_file):
-            expected_path = open(path_file).read()
-        else:
-            expected_path = None
+        
 
         # Load the .data file.
         data_file = os.path.splitext(filename)[0] + '.data'
@@ -100,9 +108,9 @@ class SerializeEveryPatternTest(PatternTest):
             xml     = open(filename).read()
             wf_spec = WorkflowSpec.deserialize(self.serializer, xml, filename = filename)
             self.serializerTestClass.wf_spec = wf_spec
-            self.serializerTestClass.testSerializeWorkflowSpec(path=expected_path,
+            self.serializerTestClass.testSerializeWorkflowSpec(path_file=path_file,
                                                                data=expected_data)
-            self.serializerTestClass.testSerializeWorkflow(path=expected_path,
+            self.serializerTestClass.testSerializeWorkflow(path_file=path_file,
                                                            data=expected_data)
 
         # Test patterns that are defined in Python.
@@ -112,9 +120,9 @@ class SerializeEveryPatternTest(PatternTest):
             result  = eval(code, thedict)
             wf_spec = thedict['TestWorkflowSpec']()
             self.serializerTestClass.wf_spec = wf_spec
-            self.serializerTestClass.testSerializeWorkflowSpec(path=expected_path,
+            self.serializerTestClass.testSerializeWorkflowSpec(path_file=path_file,
                                                                data=expected_data)
-            self.serializerTestClass.testSerializeWorkflow(path=expected_path,
+            self.serializerTestClass.testSerializeWorkflow(path_file=path_file,
                                                            data=expected_data)
 
         
