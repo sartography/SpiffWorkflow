@@ -198,9 +198,15 @@ class DictionarySerializer(Serializer):
         return spec
 
     def _serialize_choose(self, spec):
-        s_state = self._serialize_trigger(spec)
+        s_state = self._serialize_task_spec(spec)
         s_state['context'] = spec.context
-        s_state['choice'] = [c.name for c in spec.choice]
+        print(spec.choice)
+        # despite the various documentation suggesting that choice ought to be
+        # a collection of objects, here it is a collection of strings. The
+        # handler in MultiChoice.py converts it to TaskSpecs. So instead of:
+        #s_state['choice'] = [c.name for c in spec.choice]
+        # we have:
+        s_state['choice'] = spec.choice
         return s_state
 
     def _deserialize_choose(self, wf_spec, s_state):
@@ -208,7 +214,7 @@ class DictionarySerializer(Serializer):
                       s_state['name'],
                       s_state['context'],
                       s_state['choice'])
-        self._deserialize_trigger(wf_spec, s_state, spec=spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_exclusive_choice(self, spec):
@@ -264,14 +270,19 @@ class DictionarySerializer(Serializer):
         for condition, spec_name in spec.cond_task_specs:
             cond = self._serialize_arg(condition)
             thestate.append((cond, spec_name))
-        s_state['choice'] = spec.choice and spec.choice.name or None
+        # spec.choice is actually a list of strings in MultiChoice: see
+        # _predict_hook. So, instead of
+        #s_state['choice'] = spec.choice and spec.choice.name or None
+        s_state['choice'] = spec.choice or None
         return s_state
 
     def _deserialize_multi_choice(self, wf_spec, s_state, spec=None):
         if spec is None:
             spec = MultiChoice(wf_spec, s_state['name'])
         if s_state.get('choice') is not None:
-            spec.choice = wf_spec.get_task_spec_from_name(s_state['choice'])
+            # this is done in _predict_hook: it's kept as a string for now.
+            # spec.choice = wf_spec.get_task_spec_from_name(s_state['choice'])
+            spec.choice = s_state['choice']
         for cond, spec_name in s_state['cond_task_specs']:
             condition = self._deserialize_arg(cond)
             spec.cond_task_specs.append((condition, spec_name))
