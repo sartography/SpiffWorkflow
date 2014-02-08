@@ -17,7 +17,7 @@ class DictionarySerializerTest(SerializerTest):
         self.serializer = DictionarySerializer()
         self.serial_type = dict
 
-    def compare_serialized(self, dict1, dict2):
+    def compareSerialization(self, dict1, dict2):
         for key1, value1 in dict1.items():
             if key1 not in dict2:
                 raise Exception("Missing Key: " + key1)
