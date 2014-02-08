@@ -7,7 +7,7 @@ dirname = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 from SpiffWorkflow.storage import DictionarySerializer
-from .SerializerTest import SerializerTest
+from .SerializerTest import SerializerTest, SerializeEveryPatternTest
 
 class DictionarySerializerTest(SerializerTest):
     CORRELATE = DictionarySerializer
@@ -35,7 +35,18 @@ class DictionarySerializerTest(SerializerTest):
     def testConstructor(self):
         DictionarySerializer()
 
+
+class DictionarySerializeEveryPatternTest(SerializeEveryPatternTest):
+
+    def setUp(self):
+        super(DictionarySerializeEveryPatternTest, self).setUp()
+        self.serializerTestClass = DictionarySerializerTest(methodName='testConstructor')
+        self.serializerTestClass.setUp()
+
+
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(DictionarySerializerTest)
+    tests = unittest.defaultTestLoader.loadTestsFromTestCase(DictionarySerializerTest)
+    tests.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(DictionarySerializeEveryPatternTest))
+    return tests
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity = 2).run(suite())
