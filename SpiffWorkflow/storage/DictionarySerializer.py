@@ -339,8 +339,8 @@ class DictionarySerializer(Serializer):
     def _deserialize_sub_workflow(self, wf_spec, s_state):
         spec = SubWorkflow(wf_spec, s_state['name'], s_state['file'])
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
-        spec.in_assign = self._deserialize_dict(s_state['in_assign'])
-        spec.out_assign = self._deserialize_dict(s_state['out_assign'])
+        spec.in_assign = self._deserialize_list(s_state['in_assign'])
+        spec.out_assign = self._deserialize_list(s_state['out_assign'])
         return spec
 
     def _serialize_thread_merge(self, spec):
