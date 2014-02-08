@@ -433,9 +433,6 @@ class DictionarySerializer(Serializer):
         #task_tree
         s_state['task_tree'] = self._serialize_task(workflow.task_tree)
 
-        #workflow
-        s_state['workflow'] = workflow.spec.__class__.__module__ + '.' + workflow.spec.__class__.__name__
-
         return s_state
 
     def deserialize_workflow(self, s_state, **kwargs):
