@@ -24,7 +24,7 @@ class DictionarySerializerTest(SerializerTest):
             value2 = dict2[key1]
             if isinstance(value1, dict):
                 try:
-                    self.compare_serialized(value1, value2)
+                    self.compareSerialization(value1, value2)
                 except Exception as e:
                     raise Exception(key1 + '/' + str(e))
             else:
