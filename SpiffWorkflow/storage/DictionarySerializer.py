@@ -150,7 +150,7 @@ class DictionarySerializer(Serializer):
         return s_state
 
     def _deserialize_acquire_mutex(self, wf_spec, s_state):
-        spec = AcquireMutex(wf_spec, s_state['name'])
+        spec = AcquireMutex(wf_spec, s_state['name'], s_state['mutex'])
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         spec.mutex = s_state['mutex']
         return spec
