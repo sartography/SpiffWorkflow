@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 from SpiffWorkflow.storage import JSONSerializer
 from .SerializerTest import SerializerTest, SerializeEveryPatternTest
+from .DictionarySerializerTest import DictionarySerializerTest
 import json
 
 class JSONSerializerTest(SerializerTest):
@@ -22,7 +23,9 @@ class JSONSerializerTest(SerializerTest):
         JSONSerializer()
 
     def compareSerialization(self, s1, s2):
-        self.assertEqual(json.loads(s1), json.loads(s2))
+        obj1 = json.loads(s1)
+        obj2 = json.loads(s2)
+        DictionarySerializerTest(methodName='testConstructor').compareSerialization(obj1, obj2)
 
 class JSONSerializeEveryPatternTest(SerializeEveryPatternTest):
 

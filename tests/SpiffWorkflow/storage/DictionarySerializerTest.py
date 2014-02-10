@@ -20,7 +20,8 @@ class DictionarySerializerTest(SerializerTest):
 
     def compareSerialization(self, item1, item2):
         if isinstance(item1, dict):
-            self.assertTrue(isinstance(item2, dict))
+            if not isinstance(item2, dict):
+                raise Exception(": companion item is not a dict (is a " + str(type(item2)) + "): " + str(item1) + " v " + str(item2))
             for key, value in item1.items():
                 if key not in item2:
                     raise Exception("Missing Key: " + key + " (in 1, not 2)")
@@ -35,8 +36,10 @@ class DictionarySerializerTest(SerializerTest):
                     raise Exception("Missing Key: " + key + " (in 2, not 1)")
                 
         elif isinstance(item1, list):
-            self.assertTrue(isinstance(item2, list))
-            self.assertEqual(len(item1), len(item2))
+            if not isinstance(item2, list):
+                raise Exception(": companion item is not a list (is a " + str(type(item2)) + ")")
+            if not len(item1) == len(item2):
+                raise Exception(": companion list is not the same length: " + str(len(item1)) + " v " + str(len(item2)))
             for i, listitem in enumerate(item1):
                 try:
                     self.compareSerialization(listitem, item2[i])
@@ -47,6 +50,8 @@ class DictionarySerializerTest(SerializerTest):
             raise Exception("Item is a Workflow")
         
         else:
+            if type(item1) != type(item2):
+                raise Exception(": companion item is not the same type (is a " + str(type(item2)) + "): " + str(item1) + " v " + str(item2))
             if item1 != item2:
                 raise Exception("Unequal: " + repr(item1) \
                                 + " vs " + repr(item2)) 
