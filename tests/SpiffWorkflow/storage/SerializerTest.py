@@ -14,6 +14,9 @@ from SpiffWorkflow import Workflow
 from SpiffWorkflow.storage.Exceptions import TaskSpecNotSupportedError, \
      TaskNotSupportedError
 from data.spiff.workflow1 import TestWorkflowSpec
+import warnings
+from uuid import UUID
+
 
 class SerializerTest(unittest.TestCase):
     CORRELATE = Serializer
@@ -53,7 +56,9 @@ class SerializerTest(unittest.TestCase):
 
             run_workflow(self, wf_spec, path, data)
 
-    def compareSerialization(self, s1, s2):
+    def compareSerialization(self, s1, s2, exclude_dynamic=False):
+        if exclude_dynamic:
+            warnings.warn("Asked to exclude dynamic in a compareSerialization that does not support it. The result may be wrong.")
         self.assertEqual(s1, s2)
 
     def testDeserializeWorkflowSpec(self):
@@ -63,8 +68,6 @@ class SerializerTest(unittest.TestCase):
         if self.serializer is None:
             return
         
-        # Get a workflow, run it to completion, and see if it serialises and
-        # deserialiases correctly.
         if path_file is None:
             path_file = os.path.join(data_dir, 'spiff', 'workflow1.path')
             path      = open(path_file).read()
@@ -73,21 +76,52 @@ class SerializerTest(unittest.TestCase):
         else:
             path = None
 
-            
-        workflow  = run_workflow(self, self.wf_spec, path, data)
-
-        # Back to back testing, as with wf_spec
+        # run a workflow fresh from the spec to completion, see if it
+        # serialises and deserialises correctly.
+        workflow_without_save  = run_workflow(self, self.wf_spec, path, data)
         try:
-            serialized1 = workflow.serialize(self.serializer)
+            serialized1 = workflow_without_save.serialize(self.serializer)
             restored_wf = Workflow.deserialize(self.serializer, serialized1)
             serialized2 = restored_wf.serialize(self.serializer)
         except TaskNotSupportedError as e:
-            pass
+            return
         else:
             self.assert_(isinstance(serialized1, self.serial_type))
             self.assert_(isinstance(serialized2, self.serial_type))
             self.compareSerialization(serialized1, serialized2)
 
+        # try an freshly started workflow, see if it serialises and
+        # deserialiases correctly. (no longer catch for exceptions: if they
+        # were going to happen they should have happened already.)
+        workflow = Workflow(self.wf_spec)
+        serialized1 = workflow.serialize(self.serializer)
+        restored_wf = Workflow.deserialize(self.serializer, serialized1)
+        serialized2 = restored_wf.serialize(self.serializer)
+        self.assert_(isinstance(serialized1, self.serial_type))
+        self.assert_(isinstance(serialized2, self.serial_type))
+        self.compareSerialization(serialized1, serialized2)
+        self.assertFalse(restored_wf.is_completed())
+
+        # Run it to completion, see if it serialises and deserialises correctly
+        # also check if the restored and unrestored ones are the same after
+        # being run through.
+        workflow_unrestored = run_workflow(self, self.wf_spec, path, data, workflow=workflow)
+        workflow_restored = run_workflow(self, self.wf_spec, path, data, workflow=restored_wf)
+
+        serialized1 = workflow_restored.serialize(self.serializer)
+        restored_wf = Workflow.deserialize(self.serializer, serialized1)
+        serialized2 = restored_wf.serialize(self.serializer)
+        self.assert_(isinstance(serialized1, self.serial_type))
+        self.assert_(isinstance(serialized2, self.serial_type))
+        self.compareSerialization(serialized1, serialized2)
+        serialized_crosscheck = workflow_unrestored.serialize(self.serializer)
+        self.assert_(isinstance(serialized_crosscheck, self.serial_type))
+        # compare the restored and unrestored completed ones. Because they ran
+        # separately, exclude the last_state_change time. Because you can have
+        # dynamically created tasks, don't compare (uu)ids.
+        self.compareSerialization(serialized_crosscheck, serialized2,
+                                  exclude_dynamic=True)
+        
 
     def testDeserializeWorkflow(self):
         pass # Already covered in testSerializeWorkflow()

@@ -22,10 +22,18 @@ class JSONSerializerTest(SerializerTest):
     def testConstructor(self):
         JSONSerializer()
 
-    def compareSerialization(self, s1, s2):
+    def compareSerialization(self, s1, s2, exclude_dynamic=False):
         obj1 = json.loads(s1)
         obj2 = json.loads(s2)
-        DictionarySerializerTest(methodName='testConstructor').compareSerialization(obj1, obj2)
+        #print(s1)
+        #print(s2)
+        if exclude_dynamic:
+            exclude_items = ['__uuid__']
+        else:
+            exclude_items = []
+        DictionarySerializerTest(methodName='testConstructor').compareSerialization(obj1, obj2,
+                                                                                    exclude_dynamic=exclude_dynamic,
+                                                                                    exclude_items=exclude_items)
 
 class JSONSerializeEveryPatternTest(SerializeEveryPatternTest):
 
