@@ -421,8 +421,8 @@ class DictionarySerializer(Serializer):
         s_state['data'] = workflow.data
 
         # last_node
-        value = workflow.last_task
-        s_state['last_task'] = value.id if not value is None else None
+        #value = workflow.last_task
+        #s_state['last_task'] = value.id if not value is None else None
 
         # outer_workflow
         #s_state['outer_workflow'] = workflow.outer_workflow.id
@@ -446,7 +446,7 @@ class DictionarySerializer(Serializer):
         workflow.data = s_state['data']
 
         # last_task
-        workflow.last_task = s_state['last_task']
+        workflow.last_task = None #s_state['last_task']
 
         # outer_workflow
         #workflow.outer_workflow =  find_workflow_by_id(remap_workflow_id(s_state['outer_workflow']))
