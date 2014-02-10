@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 from SpiffWorkflow.storage import DictionarySerializer
 from .SerializerTest import SerializerTest, SerializeEveryPatternTest
+from SpiffWorkflow import Workflow
 
 class DictionarySerializerTest(SerializerTest):
     CORRELATE = DictionarySerializer
@@ -17,20 +18,39 @@ class DictionarySerializerTest(SerializerTest):
         self.serializer = DictionarySerializer()
         self.serial_type = dict
 
-    def compareSerialization(self, dict1, dict2):
-        for key1, value1 in dict1.items():
-            if key1 not in dict2:
-                raise Exception("Missing Key: " + key1)
-            value2 = dict2[key1]
-            if isinstance(value1, dict):
+    def compareSerialization(self, item1, item2):
+        if isinstance(item1, dict):
+            self.assertTrue(isinstance(item2, dict))
+            for key, value in item1.items():
+                if key not in item2:
+                    raise Exception("Missing Key: " + key + " (in 1, not 2)")
+
                 try:
-                    self.compareSerialization(value1, value2)
+                    self.compareSerialization(value, item2[key])
                 except Exception as e:
-                    raise Exception(key1 + '/' + str(e))
-            else:
-                if value1 != value2:
-                    raise Exception("Unequal: " + key1 + '=' + repr(value1) \
-                                    + " vs " + repr(value2))
+                    raise Exception(key + '/' + str(e))
+
+            for key, _ in item2.items():
+                if key not in item1:
+                    raise Exception("Missing Key: " + key + " (in 2, not 1)")
+                
+        elif isinstance(item1, list):
+            self.assertTrue(isinstance(item2, list))
+            self.assertEqual(len(item1), len(item2))
+            for i, listitem in enumerate(item1):
+                try:
+                    self.compareSerialization(listitem, item2[i])
+                except Exception as e:
+                    raise Exception('[' + str(i) + ']/' + str(e))
+
+        elif isinstance(item1, Workflow):
+            raise Exception("Item is a Workflow")
+        
+        else:
+            if item1 != item2:
+                raise Exception("Unequal: " + repr(item1) \
+                                + " vs " + repr(item2)) 
+        
 
     def testConstructor(self):
         DictionarySerializer()
