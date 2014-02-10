@@ -446,7 +446,7 @@ class DictionarySerializer(Serializer):
                 **kwargs)
 
         # data
-        s_state['data'] = workflow.data
+        s_state['data'] =  self._serialize_dict(workflow.data)
 
         # last_node
         value = workflow.last_task
@@ -468,7 +468,7 @@ class DictionarySerializer(Serializer):
         workflow = Workflow(wf_spec)
 
         # data
-        workflow.data = s_state['data']
+        workflow.data = self._deserialize_dict(s_state['data'])
 
         # outer_workflow
         #workflow.outer_workflow =  find_workflow_by_id(remap_workflow_id(s_state['outer_workflow']))
@@ -525,7 +525,7 @@ class DictionarySerializer(Serializer):
         s_state['last_state_change'] = task.last_state_change
 
         # data
-        s_state['data'] = task.data
+        s_state['data'] =  self._serialize_dict(task.data)
 
         # internal_data
         s_state['internal_data'] = task.internal_data
@@ -557,7 +557,7 @@ class DictionarySerializer(Serializer):
         task.last_state_change = s_state['last_state_change']
 
         # data
-        task.data = s_state['data']
+        task.data = self._deserialize_dict(s_state['data'])
 
         # internal_data
         task.internal_data = s_state['internal_data']
