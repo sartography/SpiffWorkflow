@@ -200,7 +200,6 @@ class DictionarySerializer(Serializer):
     def _serialize_choose(self, spec):
         s_state = self._serialize_task_spec(spec)
         s_state['context'] = spec.context
-        print(spec.choice)
         # despite the various documentation suggesting that choice ought to be
         # a collection of objects, here it is a collection of strings. The
         # handler in MultiChoice.py converts it to TaskSpecs. So instead of:
