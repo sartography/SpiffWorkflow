@@ -11,6 +11,8 @@ from PatternTest import run_workflow, PatternTest
 from SpiffWorkflow.storage.Serializer import Serializer
 from SpiffWorkflow.specs import WorkflowSpec
 from SpiffWorkflow import Workflow
+from SpiffWorkflow.storage.Exceptions import TaskSpecNotSupportedError, \
+     TaskNotSupportedError
 from data.spiff.workflow1 import TestWorkflowSpec
 
 class SerializerTest(unittest.TestCase):
@@ -29,23 +31,27 @@ class SerializerTest(unittest.TestCase):
             return
 
         # Back to back testing.
-        serialized1 = self.wf_spec.serialize(self.serializer)
-        wf_spec     = WorkflowSpec.deserialize(self.serializer, serialized1)
-        serialized2 = wf_spec.serialize(self.serializer)
-        self.assert_(isinstance(serialized1, self.serial_type))
-        self.assert_(isinstance(serialized2, self.serial_type))
-        self.compareSerialization(serialized1, serialized2)
-
-        # Test whether the restored workflow still works.
-        if path_file is None:
-            path_file = os.path.join(data_dir, 'spiff', 'workflow1.path')
-            path      = open(path_file).read()
-        elif os.path.exists(path_file):
-            path = open(path_file).read()
+        try:
+            serialized1 = self.wf_spec.serialize(self.serializer)
+            wf_spec     = WorkflowSpec.deserialize(self.serializer, serialized1)
+            serialized2 = wf_spec.serialize(self.serializer)
+        except TaskSpecNotSupportedError as e:
+            pass
         else:
-            path = None
+            self.assert_(isinstance(serialized1, self.serial_type))
+            self.assert_(isinstance(serialized2, self.serial_type))
+            self.compareSerialization(serialized1, serialized2)
 
-        run_workflow(self, wf_spec, path, data)
+            # Test whether the restored workflow still works.
+            if path_file is None:
+                path_file = os.path.join(data_dir, 'spiff', 'workflow1.path')
+                path      = open(path_file).read()
+            elif os.path.exists(path_file):
+                path = open(path_file).read()
+            else:
+                path = None
+
+            run_workflow(self, wf_spec, path, data)
 
     def compareSerialization(self, s1, s2):
         self.assertEqual(s1, s2)
@@ -71,12 +77,16 @@ class SerializerTest(unittest.TestCase):
         workflow  = run_workflow(self, self.wf_spec, path, data)
 
         # Back to back testing, as with wf_spec
-        serialized1 = workflow.serialize(self.serializer)
-        restored_wf = Workflow.deserialize(self.serializer, serialized1)
-        serialized2 = restored_wf.serialize(self.serializer)
-        self.assert_(isinstance(serialized1, self.serial_type))
-        self.assert_(isinstance(serialized2, self.serial_type))
-        self.compareSerialization(serialized1, serialized2)
+        try:
+            serialized1 = workflow.serialize(self.serializer)
+            restored_wf = Workflow.deserialize(self.serializer, serialized1)
+            serialized2 = restored_wf.serialize(self.serializer)
+        except TaskNotSupportedError as e:
+            pass
+        else:
+            self.assert_(isinstance(serialized1, self.serial_type))
+            self.assert_(isinstance(serialized2, self.serial_type))
+            self.compareSerialization(serialized1, serialized2)
 
 
     def testDeserializeWorkflow(self):

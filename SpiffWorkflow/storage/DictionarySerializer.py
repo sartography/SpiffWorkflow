@@ -22,6 +22,8 @@ from SpiffWorkflow.operators import *
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.storage.Serializer import Serializer
+from SpiffWorkflow.storage.Exceptions import TaskNotSupportedError
+import warnings
 
 class DictionarySerializer(Serializer):
     def _serialize_dict(self, thedict):
@@ -329,6 +331,9 @@ class DictionarySerializer(Serializer):
         return spec
 
     def _serialize_sub_workflow(self, spec):
+        warnings.warn("SubWorkflows cannot be safely serialized as they only" +
+                      " store a reference to the subworkflow specification " +
+                      " as a path to an external XML file.")
         s_state = self._serialize_task_spec(spec)
         s_state['file'] = spec.file
         s_state['in_assign'] = self._serialize_list(spec.in_assign)
@@ -336,6 +341,9 @@ class DictionarySerializer(Serializer):
         return s_state
 
     def _deserialize_sub_workflow(self, wf_spec, s_state):
+        warnings.warn("SubWorkflows cannot be safely deserialized as they " +
+                      "only store a reference to the subworkflow " +
+                      "specification as a path to an external XML file.")
         spec = SubWorkflow(wf_spec, s_state['name'], s_state['file'])
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         spec.in_assign = self._deserialize_list(s_state['in_assign'])
@@ -485,6 +493,12 @@ class DictionarySerializer(Serializer):
 
     def _serialize_task(self, task, skip_children=False):
         assert isinstance(task, Task)
+
+        if isinstance(task.task_spec, SubWorkflow):
+            raise TaskNotSupportedError(
+                "Subworkflow tasks cannot be serialized (due to their use of" +
+                " internal_data to store the subworkflow).")
+        
         s_state = dict()
 
         # id
