@@ -124,13 +124,45 @@ class Assign(object):
         self.right_attribute = right_attribute
         self.right = right
 
-    def assign(self, from_obj, to_obj):
+    def _get_right_side(self, from_obj):
         # Fetch the value of the right expression.
         if self.right is not None:
-            right = self.right
-        else:
-            right = from_obj.get_data(self.right_attribute)
+            return self.right
+        return from_obj.get_data(self.right_attribute)
+
+    def assign(self, from_obj, to_obj):
+        right = self._get_right_side(from_obj)
         to_obj.set_data(**{str(self.left_attribute): right})
+
+
+class AssignWithPath(Assign):
+
+    def assign(self, from_obj, to_obj):
+        right = self._get_right_side(from_obj)
+
+        # allow a path in left_attribute
+        data = to_obj.data
+        if '/' in self.left_attribute:
+            segments = self.left_attribute.split('/')
+            for seg in segments[:-1]:
+                data = data.setdefault(seg, {})
+            data[segments[-1]] = right
+        else:
+            to_obj.set_data(**{str(self.left_attribute): right})
+
+
+class AssignStrFormat(AssignWithPath):
+    """
+    Renders a format string w/ task data on task execution.
+
+    Eg.:
+        outfile_fmt = '{task.workflow.data[uuid]}-{task.data[basename]}.mp3'
+        AssignStrFormat('tcjob/outfile', right=outfile_fmt)])
+    """
+    def _get_right_side(self, from_obj):
+        right = super(AssignStrFormat, self)._get_right_side(from_obj)
+        right = right.format(task=from_obj)
+        return right
 
 
 def valueof(scope, op):
@@ -139,7 +171,7 @@ def valueof(scope, op):
     elif isinstance(op, Attrib):
         if op.name not in scope.data:
             LOG.debug("Attrib('%s') not present in task '%s' data" %
-                    (op.name, scope.get_name()))
+                      (op.name, scope.get_name()))
         return scope.get_data(op.name)
     elif isinstance(op, PathAttrib):
         if not op.path:
@@ -149,8 +181,8 @@ def valueof(scope, op):
         for part in parts:
             if part not in data:
                 LOG.debug("PathAttrib('%s') not present in task '%s' "
-                        "data" % (op.path, scope.get_name()),
-                        extra=dict(data=scope.data))
+                          "data" % (op.path, scope.get_name()),
+                          extra=dict(data=scope.data))
                 return None
             data = data[part]  # move down the path
         return data

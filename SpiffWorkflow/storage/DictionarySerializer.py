@@ -445,9 +445,6 @@ class DictionarySerializer(Serializer):
         # data
         workflow.data = s_state['data']
 
-        # last_task
-        workflow.last_task = s_state['last_task']
-
         # outer_workflow
         #workflow.outer_workflow =  find_workflow_by_id(remap_workflow_id(s_state['outer_workflow']))
 
@@ -463,6 +460,12 @@ class DictionarySerializer(Serializer):
         # Re-connect parents
         for task in workflow.get_tasks():
             task.parent = workflow.get_task(task.parent)
+
+        # last_task - find the task instance for given uuid
+        last_task = None
+        if s_state['last_task'] is not None:
+            last_task = workflow.get_task(s_state['last_task'])
+        workflow.last_task = last_task
 
         return workflow
 

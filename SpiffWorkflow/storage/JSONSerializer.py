@@ -17,10 +17,14 @@ import json
 import uuid
 from SpiffWorkflow.storage import DictionarySerializer
 from SpiffWorkflow.storage.Serializer import Serializer
+from SpiffWorkflow.operators import Attrib
 
 _dictserializer = DictionarySerializer()
 
 def object_hook(dct):
+    if '__attrib__' in dct:
+        return Attrib(dct['__attrib__'])
+
     if '__uuid__' in dct:
         return uuid.UUID(dct['__uuid__'])
 
@@ -30,6 +34,8 @@ def object_hook(dct):
     return dct
 
 def default(obj):
+    if isinstance(obj, Attrib):
+        return {'__attrib__': obj.name}
     if isinstance(obj, uuid.UUID):
         return {'__uuid__': obj.hex}
 
