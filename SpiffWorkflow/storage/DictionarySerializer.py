@@ -348,7 +348,10 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_thread_merge(self, wf_spec, s_state):
         spec = ThreadMerge(wf_spec, s_state['name'], s_state['split_task'])
-        self._deserialize_join(wf_spec, s_state, spec=spec)
+        # while ThreadMerge is a Join, the _deserialise_join isn't what we want
+        # here: it makes a join from scratch which we don't need (the
+        # ThreadMerge constructor does it all). Just task_spec it.
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_thread_split(self, spec):
@@ -361,7 +364,8 @@ class DictionarySerializer(Serializer):
         spec = ThreadSplit(wf_spec,
                            s_state['name'],
                            s_state['times'],
-                           s_state['times_attribute'])
+                           s_state['times_attribute'],
+                           suppress_threadstart_creation=True)
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
@@ -369,6 +373,8 @@ class DictionarySerializer(Serializer):
         return self._serialize_task_spec(spec)
 
     def _deserialize_thread_start(self, wf_spec, s_state):
+        # specs/__init__.py deliberately hides this: forcibly import it
+        from SpiffWorkflow.specs.ThreadStart import ThreadStart
         spec = ThreadStart(wf_spec)
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec

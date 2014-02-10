@@ -36,6 +36,7 @@ class ThreadSplit(TaskSpec):
                  name,
                  times = None,
                  times_attribute = None,
+                 suppress_threadstart_creation = False,
                  **kwargs):
         """
         Constructor.
@@ -49,6 +50,9 @@ class ThreadSplit(TaskSpec):
         :type  times_attribute: str or None
         :param times_attribute: The name of a data field that specifies
                                 the number of outgoing tasks.
+        :type  suppress_threadstart_creation: bool
+        :param suppress_threadstart_creation: Don't create a ThreadStart, because
+                                              the deserializer is about to.
         :type  kwargs: dict
         :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
@@ -57,9 +61,12 @@ class ThreadSplit(TaskSpec):
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.times_attribute = times_attribute
         self.times           = times
-        self.thread_starter  = ThreadStart(parent, **kwargs)
-        self.outputs.append(self.thread_starter)
-        self.thread_starter._connect_notify(self)
+        if not suppress_threadstart_creation:
+            self.thread_starter  = ThreadStart(parent, **kwargs)
+            self.outputs.append(self.thread_starter)
+            self.thread_starter._connect_notify(self)
+        else:
+            self.thread_starter = None
 
     def connect(self, task_spec):
         """
@@ -116,6 +123,10 @@ class ThreadSplit(TaskSpec):
         split_n = my_task.get_data('split_n', self.times)
         if split_n is None:
             split_n = my_task.get_data(self.times_attribute, 1)
+
+        # if we were created with thread_starter suppressed, connect it now.
+        if self.thread_starter is None:
+            self.thread_starter = self.outputs[0]
 
         # Predict the outputs.
         outputs = []
