@@ -11,7 +11,7 @@ from PatternTest import run_workflow, PatternTest
 from SpiffWorkflow.storage.Serializer import Serializer
 from SpiffWorkflow.specs import WorkflowSpec
 from SpiffWorkflow import Workflow
-from SpiffWorkflow.storage.Exceptions import TaskSpecNotSupportedError, \
+from SpiffWorkflow.storage.exceptions import TaskSpecNotSupportedError, \
      TaskNotSupportedError
 from data.spiff.workflow1 import TestWorkflowSpec
 import warnings

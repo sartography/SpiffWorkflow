@@ -22,7 +22,7 @@ from SpiffWorkflow.operators import *
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.storage.Serializer import Serializer
-from SpiffWorkflow.storage.Exceptions import TaskNotSupportedError
+from SpiffWorkflow.storage.exceptions import TaskNotSupportedError
 import warnings
 
 class DictionarySerializer(Serializer):
