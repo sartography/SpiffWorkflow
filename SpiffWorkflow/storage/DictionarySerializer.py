@@ -25,15 +25,17 @@ from SpiffWorkflow.storage.Serializer import Serializer
 
 class DictionarySerializer(Serializer):
     def _serialize_dict(self, thedict):
-        return dict((k, b64encode(pickle.dumps(v)))
-                    for k, v in thedict.items())
+        return dict(
+            (k, b64encode(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL)))
+            for k, v in thedict.items())
 
     def _deserialize_dict(self, s_state):
         return dict((k, pickle.loads(b64decode(v)))
                     for k, v in s_state.items())
 
     def _serialize_list(self, thelist):
-        return [b64encode(pickle.dumps(v)) for v in thelist]
+        return [b64encode(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL))
+                for v in thelist]
 
     def _deserialize_list(self, s_state):
         return [pickle.loads(b64decode(v)) for v in s_state]
@@ -241,7 +243,8 @@ class DictionarySerializer(Serializer):
     def _serialize_join(self, spec):
         s_state = self._serialize_task_spec(spec)
         s_state['split_task'] = spec.split_task
-        s_state['threshold'] = b64encode(pickle.dumps(spec.threshold))
+        s_state['threshold'] = b64encode(
+            pickle.dumps(spec.threshold, protocol=pickle.HIGHEST_PROTOCOL))
         s_state['cancel_remaining'] = spec.cancel_remaining
         return s_state
 
