@@ -130,7 +130,7 @@ class Assign(object):
             right = self.right
         else:
             right = from_obj.get_data(self.right_attribute)
-        to_obj.set_data(**{str(self.left_attribute): right})
+        to_obj.set_data(**{unicode(self.left_attribute): right})
 
 
 def valueof(scope, op):

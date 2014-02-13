@@ -69,10 +69,14 @@ def track_workflow(wf_spec, taken_path = None):
         track_task(wf_spec.task_specs[name], taken_path)
     return taken_path
 
-def run_workflow(test, wf_spec, expected_path, expected_data):
+def run_workflow(test, wf_spec, expected_path, expected_data, workflow=None):
     # Execute all tasks within the Workflow.
-    taken_path = track_workflow(wf_spec)
-    workflow   = Workflow(wf_spec)
+    if workflow is None:
+        taken_path = track_workflow(wf_spec)
+        workflow   = Workflow(wf_spec)
+    else:
+        taken_path = track_workflow(workflow.spec)
+        
     test.assert_(not workflow.is_completed(), 'Workflow is complete before start')
     try:
         # We allow the workflow to require a maximum of 5 seconds to

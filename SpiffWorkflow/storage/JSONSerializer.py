@@ -17,6 +17,7 @@ import json
 import uuid
 from SpiffWorkflow.storage import DictionarySerializer
 from SpiffWorkflow.storage.Serializer import Serializer
+from SpiffWorkflow.operators import Attrib
 
 _dictserializer = DictionarySerializer()
 
@@ -26,6 +27,9 @@ def object_hook(dct):
 
     if '__bytes__' in dct:
         return dct['__bytes__'].encode('ascii')
+    
+    if '__attrib__' in dct:
+        return Attrib(dct['__attrib__'])
 
     return dct
 
@@ -35,6 +39,9 @@ def default(obj):
 
     if isinstance(obj, bytes):
         return {'__bytes__': obj.decode('ascii') }
+        
+    if isinstance(obj, Attrib):
+        return {'__attrib__': obj.name}
 
     raise TypeError('%r is not JSON serializable' % obj)
 
