@@ -116,21 +116,21 @@ class Assign(object):
         self.right_attribute = right_attribute
         self.right = right
 
-    def _get_right_side(self, from_obj):
-        # Fetch the value of the right expression.
+    def get_assignment_value(self, from_obj, to_obj):
+        """Return the value that has to be assigned to the left_attribute."""
         if self.right_attribute is not None:
             return from_obj.get_data(self.right_attribute)
         return self.right
 
     def assign(self, from_obj, to_obj):
-        right = self._get_right_side(from_obj)
+        right = self.get_assignment_value(from_obj, to_obj)
         to_obj.set_data(**{str(self.left_attribute): right})
 
 
 class AssignWithPath(Assign):
 
     def assign(self, from_obj, to_obj):
-        right = self._get_right_side(from_obj)
+        right = self.get_assignment_value(from_obj, to_obj)
 
         # allow a path in left_attribute
         data = to_obj.data
@@ -151,10 +151,30 @@ class AssignStrFormat(AssignWithPath):
         outfile_fmt = '{task.workflow.data[uuid]}-{task.data[basename]}.mp3'
         AssignStrFormat('tcjob/outfile', right=outfile_fmt)])
     """
-    def _get_right_side(self, from_obj):
-        right = super(AssignStrFormat, self)._get_right_side(from_obj)
-        right = right.format(task=from_obj)
-        return right
+    def get_assignment_value(self, from_obj, to_obj):
+        value = super(AssignStrFormat, self).get_assignment_value(from_obj, to_obj)
+        value = value.format(task=from_obj)
+        return value
+
+
+class Increment(AssignWithPath):
+    """
+    Increment left_attribute with value of right(_attribute).
+    """
+    def get_assignment_value(self, from_obj, to_obj):
+        value = super(Increment, self).get_assignment_value(from_obj, to_obj)
+        left_side = to_obj.get_data(self.left_attribute)
+        return left_side + value
+
+
+class Decrement(AssignWithPath):
+    """
+    Decrement left_attribute with value of right(_attribute).
+    """
+    def get_assignment_value(self, from_obj, to_obj):
+        value = super(Decrement, self).get_assignment_value(from_obj, to_obj)
+        left_side = to_obj.get_data(self.left_attribute)
+        return left_side - value
 
 
 def valueof(scope, op):
@@ -196,10 +216,7 @@ class Operator(object):
         self.args = args
 
     def _get_values(self, task):
-        values = []
-        for arg in self.args:
-            values.append(unicode(valueof(task, arg)))
-        return values
+        return [unicode(valueof(task, arg)) for arg in self.args]
 
     def _matches(self, task):
         raise Exception("Abstract class, do not call")
@@ -337,3 +354,27 @@ class Match(Operator):
     @classmethod
     def deserialize(cls, serializer, s_state):
         return serializer._deserialize_operator_match(s_state)
+
+
+class CmpFnc(Operator):
+    """
+    Allow using a python function as operator.
+    """
+
+    def __init__(self, cmp_fnc, *args):
+        self.cmp_fnc = cmp_fnc
+        super(CmpFnc, self).__init__(*args)
+
+    def _get_values(self, task):
+        return [valueof(task, arg) for arg in self.args]
+
+    def _matches(self, task):
+        values = self._get_values(task)
+        return self.cmp_fnc(*values)
+
+    def serialize(self, serializer):
+        return serializer._serialize_operator_cmp_fnc(self)
+
+    @classmethod
+    def deserialize(cls, serializer, s_state):
+        return serializer._deserialize_operator_cmp_fnc(s_state)

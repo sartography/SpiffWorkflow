@@ -78,10 +78,21 @@ class DictionarySerializer(Serializer):
         return LessThan(*[self._deserialize_arg(c) for c in s_state])
 
     def _serialize_operator_match(self, op):
+        # XXX: Isn't regex serialization missing here?
         return self._serialize_operator(op)
 
     def _deserialize_operator_match(self, s_state):
+        # XXX: Isn't regex deserialization missing here?
         return Match(*[self._deserialize_arg(c) for c in s_state])
+
+    def _serialize_operator_cmp_fnc(self, op):
+        fnc = [b64encode(pickle.dumps(op.cmp_fnc))]
+        serialized_args = self._serialize_operator(op)
+        return fnc + serialized_args
+
+    def _deserialize_operator_cmp_fnc(self, s_state):
+        fnc = pickle.loads(b64decode(s_state.pop(0)))
+        return CmpFnc(fnc, *[self._deserialize_arg(c) for c in s_state])
 
     def _serialize_arg(self, arg):
         if isinstance(arg, Attrib):
@@ -169,8 +180,10 @@ class DictionarySerializer(Serializer):
         return self._serialize_trigger(spec)
 
     def _deserialize_cancel_task(self, wf_spec, s_state):
-        spec = CancelTask(wf_spec, s_state['name'])
-        self._deserialize_trigger(wf_spec, s_state, spec=spec)
+        spec = CancelTask(wf_spec, s_state['name'],
+                          s_state['context'],
+                          times=s_state['times'])
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_celery(self, spec):
@@ -204,7 +217,7 @@ class DictionarySerializer(Serializer):
                       s_state['name'],
                       s_state['context'],
                       s_state['choice'])
-        self._deserialize_trigger(wf_spec, s_state, spec=spec)
+        self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def _serialize_exclusive_choice(self, spec):
