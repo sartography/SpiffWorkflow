@@ -303,7 +303,7 @@ class CompactWorkflowSerializer(Serializer):
         :param read_only: this should be in read only mode
         :param kwargs: Any extra kwargs passed to the deserialize_workflow method will be passed through here
         """
-        return BpmnWorkflow(workflow_spec, read_only=read_only)
+        return BpmnWorkflow(workflow_spec, read_only=read_only, **kwargs)
 
     def _get_workflow_state(self, workflow):
         active_tasks = workflow.get_tasks(state=(Task.READY | Task.WAITING))
