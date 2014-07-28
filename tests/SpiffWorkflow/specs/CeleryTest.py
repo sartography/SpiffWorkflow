@@ -59,19 +59,19 @@ class CeleryTest(TaskSpecTest):
         self.assertIsInstance(kw_defined2.kwargs['some_ref'], Attrib)
 
 
-        args = [b64encode(pickle.dumps(v)) for v in [Attrib('the_attribute'), u'ip', u'dc455016e2e04a469c01a866f11c0854']]
+        args = [b64encode(pickle.dumps(v)) for v in [Attrib('the_attribute'), 'ip', 'dc455016e2e04a469c01a866f11c0854']]
 
-        data = { u'R': b64encode(pickle.dumps(u'1'))}
+        data = { 'R': b64encode(pickle.dumps('1'))}
         # Comes from live data. Bug not identified, but there we are...
-        data = {u'inputs': [u'Wait:1'], u'lookahead': 2, u'description': u'',
-                u'outputs': [], u'args': args,
-          u'manual': False,
-          u'data': data, u'locks': [], u'pre_assign': [],
-          u'call': u'call.x',
-          u'internal': False, u'post_assign': [], u'id': 8,
-          u'result_key': None, u'defines': data,
-          u'class': u'SpiffWorkflow.specs.Celery.Celery',
-          u'name': u'RS1:1'}
+        data = {'inputs': ['Wait:1'], 'lookahead': 2, 'description': '',
+                'outputs': [], 'args': args,
+          'manual': False,
+          'data': data, 'locks': [], 'pre_assign': [],
+          'call': 'call.x',
+          'internal': False, 'post_assign': [], 'id': 8,
+          'result_key': None, 'defines': data,
+          'class': 'SpiffWorkflow.specs.Celery.Celery',
+          'name': 'RS1:1'}
         Celery.deserialize(serializer, new_wf_spec, data)
 
 def suite():
