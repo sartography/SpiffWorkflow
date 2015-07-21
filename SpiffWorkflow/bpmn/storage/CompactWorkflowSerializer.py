@@ -317,7 +317,7 @@ class CompactWorkflowSerializer(Serializer):
                 workflow_parents.append(w.name)
                 w = w.outer_workflow
             state = ("W" if task.state == Task.WAITING else "R")
-            states.append([transition, workflow_parents, state])
+            states.append([transition, list(reversed(workflow_parents)), state])
 
         compacted_states = []
         for state in sorted(states, key=lambda s:",".join([s[0], s[2], (':'.join(s[1]))])):
