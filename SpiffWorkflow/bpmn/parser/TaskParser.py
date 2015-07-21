@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -91,9 +93,9 @@ class TaskParser(object):
                     self.connect_outgoing(c, target_node, sequence_flow, sequence_flow.get('id') == default_outgoing)
 
             return parent_task if boundary_event_nodes else self.task
-        except ValidationException, vx:
+        except ValidationException as vx:
             raise
-        except Exception, ex:
+        except Exception as ex:
             exc_info = sys.exc_info()
             tb =  "".join(traceback.format_exception(exc_info[0], exc_info[1], exc_info[2]))
             LOG.error("%r\n%s", ex, tb)

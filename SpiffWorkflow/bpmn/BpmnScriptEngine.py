@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -34,13 +36,13 @@ class BpmnScriptEngine(object):
         if isinstance(expression, Operator):
             return expression._matches(task)
         else:
-            return self._eval(task, expression, **task.get_attributes())
+            return self._eval(task, expression, **task.data)
 
     def execute(self, task, script):
         """
         Execute the script, within the context of the specified task
         """
-        exec script
+        exec(script)
 
     def _eval(self, task, expression, **kwargs):
         locals().update(kwargs)

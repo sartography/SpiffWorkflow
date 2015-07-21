@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007-2012 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -64,9 +66,9 @@ class XmlSerializer(Serializer):
             kwargs['right_attribute'] = attrib
         return operators.Assign(name, **kwargs)
 
-    def _deserialize_property(self, workflow, start_node):
+    def _deserialize_data(self, workflow, start_node):
         """
-        Reads a "property" or "define" tag from the given node.
+        Reads a "data" or "define" tag from the given node.
         
         start_node -- the xml node (xml.dom.minidom.Node)
         """
@@ -104,7 +106,7 @@ class XmlSerializer(Serializer):
         term2_attrib = node.getAttribute('right-field')
         term2_value  = node.getAttribute('right-value')
         kwargs       = {}
-        if not _op_map.has_key(op):
+        if op not in _op_map:
             _exc('Invalid operator')
         if term1_attrib != '' and term1_value != '':
             _exc('Both, left-field and left-value attributes found')
@@ -179,17 +181,17 @@ class XmlSerializer(Serializer):
         file            = start_node.getAttribute('file').lower()
         file_field      = start_node.getAttribute('file-field').lower()
         kwargs          = {'lock':        [],
-                           'properties':  {},
+                           'data':        {},
                            'defines':     {},
                            'pre_assign':  [],
                            'post_assign': []}
-        if not _spec_map.has_key(nodetype):
+        if nodetype not in _spec_map:
             _exc('Invalid task type "%s"' % nodetype)
         if nodetype == 'start-task':
             name = 'start'
         if name == '':
             _exc('Invalid task name "%s"' % name)
-        if read_specs.has_key(name):
+        if name in read_specs:
             _exc('Duplicate task name "%s"' % name)
         if cancel != '' and cancel != u'0':
             kwargs['cancel'] = True
@@ -229,11 +231,12 @@ class XmlSerializer(Serializer):
             elif node.nodeName == 'conditional-successor':
                 successors.append(self._deserialize_condition(workflow, node))
             elif node.nodeName == 'define':
-                key, value = self._deserialize_property(workflow, node)
+                key, value = self._deserialize_data(workflow, node)
                 kwargs['defines'][key] = value
-            elif node.nodeName == 'property':
-                key, value = self._deserialize_property(workflow, node)
-                kwargs['properties'][key] = value
+            # "property" tag exists for backward compatibility.
+            elif node.nodeName == 'data' or node.nodeName == 'property':
+                key, value = self._deserialize_data(workflow, node)
+                kwargs['data'][key] = value
             elif node.nodeName == 'pre-assign':
                 kwargs['pre_assign'].append(self._deserialize_assign(workflow, node))
             elif node.nodeName == 'post-assign':
@@ -301,7 +304,7 @@ class XmlSerializer(Serializer):
                 workflow_spec.name = child_node.firstChild.nodeValue
             elif child_node.nodeName == 'description':
                 workflow_spec.description = child_node.firstChild.nodeValue
-            elif _spec_map.has_key(child_node.nodeName.lower()):
+            elif child_node.nodeName.lower() in _spec_map:
                 self._deserialize_task_spec(workflow_spec, child_node, read_specs)
             else:
                 _exc('Unknown node: %s' % child_node.nodeName)
@@ -313,7 +316,7 @@ class XmlSerializer(Serializer):
         for name in read_specs:
             spec, successors = read_specs[name]
             for condition, successor_name in successors:
-                if not read_specs.has_key(successor_name):
+                if successor_name not in read_specs:
                     _exc('Unknown successor: "%s"' % successor_name)
                 successor, foo = read_specs[successor_name]
                 if condition is None:

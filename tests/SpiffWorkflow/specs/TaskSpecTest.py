@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
+from __future__ import division
 import sys
 import unittest
 import re
@@ -25,21 +29,21 @@ class TaskSpecTest(unittest.TestCase):
     def testConstructor(self):
         self.assertEqual(self.spec.name, 'testtask')
         self.assertEqual(self.spec.description, 'foo')
-        self.assertEqual(self.spec.properties, {})
+        self.assertEqual(self.spec.data, {})
         self.assertEqual(self.spec.defines, {})
         self.assertEqual(self.spec.pre_assign, [])
         self.assertEqual(self.spec.post_assign, [])
         self.assertEqual(self.spec.locks, [])
 
-    def testSetProperty(self):
-        self.assertEqual(self.spec.get_property('foo'), None)
-        self.assertEqual(self.spec.get_property('foo', 'bar'), 'bar')
-        self.spec.set_property(foo='foobar')
-        self.assertEqual(self.spec.get_property('foo'), 'foobar')
-        self.assertEqual(self.spec.get_property('foo', 'bar'), 'foobar')
+    def testSetData(self):
+        self.assertEqual(self.spec.get_data('foo'), None)
+        self.assertEqual(self.spec.get_data('foo', 'bar'), 'bar')
+        self.spec.set_data(foo='foobar')
+        self.assertEqual(self.spec.get_data('foo'), 'foobar')
+        self.assertEqual(self.spec.get_data('foo', 'bar'), 'foobar')
 
-    def testGetProperty(self):
-        return self.testSetProperty()
+    def testGetData(self):
+        return self.testSetData()
 
     def testConnect(self):
         self.assertEqual(self.spec.outputs, [])

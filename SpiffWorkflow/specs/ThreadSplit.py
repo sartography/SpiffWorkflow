@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -22,7 +24,7 @@ class ThreadSplit(TaskSpec):
     """
     When executed, this task performs a split on the current my_task.
     The number of outgoing my_tasks depends on the runtime value of a
-    specified attribute.
+    specified data field.
     If more than one input is connected, the task performs an implicit
     multi merge.
 
@@ -34,6 +36,7 @@ class ThreadSplit(TaskSpec):
                  name,
                  times = None,
                  times_attribute = None,
+                 suppress_threadstart_creation = False,
                  **kwargs):
         """
         Constructor.
@@ -45,8 +48,11 @@ class ThreadSplit(TaskSpec):
         :type  times: int or None
         :param times: The number of tasks to create.
         :type  times_attribute: str or None
-        :param times_attribute: The name of an attribute that specifies
+        :param times_attribute: The name of a data field that specifies
                                 the number of outgoing tasks.
+        :type  suppress_threadstart_creation: bool
+        :param suppress_threadstart_creation: Don't create a ThreadStart, because
+                                              the deserializer is about to.
         :type  kwargs: dict
         :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
         """
@@ -55,9 +61,12 @@ class ThreadSplit(TaskSpec):
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.times_attribute = times_attribute
         self.times           = times
-        self.thread_starter  = ThreadStart(parent, **kwargs)
-        self.outputs.append(self.thread_starter)
-        self.thread_starter._connect_notify(self)
+        if not suppress_threadstart_creation:
+            self.thread_starter  = ThreadStart(parent, **kwargs)
+            self.outputs.append(self.thread_starter)
+            self.thread_starter._connect_notify(self)
+        else:
+            self.thread_starter = None
 
     def connect(self, task_spec):
         """
@@ -111,9 +120,13 @@ class ThreadSplit(TaskSpec):
             new_task.triggered = True
 
     def _predict_hook(self, my_task):
-        split_n = my_task.get_attribute('split_n', self.times)
+        split_n = my_task.get_data('split_n', self.times)
         if split_n is None:
-            split_n = my_task.get_attribute(self.times_attribute, 1)
+            split_n = my_task.get_data(self.times_attribute, 1)
+
+        # if we were created with thread_starter suppressed, connect it now.
+        if self.thread_starter is None:
+            self.thread_starter = self.outputs[0]
 
         # Predict the outputs.
         outputs = []
@@ -128,7 +141,7 @@ class ThreadSplit(TaskSpec):
         # Split, and remember the number of splits in the context data.
         split_n = self.times
         if split_n is None:
-            split_n = my_task.get_attribute(self.times_attribute)
+            split_n = my_task.get_data(self.times_attribute)
 
         # Create the outgoing tasks.
         outputs = []
@@ -140,3 +153,7 @@ class ThreadSplit(TaskSpec):
 
     def serialize(self, serializer):
         return serializer._serialize_thread_split(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_thread_split(wf_spec, s_state)

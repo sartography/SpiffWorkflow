@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
+from __future__ import division
 import unittest
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -10,7 +14,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
         try:
             self.load_workflow_spec('Invalid-Workflows/Disconnected-Boundary-Event.bpmn20.xml', 'Disconnected Boundary Event')
             self.fail("self.load_workflow_spec('Invalid-Workflows/Disconnected-Boundary-Event.bpmn20.xml', 'Disconnected Boundary Event') should fail.")
-        except ValidationException, ex:
+        except ValidationException as ex:
             self.assertTrue('This might be a Boundary Event that has been disconnected' in ('%r'%ex),
                 '\'This might be a Boundary Event that has been disconnected\' should be a substring of error message: \'%r\'' % ex)
 #            self.assertTrue('line 64' in ('%r'%ex),
@@ -28,7 +32,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
         try:
             self.load_workflow_spec('Invalid-Workflows/No-Start-Event.bpmn20.xml', 'No Start Event')
             self.fail("self.load_workflow_spec('Invalid-Workflows/No-Start-Event.bpmn20.xml', 'No Start Event') should fail.")
-        except ValidationException, ex:
+        except ValidationException as ex:
             self.assertTrue('No start event found' in ('%r'%ex),
                 '\'No start event found\' should be a substring of error message: \'%r\'' % ex)
 #            self.assertTrue('line 10' in ('%r'%ex),
@@ -46,7 +50,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
         try:
             self.load_workflow_spec('Invalid-Workflows/Multiple-Start-Events.bpmn20.xml', 'Multiple Start Events')
             self.fail("self.load_workflow_spec('Invalid-Workflows/Multiple-Start-Events.bpmn20.xml', 'Multiple Start Events') should fail.")
-        except ValidationException, ex:
+        except ValidationException as ex:
             self.assertTrue('Only one Start Event is supported in each process' in ('%r'%ex),
                 '\'Only one Start Event is supported in each process\' should be a substring of error message: \'%r\'' % ex)
 #            self.assertTrue('line 10' in ('%r'%ex),
@@ -64,7 +68,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
         try:
             self.load_workflow_spec('Invalid-Workflows/Subprocess-Not-Found.bpmn20.xml', 'Subprocess Not Found')
             self.fail("self.load_workflow_spec('Invalid-Workflows/Subprocess-Not-Found.bpmn20.xml', 'Subprocess Not Found') should fail.")
-        except ValidationException, ex:
+        except ValidationException as ex:
             self.assertTrue('No matching process definition found for \'Missing subprocess\'.' in ('%r'%ex),
                 '\'No matching process definition found for \'Missing subprocess\'.\' should be a substring of error message: \'%r\'' % ex)
 #            self.assertTrue('line 35' in ('%r'%ex),
@@ -82,7 +86,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
         try:
             self.load_workflow_spec('Invalid-Workflows/Recursive-Subprocesses.bpmn20.xml', 'Recursive Subprocesses')
             self.fail("self.load_workflow_spec('Invalid-Workflows/Recursive-Subprocesses.bpmn20.xml', 'Recursive Subprocesses') should fail.")
-        except ValidationException, ex:
+        except ValidationException as ex:
             self.assertTrue('Recursive call Activities are not supported' in ('%r'%ex),
                 '\'Recursive call Activities are not supported\' should be a substring of error message: \'%r\'' % ex)
 #            self.assertTrue('line 97' in ('%r'%ex),
@@ -100,7 +104,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
         try:
             self.load_workflow_spec('Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'Unsupported Task')
             self.fail("self.load_workflow_spec('Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'Unsupported Task') should fail.")
-        except ValidationException, ex:
+        except ValidationException as ex:
             self.assertTrue('There is no support implemented for this task type' in ('%r'%ex),
                 '\'There is no support implemented for this task type\' should be a substring of error message: \'%r\'' % ex)
 #            self.assertTrue('line 63' in ('%r'%ex),

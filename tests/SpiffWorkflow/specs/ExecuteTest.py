@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
+from __future__ import division
 import os
 import sys
 import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from tests.SpiffWorkflow.util import run_workflow
-from TaskSpecTest import TaskSpecTest
+from .TaskSpecTest import TaskSpecTest
 from SpiffWorkflow import Task
 from SpiffWorkflow.specs import Execute
 
@@ -21,7 +25,7 @@ class ExecuteTest(TaskSpecTest):
                        args=self.cmd_args)
 
     def setUp(self):
-        self.cmd_args = "ping", "-c", "1", "-t", "1", "127.0.0.1"
+        self.cmd_args = ["python", "ExecuteProcessMock.py"]
         TaskSpecTest.setUp(self)
 
     def testConstructor(self):
@@ -36,13 +40,12 @@ class ExecuteTest(TaskSpecTest):
         self.wf_spec.start.connect(self.spec)
         expected = 'Start\n  testtask\n'
         workflow = run_workflow(self, self.wf_spec, expected, '')
-        task = workflow.get_task(3)
-        self.assertEqual(task.task_spec.name, 'testtask')
+        task = workflow.get_tasks_from_spec_name('testtask')[0]
         self.assertEqual(task.state_history, [Task.FUTURE,
                                               Task.WAITING,
                                               Task.READY,
                                               Task.COMPLETED])
-        self.assert_('127.0.0.1' in task.results[0])
+        self.assert_(b'127.0.0.1' in task.results[0])
 
 
 def suite():

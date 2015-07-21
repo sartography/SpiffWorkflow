@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -14,29 +16,20 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import logging
-from mutex import mutex
+from .util.compat import mutex
+
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow import specs
 from SpiffWorkflow.util.event import Event
-from Task import Task
+from .Task import Task
 
 LOG = logging.getLogger(__name__)
-
-
-class TaskIdAssigner(object):
-    def __init__(self):
-        self.id_pool = 0
-
-    def get_new_id(self):
-        self.id_pool += 1
-        return self.id_pool
-
 
 class Workflow(object):
     """
     The engine that executes a workflow.
     It is a essentially a facility for managing all branches.
-    A Workflow is also the place that holds the attributes of a running workflow.
+    A Workflow is also the place that holds the data of a running workflow.
     """
 
     def __init__(self, workflow_spec, deserializing=False, **kwargs):
@@ -50,8 +43,7 @@ class Workflow(object):
         assert workflow_spec is not None
         LOG.debug("__init__ Workflow instance: %s" % self.__str__())
         self.spec = workflow_spec
-        self.task_id_assigner = TaskIdAssigner()
-        self.attributes = {}
+        self.data = {}
         self.outer_workflow = kwargs.get('parent', self)
         self.locks = {}
         self.last_task = None
@@ -98,7 +90,7 @@ class Workflow(object):
 
     def _task_completed_notify(self, task):
         if task.get_name() == 'End':
-            self.attributes.update(task.get_attributes())
+            self.data.update(task.data)
         # Update the state of every WAITING task.
         for thetask in self._get_waiting_tasks():
             thetask.task_spec._update_state(thetask)
@@ -114,19 +106,19 @@ class Workflow(object):
             self.locks[name] = mutex()
         return self.locks[name]
 
-    def get_attribute(self, name, default=None):
+    def get_data(self, name, default=None):
         """
-        Returns the value of the attribute with the given name, or the given
-        default value if the attribute does not exist.
+        Returns the value of the data field with the given name, or the given
+        default value if the data field does not exist.
 
         :type  name: string
-        :param name: An attribute name.
+        :param name: A data field name.
         :type  default: obj
-        :param default: Return this value if the attribute does not exist.
+        :param default: Return this value if the data field does not exist.
         :rtype:  obj
-        :returns: The value of the attribute.
+        :returns: The value of the data field.
         """
-        return self.attributes.get(name, default)
+        return self.data.get(name, default)
 
     def cancel(self, success=False):
         """
@@ -166,6 +158,18 @@ class Workflow(object):
         """
         tasks = [task for task in self.get_tasks() if task.id == id]
         return tasks[0] if len(tasks) == 1 else None
+
+    def get_tasks_from_spec_name(self, name):
+        """
+        Returns all tasks whose spec has the given name.
+
+        @type name: str
+        @param name: The name of a task spec.
+        @rtype: Task
+        @return: The task that relates to the spec with the given name.
+        """
+        return [task for task in self.get_tasks()
+                if task.task_spec.name == name]
 
     def get_tasks(self, state=Task.ANY_MASK):
         """
@@ -265,7 +269,7 @@ class Workflow(object):
         Like get_dump(), but prints the output to the terminal instead of
         returning it.
         """
-        print self.task_tree.dump()
+        print(self.task_tree.dump())
 
     def serialize(self, serializer, **kwargs):
         """

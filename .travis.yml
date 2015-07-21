@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.7"
+  - "3.3"
+
+# command to install dependencies
+install: "python setup.py develop"
+
+# command to run tests
+script: "cd tests && sh run_suite.sh"

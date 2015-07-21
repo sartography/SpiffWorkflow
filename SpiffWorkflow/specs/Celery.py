@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -46,7 +48,7 @@ def _eval_args(args, my_task):
 def _eval_kwargs(kwargs, my_task):
     """Parses kwargs and evaluates any Attrib entries"""
     results = {}
-    for kwarg, value in kwargs.iteritems():
+    for kwarg, value in kwargs.items():
         if isinstance(value, Attrib) or isinstance(value, PathAttrib):
             results[kwarg] = valueof(my_task, value)
         else:
@@ -116,8 +118,8 @@ class Celery(TaskSpec):
         self.call = call
         self.args = call_args
         self.merge_results = merge_results
-        skip = 'properties', 'defines', 'pre_assign', 'post_assign', 'lock'
-        self.kwargs = dict(i for i in kwargs.iteritems() if i[0] not in skip)
+        skip = 'data', 'defines', 'pre_assign', 'post_assign', 'lock'
+        self.kwargs = dict(i for i in kwargs.items() if i[0] not in skip)
         self.result_key = result_key
         LOG.debug("Celery task '%s' created to call '%s'" % (name, call))
 

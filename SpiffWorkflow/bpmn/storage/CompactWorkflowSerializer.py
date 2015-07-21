@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -22,6 +24,11 @@ from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.specs import SubWorkflow
 from SpiffWorkflow.storage.Serializer import Serializer
 
+try:
+    basestring
+except:
+    basestring = str
+
 
 class UnrecoverableWorkflowChange(Exception):
     """
@@ -40,7 +47,7 @@ class _RouteNode(object):
         self.state = None
 
     def get_outgoing_by_spec(self, task_spec):
-        m = filter(lambda r: r.task_spec == task_spec, self.outgoing)
+        m = [r for r in self.outgoing if r.task_spec == task_spec]
         return m[0] if m else None
 
     def to_list(self):
@@ -105,7 +112,7 @@ class _BpmnProcessSpecState(object):
             self.route = outgoing_route_node
 
     def dump(self):
-        print self.get_dump()
+        print(self.get_dump())
 
     def get_dump(self):
         def recursive_dump(route_node, indent, verbose=False):
@@ -131,7 +138,7 @@ class _BpmnProcessSpecState(object):
         logging.debug('Leaf tasks after load, before _update_state: %s', leaf_tasks)
         for task in sorted(leaf_tasks, key=lambda t: 0 if getattr(t, '_bpmn_load_target_state', Task.READY) == Task.READY else 1):
             task.task_spec._update_state(task)
-            task._inherit_attributes()
+            task._inherit_data()
             if hasattr(task, '_bpmn_load_target_state'):
                 delattr(task, '_bpmn_load_target_state')
 
@@ -148,7 +155,7 @@ class _BpmnProcessSpecState(object):
                 else:
                     self._complete_task_silent(task, [n.task_spec for n in route_node.outgoing])
             for n in route_node.outgoing:
-                matching_child = filter(lambda t: t.task_spec == n.task_spec, task.children)
+                matching_child = [t for t in task.children if t.task_spec == n.task_spec]
                 assert len(matching_child) == 1
                 self._go(matching_child[0], n, leaf_tasks)
 
@@ -186,7 +193,7 @@ class _BpmnProcessSpecState(object):
                 my_task.children.insert(0, child)
                 child.parent = my_task
 
-        my_task._set_internal_attribute(subworkflow = subworkflow)
+        my_task._set_internal_data(subworkflow = subworkflow)
 
         my_task._set_state(Task.COMPLETED)
 
@@ -248,8 +255,8 @@ class CompactWorkflowSerializer(Serializer):
     with some limitations.
 
     Limitations:
-    1. The compact representation does not include any workflow or task attributes. It is the responsibility of the
-    calling application to record whatever attributes are relevant to it, and set them on the restored workflow.
+    1. The compact representation does not include any workflow or task data. It is the responsibility of the
+    calling application to record whatever data is relevant to it, and set it on the restored workflow.
     2. The restoring process will not produce exactly the same workflow tree - it finds the SHORTEST route to
     the saved READY and WAITING tasks, not the route that was actually taken. This means that the tree cannot be
     interrogated for historical information about the workflow. However, the workflow does follow the same logic
@@ -360,8 +367,8 @@ class CompactWorkflowSerializer(Serializer):
                     other_route = routes[j][0]
                     route_to_parent_complete = routes[j][1]
                     if route.contains(other_route) or (route_to_parent_complete and route.contains(route_to_parent_complete)):
-                        taken_routes = filter(lambda r: r[0]!=route, routes)
-                        taken_routes = filter(lambda r: r, [r[0] for r in taken_routes] + [r[1] for r in taken_routes])
+                        taken_routes = [r for r in routes if r[0]!=route]
+                        taken_routes = [r for r in [r[0] for r in taken_routes] + [r[1] for r in taken_routes] if r]
                         route, route_to_parent_complete = s.get_path_to_transition(transition, state, workflow_parents, taken_routes=taken_routes)
                         for r in taken_routes:
                             assert not route.contains(r)

@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
+from __future__ import division
 import unittest
 import datetime
 import time
@@ -21,7 +25,7 @@ class TimerIntermediateTest(BpmnWorkflowTestCase):
         due_time = datetime.datetime.now() + datetime.timedelta(seconds=0.5)
 
         self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
-        self.workflow.get_tasks(Task.READY)[0].set_attribute(due_time=due_time)
+        self.workflow.get_tasks(Task.READY)[0].set_data(due_time=due_time)
 
         self.workflow.do_engine_steps()
 

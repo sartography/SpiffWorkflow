@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -50,7 +52,7 @@ class _EndJoin(UnstructuredJoin):
 
     def _on_complete_hook(self, my_task):
         super(_EndJoin, self)._on_complete_hook(my_task)
-        my_task.workflow.attributes.update(my_task.get_attributes())
+        my_task.workflow.data.update(my_task.data)
 
 
 class BpmnProcessSpec(WorkflowSpec):

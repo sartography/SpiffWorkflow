@@ -1,9 +1,13 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
+from __future__ import division
 import os
 import sys
 import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
-from JoinTest import JoinTest
+from .JoinTest import JoinTest
 from SpiffWorkflow.specs import Merge, WorkflowSpec, Simple
 from SpiffWorkflow import Workflow
 
@@ -52,31 +56,31 @@ class MergeTest(JoinTest):
         merge2.connect(simple2)
 
         workflow = Workflow(wf_spec)
-        workflow.task_tree.set_attribute(everywhere=1)
+        workflow.task_tree.set_data(everywhere=1)
         for task in workflow.get_tasks():
-            task.set_attribute(**{'name': task.get_name(), task.get_name(): 1})
+            task.set_data(**{'name': task.get_name(), task.get_name(): 1})
         workflow.complete_all()
         self.assertTrue(workflow.is_completed())
         found = {}
         for task in workflow.get_tasks():
             if task.task_spec is simple1:
-                self.assert_('first' in task.attributes)
-                self.assert_('second' in task.attributes)
-                self.assertEqual(task.attributes, {'Start': 1,
+                self.assert_('first' in task.data)
+                self.assert_('second' in task.data)
+                self.assertEqual(task.data, {'Start': 1,
                         'merge 1': 1, 'name': 'Start', 'simple 1': 1,
                         'second': 1, 'first': 1})
                 found['simple1'] = task
             if task.task_spec is simple2:
-                self.assert_('first' in task.attributes)
-                self.assert_('second' in task.attributes)
-                self.assert_('third' in task.attributes)
-                self.assert_('fourth' in task.attributes)
-                self.assertEqual(task.attributes, {'merge 2': 1,
+                self.assert_('first' in task.data)
+                self.assert_('second' in task.data)
+                self.assert_('third' in task.data)
+                self.assert_('fourth' in task.data)
+                self.assertEqual(task.data, {'merge 2': 1,
                         'simple 2': 1, 'name': 'Start', 'third': 1, 'bump': 1,
                         'Start': 1, 'second': 1, 'first': 1, 'fourth': 1})
                 found['simple2'] = task
             if task.task_spec is unmerged:
-                self.assertEqual(task.attributes, {'Start': 1,
+                self.assertEqual(task.data, {'Start': 1,
                         'second': 1, 'name': 'Start', 'unmerged': 1})
                 found['unmerged'] = task
         self.assert_('simple1' in found)

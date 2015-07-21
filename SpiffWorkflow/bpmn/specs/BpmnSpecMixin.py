@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -107,13 +109,13 @@ class BpmnSpecMixin(TaskSpec):
         """
         Returns a list of the names of outgoing sequences. Some may be None.
         """
-        return sorted([s.name for s in self.outgoing_sequence_flows_by_id.itervalues()])
+        return sorted([s.name for s in self.outgoing_sequence_flows_by_id.values()])
 
     def get_outgoing_sequences(self):
         """
         Returns a list of the names of outgoing sequences. Some may be None.
         """
-        return self.outgoing_sequence_flows_by_id.itervalues()
+        return iter(self.outgoing_sequence_flows_by_id.values())
 
     def accept_message(self, my_task, message):
         """

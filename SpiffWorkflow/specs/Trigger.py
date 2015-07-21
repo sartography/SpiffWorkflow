@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -84,3 +86,12 @@ class Trigger(TaskSpec):
 
     def serialize(self, serializer):
         return serializer._serialize_trigger(self)
+
+    @classmethod
+    def deserialize(cls, serializer, wf_spec, s_state, **kwargs):
+        """
+        Deserializes the trigger using the provided serializer.
+        """
+        return serializer._deserialize_trigger(wf_spec,
+                                               s_state,
+                                               **kwargs)

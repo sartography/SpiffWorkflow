@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -126,3 +128,7 @@ class ThreadMerge(Join):
 
     def serialize(self, serializer):
         return serializer._serialize_thread_merge(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer._deserialize_thread_merge(wf_spec, s_state)
