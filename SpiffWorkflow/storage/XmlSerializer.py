@@ -193,9 +193,9 @@ class XmlSerializer(Serializer):
             _exc('Invalid task name "%s"' % name)
         if name in read_specs:
             _exc('Duplicate task name "%s"' % name)
-        if cancel != '' and cancel != u'0':
+        if cancel != '' and cancel != '0':
             kwargs['cancel'] = True
-        if success != '' and success != u'0':
+        if success != '' and success != '0':
             kwargs['success'] = True
         if times != '':
             kwargs['times'] = int(times)
