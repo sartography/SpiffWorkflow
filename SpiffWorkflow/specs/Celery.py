@@ -116,8 +116,8 @@ class Celery(TaskSpec):
         assert call is not None
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.description = kwargs.pop('description', '')
-        self.call = call
-        self.args = call_args
+        self.call = call or []
+        self.args = call_args or {}
         self.merge_results = merge_results
         skip = 'data', 'defines', 'pre_assign', 'post_assign', 'lock'
         self.kwargs = dict(i for i in kwargs.items() if i[0] not in skip)
