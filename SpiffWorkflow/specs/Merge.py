@@ -51,7 +51,7 @@ def _log_overwrites(dst, src):
     for k, v in src.items():
         if k in dst:
             if isinstance(v, dict) and isinstance(dst[k], dict):
-                log_overwrites(v, dst[k])
+                _log_overwrites(v, dst[k])
             else:
                 if v != dst[k]:
                     LOG.warning("Overwriting %s=%s with %s" % (k, dst[k], v))
