@@ -90,7 +90,7 @@ class Celery(TaskSpec):
         For serialization, the celery task_id is stored in internal_data,
         but the celery async call is only storred as an attr of the task (since
         it is not always serializable). When deserialized, the async_call attr
-        is reset in the _try_fire call.
+        is reset in the _start call.
 
         :type  parent: TaskSpec
         :param parent: A reference to the parent task spec.
@@ -139,7 +139,7 @@ class Celery(TaskSpec):
         my_task.async_call = async_call
         LOG.debug("'%s' called: %s" % (self.call, my_task.async_call.task_id))
 
-    def _retry_fire(self, my_task):
+    def _restart(self, my_task):
         """ Abort celery task and retry it"""
         if not my_task._has_state(Task.WAITING):
             raise WorkflowException(my_task, "Cannot refire a task that is not"
@@ -163,7 +163,7 @@ class Celery(TaskSpec):
                         "requested" % async_call)
             self._clear_celery_task_data(my_task)
         # Retrigger
-        return self._try_fire(my_task)
+        return self._start(my_task)
 
     def _clear_celery_task_data(self, my_task):
         """ Clear celery task data """
@@ -183,7 +183,7 @@ class Celery(TaskSpec):
         if hasattr(my_task, 'deserialized'):
             delattr(my_task, 'deserialized')
 
-    def _try_fire(self, my_task, force=False):
+    def _start(self, my_task, force=False):
         """Returns False when successfully fired, True otherwise"""
 
         # Deserialize async call if necessary
@@ -244,7 +244,7 @@ class Celery(TaskSpec):
             return False
 
     def _update_hook(self, my_task):
-        if not self._try_fire(my_task):
+        if not self._start(my_task):
             if not my_task._has_state(Task.WAITING):
                 LOG.debug("'%s' going to WAITING state" % my_task.get_name())
                 my_task.state = Task.WAITING

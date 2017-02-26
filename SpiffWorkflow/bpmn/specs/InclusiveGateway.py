@@ -62,7 +62,7 @@ class InclusiveGateway(UnstructuredJoin):
 
     """
 
-    def _try_fire_unstructured(self, my_task, force=False):
+    def _check_threshold_unstructured(self, my_task, force=False):
 
         # Look at the tree to find all ready and waiting tasks (excluding ones that are our completed inputs).
         tasks = []

@@ -24,7 +24,7 @@ import xml.etree.ElementTree as ET
 
 class _EndJoin(UnstructuredJoin):
 
-    def _try_fire_unstructured(self, my_task, force=False):
+    def _check_threshold_unstructured(self, my_task, force=False):
         # Look at the tree to find all ready and waiting tasks (excluding ourself).
         # The EndJoin waits for everyone!
         waiting_tasks = []

@@ -39,7 +39,7 @@ class ParallelGateway(UnstructuredJoin):
 
     """
 
-    def _try_fire_unstructured(self, my_task, force=False):
+    def _check_threshold_unstructured(self, my_task, force=False):
         completed_inputs, waiting_tasks = self._get_inputs_with_tokens(my_task)
 
         # If the threshold was reached, get ready to fire.

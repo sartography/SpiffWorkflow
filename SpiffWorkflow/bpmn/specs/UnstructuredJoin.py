@@ -29,7 +29,7 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
     A helper subclass of Join that makes it work in a slightly friendlier way for the BPMN style threading
     """
 
-    def _try_fire_unstructured(self, my_task, force=False):
+    def _check_threshold_unstructured(self, my_task, force=False):
         raise NotImplementedError("Please implement this in the subclass")
 
     def _get_inputs_with_tokens(self, my_task):

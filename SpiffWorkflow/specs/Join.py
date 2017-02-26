@@ -122,7 +122,7 @@ class Join(TaskSpec):
                 return True
         return False
 
-    def _try_fire_unstructured(self, my_task, force=False):
+    def _check_threshold_unstructured(self, my_task, force=False):
         # The default threshold is the number of inputs.
         threshold = valueof(my_task, self.threshold)
         if threshold is None:
@@ -150,7 +150,7 @@ class Join(TaskSpec):
         # If the threshold was reached, get ready to fire.
         return force or completed >= threshold, waiting_tasks
 
-    def _try_fire_structured(self, my_task, force=False):
+    def _check_threshold_structured(self, my_task, force=False):
         # Retrieve a list of all activated tasks from the associated
         # task that did the conditional parallel split.
         split_task = my_task._find_ancestor_from_name(self.split_task)
@@ -181,7 +181,7 @@ class Join(TaskSpec):
         # If the threshold was reached, get ready to fire.
         return force or completed >= threshold, waiting_tasks
 
-    def _try_fire(self, my_task, force=False):
+    def _start(self, my_task, force=False):
         """
         Checks whether the preconditions for going to READY state are met.
         Returns True if the threshold was reached, False otherwise.
@@ -195,12 +195,12 @@ class Join(TaskSpec):
 
         # Check whether we may fire.
         if self.split_task is None:
-            return self._try_fire_unstructured(my_task, force)
-        return self._try_fire_structured(my_task, force)
+            return self._check_threshold_unstructured(my_task, force)
+        return self._check_threshold_structured(my_task, force)
 
     def _update_hook(self, my_task):
         # Check whether enough incoming branches have completed.
-        may_fire, waiting_tasks = self._try_fire(my_task)
+        may_fire, waiting_tasks = self._start(my_task)
         if not may_fire:
             my_task._set_state(Task.WAITING)
             return

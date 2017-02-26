@@ -52,7 +52,7 @@ class Execute(TaskSpec):
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.args = args
 
-    def _try_fire(self, my_task, force = False):
+    def _start(self, my_task, force = False):
         """Returns False when successfully fired, True otherwise"""
         if (not hasattr(my_task, 'subprocess')) or my_task.subprocess is None:
             my_task.subprocess = subprocess.Popen(self.args,
@@ -71,7 +71,7 @@ class Execute(TaskSpec):
         return False
 
     def _update_hook(self, my_task):
-        if not self._try_fire(my_task):
+        if not self._start(my_task):
             my_task.state = Task.WAITING
             return
         super(Execute, self)._update_hook(my_task)
