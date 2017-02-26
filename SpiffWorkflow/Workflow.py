@@ -68,7 +68,7 @@ class Workflow(object):
 
         self.spec.start._predict(start)
         if 'parent' not in kwargs:
-            start.task_spec._update_state(start)
+            start.task_spec._update(start)
         #start.dump()
 
     def is_completed(self):
@@ -93,7 +93,7 @@ class Workflow(object):
             self.data.update(task.data)
         # Update the state of every WAITING task.
         for thetask in self._get_waiting_tasks():
-            thetask.task_spec._update_state(thetask)
+            thetask.task_spec._update(thetask)
         if self.completed_event.n_subscribers() == 0:
             # Since is_completed() is expensive it makes sense to bail
             # out if calling it is not necessary.
@@ -237,7 +237,7 @@ class Workflow(object):
 
         # Walk through all waiting tasks.
         for task in Task.Iterator(self.task_tree, Task.WAITING):
-            task.task_spec._update_state(task)
+            task.task_spec._update(task)
             if not task._has_state(Task.WAITING):
                 self.last_task = task
                 return True

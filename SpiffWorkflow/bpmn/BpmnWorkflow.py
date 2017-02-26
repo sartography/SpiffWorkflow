@@ -74,7 +74,7 @@ class BpmnWorkflow(Workflow):
         """
         assert not self.read_only
         for my_task in self.get_tasks(Task.WAITING):
-            my_task.task_spec._update_state(my_task)
+            my_task.task_spec._update(my_task)
 
     def get_ready_user_tasks(self):
         """

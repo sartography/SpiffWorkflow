@@ -131,7 +131,7 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
                 task._drop_children()
 
 
-    def _update_state_hook(self, my_task):
+    def _update_hook(self, my_task):
 
         if my_task._is_predicted():
             self._predict(my_task)
@@ -143,5 +143,5 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
             my_task._set_state(Task.WAITING)
             return
 
-        logging.debug('UnstructuredJoin._update_state_hook: %s (%s) - Children: %s', self.name, self.description, len(my_task.children))
-        super(UnstructuredJoin, self)._update_state_hook(my_task)
+        logging.debug('UnstructuredJoin._update_hook: %s (%s) - Children: %s', self.name, self.description, len(my_task.children))
+        super(UnstructuredJoin, self)._update_hook(my_task)

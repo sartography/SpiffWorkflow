@@ -46,7 +46,7 @@ class AcquireMutex(TaskSpec):
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.mutex = mutex
 
-    def _update_state_hook(self, my_task):
+    def _update_hook(self, my_task):
         mutex = my_task.workflow._get_mutex(self.mutex)
         if mutex.testandset():
             self.entered_event.emit(my_task.workflow, my_task)

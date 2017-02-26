@@ -97,7 +97,7 @@ class SubWorkflow(TaskSpec):
         # Integrate the tree of the subworkflow into the tree of this workflow.
         my_task._sync_children(self.outputs, Task.FUTURE)
         for child in my_task.children:
-            child.task_spec._update_state(child)
+            child.task_spec._update(child)
             child._inherit_data()
         for child in subworkflow.task_tree.children:
             my_task.children.insert(0, child)
@@ -114,7 +114,7 @@ class SubWorkflow(TaskSpec):
 
         self._predict(my_task)
         for child in subworkflow.task_tree.children:
-            child.task_spec._update_state(child)
+            child.task_spec._update(child)
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
         # Assign variables, if so requested.
@@ -124,13 +124,13 @@ class SubWorkflow(TaskSpec):
                     assignment.assign(subworkflow, child)
 
                 # Alright, abusing that hook is just evil but it works.
-                child.task_spec._update_state_hook(child)
+                child.task_spec._update_hook(child)
 
     def _on_complete_hook(self, my_task):
         for child in my_task.children:
             if child.task_spec in self.outputs:
                 continue
-            child.task_spec._update_state(child)
+            child.task_spec._update(child)
 
     def serialize(self, serializer):
         return serializer._serialize_sub_workflow(self)

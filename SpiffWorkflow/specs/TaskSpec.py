@@ -262,16 +262,16 @@ class TaskSpec(object):
             if not child._is_definite():
                 child._set_state(best_state)
 
-    def _update_state(self, my_task):
+    def _update(self, my_task):
         """
         Called whenever any event happens that may affect the
         state of this task in the workflow. For example, if a predecessor
         completes it makes sure to call this method so we can react.
         """
         my_task._inherit_data()
-        self._update_state_hook(my_task)
+        self._update_hook(my_task)
 
-    def _update_state_hook(self, my_task):
+    def _update_hook(self, my_task):
         """
         Typically this method should perform the following actions::
 
@@ -283,7 +283,7 @@ class TaskSpec(object):
         """
         if my_task._is_predicted():
             self._predict(my_task)
-        LOG.debug("'%s'._update_state_hook says parent (%s, state=%s) "
+        LOG.debug("'%s'._update_hook says parent (%s, state=%s) "
                 "is_finished=%s" % (self.name, my_task.parent.get_name(),
                 my_task.parent.get_state_name(),
                 my_task.parent._is_finished()))
@@ -408,7 +408,7 @@ class TaskSpec(object):
         """
         # If we have more than one output, implicitly split.
         for child in my_task.children:
-            child.task_spec._update_state(child)
+            child.task_spec._update(child)
 
     def serialize(self, serializer, **kwargs):
         """

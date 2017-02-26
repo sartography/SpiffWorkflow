@@ -96,7 +96,7 @@ class ThreadMerge(Join):
         # we need to revisit it.
         return False
 
-    def _update_state_hook(self, my_task):
+    def _update_hook(self, my_task):
         if not self._try_fire(my_task):
             my_task._set_state(Task.WAITING)
             return

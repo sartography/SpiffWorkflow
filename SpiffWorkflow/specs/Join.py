@@ -198,7 +198,7 @@ class Join(TaskSpec):
             return self._try_fire_unstructured(my_task, force)
         return self._try_fire_structured(my_task, force)
 
-    def _update_state_hook(self, my_task):
+    def _update_hook(self, my_task):
         # Check whether enough incoming branches have completed.
         may_fire, waiting_tasks = self._try_fire(my_task)
         if not may_fire:

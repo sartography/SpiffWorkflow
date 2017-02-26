@@ -243,13 +243,13 @@ class Celery(TaskSpec):
                             my_task.get_name()))
             return False
 
-    def _update_state_hook(self, my_task):
+    def _update_hook(self, my_task):
         if not self._try_fire(my_task):
             if not my_task._has_state(Task.WAITING):
                 LOG.debug("'%s' going to WAITING state" % my_task.get_name())
                 my_task.state = Task.WAITING
             return
-        super(Celery, self)._update_state_hook(my_task)
+        super(Celery, self)._update_hook(my_task)
 
     def serialize(self, serializer):
         return serializer._serialize_celery(self)

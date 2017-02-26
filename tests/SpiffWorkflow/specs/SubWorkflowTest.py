@@ -108,7 +108,7 @@ class TaskSpecTest(unittest.TestCase):
         #Now refresh waiting tasks:
         # Update the state of every WAITING task.
         for thetask in self.workflow._get_waiting_tasks():
-            thetask.task_spec._update_state(thetask)
+            thetask.task_spec._update(thetask)
 
         self.do_next_unique_task('last')
         self.do_next_unique_task('End')
