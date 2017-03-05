@@ -1,5 +1,7 @@
 # Spiff Workflow
 
+[![Build Status](https://travis-ci.org/knipknap/SpiffWorkflow.svg?branch=master)](https://travis-ci.org/knipknap/SpiffWorkflow)
+
 ## Summary
 
 Spiff Workflow is a workflow engine implemented in pure Python. It is based

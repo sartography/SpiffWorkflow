@@ -1,10 +1,15 @@
 language: python
 python:
+  - "2.6"
   - "2.7"
-  - "3.3"
-
+# - "3.2"
+# - "3.3"
+# - "3.4"
 # command to install dependencies
-install: "python setup.py develop"
-
+install:
+  - "pip install -r requirements.txt"
+  - "pip install coveralls"
 # command to run tests
-script: "cd tests && sh run_suite.sh"
+script: cd tests/; coverage run --source=SpiffWorkflow ./run_suite.sh
+after_success:
+  coveralls
