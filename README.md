@@ -30,12 +30,12 @@ The process of using Spiff Workflow involves the following steps:
 
 ```python
 from SpiffWorkflow.specs import WorkflowSpec
-from SpiffWorkflow import Workflow
 from SpiffWorkflow.storage import XmlSerializer
+from SpiffWorkflow import Workflow
 
 # Load the workflow specification:
 with open('my_workflow.xml') as fp:
-	serializer = DictionarySerializer()
+	serializer = XmlSerializer()
 	spec = WorkflowSpec.deserialize(serializer, fp.read())
 
 # Create an instance of the workflow, according to the specification.
