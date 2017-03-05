@@ -10,6 +10,6 @@ install:
   - "pip install -r requirements.txt"
   - "pip install coveralls"
 # command to run tests
-script: cd tests/; coverage run --source=SpiffWorkflow ./run_suite.sh
+script: cd tests/SpiffWorkflow; coverage run --source=SpiffWorkflow ./run_suite.py
 after_success:
   coveralls
