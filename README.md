@@ -10,9 +10,14 @@ on the excellent work of the
 
 ## Main design goals
 
-- Directly support as many of the patterns of workflowpatterns.com as possible.
-- Map those patterns into workflow elements that are easy to understand by a user in a workflow GUI editor.
-- Provide a clean Python API.
+- Spiff Workflow aims to directly support as many of the patterns of
+  workflowpatterns.com as possible.
+- Spiff Workflow provides **excellent test coverage** (near 100%).
+- Spiff Workflow provides a **clean Python API**.
+- Spiff Workflow allows for mapping patterns into workflow elements that
+  are **easy to understand for non-technical users** in a workflow GUI editor.
+- Spiff Workflow implements the best possible **path prediction** for
+  workflows.
 
 Spiff Workflow also provides a parser and workflow emulation
 layer that can be used to create executable Spiff Workflow specifications
