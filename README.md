@@ -1,6 +1,7 @@
 # Spiff Workflow
 
 [![Build Status](https://travis-ci.org/knipknap/SpiffWorkflow.svg?branch=master)](https://travis-ci.org/knipknap/SpiffWorkflow)
+[![Coverage Status](https://coveralls.io/repos/github/knipknap/SpiffWorkflow/badge.svg?branch=master)](https://coveralls.io/github/knipknap/SpiffWorkflow?branch=master)
 
 ## Summary
 
