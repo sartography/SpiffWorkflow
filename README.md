@@ -14,7 +14,7 @@ on the excellent work of the
 
 - Spiff Workflow aims to directly support as many of the patterns of
   workflowpatterns.com as possible.
-- Spiff Workflow provides **excellent test coverage** (near 100%).
+- Spiff Workflow uses unit testing as much as possible.
 - Spiff Workflow provides a **clean Python API**.
 - Spiff Workflow allows for mapping patterns into workflow elements that
   are **easy to understand for non-technical users** in a workflow GUI editor.
