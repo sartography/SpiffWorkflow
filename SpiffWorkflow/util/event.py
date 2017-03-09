@@ -66,7 +66,7 @@ class Event(object):
         .. note::
 
             The signal handler is stored with a hard reference, so you
-            need to make sure to call L{disconnect()} if you want the handler
+            need to make sure to call :class:`disconnect()` if you want the handler
             to be garbage collected.
 
         :type  callback: object
@@ -84,7 +84,7 @@ class Event(object):
 
     def listen(self, callback, *args, **kwargs):
         """
-        Like L{connect()}, but uses a weak reference instead of a
+        Like :class:`connect()`, but uses a weak reference instead of a
         normal reference.
         The signal is automatically disconnected as soon as the handler
         is garbage collected.
@@ -93,7 +93,7 @@ class Event(object):
 
             Storing signal handlers as weak references means that if
             your handler is a local function, it may be garbage collected. To
-            prevent this, use L{connect()} instead.
+            prevent this, use :class:`connect()` instead.
 
         :type  callback: object
         :param callback: The callback function.
@@ -101,7 +101,7 @@ class Event(object):
         :param args: Optional arguments passed to the callback.
         :type  kwargs: dict
         :param kwargs: Optional keyword arguments passed to the callback.
-        :rtype:  L{Exscript.util.weakmethod.WeakMethod}
+        :rtype:  :class:`Exscript.util.weakmethod.WeakMethod`
         :returns: The newly created weak reference to the callback.
         """
         if self.lock is None:

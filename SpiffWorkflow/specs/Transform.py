@@ -42,7 +42,7 @@ class Transform(TaskSpec):
                         achieved by referencing the my_task.* and self.*
                         variables'
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         assert parent  is not None
         assert name    is not None

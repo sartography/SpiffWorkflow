@@ -163,10 +163,10 @@ class Workflow(object):
         """
         Returns all tasks whose spec has the given name.
 
-        @type name: str
-        @param name: The name of a task spec.
-        @rtype: Task
-        @return: The task that relates to the spec with the given name.
+        :type name: str
+        :param name: The name of a task spec.
+        :rtype: Task
+        :return: The task that relates to the spec with the given name.
         """
         return [task for task in self.get_tasks()
                 if task.task_spec.name == name]
@@ -275,7 +275,7 @@ class Workflow(object):
         """
         Serializes a Workflow instance using the provided serializer.
 
-        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
         :param serializer: The serializer to use.
         :type  kwargs: dict
         :param kwargs: Passed to the serializer.
@@ -289,7 +289,7 @@ class Workflow(object):
         """
         Deserializes a Workflow instance using the provided serializer.
 
-        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
         :param serializer: The serializer to use.
         :type  s_state: object
         :param s_state: The serialized workflow.

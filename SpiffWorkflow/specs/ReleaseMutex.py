@@ -40,7 +40,7 @@ class ReleaseMutex(TaskSpec):
         :type  mutex: str
         :param mutex: The name of the mutex that should be released.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         assert mutex is not None
         TaskSpec.__init__(self, parent, name, **kwargs)

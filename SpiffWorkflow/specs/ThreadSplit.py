@@ -41,7 +41,7 @@ class ThreadSplit(TaskSpec):
         """
         Constructor.
         
-        :type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
+        :type  parent: :class:`SpiffWorkflow.specs.WorkflowSpec`
         :param parent: A reference to the parent (usually a workflow).
         :type  name: string
         :param name: A name for the task.
@@ -54,7 +54,7 @@ class ThreadSplit(TaskSpec):
         :param suppress_threadstart_creation: Don't create a ThreadStart, because
                                               the deserializer is about to.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         if not times_attribute and not times:
             raise ValueError('require times or times_attribute argument')

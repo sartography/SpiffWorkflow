@@ -41,7 +41,7 @@ class Gate(TaskSpec):
         :param context: The name of the task that needs to complete before
                         this task can execute.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         assert parent  is not None
         assert name    is not None

@@ -50,7 +50,7 @@ class Join(TaskSpec):
         directly from WAITING to completed.
 
         - COMPLETED: All predecessors have completed, and
-        L{Task.complete()} was called.
+        :class:`Task.complete()` was called.
 
     The state may also change directly from WAITING to COMPLETED if the
     Trigger pattern is used.
@@ -66,7 +66,7 @@ class Join(TaskSpec):
         """
         Constructor.
 
-        :type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
+        :type  parent: :class:`SpiffWorkflow.specs.WorkflowSpec`
         :param parent: A reference to the parent (usually a workflow).
         :type  name: string
         :param name: A name for the task.
@@ -74,7 +74,7 @@ class Join(TaskSpec):
         :param split_task: The name of the task spec that was previously
                            used to split the branch. If this is None,
                            the most recent branch split is merged.
-        :type  threshold: int or L{SpiffWorkflow.operators.Attrib}
+        :type  threshold: int or :class:`SpiffWorkflow.operators.Attrib`
         :param threshold: Specifies how many incoming branches need to
                           complete before the task triggers. When the limit
                           is reached, the task fires but still expects all
@@ -85,7 +85,7 @@ class Join(TaskSpec):
         :param cancel: When True, any remaining incoming branches are
                        cancelled as soon as the discriminator is activated.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         super(Join, self).__init__(parent, name, **kwargs)
         self.split_task = split_task
@@ -267,7 +267,7 @@ class Join(TaskSpec):
         # Mark the identified task instances as COMPLETED. The exception
         # is the most recently changed task, for which we assume READY.
         # By setting the state to READY only, we allow for calling
-        # L{Task.complete()}, which leads to the task tree being
+        # :class:`Task.complete()`, which leads to the task tree being
         # (re)built underneath the node.
         for task in thread_tasks:
             if task == last_changed:

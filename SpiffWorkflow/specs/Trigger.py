@@ -42,7 +42,7 @@ class Trigger(TaskSpec):
         :type  times: int or None
         :param times: The number of signals before the trigger fires.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         assert parent  is not None
         assert name    is not None

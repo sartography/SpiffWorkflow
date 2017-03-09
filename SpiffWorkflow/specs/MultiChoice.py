@@ -37,7 +37,7 @@ class MultiChoice(TaskSpec):
         :type  name: str
         :param name: The name of the task spec.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         super(MultiChoice, self).__init__(parent, name, **kwargs)
         self.cond_task_specs = []

@@ -103,7 +103,7 @@ class WorkflowSpec(object):
         """
         Serializes the instance using the provided serializer.
 
-        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
         :param serializer: The serializer to use.
         :type  kwargs: dict
         :param kwargs: Passed to the serializer.
@@ -117,7 +117,7 @@ class WorkflowSpec(object):
         """
         Deserializes a WorkflowSpec instance using the provided serializer.
 
-        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
         :param serializer: The serializer to use.
         :type  s_state: object
         :param s_state: The serialized workflow specification object.

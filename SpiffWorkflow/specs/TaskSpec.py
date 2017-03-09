@@ -71,7 +71,7 @@ class TaskSpec(object):
         Similarly, "defines" are spec data fields that, once defined, can
         no longer be modified.
 
-        :type  parent: L{SpiffWorkflow.specs.WorkflowSpec}
+        :type  parent: :class:`SpiffWorkflow.specs.WorkflowSpec`
         :param parent: A reference to the parent (usually a workflow).
         :type  name: string
         :param name: A name for the task.
@@ -420,7 +420,7 @@ class TaskSpec(object):
             use them, make sure to re-connect them once the spec is
             deserialized.
 
-        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
         :param serializer: The serializer to use.
         :type  kwargs: dict
         :param kwargs: Passed to the serializer.
@@ -440,9 +440,9 @@ class TaskSpec(object):
             use them, make sure to re-connect them once the spec is
             deserialized.
 
-        :type  serializer: L{SpiffWorkflow.storage.Serializer}
+        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
         :param serializer: The serializer to use.
-        :type  wf_spec: L{SpiffWorkflow.spec.WorkflowSpec}
+        :type  wf_spec: :class:`SpiffWorkflow.spec.WorkflowSpec`
         :param wf_spec: An instance of the WorkflowSpec.
         :type  s_state: object
         :param s_state: The serialized task specification object.

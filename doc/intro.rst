@@ -1,27 +1,16 @@
 About Spiff Workflow
 ====================
 
-Spiff Workflow is a workflow engine implemented in pure Python.
-It is based on the excellent work of the `Workflow Patterns initiative<http://www.workflowpatterns.com/>`.
-It's main design goals are the following:
-
-- Directly support as many of the patterns of workflowpatterns.com as possible.
-- Map those patterns into workflow elements that are easy to understand by a user in a workflow GUI editor.
-- Provide a clean Python API.
-
-You can find a list of supported workflow patterns in :ref:`features`.
-
-In addition, Spiff Workflow provides a parser and workflow emulation
-layer that can be used to create executable Spiff Workflow specifications
-from Business Process Model and Notation (BPMN) documents. See :ref:`bpmn_page`.
-
-General Concept
----------------
+Basic Example
+-------------
 
 The process of using Spiff Workflow involves the following steps:
 
-# Write a workflow specification. A specification may be written using XML (`example<https://github.com/knipknap/SpiffWorkflow/blob/master/tests/SpiffWorkflow/data/spiff/workflow1.xml>`), JSON, or Python (`example<https://github.com/knipknap/SpiffWorkflow/blob/master/tests/SpiffWorkflow/data/spiff/workflow1.py>`).
-# Run the workflow using the Python API. Example code for running the workflow::
+#. Write a workflow specification. A specification may be written using XML
+   (`example <https://github.com/knipknap/SpiffWorkflow/blob/master/tests/SpiffWorkflow/data/spiff/workflow1.xml>`_),
+   JSON, or Python
+   (`example <https://github.com/knipknap/SpiffWorkflow/blob/master/tests/SpiffWorkflow/data/spiff/workflow1.py>`_).
+#. Run the workflow using the Python API. Example code for running the workflow::
 
     from SpiffWorkflow.specs import *
     from SpiffWorkflow import Workflow
@@ -33,16 +22,20 @@ The process of using Spiff Workflow involves the following steps:
     wf.complete_task_from_id(...)
 
 Specification vs. Workflow Instance
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------
 
-One critical concept to know about SpiffWorkflow is the difference between a `TaskSpec `and `Task` and the difference between a `WorkflowSpec` and `Workflow`.
+One critical concept to know about SpiffWorkflow is the difference between a
+:class:`SpiffWorkflow.specs.WorkflowSpec` and :class:`SpiffWorkflow.Workflow` and
+the difference between a :class:`SpiffWorkflow.specs.TaskSpec` and :class:`SpiffWorkflow.Task`.
 
 In order to understand how to handle a running workflow consider the following process::
 
     Choose product -> Choose amount -> Produce product A
                                   `--> Product product B
 
-As you can see, in this case the process resembles a simple tree. *Choose product*, *Choose amount*, *Produce product A*, and *Produce product B* are all specific kinds of *task specifications*, and the whole process is a *workflow specification*.
+As you can see, in this case the process resembles a simple tree. *Choose product*,
+*Choose amount*, *Produce product A*, and *Produce product B* are all specific kinds
+of *task specifications*, and the whole process is a *workflow specification*.
 
 But when you execute the workflow, the path taken does not necessarily have the same shape. For example, if the user chooses to produce 3 items of product A, the path taken looks like the following::
 
@@ -56,7 +49,7 @@ This is the reason why you will find two different categories of objects in Spif
 - **derivation tree objects** (Workflow and Task) model the task tree that represents the state of a running workflow.
 
 Defining a Workflow
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 The WorkflowSpec and TaskSpec classes are used to define a workflow. SpiffWorkflow has many types of TaskSpecs: Join, Split, Execute, Wait, and all others are derived from TaskSpec. The specs can be serialized and deserialized to a variety of formats.
 
@@ -72,13 +65,18 @@ A WorkflowSpec is built by chaining TaskSpecs together in a tree. You can either
 
 (Passing the filename to the deserializer is optional, but improves error messages.)
 
-For a full list of all TaskSpecs see the `SpiffWorkflow.specs<https://github.com/knipknap/SpiffWorkflow/tree/master/SpiffWorkflow/specs>` module. All classes have full API documentation. To understand better how each individual subtype of TaskSpec works, look at `the workflow patterns<http://www.workflowpatterns.com>` web site; especially the flash animations showing how each type of task works.
+For a full list of all TaskSpecs see the :mod:`SpiffWorkflow.specs` module.
+All classes have full API documentation. To understand better how each individual subtype of
+TaskSpec works, look at `the workflow patterns <http://www.workflowpatterns.com>`_ web site;
+especially the flash animations showing how each type of task works.
 
 .. HINT::
-   The TaskSpec classes named "ThreadXXXX" create logical threads based on the model in http://www.workflowpatterns.com. There is no Python threading implemented.
+   The TaskSpec classes named "ThreadXXXX" **not** create any Python threads, but logical
+   threads based on the model in http://www.workflowpatterns.com. There is no Python
+   threading implemented.
 
 Running a workflow
-^^^^^^^^^^^^^^^^^^
+------------------
 
 To run the workflow, create an instance of the *Workflow* class as follows::
 
@@ -100,7 +98,7 @@ Some tasks change their state automatically based on internal or environmental c
     wf.complete_task_from_id(...)
 
 Understanding task states
-^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------
 
 The following task states exist:
 
@@ -125,7 +123,7 @@ The order of these state transitions is violated only in one case: A *Trigger* t
 - **CANCELLED** means that the task was explicitly cancelled, for example by a CancelTask operation.
 
 Associating data with a workflow
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------
 
 The difference between *specification objects* and *derivation tree objects* is also important when choosing how to store data in a workflow. Spiff Workflow supports storing data in two ways:
 
@@ -133,8 +131,9 @@ The difference between *specification objects* and *derivation tree objects* is 
 - **Task data** is local to the Task object, but is carried along to the children of each Task object in the derivation tree as the workflow progresses.
 
 Other documentation
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 **API documentation** is currently embedded into the Spiff Workflow source code and not yet made available in a prettier form.
 
-If you need more help, please drop by our `mailing list<http://groups.google.com/group/spiff-devel/>`.
+If you need more help, please create an issue in our
+`issue tracker <https://github.com/knipknap/SpiffWorkflow/issues>`_.

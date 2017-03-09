@@ -43,7 +43,7 @@ class Choose(Trigger):
         :type  choice: list(TaskSpec)
         :param choice: The list of task specs that is selected.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         assert parent is not None
         assert name is not None

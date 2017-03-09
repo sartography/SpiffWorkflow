@@ -53,7 +53,7 @@ class SubWorkflow(TaskSpec):
         :type  out_assign: list(str)
         :param out_assign: The names of data fields to carry back.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         assert parent is not None
         assert name is not None

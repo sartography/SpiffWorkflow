@@ -38,7 +38,7 @@ class Cancel(TaskSpec):
         :type  success: bool
         :param success: Whether to cancel successfully or unsuccessfully.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.cancel_successfully = success

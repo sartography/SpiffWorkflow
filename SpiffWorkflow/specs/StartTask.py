@@ -34,7 +34,7 @@ class StartTask(TaskSpec):
         :type  parent: TaskSpec
         :param parent: A reference to the parent task spec.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         TaskSpec.__init__(self, parent, 'Start', **kwargs)
 

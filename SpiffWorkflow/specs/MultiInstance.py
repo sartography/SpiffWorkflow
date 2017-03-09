@@ -42,7 +42,7 @@ class MultiInstance(TaskSpec):
         :type  times: int
         :param times: The number of tasks to create.
         :type  kwargs: dict
-        :param kwargs: See L{SpiffWorkflow.specs.TaskSpec}.
+        :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.times = times

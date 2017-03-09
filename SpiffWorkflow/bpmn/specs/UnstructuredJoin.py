@@ -120,7 +120,7 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
         # Mark the identified task instances as COMPLETED. The exception
         # is the most recently changed task, for which we assume READY.
         # By setting the state to READY only, we allow for calling
-        # L{Task.complete()}, which leads to the task tree being
+        # :class:`Task.complete()`, which leads to the task tree being
         # (re)built underneath the node.
         for task in thread_tasks:
             if task == last_changed:

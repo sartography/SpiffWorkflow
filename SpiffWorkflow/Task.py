@@ -61,7 +61,7 @@ class Task(object):
         - READY: The conditions for completing the task are now satisfied.
         Usually this means that all predecessors have completed and the
         task may now be completed using
-        L{Workflow.complete_task_from_id()}.
+        :class:`Workflow.complete_task_from_id()`.
 
         - CANCELLED: The task was cancelled by a CancelTask or
         CancelWorkflow task.

@@ -27,20 +27,20 @@ import weakref
 
 class DeadMethodCalled(Exception):
     """
-    Raised by L{WeakMethod} if it is called when the referenced object
+    Raised by :class:`WeakMethod` if it is called when the referenced object
     is already dead.
     """
     pass
 
 class WeakMethod(object):
     """
-    Do not create this class directly; use L{ref()} instead.
+    Do not create this class directly; use :class:`ref()` instead.
     """
     __slots__ = 'name', 'callback'
 
     def __init__(self, name, callback):
         """
-        Constructor. Do not use directly, use L{ref()} instead.
+        Constructor. Do not use directly, use :class:`ref()` instead.
         """
         self.name     = name
         self.callback = callback
@@ -71,7 +71,7 @@ class WeakMethod(object):
 
     def __call__(self, *args, **kwargs):
         """
-        Proxied to the underlying function or method. Raises L{DeadMethodCalled}
+        Proxied to the underlying function or method. Raises :class:`DeadMethodCalled`
         if the referenced function is dead.
 
         :rtype:  object
