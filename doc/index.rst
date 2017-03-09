@@ -6,8 +6,8 @@
 Welcome to SpiffWorkflow's documentation!
 =========================================
 
-Introduction
-------------
+Summary
+-------
 
 Spiff Workflow is a workflow engine implemented in pure Python.
 It is based on the excellent work of the
@@ -36,7 +36,7 @@ Contents
    :maxdepth: 2
 
    intro
-   features
-   internals
    bpmn
-   modules
+   internals
+   features
+   API Documentation<modules>

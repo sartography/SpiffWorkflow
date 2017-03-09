@@ -1,5 +1,5 @@
-About Spiff Workflow
-====================
+Introduction
+============
 
 Basic Example
 -------------
