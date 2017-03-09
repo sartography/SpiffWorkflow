@@ -12,7 +12,7 @@ Introduction
 Spiff Workflow is a workflow engine implemented in pure Python.
 It is based on the excellent work of the
 `Workflow Patterns initiative <http://www.workflowpatterns.com/>`_.
-It's main design goals are the following:
+Its main design goals are the following:
 
 - Directly support as many of the patterns of workflowpatterns.com as possible.
 - Map those patterns into workflow elements that are easy to understand by a user in a workflow GUI editor.

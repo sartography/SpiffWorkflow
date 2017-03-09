@@ -9,7 +9,7 @@ Think of a derivation tree as tree of execution paths (some, but not all, of
 which will end up executing). Each Task object is basically a node in the
 derivation tree. Each task in the tree links back to its parent (there are
 no connection objects). The processing is done by walking down the
-derivation tree one Task at a time and moving the task (and it's
+derivation tree one Task at a time and moving the task (and its
 children) through the sequence of states towards completion.
 
 You can serialize/deserialize specs and open standards like OpenWFE are
@@ -24,5 +24,5 @@ See :class:`SpiffWorkflow.specs.TaskSpec` for docs on events.
 
 You can nest workflows (using the :class:`SpiffWorkflow.specs.SubWorkflowSpec`).
 
-The serialization code is done well which makes it easy to add new formats if we need to support
-them.
+The serialization code is done well which makes it easy to add new formats
+if we need to support them.
