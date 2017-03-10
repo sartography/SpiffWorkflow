@@ -1,13 +1,22 @@
-.. SpiffWorkflow documentation master file, created by
-   sphinx-quickstart on Wed Mar  8 07:58:36 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. image:: https://travis-ci.org/knipknap/SpiffWorkflow.svg?branch=master
+    :target: https://travis-ci.org/knipknap/SpiffWorkflow
 
-Welcome to SpiffWorkflow's documentation!
-=========================================
+.. image:: https://coveralls.io/repos/github/knipknap/SpiffWorkflow/badge.svg?branch=master
+    :target: https://coveralls.io/github/knipknap/SpiffWorkflow?branch=master
 
-Summary
--------
+.. image:: https://lima.codeclimate.com/github/knipknap/SpiffWorkflow/badges/gpa.svg
+    :target: https://lima.codeclimate.com/github/knipknap/SpiffWorkflow
+    :alt: Code Climate
+
+.. image:: https://img.shields.io/github/stars/knipknap/SpiffWorkflow.svg   
+    :target: https://github.com/knipknap/SpiffWorkflow/stargazers
+
+.. image:: https://img.shields.io/github/license/knipknap/SpiffWorkflow.svg
+    :target: https://github.com/knipknap/SpiffWorkflow/blob/master/COPYING
+
+|
+What is SpiffWorkflow?
+======================
 
 Spiff Workflow is a workflow engine implemented in pure Python.
 It is based on the excellent work of the
@@ -26,7 +35,7 @@ from Business Process Model and Notation (BPMN) documents. See :ref:`bpmn_page`.
 
 License
 -------
-Gelatin is published under the terms of the
+Spiff Workflow is published under the terms of the
 `GNU Lesser General Public License (LGPL) Version 3 <https://www.gnu.org/licenses/lgpl-3.0.txt>`_.
 
 Contents
