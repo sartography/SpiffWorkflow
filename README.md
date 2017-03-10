@@ -61,4 +61,4 @@ xml = Workflow.serialize(XmlSerializer, 'workflow_state.xml')
 
 Full documentation is here:
 
-  https://github.com/knipknap/SpiffWorkflow/wiki
+  http://spiffworkflow.readthedocs.io/en/latest/
