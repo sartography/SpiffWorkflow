@@ -53,7 +53,7 @@ clean:
 
 .PHONY: apidoc
 apidoc:
-	sphinx-apidoc -fo . ../SpiffWorkflow
+	sphinx-apidoc -d5 -Mefo . ../SpiffWorkflow
 
 .PHONY: html
 html:
