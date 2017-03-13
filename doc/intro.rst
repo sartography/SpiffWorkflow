@@ -1,8 +1,8 @@
-Introduction
-============
+Basics
+======
 
-Basic Example
--------------
+Introduction
+------------
 
 The process of using Spiff Workflow involves the following steps:
 

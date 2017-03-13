@@ -45,6 +45,7 @@ Contents
    :maxdepth: 2
 
    intro
+   tutorial/tutorial
    bpmn
    internals
    features

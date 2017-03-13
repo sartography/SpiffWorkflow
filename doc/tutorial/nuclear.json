@@ -1,0 +1,93 @@
+{
+    "task_specs": {
+        "Start": {
+            "class": "SpiffWorkflow.specs.StartTask.StartTask",
+            "manual": false,
+            "outputs": [
+                "general"
+            ]
+        },
+        "general": {
+            "class": "SpiffWorkflow.specs.ExclusiveChoice.ExclusiveChoice",
+            "name": "general",
+            "manual": true,
+            "inputs": [
+                "Start"
+            ],
+            "outputs": [
+                "workflow_aborted",
+                "president"
+            ],
+            "choice": null,
+            "default_task_spec": "workflow_aborted",
+            "cond_task_specs": [
+                [
+                    [
+                        "SpiffWorkflow.operators.Equal",
+                        [
+                            [
+                                "Attrib",
+                                "confirmation"
+                            ],
+                            [
+                                "value",
+                                "yes"
+                            ]
+                        ]
+                    ],
+                    "president"
+                ]
+            ]
+        },
+        "president": {
+            "class": "SpiffWorkflow.specs.ExclusiveChoice.ExclusiveChoice",
+            "name": "president",
+            "manual": true,
+            "inputs": [
+                "general"
+            ],
+            "outputs": [
+                "workflow_aborted",
+                "nuclear_strike"
+            ],
+            "choice": null,
+            "default_task_spec": "workflow_aborted",
+            "cond_task_specs": [
+                [
+                    [
+                        "SpiffWorkflow.operators.Equal",
+                        [
+                            [
+                                "Attrib",
+                                "confirmation"
+                            ],
+                            [
+                                "value",
+                                "yes"
+                            ]
+                        ]
+                    ],
+                    "president"
+                ]
+            ]
+        },
+        "nuclear_strike": {
+            "class": "strike.NuclearStrike",
+            "name": "nuclear_strike",
+            "inputs": [
+                "president"
+            ]
+        },
+        "workflow_aborted": {
+            "class": "SpiffWorkflow.specs.Cancel.Cancel",
+            "name": "workflow_aborted",
+            "inputs": [
+                "general",
+                "president"
+            ]
+        }
+    },
+    "description": "",
+    "file": null,
+    "name": ""
+}
