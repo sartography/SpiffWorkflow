@@ -135,20 +135,20 @@ class DictionarySerializer(Serializer):
         return s_state
 
     def _deserialize_task_spec(self, wf_spec, s_state, spec):
-        spec.id = s_state['id']
-        spec.description = s_state['description']
-        spec.manual = s_state['manual']
-        spec.internal = s_state['internal']
-        spec.lookahead = s_state['lookahead']
-        spec.data = self._deserialize_dict(s_state['data'])
-        spec.defines = self._deserialize_dict(s_state['defines'])
-        spec.pre_assign = self._deserialize_list(s_state['pre_assign'])
-        spec.post_assign = self._deserialize_list(s_state['post_assign'])
-        spec.locks = s_state['locks'][:]
+        spec.id = s_state.get('id', None)
+        spec.description = s_state.get('description', '')
+        spec.manual = s_state.get('manual', False)
+        spec.internal = s_state.get('internal', False)
+        spec.lookahead = s_state.get('lookahead', 2)
+        spec.data = self._deserialize_dict(s_state.get('data', {}))
+        spec.defines = self._deserialize_dict(s_state.get('defines', {}))
+        spec.pre_assign = self._deserialize_list(s_state.get('pre_assign', []))
+        spec.post_assign = self._deserialize_list(s_state.get('post_assign',[]))
+        spec.locks = s_state.get('locks', [])[:]
         # We can't restore inputs and outputs yet because they may not be
         # deserialized yet. So keep the names, and resolve them in the end.
-        spec.inputs = s_state['inputs'][:]
-        spec.outputs = s_state['outputs'][:]
+        spec.inputs = s_state.get('inputs', [])[:]
+        spec.outputs = s_state.get('outputs', [])[:]
         return spec
 
     def _serialize_acquire_mutex(self, spec):
@@ -169,7 +169,7 @@ class DictionarySerializer(Serializer):
 
     def _deserialize_cancel(self, wf_spec, s_state):
         spec = Cancel(wf_spec, s_state['name'],
-                      success=s_state['cancel_successfully'])
+                      success=s_state.get('cancel_successfully', False))
         self._deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
