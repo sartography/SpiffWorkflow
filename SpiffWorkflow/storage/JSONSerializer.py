@@ -16,10 +16,7 @@ from __future__ import division
 import json
 import uuid
 from SpiffWorkflow.storage import DictionarySerializer
-from SpiffWorkflow.storage.Serializer import Serializer
 from SpiffWorkflow.operators import Attrib
-
-_dictserializer = DictionarySerializer()
 
 def object_hook(dct):
     if '__uuid__' in dct:
@@ -49,21 +46,21 @@ def loads(text):
     return json.loads(text, object_hook=object_hook)
 
 def dumps(dct):
-    return json.dumps(dct, default=default)
+    return json.dumps(dct, sort_keys=True, default=default)
 
-class JSONSerializer(Serializer):
+class JSONSerializer(DictionarySerializer):
     def serialize_workflow_spec(self, wf_spec, **kwargs):
-        thedict = _dictserializer.serialize_workflow_spec(wf_spec, **kwargs)
+        thedict = super(JSONSerializer, self).serialize_workflow_spec(wf_spec, **kwargs)
         return dumps(thedict)
 
     def deserialize_workflow_spec(self, s_state, **kwargs):
         thedict = loads(s_state)
-        return _dictserializer.deserialize_workflow_spec(thedict, **kwargs)
+        return super(JSONSerializer, self).deserialize_workflow_spec(thedict, **kwargs)
 
     def serialize_workflow(self, workflow, **kwargs):
-        thedict = _dictserializer.serialize_workflow(workflow, **kwargs)
+        thedict = super(JSONSerializer, self).serialize_workflow(workflow, **kwargs)
         return dumps(thedict)
 
     def deserialize_workflow(self, s_state, **kwargs):
         thedict = loads(s_state)
-        return _dictserializer.deserialize_workflow(thedict, **kwargs)
+        return super(JSONSerializer, self).deserialize_workflow(thedict, **kwargs)
