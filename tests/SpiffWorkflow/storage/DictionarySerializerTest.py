@@ -13,6 +13,7 @@ import uuid
 
 class DictionarySerializerTest(SerializerTest):
     CORRELATE = DictionarySerializer
+    maxDiff = None
 
     def setUp(self):
         SerializerTest.setUp(self)
@@ -29,22 +30,15 @@ class DictionarySerializerTest(SerializerTest):
                 exclude_items.append(uuid.UUID)
 
         if isinstance(item1, dict):
-            if not isinstance(item2, dict):
-                raise Exception(": companion item is not a dict (is a " + str(type(item2)) + "): " + str(item1) + " v " + str(item2))
+            self.assertIsInstance(item2, dict)
             for key, value in item1.items():
-                if key not in item2:
-                    raise Exception("Missing Key: " + key + " (in 1, not 2)")
-
+                self.assertIn(key, item2)
                 if key in exclude_items:
                     continue
-                try:
-                    self.compareSerialization(value, item2[key], exclude_dynamic=exclude_dynamic, exclude_items=exclude_items)
-                except Exception as e:
-                    raise Exception(key + '/' + str(e))
+                self.compareSerialization(value, item2[key], exclude_dynamic=exclude_dynamic, exclude_items=exclude_items)
 
             for key, _ in item2.items():
-                if key not in item1:
-                    raise Exception("Missing Key: " + key + " (in 2, not 1)")
+                self.assertIn(key, item1)
                 
         elif isinstance(item1, list):
             if not isinstance(item2, list):
@@ -52,10 +46,7 @@ class DictionarySerializerTest(SerializerTest):
             if not len(item1) == len(item2):
                 raise Exception(": companion list is not the same length: " + str(len(item1)) + " v " + str(len(item2)))
             for i, listitem in enumerate(item1):
-                try:
-                    self.compareSerialization(listitem, item2[i], exclude_dynamic=exclude_dynamic, exclude_items=exclude_items)
-                except Exception as e:
-                    raise Exception('[' + str(i) + ']/' + str(e))
+                self.compareSerialization(listitem, item2[i], exclude_dynamic=exclude_dynamic, exclude_items=exclude_items)
 
         elif isinstance(item1, Workflow):
             raise Exception("Item is a Workflow")
@@ -65,9 +56,7 @@ class DictionarySerializerTest(SerializerTest):
                 raise Exception(": companion item is not the same type (is a " + str(type(item2)) + "): " + str(item1) + " v " + str(item2))
             if type(item1) in exclude_items:
                 return
-            if item1 != item2:
-                raise Exception("Unequal: " + repr(item1) \
-                                + " vs " + repr(item2)) 
+            self.assertEqual(item1, item2)
         
 
     def testConstructor(self):

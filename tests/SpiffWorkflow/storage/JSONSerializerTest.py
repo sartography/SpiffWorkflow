@@ -23,6 +23,7 @@ class JSONSerializerTest(SerializerTest):
         JSONSerializer()
 
     def compareSerialization(self, s1, s2, exclude_dynamic=False):
+        self.maxDiff = None
         obj1 = json.loads(s1)
         obj2 = json.loads(s2)
         #print(s1)
@@ -36,7 +37,6 @@ class JSONSerializerTest(SerializerTest):
                                                                                     exclude_items=exclude_items)
 
 class JSONSerializeEveryPatternTest(SerializeEveryPatternTest):
-
     def setUp(self):
         super(JSONSerializeEveryPatternTest, self).setUp()
         self.serializerTestClass = JSONSerializerTest(methodName='testConstructor')
