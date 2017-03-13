@@ -38,7 +38,7 @@ Creating the workflow specification (using Python)
 
 In Python, the workflow is defined as follows:
 
-.. literalinclude:: tutorial/nuclear.py
+.. literalinclude:: nuclear.py
 
 Hopefully the code is self explaining.
 Using Python to write a workflow can quickly become tedious. It is
@@ -52,12 +52,12 @@ SpiffWorkflow how our custom `NuclearChoice` looks in JSON. So the first
 step is to create a serializer. We also implement the deserializer for
 demonstration, though it is not needed to complete this tutorial:
 
-.. literalinclude:: tutorial/serialize.py
+.. literalinclude:: serialize.py
 
 We save the serializer as ``serialize.py``.
 We also need to update ``strike.py`` as follows:
 
-.. literalinclude:: tutorial/strike.py
+.. literalinclude:: strike.py
 
 You are now ready to create the specification from JSON.
 
@@ -70,7 +70,7 @@ write the specification in JSON.
 Here is an example that is doing exactly the same as the Python
 WorkflowSpec above:
 
-.. literalinclude:: tutorial/nuclear.json
+.. literalinclude:: nuclear.json
 
 Creating a workflow out of the specification
 --------------------------------------------
@@ -82,7 +82,7 @@ Since we included *manual* tasks in the specification, you will want
 to implement a user interface in practice, but we are just going to
 assume that all tasks are automatic for this tutorial:
 
-.. literalinclude:: tutorial/start.py
+.. literalinclude:: start.py
 
 Serializing a workflow
 ----------------------
