@@ -55,7 +55,7 @@ class Attrib(object):
         :rtype:  object
         :returns: The serialized object.
         """
-        return serializer._deserialize_attrib(cls, s_state)
+        return serializer._deserialize_attrib(s_state)
 
 
 class PathAttrib(object):
@@ -87,7 +87,7 @@ class PathAttrib(object):
         :rtype:  object
         :returns: The serialized object.
         """
-        return serializer._deserialize_pathattrib(cls, s_state)
+        return serializer._deserialize_pathattrib(s_state)
 
 
 class Assign(object):
