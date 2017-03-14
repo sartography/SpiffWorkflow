@@ -40,8 +40,8 @@ class Choose(Trigger):
         :type  context: str
         :param context: The name of the MultiChoice that is instructed to
                         select the specified outputs.
-        :type  choice: list(TaskSpec)
-        :param choice: The list of task specs that is selected.
+        :type  choice: list(str)
+        :param choice: The list of task spec names that is selected.
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
