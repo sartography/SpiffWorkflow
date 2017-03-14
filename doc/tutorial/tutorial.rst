@@ -52,9 +52,9 @@ SpiffWorkflow how our custom `NuclearChoice` looks in JSON. So the first
 step is to create a serializer. We also implement the deserializer for
 demonstration, though it is not needed to complete this tutorial:
 
-.. literalinclude:: serialize.py
+.. literalinclude:: serializer.py
 
-We save the serializer as ``serialize.py``.
+We save the serializer as ``serializer.py``.
 We also need to update ``strike.py`` as follows:
 
 .. literalinclude:: strike.py
