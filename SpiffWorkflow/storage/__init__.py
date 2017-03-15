@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
-from .OpenWfeXmlSerializer import OpenWfeXmlSerializer
 from .XmlSerializer import XmlSerializer
 from .DictionarySerializer import DictionarySerializer
 from .JSONSerializer import JSONSerializer

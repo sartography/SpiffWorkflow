@@ -12,8 +12,7 @@ no connection objects). The processing is done by walking down the
 derivation tree one Task at a time and moving the task (and its
 children) through the sequence of states towards completion.
 
-You can serialize/deserialize specs and open standards like OpenWFE are
-supported (and others can be coded in easily). You can also
+You can serialize/deserialize specs. You can also
 serialize/deserialize a running workflow (it will pull in its spec as well).
 
 There's a decent eventing model that allows you to tie in to and receive
