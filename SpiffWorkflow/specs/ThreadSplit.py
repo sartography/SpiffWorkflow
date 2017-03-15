@@ -19,6 +19,7 @@ from SpiffWorkflow.Task import Task
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.specs.ThreadStart import ThreadStart
+from SpiffWorkflow.operators import valueof
 
 class ThreadSplit(TaskSpec):
     """
@@ -34,9 +35,8 @@ class ThreadSplit(TaskSpec):
     def __init__(self,
                  parent,
                  name,
-                 times = None,
-                 times_attribute = None,
-                 suppress_threadstart_creation = False,
+                 times=1,
+                 suppress_threadstart_creation=False,
                  **kwargs):
         """
         Constructor.
@@ -45,22 +45,18 @@ class ThreadSplit(TaskSpec):
         :param parent: A reference to the parent (usually a workflow).
         :type  name: string
         :param name: A name for the task.
-        :type  times: int or None
+        :type  times: int or None or :class:`SpiffWorkflow.operators.Term`
         :param times: The number of tasks to create.
-        :type  times_attribute: str or None
-        :param times_attribute: The name of a data field that specifies
-                                the number of outgoing tasks.
         :type  suppress_threadstart_creation: bool
         :param suppress_threadstart_creation: Don't create a ThreadStart, because
                                               the deserializer is about to.
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        if not times_attribute and not times:
-            raise ValueError('require times or times_attribute argument')
+        if times is None:
+            raise ValueError('times argument is required')
         TaskSpec.__init__(self, parent, name, **kwargs)
-        self.times_attribute = times_attribute
-        self.times           = times
+        self.times = times
         if not suppress_threadstart_creation:
             self.thread_starter  = ThreadStart(parent, **kwargs)
             self.outputs.append(self.thread_starter)
@@ -120,9 +116,7 @@ class ThreadSplit(TaskSpec):
             new_task.triggered = True
 
     def _predict_hook(self, my_task):
-        split_n = my_task.get_data('split_n', self.times)
-        if split_n is None:
-            split_n = my_task.get_data(self.times_attribute, 1)
+        split_n = int(valueof(my_task, self.times))
 
         # if we were created with thread_starter suppressed, connect it now.
         if self.thread_starter is None:
@@ -139,9 +133,7 @@ class ThreadSplit(TaskSpec):
 
     def _on_complete_hook(self, my_task):
         # Split, and remember the number of splits in the context data.
-        split_n = self.times
-        if split_n is None:
-            split_n = my_task.get_data(self.times_attribute)
+        split_n = int(valueof(my_task, self.times))
 
         # Create the outgoing tasks.
         outputs = []

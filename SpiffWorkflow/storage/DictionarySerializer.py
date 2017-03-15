@@ -369,15 +369,13 @@ class DictionarySerializer(Serializer):
 
     def serialize_thread_split(self, spec):
         s_state = self.serialize_task_spec(spec)
-        s_state['times'] = spec.times
-        s_state['times_attribute'] = spec.times_attribute
+        s_state['times'] = self.serialize_arg(spec.times)
         return s_state
 
     def deserialize_thread_split(self, wf_spec, s_state):
         spec = ThreadSplit(wf_spec,
                            s_state['name'],
-                           s_state['times'],
-                           s_state['times_attribute'],
+                           self.deserialize_arg(s_state['times']),
                            suppress_threadstart_creation=True)
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
