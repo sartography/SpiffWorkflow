@@ -74,13 +74,14 @@ class Join(TaskSpec):
         :param split_task: The name of the task spec that was previously
                            used to split the branch. If this is None,
                            the most recent branch split is merged.
-        :type  threshold: int or :class:`SpiffWorkflow.operators.Attrib`
+        :type  threshold: int, :class:`SpiffWorkflow.operators.Attrib`, or None
         :param threshold: Specifies how many incoming branches need to
                           complete before the task triggers. When the limit
                           is reached, the task fires but still expects all
                           other branches to complete.
                           You may also pass an attribute, in which case
                           the value is resolved at runtime.
+                          Passing None means all incoming branches.
         :type  cancel: bool
         :param cancel: When True, any remaining incoming branches are
                        cancelled as soon as the discriminator is activated.
