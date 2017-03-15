@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-
-from __future__ import division
 import sys, unittest, re, os
 dirname = os.path.dirname(__file__)
 data_dir = os.path.join(dirname, '..', 'data')
@@ -14,27 +12,14 @@ from SpiffWorkflow.specs import WorkflowSpec
 
 class XmlSerializerTest(SerializerTest):
     def setUp(self):
-        SerializerTest.setUp(self)
+        super(XmlSerializerTest, self).setUp()
         self.serializer = XmlSerializer()
-        self.serial_type = str
+        self.return_type = str
 
-    def testConstructor(self):
-        XmlSerializer()
-
-    def testSerializeWorkflowSpec(self):
-        pass # Serialization not yet supported.
-
-    def testDeserializeWorkflowSpec(self):
-        xml_file  = os.path.join(data_dir, 'spiff', 'workflow1.xml')
-        xml       = open(xml_file).read()
-        path_file = os.path.splitext(xml_file)[0] + '.path'
-        path      = open(path_file).read()
-        wf_spec   = WorkflowSpec.deserialize(self.serializer, xml)
-
-        run_workflow(self, wf_spec, path, None)
-
-    def testSerializeWorkflow(self):
-        pass # Serialization not yet supported.
+    def testWorkflowSpec(self):
+        # Nothing to test here: The deserialization is already used in setUp()
+        # to load all specs, and serialization is not supported.
+        pass
         
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(XmlSerializerTest)

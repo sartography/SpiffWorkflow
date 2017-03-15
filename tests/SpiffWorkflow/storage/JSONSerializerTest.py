@@ -1,51 +1,34 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-
-from __future__ import division
 import sys, unittest, re, os
 dirname = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
-from SpiffWorkflow.storage import JSONSerializer
-from .SerializerTest import SerializerTest, SerializeEveryPatternTest
-from .DictionarySerializerTest import DictionarySerializerTest
 import json
+from SpiffWorkflow.storage import JSONSerializer
+from .SerializerTest import SerializerTest
+from .DictionarySerializerTest import DictionarySerializerTest
 
-class JSONSerializerTest(SerializerTest):
-    CORRELATE = JSONSerializer
-
+class JSONSerializerTest(DictionarySerializerTest):
     def setUp(self):
-        SerializerTest.setUp(self)
+        super(JSONSerializerTest, self).setUp()
         self.serializer = JSONSerializer()
-        self.serial_type = str
+        self.return_type = str
 
-    def testConstructor(self):
-        JSONSerializer()
+    def _prepare_result(self, item):
+        return json.loads(item)
 
-    def compareSerialization(self, s1, s2, exclude_dynamic=False):
-        self.maxDiff = None
-        obj1 = json.loads(s1)
-        obj2 = json.loads(s2)
-        #print(s1)
-        #print(s2)
+    def _compare_results(self, item1, item2, exclude_dynamic=False,
+                         exclude_items=None):
         if exclude_dynamic:
             exclude_items = ['__uuid__']
         else:
             exclude_items = []
-        DictionarySerializerTest(methodName='testConstructor').compareSerialization(obj1, obj2,
-                                                                                    exclude_dynamic=exclude_dynamic,
-                                                                                    exclude_items=exclude_items)
-
-class JSONSerializeEveryPatternTest(SerializeEveryPatternTest):
-    def setUp(self):
-        super(JSONSerializeEveryPatternTest, self).setUp()
-        self.serializerTestClass = JSONSerializerTest(methodName='testConstructor')
-        self.serializerTestClass.setUp()
-
+        super(JSONSerializerTest, self)._compare_results(item1, item2,
+                                                         exclude_dynamic=exclude_dynamic,
+                                                         exclude_items=exclude_items)
 
 def suite():
-    tests = unittest.defaultTestLoader.loadTestsFromTestCase(JSONSerializerTest)
-    tests.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(JSONSerializeEveryPatternTest))
-    return tests
+    return unittest.defaultTestLoader.loadTestsFromTestCase(JSONSerializerTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())

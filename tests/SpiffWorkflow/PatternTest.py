@@ -8,7 +8,16 @@ from SpiffWorkflow import Task
 from SpiffWorkflow.storage import XmlSerializer
 from util import run_workflow
 
+class WorkflowTestData:
+    def __init__(self, filename, spec, path, data):
+        self.filename = filename
+        self.spec = spec
+        self.path = path
+        self.data = data
+
 class PatternTest(unittest.TestCase):
+    maxDiff = None
+
     def setUp(self):
         Task.id_pool = 0
         Task.thread_id_pool = 0
@@ -16,9 +25,20 @@ class PatternTest(unittest.TestCase):
                          'data/spiff/data',
                          'data/spiff/resource',
                          'data/spiff']
-        self.serializer = XmlSerializer()
+        self.workflows = []
 
-    def run_pattern(self, filename):
+        for basedir in self.xml_path:
+            dirname = os.path.join(os.path.dirname(__file__), basedir)
+
+            for filename in os.listdir(dirname):
+                if not filename.endswith(('.xml', '.py')):
+                    continue
+                if filename.endswith('__.py'):
+                    continue
+                filename = os.path.join(dirname, filename)
+                self.load_workflow_spec(filename)
+
+    def load_workflow_spec(self, filename):
         # Load the .path file.
         path_file = os.path.splitext(filename)[0] + '.path'
         if os.path.exists(path_file):
@@ -35,28 +55,27 @@ class PatternTest(unittest.TestCase):
 
         # Test patterns that are defined in XML format.
         if filename.endswith('.xml'):
-            xml     = open(filename).read()
-            wf_spec = WorkflowSpec.deserialize(self.serializer, xml, filename = filename)
-            run_workflow(self, wf_spec, expected_path, expected_data)
+            xml = open(filename).read()
+            serializer = XmlSerializer()
+            wf_spec = WorkflowSpec.deserialize(serializer, xml, filename=filename)
 
         # Test patterns that are defined in Python.
-        if filename.endswith('.py') and not filename.endswith('__.py'):
+        elif filename.endswith('.py'):
             code    = compile(open(filename).read(), filename, 'exec')
             thedict = {}
             result  = eval(code, thedict)
             wf_spec = thedict['TestWorkflowSpec']()
-            run_workflow(self, wf_spec, expected_path, expected_data)
 
-    def testPattern(self):
-        for basedir in self.xml_path:
-            dirname = os.path.join(os.path.dirname(__file__), basedir)
+        else:
+            raise Exception('unsuported specification format', filename)
 
-            for filename in os.listdir(dirname):
-                if not filename.endswith(('.xml', '.py')):
-                    continue
-                filename = os.path.join(dirname, filename)
-                print(filename)
-                self.run_pattern(filename)
+        test_data = WorkflowTestData(filename, wf_spec, expected_path, expected_data)
+        self.workflows.append(test_data)
+
+    def testWorkflowSpec(self):
+        for test in self.workflows:
+            print(test.filename)
+            run_workflow(self, test.spec, test.path, test.data)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(PatternTest)
