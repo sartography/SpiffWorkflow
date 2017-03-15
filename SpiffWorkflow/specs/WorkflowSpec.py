@@ -27,7 +27,7 @@ class WorkflowSpec(object):
     This class represents the specification of a workflow.
     """
 
-    def __init__(self, name=None, filename=None):
+    def __init__(self, name=None, filename=None, nostart=False):
         """
         Constructor.
         """
@@ -35,7 +35,9 @@ class WorkflowSpec(object):
         self.description = ''
         self.file = filename
         self.task_specs = dict()
-        self.start = StartTask(self)
+        self.start = None
+        if not nostart:
+            self.start = StartTask(self)
 
     def _add_notify(self, task_spec):
         """
