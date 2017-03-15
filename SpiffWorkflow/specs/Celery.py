@@ -104,6 +104,7 @@ class Celery(TaskSpec):
         :param result_key: The key to use to store the results of the call in
                 task.internal_data. If None, then dicts are expanded into
                 internal_data and values are stored in 'result'.
+        :type  merge_results: bool
         :param merge_results: merge the results in instead of overwriting existing
                 fields.
         :type  kwargs: dict
