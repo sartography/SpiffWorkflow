@@ -25,8 +25,13 @@ try:
 except:
     unicode = str
 
+class Term(object):
+    """
+    Abstract base class for all operators and expressions.
+    """
+    pass
 
-class Attrib(object):
+class Attrib(Term):
     """
     Used for marking a value such that it is recognized to be an
     attribute name by valueof().
@@ -58,7 +63,7 @@ class Attrib(object):
         return serializer.deserialize_attrib(s_state)
 
 
-class PathAttrib(object):
+class PathAttrib(Term):
     """
     Used for marking a value such that it is recognized to be an
     attribute obtained by evaluating a path by valueof().
@@ -90,7 +95,7 @@ class PathAttrib(object):
         return serializer.deserialize_pathattrib(s_state)
 
 
-class Assign(object):
+class Assign(Term):
     """
     Assigns a new value to an attribute. The source may be either
     a static value, or another attribute.
@@ -158,7 +163,7 @@ def valueof(scope, op):
         return op
 
 
-class Operator(object):
+class Operator(Term):
     """
     Abstract base class for all operators.
     """
