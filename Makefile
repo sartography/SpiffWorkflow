@@ -10,8 +10,8 @@ DISTDIR=/pub/code/releases/spiff_workflow
 ###################################################################
 .PHONY : clean
 clean:
-	find . -name "*.pyc" -o -name "*.pyo" | xargs -n1 rm -f
-	find . -name "*.egg-info" | xargs -n1 rm -r
+	find . -name "*.pyc" -o -name "*.pyo" | xargs -rn1 rm -f
+	find . -name "*.egg-info" | xargs -rn1 rm -r
 	rm -Rf build
 	cd doc; make clean
 
