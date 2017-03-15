@@ -73,7 +73,7 @@ class TaskSpec(object):
         no longer be modified.
 
         :type  parent: :class:`SpiffWorkflow.specs.WorkflowSpec`
-        :param parent: A reference to the parent (usually a workflow).
+        :param parent: A reference to the workflow specification that owns it.
         :type  name: string
         :param name: A name for the task.
         :type  lock: list(str)
