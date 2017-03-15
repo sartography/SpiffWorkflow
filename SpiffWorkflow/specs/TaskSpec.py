@@ -16,6 +16,7 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import logging
+from abc import abstractmethod
 
 from SpiffWorkflow.util.event import Event
 from SpiffWorkflow.Task import Task
@@ -410,6 +411,7 @@ class TaskSpec(object):
         for child in my_task.children:
             child.task_spec._update(child)
 
+    @abstractmethod
     def serialize(self, serializer, **kwargs):
         """
         Serializes the instance using the provided serializer.
@@ -427,7 +429,7 @@ class TaskSpec(object):
         :rtype:  object
         :returns: The serialized object.
         """
-        return serializer._serialize_task_spec(self, **kwargs)
+        raise NotImplementedError
 
     @classmethod
     def deserialize(cls, serializer, wf_spec, s_state, **kwargs):
@@ -451,8 +453,4 @@ class TaskSpec(object):
         :rtype:  TaskSpec
         :returns: The task specification instance.
         """
-        instance = cls(wf_spec, s_state['name'])
-        return serializer._deserialize_task_spec(wf_spec,
-                                                 s_state,
-                                                 instance,
-                                                 **kwargs)
+        raise NotImplementedError

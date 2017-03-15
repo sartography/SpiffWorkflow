@@ -77,8 +77,15 @@ class TaskSpecTest(unittest.TestCase):
     def testSerialize(self):
         serializer = DictionarySerializer()
         spec = self.create_instance()
-        serialized = spec.serialize(serializer)
-        self.assert_(isinstance(serialized, dict))
+
+        try:
+            serialized = spec.serialize(serializer)
+            self.assertIsInstance(serialized, dict)
+        except NotImplementedError:
+            self.assertIsInstance(spec, TaskSpec)
+            self.assertRaises(NotImplementedError,
+                              spec.__class__.deserialize, None, None, None)
+            return
 
         new_wf_spec = WorkflowSpec()
         new_spec = spec.__class__.deserialize(serializer, new_wf_spec,
