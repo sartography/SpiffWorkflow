@@ -127,8 +127,8 @@ class ThreadMerge(Join):
                 task._drop_children()
 
     def serialize(self, serializer):
-        return serializer._serialize_thread_merge(self)
+        return serializer.serialize_thread_merge(self)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer._deserialize_thread_merge(wf_spec, s_state)
+        return serializer.deserialize_thread_merge(wf_spec, s_state)

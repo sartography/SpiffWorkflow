@@ -14,8 +14,6 @@ from PatternTest import run_workflow
 from SpiffWorkflow.specs import WorkflowSpec
 
 class XmlSerializerTest(SerializerTest):
-    CORRELATE = XmlSerializer
-
     def setUp(self):
         SerializerTest.setUp(self)
         self.serializer = XmlSerializer()

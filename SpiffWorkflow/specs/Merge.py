@@ -43,7 +43,7 @@ class Merge(Join):
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer._deserialize_merge(wf_spec, s_state)
+        return serializer.deserialize_merge(wf_spec, s_state)
 
 
 def _log_overwrites(dst, src):

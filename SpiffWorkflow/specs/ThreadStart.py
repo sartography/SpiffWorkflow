@@ -46,8 +46,8 @@ class ThreadStart(TaskSpec):
         TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):
-        return serializer._serialize_thread_start(self)
+        return serializer.serialize_thread_start(self)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer._deserialize_thread_start(wf_spec, s_state)
+        return serializer.deserialize_thread_start(wf_spec, s_state)

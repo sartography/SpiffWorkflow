@@ -44,7 +44,7 @@ class XmlSerializer(Serializer):
     """
     Parses XML into a WorkflowSpec object.
     """
-    def _deserialize_assign(self, workflow, start_node):
+    def deserialize_assign(self, workflow, start_node):
         """
         Reads the "pre-assign" or "post-assign" tag from the given node.
         
@@ -66,7 +66,7 @@ class XmlSerializer(Serializer):
             kwargs['right_attribute'] = attrib
         return operators.Assign(name, **kwargs)
 
-    def _deserialize_data(self, workflow, start_node):
+    def deserialize_data(self, workflow, start_node):
         """
         Reads a "data" or "define" tag from the given node.
         
@@ -76,7 +76,7 @@ class XmlSerializer(Serializer):
         value  = start_node.getAttribute('value')
         return name, value
 
-    def _deserialize_assign_list(self, workflow, start_node):
+    def deserialize_assign_list(self, workflow, start_node):
         """
         Reads a list of assignments from the given node.
         
@@ -89,12 +89,12 @@ class XmlSerializer(Serializer):
             if node.nodeType != minidom.Node.ELEMENT_NODE:
                 continue
             if node.nodeName.lower() == 'assign':
-                assignments.append(self._deserialize_assign(workflow, node))
+                assignments.append(self.deserialize_assign(workflow, node))
             else:
                 _exc('Unknown node: %s' % node.nodeName)
         return assignments
 
-    def _deserialize_logical(self, node):
+    def deserialize_logical(self, node):
         """
         Reads the logical tag from the given node, returns a Condition object.
         
@@ -126,7 +126,7 @@ class XmlSerializer(Serializer):
             right = operators.Attrib(term2_attrib)
         return _op_map[op](left, right)
 
-    def _deserialize_condition(self, workflow, start_node):
+    def deserialize_condition(self, workflow, start_node):
         """
         Reads the conditional statement from the given node.
         
@@ -148,7 +148,7 @@ class XmlSerializer(Serializer):
             elif node.nodeName.lower() in _op_map:
                 if condition is not None:
                     _exc('Multiple conditions are not yet supported')
-                condition = self._deserialize_logical(node)
+                condition = self.deserialize_logical(node)
             else:
                 _exc('Unknown node: %s' % node.nodeName)
 
@@ -158,7 +158,7 @@ class XmlSerializer(Serializer):
             _exc('A %s has no task specified' % start_node.nodeName)
         return condition, spec_name
 
-    def _deserialize_task_spec(self, workflow, start_node, read_specs):
+    def deserialize_task_spec(self, workflow, start_node, read_specs):
         """
         Reads the task from the given node and returns a tuple
         (start, end) that contains the stream of objects that model
@@ -229,22 +229,22 @@ class XmlSerializer(Serializer):
                     _exc('Empty %s tag' % node.nodeName)
                 successors.append((None, node.firstChild.nodeValue))
             elif node.nodeName == 'conditional-successor':
-                successors.append(self._deserialize_condition(workflow, node))
+                successors.append(self.deserialize_condition(workflow, node))
             elif node.nodeName == 'define':
-                key, value = self._deserialize_data(workflow, node)
+                key, value = self.deserialize_data(workflow, node)
                 kwargs['defines'][key] = value
             # "property" tag exists for backward compatibility.
             elif node.nodeName == 'data' or node.nodeName == 'property':
-                key, value = self._deserialize_data(workflow, node)
+                key, value = self.deserialize_data(workflow, node)
                 kwargs['data'][key] = value
             elif node.nodeName == 'pre-assign':
-                kwargs['pre_assign'].append(self._deserialize_assign(workflow, node))
+                kwargs['pre_assign'].append(self.deserialize_assign(workflow, node))
             elif node.nodeName == 'post-assign':
-                kwargs['post_assign'].append(self._deserialize_assign(workflow, node))
+                kwargs['post_assign'].append(self.deserialize_assign(workflow, node))
             elif node.nodeName == 'in':
-                kwargs['in_assign'] = self._deserialize_assign_list(workflow, node)
+                kwargs['in_assign'] = self.deserialize_assign_list(workflow, node)
             elif node.nodeName == 'out':
-                kwargs['out_assign'] = self._deserialize_assign_list(workflow, node)
+                kwargs['out_assign'] = self.deserialize_assign_list(workflow, node)
             elif node.nodeName == 'cancel':
                 if node.firstChild is None:
                     _exc('Empty %s tag' % node.nodeName)
@@ -305,7 +305,7 @@ class XmlSerializer(Serializer):
             elif child_node.nodeName == 'description':
                 workflow_spec.description = child_node.firstChild.nodeValue
             elif child_node.nodeName.lower() in _spec_map:
-                self._deserialize_task_spec(workflow_spec, child_node, read_specs)
+                self.deserialize_task_spec(workflow_spec, child_node, read_specs)
             else:
                 _exc('Unknown node: %s' % child_node.nodeName)
 

@@ -253,9 +253,9 @@ class Celery(TaskSpec):
         super(Celery, self)._update_hook(my_task)
 
     def serialize(self, serializer):
-        return serializer._serialize_celery(self)
+        return serializer.serialize_celery(self)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        spec = serializer._deserialize_celery(wf_spec, s_state)
+        spec = serializer.deserialize_celery(wf_spec, s_state)
         return spec

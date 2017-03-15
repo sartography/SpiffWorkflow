@@ -28,8 +28,8 @@ class Simple(TaskSpec):
     parallel split.
     """
     def serialize(self, serializer):
-        return serializer._serialize_simple(self)
+        return serializer.serialize_simple(self)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer._deserialize_simple(wf_spec, s_state)
+        return serializer.deserialize_simple(wf_spec, s_state)

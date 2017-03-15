@@ -77,9 +77,9 @@ class Execute(TaskSpec):
         super(Execute, self)._update_hook(my_task)
 
     def serialize(self, serializer):
-        return serializer._serialize_execute(self)
+        return serializer.serialize_execute(self)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        spec = serializer._deserialize_execute(wf_spec, s_state)
+        spec = serializer.deserialize_execute(wf_spec, s_state)
         return spec

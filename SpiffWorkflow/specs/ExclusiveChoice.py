@@ -85,8 +85,8 @@ class ExclusiveChoice(MultiChoice):
             child.task_spec._update(child)
 
     def serialize(self, serializer):
-        return serializer._serialize_exclusive_choice(self)
+        return serializer.serialize_exclusive_choice(self)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer._deserialize_exclusive_choice(wf_spec, s_state)
+        return serializer.deserialize_exclusive_choice(wf_spec, s_state)

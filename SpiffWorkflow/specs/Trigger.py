@@ -85,13 +85,13 @@ class Trigger(TaskSpec):
         TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):
-        return serializer._serialize_trigger(self)
+        return serializer.serialize_trigger(self)
 
     @classmethod
     def deserialize(cls, serializer, wf_spec, s_state, **kwargs):
         """
         Deserializes the trigger using the provided serializer.
         """
-        return serializer._deserialize_trigger(wf_spec,
+        return serializer.deserialize_trigger(wf_spec,
                                                s_state,
                                                **kwargs)

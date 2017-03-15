@@ -90,5 +90,3 @@ class BpmnSerializer(Serializer):
                 parser.add_bpmn_xml(bpmn, svg=svg, filename='%s:%s' % (filename, info.filename))
 
         return parser.get_spec(config.get('MetaData', 'entry_point_process'))
-
-

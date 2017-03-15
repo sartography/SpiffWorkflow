@@ -57,13 +57,13 @@ class Transform(TaskSpec):
         super(Transform, self)._update_hook(my_task)
 
     def serialize(self, serializer):
-        s_state = serializer._serialize_simple(self)
+        s_state = serializer.serialize_simple(self)
         s_state['transforms'] = self.transforms
         return s_state
 
     @classmethod
     def deserialize(cls, serializer, wf_spec, s_state):
         spec = Transform(wf_spec, s_state['name'])
-        serializer._deserialize_task_spec(wf_spec, s_state, spec=spec)
+        serializer.deserialize_task_spec(wf_spec, s_state, spec=spec)
         spec.transforms = s_state['transforms']
         return spec

@@ -36,8 +36,8 @@ class CancelTask(Trigger):
         TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):
-        return serializer._serialize_cancel_task(self)
+        return serializer.serialize_cancel_task(self)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer._deserialize_cancel_task(wf_spec, s_state)
+        return serializer.deserialize_cancel_task(wf_spec, s_state)

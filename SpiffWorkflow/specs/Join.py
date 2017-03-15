@@ -289,8 +289,8 @@ class Join(TaskSpec):
             self._do_join(task)
 
     def serialize(self, serializer):
-        return serializer._serialize_join(self)
+        return serializer.serialize_join(self)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer._deserialize_join(wf_spec, s_state)
+        return serializer.deserialize_join(wf_spec, s_state)

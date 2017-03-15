@@ -43,7 +43,7 @@ class Attrib(object):
         :rtype:  object
         :returns: The serialized object.
         """
-        return serializer._serialize_attrib(self)
+        return serializer.serialize_attrib(self)
 
     @classmethod
     def deserialize(cls, serializer, s_state):
@@ -55,7 +55,7 @@ class Attrib(object):
         :rtype:  object
         :returns: The serialized object.
         """
-        return serializer._deserialize_attrib(s_state)
+        return serializer.deserialize_attrib(s_state)
 
 
 class PathAttrib(object):
@@ -75,7 +75,7 @@ class PathAttrib(object):
         :rtype:  object
         :returns: The serialized object.
         """
-        return serializer._serialize_pathattrib(self)
+        return serializer.serialize_pathattrib(self)
 
     @classmethod
     def deserialize(cls, serializer, s_state):
@@ -87,7 +87,7 @@ class PathAttrib(object):
         :rtype:  object
         :returns: The serialized object.
         """
-        return serializer._deserialize_pathattrib(s_state)
+        return serializer.deserialize_pathattrib(s_state)
 
 
 class Assign(object):
@@ -189,7 +189,7 @@ class Operator(object):
         :rtype:  object
         :returns: The serialized object.
         """
-        return serializer._serialize_operator(self)
+        return serializer.serialize_operator(self)
 
     @classmethod
     def deserialize(cls, serializer, s_state):
@@ -201,7 +201,7 @@ class Operator(object):
         :rtype:  object
         :returns: The serialized object.
         """
-        return serializer._deserialize_operator(s_state)
+        return serializer.deserialize_operator(s_state)
 
 
 class Equal(Operator):
@@ -218,11 +218,11 @@ class Equal(Operator):
         return True
 
     def serialize(self, serializer):
-        return serializer._serialize_operator_equal(self)
+        return serializer.serialize_operator_equal(self)
 
     @classmethod
     def deserialize(cls, serializer, s_state):
-        return serializer._deserialize_operator_equal(s_state)
+        return serializer.deserialize_operator_equal(s_state)
 
 
 class NotEqual(Operator):
@@ -239,11 +239,11 @@ class NotEqual(Operator):
         return False
 
     def serialize(self, serializer):
-        return serializer._serialize_operator_not_equal(self)
+        return serializer.serialize_operator_not_equal(self)
 
     @classmethod
     def deserialize(cls, serializer, s_state):
-        return serializer._deserialize_operator_not_equal(s_state)
+        return serializer.deserialize_operator_not_equal(s_state)
 
 
 class GreaterThan(Operator):
@@ -261,11 +261,11 @@ class GreaterThan(Operator):
         return int(left) > int(right)
 
     def serialize(self, serializer):
-        return serializer._serialize_operator_greater_than(self)
+        return serializer.serialize_operator_greater_than(self)
 
     @classmethod
     def deserialize(cls, serializer, s_state):
-        return serializer._deserialize_operator_greater_than(s_state)
+        return serializer.deserialize_operator_greater_than(s_state)
 
 
 class LessThan(Operator):
@@ -283,11 +283,11 @@ class LessThan(Operator):
         return int(left) < int(right)
 
     def serialize(self, serializer):
-        return serializer._serialize_operator_less_than(self)
+        return serializer.serialize_operator_less_than(self)
 
     @classmethod
     def deserialize(cls, serializer, s_state):
-        return serializer._deserialize_operator_less_than(s_state)
+        return serializer.deserialize_operator_less_than(s_state)
 
 
 class Match(Operator):
@@ -308,8 +308,8 @@ class Match(Operator):
         return True
 
     def serialize(self, serializer):
-        return serializer._serialize_operator_match(self)
+        return serializer.serialize_operator_match(self)
 
     @classmethod
     def deserialize(cls, serializer, s_state):
-        return serializer._deserialize_operator_match(s_state)
+        return serializer.deserialize_operator_match(s_state)

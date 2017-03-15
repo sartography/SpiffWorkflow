@@ -12,7 +12,6 @@ from SpiffWorkflow import Workflow
 import uuid
 
 class DictionarySerializerTest(SerializerTest):
-    CORRELATE = DictionarySerializer
     maxDiff = None
 
     def setUp(self):
