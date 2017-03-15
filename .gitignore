@@ -1,8 +1,8 @@
 *.py[co]
+*.swp
 dist
 /build
 *.egg-info
-handbook
 unit_test.cfg
 nosetests.xml
 .coverage
