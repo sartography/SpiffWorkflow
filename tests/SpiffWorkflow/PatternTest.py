@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-
-from __future__ import division
 import sys, unittest, re, os, glob
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from SpiffWorkflow.specs import *
 from SpiffWorkflow import Task
 from SpiffWorkflow.storage import XmlSerializer
-from xml.parsers.expat import ExpatError
 from util import run_workflow
 
 class PatternTest(unittest.TestCase):
