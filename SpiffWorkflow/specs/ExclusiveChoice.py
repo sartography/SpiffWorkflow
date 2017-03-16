@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -16,8 +16,8 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import re
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.exceptions import WorkflowException
+from ..task import Task
+from ..exceptions import WorkflowException
 from .MultiChoice import MultiChoice
 
 class ExclusiveChoice(MultiChoice):

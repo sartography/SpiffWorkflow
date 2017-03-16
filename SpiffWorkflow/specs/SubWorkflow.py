@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -16,10 +16,10 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import os
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.operators import valueof
-from SpiffWorkflow.specs.TaskSpec import TaskSpec
+from ..task import Task
+from ..exceptions import WorkflowException
+from ..operators import valueof
+from .TaskSpec import TaskSpec
 import SpiffWorkflow
 
 class SubWorkflow(TaskSpec):
@@ -81,8 +81,8 @@ class SubWorkflow(TaskSpec):
             my_task._sync_children(outputs, my_task.state)
 
     def _create_subworkflow(self, my_task):
-        from SpiffWorkflow.serializer.prettyxml import XmlSerializer
-        from SpiffWorkflow.specs import WorkflowSpec
+        from ..serializer.prettyxml import XmlSerializer
+        from ..specs import WorkflowSpec
         file           = valueof(my_task, self.file)
         serializer     = XmlSerializer()
         xml            = open(file).read()

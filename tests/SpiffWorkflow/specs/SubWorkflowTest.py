@@ -11,7 +11,7 @@ from SpiffWorkflow.specs import WorkflowSpec, Simple, Join
 from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 from SpiffWorkflow.task import Task
-from SpiffWorkflow.Workflow import Workflow
+from SpiffWorkflow.workflow import Workflow
 
 class TaskSpecTest(unittest.TestCase):
     CORRELATE = SubWorkflow

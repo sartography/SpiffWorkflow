@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -18,11 +18,11 @@ from __future__ import division
 import logging
 import json
 
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.specs.TaskSpec import TaskSpec
-from SpiffWorkflow.operators import valueof, Attrib, PathAttrib
-from SpiffWorkflow.util import merge_dictionary
+from ..task import Task
+from ..exceptions import WorkflowException
+from .TaskSpec import TaskSpec
+from ..operators import valueof, Attrib, PathAttrib
+from ..util import merge_dictionary
 
 try:
     from celery.app import default_app

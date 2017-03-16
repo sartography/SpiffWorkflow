@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -17,9 +17,9 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import logging
 
-from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.specs.Join import Join
-from SpiffWorkflow.util import merge_dictionary
+from ..exceptions import WorkflowException
+from .Join import Join
+from ..util import merge_dictionary
 
 LOG = logging.getLogger(__name__)
 

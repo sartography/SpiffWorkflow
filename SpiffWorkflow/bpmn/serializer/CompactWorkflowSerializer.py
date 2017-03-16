@@ -20,7 +20,7 @@ from collections import deque
 import json
 import logging
 from SpiffWorkflow.task import Task
-from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.specs import SubWorkflow
 from SpiffWorkflow.serializer.base import Serializer
 

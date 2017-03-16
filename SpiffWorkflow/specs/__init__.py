@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 from .AcquireMutex import AcquireMutex
 from .Cancel import Cancel
 from .CancelTask import CancelTask

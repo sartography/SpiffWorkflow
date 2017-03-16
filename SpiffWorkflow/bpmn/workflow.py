@@ -17,7 +17,7 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 from SpiffWorkflow.task import Task
-from SpiffWorkflow.Workflow import Workflow
+from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 
 class BpmnWorkflow(Workflow):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import logging
 
-from SpiffWorkflow.specs import StartTask
+from ..specs import StartTask
 
 LOG = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ class WorkflowSpec(object):
         :returns: empty list if valid, a list of errors if not
         """
         results = []
-        from SpiffWorkflow.specs import Join
+        from ..specs import Join
 
         def recursive_find_loop(task, history):
             current = history[:]
