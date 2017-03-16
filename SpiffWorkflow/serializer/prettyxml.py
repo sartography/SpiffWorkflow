@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2007-2012 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -18,9 +18,9 @@ from __future__ import division
 import os
 import re
 import xml.dom.minidom as minidom
-from SpiffWorkflow import operators, specs
-from SpiffWorkflow.exceptions import StorageException
-from SpiffWorkflow.storage.Serializer import Serializer
+from .. import operators, specs
+from ..exceptions import StorageException
+from .base import Serializer
 
 # Create a list of tag names out of the spec names.
 _spec_map = dict()

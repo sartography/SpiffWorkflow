@@ -81,7 +81,7 @@ class SubWorkflow(TaskSpec):
             my_task._sync_children(outputs, my_task.state)
 
     def _create_subworkflow(self, my_task):
-        from SpiffWorkflow.storage import XmlSerializer
+        from SpiffWorkflow.serializer.prettyxml import XmlSerializer
         from SpiffWorkflow.specs import WorkflowSpec
         file           = valueof(my_task, self.file)
         serializer     = XmlSerializer()

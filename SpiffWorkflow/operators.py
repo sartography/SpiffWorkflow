@@ -43,7 +43,7 @@ class Attrib(Term):
         """
         Serializes the instance using the provided serializer.
 
-        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
         :param serializer: The serializer to use.
         :rtype:  object
         :returns: The serialized object.
@@ -55,7 +55,7 @@ class Attrib(Term):
         """
         Serializes the instance using the provided serializer.
 
-        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
         :param serializer: The serializer to use.
         :rtype:  object
         :returns: The serialized object.
@@ -75,7 +75,7 @@ class PathAttrib(Term):
         """
         Serializes the instance using the provided serializer.
 
-        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
         :param serializer: The serializer to use.
         :rtype:  object
         :returns: The serialized object.
@@ -87,7 +87,7 @@ class PathAttrib(Term):
         """
         Serializes the instance using the provided serializer.
 
-        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
         :param serializer: The serializer to use.
         :rtype:  object
         :returns: The serialized object.
@@ -136,6 +136,29 @@ class Assign(Term):
         else:
             right = from_obj.get_data(self.right_attribute)
         to_obj.set_data(**{unicode(self.left_attribute): right})
+
+    def serialize(self, serializer):
+        """
+        Serializes the instance using the provided serializer.
+
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
+        :param serializer: The serializer to use.
+        :rtype:  object
+        :returns: The serialized object.
+        """
+        return serializer.serialize_assign(self)
+
+    @classmethod
+    def deserialize(cls, serializer, s_state):
+        """
+        Serializes the instance using the provided serializer.
+
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
+        :param serializer: The serializer to use.
+        :rtype:  object
+        :returns: The serialized object.
+        """
+        return serializer.deserialize_assign(s_state)
 
 
 def valueof(scope, op, default=None):
@@ -189,7 +212,7 @@ class Operator(Term):
         """
         Serializes the instance using the provided serializer.
 
-        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
         :param serializer: The serializer to use.
         :rtype:  object
         :returns: The serialized object.
@@ -201,7 +224,7 @@ class Operator(Term):
         """
         Serializes the instance using the provided serializer.
 
-        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
         :param serializer: The serializer to use.
         :rtype:  object
         :returns: The serialized object.

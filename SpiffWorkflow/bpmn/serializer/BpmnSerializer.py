@@ -22,13 +22,13 @@ import xml.etree.ElementTree as ET
 import zipfile
 import os
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.storage.Packager import Packager
-from SpiffWorkflow.storage.Serializer import Serializer
+from SpiffWorkflow.bpmn.serializer.Packager import Packager
+from SpiffWorkflow.serializer.base import Serializer
 
 class BpmnSerializer(Serializer):
     """
     The BpmnSerializer class provides support for deserializing a Bpmn Workflow Spec from a BPMN package.
-    The BPMN package must have been created using the Packager class (from SpiffWorkflow.bpmn.storage.Packager).
+    The BPMN package must have been created using the :class:`SpiffWorkflow.bpmn.serializer.Packager`.
 
     It will also use the appropriate subclass of BpmnParser, if one is included in the metadata.ini file.
     """

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-
-from __future__ import division
 import os
 import sys
 import unittest
@@ -16,7 +14,7 @@ except ImportError as e:
     from tests.SpiffWorkflow.util import track_workflow
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.specs import Join, WorkflowSpec
-from SpiffWorkflow.storage import XmlSerializer
+from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 
 serializer = XmlSerializer()
 data_file = 'data.pkl'

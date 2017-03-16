@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-
-from __future__ import division
 import sys, unittest, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -10,8 +8,7 @@ from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
 from SpiffWorkflow.Task import *
 from SpiffWorkflow.specs.Simple import Simple
-from SpiffWorkflow.storage import DictionarySerializer
-
+from SpiffWorkflow.serializer.dict import DictionarySerializer
 
 class ASmallWorkflow(WorkflowSpec):
     def __init__(self):

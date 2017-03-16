@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-
-from __future__ import division
 import os
 import sys
 import unittest
@@ -10,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from .TaskSpecTest import TaskSpecTest
 from SpiffWorkflow.specs import Celery, WorkflowSpec
 from SpiffWorkflow.operators import Attrib
-from SpiffWorkflow.storage import DictionarySerializer
+from SpiffWorkflow.serializer.dict import DictionarySerializer
 from base64 import b64encode
 
 class CeleryTest(TaskSpecTest):

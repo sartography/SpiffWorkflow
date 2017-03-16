@@ -5,10 +5,8 @@ dirname = os.path.dirname(__file__)
 data_dir = os.path.join(dirname, '..', 'data')
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
-from SpiffWorkflow.storage import XmlSerializer
-from .SerializerTest import SerializerTest
-from PatternTest import run_workflow
-from SpiffWorkflow.specs import WorkflowSpec
+from SpiffWorkflow.serializer.prettyxml import XmlSerializer
+from .baseTest import SerializerTest
 
 class XmlSerializerTest(SerializerTest):
     def setUp(self):

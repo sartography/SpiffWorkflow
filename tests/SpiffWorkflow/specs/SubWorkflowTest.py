@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-
-from __future__ import division
 import sys
 import unittest
 import re
@@ -11,7 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from SpiffWorkflow.specs import WorkflowSpec, Simple, Join
 from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
-from SpiffWorkflow.storage import XmlSerializer
+from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.Workflow import Workflow
 

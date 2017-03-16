@@ -10,7 +10,7 @@ from SpiffWorkflow import Workflow
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
 from SpiffWorkflow.Task import *
-from SpiffWorkflow.storage import XmlSerializer
+from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 
 class WorkflowTest(unittest.TestCase):
     def testConstructor(self):

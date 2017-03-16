@@ -22,14 +22,14 @@ from SpiffWorkflow.specs.TaskSpec import TaskSpec
 class ThreadStart(TaskSpec):
     """
     This class implements the task the is placed at the beginning
-    of each thread. It is NOT supposed to be used by in the API, it is
-    used internally only (by the ThreadSplit task).
+    of each thread. It is NOT supposed to be used! It is purely internal,
+    and used only by the ThreadSplit task.
     The task has no inputs and at least one output.
     If more than one output is connected, the task does an implicit
     parallel split.
     """
 
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent, name='ThreadStart', **kwargs):
         """
         Constructor. The name of this task is *always* 'ThreadStart'.
         
@@ -38,7 +38,7 @@ class ThreadStart(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        TaskSpec.__init__(self, parent, 'ThreadStart', **kwargs)
+        TaskSpec.__init__(self, parent, name, **kwargs)
         self.internal = True
 
     def _on_complete_hook(self, my_task):

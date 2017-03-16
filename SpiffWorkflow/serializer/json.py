@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
@@ -15,8 +15,8 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import json
 import uuid
-from SpiffWorkflow.storage import DictionarySerializer
-from SpiffWorkflow.operators import Attrib
+from .dict import DictionarySerializer
+from ..operators import Attrib
 
 def object_hook(dct):
     if '__uuid__' in dct:

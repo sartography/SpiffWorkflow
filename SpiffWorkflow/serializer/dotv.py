@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
@@ -14,11 +14,9 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-
 # requires: https://github.com/stricaud/gvgen
 import gvgen
-
-from SpiffWorkflow.storage.Serializer import Serializer
+from .base import Serializer
 
 class dotVisualizer(Serializer):
     def serialize_workflow_spec(self, wf_spec):

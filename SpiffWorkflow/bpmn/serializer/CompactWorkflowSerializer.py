@@ -22,7 +22,7 @@ import logging
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.specs import SubWorkflow
-from SpiffWorkflow.storage.Serializer import Serializer
+from SpiffWorkflow.serializer.base import Serializer
 
 try:
     basestring

@@ -21,7 +21,7 @@ included with the package.
       license          = 'lGPLv2',
       packages         = find_packages(exclude=['tests', 'tests.*']),
       requires         = [],
-      keywords         = 'spiff guard acl acls security authentication object storage',
+      keywords         = 'spiff workflow bpmn engine',
       url              = 'https://github.com/knipknap/SpiffWorkflow',
       classifiers      = [
         'Development Status :: 3 - Alpha',

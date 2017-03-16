@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import, division
 
 from __future__ import division
 import sys
-from SpiffWorkflow.bpmn.storage.BpmnSerializer import BpmnSerializer
+from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
 __author__ = 'matth'

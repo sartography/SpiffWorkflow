@@ -55,7 +55,7 @@ The WorkflowSpec and TaskSpec classes are used to define a workflow. SpiffWorkfl
 
 A WorkflowSpec is built by chaining TaskSpecs together in a tree. You can either assemble workflow using Python objects (see the example linked above), or by loading it from XML such as follows::
 
-    from SpiffWorkflow.storage import XmlSerializer
+    from SpiffWorkflow.serializer.oldxml import XmlSerializer
 
     serializer = XmlSerializer()
     xml_file = 'my_workflow.xml'

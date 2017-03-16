@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
@@ -15,14 +15,14 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import pickle
 from base64 import b64encode, b64decode
-from SpiffWorkflow import Workflow
-from SpiffWorkflow.util.impl import get_class
-from SpiffWorkflow.Task import Task
-from SpiffWorkflow.operators import *
-from SpiffWorkflow.specs.TaskSpec import TaskSpec
-from SpiffWorkflow.specs import *
-from SpiffWorkflow.storage.Serializer import Serializer
-from SpiffWorkflow.storage.exceptions import TaskNotSupportedError
+from .. import Workflow
+from ..util.impl import get_class
+from ..Task import Task
+from ..operators import *
+from ..specs.TaskSpec import TaskSpec
+from ..specs import *
+from .base import Serializer
+from .exceptions import TaskNotSupportedError
 import warnings
 
 class DictionarySerializer(Serializer):

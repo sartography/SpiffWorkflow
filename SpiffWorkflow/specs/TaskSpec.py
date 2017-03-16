@@ -422,7 +422,7 @@ class TaskSpec(object):
             use them, make sure to re-connect them once the spec is
             deserialized.
 
-        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
         :param serializer: The serializer to use.
         :type  kwargs: dict
         :param kwargs: Passed to the serializer.
@@ -442,7 +442,7 @@ class TaskSpec(object):
             use them, make sure to re-connect them once the spec is
             deserialized.
 
-        :type  serializer: :class:`SpiffWorkflow.storage.Serializer`
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
         :param serializer: The serializer to use.
         :type  wf_spec: :class:`SpiffWorkflow.spec.WorkflowSpec`
         :param wf_spec: An instance of the WorkflowSpec.
