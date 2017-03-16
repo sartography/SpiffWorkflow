@@ -35,9 +35,12 @@ class Workflow(object):
         """
         Constructor.
 
+        :type workflow_spec: specs.WorkflowSpec
+        :param workflow_spec: The workflow specification.
+        :type deserializing: bool
         :param deserializing: set to true when deserializing to avoid
-        generating tasks twice (and associated problems with multiple
-        hierarchies of tasks)
+          generating tasks twice (and associated problems with multiple
+          hierarchies of tasks)
         """
         assert workflow_spec is not None
         LOG.debug("__init__ Workflow instance: %s" % self.__str__())
@@ -73,6 +76,9 @@ class Workflow(object):
     def is_completed(self):
         """
         Returns True if the entire Workflow is completed, False otherwise.
+
+        :rtype: bool
+        :return: Whether the workflow is completed.
         """
         mask = Task.NOT_FINISHED_MASK
         iter = Task.Iterator(self.task_tree, mask)
@@ -110,7 +116,7 @@ class Workflow(object):
         Returns the value of the data field with the given name, or the given
         default value if the data field does not exist.
 
-        :type  name: string
+        :type  name: str
         :param name: A data field name.
         :type  default: obj
         :param default: Return this value if the data field does not exist.
@@ -123,7 +129,7 @@ class Workflow(object):
         """
         Cancels all open tasks in the workflow.
 
-        :type  success: boolean
+        :type  success: bool
         :param success: Whether the Workflow should be marked as successfully
                         completed.
         """
@@ -139,7 +145,7 @@ class Workflow(object):
         """
         Returns the task spec with the given name.
 
-        :type  name: string
+        :type  name: str
         :param name: The name of the task.
         :rtype:  TaskSpec
         :returns: The task spec with the given name.
@@ -201,12 +207,12 @@ class Workflow(object):
         Runs the next task.
         Returns True if completed, False otherwise.
 
-        :type  pick_up: boolean
+        :type  pick_up: bool
         :param pick_up: When True, this method attempts to choose the next
                         task not by searching beginning at the root, but by
                         searching from the position at which the last call
                         of complete_next() left off.
-        :rtype:  boolean
+        :rtype:  bool
         :returns: True if all tasks were completed, False otherwise.
         """
         # Try to pick up where we left off.
@@ -245,9 +251,10 @@ class Workflow(object):
     def complete_all(self, pick_up=True):
         """
         Runs all branches until completion. This is a convenience wrapper
-        around complete_next(), and the pick_up argument is passed along.
+        around :meth:`complete_next`, and the pick_up argument is passed
+        along.
 
-        :type  pick_up: boolean
+        :type  pick_up: bool
         :param pick_up: Passed on to each call of complete_next().
         """
         while self.complete_next(pick_up):
@@ -258,15 +265,15 @@ class Workflow(object):
         Returns a complete dump of the current internal task tree for
         debugging.
 
-        :rtype:  string
+        :rtype:  str
         :returns: The debug information.
         """
         return self.task_tree.get_dump()
 
     def dump(self):
         """
-        Like get_dump(), but prints the output to the terminal instead of
-        returning it.
+        Like :meth:`get_dump`, but prints the output to the terminal instead
+        of returning it.
         """
         print(self.task_tree.dump())
 

@@ -41,32 +41,32 @@ class Task(object):
         StartTask WAITING -> ExclusiveChoice FUTURE
                                                    `-> Simple MAYBE
 
-    The following states may exist::
+    The following states may exist:
 
-        - FUTURE: The task will definitely be reached in the future,
-        regardless of which choices the user makes within the workflow.
+    - FUTURE: The task will definitely be reached in the future,
+      regardless of which choices the user makes within the workflow.
 
-        - LIKELY: The task may or may not be reached in the future. It
-        is likely because the specification lists it as the default
-        option for the ExclusiveChoice.
+    - LIKELY: The task may or may not be reached in the future. It
+      is likely because the specification lists it as the default
+      option for the ExclusiveChoice.
 
-        - MAYBE: The task may or may not be reached in the future. It
-        is not LIKELY, because the specification does not list it as the
-        default choice for the ExclusiveChoice.
+    - MAYBE: The task may or may not be reached in the future. It
+      is not LIKELY, because the specification does not list it as the
+      default choice for the ExclusiveChoice.
 
-        - WAITING: The task is still waiting for an event before it
-        completes. For example, a Join task will be WAITING until all
-        predecessors are completed.
+    - WAITING: The task is still waiting for an event before it
+      completes. For example, a Join task will be WAITING until all
+      predecessors are completed.
 
-        - READY: The conditions for completing the task are now satisfied.
-        Usually this means that all predecessors have completed and the
-        task may now be completed using
-        :class:`Workflow.complete_task_from_id()`.
+    - READY: The conditions for completing the task are now satisfied.
+      Usually this means that all predecessors have completed and the
+      task may now be completed using
+      :class:`Workflow.complete_task_from_id()`.
 
-        - CANCELLED: The task was cancelled by a CancelTask or
-        CancelWorkflow task.
+    - CANCELLED: The task was cancelled by a CancelTask or
+      CancelWorkflow task.
 
-        - COMPLETED: The task was regularily completed.
+    - COMPLETED: The task was regularily completed.
 
     Note that the LIKELY and MAYBE tasks are merely predicted/guessed, so
     those tasks may be removed from the tree at runtime later. They are
@@ -314,9 +314,9 @@ class Task(object):
         """
         Assigns a new thread id to the task.
 
-        :type  recursive: boolean
+        :type  recursive: bool
         :param recursive: Whether to assign the id to children recursively.
-        :rtype:  boolean
+        :rtype:  bool
         :returns: The new thread id.
         """
         self.__class__.thread_id_pool += 1
@@ -396,7 +396,7 @@ class Task(object):
 
         :type  parent: Task
         :param parent: The parent that is searched in the ancestors.
-        :rtype:  boolean
+        :rtype:  bool
         :returns: Whether the parent was found.
         """
         if self.parent is None:

@@ -56,10 +56,10 @@ The WorkflowSpec and TaskSpec classes are used to define a workflow. SpiffWorkfl
 .. note::
    SpiffWorkflow has two XML serializers:
 
-   - :module:`SpiffWorkflow.serializer.xml` is the standard that is
+   - :mod:`SpiffWorkflow.serializer.xml` is the standard that is
      feature-complete, and you should use it for implementing workflow
      persistence.
-   - :module:`SpiffWorkflow.serializer.prettyxml` supports
+   - :mod:`SpiffWorkflow.serializer.prettyxml` supports
      deserialization of a more human-friendly XML format. It does not
      support the full set of features, and it does not support
      serialization.
@@ -105,7 +105,7 @@ The *Workflow* object then represents the state of this particular instance of t
 All changes in the progress or state of a workflow are always reflected in one (or more) of the *Task* objects. Each Task has a *state*, and can hold *data*.
 
 .. HINT::
-   To visualize the state of a running workflow, you may use the `Workflow.dump()` method to print the task tree to stdout.
+   To visualize the state of a running workflow, you may use the :meth:`SpiffWorkflow.Workflow.dump` method to print the task tree to stdout.
 
 Some tasks change their state automatically based on internal or environmental changes. Other tasks may need to be triggered by you, the user. The latter kind of tasks can, for example, be completed by calling::
 
