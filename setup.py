@@ -20,7 +20,7 @@ included with the package.
       author_email     = 'cheeseshop.python.org@debain.org',
       license          = 'lGPLv2',
       packages         = find_packages(exclude=['tests', 'tests.*']),
-      requires         = [],
+      requires         = ['lxml'],
       keywords         = 'spiff workflow bpmn engine',
       url              = 'https://github.com/knipknap/SpiffWorkflow',
       classifiers      = [
