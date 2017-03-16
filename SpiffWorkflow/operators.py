@@ -138,17 +138,17 @@ class Assign(Term):
         to_obj.set_data(**{unicode(self.left_attribute): right})
 
 
-def valueof(scope, op):
+def valueof(scope, op, default=None):
     if op is None:
-        return None
+        return default
     elif isinstance(op, Attrib):
         if op.name not in scope.data:
             LOG.debug("Attrib('%s') not present in task '%s' data" %
                     (op.name, scope.get_name()))
-        return scope.get_data(op.name)
+        return scope.get_data(op.name, default)
     elif isinstance(op, PathAttrib):
         if not op.path:
-            return None
+            return default
         parts = op.path.split('/')
         data = scope.data
         for part in parts:
@@ -156,7 +156,7 @@ def valueof(scope, op):
                 LOG.debug("PathAttrib('%s') not present in task '%s' "
                         "data" % (op.path, scope.get_name()),
                         extra=dict(data=scope.data))
-                return None
+                return default
             data = data[part]  # move down the path
         return data
     else:
