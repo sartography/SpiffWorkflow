@@ -18,7 +18,7 @@ from __future__ import division
 import logging
 import json
 
-from SpiffWorkflow.Task import Task
+from SpiffWorkflow.task import Task
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
 from SpiffWorkflow.operators import valueof, Attrib, PathAttrib

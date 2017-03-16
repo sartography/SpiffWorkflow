@@ -17,7 +17,7 @@ import pickle
 from base64 import b64encode, b64decode
 from .. import Workflow
 from ..util.impl import get_class
-from ..Task import Task
+from ..task import Task
 from ..operators import *
 from ..specs.TaskSpec import TaskSpec
 from ..specs import *

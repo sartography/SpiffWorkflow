@@ -21,7 +21,7 @@ from .util.compat import mutex
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow import specs
 from SpiffWorkflow.util.event import Event
-from .Task import Task
+from .task import Task
 
 LOG = logging.getLogger(__name__)
 

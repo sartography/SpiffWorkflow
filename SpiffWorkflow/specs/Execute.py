@@ -17,7 +17,7 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 import subprocess
 
-from SpiffWorkflow.Task import Task
+from SpiffWorkflow.task import Task
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
 

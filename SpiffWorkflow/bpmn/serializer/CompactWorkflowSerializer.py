@@ -19,7 +19,7 @@ from __future__ import division
 from collections import deque
 import json
 import logging
-from SpiffWorkflow.Task import Task
+from SpiffWorkflow.task import Task
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from SpiffWorkflow.specs import SubWorkflow
 from SpiffWorkflow.serializer.base import Serializer

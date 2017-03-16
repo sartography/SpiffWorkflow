@@ -16,7 +16,7 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import os
-from SpiffWorkflow.Task import Task
+from SpiffWorkflow.task import Task
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.operators import valueof
 from SpiffWorkflow.specs.TaskSpec import TaskSpec

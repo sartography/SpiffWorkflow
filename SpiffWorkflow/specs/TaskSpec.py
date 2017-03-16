@@ -19,7 +19,7 @@ import logging
 from abc import abstractmethod
 
 from SpiffWorkflow.util.event import Event
-from SpiffWorkflow.Task import Task
+from SpiffWorkflow.task import Task
 from SpiffWorkflow.exceptions import WorkflowException
 
 

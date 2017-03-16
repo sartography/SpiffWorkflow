@@ -5,7 +5,7 @@ from __future__ import division
 import unittest
 import logging
 import sys
-from SpiffWorkflow.Task import Task
+from SpiffWorkflow.task import Task
 from SpiffWorkflow.bpmn.BpmnWorkflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
