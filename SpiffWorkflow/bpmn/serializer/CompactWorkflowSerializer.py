@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -19,10 +19,10 @@ from __future__ import division
 from collections import deque
 import json
 import logging
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.specs import SubWorkflow
-from SpiffWorkflow.serializer.base import Serializer
+from ...task import Task
+from ...specs import SubWorkflow
+from ...serializer.base import Serializer
+from ..workflow import BpmnWorkflow
 
 try:
     basestring

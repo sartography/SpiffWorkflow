@@ -383,8 +383,6 @@ class DictionarySerializer(Serializer):
         return self.serialize_task_spec(spec)
 
     def deserialize_thread_start(self, wf_spec, s_state):
-        # specs/__init__.py deliberately hides this: forcibly import it
-        from SpiffWorkflow.specs.ThreadStart import ThreadStart
         spec = ThreadStart(wf_spec)
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec

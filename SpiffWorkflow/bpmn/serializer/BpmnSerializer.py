@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -16,14 +16,14 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-from SpiffWorkflow.util.compat import configparser
+from ...util.compat import configparser
 from io import BytesIO, TextIOWrapper
 import xml.etree.ElementTree as ET
 import zipfile
 import os
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.serializer.Packager import Packager
-from SpiffWorkflow.serializer.base import Serializer
+from ...serializer.base import Serializer
+from ..parser.BpmnParser import BpmnParser
+from .Packager import Packager
 
 class BpmnSerializer(Serializer):
     """

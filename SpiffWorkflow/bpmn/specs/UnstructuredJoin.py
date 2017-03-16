@@ -18,9 +18,9 @@ from __future__ import division
 from collections import deque
 
 import logging
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-from SpiffWorkflow.specs.Join import Join
+from ...task import Task
+from .BpmnSpecMixin import BpmnSpecMixin
+from ...specs.Join import Join
 
 LOG = logging.getLogger(__name__)
 

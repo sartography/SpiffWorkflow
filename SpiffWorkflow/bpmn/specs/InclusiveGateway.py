@@ -18,8 +18,8 @@ from __future__ import division
 from collections import deque
 
 import logging
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.bpmn.specs.UnstructuredJoin import UnstructuredJoin
+from ...task import Task
+from .UnstructuredJoin import UnstructuredJoin
 
 LOG = logging.getLogger(__name__)
 

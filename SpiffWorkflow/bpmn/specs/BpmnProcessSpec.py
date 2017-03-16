@@ -16,10 +16,10 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import logging
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.bpmn.specs.UnstructuredJoin import UnstructuredJoin
-from SpiffWorkflow.specs.Simple import Simple
-from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
+from ...task import Task
+from .UnstructuredJoin import UnstructuredJoin
+from ...specs.Simple import Simple
+from ...specs.WorkflowSpec import WorkflowSpec
 import xml.etree.ElementTree as ET
 
 class _EndJoin(UnstructuredJoin):

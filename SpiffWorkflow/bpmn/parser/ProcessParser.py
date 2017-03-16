@@ -16,9 +16,9 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
-from SpiffWorkflow.bpmn.parser.util import *
+from .ValidationException import ValidationException
+from ..specs.BpmnProcessSpec import BpmnProcessSpec
+from .util import *
 
 class ProcessParser(object):
     """

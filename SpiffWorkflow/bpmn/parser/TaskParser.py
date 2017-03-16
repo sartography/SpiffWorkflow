@@ -19,9 +19,9 @@ from __future__ import division
 import logging
 import sys
 import traceback
-from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
-from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
-from SpiffWorkflow.bpmn.parser.util import *
+from .ValidationException import ValidationException
+from ..specs.BoundaryEvent import _BoundaryEventParent
+from .util import *
 
 LOG = logging.getLogger(__name__)
 

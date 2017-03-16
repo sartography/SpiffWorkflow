@@ -16,7 +16,7 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-from SpiffWorkflow.bpmn.parser.util import BPMN_MODEL_NS
+from .util import BPMN_MODEL_NS
 
 class ValidationException(Exception):
     """

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@ from __future__ import division
 import logging
 import time
 from uuid import uuid4
-from SpiffWorkflow.exceptions import WorkflowException
+from .exceptions import WorkflowException
 
 LOG = logging.getLogger(__name__)
 

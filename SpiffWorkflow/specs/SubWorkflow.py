@@ -16,11 +16,10 @@ from __future__ import division, absolute_import
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 import os
+from .base import TaskSpec
 from ..task import Task
 from ..exceptions import WorkflowException
 from ..operators import valueof
-from .base import TaskSpec
-import SpiffWorkflow
 
 class SubWorkflow(TaskSpec):
     """
@@ -83,12 +82,13 @@ class SubWorkflow(TaskSpec):
     def _create_subworkflow(self, my_task):
         from ..serializer.prettyxml import XmlSerializer
         from ..specs import WorkflowSpec
+        from ..workflow import Workflow
         file           = valueof(my_task, self.file)
         serializer     = XmlSerializer()
         xml            = open(file).read()
         wf_spec        = WorkflowSpec.deserialize(serializer, xml, filename = file)
         outer_workflow = my_task.workflow.outer_workflow
-        return SpiffWorkflow.Workflow(wf_spec, parent = outer_workflow)
+        return Workflow(wf_spec, parent = outer_workflow)
 
     def _on_ready_before_hook(self, my_task):
         subworkflow    = self._create_subworkflow(my_task)

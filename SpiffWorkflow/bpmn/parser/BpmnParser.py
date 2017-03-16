@@ -17,23 +17,23 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 import glob
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
-from SpiffWorkflow.bpmn.specs.BoundaryEvent import BoundaryEvent
-from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
-from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
-from SpiffWorkflow.bpmn.specs.InclusiveGateway import InclusiveGateway
-from SpiffWorkflow.bpmn.specs.IntermediateCatchEvent import IntermediateCatchEvent
-from SpiffWorkflow.bpmn.specs.ManualTask import ManualTask
-from SpiffWorkflow.bpmn.specs.NoneTask import NoneTask
-from SpiffWorkflow.bpmn.specs.ParallelGateway import ParallelGateway
-from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask
-from SpiffWorkflow.bpmn.specs.StartEvent import StartEvent
-from SpiffWorkflow.bpmn.specs.UserTask import UserTask
-from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
-from SpiffWorkflow.bpmn.parser.ProcessParser import ProcessParser
-from SpiffWorkflow.bpmn.parser.util import *
-from SpiffWorkflow.bpmn.parser.task_parsers import *
+from ..workflow import BpmnWorkflow
+from .ValidationException import ValidationException
+from ..specs.BoundaryEvent import BoundaryEvent
+from ..specs.CallActivity import CallActivity
+from ..specs.ExclusiveGateway import ExclusiveGateway
+from ..specs.InclusiveGateway import InclusiveGateway
+from ..specs.IntermediateCatchEvent import IntermediateCatchEvent
+from ..specs.ManualTask import ManualTask
+from ..specs.NoneTask import NoneTask
+from ..specs.ParallelGateway import ParallelGateway
+from ..specs.ScriptTask import ScriptTask
+from ..specs.StartEvent import StartEvent
+from ..specs.UserTask import UserTask
+from ..specs.EndEvent import EndEvent
+from .ProcessParser import ProcessParser
+from .util import *
+from .task_parsers import *
 import xml.etree.ElementTree as ET
 
 class BpmnParser(object):

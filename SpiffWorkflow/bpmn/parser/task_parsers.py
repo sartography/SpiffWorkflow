@@ -16,10 +16,10 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
-from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
-from SpiffWorkflow.bpmn.parser.util import *
-from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition, MessageEventDefinition
+from .ValidationException import ValidationException
+from .TaskParser import TaskParser
+from .util import *
+from ..specs.event_definitions import TimerEventDefinition, MessageEventDefinition
 import xml.etree.ElementTree as ET
 
 class StartEventParser(TaskParser):

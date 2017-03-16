@@ -15,11 +15,11 @@ from __future__ import division
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-from SpiffWorkflow.exceptions import WorkflowException
+from ...exceptions import WorkflowException
 
-from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-from SpiffWorkflow.specs import TaskSpec
-from SpiffWorkflow.specs.ExclusiveChoice import ExclusiveChoice
+from .BpmnSpecMixin import BpmnSpecMixin
+from ...specs import TaskSpec
+from ...specs.ExclusiveChoice import ExclusiveChoice
 
 class ExclusiveGateway(ExclusiveChoice, BpmnSpecMixin):
     """

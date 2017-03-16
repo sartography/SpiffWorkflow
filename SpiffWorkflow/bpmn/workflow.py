@@ -16,9 +16,9 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.workflow import Workflow
-from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
+from ..task import Task
+from ..workflow import Workflow
+from .BpmnScriptEngine import BpmnScriptEngine
 
 class BpmnWorkflow(Workflow):
     """

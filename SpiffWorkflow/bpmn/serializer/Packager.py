@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-from SpiffWorkflow.util.compat import configparser
+from ...util.compat import configparser
 try:
     # need to be lax on python 2; although io.StringIO exists,
     # it does not accept type str!
@@ -31,9 +31,9 @@ import xml.etree.ElementTree as ET
 import zipfile
 from optparse import OptionParser, OptionGroup
 import os
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
-from SpiffWorkflow.bpmn.parser.util import *
+from ..parser.BpmnParser import BpmnParser
+from ..parser.ValidationException import ValidationException
+from ..parser.util import *
 
 SIGNAVIO_NS='http://www.signavio.com'
 CONFIG_SECTION_NAME = "Packager Options"
