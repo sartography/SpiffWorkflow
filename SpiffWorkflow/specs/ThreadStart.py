@@ -29,16 +29,16 @@ class ThreadStart(TaskSpec):
     parallel split.
     """
 
-    def __init__(self, parent, name='ThreadStart', **kwargs):
+    def __init__(self, wf_spec, name='ThreadStart', **kwargs):
         """
         Constructor. The name of this task is *always* 'ThreadStart'.
         
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.internal = True
 
     def _on_complete_hook(self, my_task):

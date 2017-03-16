@@ -29,12 +29,12 @@ class ReleaseMutex(TaskSpec):
     parallel split.
     """
 
-    def __init__(self, parent, name, mutex, **kwargs):
+    def __init__(self, wf_spec, name, mutex, **kwargs):
         """
         Constructor.
 
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  mutex: str
@@ -43,7 +43,7 @@ class ReleaseMutex(TaskSpec):
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         assert mutex is not None
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.mutex = mutex
 
     def _on_complete_hook(self, my_task):

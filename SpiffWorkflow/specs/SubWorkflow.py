@@ -32,7 +32,7 @@ class SubWorkflow(TaskSpec):
     """
 
     def __init__(self,
-                 parent,
+                 wf_spec,
                  name,
                  file,
                  in_assign = None,
@@ -41,8 +41,8 @@ class SubWorkflow(TaskSpec):
         """
         Constructor.
 
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  file: str
@@ -54,14 +54,14 @@ class SubWorkflow(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        assert parent is not None
+        assert wf_spec is not None
         assert name is not None
-        super(SubWorkflow, self).__init__(parent, name, **kwargs)
+        super(SubWorkflow, self).__init__(wf_spec, name, **kwargs)
         self.file       = None
         self.in_assign  = in_assign is not None and in_assign or []
         self.out_assign = out_assign is not None and out_assign or []
         if file is not None:
-            dirname   = os.path.dirname(parent.file)
+            dirname   = os.path.dirname(wf_spec.file)
             self.file = os.path.join(dirname, file)
 
     def test(self):

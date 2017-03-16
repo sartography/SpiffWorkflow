@@ -29,15 +29,15 @@ class ThreadMerge(Join):
     """
 
     def __init__(self,
-                 parent,
+                 wf_spec,
                  name,
                  split_task,
                  **kwargs):
         """
         Constructor.
         
-        :type  parent: :class:`SpiffWorkflow.specs.WorkflowSpec`
-        :param parent: A reference to the parent (usually a workflow).
+        :type  wf_spec: :class:`SpiffWorkflow.specs.WorkflowSpec`
+        :param wf_spec: A reference to the parent (usually a workflow).
         :type  name: string
         :param name: A name for the task.
         :type  split_task: str
@@ -47,7 +47,7 @@ class ThreadMerge(Join):
         :param kwargs: See :class:`SpiffWorkflow.specs.Join`.
         """
         assert split_task is not None
-        Join.__init__(self, parent, name, split_task, **kwargs)
+        Join.__init__(self, wf_spec, name, split_task, **kwargs)
 
     def _start(self, my_task):
         # If the threshold was already reached, there is nothing else to do.

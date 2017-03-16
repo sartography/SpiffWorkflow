@@ -31,12 +31,12 @@ class MultiInstance(TaskSpec):
     This task has one or more inputs and may have any number of outputs.
     """
 
-    def __init__(self, parent, name, times, **kwargs):
+    def __init__(self, wf_spec, name, times, **kwargs):
         """
         Constructor.
         
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  times: int or :class:`SpiffWorkflow.operators.Term`
@@ -46,7 +46,7 @@ class MultiInstance(TaskSpec):
         """
         if times is None:
             raise ValueError('times argument is required')
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.times = times
 
     def _find_my_task(self, task):

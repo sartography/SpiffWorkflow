@@ -29,12 +29,12 @@ class Gate(TaskSpec):
     parallel split.
     """
 
-    def __init__(self, parent, name, context, **kwargs):
+    def __init__(self, wf_spec, name, context, **kwargs):
         """
         Constructor.
 
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  context: str
@@ -43,10 +43,10 @@ class Gate(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        assert parent  is not None
+        assert wf_spec is not None
         assert name    is not None
         assert context is not None
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.context = context
 
     def _update_hook(self, my_task):

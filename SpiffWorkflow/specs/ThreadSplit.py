@@ -33,7 +33,7 @@ class ThreadSplit(TaskSpec):
     """
 
     def __init__(self,
-                 parent,
+                 wf_spec,
                  name,
                  times=1,
                  suppress_threadstart_creation=False,
@@ -41,8 +41,8 @@ class ThreadSplit(TaskSpec):
         """
         Constructor.
         
-        :type  parent: :class:`SpiffWorkflow.specs.WorkflowSpec`
-        :param parent: A reference to the parent (usually a workflow).
+        :type  wf_spec: WorkflowSpec`
+        :param wf_spec: A reference to the workflow specification.
         :type  name: string
         :param name: A name for the task.
         :type  times: int or :class:`SpiffWorkflow.operators.Term`
@@ -55,10 +55,10 @@ class ThreadSplit(TaskSpec):
         """
         if times is None:
             raise ValueError('times argument is required')
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.times = times
         if not suppress_threadstart_creation:
-            self.thread_starter  = ThreadStart(parent, **kwargs)
+            self.thread_starter  = ThreadStart(wf_spec, **kwargs)
             self.outputs.append(self.thread_starter)
             self.thread_starter._connect_notify(self)
         else:

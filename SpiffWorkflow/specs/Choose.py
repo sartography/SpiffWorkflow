@@ -29,12 +29,12 @@ class Choose(Trigger):
     parallel split.
     """
 
-    def __init__(self, parent, name, context, choice = None, **kwargs):
+    def __init__(self, wf_spec, name, context, choice = None, **kwargs):
         """
         Constructor.
 
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  context: str
@@ -45,11 +45,11 @@ class Choose(Trigger):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        assert parent is not None
+        assert wf_spec is not None
         assert name is not None
         assert context is not None
         #HACK: inherit from TaskSpec (not Trigger) on purpose.
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.context = context
         self.choice  = choice is not None and choice or []
 

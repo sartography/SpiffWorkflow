@@ -25,16 +25,16 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
     Task Spec for a bpmn:callActivity node.
     """
 
-    def __init__(self, parent, name, wf_spec=None, wf_class=None, **kwargs):
+    def __init__(self, wf_spec, name, bpmn_wf_spec=None, bpmn_wf_class=None, **kwargs):
         """
         Constructor.
 
-        :param wf_spec: the BpmnProcessSpec for the sub process.
-        :param wf_class: the BpmnWorkflow class to instantiate
+        :param bpmn_wf_spec: the BpmnProcessSpec for the sub process.
+        :param bpmn_wf_class: the BpmnWorkflow class to instantiate
         """
-        super(CallActivity, self).__init__(parent, name, None, **kwargs)
-        self.spec = wf_spec
-        self.wf_class = wf_class
+        super(CallActivity, self).__init__(wf_spec, name, None, **kwargs)
+        self.spec = bpmn_wf_spec
+        self.wf_class = bpmn_wf_class
 
     def test(self):
         TaskSpec.test(self)

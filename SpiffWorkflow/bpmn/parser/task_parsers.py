@@ -108,7 +108,7 @@ class CallActivityParser(TaskParser):
 
     def create_task(self):
         wf_spec = self.get_subprocess_parser().get_spec()
-        return self.spec_class(self.spec, self.get_task_spec_name(), wf_spec=wf_spec, wf_class=self.parser.WORKFLOW_CLASS, description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec, bpmn_wf_class=self.parser.WORKFLOW_CLASS, description=self.node.get('name', None))
 
     def get_subprocess_parser(self):
         calledElement = self.node.get('calledElement', None)

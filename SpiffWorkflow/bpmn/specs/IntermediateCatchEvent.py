@@ -25,13 +25,13 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
     Task Spec for a bpmn:intermediateCatchEvent node.
     """
 
-    def __init__(self, parent, name, event_definition=None, **kwargs):
+    def __init__(self, wf_spec, name, event_definition=None, **kwargs):
         """
         Constructor.
 
         :param event_definition: the EventDefinition that we must wait for.
         """
-        super(IntermediateCatchEvent, self).__init__(parent, name, **kwargs)
+        super(IntermediateCatchEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
 
     def _update_hook(self, my_task):

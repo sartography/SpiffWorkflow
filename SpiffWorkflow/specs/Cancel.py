@@ -27,12 +27,12 @@ class Cancel(TaskSpec):
     parallel split.
     """
 
-    def __init__(self, parent, name, success = False, **kwargs):
+    def __init__(self, wf_spec, name, success = False, **kwargs):
         """
         Constructor.
 
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  success: bool
@@ -40,7 +40,7 @@ class Cancel(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.cancel_successfully = success
 
     def test(self):

@@ -30,12 +30,12 @@ class Trigger(TaskSpec):
     parallel split.
     """
 
-    def __init__(self, parent, name, context, times=1, **kwargs):
+    def __init__(self, wf_spec, name, context, times=1, **kwargs):
         """
         Constructor.
 
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  context: list(str)
@@ -45,11 +45,11 @@ class Trigger(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        assert parent  is not None
+        assert wf_spec is not None
         assert name    is not None
         assert context is not None
         assert type(context) == type([])
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.context = context
         self.times   = times
         self.queued  = 0

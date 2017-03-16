@@ -61,7 +61,7 @@ class TaskSpec(object):
         post-assign procedure is skipped.)
     """
 
-    def __init__(self, parent, name, **kwargs):
+    def __init__(self, wf_spec, name, **kwargs):
         """
         Constructor.
 
@@ -72,8 +72,8 @@ class TaskSpec(object):
         Similarly, "defines" are spec data fields that, once defined, can
         no longer be modified.
 
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification that owns it.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification that owns it.
         :type  name: string
         :param name: A name for the task.
         :type  lock: list(str)
@@ -89,9 +89,9 @@ class TaskSpec(object):
         :type  post_assign: list((str, object))
         :param post_assign: a list of name/value pairs
         """
-        assert parent is not None
+        assert wf_spec is not None
         assert name   is not None
-        self._parent     = parent
+        self._wf_spec = wf_spec
         self.id          = None
         self.name        = str(name)
         self.description = kwargs.get('description', '')
@@ -114,7 +114,7 @@ class TaskSpec(object):
         self.cancelled_event = Event()
         self.finished_event  = Event()
 
-        self._parent._add_notify(self)
+        self._wf_spec._add_notify(self)
         self.data.update(self.defines)
         assert self.id is not None
 

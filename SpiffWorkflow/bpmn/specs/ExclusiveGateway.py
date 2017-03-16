@@ -38,7 +38,7 @@ class ExclusiveGateway(ExclusiveChoice, BpmnSpecMixin):
         for condition, name in self.cond_task_specs:
             if name is None:
                 raise WorkflowException(self, 'Condition with no task spec.')
-            task_spec = self._parent.get_task_spec_from_name(name)
+            task_spec = self._wf_spec.get_task_spec_from_name(name)
             if task_spec is None:
                 msg = 'Condition leads to non-existent task ' + repr(name)
                 raise WorkflowException(self, msg)

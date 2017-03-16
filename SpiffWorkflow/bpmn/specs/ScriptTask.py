@@ -24,13 +24,13 @@ class ScriptTask(Simple, BpmnSpecMixin):
     Task Spec for a bpmn:scriptTask node.
     """
 
-    def __init__(self, parent, name, script, **kwargs):
+    def __init__(self, wf_spec, name, script, **kwargs):
         """
         Constructor.
 
         :param script: the script that must be executed by the script engine.
         """
-        super(ScriptTask, self).__init__(parent, name, **kwargs)
+        super(ScriptTask, self).__init__(wf_spec, name, **kwargs)
         self.script = script
 
     def _on_complete_hook(self, task):

@@ -35,13 +35,13 @@ class EndEvent(BpmnSpecMixin):
      * There is no token remaining within the Process instance.
     """
 
-    def __init__(self, parent, name, is_terminate_event=False, **kwargs):
+    def __init__(self, wf_spec, name, is_terminate_event=False, **kwargs):
         """
         Constructor.
 
         :param is_terminate_event: True if this is a terminating end event
         """
-        super(EndEvent, self).__init__(parent, name, **kwargs)
+        super(EndEvent, self).__init__(wf_spec, name, **kwargs)
         self.is_terminate_event = is_terminate_event
 
     def _on_complete_hook(self, my_task):

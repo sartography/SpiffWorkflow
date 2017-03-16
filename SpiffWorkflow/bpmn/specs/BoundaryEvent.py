@@ -22,8 +22,8 @@ from .IntermediateCatchEvent import IntermediateCatchEvent
 
 class _BoundaryEventParent(BpmnSpecMixin):
 
-    def __init__(self, parent, name, main_child_task_spec, lane=None, **kwargs):
-        super(_BoundaryEventParent, self).__init__(parent, name, lane=lane, **kwargs)
+    def __init__(self, wf_spec, name, main_child_task_spec, lane=None, **kwargs):
+        super(_BoundaryEventParent, self).__init__(wf_spec, name, lane=lane, **kwargs)
         self.main_child_task_spec = main_child_task_spec
 
     def _child_complete_hook(self, child_task):
@@ -58,11 +58,11 @@ class BoundaryEvent(IntermediateCatchEvent):
     Task Spec for a bpmn:boundaryEvent node.
     """
 
-    def __init__(self, parent, name, cancel_activity=None, event_definition=None, **kwargs):
+    def __init__(self, wf_spec, name, cancel_activity=None, event_definition=None, **kwargs):
         """
         Constructor.
 
         :param cancel_activity: True if this is a Cancelling boundary event.
         """
-        super(BoundaryEvent, self).__init__(parent, name, event_definition=event_definition, **kwargs)
+        super(BoundaryEvent, self).__init__(wf_spec, name, event_definition=event_definition, **kwargs)
         self._cancel_activity = cancel_activity

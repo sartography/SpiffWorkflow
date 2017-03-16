@@ -77,7 +77,7 @@ class Celery(TaskSpec):
     """This class implements a celeryd task that is sent to the celery queue for
     completion."""
 
-    def __init__(self, parent, name, call, call_args=None, result_key=None,
+    def __init__(self, wf_spec, name, call, call_args=None, result_key=None,
                  merge_results=False, **kwargs):
         """Constructor.
 
@@ -92,8 +92,8 @@ class Celery(TaskSpec):
         it is not always serializable). When deserialized, the async_call attr
         is reset in the _start call.
 
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  call: str
@@ -112,10 +112,10 @@ class Celery(TaskSpec):
         """
         if not have_celery:
             raise Exception("Unable to import python-celery imports.")
-        assert parent  is not None
+        assert wf_spec is not None
         assert name    is not None
         assert call is not None
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.description = kwargs.pop('description', '')
         self.call = call or []
         self.args = call_args or {}

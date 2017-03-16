@@ -34,12 +34,12 @@ class Execute(TaskSpec):
     print workflow.get_task('Ping').results
     """
 
-    def __init__(self, parent, name, args=None, **kwargs):
+    def __init__(self, wf_spec, name, args=None, **kwargs):
         """
         Constructor.
 
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  args: list
@@ -47,9 +47,9 @@ class Execute(TaskSpec):
         :type  kwargs: dict
         :param kwargs: kwargs to pass-through to TaskSpec initializer.
         """
-        assert parent  is not None
+        assert wf_spec is not None
         assert name    is not None
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.args = args
 
     def _start(self, my_task, force = False):

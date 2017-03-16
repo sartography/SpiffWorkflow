@@ -57,7 +57,7 @@ class Join(TaskSpec):
     """
 
     def __init__(self,
-                 parent,
+                 wf_spec,
                  name,
                  split_task=None,
                  threshold=None,
@@ -66,8 +66,8 @@ class Join(TaskSpec):
         """
         Constructor.
 
-        :type  parent: :class:`SpiffWorkflow.specs.WorkflowSpec`
-        :param parent: A reference to the parent (usually a workflow).
+        :type  wf_spec: :class:`SpiffWorkflow.specs.WorkflowSpec`
+        :param wf_spec: A reference to the parent (usually a workflow).
         :type  name: string
         :param name: A name for the task.
         :type  split_task: str or None
@@ -88,7 +88,7 @@ class Join(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        super(Join, self).__init__(parent, name, **kwargs)
+        super(Join, self).__init__(wf_spec, name, **kwargs)
         self.split_task = split_task
         self.threshold = threshold
         self.cancel_remaining = cancel

@@ -27,18 +27,18 @@ class ExclusiveChoice(MultiChoice):
     given conditions matches, a default task is selected.
     It has one or more inputs and two or more outputs.
     """
-    def __init__(self, parent, name, **kwargs):
+    def __init__(self, wf_spec, name, **kwargs):
         """
         Constructor.
         
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        super(ExclusiveChoice, self).__init__(parent, name, **kwargs)
+        super(ExclusiveChoice, self).__init__(wf_spec, name, **kwargs)
         self.default_task_spec = None
 
     def connect(self, task_spec):
@@ -69,15 +69,15 @@ class ExclusiveChoice(MultiChoice):
         # LIKELY.
         # Otherwise, copy my own state to the children.
         my_task._sync_children(self.outputs)
-        spec = self._parent.get_task_spec_from_name(self.default_task_spec)
+        spec = self._wf_spec.get_task_spec_from_name(self.default_task_spec)
         my_task._set_likely_task(spec)
 
     def _on_complete_hook(self, my_task):
         # Find the first matching condition.
-        output = self._parent.get_task_spec_from_name(self.default_task_spec)
+        output = self._wf_spec.get_task_spec_from_name(self.default_task_spec)
         for condition, spec_name in self.cond_task_specs:
             if condition is None or condition._matches(my_task):
-                output = self._parent.get_task_spec_from_name(spec_name)
+                output = self._wf_spec.get_task_spec_from_name(spec_name)
                 break
 
         my_task._sync_children([output], Task.FUTURE)

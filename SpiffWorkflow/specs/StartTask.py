@@ -27,16 +27,16 @@ class StartTask(TaskSpec):
     parallel split.
     """
 
-    def __init__(self, parent, name='Start', **kwargs):
+    def __init__(self, wf_spec, name='Start', **kwargs):
         """
         Constructor. The name of this task is *always* 'Start'.
 
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        TaskSpec.__init__(self, parent, name, **kwargs)
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
 
     def _connect_notify(self, task_spec):
         """

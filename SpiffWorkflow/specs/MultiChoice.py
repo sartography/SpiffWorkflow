@@ -28,18 +28,18 @@ class MultiChoice(TaskSpec):
     This task has one or more outputs.
     """
 
-    def __init__(self, parent, name, **kwargs):
+    def __init__(self, wf_spec, name, **kwargs):
         """
         Constructor.
         
-        :type  parent: WorkflowSpec
-        :param parent: A reference to the workflow specification.
+        :type  wf_spec: WorkflowSpec
+        :param wf_spec: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        super(MultiChoice, self).__init__(parent, name, **kwargs)
+        super(MultiChoice, self).__init__(wf_spec, name, **kwargs)
         self.cond_task_specs = []
         self.choice          = None
 
@@ -72,7 +72,7 @@ class MultiChoice(TaskSpec):
         for condition, name in self.cond_task_specs:
             if name is None:
                 raise WorkflowException(self, 'Condition with no task spec.')
-            task_spec = self._parent.get_task_spec_from_name(name)
+            task_spec = self._wf_spec.get_task_spec_from_name(name)
             if task_spec is None:
                 msg = 'Condition leads to non-existent task ' + repr(name)
                 raise WorkflowException(self, msg)
@@ -88,7 +88,7 @@ class MultiChoice(TaskSpec):
 
     def _predict_hook(self, my_task):
         if self.choice:
-            outputs = [self._parent.get_task_spec_from_name(o)
+            outputs = [self._wf_spec.get_task_spec_from_name(o)
                        for o in self.choice]
         else:
             outputs = self.outputs
@@ -106,7 +106,7 @@ class MultiChoice(TaskSpec):
         outputs = []
         for condition, output in self.cond_task_specs:
             if condition is None:
-                outputs.append(self._parent.get_task_spec_from_name(output))
+                outputs.append(self._wf_spec.get_task_spec_from_name(output))
 
         for child in my_task.children:
             if child._is_definite():
@@ -125,11 +125,11 @@ class MultiChoice(TaskSpec):
             if self.choice is not None and output not in self.choice:
                 continue
             if condition is None:
-                outputs.append(self._parent.get_task_spec_from_name(output))
+                outputs.append(self._wf_spec.get_task_spec_from_name(output))
                 continue
             if not condition._matches(my_task):
                 continue
-            outputs.append(self._parent.get_task_spec_from_name(output))
+            outputs.append(self._wf_spec.get_task_spec_from_name(output))
 
         my_task._sync_children(outputs, Task.FUTURE)
         for child in my_task.children:

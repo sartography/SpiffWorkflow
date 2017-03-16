@@ -50,13 +50,13 @@ class BpmnSpecMixin(TaskSpec):
     BPMN specific to the TaskSpec.
     """
 
-    def __init__(self, parent, name, lane=None, **kwargs):
+    def __init__(self, wf_spec, name, lane=None, **kwargs):
         """
         Constructor.
 
         :param lane: Indicates the name of the lane that this task belongs to (optional).
         """
-        super(BpmnSpecMixin, self).__init__(parent, name, **kwargs)
+        super(BpmnSpecMixin, self).__init__(wf_spec, name, **kwargs)
         self.outgoing_sequence_flows = {}
         self.outgoing_sequence_flows_by_id = {}
         self.lane = lane
