@@ -53,9 +53,21 @@ Defining a Workflow
 
 The WorkflowSpec and TaskSpec classes are used to define a workflow. SpiffWorkflow has many types of TaskSpecs: Join, Split, Execute, Wait, and all others are derived from TaskSpec. The specs can be serialized and deserialized to a variety of formats.
 
+.. note:: SpiffWorkflow has two XML serializers:
+   - :module:`SpiffWorkflow.serializer.xml` is the standard that is
+     feature-complete, and you should use it for implementing workflow
+     persistence.
+   - :module:`SpiffWorkflow.serializer.prettyxml` supports
+     deserialization of a more human-friendly XML format. It does not
+     support the full set of features, and it does not support
+     serialization.
+     You will want to use it when you are writing the XML by hand.
+
+We will use :module:`SpiffWorkflow.serializer.prettyxml` throughout this tutorial.
+
 A WorkflowSpec is built by chaining TaskSpecs together in a tree. You can either assemble workflow using Python objects (see the example linked above), or by loading it from XML such as follows::
 
-    from SpiffWorkflow.serializer.oldxml import XmlSerializer
+    from SpiffWorkflow.serializer.xml import XmlSerializer
 
     serializer = XmlSerializer()
     xml_file = 'my_workflow.xml'

@@ -38,7 +38,7 @@ The process of using Spiff Workflow involves the following steps:
 
 ```python
 from SpiffWorkflow.specs import WorkflowSpec
-from SpiffWorkflow.serializer.oldxml import XmlSerializer
+from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 from SpiffWorkflow import Workflow
 
 # Load the workflow specification:
