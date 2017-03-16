@@ -18,6 +18,7 @@ from __future__ import division
 from SpiffWorkflow.Task import Task
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.TaskSpec import TaskSpec
+from SpiffWorkflow.operators import valueof
 
 class Trigger(TaskSpec):
     """
@@ -29,7 +30,7 @@ class Trigger(TaskSpec):
     parallel split.
     """
 
-    def __init__(self, parent, name, context, times = 1, **kwargs):
+    def __init__(self, parent, name, context, times=1, **kwargs):
         """
         Constructor.
 
@@ -39,7 +40,7 @@ class Trigger(TaskSpec):
         :param name: The name of the task spec.
         :type  context: list(str)
         :param context: A list of the names of tasks that are to be triggered.
-        :type  times: int or None
+        :type  times: int or :class:`SpiffWorkflow.operators.Term`
         :param times: The number of signals before the trigger fires.
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
@@ -77,7 +78,8 @@ class Trigger(TaskSpec):
         :rtype:  bool
         :returns: True on success, False otherwise.
         """
-        for i in range(self.times + self.queued):
+        times = int(valueof(my_task, self.times, 1)) + self.queued
+        for i in range(times):
             for task_name in self.context:
                 task = my_task.workflow.get_task_spec_from_name(task_name)
                 task._on_trigger(my_task)

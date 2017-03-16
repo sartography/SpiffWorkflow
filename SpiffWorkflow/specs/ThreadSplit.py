@@ -45,7 +45,7 @@ class ThreadSplit(TaskSpec):
         :param parent: A reference to the parent (usually a workflow).
         :type  name: string
         :param name: A name for the task.
-        :type  times: int or None or :class:`SpiffWorkflow.operators.Term`
+        :type  times: int or :class:`SpiffWorkflow.operators.Term`
         :param times: The number of tasks to create.
         :type  suppress_threadstart_creation: bool
         :param suppress_threadstart_creation: Don't create a ThreadStart, because

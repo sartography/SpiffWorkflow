@@ -180,7 +180,7 @@ class DictionarySerializer(Serializer):
         spec = CancelTask(wf_spec,
                           s_state['name'],
                           s_state['context'],
-                          times=s_state['times'])
+                          times=self.deserialize_arg(s_state['times']))
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
@@ -298,13 +298,13 @@ class DictionarySerializer(Serializer):
 
     def serialize_multi_instance(self, spec):
         s_state = self.serialize_task_spec(spec)
-        s_state['times'] = spec.times
+        s_state['times'] = self.serialize_arg(spec.times)
         return s_state
 
     def deserialize_multi_instance(self, wf_spec, s_state):
         spec = MultiInstance(wf_spec,
                              s_state['name'],
-                             times=s_state['times'])
+                             times=self.deserialize_arg(s_state['times']))
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
@@ -375,7 +375,7 @@ class DictionarySerializer(Serializer):
     def deserialize_thread_split(self, wf_spec, s_state):
         spec = ThreadSplit(wf_spec,
                            s_state['name'],
-                           self.deserialize_arg(s_state['times']),
+                           times=self.deserialize_arg(s_state['times']),
                            suppress_threadstart_creation=True)
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
@@ -398,7 +398,7 @@ class DictionarySerializer(Serializer):
     def serialize_trigger(self, spec):
         s_state = self.serialize_task_spec(spec)
         s_state['context'] = spec.context
-        s_state['times'] = spec.times
+        s_state['times'] = self.serialize_arg(spec.times)
         s_state['queued'] = spec.queued
         return s_state
 
@@ -406,7 +406,7 @@ class DictionarySerializer(Serializer):
         spec = Trigger(wf_spec,
                        s_state['name'],
                        s_state['context'],
-                       times=s_state['times'])
+                       self.deserialize_arg(s_state['times']))
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 

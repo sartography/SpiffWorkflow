@@ -31,7 +31,7 @@ class MultiInstance(TaskSpec):
     This task has one or more inputs and may have any number of outputs.
     """
 
-    def __init__(self, parent, name, times = None, **kwargs):
+    def __init__(self, parent, name, times, **kwargs):
         """
         Constructor.
         
@@ -39,11 +39,13 @@ class MultiInstance(TaskSpec):
         :param parent: A reference to the parent task spec.
         :type  name: str
         :param name: The name of the task spec.
-        :type  times: int
+        :type  times: int or :class:`SpiffWorkflow.operators.Term`
         :param times: The number of tasks to create.
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
+        if times is None:
+            raise ValueError('times argument is required')
         TaskSpec.__init__(self, parent, name, **kwargs)
         self.times = times
 
@@ -72,7 +74,7 @@ class MultiInstance(TaskSpec):
             output._predict(new_task)
 
     def _get_predicted_outputs(self, my_task):
-        split_n = my_task._get_internal_data('splits', 1)
+        split_n = int(valueof(my_task, self.times, 1))
 
         # Predict the outputs.
         outputs = []
@@ -81,10 +83,8 @@ class MultiInstance(TaskSpec):
         return outputs
 
     def _predict_hook(self, my_task):
-        split_n = valueof(my_task, self.times)
-        if split_n is None:
-            return
-        my_task._set_internal_data(splits = split_n)
+        split_n = int(valueof(my_task, self.times, 1))
+        my_task._set_internal_data(splits=split_n)
 
         # Create the outgoing tasks.
         outputs = []
