@@ -18,7 +18,7 @@ from __future__ import division, absolute_import
 import re
 from ..task import Task
 from ..exceptions import WorkflowException
-from .TaskSpec import TaskSpec
+from .base import TaskSpec
 
 class MultiChoice(TaskSpec):
     """

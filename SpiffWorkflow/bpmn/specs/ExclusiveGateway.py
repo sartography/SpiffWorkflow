@@ -18,7 +18,7 @@ from __future__ import division
 from SpiffWorkflow.exceptions import WorkflowException
 
 from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-from SpiffWorkflow.specs.TaskSpec import TaskSpec
+from SpiffWorkflow.specs import TaskSpec
 from SpiffWorkflow.specs.ExclusiveChoice import ExclusiveChoice
 
 class ExclusiveGateway(ExclusiveChoice, BpmnSpecMixin):

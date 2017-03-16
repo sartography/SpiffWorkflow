@@ -17,7 +17,7 @@ from __future__ import division, absolute_import
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 import logging
 
-from .TaskSpec import TaskSpec
+from .base import TaskSpec
 
 LOG = logging.getLogger(__name__)
 

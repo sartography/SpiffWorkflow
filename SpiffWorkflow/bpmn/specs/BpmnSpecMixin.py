@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, absolute_import
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -16,9 +16,9 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.operators import Operator
-from SpiffWorkflow.specs.TaskSpec import TaskSpec
+from ...task import Task
+from ...operators import Operator
+from ...specs import TaskSpec
 
 class _BpmnCondition(Operator):
 

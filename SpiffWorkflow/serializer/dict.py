@@ -19,7 +19,6 @@ from .. import Workflow
 from ..util.impl import get_class
 from ..task import Task
 from ..operators import *
-from ..specs.TaskSpec import TaskSpec
 from ..specs import *
 from .base import Serializer
 from .exceptions import TaskNotSupportedError

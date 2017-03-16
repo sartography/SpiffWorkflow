@@ -20,7 +20,7 @@ import json
 
 from ..task import Task
 from ..exceptions import WorkflowException
-from .TaskSpec import TaskSpec
+from .base import TaskSpec
 from ..operators import valueof, Attrib, PathAttrib
 from ..util import merge_dictionary
 

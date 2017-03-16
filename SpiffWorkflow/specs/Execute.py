@@ -19,7 +19,7 @@ import subprocess
 
 from ..task import Task
 from ..exceptions import WorkflowException
-from .TaskSpec import TaskSpec
+from .base import TaskSpec
 
 
 class Execute(TaskSpec):

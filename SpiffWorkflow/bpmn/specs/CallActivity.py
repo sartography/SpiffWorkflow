@@ -18,7 +18,7 @@ from __future__ import division
 
 from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
-from SpiffWorkflow.specs.TaskSpec import TaskSpec
+from SpiffWorkflow.specs import TaskSpec
 
 class CallActivity(SubWorkflow, BpmnSpecMixin):
     """

@@ -17,7 +17,7 @@ from __future__ import division, absolute_import
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 from ..task import Task
 from ..exceptions import WorkflowException
-from .TaskSpec import TaskSpec
+from .base import TaskSpec
 from ..operators import valueof
 
 class Trigger(TaskSpec):

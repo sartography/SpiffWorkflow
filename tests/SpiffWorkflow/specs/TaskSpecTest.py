@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from SpiffWorkflow.specs import WorkflowSpec, Simple, Join
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.specs.TaskSpec import TaskSpec
+from SpiffWorkflow.specs import TaskSpec
 from SpiffWorkflow.serializer.dict import DictionarySerializer
 
 class TaskSpecTest(unittest.TestCase):

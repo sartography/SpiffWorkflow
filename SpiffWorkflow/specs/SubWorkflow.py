@@ -19,7 +19,7 @@ import os
 from ..task import Task
 from ..exceptions import WorkflowException
 from ..operators import valueof
-from .TaskSpec import TaskSpec
+from .base import TaskSpec
 import SpiffWorkflow
 
 class SubWorkflow(TaskSpec):
