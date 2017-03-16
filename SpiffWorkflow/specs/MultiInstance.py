@@ -35,8 +35,8 @@ class MultiInstance(TaskSpec):
         """
         Constructor.
         
-        :type  parent: TaskSpec
-        :param parent: A reference to the parent task spec.
+        :type  parent: WorkflowSpec
+        :param parent: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  times: int or :class:`SpiffWorkflow.operators.Term`

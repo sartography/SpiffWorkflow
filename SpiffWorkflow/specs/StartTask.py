@@ -31,8 +31,8 @@ class StartTask(TaskSpec):
         """
         Constructor. The name of this task is *always* 'Start'.
 
-        :type  parent: TaskSpec
-        :param parent: A reference to the parent task spec.
+        :type  parent: WorkflowSpec
+        :param parent: A reference to the workflow specification.
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """

@@ -72,7 +72,7 @@ class TaskSpec(object):
         Similarly, "defines" are spec data fields that, once defined, can
         no longer be modified.
 
-        :type  parent: :class:`SpiffWorkflow.specs.WorkflowSpec`
+        :type  parent: WorkflowSpec
         :param parent: A reference to the workflow specification that owns it.
         :type  name: string
         :param name: A name for the task.

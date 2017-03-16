@@ -92,8 +92,8 @@ class Celery(TaskSpec):
         it is not always serializable). When deserialized, the async_call attr
         is reset in the _start call.
 
-        :type  parent: TaskSpec
-        :param parent: A reference to the parent task spec.
+        :type  parent: WorkflowSpec
+        :param parent: A reference to the workflow specification.
         :type  name: str
         :param name: The name of the task spec.
         :type  call: str
