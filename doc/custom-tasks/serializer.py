@@ -1,4 +1,4 @@
-from SpiffWorkflow.serializer.prettyxml import JSONSerializer
+from SpiffWorkflow.serializer.json import JSONSerializer
 from strike import NuclearStrike
 
 class NuclearSerializer(JSONSerializer):
@@ -6,6 +6,6 @@ class NuclearSerializer(JSONSerializer):
         return self.serialize_task_spec(task_spec)
 
     def deserialize_nuclear_strike(self, wf_spec, s_state):
-        spec = NuclearStrike(wf_spec, s_state['name'], s_state['args'])
+        spec = NuclearStrike(wf_spec, s_state['name'])
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec

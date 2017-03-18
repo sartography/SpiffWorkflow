@@ -7,7 +7,8 @@ from serializer import NuclearSerializer
 with open('nuclear.json') as fp:
     workflow_json = fp.read()
 serializer = NuclearSerializer()
-spec = WorkflowSpec.deserialize(serializer, workflow_json, 'nuclear.json')
+spec = WorkflowSpec.deserialize(serializer, workflow_json)
 
 # Create the workflow.
 workflow = Workflow(spec)
+workflow.complete_all()
