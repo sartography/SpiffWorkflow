@@ -1,12 +1,13 @@
 import json
 from SpiffWorkflow import Workflow
-from serializer import NuclearSerializer
+from SpiffWorkflow.specs import WorkflowSpec
+from SpiffWorkflow.serializer.json import JSONSerializer
 
 # Load from JSON
 with open('nuclear.json') as fp:
     workflow_json = fp.read()
-serializer = NuclearSerializer()
-spec = serializer.deserialize_workflow_spec(workflow_json, 'nuclear.json')
+serializer = JSONSerializer()
+spec = WorkflowSpec.deserialize(serializer, workflow_json, 'nuclear.json')
 
 # Alternatively, create an instance of the Python based specification.
 #from nuclear import NuclearStrikeWorkflowSpec

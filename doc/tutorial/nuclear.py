@@ -1,6 +1,8 @@
-from SpiffWorkflow.specs import WorkflowSpec, ExclusiveChoice, Cancel
+from SpiffWorkflow.specs import WorkflowSpec, ExclusiveChoice, Simple, Cancel
 from SpiffWorkflow.operators import Equal, Attrib
-from strike import NuclearStrike
+
+def my_nuclear_strike(msg):
+    print "Launched:", msg
 
 class NuclearStrikeWorkflowSpec(WorkflowSpec):
     def __init__(self):
@@ -24,8 +26,11 @@ class NuclearStrikeWorkflowSpec(WorkflowSpec):
         president_choice.connect(cancel)
 
         # Otherwise, we will perform the nuclear strike.
-        strike = NuclearStrike(self, 'nuclear_strike')
+        strike = Simple(self, 'nuclear_strike')
         president_choice.connect_if(cond, strike)
+
+        # Now we connect our Python function to the Task named 'nuclear_strike'
+        strike.completed_event.connect(my_nuclear_strike)
 
         # As soon as all tasks are either "completed" or  "aborted", the
         # workflow implicitely ends.

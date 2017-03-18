@@ -44,8 +44,9 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   intro
-   tutorial/tutorial
+   basics
+   tutorial/index
+   custom-tasks/index
    bpmn
    internals
    features
