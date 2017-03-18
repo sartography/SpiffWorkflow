@@ -4,10 +4,10 @@ Implementing Custom Tasks
 Introduction
 ------------
 
-In this second tutorial we are going to implementing our own task, and
+In this second tutorial we are going to implement our own task, and
 use serialization and deserialization to store and restore it.
 
-If you haven't already, you should first complete the first
+If you haven't already, you should complete the first
 :doc:`../tutorial/index`.
 We are also assuming that you are familiar with the :doc:`../basics`.
 
@@ -33,8 +33,9 @@ Preparing a serializer
 ----------------------
 
 Before we can use JSON to specify a workflow, we first need to teach
-SpiffWorkflow how our custom `NuclearChoice` looks in JSON. So the first
-step is to extend the :mod:`SpiffWorkflow.serializer.json.JSONSerializer`.
+SpiffWorkflow what our custom `NuclearChoice` looks like in JSON.
+We do this by extending the
+:mod:`SpiffWorkflow.serializer.json.JSONSerializer`.
 
 .. literalinclude:: serializer.py
 
@@ -42,19 +43,19 @@ We save the serializer as ``serializer.py``.
 We also need to update ``strike.py`` as follows:
 
 We also implement the deserializer:
+
 .. literalinclude:: strike.py
 
-You are now ready to create the specification from JSON.
+That is all! You are now ready to create the specification from JSON.
 
 Creating a workflow specification (using JSON)
 ----------------------------------------------
 
 Now we can use the NuclearStrike in the workflow specification in JSON.
+Note that this specification is the same as in our first tutorial,
+except that it references our class `strike.NuclearStrike`.
 
 .. literalinclude:: nuclear.json
-
-Note that this specification references our class `strike.NuclearStrike`;
-it is otherwise the same as in our first tutorial.
 
 Using the custom serializer and task
 ------------------------------------
