@@ -216,8 +216,8 @@ class TaskSpec(object):
         Checks whether all required attributes are set. Throws an exception
         if an error was detected.
         """
-        if self.id is None:
-            raise WorkflowException(self, 'TaskSpec is not yet instanciated.')
+        #if self.id is None:
+        #    raise WorkflowException(self, 'TaskSpec is not yet instanciated.')
         if len(self.inputs) < 1:
             raise WorkflowException(self, 'No input task connected.')
 
