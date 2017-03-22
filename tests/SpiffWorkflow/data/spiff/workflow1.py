@@ -5,7 +5,9 @@ from __future__ import division
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
 
+
 class TestWorkflowSpec(WorkflowSpec):
+
     def __init__(self):
         WorkflowSpec.__init__(self)
         # Build one branch.
@@ -94,7 +96,7 @@ class TestWorkflowSpec(WorkflowSpec):
         discrim_1 = Join(self,
                          'struct_discriminator_1',
                          'struct_synch_merge_1',
-                         threshold = 1)
+                         threshold=1)
         f1.connect(discrim_1)
         f2.connect(discrim_1)
         f3.connect(discrim_1)
@@ -106,7 +108,7 @@ class TestWorkflowSpec(WorkflowSpec):
         excl_choice_3.connect_if(cond, excl_choice_1)
 
         # Split into 3 branches, and implicitly split twice in addition.
-        multi_instance_1 = MultiInstance(self, 'multi_instance_1', times = 3)
+        multi_instance_1 = MultiInstance(self, 'multi_instance_1', times=3)
         excl_choice_3.connect(multi_instance_1)
 
         # Parallel tasks.

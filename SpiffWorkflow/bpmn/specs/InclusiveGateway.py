@@ -14,7 +14,8 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 from collections import deque
 
 import logging
@@ -24,8 +25,8 @@ from .UnstructuredJoin import UnstructuredJoin
 LOG = logging.getLogger(__name__)
 
 
-
 class InclusiveGateway(UnstructuredJoin):
+
     """
     Task Spec for a bpmn:parallelGateway node.
     From the specification of BPMN (http://www.omg.org/spec/BPMN/2.0/PDF - document number:formal/2011-01-03):
@@ -64,7 +65,8 @@ class InclusiveGateway(UnstructuredJoin):
 
     def _check_threshold_unstructured(self, my_task, force=False):
 
-        # Look at the tree to find all ready and waiting tasks (excluding ones that are our completed inputs).
+        # Look at the tree to find all ready and waiting tasks (excluding ones
+        # that are our completed inputs).
         tasks = []
         for task in my_task.workflow.get_tasks(Task.READY | Task.WAITING):
             if task.thread_id != my_task.thread_id:
@@ -75,8 +77,10 @@ class InclusiveGateway(UnstructuredJoin):
                 continue
             tasks.append(task)
 
-        inputs_with_tokens, waiting_tasks = self._get_inputs_with_tokens(my_task)
-        inputs_without_tokens = [i for i in self.inputs if i not in inputs_with_tokens]
+        inputs_with_tokens, waiting_tasks = self._get_inputs_with_tokens(
+            my_task)
+        inputs_without_tokens = [
+            i for i in self.inputs if i not in inputs_with_tokens]
 
         waiting_tasks = []
         for task in tasks:
@@ -90,7 +94,8 @@ class InclusiveGateway(UnstructuredJoin):
         q = deque()
         done = set()
 
-        without_using_sequence_flow_from = set(without_using_sequence_flow_from or [])
+        without_using_sequence_flow_from = set(
+            without_using_sequence_flow_from or [])
 
         q.append(task.task_spec)
         while q:
@@ -98,7 +103,7 @@ class InclusiveGateway(UnstructuredJoin):
             if n == task_spec:
                 return True
             for child in n.outputs:
-                if child not in done and not (n in without_using_sequence_flow_from and child==task_spec):
+                if child not in done and not (n in without_using_sequence_flow_from and child == task_spec):
                     done.add(child)
                     q.append(child)
         return False

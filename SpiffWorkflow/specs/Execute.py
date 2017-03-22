@@ -6,12 +6,12 @@ from __future__ import division, absolute_import
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
@@ -23,6 +23,7 @@ from .base import TaskSpec
 
 
 class Execute(TaskSpec):
+
     """
     This class executes an external process, goes into WAITING until the
     process is complete, and returns the results of the execution.
@@ -48,16 +49,16 @@ class Execute(TaskSpec):
         :param kwargs: kwargs to pass-through to TaskSpec initializer.
         """
         assert wf_spec is not None
-        assert name    is not None
+        assert name is not None
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.args = args
 
-    def _start(self, my_task, force = False):
+    def _start(self, my_task, force=False):
         """Returns False when successfully fired, True otherwise"""
         if (not hasattr(my_task, 'subprocess')) or my_task.subprocess is None:
             my_task.subprocess = subprocess.Popen(self.args,
-                                               stderr=subprocess.STDOUT,
-                                               stdout=subprocess.PIPE)
+                                                  stderr=subprocess.STDOUT,
+                                                  stdout=subprocess.PIPE)
 
         if my_task.subprocess:
             my_task.subprocess.poll()

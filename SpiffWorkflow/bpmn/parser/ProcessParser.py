@@ -14,13 +14,16 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 
 from .ValidationException import ValidationException
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
 from .util import *
 
+
 class ProcessParser(object):
+
     """
     Parses a single BPMN process, including all of the tasks within that process.
     """
@@ -39,7 +42,8 @@ class ProcessParser(object):
         self.node = node
         self.doc_xpath = doc_xpath
         self.xpath = xpath_eval(node)
-        self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), svg=svg, filename=filename)
+        self.spec = BpmnProcessSpec(
+            name=self.get_id(), description=self.get_name(), svg=svg, filename=filename)
         self.parsing_started = False
         self.is_parsed = False
         self.parsed_nodes = {}
@@ -60,7 +64,7 @@ class ProcessParser(object):
         """
         return self.node.get('name', default=self.get_id())
 
-    def parse_node(self,node):
+    def parse_node(self, node):
         """
         Parses the specified child task node, and returns the task spec.
         This can be called by a TaskParser instance, that is owned by this ProcessParser.
@@ -71,7 +75,8 @@ class ProcessParser(object):
 
         (node_parser, spec_class) = self.parser._get_parser_class(node.tag)
         if not node_parser or not spec_class:
-            raise ValidationException("There is no support implemented for this task type.", node=node, filename=self.filename)
+            raise ValidationException(
+                "There is no support implemented for this task type.", node=node, filename=self.filename)
         np = node_parser(self, spec_class, node)
         task_spec = np.parse_node()
 
@@ -96,9 +101,11 @@ class ProcessParser(object):
     def _parse(self):
         start_node_list = self.xpath('.//bpmn:startEvent')
         if not start_node_list:
-            raise ValidationException("No start event found", node=self.node, filename=self.filename)
+            raise ValidationException(
+                "No start event found", node=self.node, filename=self.filename)
         elif len(start_node_list) != 1:
-            raise ValidationException("Only one Start Event is supported in each process", node=self.node, filename=self.filename)
+            raise ValidationException(
+                "Only one Start Event is supported in each process", node=self.node, filename=self.filename)
         self.parsing_started = True
         self.parse_node(start_node_list[0])
         self.is_parsed = True
@@ -110,6 +117,7 @@ class ProcessParser(object):
         if self.is_parsed:
             return self.spec
         if self.parsing_started:
-            raise NotImplementedError('Recursive call Activities are not supported.')
+            raise NotImplementedError(
+                'Recursive call Activities are not supported.')
         self._parse()
         return self.get_spec()

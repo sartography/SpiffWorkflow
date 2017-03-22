@@ -6,19 +6,22 @@ from __future__ import division, absolute_import
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 from ..exceptions import WorkflowException
 from .base import TaskSpec
 
+
 class Cancel(TaskSpec):
+
     """
     This class cancels a complete workflow.
     If more than one input is connected, the task performs an implicit
@@ -27,7 +30,7 @@ class Cancel(TaskSpec):
     parallel split.
     """
 
-    def __init__(self, wf_spec, name, success = False, **kwargs):
+    def __init__(self, wf_spec, name, success=False, **kwargs):
         """
         Constructor.
 

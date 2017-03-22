@@ -11,7 +11,9 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
+
 class ActionManagementTest(BpmnWorkflowTestCase):
+
     def setUp(self):
         self.spec = self.load_spec()
         self.workflow = BpmnWorkflow(self.spec)
@@ -20,7 +22,8 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         finish_time = datetime.datetime.now() + datetime.timedelta(seconds=1.5)
 
         self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
-        self.workflow.get_tasks(Task.READY)[0].set_data(start_time=start_time, finish_time=finish_time)
+        self.workflow.get_tasks(Task.READY)[0].set_data(
+            start_time=start_time, finish_time=finish_time)
 
     def load_spec(self):
         return self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Action Management')
@@ -31,8 +34,10 @@ class ActionManagementTest(BpmnWorkflowTestCase):
 
         self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
         self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEquals('NEW ACTION', self.workflow.get_tasks(Task.READY)[0].get_data('script_output'))
-        self.assertEquals('Cancel Action (if necessary)', self.workflow.get_tasks(Task.READY)[0].task_spec.description)
+        self.assertEquals('NEW ACTION', self.workflow.get_tasks(
+            Task.READY)[0].get_data('script_output'))
+        self.assertEquals('Cancel Action (if necessary)',
+                          self.workflow.get_tasks(Task.READY)[0].task_spec.description)
 
         time.sleep(0.6)
         self.workflow.refresh_waiting_tasks()
@@ -54,7 +59,8 @@ class ActionManagementTest(BpmnWorkflowTestCase):
 
         self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
         self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEquals('Cancel Action (if necessary)', self.workflow.get_tasks(Task.READY)[0].task_spec.description)
+        self.assertEquals('Cancel Action (if necessary)',
+                          self.workflow.get_tasks(Task.READY)[0].task_spec.description)
 
         time.sleep(0.6)
         self.workflow.refresh_waiting_tasks()
@@ -66,18 +72,22 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
-        self.assertEquals('Finish Time', self.workflow.get_tasks(Task.WAITING)[0].task_spec.description)
+        self.assertEquals('Finish Time', self.workflow.get_tasks(
+            Task.WAITING)[0].task_spec.description)
         time.sleep(1.1)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
-        self.assertNotEquals('Finish Time', self.workflow.get_tasks(Task.WAITING)[0].task_spec.description)
+        self.assertNotEquals(
+            'Finish Time', self.workflow.get_tasks(Task.WAITING)[0].task_spec.description)
 
-        overdue_escalation_task = [t for t in self.workflow.get_tasks() if t.task_spec.description=='Overdue Escalation']
+        overdue_escalation_task = [
+            t for t in self.workflow.get_tasks() if t.task_spec.description == 'Overdue Escalation']
         self.assertEquals(1, len(overdue_escalation_task))
         overdue_escalation_task = overdue_escalation_task[0]
         self.assertEquals(Task.COMPLETED, overdue_escalation_task.state)
-        self.assertEquals('ACTION OVERDUE', overdue_escalation_task.get_data('script_output'))
+        self.assertEquals(
+            'ACTION OVERDUE', overdue_escalation_task.get_data('script_output'))
 
         self.do_next_named_step("Complete Work", choice="Done")
         self.workflow.do_engine_steps()
@@ -99,7 +109,8 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         self.assertTrue(self.workflow.is_completed())
-        self.assertEquals('ACTION CANCELLED', self.workflow.get_data('script_output'))
+        self.assertEquals(
+            'ACTION CANCELLED', self.workflow.get_data('script_output'))
 
     def testRunThroughCancelAfterWorkStarted(self):
         self.do_next_exclusive_step("Review Action", choice='Approve')
@@ -120,9 +131,11 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         self.assertTrue(self.workflow.is_completed())
-        self.assertEquals('ACTION CANCELLED', self.workflow.get_data('script_output'))
+        self.assertEquals(
+            'ACTION CANCELLED', self.workflow.get_data('script_output'))
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ActionManagementTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())

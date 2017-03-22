@@ -14,24 +14,28 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 from ...exceptions import WorkflowException
 
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs import TaskSpec
 from ...specs.ExclusiveChoice import ExclusiveChoice
 
+
 class ExclusiveGateway(ExclusiveChoice, BpmnSpecMixin):
+
     """
     Task Spec for a bpmn:exclusiveGateway node.
     """
+
     def test(self):
         """
         Checks whether all required attributes are set. Throws an exception
         if an error was detected.
         """
-        #This has been overidden to allow a single default flow out (without a condition) - useful for
-        #the converging type
+        # This has been overidden to allow a single default flow out (without a condition) - useful for
+        # the converging type
         TaskSpec.test(self)
 #        if len(self.cond_task_specs) < 1:
 #            raise WorkflowException(self, 'At least one output required.')

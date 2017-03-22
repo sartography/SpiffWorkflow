@@ -14,7 +14,8 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 from ..task import Task
 from ..exceptions import WorkflowException
 from .base import TaskSpec
@@ -22,6 +23,7 @@ from ..operators import valueof
 
 
 class Join(TaskSpec):
+
     """
     A task for synchronizing branches that were previously split using a
     conditional task, such as MultiChoice. It has two or more incoming
@@ -119,7 +121,7 @@ class Join(TaskSpec):
             # children, that means the prediction may be incomplete (for
             # example, because a prediction is not yet possible at this time).
             if not child._is_definite() \
-                and len(child.task_spec.outputs) > len(child.children):
+                    and len(child.task_spec.outputs) > len(child.children):
                 return True
         return False
 
@@ -167,7 +169,7 @@ class Join(TaskSpec):
 
         # Look up which tasks have already completed.
         waiting_tasks = []
-        completed     = 0
+        completed = 0
         for task in tasks:
             # Refresh path prediction.
             task.task_spec._predict(task)
@@ -235,7 +237,8 @@ class Join(TaskSpec):
         # We are looking for all task instances that must be joined.
         # We limit our search by starting at the split point.
         if self.split_task:
-            split_task = my_task.workflow.get_task_spec_from_name(self.split_task)
+            split_task = my_task.workflow.get_task_spec_from_name(
+                self.split_task)
             split_task = my_task._find_ancestor(split_task)
         else:
             split_task = my_task.workflow.task_tree
@@ -262,7 +265,7 @@ class Join(TaskSpec):
             # changed.
             changed = task.parent.last_state_change
             if last_changed is None \
-              or changed > last_changed.parent.last_state_change:
+                    or changed > last_changed.parent.last_state_change:
                 last_changed = task
 
         # Mark the identified task instances as COMPLETED. The exception

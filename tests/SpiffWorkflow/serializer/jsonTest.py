@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-import sys, unittest, re, os
+import sys
+import unittest
+import re
+import os
 dirname = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
@@ -9,7 +12,9 @@ from SpiffWorkflow.serializer.json import JSONSerializer
 from .baseTest import SerializerTest
 from .dictTest import DictionarySerializerTest
 
+
 class JSONSerializerTest(DictionarySerializerTest):
+
     def setUp(self):
         super(JSONSerializerTest, self).setUp()
         self.serializer = JSONSerializer()
@@ -27,6 +32,7 @@ class JSONSerializerTest(DictionarySerializerTest):
         super(JSONSerializerTest, self)._compare_results(item1, item2,
                                                          exclude_dynamic=exclude_dynamic,
                                                          exclude_items=exclude_items)
+
 
 def suite():
     return unittest.defaultTestLoader.loadTestsFromTestCase(JSONSerializerTest)

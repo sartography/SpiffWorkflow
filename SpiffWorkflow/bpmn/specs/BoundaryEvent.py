@@ -14,16 +14,19 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 
 from ...task import Task
 from .BpmnSpecMixin import BpmnSpecMixin
 from .IntermediateCatchEvent import IntermediateCatchEvent
 
+
 class _BoundaryEventParent(BpmnSpecMixin):
 
     def __init__(self, wf_spec, name, main_child_task_spec, lane=None, **kwargs):
-        super(_BoundaryEventParent, self).__init__(wf_spec, name, lane=lane, **kwargs)
+        super(_BoundaryEventParent, self).__init__(
+            wf_spec, name, lane=lane, **kwargs)
         self.main_child_task_spec = main_child_task_spec
 
     def _child_complete_hook(self, child_task):
@@ -53,7 +56,9 @@ class _BoundaryEventParent(BpmnSpecMixin):
     def _should_cancel(self, task_spec):
         return issubclass(task_spec.__class__, BoundaryEvent) and task_spec._cancel_activity
 
+
 class BoundaryEvent(IntermediateCatchEvent):
+
     """
     Task Spec for a bpmn:boundaryEvent node.
     """
@@ -64,5 +69,6 @@ class BoundaryEvent(IntermediateCatchEvent):
 
         :param cancel_activity: True if this is a Cancelling boundary event.
         """
-        super(BoundaryEvent, self).__init__(wf_spec, name, event_definition=event_definition, **kwargs)
+        super(BoundaryEvent, self).__init__(
+            wf_spec, name, event_definition=event_definition, **kwargs)
         self._cancel_activity = cancel_activity

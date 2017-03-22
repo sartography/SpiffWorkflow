@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-import sys, unittest, re, os
+import sys
+import unittest
+import re
+import os
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -10,7 +13,9 @@ from SpiffWorkflow.operators import *
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 
+
 class WorkflowTest(unittest.TestCase):
+
     def testConstructor(self):
         wf_spec = WorkflowSpec()
         wf_spec.start.connect(Cancel(wf_spec, 'name'))
@@ -21,8 +26,8 @@ class WorkflowTest(unittest.TestCase):
         Simulates interactive calls, as would be issued by a user.
         """
         xml_file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
-        xml      = open(xml_file).read()
-        wf_spec  = WorkflowSpec.deserialize(XmlSerializer(), xml)
+        xml = open(xml_file).read()
+        wf_spec = WorkflowSpec.deserialize(XmlSerializer(), xml)
         workflow = Workflow(wf_spec)
 
         tasks = workflow.get_tasks(Task.READY)
@@ -64,7 +69,8 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(tasks[0].task_spec.name, 'synch_1')
         # haven't reached the end of the workflow, but stopping at "synch_1"
 
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(WorkflowTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())

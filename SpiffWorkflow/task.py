@@ -14,7 +14,8 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import logging
 import time
 from uuid import uuid4
@@ -24,6 +25,7 @@ LOG = logging.getLogger(__name__)
 
 
 class Task(object):
+
     """
     Used internally for composing a tree that represents the path that
     is taken (or predicted) within the workflow.
@@ -75,19 +77,19 @@ class Task(object):
     """
     # Note: The states in this list are ordered in the sequence in which
     # they may appear. Do not change.
-    MAYBE     =  1
-    LIKELY    =  2
-    FUTURE    =  4
-    WAITING   =  8
-    READY     = 16
+    MAYBE = 1
+    LIKELY = 2
+    FUTURE = 4
+    WAITING = 8
+    READY = 16
     COMPLETED = 32
     CANCELLED = 64
 
-    FINISHED_MASK      = CANCELLED | COMPLETED
-    DEFINITE_MASK      = FUTURE | WAITING | READY | FINISHED_MASK
-    PREDICTED_MASK     = FUTURE | LIKELY | MAYBE
-    NOT_FINISHED_MASK  = PREDICTED_MASK | WAITING | READY
-    ANY_MASK           = FINISHED_MASK | NOT_FINISHED_MASK
+    FINISHED_MASK = CANCELLED | COMPLETED
+    DEFINITE_MASK = FUTURE | WAITING | READY | FINISHED_MASK
+    PREDICTED_MASK = FUTURE | LIKELY | MAYBE
+    NOT_FINISHED_MASK = PREDICTED_MASK | WAITING | READY
+    ANY_MASK = FINISHED_MASK | NOT_FINISHED_MASK
 
     state_names = {FUTURE:    'FUTURE',
                    WAITING:   'WAITING',
@@ -98,10 +100,12 @@ class Task(object):
                    MAYBE:     'MAYBE'}
 
     class Iterator(object):
+
         """
         This is a tree iterator that supports filtering such that a client
         may walk through all tasks that have a specific state.
         """
+
         def __init__(self, current, filter=None):
             """
             Constructor.
@@ -134,7 +138,8 @@ class Task(object):
                 return current
 
             # Ending up here, this task has no children. Crop the path until we
-            # reach a task that has unvisited children, or until we hit the end.
+            # reach a task that has unvisited children, or until we hit the
+            # end.
             while True:
                 old_child = self.path.pop(-1)
                 if len(self.path) == 0:
@@ -167,7 +172,7 @@ class Task(object):
         """
         Constructor.
         """
-        assert workflow  is not None
+        assert workflow is not None
         assert task_spec is not None
         self.workflow = workflow
         self.parent = parent
@@ -211,10 +216,10 @@ class Task(object):
         self._state = value
         if __debug__:
             self.log.append("Moving '%s' from %s to %s" % (self.get_name(),
-                    old, self.get_state_name()))
+                                                           old, self.get_state_name()))
         self.state_history.append(value)
         LOG.debug("Moving '%s' (spec=%s) from %s to %s" % (self.get_name(),
-                    self.task_spec.name, old, self.get_state_name()))
+                                                           self.task_spec.name, old, self.get_state_name()))
 
     def _delstate(self):
         del self._state
@@ -368,7 +373,7 @@ class Task(object):
             # the given task spec list.
             if child._is_definite():
                 raise WorkflowException(self.task_spec,
-                    'removal of non-predicted child %s' % repr(child))
+                                        'removal of non-predicted child %s' % repr(child))
             remove.append(child)
 
         # Remove and add the children accordingly.
@@ -537,8 +542,8 @@ class Task(object):
         Inherits the data from the parent.
         """
         LOG.debug("'%s' inheriting data from '%s'" % (self.get_name(),
-                self.parent.get_name()),
-                extra=dict(data=self.parent.data))
+                                                      self.parent.get_name()),
+                  extra=dict(data=self.parent.data))
         self.set_data(**self.parent.data)
 
     def get_data(self, name, default=None):
@@ -589,13 +594,13 @@ class Task(object):
         :rtype:  str
         :returns: The debug information.
         """
-        dbg  = (' ' * indent * 2)
-        dbg += '%s/'           % self.id
-        dbg += '%s:'           % self.thread_id
-        dbg += ' Task of %s'   % self.get_name()
+        dbg = (' ' * indent * 2)
+        dbg += '%s/' % self.id
+        dbg += '%s:' % self.thread_id
+        dbg += ' Task of %s' % self.get_name()
         if self.task_spec.description:
-            dbg += ' (%s)'   % self.get_description()
-        dbg += ' State: %s'    % self.get_state_name()
+            dbg += ' (%s)' % self.get_description()
+        dbg += ' State: %s' % self.get_state_name()
         dbg += ' Children: %s' % len(self.children)
         if recursive:
             for child in self.children:

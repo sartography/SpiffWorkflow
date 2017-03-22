@@ -20,9 +20,9 @@ class TransformTest(TaskSpecTest):
             del self.wf_spec.task_specs['testtask']
 
         return Transform(self.wf_spec,
-                       'testtask',
-                       description='foo',
-                       transforms=[''])
+                         'testtask',
+                         description='foo',
+                         transforms=[''])
 
     def testPattern(self):
         """
@@ -35,7 +35,7 @@ class TransformTest(TaskSpecTest):
         task2 = Transform(self.wf_spec, 'Second', transforms=[
             "my_task.set_data(foo=my_task.data['foo']+1)",
             "my_task.set_data(copy=my_task.data['foo'])"
-            ])
+        ])
         task1.connect(task2)
         task3 = Simple(self.wf_spec, 'Last')
         task2.connect(task3)

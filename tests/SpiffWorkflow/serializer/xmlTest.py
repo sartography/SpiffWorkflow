@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-import sys, unittest, re, os
+import sys
+import unittest
+import re
+import os
 dirname = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(dirname, '..'))
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
@@ -9,7 +12,9 @@ from lxml import etree
 from SpiffWorkflow.serializer.xml import XmlSerializer
 from serializer.baseTest import SerializerTest
 
+
 class XmlSerializerTest(SerializerTest):
+
     def setUp(self):
         super(XmlSerializerTest, self).setUp()
         self.serializer = XmlSerializer()
@@ -17,6 +22,7 @@ class XmlSerializerTest(SerializerTest):
 
     def _prepare_result(self, item):
         return etree.tostring(item, pretty_print=True)
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(XmlSerializerTest)

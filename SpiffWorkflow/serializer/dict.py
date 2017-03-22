@@ -12,7 +12,8 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import pickle
 from base64 import b64encode, b64decode
 from .. import Workflow
@@ -24,7 +25,9 @@ from .base import Serializer
 from .exceptions import TaskNotSupportedError
 import warnings
 
+
 class DictionarySerializer(Serializer):
+
     def serialize_dict(self, thedict):
         return dict(
             (k, b64encode(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL)))
@@ -112,12 +115,12 @@ class DictionarySerializer(Serializer):
         return arg_cls.deserialize(self, arg)
 
     def serialize_task_spec(self, spec):
-        s_state = dict(id = spec.id,
-                       name = spec.name,
-                       description = spec.description,
-                       manual = spec.manual,
-                       internal = spec.internal,
-                       lookahead = spec.lookahead)
+        s_state = dict(id=spec.id,
+                       name=spec.name,
+                       description=spec.description,
+                       manual=spec.manual,
+                       internal=spec.internal,
+                       lookahead=spec.lookahead)
         module_name = spec.__class__.__module__
         s_state['class'] = module_name + '.' + spec.__class__.__name__
         s_state['inputs'] = [t.name for t in spec.inputs]
@@ -142,7 +145,8 @@ class DictionarySerializer(Serializer):
         spec.data = self.deserialize_dict(s_state.get('data', {}))
         spec.defines = self.deserialize_dict(s_state.get('defines', {}))
         spec.pre_assign = self.deserialize_list(s_state.get('pre_assign', []))
-        spec.post_assign = self.deserialize_list(s_state.get('post_assign',[]))
+        spec.post_assign = self.deserialize_list(
+            s_state.get('post_assign', []))
         spec.locks = s_state.get('locks', [])[:]
         # We can't restore inputs and outputs yet because they may not be
         # deserialized yet. So keep the names, and resolve them in the end.
@@ -209,7 +213,7 @@ class DictionarySerializer(Serializer):
         # despite the various documentation suggesting that choice ought to be
         # a collection of objects, here it is a collection of strings. The
         # handler in MultiChoice.py converts it to TaskSpecs. So instead of:
-        #s_state['choice'] = [c.name for c in spec.choice]
+        # s_state['choice'] = [c.name for c in spec.choice]
         # we have:
         s_state['choice'] = spec.choice
         return s_state
@@ -264,10 +268,10 @@ class DictionarySerializer(Serializer):
     def deserialize_join(self, wf_spec, s_state):
         spec = Join(wf_spec,
                     s_state['name'],
-                    split_task = s_state['split_task'],
-                    threshold = pickle.loads(b64decode(s_state['threshold'])),
-                    cancel = s_state['cancel_remaining'])
-        self.deserialize_task_spec(wf_spec, s_state, spec = spec)
+                    split_task=s_state['split_task'],
+                    threshold=pickle.loads(b64decode(s_state['threshold'])),
+                    cancel=s_state['cancel_remaining'])
+        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
     def serialize_multi_choice(self, spec):
@@ -278,7 +282,7 @@ class DictionarySerializer(Serializer):
             thestate.append((cond, spec_name))
         # spec.choice is actually a list of strings in MultiChoice: see
         # _predict_hook. So, instead of
-        #s_state['choice'] = spec.choice and spec.choice.name or None
+        # s_state['choice'] = spec.choice and spec.choice.name or None
         s_state['choice'] = spec.choice or None
         return s_state
 
@@ -422,7 +426,8 @@ class DictionarySerializer(Serializer):
         spec.start = None
         del spec.task_specs['Start']
         start_task_spec_state = s_state['task_specs']['Start']
-        start_task_spec = StartTask.deserialize(self, spec, start_task_spec_state)
+        start_task_spec = StartTask.deserialize(
+            self, spec, start_task_spec_state)
         spec.start = start_task_spec
         spec.task_specs['Start'] = start_task_spec
 
@@ -444,22 +449,22 @@ class DictionarySerializer(Serializer):
         assert isinstance(workflow, Workflow)
         s_state = dict()
         s_state['wf_spec'] = self.serialize_workflow_spec(workflow.spec,
-                **kwargs)
+                                                          **kwargs)
 
         # data
-        s_state['data'] =  self.serialize_dict(workflow.data)
+        s_state['data'] = self.serialize_dict(workflow.data)
 
         # last_node
         value = workflow.last_task
         s_state['last_task'] = value.id if not value is None else None
 
         # outer_workflow
-        #s_state['outer_workflow'] = workflow.outer_workflow.id
+        # s_state['outer_workflow'] = workflow.outer_workflow.id
 
-        #success
+        # success
         s_state['success'] = workflow.success
 
-        #task_tree
+        # task_tree
         s_state['task_tree'] = self.serialize_task(workflow.task_tree)
 
         return s_state
@@ -472,7 +477,8 @@ class DictionarySerializer(Serializer):
         workflow.data = self.deserialize_dict(s_state['data'])
 
         # outer_workflow
-        #workflow.outer_workflow =  find_workflow_by_id(remap_workflow_id(s_state['outer_workflow']))
+        # workflow.outer_workflow =
+        # find_workflow_by_id(remap_workflow_id(s_state['outer_workflow']))
 
         # success
         workflow.success = s_state['success']
@@ -481,7 +487,8 @@ class DictionarySerializer(Serializer):
         workflow.spec = wf_spec
 
         # task_tree
-        workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'])
+        workflow.task_tree = self.deserialize_task(
+            workflow, s_state['task_tree'])
 
         # Re-connect parents
         for task in workflow.get_tasks():
@@ -499,21 +506,22 @@ class DictionarySerializer(Serializer):
             raise TaskNotSupportedError(
                 "Subworkflow tasks cannot be serialized (due to their use of" +
                 " internal_data to store the subworkflow).")
-        
+
         s_state = dict()
 
         # id
         s_state['id'] = task.id
 
         # workflow
-        #s_state['workflow'] = task.workflow.id
+        # s_state['workflow'] = task.workflow.id
 
         # parent
         s_state['parent'] = task.parent.id if not task.parent is None else None
 
         # children
         if not skip_children:
-            s_state['children'] = [self.serialize_task(child) for child in task.children]
+            s_state['children'] = [
+                self.serialize_task(child) for child in task.children]
 
         # state
         s_state['state'] = task.state
@@ -526,7 +534,7 @@ class DictionarySerializer(Serializer):
         s_state['last_state_change'] = task.last_state_change
 
         # data
-        s_state['data'] =  self.serialize_dict(task.data)
+        s_state['data'] = self.serialize_dict(task.data)
 
         # internal_data
         s_state['internal_data'] = task.internal_data
@@ -548,7 +556,8 @@ class DictionarySerializer(Serializer):
         task.parent = s_state['parent']
 
         # children
-        task.children = [self.deserialize_task(workflow, c) for c in s_state['children']]
+        task.children = [self.deserialize_task(workflow, c)
+                         for c in s_state['children']]
 
         # state
         task._state = s_state['state']

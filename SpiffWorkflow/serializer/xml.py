@@ -12,7 +12,8 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import warnings
 from lxml import etree
 from lxml.etree import SubElement
@@ -30,7 +31,7 @@ for name in dir(specs):
     if name.startswith('_'):
         continue
     module = specs.__dict__[name]
-    name   = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
+    name = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
     _spec_map[name] = module
 _spec_map['task'] = specs.Simple
 
@@ -40,7 +41,9 @@ _op_map = {'equals':       operators.Equal,
            'greater-than': operators.GreaterThan,
            'matches':      operators.Match}
 
+
 class XmlSerializer(Serializer):
+
     def serialize_attrib(self, op):
         """
         Serializer for :meth:`SpiffWorkflow.operators.Attrib`.
@@ -87,7 +90,8 @@ class XmlSerializer(Serializer):
         if op.right:
             self.serialize_value(SubElement(elem, 'value'), op.right)
         if op.right_attribute:
-            self.serialize_value(SubElement(elem, 'value-attribute'), op.right_attribute)
+            self.serialize_value(
+                SubElement(elem, 'value-attribute'), op.right_attribute)
         return elem
 
     def deserialize_assign(self, elem):
@@ -673,7 +677,7 @@ class XmlSerializer(Serializer):
             SubElement(elem, 'last-task').text = str(workflow.last_task.id)
 
         # outer_workflow
-        #SubElement(elem, 'outer-workflow').text = workflow.outer_workflow.id
+        # SubElement(elem, 'outer-workflow').text = workflow.outer_workflow.id
 
         if workflow.success:
             SubElement(elem, 'success')
@@ -691,7 +695,8 @@ class XmlSerializer(Serializer):
         workflow.success = elem.find('success') is not None
 
         # outer_workflow
-        #workflow.outer_workflow =  find_workflow_by_id(remap_workflow_id(elem['outer_workflow']))
+        # workflow.outer_workflow =
+        # find_workflow_by_id(remap_workflow_id(elem['outer_workflow']))
 
         task_tree_elem = elem.find('task-tree')
         workflow.task_tree = self.deserialize_task(workflow, task_tree_elem[0])
@@ -714,7 +719,7 @@ class XmlSerializer(Serializer):
             raise TaskNotSupportedError(
                 "Subworkflow tasks cannot be serialized (due to their use of" +
                 " internal_data to store the subworkflow).")
-        
+
         # We are not serializing task.workflow; the deserializer accepts
         # an already-deserialized Workflow instead.
         elem = etree.Element('task')
@@ -733,7 +738,8 @@ class XmlSerializer(Serializer):
         if task.triggered:
             SubElement(elem, 'triggered')
         SubElement(elem, 'spec').text = task.task_spec.name
-        SubElement(elem, 'last-state-change').text = str(task.last_state_change)
+        SubElement(elem, 'last-state-change').text = str(
+            task.last_state_change)
         self.serialize_value_map(SubElement(elem, 'data'), task.data)
         internal_data_elem = SubElement(elem, 'internal-data')
         self.serialize_value_map(internal_data_elem, task.internal_data)

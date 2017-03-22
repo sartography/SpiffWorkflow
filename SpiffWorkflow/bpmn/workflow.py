@@ -14,13 +14,16 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 
 from ..task import Task
 from ..workflow import Workflow
 from .BpmnScriptEngine import BpmnScriptEngine
 
+
 class BpmnWorkflow(Workflow):
+
     """
     The engine that executes a BPMN workflow. This specialises the standard Spiff Workflow class
     with a few extra methods and attributes.
@@ -61,11 +64,13 @@ class BpmnWorkflow(Workflow):
         READY User tasks, or WAITING tasks left.
         """
         assert not self.read_only
-        engine_steps = list([t for t in self.get_tasks(Task.READY) if self._is_engine_task(t.task_spec)])
+        engine_steps = list(
+            [t for t in self.get_tasks(Task.READY) if self._is_engine_task(t.task_spec)])
         while engine_steps:
             for task in engine_steps:
                 task.complete()
-            engine_steps = list([t for t in self.get_tasks(Task.READY) if self._is_engine_task(t.task_spec)])
+            engine_steps = list(
+                [t for t in self.get_tasks(Task.READY) if self._is_engine_task(t.task_spec)])
 
     def refresh_waiting_tasks(self):
         """
@@ -102,5 +107,3 @@ class BpmnWorkflow(Workflow):
 
     def _task_cancelled_notify(self, task):
         assert (not self.read_only) or self._is_busy_with_restore()
-
-

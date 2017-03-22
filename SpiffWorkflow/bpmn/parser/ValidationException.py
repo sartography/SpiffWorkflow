@@ -14,11 +14,14 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 
 from .util import BPMN_MODEL_NS
 
+
 class ValidationException(Exception):
+
     """
     A ValidationException should be thrown with enough information for the user
     to diagnose the problem and sort it out.
@@ -26,7 +29,7 @@ class ValidationException(Exception):
     If available, please provide the offending XML node and filename.
     """
 
-    def __init__(self, msg, node = None, filename = None, *args, **kwargs):
+    def __init__(self, msg, node=None, filename=None, *args, **kwargs):
         if node is not None:
             self.tag = self._shorten_tag(node.tag)
             self.id = node.get('id', '<Unknown>')
@@ -49,4 +52,3 @@ class ValidationException(Exception):
         if tag.startswith(prefix):
             return 'bpmn:' + tag[len(prefix):]
         return tag
-

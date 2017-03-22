@@ -14,7 +14,8 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import logging
 import re
 
@@ -25,17 +26,22 @@ try:
 except:
     unicode = str
 
+
 class Term(object):
+
     """
     Abstract base class for all operators and expressions.
     """
     pass
 
+
 class Attrib(Term):
+
     """
     Used for marking a value such that it is recognized to be an
     attribute name by valueof().
     """
+
     def __init__(self, name):
         self.name = name
 
@@ -64,10 +70,12 @@ class Attrib(Term):
 
 
 class PathAttrib(Term):
+
     """
     Used for marking a value such that it is recognized to be an
     attribute obtained by evaluating a path by valueof().
     """
+
     def __init__(self, path):
         self.path = path
 
@@ -96,6 +104,7 @@ class PathAttrib(Term):
 
 
 class Assign(Term):
+
     """
     Assigns a new value to an attribute. The source may be either
     a static value, or another attribute.
@@ -167,7 +176,7 @@ def valueof(scope, op, default=None):
     elif isinstance(op, Attrib):
         if op.name not in scope.data:
             LOG.debug("Attrib('%s') not present in task '%s' data" %
-                    (op.name, scope.get_name()))
+                      (op.name, scope.get_name()))
         return scope.get_data(op.name, default)
     elif isinstance(op, PathAttrib):
         if not op.path:
@@ -177,8 +186,8 @@ def valueof(scope, op, default=None):
         for part in parts:
             if part not in data:
                 LOG.debug("PathAttrib('%s') not present in task '%s' "
-                        "data" % (op.path, scope.get_name()),
-                        extra=dict(data=scope.data))
+                          "data" % (op.path, scope.get_name()),
+                          extra=dict(data=scope.data))
                 return default
             data = data[part]  # move down the path
         return data
@@ -187,6 +196,7 @@ def valueof(scope, op, default=None):
 
 
 class Operator(Term):
+
     """
     Abstract base class for all operators.
     """
@@ -233,9 +243,11 @@ class Operator(Term):
 
 
 class Equal(Operator):
+
     """
     This class represents the EQUAL operator.
     """
+
     def _matches(self, task):
         values = self._get_values(task)
         last = values[0]
@@ -254,9 +266,11 @@ class Equal(Operator):
 
 
 class NotEqual(Operator):
+
     """
     This class represents the NOT EQUAL operator.
     """
+
     def _matches(self, task):
         values = self._get_values(task)
         last = values[0]
@@ -275,9 +289,11 @@ class NotEqual(Operator):
 
 
 class GreaterThan(Operator):
+
     """
     This class represents the GREATER THAN operator.
     """
+
     def __init__(self, left, right):
         """
         Constructor.
@@ -297,9 +313,11 @@ class GreaterThan(Operator):
 
 
 class LessThan(Operator):
+
     """
     This class represents the LESS THAN operator.
     """
+
     def __init__(self, left, right):
         """
         Constructor.
@@ -319,9 +337,11 @@ class LessThan(Operator):
 
 
 class Match(Operator):
+
     """
     This class represents the regular expression match operator.
     """
+
     def __init__(self, regex, *args):
         """
         Constructor.

@@ -20,8 +20,8 @@ class MergeTest(JoinTest):
             del self.wf_spec.task_specs['testtask']
 
         return Merge(self.wf_spec,
-                       'testtask',
-                       description='foo')
+                     'testtask',
+                     description='foo')
 
     def test_Merge_data_merging(self):
         """Test that Merge task actually merges data"""
@@ -67,8 +67,8 @@ class MergeTest(JoinTest):
                 self.assert_('first' in task.data)
                 self.assert_('second' in task.data)
                 self.assertEqual(task.data, {'Start': 1,
-                        'merge 1': 1, 'name': 'Start', 'simple 1': 1,
-                        'second': 1, 'first': 1})
+                                             'merge 1': 1, 'name': 'Start', 'simple 1': 1,
+                                             'second': 1, 'first': 1})
                 found['simple1'] = task
             if task.task_spec is simple2:
                 self.assert_('first' in task.data)
@@ -76,12 +76,12 @@ class MergeTest(JoinTest):
                 self.assert_('third' in task.data)
                 self.assert_('fourth' in task.data)
                 self.assertEqual(task.data, {'merge 2': 1,
-                        'simple 2': 1, 'name': 'Start', 'third': 1, 'bump': 1,
-                        'Start': 1, 'second': 1, 'first': 1, 'fourth': 1})
+                                             'simple 2': 1, 'name': 'Start', 'third': 1, 'bump': 1,
+                                             'Start': 1, 'second': 1, 'first': 1, 'fourth': 1})
                 found['simple2'] = task
             if task.task_spec is unmerged:
                 self.assertEqual(task.data, {'Start': 1,
-                        'second': 1, 'name': 'Start', 'unmerged': 1})
+                                             'second': 1, 'name': 'Start', 'unmerged': 1})
                 found['unmerged'] = task
         self.assert_('simple1' in found)
         self.assert_('simple2' in found)

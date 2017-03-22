@@ -14,7 +14,8 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import logging
 import json
 
@@ -74,6 +75,7 @@ def Serializable(o):
 
 
 class Celery(TaskSpec):
+
     """This class implements a celeryd task that is sent to the celery queue for
     completion."""
 
@@ -113,7 +115,7 @@ class Celery(TaskSpec):
         if not have_celery:
             raise Exception("Unable to import python-celery imports.")
         assert wf_spec is not None
-        assert name    is not None
+        assert name is not None
         assert call is not None
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.description = kwargs.pop('description', '')
@@ -134,7 +136,7 @@ class Celery(TaskSpec):
         if self.kwargs:
             kwargs = _eval_kwargs(self.kwargs, my_task)
         LOG.debug("%s (task id %s) calling %s" % (self.name, my_task.id,
-                self.call), extra=dict(data=dict(args=args, kwargs=kwargs)))
+                                                  self.call), extra=dict(data=dict(args=args, kwargs=kwargs)))
         async_call = default_app.send_task(self.call, args=args, kwargs=kwargs)
         my_task._set_internal_data(task_id=async_call.task_id)
         my_task.async_call = async_call
@@ -144,7 +146,7 @@ class Celery(TaskSpec):
         """ Abort celery task and retry it"""
         if not my_task._has_state(Task.WAITING):
             raise WorkflowException(my_task, "Cannot refire a task that is not"
-                    "in WAITING state")
+                                    "in WAITING state")
         # Check state of existing call and abort it (save history)
         if my_task._get_internal_data('task_id') is not None:
             if not hasattr(my_task, 'async_call'):
@@ -161,7 +163,7 @@ class Celery(TaskSpec):
                     async_call.state, async_call))
             elif async_call.state == 'SUCCESS':
                 LOG.warning("Celery task '%s' succeeded, but a refire was "
-                        "requested" % async_call)
+                            "requested" % async_call)
             self._clear_celery_task_data(my_task)
         # Retrigger
         return self._start(my_task)
@@ -204,7 +206,7 @@ class Celery(TaskSpec):
             my_task.async_call.state  # must manually refresh if deserialized
         if my_task.async_call.state == 'FAILURE':
             LOG.debug("Async Call for task '%s' failed: %s" % (
-                    my_task.get_name(), my_task.async_call.info))
+                my_task.get_name(), my_task.async_call.info))
             info = {}
             info['traceback'] = my_task.async_call.traceback
             info['info'] = Serializable(my_task.async_call.info)
@@ -223,7 +225,7 @@ class Celery(TaskSpec):
                 my_task._set_internal_data(error=Serializable(result))
                 return False
             LOG.debug("Completed celery call %s with result=%s" % (self.call,
-                    result))
+                                                                   result))
             # Format result
             if self.result_key:
                 data = {self.result_key: result}
@@ -240,8 +242,8 @@ class Celery(TaskSpec):
             return True
         else:
             LOG.debug("async_call.ready()=%s. TryFire for '%s' "
-                    "returning False" % (my_task.async_call.ready(),
-                            my_task.get_name()))
+                      "returning False" % (my_task.async_call.ready(),
+                                           my_task.get_name()))
             return False
 
     def _update_hook(self, my_task):

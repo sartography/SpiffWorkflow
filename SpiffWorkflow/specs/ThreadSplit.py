@@ -6,22 +6,25 @@ from __future__ import division, absolute_import
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 from ..task import Task
 from ..exceptions import WorkflowException
 from .base import TaskSpec
 from .ThreadStart import ThreadStart
 from ..operators import valueof
 
+
 class ThreadSplit(TaskSpec):
+
     """
     When executed, this task performs a split on the current my_task.
     The number of outgoing my_tasks depends on the runtime value of a
@@ -40,7 +43,7 @@ class ThreadSplit(TaskSpec):
                  **kwargs):
         """
         Constructor.
-        
+
         :type  wf_spec: WorkflowSpec`
         :param wf_spec: A reference to the workflow specification.
         :type  name: string
@@ -58,7 +61,7 @@ class ThreadSplit(TaskSpec):
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.times = times
         if not suppress_threadstart_creation:
-            self.thread_starter  = ThreadStart(wf_spec, **kwargs)
+            self.thread_starter = ThreadStart(wf_spec, **kwargs)
             self.outputs.append(self.thread_starter)
             self.thread_starter._connect_notify(self)
         else:
@@ -84,9 +87,9 @@ class ThreadSplit(TaskSpec):
 
     def _get_activated_tasks(self, my_task, destination):
         """
-        Returns the list of tasks that were activated in the previous 
+        Returns the list of tasks that were activated in the previous
         call of execute(). Only returns tasks that point towards the
-        destination task, i.e. those which have destination as a 
+        destination task, i.e. those which have destination as a
         descendant.
 
         my_task -- the task of this TaskSpec
@@ -97,7 +100,7 @@ class ThreadSplit(TaskSpec):
 
     def _get_activated_threads(self, my_task):
         """
-        Returns the list of threads that were activated in the previous 
+        Returns the list of threads that were activated in the previous
         call of execute().
 
         my_task -- the task of this TaskSpec

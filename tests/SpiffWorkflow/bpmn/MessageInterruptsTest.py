@@ -13,9 +13,10 @@ __author__ = 'matth'
 
 
 class MessageInterruptsTest(BpmnWorkflowTestCase):
+
     def setUp(self):
         self.spec = self.load_spec()
-        #self.spec.dump()
+        # self.spec.dump()
 
     def load_spec(self):
         return self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Test Workflows')
@@ -40,8 +41,8 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
-
+        self.assertEquals(
+            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRunThroughMessageInterruptSaveAndRestore(self):
 
@@ -67,8 +68,8 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.save_restore()
-        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
-
+        self.assertEquals(
+            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRunThroughHappy(self):
 
@@ -85,8 +86,8 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.assertEquals(0, len(self.workflow.get_tasks(Task.WAITING)))
 
         self.workflow.do_engine_steps()
-        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
-
+        self.assertEquals(
+            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRunThroughMessageInterrupt(self):
 
@@ -106,9 +107,11 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Acknowledge Interrupt Message')
 
         self.workflow.do_engine_steps()
-        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+        self.assertEquals(
+            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(MessageInterruptsTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())

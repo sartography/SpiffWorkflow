@@ -6,22 +6,25 @@ from __future__ import division, absolute_import
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import os
 from .base import TaskSpec
 from ..task import Task
 from ..exceptions import WorkflowException
 from ..operators import valueof
 
+
 class SubWorkflow(TaskSpec):
+
     """
     A SubWorkflow is a task that wraps a WorkflowSpec, such that you can
     re-use it in multiple places as if it were a task.
@@ -35,8 +38,8 @@ class SubWorkflow(TaskSpec):
                  wf_spec,
                  name,
                  file,
-                 in_assign = None,
-                 out_assign = None,
+                 in_assign=None,
+                 out_assign=None,
                  **kwargs):
         """
         Constructor.
@@ -57,17 +60,18 @@ class SubWorkflow(TaskSpec):
         assert wf_spec is not None
         assert name is not None
         super(SubWorkflow, self).__init__(wf_spec, name, **kwargs)
-        self.file       = None
-        self.in_assign  = in_assign is not None and in_assign or []
+        self.file = None
+        self.in_assign = in_assign is not None and in_assign or []
         self.out_assign = out_assign is not None and out_assign or []
         if file is not None:
-            dirname   = os.path.dirname(wf_spec.file)
+            dirname = os.path.dirname(wf_spec.file)
             self.file = os.path.join(dirname, file)
 
     def test(self):
         TaskSpec.test(self)
         if self.file is not None and not os.path.exists(self.file):
-            raise WorkflowException(self, 'File does not exist: %s' % self.file)
+            raise WorkflowException(
+                self, 'File does not exist: %s' % self.file)
 
     def _predict_hook(self, my_task):
         outputs = [task.task_spec for task in my_task.children]
@@ -83,16 +87,18 @@ class SubWorkflow(TaskSpec):
         from ..serializer.prettyxml import XmlSerializer
         from ..specs import WorkflowSpec
         from ..workflow import Workflow
-        file           = valueof(my_task, self.file)
-        serializer     = XmlSerializer()
-        xml            = open(file).read()
-        wf_spec        = WorkflowSpec.deserialize(serializer, xml, filename = file)
+        file = valueof(my_task, self.file)
+        serializer = XmlSerializer()
+        xml = open(file).read()
+        wf_spec = WorkflowSpec.deserialize(
+            serializer, xml, filename=file)
         outer_workflow = my_task.workflow.outer_workflow
-        return Workflow(wf_spec, parent = outer_workflow)
+        return Workflow(wf_spec, parent=outer_workflow)
 
     def _on_ready_before_hook(self, my_task):
-        subworkflow    = self._create_subworkflow(my_task)
-        subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
+        subworkflow = self._create_subworkflow(my_task)
+        subworkflow.completed_event.connect(
+            self._on_subworkflow_completed, my_task)
 
         # Integrate the tree of the subworkflow into the tree of this workflow.
         my_task._sync_children(self.outputs, Task.FUTURE)
@@ -103,7 +109,7 @@ class SubWorkflow(TaskSpec):
             my_task.children.insert(0, child)
             child.parent = my_task
 
-        my_task._set_internal_data(subworkflow = subworkflow)
+        my_task._set_internal_data(subworkflow=subworkflow)
 
     def _on_ready_hook(self, my_task):
         # Assign variables, if so requested.

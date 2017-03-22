@@ -20,8 +20,9 @@ class JoinTest(TaskSpecTest):
             del self.wf_spec.task_specs['testtask']
 
         return Join(self.wf_spec,
-                       'testtask',
-                       description='foo')
+                    'testtask',
+                    description='foo')
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(JoinTest)

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-import sys, unittest, re, os
+import sys
+import unittest
+import re
+import os
 dirname = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
@@ -9,7 +12,9 @@ from SpiffWorkflow.serializer.dict import DictionarySerializer
 from .baseTest import SerializerTest
 from SpiffWorkflow import Workflow
 
+
 class DictionarySerializerTest(SerializerTest):
+
     def setUp(self):
         super(DictionarySerializerTest, self).setUp()
         self.serializer = DictionarySerializer()
@@ -44,7 +49,8 @@ class DictionarySerializerTest(SerializerTest):
         elif isinstance(item1, list):
             msg = "item is not a list (is a " + str(type(item2)) + ")"
             self.assertIsInstance(item2, list, msg)
-            msg = "list lengths differ: {} vs {}".format(len(item1), len(item2))
+            msg = "list lengths differ: {} vs {}".format(
+                len(item1), len(item2))
             self.assertEqual(len(item1), len(item2), msg)
             for i, listitem in enumerate(item1):
                 self._compare_results(listitem, item2[i],
@@ -53,11 +59,13 @@ class DictionarySerializerTest(SerializerTest):
 
         elif isinstance(item1, Workflow):
             raise Exception("Item is a Workflow")
-        
+
         else:
-            msg = "{}: types differ: {} vs {}".format(str(item2), type(item1), type(item2))
+            msg = "{}: types differ: {} vs {}".format(
+                str(item2), type(item1), type(item2))
             self.assertEqual(type(item1), type(item2), msg)
             self.assertEqual(item1, item2)
+
 
 def suite():
     return unittest.defaultTestLoader.loadTestsFromTestCase(DictionarySerializerTest)

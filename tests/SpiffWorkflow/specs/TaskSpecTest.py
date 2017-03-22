@@ -11,6 +11,7 @@ from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs import TaskSpec
 from SpiffWorkflow.serializer.dict import DictionarySerializer
 
+
 class TaskSpecTest(unittest.TestCase):
     CORRELATE = TaskSpec
 
@@ -86,11 +87,11 @@ class TaskSpecTest(unittest.TestCase):
 
         new_wf_spec = WorkflowSpec()
         new_spec = spec.__class__.deserialize(serializer, new_wf_spec,
-                serialized)
+                                              serialized)
         before = spec.serialize(serializer)
         after = new_spec.serialize(serializer)
         self.assertEqual(before, after, 'Before:\n%s\nAfter:\n%s\n' % (before,
-                after))
+                                                                       after))
 
     def testAncestors(self):
         T1 = Simple(self.wf_spec, 'T1')

@@ -11,7 +11,9 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
+
 class MessageInterruptsSpTest(BpmnWorkflowTestCase):
+
     def setUp(self):
         self.spec = self.load_spec()
 
@@ -38,7 +40,8 @@ class MessageInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+        self.assertEquals(
+            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRunThroughInterruptSaveAndRestore(self):
 
@@ -60,9 +63,11 @@ class MessageInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+        self.assertEquals(
+            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(MessageInterruptsSpTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())

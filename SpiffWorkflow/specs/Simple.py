@@ -14,11 +14,13 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 from .base import TaskSpec
 
 
 class Simple(TaskSpec):
+
     """
     This class implements a task with one or more inputs and
     any number of outputs.
@@ -27,6 +29,7 @@ class Simple(TaskSpec):
     If more than one output is connected, the task performs an implicit
     parallel split.
     """
+
     def serialize(self, serializer):
         return serializer.serialize_simple(self)
 

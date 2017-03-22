@@ -14,13 +14,16 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.SubWorkflow import SubWorkflow
 from ...specs import TaskSpec
 
+
 class CallActivity(SubWorkflow, BpmnSpecMixin):
+
     """
     Task Spec for a bpmn:callActivity node.
     """
@@ -41,9 +44,9 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
 
     def _create_subworkflow(self, my_task):
         return self.get_workflow_class()(self.spec, name=self.name,
-            read_only = my_task.workflow.read_only,
-            script_engine=my_task.workflow.outer_workflow.script_engine,
-            parent = my_task.workflow)
+                                         read_only=my_task.workflow.read_only,
+                                         script_engine=my_task.workflow.outer_workflow.script_engine,
+                                         parent=my_task.workflow)
 
     def get_workflow_class(self):
         """
@@ -52,6 +55,7 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
         return self.wf_class
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
-        super(CallActivity,self)._on_subworkflow_completed(subworkflow, my_task)
+        super(CallActivity, self)._on_subworkflow_completed(
+            subworkflow, my_task)
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
             my_task.parent.task_spec._child_complete_hook(my_task)

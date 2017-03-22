@@ -8,6 +8,7 @@ from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
 __author__ = 'matth'
 
+
 def main():
     workflow_files = sys.argv[1]
     workflow_name = sys.argv[2]

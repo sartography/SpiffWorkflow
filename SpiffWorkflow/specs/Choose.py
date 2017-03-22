@@ -6,20 +6,23 @@ from __future__ import division, absolute_import
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 from ..task import Task
 from .base import TaskSpec
 from .Trigger import Trigger
 
+
 class Choose(Trigger):
+
     """
     This class implements a task that causes an associated MultiChoice
     task to select the tasks with the specified name.
@@ -29,7 +32,7 @@ class Choose(Trigger):
     parallel split.
     """
 
-    def __init__(self, wf_spec, name, context, choice = None, **kwargs):
+    def __init__(self, wf_spec, name, context, choice=None, **kwargs):
         """
         Constructor.
 
@@ -48,10 +51,10 @@ class Choose(Trigger):
         assert wf_spec is not None
         assert name is not None
         assert context is not None
-        #HACK: inherit from TaskSpec (not Trigger) on purpose.
+        # HACK: inherit from TaskSpec (not Trigger) on purpose.
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.context = context
-        self.choice  = choice is not None and choice or []
+        self.choice = choice is not None and choice or []
 
     def _on_complete_hook(self, my_task):
         context = my_task.workflow.get_task_spec_from_name(self.context)

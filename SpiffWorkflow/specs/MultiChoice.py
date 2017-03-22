@@ -6,21 +6,24 @@ from __future__ import division, absolute_import
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import re
 from ..task import Task
 from ..exceptions import WorkflowException
 from .base import TaskSpec
 
+
 class MultiChoice(TaskSpec):
+
     """
     This class represents an if condition where multiple conditions may match
     at the same time, creating multiple outgoing branches.
@@ -31,7 +34,7 @@ class MultiChoice(TaskSpec):
     def __init__(self, wf_spec, name, **kwargs):
         """
         Constructor.
-        
+
         :type  wf_spec: WorkflowSpec
         :param wf_spec: A reference to the workflow specification.
         :type  name: str
@@ -41,7 +44,7 @@ class MultiChoice(TaskSpec):
         """
         super(MultiChoice, self).__init__(wf_spec, name, **kwargs)
         self.cond_task_specs = []
-        self.choice          = None
+        self.choice = None
 
     def connect(self, task_spec):
         """
@@ -52,7 +55,7 @@ class MultiChoice(TaskSpec):
     def connect_if(self, condition, task_spec):
         """
         Connects a taskspec that is executed if the condition DOES match.
-        
+
         condition -- a condition (Condition)
         taskspec -- the conditional task spec
         """

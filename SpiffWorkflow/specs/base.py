@@ -14,7 +14,8 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import logging
 from abc import abstractmethod
 
@@ -27,6 +28,7 @@ LOG = logging.getLogger(__name__)
 
 
 class TaskSpec(object):
+
     """
     This class implements an abstract base type for all tasks.
 
@@ -90,29 +92,29 @@ class TaskSpec(object):
         :param post_assign: a list of name/value pairs
         """
         assert wf_spec is not None
-        assert name   is not None
+        assert name is not None
         self._wf_spec = wf_spec
-        self.id          = None
-        self.name        = str(name)
+        self.id = None
+        self.name = str(name)
         self.description = kwargs.get('description', '')
-        self.inputs      = []
-        self.outputs     = []
-        self.manual      = False
-        self.internal    = False  # Only for easing debugging.
-        self.data        = kwargs.get('data',        {})
-        self.defines     = kwargs.get('defines',     {})
-        self.pre_assign  = kwargs.get('pre_assign',  [])
+        self.inputs = []
+        self.outputs = []
+        self.manual = False
+        self.internal = False  # Only for easing debugging.
+        self.data = kwargs.get('data',        {})
+        self.defines = kwargs.get('defines',     {})
+        self.pre_assign = kwargs.get('pre_assign',  [])
         self.post_assign = kwargs.get('post_assign', [])
-        self.locks       = kwargs.get('lock',        [])
-        self.lookahead   = 2  # Maximum number of MAYBE predictions.
+        self.locks = kwargs.get('lock',        [])
+        self.lookahead = 2  # Maximum number of MAYBE predictions.
 
         # Events.
-        self.entered_event   = Event()
-        self.reached_event   = Event()
-        self.ready_event     = Event()
+        self.entered_event = Event()
+        self.reached_event = Event()
+        self.ready_event = Event()
         self.completed_event = Event()
         self.cancelled_event = Event()
-        self.finished_event  = Event()
+        self.finished_event = Event()
 
         self._wf_spec._add_notify(self)
         self.data.update(self.defines)
@@ -216,7 +218,7 @@ class TaskSpec(object):
         Checks whether all required attributes are set. Throws an exception
         if an error was detected.
         """
-        #if self.id is None:
+        # if self.id is None:
         #    raise WorkflowException(self, 'TaskSpec is not yet instanciated.')
         if len(self.inputs) < 1:
             raise WorkflowException(self, 'No input task connected.')
@@ -285,9 +287,9 @@ class TaskSpec(object):
         if my_task._is_predicted():
             self._predict(my_task)
         LOG.debug("'%s'._update_hook says parent (%s, state=%s) "
-                "is_finished=%s" % (self.name, my_task.parent.get_name(),
-                my_task.parent.get_state_name(),
-                my_task.parent._is_finished()))
+                  "is_finished=%s" % (self.name, my_task.parent.get_name(),
+                                      my_task.parent.get_state_name(),
+                                      my_task.parent._is_finished()))
         if not my_task.parent._is_finished():
             return
         self.entered_event.emit(my_task.workflow, my_task)

@@ -6,15 +6,16 @@ from __future__ import division, absolute_import
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import os
 import re
 import xml.dom.minidom as minidom
@@ -28,7 +29,7 @@ for name in dir(specs):
     if name.startswith('_'):
         continue
     module = specs.__dict__[name]
-    name   = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
+    name = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
     _spec_map[name] = module
 _spec_map['task'] = specs.Simple
 
@@ -40,19 +41,22 @@ _op_map = {'equals':       operators.Equal,
 
 _exc = StorageException
 
+
 class XmlSerializer(Serializer):
+
     """
     Parses XML into a WorkflowSpec object.
     """
+
     def deserialize_assign(self, workflow, start_node):
         """
         Reads the "pre-assign" or "post-assign" tag from the given node.
-        
+
         start_node -- the xml node (xml.dom.minidom.Node)
         """
-        name   = start_node.getAttribute('name')
+        name = start_node.getAttribute('name')
         attrib = start_node.getAttribute('field')
-        value  = start_node.getAttribute('value')
+        value = start_node.getAttribute('value')
         kwargs = {}
         if name == '':
             _exc('name attribute required')
@@ -69,17 +73,17 @@ class XmlSerializer(Serializer):
     def deserialize_data(self, workflow, start_node):
         """
         Reads a "data" or "define" tag from the given node.
-        
+
         start_node -- the xml node (xml.dom.minidom.Node)
         """
-        name   = start_node.getAttribute('name')
-        value  = start_node.getAttribute('value')
+        name = start_node.getAttribute('name')
+        value = start_node.getAttribute('value')
         return name, value
 
     def deserialize_assign_list(self, workflow, start_node):
         """
         Reads a list of assignments from the given node.
-        
+
         workflow -- the workflow
         start_node -- the xml structure (xml.dom.minidom.Node)
         """
@@ -97,15 +101,15 @@ class XmlSerializer(Serializer):
     def deserialize_logical(self, node):
         """
         Reads the logical tag from the given node, returns a Condition object.
-        
+
         node -- the xml node (xml.dom.minidom.Node)
         """
         term1_attrib = node.getAttribute('left-field')
-        term1_value  = node.getAttribute('left-value')
-        op           = node.nodeName.lower()
+        term1_value = node.getAttribute('left-value')
+        op = node.nodeName.lower()
         term2_attrib = node.getAttribute('right-field')
-        term2_value  = node.getAttribute('right-value')
-        kwargs       = {}
+        term2_value = node.getAttribute('right-value')
+        kwargs = {}
         if op not in _op_map:
             _exc('Invalid operator')
         if term1_attrib != '' and term1_value != '':
@@ -129,7 +133,7 @@ class XmlSerializer(Serializer):
     def deserialize_condition(self, workflow, start_node):
         """
         Reads the conditional statement from the given node.
-        
+
         workflow -- the workflow with which the concurrence is associated
         start_node -- the xml structure (xml.dom.minidom.Node)
         """
@@ -163,28 +167,28 @@ class XmlSerializer(Serializer):
         Reads the task from the given node and returns a tuple
         (start, end) that contains the stream of objects that model
         the behavior.
-        
+
         workflow -- the workflow with which the task is associated
         start_node -- the xml structure (xml.dom.minidom.Node)
         """
         # Extract attributes from the node.
-        nodetype        = start_node.nodeName.lower()
-        name            = start_node.getAttribute('name').lower()
-        context         = start_node.getAttribute('context').lower()
-        mutex           = start_node.getAttribute('mutex').lower()
-        cancel          = start_node.getAttribute('cancel').lower()
-        success         = start_node.getAttribute('success').lower()
-        times           = start_node.getAttribute('times').lower()
-        times_field     = start_node.getAttribute('times-field').lower()
-        threshold       = start_node.getAttribute('threshold').lower()
+        nodetype = start_node.nodeName.lower()
+        name = start_node.getAttribute('name').lower()
+        context = start_node.getAttribute('context').lower()
+        mutex = start_node.getAttribute('mutex').lower()
+        cancel = start_node.getAttribute('cancel').lower()
+        success = start_node.getAttribute('success').lower()
+        times = start_node.getAttribute('times').lower()
+        times_field = start_node.getAttribute('times-field').lower()
+        threshold = start_node.getAttribute('threshold').lower()
         threshold_field = start_node.getAttribute('threshold-field').lower()
-        file            = start_node.getAttribute('file').lower()
-        file_field      = start_node.getAttribute('file-field').lower()
-        kwargs          = {'lock':        [],
-                           'data':        {},
-                           'defines':     {},
-                           'pre_assign':  [],
-                           'post_assign': []}
+        file = start_node.getAttribute('file').lower()
+        file_field = start_node.getAttribute('file-field').lower()
+        kwargs = {'lock':        [],
+                  'data':        {},
+                  'defines':     {},
+                  'pre_assign':  [],
+                  'post_assign': []}
         if nodetype not in _spec_map:
             _exc('Invalid task type "%s"' % nodetype)
         if nodetype == 'start-task':
@@ -217,14 +221,14 @@ class XmlSerializer(Serializer):
             context = mutex
 
         # Walk through the children of the node.
-        successors  = []
+        successors = []
         for node in start_node.childNodes:
             if node.nodeType != minidom.Node.ELEMENT_NODE:
                 continue
             if node.nodeName == 'description':
                 kwargs['description'] = node.firstChild.nodeValue
             elif node.nodeName == 'successor' \
-              or node.nodeName == 'default-successor':
+                    or node.nodeName == 'default-successor':
                 if node.firstChild is None:
                     _exc('Empty %s tag' % node.nodeName)
                 successors.append((None, node.firstChild.nodeValue))
@@ -238,13 +242,17 @@ class XmlSerializer(Serializer):
                 key, value = self.deserialize_data(workflow, node)
                 kwargs['data'][key] = value
             elif node.nodeName == 'pre-assign':
-                kwargs['pre_assign'].append(self.deserialize_assign(workflow, node))
+                kwargs['pre_assign'].append(
+                    self.deserialize_assign(workflow, node))
             elif node.nodeName == 'post-assign':
-                kwargs['post_assign'].append(self.deserialize_assign(workflow, node))
+                kwargs['post_assign'].append(
+                    self.deserialize_assign(workflow, node))
             elif node.nodeName == 'in':
-                kwargs['in_assign'] = self.deserialize_assign_list(workflow, node)
+                kwargs['in_assign'] = self.deserialize_assign_list(
+                    workflow, node)
             elif node.nodeName == 'out':
-                kwargs['out_assign'] = self.deserialize_assign_list(workflow, node)
+                kwargs['out_assign'] = self.deserialize_assign_list(
+                    workflow, node)
             elif node.nodeName == 'cancel':
                 if node.firstChild is None:
                     _exc('Empty %s tag' % node.nodeName)
@@ -286,7 +294,7 @@ class XmlSerializer(Serializer):
         Reads the workflow from the given XML structure and returns a
         WorkflowSpec instance.
         """
-        dom  = minidom.parseString(s_state)
+        dom = minidom.parseString(s_state)
         node = dom.getElementsByTagName('process-definition')[0]
         name = node.getAttribute('name')
         if name == '':
@@ -295,8 +303,8 @@ class XmlSerializer(Serializer):
         # Read all task specs and create a list of successors.
         workflow_spec = specs.WorkflowSpec(name, filename)
         del workflow_spec.task_specs['Start']
-        end           = specs.Simple(workflow_spec, 'End'), []
-        read_specs    = dict(end = end)
+        end = specs.Simple(workflow_spec, 'End'), []
+        read_specs = dict(end=end)
         for child_node in node.childNodes:
             if child_node.nodeType != minidom.Node.ELEMENT_NODE:
                 continue
@@ -305,7 +313,8 @@ class XmlSerializer(Serializer):
             elif child_node.nodeName == 'description':
                 workflow_spec.description = child_node.firstChild.nodeValue
             elif child_node.nodeName.lower() in _spec_map:
-                self.deserialize_task_spec(workflow_spec, child_node, read_specs)
+                self.deserialize_task_spec(
+                    workflow_spec, child_node, read_specs)
             else:
                 _exc('Unknown node: %s' % child_node.nodeName)
 

@@ -14,11 +14,13 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 
 from ...task import Task
 from ...operators import Operator
 from ...specs import TaskSpec
+
 
 class _BpmnCondition(Operator):
 
@@ -30,7 +32,9 @@ class _BpmnCondition(Operator):
     def _matches(self, task):
         return task.workflow.script_engine.evaluate(task, self.args[0])
 
+
 class SequenceFlow(object):
+
     """
     Keeps information relating to a sequence flow
     """
@@ -44,7 +48,9 @@ class SequenceFlow(object):
         self.documentation = documentation
         self.target_task_spec = target_task_spec
 
+
 class BpmnSpecMixin(TaskSpec):
+
     """
     All BPMN spec classes should mix this superclass in. It adds a number of methods that are
     BPMN specific to the TaskSpec.
@@ -70,7 +76,8 @@ class BpmnSpecMixin(TaskSpec):
         :param sequence_flow_name: The name of the connecting sequenceFlow node.
         """
         self.connect(taskspec)
-        s = SequenceFlow(sequence_flow_id, sequence_flow_name, documentation, taskspec)
+        s = SequenceFlow(
+            sequence_flow_id, sequence_flow_name, documentation, taskspec)
         self.outgoing_sequence_flows[taskspec.name] = s
         self.outgoing_sequence_flows_by_id[sequence_flow_id] = s
 
@@ -83,7 +90,8 @@ class BpmnSpecMixin(TaskSpec):
         :param sequence_flow_name: The name of the connecting sequenceFlow node.
         """
         self.connect_if(_BpmnCondition(condition), taskspec)
-        s = SequenceFlow(sequence_flow_id, sequence_flow_name, documentation, taskspec)
+        s = SequenceFlow(
+            sequence_flow_id, sequence_flow_name, documentation, taskspec)
         self.outgoing_sequence_flows[taskspec.name] = s
         self.outgoing_sequence_flows_by_id[sequence_flow_id] = s
 
@@ -126,7 +134,7 @@ class BpmnSpecMixin(TaskSpec):
         """
         return False
 
-    ######### Hooks for Custom BPMN tasks ##########
+    # Hooks for Custom BPMN tasks ##########
 
     def entering_waiting_state(self, my_task):
         """
@@ -160,7 +168,7 @@ class BpmnSpecMixin(TaskSpec):
         """
         pass
 
-    ################################################
+    #
 
     def _on_complete_hook(self, my_task):
         super(BpmnSpecMixin, self)._on_complete_hook(my_task)
@@ -188,5 +196,3 @@ class BpmnSpecMixin(TaskSpec):
         super(BpmnSpecMixin, self)._on_ready_before_hook(my_task)
         if not my_task.workflow._is_busy_with_restore():
             self.entering_ready_state(my_task)
-
-

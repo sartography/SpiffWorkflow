@@ -14,7 +14,8 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import logging
 
 from ..exceptions import WorkflowException
@@ -25,18 +26,21 @@ LOG = logging.getLogger(__name__)
 
 
 class Merge(Join):
+
     """Same as Join, but merges all input data instead of just parents'
 
     Note: data fields that have conflicting names will be overwritten"""
+
     def _do_join(self, my_task):
         # Merge all inputs (in order)
         for input_spec in self.inputs:
             tasks = [task for task in my_task.workflow.task_tree
-                    if task.task_spec is input_spec]
+                     if task.task_spec is input_spec]
             for task in tasks:
                 LOG.debug("Merging %s (%s) into %s" % (task.get_name(),
-                        task.get_state_name(), self.name),
-                        extra=dict(data=task.data))
+                                                       task.get_state_name(
+                ), self.name),
+                    extra=dict(data=task.data))
                 _log_overwrites(my_task.data, task.data)
                 merge_dictionary(my_task.data, task.data)
         return super(Merge, self)._do_join(my_task)

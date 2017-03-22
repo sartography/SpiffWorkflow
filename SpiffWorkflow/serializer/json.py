@@ -12,11 +12,13 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import json
 import uuid
 from .dict import DictionarySerializer
 from ..operators import Attrib
+
 
 def object_hook(dct):
     if '__uuid__' in dct:
@@ -24,33 +26,39 @@ def object_hook(dct):
 
     if '__bytes__' in dct:
         return dct['__bytes__'].encode('ascii')
-    
+
     if '__attrib__' in dct:
         return Attrib(dct['__attrib__'])
 
     return dct
+
 
 def default(obj):
     if isinstance(obj, uuid.UUID):
         return {'__uuid__': obj.hex}
 
     if isinstance(obj, bytes):
-        return {'__bytes__': obj.decode('ascii') }
-        
+        return {'__bytes__': obj.decode('ascii')}
+
     if isinstance(obj, Attrib):
         return {'__attrib__': obj.name}
 
     raise TypeError('%r is not JSON serializable' % obj)
 
+
 def loads(text):
     return json.loads(text, object_hook=object_hook)
+
 
 def dumps(dct):
     return json.dumps(dct, sort_keys=True, default=default)
 
+
 class JSONSerializer(DictionarySerializer):
+
     def serialize_workflow_spec(self, wf_spec, **kwargs):
-        thedict = super(JSONSerializer, self).serialize_workflow_spec(wf_spec, **kwargs)
+        thedict = super(JSONSerializer, self).serialize_workflow_spec(
+            wf_spec, **kwargs)
         return dumps(thedict)
 
     def deserialize_workflow_spec(self, s_state, **kwargs):
@@ -58,7 +66,8 @@ class JSONSerializer(DictionarySerializer):
         return super(JSONSerializer, self).deserialize_workflow_spec(thedict, **kwargs)
 
     def serialize_workflow(self, workflow, **kwargs):
-        thedict = super(JSONSerializer, self).serialize_workflow(workflow, **kwargs)
+        thedict = super(JSONSerializer, self).serialize_workflow(
+            workflow, **kwargs)
         return dumps(thedict)
 
     def deserialize_workflow(self, s_state, **kwargs):

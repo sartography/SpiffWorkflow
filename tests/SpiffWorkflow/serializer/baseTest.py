@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-import sys, unittest, re, os, warnings
+import sys
+import unittest
+import re
+import os
+import warnings
 dirname = os.path.dirname(__file__)
 data_dir = os.path.join(dirname, '..', 'data')
 sys.path.insert(0, os.path.join(dirname, '..'))
@@ -11,10 +15,12 @@ from SpiffWorkflow.serializer.base import Serializer
 from SpiffWorkflow.specs import WorkflowSpec
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.serializer.exceptions import TaskSpecNotSupportedError, \
-     TaskNotSupportedError
+    TaskNotSupportedError
 from data.spiff.workflow1 import TestWorkflowSpec
 
+
 class SerializerTest(PatternTest):
+
     def setUp(self):
         super(SerializerTest, self).setUp()
         self.serializer = Serializer()
@@ -56,8 +62,8 @@ class SerializerTest(PatternTest):
         # We can't compare spec_result 2 and 3, because starting a workflow
         # implicitely causes a Root node to be added to the workflow spec.
         # (No, that doesn't seem to be a clean solution.)
-        #self.assertEqual(spec_result2, spec_result3)
-        #self._compare_results(spec_result2, spec_result3)
+        # self.assertEqual(spec_result2, spec_result3)
+        # self._compare_results(spec_result2, spec_result3)
 
     def testWorkflowSpec(self):
         if type(self.serializer) is Serializer:
@@ -76,6 +82,7 @@ class SerializerTest(PatternTest):
         for test in self.workflows:
             print(test.filename)
             self._test_workflow_spec(test)
+
 
 def suite():
     return unittest.defaultTestLoader.loadTestsFromTestCase(SerializerTest)

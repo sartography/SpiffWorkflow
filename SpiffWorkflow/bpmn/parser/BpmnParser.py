@@ -14,7 +14,8 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 
 import glob
 from ..workflow import BpmnWorkflow
@@ -36,7 +37,9 @@ from .util import *
 from .task_parsers import *
 import xml.etree.ElementTree as ET
 
+
 class BpmnParser(object):
+
     """
     The BpmnParser class is a pluggable base class that manages the parsing of a set of BPMN files.
     It is intended that this class will be overriden by an application that implements a BPMN engine.
@@ -49,19 +52,19 @@ class BpmnParser(object):
     """
 
     PARSER_CLASSES = {
-        full_tag('startEvent')          : (StartEventParser, StartEvent),
-        full_tag('endEvent')            : (EndEventParser, EndEvent),
-        full_tag('userTask')            : (UserTaskParser, UserTask),
-        full_tag('task')                : (NoneTaskParser, NoneTask),
-        full_tag('manualTask')          : (ManualTaskParser, ManualTask),
-        full_tag('exclusiveGateway')    : (ExclusiveGatewayParser, ExclusiveGateway),
-        full_tag('parallelGateway')     : (ParallelGatewayParser, ParallelGateway),
-        full_tag('inclusiveGateway')     : (InclusiveGatewayParser, InclusiveGateway),
-        full_tag('callActivity')        : (CallActivityParser, CallActivity),
-        full_tag('scriptTask')                  : (ScriptTaskParser, ScriptTask),
-        full_tag('intermediateCatchEvent')      : (IntermediateCatchEventParser, IntermediateCatchEvent),
-        full_tag('boundaryEvent')               : (BoundaryEventParser, BoundaryEvent),
-        }
+        full_tag('startEvent'): (StartEventParser, StartEvent),
+        full_tag('endEvent'): (EndEventParser, EndEvent),
+        full_tag('userTask'): (UserTaskParser, UserTask),
+        full_tag('task'): (NoneTaskParser, NoneTask),
+        full_tag('manualTask'): (ManualTaskParser, ManualTask),
+        full_tag('exclusiveGateway'): (ExclusiveGatewayParser, ExclusiveGateway),
+        full_tag('parallelGateway'): (ParallelGatewayParser, ParallelGateway),
+        full_tag('inclusiveGateway'): (InclusiveGatewayParser, InclusiveGateway),
+        full_tag('callActivity'): (CallActivityParser, CallActivity),
+        full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
+        full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser, IntermediateCatchEvent),
+        full_tag('boundaryEvent'): (BoundaryEventParser, BoundaryEvent),
+    }
 
     OVERRIDE_PARSER_CLASSES = {}
 
@@ -125,17 +128,22 @@ class BpmnParser(object):
 
         processes = xpath('.//bpmn:process')
         for process in processes:
-            process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename, doc_xpath=xpath)
+            process_parser = self.PROCESS_PARSER_CLASS(
+                self, process, svg, filename=filename, doc_xpath=xpath)
             if process_parser.get_id() in self.process_parsers:
-                raise ValidationException('Duplicate process ID', node=process, filename=filename)
+                raise ValidationException(
+                    'Duplicate process ID', node=process, filename=filename)
             if process_parser.get_name() in self.process_parsers_by_name:
-                raise ValidationException('Duplicate process name', node=process, filename=filename)
+                raise ValidationException(
+                    'Duplicate process name', node=process, filename=filename)
             self.process_parsers[process_parser.get_id()] = process_parser
-            self.process_parsers_by_name[process_parser.get_name()] = process_parser
+            self.process_parsers_by_name[
+                process_parser.get_name()] = process_parser
 
     def _parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node, task_parser=None):
         xpath = xpath_eval(sequence_flow_node)
-        condition_expression_node = conditionExpression = first(xpath('.//bpmn:conditionExpression'))
+        condition_expression_node = conditionExpression = first(
+            xpath('.//bpmn:conditionExpression'))
         if conditionExpression is not None:
             conditionExpression = conditionExpression.text
         return self.parse_condition(conditionExpression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node, task_parser)
@@ -164,6 +172,3 @@ class BpmnParser(object):
         for the given process ID or name. The Name is matched first.
         """
         return self.get_process_parser(process_id_or_name).get_spec()
-
-
-

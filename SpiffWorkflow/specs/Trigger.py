@@ -6,23 +6,26 @@ from __future__ import division, absolute_import
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 from ..task import Task
 from ..exceptions import WorkflowException
 from .base import TaskSpec
 from ..operators import valueof
 
+
 class Trigger(TaskSpec):
+
     """
-    This class implements a task that triggers an event on another 
+    This class implements a task that triggers an event on another
     task.
     If more than one input is connected, the task performs an implicit
     multi merge.
@@ -46,13 +49,13 @@ class Trigger(TaskSpec):
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         assert wf_spec is not None
-        assert name    is not None
+        assert name is not None
         assert context is not None
         assert type(context) == type([])
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.context = context
-        self.times   = times
-        self.queued  = 0
+        self.times = times
+        self.queued = 0
 
     def _on_trigger(self, my_task):
         """
@@ -95,5 +98,5 @@ class Trigger(TaskSpec):
         Deserializes the trigger using the provided serializer.
         """
         return serializer.deserialize_trigger(wf_spec,
-                                               s_state,
-                                               **kwargs)
+                                              s_state,
+                                              **kwargs)

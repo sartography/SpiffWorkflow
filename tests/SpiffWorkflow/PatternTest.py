@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-import sys, unittest, re, os, glob
+import sys
+import unittest
+import re
+import os
+import glob
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from SpiffWorkflow.specs import *
@@ -8,12 +12,15 @@ from SpiffWorkflow import Task
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 from util import run_workflow
 
+
 class WorkflowTestData:
+
     def __init__(self, filename, spec, path, data):
         self.filename = filename
         self.spec = spec
         self.path = path
         self.data = data
+
 
 class PatternTest(unittest.TestCase):
     maxDiff = None
@@ -57,25 +64,28 @@ class PatternTest(unittest.TestCase):
         if filename.endswith('.xml'):
             xml = open(filename).read()
             serializer = XmlSerializer()
-            wf_spec = WorkflowSpec.deserialize(serializer, xml, filename=filename)
+            wf_spec = WorkflowSpec.deserialize(
+                serializer, xml, filename=filename)
 
         # Test patterns that are defined in Python.
         elif filename.endswith('.py'):
-            code    = compile(open(filename).read(), filename, 'exec')
+            code = compile(open(filename).read(), filename, 'exec')
             thedict = {}
-            result  = eval(code, thedict)
+            result = eval(code, thedict)
             wf_spec = thedict['TestWorkflowSpec']()
 
         else:
             raise Exception('unsuported specification format', filename)
 
-        test_data = WorkflowTestData(filename, wf_spec, expected_path, expected_data)
+        test_data = WorkflowTestData(
+            filename, wf_spec, expected_path, expected_data)
         self.workflows.append(test_data)
 
     def testWorkflowSpec(self):
         for test in self.workflows:
             print(test.filename)
             run_workflow(self, test.spec, test.path, test.data)
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(PatternTest)
@@ -85,4 +95,4 @@ if __name__ == '__main__':
         test.setUp()
         test.run_pattern(sys.argv[1])
         sys.exit(0)
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())

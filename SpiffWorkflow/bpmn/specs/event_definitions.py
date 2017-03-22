@@ -14,11 +14,14 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 
 import datetime
 
+
 class CatchingEventDefinition(object):
+
     """
     The CatchingEventDefinition class is used by Catching Intermediate and Boundary Event tasks to know whether
     to proceed.
@@ -37,13 +40,17 @@ class CatchingEventDefinition(object):
     def _fire(self, my_task):
         my_task._set_internal_data(event_fired=True)
 
+
 class ThrowingEventDefinition(object):
+
     """
     This class is for future functionality. It will define the methods needed on an event definition
     that can be Thrown.
     """
 
+
 class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
+
     """
     The MessageEventDefinition is the implementation of event definition used for Message Events.
     """
@@ -70,6 +77,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
 
 
 class TimerEventDefinition(CatchingEventDefinition):
+
     """
     The TimerEventDefinition is the implementation of event definition used for Catching Timer Events
     (Timer events aren't thrown).
@@ -95,7 +103,7 @@ class TimerEventDefinition(CatchingEventDefinition):
             return False
         if dt.tzinfo:
             tz = dt.tzinfo
-            now =  tz.fromutc(datetime.datetime.utcnow().replace(tzinfo=tz))
+            now = tz.fromutc(datetime.datetime.utcnow().replace(tzinfo=tz))
         else:
             now = datetime.datetime.now()
         return now > dt

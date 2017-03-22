@@ -23,6 +23,7 @@ LOG = logging.getLogger(__name__)
 
 
 class Transform(TaskSpec):
+
     """
     This class implements a task that transforms input/output data.
     """
@@ -45,7 +46,7 @@ class Transform(TaskSpec):
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         assert wf_spec is not None
-        assert name    is not None
+        assert name is not None
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.transforms = transforms
 

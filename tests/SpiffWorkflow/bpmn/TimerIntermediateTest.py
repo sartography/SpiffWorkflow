@@ -11,7 +11,9 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
+
 class TimerIntermediateTest(BpmnWorkflowTestCase):
+
     def setUp(self):
         self.spec = self.load_spec()
 
@@ -39,9 +41,11 @@ class TimerIntermediateTest(BpmnWorkflowTestCase):
         self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
 
         self.workflow.do_engine_steps()
-        self.assertEquals(0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+        self.assertEquals(
+            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TimerIntermediateTest)
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity = 2).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())

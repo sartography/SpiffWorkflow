@@ -14,7 +14,8 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import logging
 
 from ..specs import StartTask
@@ -23,6 +24,7 @@ LOG = logging.getLogger(__name__)
 
 
 class WorkflowSpec(object):
+
     """
     This class represents the specification of a workflow.
     """
@@ -75,7 +77,7 @@ class WorkflowSpec(object):
             if isinstance(task, Join):
                 if task in history:
                     msg = "Found loop with '%s': %s then '%s' again" % (
-                            task.name, '->'.join([p.name for p in history]),
+                        task.name, '->'.join([p.name for p in history]),
                             task.name)
                     raise Exception(msg)
                 for predecessor in task.inputs:
@@ -95,7 +97,7 @@ class WorkflowSpec(object):
             if not task.inputs and task.name not in ['Start', 'Root']:
                 if task.outputs:
                     results.append("Task '%s' is disconnected (no inputs)" %
-                        task.name)
+                                   task.name)
                 else:
                     LOG.debug("Task '%s' is not being used" % task.name)
 
@@ -135,20 +137,27 @@ class WorkflowSpec(object):
 
         def recursive_dump(task_spec, indent):
             if task_spec in done:
-                return  '[shown earlier] %s (%s:%s)' % (task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
+                return '[shown earlier] %s (%s:%s)' % (task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
 
             done.add(task_spec)
-            dump = '%s (%s:%s)' % (task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
+            dump = '%s (%s:%s)' % (
+                task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
             if verbose:
                 if task_spec.inputs:
-                    dump += indent + '-  IN: ' + ','.join(['%s (%s)' % (t.name, hex(id(t))) for t in task_spec.inputs]) + '\n'
+                    dump += indent + '-  IN: ' + \
+                        ','.join(['%s (%s)' % (t.name, hex(id(t)))
+                                 for t in task_spec.inputs]) + '\n'
                 if task_spec.outputs:
-                    dump += indent + '- OUT: ' + ','.join(['%s (%s)' % (t.name, hex(id(t))) for t in task_spec.outputs]) + '\n'
-            sub_specs = ([task_spec.spec.start] if hasattr(task_spec, 'spec') else []) + task_spec.outputs
+                    dump += indent + '- OUT: ' + \
+                        ','.join(['%s (%s)' % (t.name, hex(id(t)))
+                                 for t in task_spec.outputs]) + '\n'
+            sub_specs = ([task_spec.spec.start] if hasattr(
+                task_spec, 'spec') else []) + task_spec.outputs
             for i, t in enumerate(sub_specs):
-                dump += indent + '   --> ' + recursive_dump(t,indent+('   |   ' if i+1 < len(sub_specs) else '       '))
+                dump += indent + '   --> ' + \
+                    recursive_dump(
+                        t, indent + ('   |   ' if i + 1 < len(sub_specs) else '       '))
             return dump
-
 
         dump = recursive_dump(self.start, '')
 

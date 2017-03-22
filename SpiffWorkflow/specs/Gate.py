@@ -6,20 +6,23 @@ from __future__ import division, absolute_import
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 from ..task import Task
 from ..exceptions import WorkflowException
 from .base import TaskSpec
 
+
 class Gate(TaskSpec):
+
     """
     This class implements a task that can only execute when another
     specified task is completed.
@@ -44,14 +47,14 @@ class Gate(TaskSpec):
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
         assert wf_spec is not None
-        assert name    is not None
+        assert name is not None
         assert context is not None
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.context = context
 
     def _update_hook(self, my_task):
         context_task = my_task.workflow.get_task_spec_from_name(self.context)
-        root_task    = my_task.workflow.task_tree
+        root_task = my_task.workflow.task_tree
         for task in root_task._find_any(context_task):
             if task.thread_id != my_task.thread_id:
                 continue

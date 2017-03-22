@@ -14,7 +14,8 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 import logging
 from . import specs
 from .task import Task
@@ -24,7 +25,9 @@ from .exceptions import WorkflowException
 
 LOG = logging.getLogger(__name__)
 
+
 class Workflow(object):
+
     """
     The engine that executes a workflow.
     It is a essentially a facility for managing all branches.
@@ -71,7 +74,7 @@ class Workflow(object):
         self.spec.start._predict(start)
         if 'parent' not in kwargs:
             start.task_spec._update(start)
-        #start.dump()
+        # start.dump()
 
     def is_completed(self):
         """

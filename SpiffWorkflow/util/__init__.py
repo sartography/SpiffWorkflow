@@ -26,10 +26,10 @@ def merge_dictionary(dst, src):
                     s = source[:]
                     if len(dest) > len(source):
                         s.append([None for i in range(len(dest) -
-                                len(source))])
+                                                      len(source))])
                     elif len(dest) < len(source):
                         r.append([None for i in range(len(source) -
-                                len(dest))])
+                                                      len(dest))])
                     # Merge lists
                     for index, value in enumerate(r):
                         if (not value) and s[index]:

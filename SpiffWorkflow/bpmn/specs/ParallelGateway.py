@@ -14,7 +14,8 @@ from __future__ import division
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 from collections import deque
 
 import logging
@@ -23,7 +24,9 @@ from .UnstructuredJoin import UnstructuredJoin
 
 LOG = logging.getLogger(__name__)
 
+
 class ParallelGateway(UnstructuredJoin):
+
     """
     Task Spec for a bpmn:parallelGateway node.
     From the specification of BPMN (http://www.omg.org/spec/BPMN/2.0/PDF - document number:formal/2011-01-03):

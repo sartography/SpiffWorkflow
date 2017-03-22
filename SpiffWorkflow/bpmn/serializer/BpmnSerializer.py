@@ -14,7 +14,8 @@ from __future__ import division, absolute_import
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
 
 from ...util.compat import configparser
 from io import BytesIO, TextIOWrapper
@@ -25,7 +26,9 @@ from ...serializer.base import Serializer
 from ..parser.BpmnParser import BpmnParser
 from .Packager import Packager
 
+
 class BpmnSerializer(Serializer):
+
     """
     The BpmnSerializer class provides support for deserializing a Bpmn Workflow Spec from a BPMN package.
     The BPMN package must have been created using the :class:`SpiffWorkflow.bpmn.serializer.Packager`.
@@ -34,13 +37,16 @@ class BpmnSerializer(Serializer):
     """
 
     def serialize_workflow_spec(self, wf_spec, **kwargs):
-        raise NotImplementedError("The BpmnSerializer class cannot be used to serialize. BPMN authoring should be done using a supported editor.")
+        raise NotImplementedError(
+            "The BpmnSerializer class cannot be used to serialize. BPMN authoring should be done using a supported editor.")
 
     def serialize_workflow(self, workflow, **kwargs):
-        raise NotImplementedError("The BPMN standard does not provide a specification for serializing a running workflow.")
+        raise NotImplementedError(
+            "The BPMN standard does not provide a specification for serializing a running workflow.")
 
     def deserialize_workflow(self, s_state, **kwargs):
-        raise NotImplementedError("The BPMN standard does not provide a specification for serializing a running workflow.")
+        raise NotImplementedError(
+            "The BPMN standard does not provide a specification for serializing a running workflow.")
 
     def deserialize_workflow_spec(self, s_state, filename=None):
         """
@@ -50,9 +56,11 @@ class BpmnSerializer(Serializer):
         if isinstance(s_state, (str, bytes)):
             s_state = BytesIO(s_state)
 
-        package_zip = zipfile.ZipFile(s_state, "r", compression=zipfile.ZIP_DEFLATED)
+        package_zip = zipfile.ZipFile(
+            s_state, "r", compression=zipfile.ZIP_DEFLATED)
         config = configparser.SafeConfigParser()
-        ini_fp = TextIOWrapper(package_zip.open(Packager.METADATA_FILE), encoding="UTF-8")
+        ini_fp = TextIOWrapper(
+            package_zip.open(Packager.METADATA_FILE), encoding="UTF-8")
         try:
             config.readfp(ini_fp)
         finally:
@@ -61,13 +69,16 @@ class BpmnSerializer(Serializer):
         parser_class = BpmnParser
 
         try:
-            parser_class_module = config.get('MetaData', 'parser_class_module', fallback=None)
+            parser_class_module = config.get(
+                'MetaData', 'parser_class_module', fallback=None)
         except TypeError:
             # unfortunately the fallback= does not exist on python 2
-            parser_class_module = config.get('MetaData', 'parser_class_module', None)
+            parser_class_module = config.get(
+                'MetaData', 'parser_class_module', None)
 
         if parser_class_module:
-            mod = __import__(parser_class_module, fromlist=[config.get('MetaData', 'parser_class')])
+            mod = __import__(parser_class_module, fromlist=[
+                             config.get('MetaData', 'parser_class')])
             parser_class = getattr(mod, config.get('MetaData', 'parser_class'))
 
         parser = parser_class()
@@ -75,9 +86,9 @@ class BpmnSerializer(Serializer):
         for info in package_zip.infolist():
             parts = os.path.split(info.filename)
             if len(parts) == 2 and not parts[0] and parts[1].lower().endswith('.bpmn'):
-                #It is in the root of the ZIP and is a BPMN file
+                # It is in the root of the ZIP and is a BPMN file
                 try:
-                    svg = package_zip.read(info.filename[:-5]+'.svg')
+                    svg = package_zip.read(info.filename[:-5] + '.svg')
                 except KeyError as e:
                     svg = None
 
@@ -87,6 +98,7 @@ class BpmnSerializer(Serializer):
                 finally:
                     bpmn_fp.close()
 
-                parser.add_bpmn_xml(bpmn, svg=svg, filename='%s:%s' % (filename, info.filename))
+                parser.add_bpmn_xml(
+                    bpmn, svg=svg, filename='%s:%s' % (filename, info.filename))
 
         return parser.get_spec(config.get('MetaData', 'entry_point_process'))
