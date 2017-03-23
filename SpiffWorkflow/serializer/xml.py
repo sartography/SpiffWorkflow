@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
 from builtins import str
-from past.builtins import basestring
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
@@ -112,7 +111,7 @@ class XmlSerializer(Serializer):
 
             <attribute>foobar</attribute>
         """
-        if isinstance(value, (basestring, str, int)):
+        if isinstance(value, (str, int)) or type(value).__name__ == 'str':
             parent_elem.text = str(value)
         elif value is None:
             parent_elem.text = None

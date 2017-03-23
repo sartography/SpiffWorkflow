@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
 from __future__ import print_function
+from builtins import str
 from builtins import hex
 from builtins import range
-from past.builtins import basestring
 from builtins import object
 # Copyright (C) 2012 Matthew Hampton
 #
@@ -29,12 +29,6 @@ from ...task import Task
 from ...specs import SubWorkflow
 from ...serializer.base import Serializer
 from ..workflow import BpmnWorkflow
-
-try:
-    basestring
-except:
-    basestring = str
-
 
 class UnrecoverableWorkflowChange(Exception):
 
@@ -106,7 +100,7 @@ class _BpmnProcessSpecState(object):
         route = [self.spec.start]
         route_to_parent_complete = None
         for task_name in workflow_parents:
-            route = self._breadth_first_task_search(task_name, route)
+            route = self._breadth_first_task_search(str(task_name), route)
             if route is None:
                 raise UnrecoverableWorkflowChange(
                     'No path found for route \'%s\'' % transition)
@@ -382,8 +376,8 @@ class CompactWorkflowSerializer(Serializer):
 
         routes = []
         for state in state_list[:-1]:
-            if isinstance(state, basestring):
-                state = [state]
+            if isinstance(state, str) or type(state).__name__ == 'str':
+                state = [str(state)]
             transition = state[0]
             workflow_parents = state[1] if len(state) > 1 else []
             state = (Task.WAITING if len(state) >

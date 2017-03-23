@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
-from past.builtins import basestring
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -64,7 +63,7 @@ def Serializable(o):
     Use this to return errors and other info that does not need to be
     deserialized or does not contain important app data. Best for returning
     error info and such"""
-    if type(o) in [basestring, dict, int, int]:
+    if isinstance(o, (str, dict, int)):
         return o
     else:
         try:
