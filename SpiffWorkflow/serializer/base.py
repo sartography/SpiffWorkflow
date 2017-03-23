@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
+from builtins import object
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either

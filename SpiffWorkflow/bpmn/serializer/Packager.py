@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -17,21 +20,15 @@ from __future__ import division, absolute_import
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...util.compat import configparser
-try:
-    # need to be lax on python 2; although io.StringIO exists,
-    # it does not accept type str!
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
-
+import os
+import configparser
 import glob
 import hashlib
 import inspect
 import xml.etree.ElementTree as ET
 import zipfile
+from io import StringIO
 from optparse import OptionParser, OptionGroup
-import os
 from ..parser.BpmnParser import BpmnParser
 from ..parser.ValidationException import ValidationException
 from ..parser.util import *
@@ -136,12 +133,12 @@ class Packager(object):
             self.bpmn[os.path.abspath(filename)] = bpmn
 
         # Now run through pre-parsing and validation:
-        for filename, bpmn in self.bpmn.items():
+        for filename, bpmn in list(self.bpmn.items()):
             bpmn = self.pre_parse_and_validate(bpmn, filename)
             self.bpmn[os.path.abspath(filename)] = bpmn
 
         # Now check that we can parse it fine:
-        for filename, bpmn in self.bpmn.items():
+        for filename, bpmn in list(self.bpmn.items()):
             self.parser.add_bpmn_xml(bpmn, filename=filename)
 
         self.wf_spec = self.parser.get_spec(self.entry_point_process)
@@ -274,7 +271,7 @@ class Packager(object):
                         'No Signavio "Subprocess reference" specified.', node=node, filename=filename)
                 subprocess_reference = one(signavioMetaData).get('metaValue')
                 matches = []
-                for b in self.bpmn.values():
+                for b in list(self.bpmn.values()):
                     for p in xpath_eval(b)(".//bpmn:process"):
                         if p.get('name', p.get('id', None)) == subprocess_reference:
                             matches.append(p)
@@ -315,7 +312,7 @@ class Packager(object):
         """
         Writes the metadata.ini file to the archive.
         """
-        config = configparser.SafeConfigParser()
+        config = configparser.ConfigParser()
 
         config.add_section('MetaData')
         config.set('MetaData', 'entry_point_process', self.wf_spec.name)

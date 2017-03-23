@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
+from builtins import object
 import sys
 import unittest
 import re
@@ -13,7 +14,7 @@ from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 from util import run_workflow
 
 
-class WorkflowTestData:
+class WorkflowTestData(object):
 
     def __init__(self, filename, spec, path, data):
         self.filename = filename

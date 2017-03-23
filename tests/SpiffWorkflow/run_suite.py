@@ -1,9 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-
-from __future__ import division
-#!/usr/bin/python
 import os
 import sys
 import unittest
@@ -27,7 +24,7 @@ def correlate_class(theclass):
         return
 
     # Collect all functions in the class or module.
-    for name, value in theclass.CORRELATE.__dict__.items():
+    for name, value in list(theclass.CORRELATE.__dict__.items()):
         if not isfunction(value):
             continue
         elif name == '__init__':
@@ -62,7 +59,7 @@ def correlate_module(module):
     """
     Checks all testcases in the module for missing test methods.
     """
-    for name, item in module.__dict__.items():
+    for name, item in list(module.__dict__.items()):
         if isclass(item):
             correlate_class(item)
 

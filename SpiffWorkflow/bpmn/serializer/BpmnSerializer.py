@@ -17,7 +17,7 @@ from __future__ import division, absolute_import
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...util.compat import configparser
+import configparser
 from io import BytesIO, TextIOWrapper
 import xml.etree.ElementTree as ET
 import zipfile

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
+from builtins import str
 import sys
 import unittest
 import re
@@ -36,7 +37,7 @@ class DictionarySerializerTest(SerializerTest):
 
         if isinstance(item1, dict):
             self.assertIsInstance(item2, dict)
-            for key, value in item1.items():
+            for key, value in list(item1.items()):
                 self.assertIn(key, item2)
                 if key in exclude_items:
                     continue

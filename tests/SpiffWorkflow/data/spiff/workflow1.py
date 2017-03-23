@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
-
-from __future__ import division
+from builtins import str
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
 

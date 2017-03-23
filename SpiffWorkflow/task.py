@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
 from __future__ import print_function
+from builtins import str
+from builtins import hex
+from builtins import object
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -156,7 +159,7 @@ class Task(object):
                 return None
             return current
 
-        def next(self):
+        def __next__(self):
             # By using this loop we avoid an (expensive) recursive call.
             while True:
                 next = self._next()
@@ -164,7 +167,7 @@ class Task(object):
                     return next
 
         # Python 3 iterator protocol
-        __next__ = next
+        next = __next__
 
     # Pool for assigning a unique thread id to every new Task.
     thread_id_pool = 0
@@ -504,7 +507,7 @@ class Task(object):
         Returns a textual representation of this Task's state.
         """
         state_name = []
-        for state, name in self.state_names.items():
+        for state, name in list(self.state_names.items()):
             if self._has_state(state):
                 state_name.append(name)
         return '|'.join(state_name)

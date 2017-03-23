@@ -52,7 +52,7 @@ class Merge(Join):
 
 def _log_overwrites(dst, src):
     # Temporary: We log when we overwrite during debugging
-    for k, v in src.items():
+    for k, v in list(src.items()):
         if k in dst:
             if isinstance(v, dict) and isinstance(dst[k], dict):
                 _log_overwrites(v, dst[k])

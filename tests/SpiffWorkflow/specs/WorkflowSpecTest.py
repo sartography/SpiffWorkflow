@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
+from builtins import zip
+from builtins import range
 import os
 import sys
 import unittest

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
+from builtins import str
 import sys
 import unittest
 import re
@@ -31,6 +32,8 @@ class SerializerTest(PatternTest):
 
     def _compare_results(self, item1, item2, exclude_dynamic=False,
                          exclude_items=None):
+        #with open('1.xml', 'w') as fp: fp.write(item1)
+        #with open('2.xml', 'w') as fp: fp.write(item2)
         self.assertEqual(item1, item2)
 
     def _test_roundtrip_serialization(self, obj):

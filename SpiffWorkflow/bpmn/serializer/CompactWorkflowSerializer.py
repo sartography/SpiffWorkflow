@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
 from __future__ import print_function
+from builtins import hex
+from builtins import range
+from past.builtins import basestring
+from builtins import object
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or

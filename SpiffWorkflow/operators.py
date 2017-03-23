@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
+from builtins import str
+from builtins import object
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -20,11 +22,6 @@ import logging
 import re
 
 LOG = logging.getLogger(__name__)
-
-try:
-    unicode
-except:
-    unicode = str
 
 
 class Term(object):
@@ -144,7 +141,7 @@ class Assign(Term):
             right = self.right
         else:
             right = from_obj.get_data(self.right_attribute)
-        to_obj.set_data(**{unicode(self.left_attribute): right})
+        to_obj.set_data(**{str(self.left_attribute): right})
 
     def serialize(self, serializer):
         """
@@ -212,7 +209,7 @@ class Operator(Term):
     def _get_values(self, task):
         values = []
         for arg in self.args:
-            values.append(unicode(valueof(task, arg)))
+            values.append(str(valueof(task, arg)))
         return values
 
     def _matches(self, task):

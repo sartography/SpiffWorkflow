@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
+from builtins import str
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
@@ -30,12 +31,12 @@ class DictionarySerializer(Serializer):
 
     def serialize_dict(self, thedict):
         return dict(
-            (k, b64encode(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL)))
-            for k, v in thedict.items())
+            (str(k), b64encode(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL)))
+            for k, v in list(thedict.items()))
 
     def deserialize_dict(self, s_state):
         return dict((k, pickle.loads(b64decode(v)))
-                    for k, v in s_state.items())
+                    for k, v in list(s_state.items()))
 
     def serialize_list(self, thelist):
         return [b64encode(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL))
@@ -416,7 +417,7 @@ class DictionarySerializer(Serializer):
                        description=spec.description,
                        file=spec.file)
         s_state['task_specs'] = dict((k, v.serialize(self))
-                                     for k, v in spec.task_specs.items())
+                                     for k, v in list(spec.task_specs.items()))
         return s_state
 
     def deserialize_workflow_spec(self, s_state, **kwargs):
@@ -431,13 +432,13 @@ class DictionarySerializer(Serializer):
         spec.start = start_task_spec
         spec.task_specs['Start'] = start_task_spec
 
-        for name, task_spec_state in s_state['task_specs'].items():
+        for name, task_spec_state in list(s_state['task_specs'].items()):
             if name == 'Start':
                 continue
             task_spec_cls = get_class(task_spec_state['class'])
             task_spec = task_spec_cls.deserialize(self, spec, task_spec_state)
             spec.task_specs[name] = task_spec
-        for name, task_spec in spec.task_specs.items():
+        for name, task_spec in list(spec.task_specs.items()):
             task_spec.inputs = [spec.get_task_spec_from_name(t)
                                 for t in task_spec.inputs]
             task_spec.outputs = [spec.get_task_spec_from_name(t)

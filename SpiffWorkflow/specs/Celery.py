@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
+from past.builtins import basestring
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -50,7 +51,7 @@ def _eval_args(args, my_task):
 def _eval_kwargs(kwargs, my_task):
     """Parses kwargs and evaluates any Attrib entries"""
     results = {}
-    for kwarg, value in kwargs.items():
+    for kwarg, value in list(kwargs.items()):
         if isinstance(value, Attrib) or isinstance(value, PathAttrib):
             results[kwarg] = valueof(my_task, value)
         else:
@@ -63,7 +64,7 @@ def Serializable(o):
     Use this to return errors and other info that does not need to be
     deserialized or does not contain important app data. Best for returning
     error info and such"""
-    if type(o) in [basestring, dict, int, long]:
+    if type(o) in [basestring, dict, int, int]:
         return o
     else:
         try:
@@ -123,7 +124,7 @@ class Celery(TaskSpec):
         self.args = call_args or {}
         self.merge_results = merge_results
         skip = 'data', 'defines', 'pre_assign', 'post_assign', 'lock'
-        self.kwargs = dict(i for i in kwargs.items() if i[0] not in skip)
+        self.kwargs = dict(i for i in list(kwargs.items()) if i[0] not in skip)
         self.result_key = result_key
         LOG.debug("Celery task '%s' created to call '%s'" % (name, call))
 

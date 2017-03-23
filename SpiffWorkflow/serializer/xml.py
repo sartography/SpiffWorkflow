@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
+from builtins import str
+from past.builtins import basestring
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
@@ -57,7 +59,7 @@ class XmlSerializer(Serializer):
         return elem
 
     def deserialize_attrib(self, elem):
-        return Attrib(elem.text)
+        return Attrib(str(elem.text))
 
     def serialize_pathattrib(self, op):
         """
@@ -72,7 +74,7 @@ class XmlSerializer(Serializer):
         return elem
 
     def deserialize_pathattrib(self, elem):
-        return PathAttrib(elem.text)
+        return PathAttrib(str(elem.text))
 
     def serialize_assign(self, op):
         """
@@ -110,9 +112,7 @@ class XmlSerializer(Serializer):
 
             <attribute>foobar</attribute>
         """
-        if isinstance(value, str) or isinstance(value, unicode):
-            parent_elem.text = value
-        elif isinstance(value, int):
+        if isinstance(value, (basestring, str, int)):
             parent_elem.text = str(value)
         elif value is None:
             parent_elem.text = None
@@ -122,7 +122,7 @@ class XmlSerializer(Serializer):
     def deserialize_value(self, value_elem):
         value = value_elem.text
         if value is not None:
-            return value
+            return str(value)
         value = value_elem[0]
         if value.tag == 'attribute':
             return Attrib.deserialize(self, value)
@@ -149,9 +149,9 @@ class XmlSerializer(Serializer):
                 <value><attribute>foobar</attribute></value>
             </variable>
         """
-        for key, value in sorted(thedict.items()):
+        for key, value in sorted((str(k), v) for (k, v) in thedict.items()):
             var_elem = SubElement(map_elem, 'variable')
-            SubElement(var_elem, 'name').text = key
+            SubElement(var_elem, 'name').text = str(key)
             value_elem = SubElement(var_elem, 'value')
             self.serialize_value(value_elem, value)
         return map_elem
@@ -159,7 +159,7 @@ class XmlSerializer(Serializer):
     def deserialize_value_map(self, map_elem):
         themap = {}
         for var_elem in map_elem:
-            name = var_elem.find('name').text
+            name = str(var_elem.find('name').text)
             value_elem = var_elem.find('value')
             themap[name] = self.deserialize_value(value_elem)
         return themap
@@ -315,7 +315,7 @@ class XmlSerializer(Serializer):
         spec.description = elem.findtext('description', spec.description)
         spec.manual = elem.findtext('manual', spec.manual)
         spec.internal = elem.find('internal') is not None
-        spec.lookahead = elem.findtext('lookahead', spec.lookahead)
+        spec.lookahead = int(elem.findtext('lookahead', spec.lookahead))
 
         data_elem = elem.find('data')
         if data_elem is not None:
@@ -656,7 +656,7 @@ class XmlSerializer(Serializer):
         spec.start = spec.task_specs['Start']
 
         # Connect the tasks.
-        for name, task_spec in spec.task_specs.items():
+        for name, task_spec in list(spec.task_specs.items()):
             task_spec.inputs = [spec.get_task_spec_from_name(t)
                                 for t in task_spec.inputs]
             task_spec.outputs = [spec.get_task_spec_from_name(t)
@@ -762,7 +762,7 @@ class XmlSerializer(Serializer):
 
         state_name = elem.findtext('state')
         found = False
-        for key, value in Task.state_names.items():
+        for key, value in list(Task.state_names.items()):
             if value == state_name:
                 task._state = key
                 found = True

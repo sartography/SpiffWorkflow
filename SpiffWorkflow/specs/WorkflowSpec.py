@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
 from __future__ import print_function
+from builtins import hex
+from builtins import object
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -87,7 +89,7 @@ class WorkflowSpec(object):
             for parent in task.inputs:
                 recursive_find_loop(parent, current)
 
-        for task_id, task in self.task_specs.items():
+        for task_id, task in list(self.task_specs.items()):
             # Check for cyclic waits
             try:
                 recursive_find_loop(task, [])

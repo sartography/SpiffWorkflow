@@ -24,7 +24,7 @@ included with the package.
       keywords         = 'spiff workflow bpmn engine',
       url              = 'https://github.com/knipknap/SpiffWorkflow',
       classifiers      = [
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
         'Programming Language :: Python',
