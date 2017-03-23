@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
-from SpiffWorkflow.version import __version__
+import sys
+sys.path.insert(0, 'SpiffWorkflow')
+from version import __version__
 from setuptools import setup, find_packages
 from os.path import dirname, join
 
