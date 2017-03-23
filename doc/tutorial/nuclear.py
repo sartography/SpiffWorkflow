@@ -1,8 +1,9 @@
+from __future__ import print_function
 from SpiffWorkflow.specs import WorkflowSpec, ExclusiveChoice, Simple, Cancel
 from SpiffWorkflow.operators import Equal, Attrib
 
 def my_nuclear_strike(msg):
-    print "Launched:", msg
+    print("Launched:", msg)
 
 class NuclearStrikeWorkflowSpec(WorkflowSpec):
     def __init__(self):

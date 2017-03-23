@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
+from __future__ import print_function
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -86,7 +87,7 @@ class Workflow(object):
         mask = Task.NOT_FINISHED_MASK
         iter = Task.Iterator(self.task_tree, mask)
         try:
-            iter.next()
+            next(iter)
         except:
             # No waiting tasks found.
             return True
@@ -223,7 +224,7 @@ class Workflow(object):
         if pick_up and self.last_task is not None:
             try:
                 iter = Task.Iterator(self.last_task, Task.READY)
-                next = iter.next()
+                next = next(iter)
             except:
                 next = None
             self.last_task = None

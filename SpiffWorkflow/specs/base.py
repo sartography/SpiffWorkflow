@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
+from __future__ import print_function
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -386,7 +387,7 @@ class TaskSpec(object):
         assert my_task is not None
 
         if my_task.workflow.debug:
-            print("Executing task:", my_task.get_name())
+            print(("Executing task:", my_task.get_name()))
 
         self._on_complete_hook(my_task)
 
