@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(dirname, '..', '..'))
 doc_dir = os.path.join(dirname, '..', '..', 'doc')
 
 
-class TutorialTest(unittest.TestCase):
+class TutorialTest(object):
 
     """
     Tests the examples that are included in the docs.
@@ -30,11 +30,11 @@ class TutorialTest(unittest.TestCase):
         self.assertTrue(workflow.is_completed())
 
 
-class Tutorial1Test(TutorialTest):
+class Tutorial1Test(TutorialTest, unittest.TestCase):
     tutorial_dir = os.path.join(doc_dir, 'tutorial')
 
 
-class Tutorial2Test(TutorialTest):
+class Tutorial2Test(TutorialTest, unittest.TestCase):
     tutorial_dir = os.path.join(doc_dir, 'custom-tasks')
 
 
