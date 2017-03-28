@@ -25,18 +25,18 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.do_next_exclusive_step('Select Test', choice='Messages')
         self.workflow.do_engine_steps()
-        self.assertEquals([], self.workflow.get_tasks(Task.READY))
-        self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual([], self.workflow.get_tasks(Task.READY))
+        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
         self.workflow.accept_message('Wrong Message')
-        self.assertEquals([], self.workflow.get_tasks(Task.READY))
+        self.assertEqual([], self.workflow.get_tasks(Task.READY))
         self.workflow.accept_message('Test Message')
-        self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
 
-        self.assertEquals(
+        self.assertEqual(
             'Test Message', self.workflow.get_tasks(Task.READY)[0].task_spec.description)
 
         self.workflow.do_engine_steps()
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRunThroughSaveAndRestore(self):
@@ -47,16 +47,16 @@ class MessagesTest(BpmnWorkflowTestCase):
 
         self.save_restore()
 
-        self.assertEquals([], self.workflow.get_tasks(Task.READY))
-        self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual([], self.workflow.get_tasks(Task.READY))
+        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
         self.workflow.accept_message('Wrong Message')
-        self.assertEquals([], self.workflow.get_tasks(Task.READY))
+        self.assertEqual([], self.workflow.get_tasks(Task.READY))
         self.workflow.accept_message('Test Message')
 
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 

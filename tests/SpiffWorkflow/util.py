@@ -82,8 +82,7 @@ def run_workflow(test, wf_spec, expected_path, expected_data, workflow=None):
     else:
         taken_path = track_workflow(workflow.spec)
 
-    test.assert_(not workflow.is_completed(),
-                 'Workflow is complete before start')
+    test.assertFalse(workflow.is_completed())
     try:
         # We allow the workflow to require a maximum of 5 seconds to
         # complete, to allow for testing long running tasks.
@@ -97,9 +96,7 @@ def run_workflow(test, wf_spec, expected_path, expected_data, workflow=None):
         raise
 
     # workflow.task_tree.dump()
-    test.assert_(workflow.is_completed(),
-                 'complete_all() returned, but workflow is not complete\n'
-                 + workflow.task_tree.get_dump())
+    test.assertTrue(workflow.is_completed(), workflow.task_tree.get_dump())
 
     # Make sure that there are no waiting tasks left in the tree.
     for thetask in Task.Iterator(workflow.task_tree, Task.READY):
@@ -109,19 +106,11 @@ def run_workflow(test, wf_spec, expected_path, expected_data, workflow=None):
     # Check whether the correct route was taken.
     if expected_path is not None:
         taken_path = '\n'.join(taken_path) + '\n'
-        error = 'Expected:\n'
-        error += '%s\n' % expected_path
-        error += 'but got:\n'
-        error += '%s\n' % taken_path
-        test.assert_(taken_path == expected_path, error)
+        test.assertEqual(taken_path, expected_path)
 
     # Check data availibility.
     if expected_data is not None:
         result = workflow.get_data('data', '')
-        error = 'Expected:\n'
-        error += '%s\n' % expected_data
-        error += 'but got:\n'
-        error += '%s\n' % result
-        test.assert_(result == expected_data, error)
+        test.assertIn(result, expected_data)
 
     return workflow

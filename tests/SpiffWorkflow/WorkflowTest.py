@@ -26,7 +26,8 @@ class WorkflowTest(unittest.TestCase):
         Simulates interactive calls, as would be issued by a user.
         """
         xml_file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
-        xml = open(xml_file).read()
+        with open(xml_file) as fp:
+            xml = fp.read()
         wf_spec = WorkflowSpec.deserialize(XmlSerializer(), xml)
         workflow = Workflow(wf_spec)
 

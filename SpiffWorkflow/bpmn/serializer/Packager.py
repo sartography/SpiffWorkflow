@@ -194,7 +194,7 @@ class Packager(object):
         """
         Write the manifest content to the zip file. It must be a predictable order.
         """
-        config = configparser.SafeConfigParser()
+        config = configparser.ConfigParser()
 
         config.add_section('Manifest')
 
@@ -461,7 +461,7 @@ class Packager(object):
 
         (options, args) = parser.parse_args(args=argv)
 
-        config = configparser.SafeConfigParser()
+        config = configparser.ConfigParser()
         if options.config_file:
             config.read(options.config_file)
         if not config.has_section(CONFIG_SECTION_NAME):

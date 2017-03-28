@@ -30,7 +30,8 @@ class TaskSpecTest(unittest.TestCase):
         file = os.path.join(
             os.path.dirname(__file__), '..', 'data', 'spiff', folder, f)
         serializer = XmlSerializer()
-        xml = open(file).read()
+        with open(file) as fp:
+            xml = fp.read()
         self.wf_spec = WorkflowSpec.deserialize(
             serializer, xml, filename=file)
         self.workflow = Workflow(self.wf_spec)
@@ -39,9 +40,9 @@ class TaskSpecTest(unittest.TestCase):
         # This method asserts that there is only one ready task! The specified
         # one - and then completes it
         ready_tasks = self.workflow.get_tasks(Task.READY)
-        self.assertEquals(1, len(ready_tasks))
+        self.assertEqual(1, len(ready_tasks))
         task = ready_tasks[0]
-        self.assertEquals(name, task.task_spec.name)
+        self.assertEqual(name, task.task_spec.name)
         task.complete()
 
     def do_next_named_step(self, name, other_ready_tasks):
@@ -49,7 +50,7 @@ class TaskSpecTest(unittest.TestCase):
         # tasks
         ready_tasks = self.workflow.get_tasks(Task.READY)
         all_tasks = sorted([name] + other_ready_tasks)
-        self.assertEquals(
+        self.assertEqual(
             all_tasks, sorted([t.task_spec.name for t in ready_tasks]))
         task = list([t for t in ready_tasks if t.task_spec.name == name])[0]
         task.complete()

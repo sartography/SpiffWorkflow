@@ -50,27 +50,31 @@ class PatternTest(unittest.TestCase):
         # Load the .path file.
         path_file = os.path.splitext(filename)[0] + '.path'
         if os.path.exists(path_file):
-            expected_path = open(path_file).read()
+            with open(path_file) as fp:
+                expected_path = fp.read()
         else:
             expected_path = None
 
         # Load the .data file.
         data_file = os.path.splitext(filename)[0] + '.data'
         if os.path.exists(data_file):
-            expected_data = open(data_file, 'r').read()
+            with open(data_file) as fp:
+                expected_data = fp.read()
         else:
             expected_data = None
 
         # Test patterns that are defined in XML format.
         if filename.endswith('.xml'):
-            xml = open(filename).read()
+            with open(filename) as fp:
+                xml = fp.read()
             serializer = XmlSerializer()
             wf_spec = WorkflowSpec.deserialize(
                 serializer, xml, filename=filename)
 
         # Test patterns that are defined in Python.
         elif filename.endswith('.py'):
-            code = compile(open(filename).read(), filename, 'exec')
+            with open(filename) as fp:
+                code = compile(fp.read(), filename, 'exec')
             thedict = {}
             result = eval(code, thedict)
             wf_spec = thedict['TestWorkflowSpec']()

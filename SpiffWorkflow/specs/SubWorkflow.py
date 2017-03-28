@@ -89,7 +89,8 @@ class SubWorkflow(TaskSpec):
         from ..workflow import Workflow
         file = valueof(my_task, self.file)
         serializer = XmlSerializer()
-        xml = open(file).read()
+        with open(file) as fp:
+            xml = fp.read()
         wf_spec = WorkflowSpec.deserialize(
             serializer, xml, filename=file)
         outer_workflow = my_task.workflow.outer_workflow

@@ -59,9 +59,9 @@ class TaskTest(unittest.TestCase):
   !/0: Task of Simple 8 State: MAYBE Children: 0
   !/0: Task of Simple 9 State: COMPLETED Children: 0"""
         expected = re.compile(expected.replace('!', r'([0-9a-f\-]+)'))
-        self.assert_(expected.match(root.get_dump()),
-                     'Expected:\n' + repr(expected.pattern) + '\n' +
-                     'but got:\n' + repr(root.get_dump()))
+        self.assertTrue(expected.match(root.get_dump()),
+                        'Expected:\n' + repr(expected.pattern) + '\n' +
+                        'but got:\n' + repr(root.get_dump()))
 
         # Now remove one line from the expected output for testing the
         # filtered iterator.
@@ -76,9 +76,9 @@ class TaskTest(unittest.TestCase):
         result = ''
         for thetask in Task.Iterator(root, Task.MAYBE):
             result += thetask.get_dump(0, False) + '\n'
-        self.assert_(expected2.match(result),
-                     'Expected:\n' + repr(expected2.pattern) + '\n' +
-                     'but got:\n' + repr(result))
+        self.assertTrue(expected2.match(result),
+                        'Expected:\n' + repr(expected2.pattern) + '\n' +
+                        'but got:\n' + repr(result))
 
 
 def suite():

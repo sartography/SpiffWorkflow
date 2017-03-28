@@ -73,8 +73,7 @@ class PersistSmallWorkflowTest(unittest.TestCase):
 
         before = old_workflow.get_dump()
         after = new_workflow.get_dump()
-        self.assert_(before == after, 'Before:\n' + before + '\n'
-                     + 'After:\n' + after + '\n')
+        self.assertEqual(before, after)
 
     def testDeserialization(self):
         """
@@ -104,15 +103,15 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         old_workflow = self.workflow
 
         old_workflow.complete_next()
-        self.assertEquals('task_a2', old_workflow.last_task.get_name())
+        self.assertEqual('task_a2', old_workflow.last_task.get_name())
         serializer = DictionarySerializer()
         serialized_workflow = old_workflow.serialize(serializer)
 
         serializer = DictionarySerializer()
         new_workflow = Workflow.deserialize(serializer, serialized_workflow)
-        self.assertEquals('task_a2', old_workflow.last_task.get_name())
+        self.assertEqual('task_a2', old_workflow.last_task.get_name())
         new_workflow.complete_all()
-        self.assertEquals('task_a2', old_workflow.last_task.get_name())
+        self.assertEqual('task_a2', old_workflow.last_task.get_name())
 
 
 def suite():

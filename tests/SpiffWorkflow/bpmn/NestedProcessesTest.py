@@ -22,15 +22,15 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Action1')
         self.workflow.do_engine_steps()
         self.save_restore()
-        self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
         self.do_next_named_step('Action2')
         self.workflow.do_engine_steps()
         self.save_restore()
-        self.assertEquals(1, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
         self.do_next_named_step('Action3')
         self.workflow.do_engine_steps()
         self.save_restore()
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 

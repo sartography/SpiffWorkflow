@@ -58,7 +58,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
     def assertTaskNotReady(self, step_name):
         tasks = list([t for t in self.workflow.get_tasks(Task.READY)
                      if t.task_spec.name == step_name or t.task_spec.description == step_name])
-        self.assertEquals([], tasks)
+        self.assertEqual([], tasks)
 
     def _do_single_step(self, step_name, tasks, set_attribs=None, choice=None, only_one_instance=True):
 
@@ -94,7 +94,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         if state != after_state:
             logging.debug("Before save:\n%s", before_dump)
             logging.debug("After save:\n%s", after_dump)
-        self.assertEquals(state, after_state)
+        self.assertEqual(state, after_state)
 
     def restore(self, state):
         self.workflow = CompactWorkflowSerializer().deserialize_workflow(

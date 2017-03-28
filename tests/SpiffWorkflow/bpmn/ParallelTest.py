@@ -26,7 +26,7 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step(
             'Thread 1 - Choose', choice='Yes', with_save_load=True)
@@ -46,7 +46,7 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done', with_save_load=True)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRunThroughThread1First(self):
@@ -54,7 +54,7 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step(
             'Thread 1 - Choose', choice='Yes', with_save_load=True)
@@ -64,7 +64,7 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
             self.workflow.do_engine_steps()
 
         self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
-        self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
 
         self.do_next_named_step(
             'Thread 2 - Choose', choice='Yes', with_save_load=True)
@@ -77,7 +77,7 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done', with_save_load=True)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 
@@ -91,7 +91,7 @@ class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step(
             'Thread 1 - Choose', choice='Yes', with_save_load=True)
@@ -101,7 +101,7 @@ class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
             self.workflow.do_engine_steps()
 
         self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
-        self.assertEquals(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
 
         self.do_next_named_step(
             'Thread 2 - Choose', choice='No', with_save_load=True)
@@ -111,7 +111,7 @@ class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
         self.do_next_named_step('Thread 2 - No Task', with_save_load=True)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testNoFirstThenThread1(self):
@@ -119,7 +119,7 @@ class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step(
             'Thread 2 - Choose', choice='No', with_save_load=True)
@@ -138,7 +138,7 @@ class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
         self.do_next_named_step('Thread 2 - No Task', with_save_load=True)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 
@@ -155,7 +155,7 @@ class ParallelMultipleSplitsTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Do First')
         self.workflow.do_engine_steps()
@@ -175,7 +175,7 @@ class ParallelMultipleSplitsTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 
@@ -192,7 +192,7 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Parallel Task')
         self.workflow.do_engine_steps()
@@ -205,7 +205,7 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRunThroughChoiceFirst(self):
@@ -213,7 +213,7 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Choice 1', choice='Yes')
         self.workflow.do_engine_steps()
@@ -226,7 +226,7 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRunThroughChoiceThreadCompleteFirst(self):
@@ -234,7 +234,7 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Choice 1', choice='Yes')
         self.workflow.do_engine_steps()
@@ -247,7 +247,7 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 
@@ -270,7 +270,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Repeated Task')
         self.workflow.do_engine_steps()
@@ -289,7 +289,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRepeatTasksReadyTogether(self):
@@ -297,7 +297,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Choice 1', choice='Yes')
         self.workflow.do_engine_steps()
@@ -305,8 +305,8 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
         ready_tasks = self.workflow.get_tasks(Task.READY)
-        self.assertEquals(2, len(ready_tasks))
-        self.assertEquals(
+        self.assertEqual(2, len(ready_tasks))
+        self.assertEqual(
             'Repeated Task', ready_tasks[0].task_spec.description)
         ready_tasks[0].complete()
         self.workflow.do_engine_steps()
@@ -320,7 +320,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRepeatTasksReadyTogetherSaveRestore(self):
@@ -329,7 +329,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Choice 1', choice='Yes')
         self.workflow.do_engine_steps()
@@ -339,8 +339,8 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.save_restore()
         self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
         ready_tasks = self.workflow.get_tasks(Task.READY)
-        self.assertEquals(2, len(ready_tasks))
-        self.assertEquals(
+        self.assertEqual(2, len(ready_tasks))
+        self.assertEqual(
             'Repeated Task', ready_tasks[0].task_spec.description)
         ready_tasks[0].complete()
         self.workflow.do_engine_steps()
@@ -358,7 +358,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testNoRouteRepeatTaskFirst(self):
@@ -367,7 +367,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Repeated Task')
         self.workflow.do_engine_steps()
@@ -387,7 +387,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testNoRouteNoTaskFirst(self):
@@ -396,7 +396,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Choice 1', choice='No')
         self.workflow.do_engine_steps()
@@ -412,7 +412,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testNoRouteNoFirstThenRepeating(self):
@@ -421,7 +421,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Choice 1', choice='No')
         self.workflow.do_engine_steps()
@@ -438,7 +438,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 
@@ -455,7 +455,7 @@ class ParallelOnePathEndsTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Parallel Task')
         self.workflow.do_engine_steps()
@@ -466,7 +466,7 @@ class ParallelOnePathEndsTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRunThroughChoiceFirst(self):
@@ -474,7 +474,7 @@ class ParallelOnePathEndsTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Choice 1', choice='No')
         self.workflow.do_engine_steps()
@@ -485,7 +485,7 @@ class ParallelOnePathEndsTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
     def testRunThroughParallelTaskFirstYes(self):
@@ -493,7 +493,7 @@ class ParallelOnePathEndsTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-        self.assertEquals(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
 
         self.do_next_named_step('Parallel Task')
         self.workflow.do_engine_steps()
@@ -507,7 +507,7 @@ class ParallelOnePathEndsTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEquals(
+        self.assertEqual(
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 
@@ -544,7 +544,7 @@ class AbstractParallelTest(BpmnWorkflowTestCase):
         if unfinished:
             logging.debug("Unfinished tasks: %s", unfinished)
             logging.debug(self.workflow.get_dump())
-        self.assertEquals(0, len(unfinished))
+        self.assertEqual(0, len(unfinished))
 
 
 class ParallelMultipleSplitsAndJoinsTest(AbstractParallelTest):

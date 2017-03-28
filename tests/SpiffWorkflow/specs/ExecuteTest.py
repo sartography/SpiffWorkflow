@@ -45,7 +45,7 @@ class ExecuteTest(TaskSpecTest):
                                               Task.WAITING,
                                               Task.READY,
                                               Task.COMPLETED])
-        self.assert_(b'127.0.0.1' in task.results[0])
+        self.assertIn(b'127.0.0.1', task.results[0])
 
 
 def suite():

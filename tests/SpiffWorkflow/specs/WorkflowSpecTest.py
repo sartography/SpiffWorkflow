@@ -49,21 +49,18 @@ class WorkflowSpecTest(unittest.TestCase):
             workflow.complete_next()
 
         # Store the workflow instance in a file.
-        output = open(data_file, 'wb')
-        pickle.dump(workflow, output, -1)
-        output.close()
+        with open(data_file, 'wb') as fp:
+            pickle.dump(workflow, fp, -1)
         before = workflow.get_dump()
 
         # Load the workflow instance from a file and delete the file.
-        input = open(data_file, 'rb')
-        workflow = pickle.load(input)
-        input.close()
+        with open(data_file, 'rb') as fp:
+            workflow = pickle.load(fp)
         os.remove(data_file)
         after = workflow.get_dump()
 
         # Make sure that the state of the workflow did not change.
-        self.assert_(before == after, 'Before:\n' + before + '\n'
-                     + 'After:\n' + after + '\n')
+        self.assertEqual(before, after)
 
         # Re-connect signals, because the pickle dump now only contains a
         # copy of taken_path.
@@ -72,7 +69,7 @@ class WorkflowSpecTest(unittest.TestCase):
         # Run the rest of the workflow.
         workflow.complete_all()
         after = workflow.get_dump()
-        self.assert_(workflow.is_completed(), 'Workflow not complete:' + after)
+        self.assertTrue(workflow.is_completed(), 'Workflow not complete:' + after)
         # taken_path = '\n'.join(taken_path) + '\n'
         if taken_path != expected_path:
             for taken, expected in zip(taken_path, expected_path):
@@ -83,9 +80,11 @@ class WorkflowSpecTest(unittest.TestCase):
     def testSerialize(self):
         # Read a complete workflow spec.
         xml_file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
-        xml = open(xml_file).read()
+        with open(xml_file) as fp:
+            xml = fp.read()
         path_file = os.path.splitext(xml_file)[0] + '.path'
-        expected_path = open(path_file).read().strip().split('\n')
+        with open(path_file) as fp:
+            expected_path = fp.read().strip().split('\n')
         wf_spec = WorkflowSpec.deserialize(serializer, xml)
 
         for i in range(5):
@@ -106,10 +105,10 @@ class WorkflowSpecTest(unittest.TestCase):
         task1.follow(task2)
 
         results = self.wf_spec.validate()
-        self.assert_("Found loop with 'Second': Second->First then 'Second' "
-                     "again" in results)
-        self.assert_("Found loop with 'First': First->Second then 'First' "
-                     "again" in results)
+        self.assertIn("Found loop with 'Second': Second->First then 'Second' "
+                      "again", results)
+        self.assertIn("Found loop with 'First': First->Second then 'First' "
+                      "again", results)
 
 
 def suite():

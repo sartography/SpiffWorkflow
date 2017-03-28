@@ -107,10 +107,10 @@ class TaskSpecTest(unittest.TestCase):
         T2B.connect(M)
         T3.follow(M)
 
-        self.assertEquals(T1.ancestors(), [self.wf_spec.start])
-        self.assertEquals(T2A.ancestors(), [T1, self.wf_spec.start])
-        self.assertEquals(T2B.ancestors(), [T1, self.wf_spec.start])
-        self.assertEquals(M.ancestors(), [T2A, T1, self.wf_spec.start, T2B])
+        self.assertEqual(T1.ancestors(), [self.wf_spec.start])
+        self.assertEqual(T2A.ancestors(), [T1, self.wf_spec.start])
+        self.assertEqual(T2B.ancestors(), [T1, self.wf_spec.start])
+        self.assertEqual(M.ancestors(), [T2A, T1, self.wf_spec.start, T2B])
         self.assertEqual(len(T3.ancestors()), 5)
 
     def test_ancestors_cyclic(self):
@@ -121,8 +121,8 @@ class TaskSpecTest(unittest.TestCase):
         T2.follow(T1)
         T1.connect(T2)
 
-        self.assertEquals(T1.ancestors(), [self.wf_spec.start])
-        self.assertEquals(T2.ancestors(), [T1, self.wf_spec.start])
+        self.assertEqual(T1.ancestors(), [self.wf_spec.start])
+        self.assertEqual(T2.ancestors(), [T1, self.wf_spec.start])
 
 
 def suite():

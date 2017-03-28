@@ -58,11 +58,11 @@ class BpmnSerializer(Serializer):
 
         package_zip = zipfile.ZipFile(
             s_state, "r", compression=zipfile.ZIP_DEFLATED)
-        config = configparser.SafeConfigParser()
+        config = configparser.ConfigParser()
         ini_fp = TextIOWrapper(
             package_zip.open(Packager.METADATA_FILE), encoding="UTF-8")
         try:
-            config.readfp(ini_fp)
+            config.read_file(ini_fp)
         finally:
             ini_fp.close()
 
