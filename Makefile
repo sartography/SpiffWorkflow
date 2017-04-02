@@ -53,13 +53,18 @@ tarbz:
 	python setup.py sdist --formats bztar
 	./version.sh --reset
 
+wheel:
+	./version.sh
+	python setup.py bdist_wheel --universal
+	./version.sh --reset
+
 deb:
 	./version.sh
 	debuild -S -sa
 	cd ..; sudo pbuilder build $(NAME)_$(VERSION)-0ubuntu1.dsc; cd -
 	./version.sh --reset
 
-dist: targz tarbz
+dist: targz tarbz wheel
 
 ###################################################################
 # Publishers.

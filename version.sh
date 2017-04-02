@@ -21,7 +21,7 @@ if [ ! -z "$1" ]; then
   VERSION=$1
 else
   HEAD=`git log -1 --pretty=format:%H HEAD`
-  VERSION=`git describe $HEAD --tags --match "v[0-9]*" | sed 's/-/./' 2>/dev/null`
+  VERSION=`git describe $HEAD --tags --match "v[0-9]*" | sed 's/^v//;s/-[^\-]*$//;s/-/./' 2>/dev/null`
   if [ -z "$VERSION" ]; then
     echo >&2 No matching tag was found.
     exit 1
