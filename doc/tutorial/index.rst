@@ -46,9 +46,21 @@ a workflow according to the specification.
 
 Since we included *manual* tasks in the specification, you will want
 to implement a user interface in practice, but we are just going to
-assume that all tasks are automatic for this tutorial:
+assume that all tasks are automatic for this tutorial.
+Note that the *manual* flag has no effect on the control flow; it is
+just a flag that a user interface may use to identify tasks that
+require a user input.
 
 .. literalinclude:: start.py
+
+:meth:`SpiffWorkflow.Workflow.complete_all` completes all tasks in
+accordance to the specification, until no further tasks are READY
+for being executed.
+Note that this does not mean that the workflow is completed after
+calling :meth:`SpiffWorkflow.Workflow.complete_all`, since some
+tasks may be WAITING, or may be blocked by another WAITING task,
+for example.
+
 
 Serializing a workflow
 ----------------------
