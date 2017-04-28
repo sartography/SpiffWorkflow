@@ -85,7 +85,7 @@ The following example shows how to restore a
 .. literalinclude:: deserialize.py
 
 To restore a :class:`SpiffWorkflow.Workflow`, use
-:meth:`SpiffWorkflow.Workflow.serialize` instead.
+:meth:`SpiffWorkflow.Workflow.serialize` instead:
 
 .. literalinclude:: deserialize-wf.py
 
@@ -99,6 +99,6 @@ save the reference to your code.
 So after deserializing the workflow, you will need to re-connect the signals
 yourself.
 
-If you would rather have it such that SpiffWorkflow handles this for your,
-you need to to use implement a custom task and tell SpiffWorkflow how to
+If you would rather have it such that SpiffWorkflow handles this for you,
+you need to create a custom task and tell SpiffWorkflow how to
 serialize and deserialize it. The next tutorial shows how this is done.
