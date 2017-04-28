@@ -7,5 +7,8 @@ serializer = JSONSerializer()
 spec = NuclearStrikeWorkflowSpec()
 workflow = Workflow(spec)
 data = workflow.serialize(serializer)
-pretty = json.dumps(data, indent=4, separators=(',', ': '))
+
+# This next line is unnecessary in practice; it just makes the JSON pretty.
+pretty = json.dumps(json.loads(data), indent=4, separators=(',', ': '))
+
 open('workflow.json', 'w').write(pretty)
