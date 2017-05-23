@@ -43,8 +43,8 @@ from SpiffWorkflow import Workflow
 
 # Load the workflow specification:
 with open('my_workflow.xml') as fp:
-	serializer = XmlSerializer()
-	spec = WorkflowSpec.deserialize(serializer, fp.read())
+    serializer = XmlSerializer()
+    spec = WorkflowSpec.deserialize(serializer, fp.read())
 
 # Create an instance of the workflow, according to the specification.
 wf = Workflow(spec)
