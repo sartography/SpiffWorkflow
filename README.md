@@ -13,7 +13,7 @@ on the excellent work of the
 
 ## Do you need commercial support?
 
-SpiffWorkflow is supported by [Procedure 8](http://procedure8.com/). Get in touch if you need anything!
+Spiff Workflow is supported by [Procedure 8](https://procedure8.com). Get in touch if you need anything!
 
 ## Main design goals
 
