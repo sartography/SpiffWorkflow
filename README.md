@@ -11,6 +11,10 @@ Spiff Workflow is a workflow engine implemented in pure Python. It is based
 on the excellent work of the
 [Workflow Patterns initiative](http://www.workflowpatterns.com/).
 
+## Do you need commercial support?
+
+SpiffWorkflow is supported by [Procedure 8](http://procedure8.com/). Get in touch if you need anything!
+
 ## Main design goals
 
 - Spiff Workflow aims to directly support as many of the patterns of
