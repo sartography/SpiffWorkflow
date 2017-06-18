@@ -28,13 +28,34 @@ class WorkflowException(Exception):
         """
         Standard exception class.
 
-        :param sender: the task that threw the exception.
-        :type sender: Task
+        :param sender: the task spec that threw the exception
+        :type sender: TaskSpec
         :param error: a human readable error message
         :type error: string
         """
         Exception.__init__(self, '%s: %s' % (sender.name, error))
-        self.sender = sender  # Points to the Task that generated the exception.
+        self.sender = sender  # Points to the TaskSpec that generated the exception.
+
+
+class WorkflowTaskExecException(WorkflowException):
+    """
+    Exception during execution of task "payload". For example:
+
+    * ScriptTask during execution of embedded script,
+    * ServiceTask during external service call.
+    """
+
+    def __init__(self, task, error):
+        """
+        Exception initialization.
+
+        :param sender: the task that threw the exception
+        :type sender: Task
+        :param error: a human readable error message
+        :type error: string
+        """
+        WorkflowException.__init__(self, task.task_spec, error)
+        self.task = task
 
 
 class StorageException(Exception):
