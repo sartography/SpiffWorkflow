@@ -18,10 +18,11 @@ from __future__ import division
 # 02110-1301  USA
 
 from .BpmnSpecMixin import BpmnSpecMixin
+from ...specs.Simple import Simple
 from ...task import Task
 
 
-class EndEvent(BpmnSpecMixin):
+class EndEvent(Simple, BpmnSpecMixin):
 
     """
     Task Spec for a bpmn:endEvent node.
