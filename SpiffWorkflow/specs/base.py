@@ -85,6 +85,8 @@ class TaskSpec(object):
         :param lock: A list of mutex names. The mutex is acquired
                      on entry of execute() and released on leave of
                      execute().
+        :type  manual: bool
+        :param manual: Whether this task requires a manual action to complete.
         :type  data: dict((str, object))
         :param data: name/value pairs
         :type  defines: dict((str, object))
@@ -102,7 +104,7 @@ class TaskSpec(object):
         self.description = kwargs.get('description', '')
         self.inputs = []
         self.outputs = []
-        self.manual = False
+        self.manual = kwargs.get('manual', False)
         self.internal = False  # Only for easing debugging.
         self.data = kwargs.get('data',        {})
         self.defines = kwargs.get('defines',     {})

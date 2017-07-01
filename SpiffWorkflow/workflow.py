@@ -218,6 +218,10 @@ class Workflow(object):
                         task not by searching beginning at the root, but by
                         searching from the position at which the last call
                         of complete_next() left off.
+        :type  halt_on_manual: bool
+        :param halt_on_manual: When True, this method will not attempt to
+                        complete any tasks that have manual=True.
+                        See :meth:`SpiffWorkflow.specs.TaskSpec.__init__`
         :rtype:  bool
         :returns: True if all tasks were completed, False otherwise.
         """
@@ -264,6 +268,10 @@ class Workflow(object):
 
         :type  pick_up: bool
         :param pick_up: Passed on to each call of complete_next().
+        :type  halt_on_manual: bool
+        :param halt_on_manual: When True, this method will not attempt to
+                        complete any tasks that have manual=True.
+                        See :meth:`SpiffWorkflow.specs.TaskSpec.__init__`
         """
         while self.complete_next(pick_up, halt_on_manual):
             pass
