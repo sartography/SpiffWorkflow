@@ -208,7 +208,7 @@ class Workflow(object):
         msg = 'A task with the given task_id (%s) was not found' % task_id
         raise WorkflowException(self.spec, msg)
 
-    def complete_next(self, pick_up=True):
+    def complete_next(self, pick_up=True, halt_on_manual=True):
         """
         Runs the next task.
         Returns True if completed, False otherwise.
@@ -226,24 +226,26 @@ class Workflow(object):
         if pick_up and self.last_task is not None:
             try:
                 iter = Task.Iterator(self.last_task, Task.READY)
-                next = next(iter)
+                task = next(iter)
             except:
-                next = None
+                task = None
             self.last_task = None
-            if next is not None:
-                if next.complete():
-                    self.last_task = next
-                    return True
-                blacklist.append(next)
+            if task is not None:
+                if not (halt_on_manual and task.task_spec.manual):
+                    if task.complete():
+                        self.last_task = task
+                        return True
+                blacklist.append(task)
 
         # Walk through all ready tasks.
         for task in Task.Iterator(self.task_tree, Task.READY):
             for blacklisted_task in blacklist:
                 if task._is_descendant_of(blacklisted_task):
                     continue
-            if task.complete():
-                self.last_task = task
-                return True
+            if not (halt_on_manual and task.task_spec.manual):
+                if task.complete():
+                    self.last_task = task
+                    return True
             blacklist.append(task)
 
         # Walk through all waiting tasks.
@@ -254,7 +256,7 @@ class Workflow(object):
                 return True
         return False
 
-    def complete_all(self, pick_up=True):
+    def complete_all(self, pick_up=True, halt_on_manual=True):
         """
         Runs all branches until completion. This is a convenience wrapper
         around :meth:`complete_next`, and the pick_up argument is passed
@@ -263,7 +265,7 @@ class Workflow(object):
         :type  pick_up: bool
         :param pick_up: Passed on to each call of complete_next().
         """
-        while self.complete_next(pick_up):
+        while self.complete_next(pick_up, halt_on_manual):
             pass
 
     def get_dump(self):

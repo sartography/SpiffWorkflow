@@ -17,7 +17,9 @@ spec = WorkflowSpec.deserialize(serializer, workflow_json)
 workflow = Workflow(spec)
 
 # Execute until all tasks are done or require manual intervention.
-workflow.complete_all()
+# For the sake of this tutorial, we ignore the "manual" flag on the
+# tasks. In practice, you probably don't want to do that.
+workflow.complete_all(halt_on_manual=False)
 
 # Alternatively, this is what a UI would do for a manual task.
 #workflow.complete_task_from_id(...)
