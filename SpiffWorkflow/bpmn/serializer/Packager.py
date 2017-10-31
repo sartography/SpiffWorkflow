@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
-from future import standard_library
-standard_library.install_aliases()
 from builtins import object
 # Copyright (C) 2012 Matthew Hampton
 #
