@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 import sys
+sys.path.insert(0, '.')
 sys.path.insert(0, 'SpiffWorkflow')
 from version import __version__
 from setuptools import setup, find_packages
