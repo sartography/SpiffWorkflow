@@ -42,10 +42,11 @@ class BpmnScriptEngine(object):
         else:
             return self._eval(task, expression, **task.data)
 
-    def execute(self, task, script):
+    def execute(self, task, script, **kwargs):
         """
         Execute the script, within the context of the specified task
         """
+        locals().update(kwargs)
         exec(script)
 
     def _eval(self, task, expression, **kwargs):
