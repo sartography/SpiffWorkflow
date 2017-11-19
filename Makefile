@@ -3,7 +3,6 @@ VERSION=`python setup.py --version`
 PREFIX=/usr/local/
 BIN_DIR=$(PREFIX)/bin
 SITE_DIR=$(PREFIX)`python -c "import sys; from distutils.sysconfig import get_python_lib; print get_python_lib()[len(sys.prefix):]"`
-DISTDIR=/pub/code/releases/spiff_workflow
 
 ###################################################################
 # Standard targets.
@@ -43,22 +42,22 @@ tests:
 ###################################################################
 # Package builders.
 ###################################################################
-targz:
+targz: clean
 	./version.sh
 	python setup.py sdist --formats gztar
 	./version.sh --reset
 
-tarbz:
+tarbz: clean
 	./version.sh
 	python setup.py sdist --formats bztar
 	./version.sh --reset
 
-wheel:
+wheel: clean
 	./version.sh
 	python setup.py bdist_wheel --universal
 	./version.sh --reset
 
-deb:
+deb: clean
 	./version.sh
 	debuild -S -sa
 	cd ..; sudo pbuilder build $(NAME)_$(VERSION)-0ubuntu1.dsc; cd -
@@ -69,10 +68,7 @@ dist: targz tarbz wheel
 ###################################################################
 # Publishers.
 ###################################################################
-dist-publish: dist
-	mkdir -p $(DISTDIR)/
-	mv dist/* $(DISTDIR)
-
-.PHONY : doc-publish
-doc-publish:
-	cd doc; make publish
+dist-publish:
+	./version.sh
+	python setup.py bdist_wheel --universal upload
+	./version.sh --reset
