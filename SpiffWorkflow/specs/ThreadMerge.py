@@ -18,7 +18,6 @@ from __future__ import division, absolute_import
 # 02110-1301  USA
 from ..task import Task
 from ..exceptions import WorkflowException
-from .base import TaskSpec
 from ..operators import valueof
 from ..specs import Join
 

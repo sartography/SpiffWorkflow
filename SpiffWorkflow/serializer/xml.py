@@ -15,11 +15,11 @@ from builtins import str
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+import re
 import warnings
 from lxml import etree
 from lxml.etree import SubElement
 from .. import Workflow, specs, operators
-from ..util.impl import get_class
 from ..task import Task
 from ..operators import *
 from ..specs import *

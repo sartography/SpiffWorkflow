@@ -18,7 +18,6 @@ from builtins import range
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 from ..task import Task
-from ..exceptions import WorkflowException
 from .base import TaskSpec
 from ..operators import valueof
 

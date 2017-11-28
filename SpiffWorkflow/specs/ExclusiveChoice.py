@@ -16,7 +16,6 @@ from __future__ import division, absolute_import
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-import re
 from ..task import Task
 from ..exceptions import WorkflowException
 from .MultiChoice import MultiChoice
