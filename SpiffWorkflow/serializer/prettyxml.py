@@ -256,7 +256,7 @@ class XmlSerializer(Serializer):
                     _exc('Empty %s tag' % node.nodeName)
                 if context == '':
                     context = []
-                elif type(context) != type([]):
+                elif not isinstance(context, list):
                     context = [context]
                 context.append(node.firstChild.nodeValue)
             elif node.nodeName == 'lock':

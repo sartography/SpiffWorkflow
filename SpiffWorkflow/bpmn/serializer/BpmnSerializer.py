@@ -38,7 +38,8 @@ class BpmnSerializer(Serializer):
 
     def serialize_workflow_spec(self, wf_spec, **kwargs):
         raise NotImplementedError(
-            "The BpmnSerializer class cannot be used to serialize. BPMN authoring should be done using a supported editor.")
+            "The BpmnSerializer class cannot be used to serialize. BPMN authoring should be done using a "
+            "supported editor.")
 
     def serialize_workflow(self, workflow, **kwargs):
         raise NotImplementedError(
@@ -89,7 +90,7 @@ class BpmnSerializer(Serializer):
                 # It is in the root of the ZIP and is a BPMN file
                 try:
                     svg = package_zip.read(info.filename[:-5] + '.svg')
-                except KeyError as e:
+                except KeyError:
                     svg = None
 
                 bpmn_fp = package_zip.open(info)

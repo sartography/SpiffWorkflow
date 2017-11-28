@@ -27,7 +27,6 @@ from ..util import merge_dictionary
 
 try:
     from celery.app import default_app
-    from celery.result import AsyncResult
 except ImportError:
     have_celery = False
 else:
@@ -67,9 +66,9 @@ def Serializable(o):
         return o
     else:
         try:
-            s = json.dumps(o)
+            json.dumps(o)
             return o
-        except:
+        except Exception:
             LOG.debug("Got a non-serilizeable object: %s" % o)
             return o.__repr__()
 

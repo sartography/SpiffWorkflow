@@ -90,7 +90,7 @@ class Workflow(object):
         iter = Task.Iterator(self.task_tree, mask)
         try:
             next(iter)
-        except:
+        except:  # noqa (would it be possible to just catch Exception instead?)
             # No waiting tasks found.
             return True
         return False
@@ -231,7 +231,7 @@ class Workflow(object):
             try:
                 iter = Task.Iterator(self.last_task, Task.READY)
                 task = next(iter)
-            except:
+            except:  # noqa (would it be possible catch Exception instead?)
                 task = None
             self.last_task = None
             if task is not None:

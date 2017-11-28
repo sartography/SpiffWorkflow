@@ -150,7 +150,7 @@ class BpmnProcessSpec(WorkflowSpec):
         svg_content = ''
         svg_done = set()
         for spec in self.get_specs_depth_first():
-            if spec.svg and not spec.svg in svg_done:
+            if spec.svg and spec.svg not in svg_done:
                 svg_content += '<p>' + spec.svg + "</p>"
                 svg_done.add(spec.svg)
         return html_text.replace('___CONTENT___', svg_content)
