@@ -77,14 +77,6 @@ class ThreadSplit(TaskSpec):
         self.thread_starter.outputs.append(task_spec)
         task_spec._connect_notify(self.thread_starter)
 
-    def _find_my_task(self, workflow):
-        for task in workflow.branch_tree:
-            if task.thread_id != my_task.thread_id:
-                continue
-            if task.task == self:
-                return task
-        return None
-
     def _get_activated_tasks(self, my_task, destination):
         """
         Returns the list of tasks that were activated in the previous
@@ -112,8 +104,6 @@ class ThreadSplit(TaskSpec):
         May be called after execute() was already completed to create an
         additional outbound task.
         """
-        # Find a Task for this task.
-        my_task = self._find_my_task(my_task.workflow)
         for output in self.outputs:
             new_task = my_task.add_child(output, Task.READY)
             new_task.triggered = True
