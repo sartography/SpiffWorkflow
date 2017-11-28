@@ -152,11 +152,14 @@ class BpmnParser(object):
             xpath('.//bpmn:conditionExpression'))
         if conditionExpression is not None:
             conditionExpression = conditionExpression.text
-        return self.parse_condition(conditionExpression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node, task_parser)
+        return self.parse_condition(conditionExpression, outgoing_task, outgoing_task_node,
+                                    sequence_flow_node, condition_expression_node, task_parser)
 
-    def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node, task_parser):
+    def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node,
+                        condition_expression_node, task_parser):
         """
-        Pre-parse the given condition expression, and return the parsed version. The returned version will be passed to the Script Engine
+        Pre-parse the given condition expression, and return the parsed version.
+        The returned version will be passed to the Script Engine
         for evaluation.
         """
         return condition_expression
@@ -174,7 +177,8 @@ class BpmnParser(object):
 
     def get_spec(self, process_id_or_name):
         """
-        Parses the required subset of the BPMN files, in order to provide an instance of BpmnProcessSpec (i.e. WorkflowSpec)
+        Parses the required subset of the BPMN files, in order to provide an
+        instance of BpmnProcessSpec (i.e. WorkflowSpec)
         for the given process ID or name. The Name is matched first.
         """
         return self.get_process_parser(process_id_or_name).get_spec()
