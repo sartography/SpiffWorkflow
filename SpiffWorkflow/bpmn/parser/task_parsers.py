@@ -19,7 +19,7 @@ from __future__ import division
 
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
-from .util import *
+from .util import first, one
 from ..specs.event_definitions import TimerEventDefinition, MessageEventDefinition
 import xml.etree.ElementTree as ET
 
@@ -67,7 +67,8 @@ class UserTaskParser(TaskParser):
 class ManualTaskParser(UserTaskParser):
 
     """
-    Base class for parsing Manual Tasks. Currently assumes that Manual Tasks should be treated the same way as User Tasks.
+    Base class for parsing Manual Tasks. Currently assumes that Manual Tasks 
+    should be treated the same way as User Tasks.
     """
     pass
 
@@ -75,7 +76,8 @@ class ManualTaskParser(UserTaskParser):
 class NoneTaskParser(UserTaskParser):
 
     """
-    Base class for parsing unspecified Tasks. Currently assumes that such Tasks should be treated the same way as User Tasks.
+    Base class for parsing unspecified Tasks. Currently assumes that such Tasks 
+    should be treated the same way as User Tasks.
     """
     pass
 
@@ -95,7 +97,8 @@ class ExclusiveGatewayParser(TaskParser):
                 outgoing_task, outgoing_task_node, sequence_flow_node, task_parser=self)
             if cond is None:
                 raise ValidationException(
-                    'Non-default exclusive outgoing sequence flow without condition', sequence_flow_node, self.process_parser.filename)
+                    'Non-default exclusive outgoing sequence flow without condition', sequence_flow_node,
+                    self.process_parser.filename)
             self.task.connect_outgoing_if(cond, outgoing_task, sequence_flow_node.get('id'), sequence_flow_node.get(
                 'name', None), self.parser._parse_documentation(sequence_flow_node, task_parser=self))
 
@@ -129,18 +132,21 @@ class InclusiveGatewayParser(TaskParser):
 class CallActivityParser(TaskParser):
 
     """
-    Parses a CallActivity node. This also supports the not-quite-correct BPMN that Signavio produces (which does not have a calledElement attribute).
+    Parses a CallActivity node. This also supports the not-quite-correct BPMN that Signavio produces 
+    (which does not have a calledElement attribute).
     """
 
     def create_task(self):
         wf_spec = self.get_subprocess_parser().get_spec()
-        return self.spec_class(self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec, bpmn_wf_class=self.parser.WORKFLOW_CLASS, description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
+                               bpmn_wf_class=self.parser.WORKFLOW_CLASS, description=self.node.get('name', None))
 
     def get_subprocess_parser(self):
         calledElement = self.node.get('calledElement', None)
         if not calledElement:
             raise ValidationException(
-                'No "calledElement" attribute for Call Activity.', node=self.node, filename=self.process_parser.filename)
+                'No "calledElement" attribute for Call Activity.', node=self.node,
+                filename=self.process_parser.filename)
         return self.parser.get_process_parser(calledElement)
 
 
@@ -170,7 +176,8 @@ class IntermediateCatchEventParser(TaskParser):
 
     def create_task(self):
         event_definition = self.get_event_definition()
-        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition,
+                               description=self.node.get('name', None))
 
     def get_event_definition(self):
         """
@@ -205,17 +212,20 @@ class IntermediateCatchEventParser(TaskParser):
         This currently only supports the timeDate node for specifying an expiry time for the timer.
         """
         timeDate = first(self.xpath('.//bpmn:timeDate'))
-        return TimerEventDefinition(self.node.get('name', timeDate.text), self.parser.parse_condition(timeDate.text, None, None, None, None, self))
+        return TimerEventDefinition(self.node.get('name', timeDate.text), self.parser.parse_condition(
+            timeDate.text, None, None, None, None, self))
 
 
 class BoundaryEventParser(IntermediateCatchEventParser):
 
     """
-    Parse a Catching Boundary Event. This extends the IntermediateCatchEventParser in order to parse the event definition.
+    Parse a Catching Boundary Event. This extends the IntermediateCatchEventParser
+    in order to parse the event definition.
     """
 
     def create_task(self):
         event_definition = self.get_event_definition()
         cancel_activity = self.node.get(
             'cancelActivity', default='false').lower() == 'true'
-        return self.spec_class(self.spec, self.get_task_spec_name(), cancel_activity=cancel_activity, event_definition=event_definition, description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.get_task_spec_name(), cancel_activity=cancel_activity,
+                               event_definition=event_definition, description=self.node.get('name', None))

@@ -21,8 +21,13 @@ from lxml import etree
 from lxml.etree import SubElement
 from .. import Workflow, specs, operators
 from ..task import Task
-from ..operators import *
-from ..specs import *
+from ..operators import (Attrib, Assign, PathAttrib, Equal, NotEqual,
+                         GreaterThan, LessThan, Match)
+from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
+                     ExclusiveChoice, Execute, Gate, Join, MultiChoice,
+                     MultiInstance, ReleaseMutex, Simple, WorkflowSpec,
+                     SubWorkflow, StartTask, ThreadMerge,
+                     ThreadSplit, ThreadStart, Merge, Trigger)
 from .base import Serializer
 from .exceptions import TaskNotSupportedError
 
@@ -126,7 +131,7 @@ class XmlSerializer(Serializer):
         if value.tag == 'attribute':
             return Attrib.deserialize(self, value)
         elif value.tag == 'path':
-            return Path.deserialize(self, value)
+            return PathAttrib.deserialize(self, value)
         elif value.tag == 'assign':
             return Assign.deserialize(self, value)
         else:

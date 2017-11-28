@@ -20,8 +20,13 @@ from base64 import b64encode, b64decode
 from .. import Workflow
 from ..util.impl import get_class
 from ..task import Task
-from ..operators import *
-from ..specs import *
+from ..operators import (Attrib, PathAttrib, Equal, NotEqual,
+                         Operator, GreaterThan, LessThan, Match)
+from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
+                     ExclusiveChoice, Execute, Gate, Join, MultiChoice,
+                     MultiInstance, ReleaseMutex, Simple, WorkflowSpec,
+                     TaskSpec, SubWorkflow, StartTask, ThreadMerge,
+                     ThreadSplit, ThreadStart, Merge, Trigger)
 from .base import Serializer
 from .exceptions import TaskNotSupportedError
 import warnings
@@ -457,7 +462,7 @@ class DictionarySerializer(Serializer):
 
         # last_node
         value = workflow.last_task
-        s_state['last_task'] = value.id if not value is None else None
+        s_state['last_task'] = value.id if value is not None else None
 
         # outer_workflow
         # s_state['outer_workflow'] = workflow.outer_workflow.id
@@ -517,7 +522,7 @@ class DictionarySerializer(Serializer):
         # s_state['workflow'] = task.workflow.id
 
         # parent
-        s_state['parent'] = task.parent.id if not task.parent is None else None
+        s_state['parent'] = task.parent.id if task.parent is not None else None
 
         # children
         if not skip_children:

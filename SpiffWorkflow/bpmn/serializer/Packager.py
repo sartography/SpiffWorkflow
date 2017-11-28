@@ -29,7 +29,7 @@ from io import StringIO
 from optparse import OptionParser, OptionGroup
 from ..parser.BpmnParser import BpmnParser
 from ..parser.ValidationException import ValidationException
-from ..parser.util import *
+from ..parser.util import xpath_eval, one
 
 SIGNAVIO_NS = 'http://www.signavio.com'
 CONFIG_SECTION_NAME = "Packager Options"
@@ -60,7 +60,8 @@ class Packager(object):
     parser to deal with the package.
 
     Editor hooks:
-    package_for_editor_<editor name>(self, spec, filename): Called once for each BPMN file. Should add any additional files to the archive.
+    package_for_editor_<editor name>(self, spec, filename): Called once for each BPMN file.
+    Should add any additional files to the archive.
 
     """
 
@@ -74,8 +75,10 @@ class Packager(object):
 
         :param package_file: a file-like object where the contents of the package must be written to
         :param entry_point_process: the name or ID of the entry point process
-        :param meta_data: A list of meta-data tuples to include in the metadata.ini file (in addition to the standard ones)
-        :param editor: The name of the editor used to create the source BPMN / SVG files. This activates additional hook method calls. (optional)
+        :param meta_data: A list of meta-data tuples to include in the metadata.ini file
+            (in addition to the standard ones)
+        :param editor: The name of the editor used to create the source BPMN / SVG files.
+            This activates additional hook method calls. (optional)
         """
         self.package_file = package_file
         self.entry_point_process = entry_point_process
@@ -148,7 +151,7 @@ class Packager(object):
         done_files = set()
         for spec in self.wf_spec.get_specs_depth_first():
             filename = spec.file
-            if not filename in done_files:
+            if filename not in done_files:
                 done_files.add(filename)
 
                 bpmn = self.bpmn[os.path.abspath(filename)]
@@ -246,18 +249,20 @@ class Packager(object):
                 './/bpmn:sequenceFlow[@targetRef="%s"]' % catch_event.get('id'))
             if not incoming:
                 raise ValidationException(
-                    'Intermediate Catch Event has no incoming sequences. This might be a Boundary Event that has been disconnected.',
+                    'Intermediate Catch Event has no incoming sequences. '
+                    'This might be a Boundary Event that has been disconnected.',
                     node=catch_event, filename=filename)
 
     def _fix_call_activities_signavio(self, bpmn, filename):
         """
-        Signavio produces slightly invalid BPMN for call activity nodes... It is supposed to put a reference to the id of the called process
-        in to the calledElement attribute. Instead it stores a string (which is the name of the process - not its ID, in our interpretation)
+        Signavio produces slightly invalid BPMN for call activity nodes... It is supposed to put a reference to the id
+        of the called process in to the calledElement attribute. Instead it stores a string
+        (which is the name of the process - not its ID, in our interpretation)
         in an extension tag.
 
-        This code gets the name of the 'subprocess reference', finds a process with a matching name, and sets the calledElement attribute
+        This code gets the name of the 'subprocess reference', finds a process with a matching name, and sets the
+        calledElement attribute
         to the id of the process.
-
         """
         for node in xpath_eval(bpmn)(".//bpmn:callActivity"):
             calledElement = node.get('calledElement', None)
@@ -278,7 +283,8 @@ class Packager(object):
                                               subprocess_reference, node=node, filename=filename)
                 if len(matches) != 1:
                     raise ValidationException(
-                        "More than one matching process definition found for '%s'." % subprocess_reference, node=node, filename=filename)
+                        "More than one matching process definition found for '%s'." % subprocess_reference, node=node,
+                        filename=filename)
 
                 node.set('calledElement', matches[0].get('id'))
 
@@ -341,7 +347,7 @@ class Packager(object):
         try:
             import pkg_resources  # part of setuptools
             version = pkg_resources.require("SpiffWorkflow")[0].version
-        except Exception as ex:
+        except Exception:
             version = 'DEV'
         return version
 
@@ -370,7 +376,8 @@ class Packager(object):
             help="create a new config file from the specified options")
 
         group = OptionGroup(parser, "BPMN Editor Options",
-                            "These options are not required, but may be provided to activate special features of supported BPMN editors.")
+                            "These options are not required, but may be provided to activate special features of "
+                            "supported BPMN editors.")
         group.add_option("--editor", dest="editor",
                          help="editors with special support: signavio")
         parser.add_option_group(group)
@@ -381,7 +388,8 @@ class Packager(object):
         Override in subclass if required.
         """
         group = OptionGroup(parser, "Target Engine Options",
-                            "These options are not required, but may be provided if a specific BPMN application engine is targeted.")
+                            "These options are not required, but may be provided if a specific "
+                            "BPMN application engine is targeted.")
         group.add_option("-e", "--target-engine", dest="target_engine",
                          help="target the specified BPMN application engine")
         group.add_option(
@@ -497,6 +505,7 @@ def main(packager_class=None):
         packager_class = Packager
 
     packager_class.main()
+
 
 if __name__ == '__main__':
     main()

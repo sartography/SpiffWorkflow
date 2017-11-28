@@ -23,7 +23,7 @@ import sys
 import traceback
 from .ValidationException import ValidationException
 from ..specs.BoundaryEvent import _BoundaryEventParent
-from .util import *
+from .util import xpath_eval, one
 
 LOG = logging.getLogger(__name__)
 
@@ -88,7 +88,8 @@ class TaskParser(object):
                 './/bpmn:sequenceFlow[@sourceRef="%s"]' % self.get_id())
             if len(outgoing) > 1 and not self.handles_multiple_outgoing():
                 raise ValidationException(
-                    'Multiple outgoing flows are not supported for tasks of type', node=self.node, filename=self.process_parser.filename)
+                    'Multiple outgoing flows are not supported for tasks of type', node=self.node,
+                    filename=self.process_parser.filename)
             for sequence_flow in outgoing:
                 target_ref = sequence_flow.get('targetRef')
                 target_node = one(
@@ -107,7 +108,7 @@ class TaskParser(object):
                         c, target_node, sequence_flow, sequence_flow.get('id') == default_outgoing)
 
             return parent_task if boundary_event_nodes else self.task
-        except ValidationException as vx:
+        except ValidationException:
             raise
         except Exception as ex:
             exc_info = sys.exc_info()
@@ -137,9 +138,11 @@ class TaskParser(object):
 
     def create_task(self):
         """
-        Create an instance of the task appropriately. A subclass can override this method to get extra information from the node.
+        Create an instance of the task appropriately. A subclass can override
+        this method to get extra information from the node.
         """
-        return self.spec_class(self.spec, self.get_task_spec_name(), lane=self.get_lane(), description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.get_task_spec_name(), lane=self.get_lane(),
+                               description=self.node.get('name', None))
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
         """
