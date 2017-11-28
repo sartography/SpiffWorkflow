@@ -30,6 +30,7 @@ from ...specs import SubWorkflow
 from ...serializer.base import Serializer
 from ..workflow import BpmnWorkflow
 
+
 class UnrecoverableWorkflowChange(Exception):
 
     """
@@ -55,15 +56,15 @@ class _RouteNode(object):
         return m[0] if m else None
 
     def to_list(self):
-        l = []
+        result = []
         n = self
         while n.outgoing:
             assert len(
                 n.outgoing) == 1, "to_list(..) cannot be called after a merge"
-            l.append(n.task_spec)
+            result.append(n.task_spec)
             n = n.outgoing[0]
-        l.append(n.task_spec)
-        return l
+        result.append(n.task_spec)
+        return result
 
     def contains(self, other_route):
         if isinstance(other_route, list):
@@ -136,11 +137,11 @@ class _BpmnProcessSpecState(object):
                 if task_spec.inputs:
                     dump += indent + '-  IN: ' + \
                         ','.join(['%s (%s)' % (t.name, hex(id(t)))
-                                 for t in task_spec.inputs]) + '\n'
+                                  for t in task_spec.inputs]) + '\n'
                 if task_spec.outputs:
                     dump += indent + '- OUT: ' + \
                         ','.join(['%s (%s)' % (t.name, hex(id(t)))
-                                 for t in task_spec.outputs]) + '\n'
+                                  for t in task_spec.outputs]) + '\n'
 
             for i, t in enumerate(route_node.outgoing):
                 dump += indent + '   --> ' + \
@@ -155,7 +156,8 @@ class _BpmnProcessSpecState(object):
         leaf_tasks = []
         self._go(workflow.task_tree.children[0], self.route, leaf_tasks)
         logging.debug('Leaf tasks after load, before _update: %s', leaf_tasks)
-        for task in sorted(leaf_tasks, key=lambda t: 0 if getattr(t, '_bpmn_load_target_state', Task.READY) == Task.READY else 1):
+        for task in sorted(leaf_tasks, key=lambda t: 0 if
+                           getattr(t, '_bpmn_load_target_state', Task.READY) == Task.READY else 1):
             task.task_spec._update(task)
             task._inherit_data()
             if hasattr(task, '_bpmn_load_target_state'):
@@ -169,7 +171,8 @@ class _BpmnProcessSpecState(object):
             leaf_tasks.append(task)
         else:
             if not task._is_finished():
-                if issubclass(task.task_spec.__class__, SubWorkflow) and task.task_spec.spec.start in [o.task_spec for o in route_node.outgoing]:
+                if (issubclass(task.task_spec.__class__, SubWorkflow) and
+                        task.task_spec.spec.start in [o.task_spec for o in route_node.outgoing]):
                     self._go_in_to_subworkflow(
                         task, [n.task_spec for n in route_node.outgoing])
                 else:
@@ -194,7 +197,8 @@ class _BpmnProcessSpecState(object):
 
     def _go_in_to_subworkflow(self, my_task, target_children_specs):
         # This method simulates the entering of a subworkflow, but without hooks being called, and targeting a specific
-        # subset of the entry tasks in the subworkflow. It creates the new workflow instance and merges it in to the tree
+        # subset of the entry tasks in the subworkflow. It creates the new workflow instance and merges it in to
+        # the tree
         # This is based on SubWorkflow._on_ready_before_hook(..)
         if my_task._is_finished():
             return
@@ -244,7 +248,8 @@ class _BpmnProcessSpecState(object):
             if not route[-1] == starting_route[-1]:
                 if task_name and route[-1].name == task_name:
                     return route
-                if transition_id and hasattr(route[-1], 'has_outgoing_sequence_flow') and route[-1].has_outgoing_sequence_flow(transition_id):
+                if (transition_id and hasattr(route[-1], 'has_outgoing_sequence_flow') and
+                        route[-1].has_outgoing_sequence_flow(transition_id)):
                     spec = route[-1].get_outgoing_sequence_flow_by_id(
                         transition_id).target_task_spec
                     if taken_routes:
@@ -314,14 +319,16 @@ class CompactWorkflowSerializer(Serializer):
     def deserialize_workflow(self, s_state, workflow_spec=None, read_only=False, **kwargs):
         """
         :param s_state: the state of the workflow as returned by serialize_workflow
-        :param workflow_spec: the Workflow Spec of the workflow (CompactWorkflowSerializer only supports workflow serialization)
+        :param workflow_spec: the Workflow Spec of the workflow (CompactWorkflowSerializer only supports workflow
+            serialization)
         :param read_only: (Optional) True if the workflow should be restored in READ ONLY mode
 
         NB: Additional kwargs passed to the deserialize_workflow method will be passed to the new_workflow method.
         """
         if workflow_spec is None:
             raise NotImplementedError(
-                'Including the spec serialization with the workflow state is not implemented. A \'workflow_spec\' must be provided.')
+                'Including the spec serialization with the workflow state is not implemented. A \'workflow_spec\' must '
+                'be provided.')
         workflow = self.new_workflow(
             workflow_spec, read_only=read_only, **kwargs)
         self._restore_workflow_state(workflow, s_state)
@@ -405,7 +412,8 @@ class CompactWorkflowSerializer(Serializer):
                         continue
                     other_route = routes[j][0]
                     route_to_parent_complete = routes[j][1]
-                    if route.contains(other_route) or (route_to_parent_complete and route.contains(route_to_parent_complete)):
+                    if route.contains(other_route) or (route_to_parent_complete and route.contains(
+                            route_to_parent_complete)):
                         taken_routes = [r for r in routes if r[0] != route]
                         taken_routes = [r for r in [r[0]
                                                     for r in taken_routes] + [r[1] for r in taken_routes] if r]

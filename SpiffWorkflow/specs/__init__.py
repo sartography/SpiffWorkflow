@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
 from __future__ import division, absolute_import
 from .base import TaskSpec
 from .AcquireMutex import AcquireMutex

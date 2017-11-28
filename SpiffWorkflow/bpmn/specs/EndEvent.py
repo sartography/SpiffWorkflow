@@ -34,8 +34,8 @@ class EndEvent(Simple, BpmnSpecMixin):
     For all other End Events, the behavior associated with the Event type is performed, e.g., the associated Message is
     sent for a Message End Event, the associated signal is sent for a Signal End Event, and so on. The Process
     instance is then completed, if and only if the following two conditions hold:
-     * All start nodes of the Process have been visited. More precisely, all Start Events have been triggered, and for all
-    starting Event-Based Gateways, one of the associated Events has been triggered.
+     * All start nodes of the Process have been visited. More precisely, all Start Events have been triggered, and
+       for all starting Event-Based Gateways, one of the associated Events has been triggered.
      * There is no token remaining within the Process instance.
     """
 

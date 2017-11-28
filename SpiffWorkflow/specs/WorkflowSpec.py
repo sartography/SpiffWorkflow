@@ -81,7 +81,7 @@ class WorkflowSpec(object):
                 if task in history:
                     msg = "Found loop with '%s': %s then '%s' again" % (
                         task.name, '->'.join([p.name for p in history]),
-                            task.name)
+                        task.name)
                     raise Exception(msg)
                 for predecessor in task.inputs:
                     recursive_find_loop(predecessor, current)
@@ -140,7 +140,8 @@ class WorkflowSpec(object):
 
         def recursive_dump(task_spec, indent):
             if task_spec in done:
-                return '[shown earlier] %s (%s:%s)' % (task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
+                return '[shown earlier] %s (%s:%s)' % (
+                    task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
 
             done.add(task_spec)
             dump = '%s (%s:%s)' % (
@@ -149,11 +150,11 @@ class WorkflowSpec(object):
                 if task_spec.inputs:
                     dump += indent + '-  IN: ' + \
                         ','.join(['%s (%s)' % (t.name, hex(id(t)))
-                                 for t in task_spec.inputs]) + '\n'
+                                  for t in task_spec.inputs]) + '\n'
                 if task_spec.outputs:
                     dump += indent + '- OUT: ' + \
                         ','.join(['%s (%s)' % (t.name, hex(id(t)))
-                                 for t in task_spec.outputs]) + '\n'
+                                  for t in task_spec.outputs]) + '\n'
             sub_specs = ([task_spec.spec.start] if hasattr(
                 task_spec, 'spec') else []) + task_spec.outputs
             for i, t in enumerate(sub_specs):

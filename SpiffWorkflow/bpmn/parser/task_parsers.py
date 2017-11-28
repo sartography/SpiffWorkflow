@@ -67,7 +67,7 @@ class UserTaskParser(TaskParser):
 class ManualTaskParser(UserTaskParser):
 
     """
-    Base class for parsing Manual Tasks. Currently assumes that Manual Tasks 
+    Base class for parsing Manual Tasks. Currently assumes that Manual Tasks
     should be treated the same way as User Tasks.
     """
     pass
@@ -76,7 +76,7 @@ class ManualTaskParser(UserTaskParser):
 class NoneTaskParser(UserTaskParser):
 
     """
-    Base class for parsing unspecified Tasks. Currently assumes that such Tasks 
+    Base class for parsing unspecified Tasks. Currently assumes that such Tasks
     should be treated the same way as User Tasks.
     """
     pass
@@ -132,7 +132,7 @@ class InclusiveGatewayParser(TaskParser):
 class CallActivityParser(TaskParser):
 
     """
-    Parses a CallActivity node. This also supports the not-quite-correct BPMN that Signavio produces 
+    Parses a CallActivity node. This also supports the not-quite-correct BPMN that Signavio produces
     (which does not have a calledElement attribute).
     """
 
