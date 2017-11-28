@@ -34,8 +34,13 @@ from ..specs.StartEvent import StartEvent
 from ..specs.UserTask import UserTask
 from ..specs.EndEvent import EndEvent
 from .ProcessParser import ProcessParser
-from .util import *
-from .task_parsers import *
+from .util import full_tag, xpath_eval, first
+from .task_parsers import (StartEventParser, EndEventParser, UserTaskParser,
+                           NoneTaskParser, ManualTaskParser,
+                           ExclusiveGatewayParser, ParallelGatewayParser,
+                           InclusiveGatewayParser, CallActivityParser,
+                           ScriptTaskParser, IntermediateCatchEventParser,
+                           BoundaryEventParser)
 import xml.etree.ElementTree as ET
 
 
