@@ -16,7 +16,6 @@ from __future__ import division, absolute_import
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-import os
 import re
 import xml.dom.minidom as minidom
 from .. import operators, specs
@@ -109,7 +108,6 @@ class XmlSerializer(Serializer):
         op = node.nodeName.lower()
         term2_attrib = node.getAttribute('right-field')
         term2_value = node.getAttribute('right-value')
-        kwargs = {}
         if op not in _op_map:
             _exc('Invalid operator')
         if term1_attrib != '' and term1_value != '':

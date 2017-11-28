@@ -18,7 +18,6 @@ from __future__ import division, absolute_import
 # 02110-1301  USA
 import logging
 
-from ..exceptions import WorkflowException
 from .Join import Join
 from ..util import merge_dictionary
 

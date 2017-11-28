@@ -18,7 +18,6 @@ from __future__ import division, absolute_import
 import subprocess
 
 from ..task import Task
-from ..exceptions import WorkflowException
 from .base import TaskSpec
 
 
