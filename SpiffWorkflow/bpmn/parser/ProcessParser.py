@@ -20,7 +20,7 @@ from builtins import object
 
 from .ValidationException import ValidationException
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
-from .util import *
+from .util import xpath_eval
 
 
 class ProcessParser(object):
