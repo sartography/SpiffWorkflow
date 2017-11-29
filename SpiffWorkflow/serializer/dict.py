@@ -36,7 +36,8 @@ class DictionarySerializer(Serializer):
 
     def serialize_dict(self, thedict):
         return dict(
-            (str(k), b64encode(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL)))
+            (str(k), b64encode(pickle.dumps(v,
+                                            protocol=pickle.HIGHEST_PROTOCOL)))
             for k, v in list(thedict.items()))
 
     def deserialize_dict(self, s_state):

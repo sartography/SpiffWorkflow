@@ -68,7 +68,8 @@ class Trigger(TaskSpec):
         for thetask in my_task.workflow.task_tree:
             if thetask.thread_id != my_task.thread_id:
                 continue
-            if thetask.task_spec == self and thetask._has_state(Task.COMPLETED):
+            if (thetask.task_spec == self and
+                    thetask._has_state(Task.COMPLETED)):
                 thetask._set_state(Task.FUTURE, True)
                 thetask._ready()
 

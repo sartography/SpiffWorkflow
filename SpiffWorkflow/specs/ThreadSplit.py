@@ -51,8 +51,8 @@ class ThreadSplit(TaskSpec):
         :type  times: int or :class:`SpiffWorkflow.operators.Term`
         :param times: The number of tasks to create.
         :type  suppress_threadstart_creation: bool
-        :param suppress_threadstart_creation: Don't create a ThreadStart, because
-                                              the deserializer is about to.
+        :param suppress_threadstart_creation: Don't create a ThreadStart,
+          because the deserializer is about to.
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """

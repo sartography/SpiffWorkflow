@@ -69,7 +69,8 @@ class Event(object):
         .. note::
 
             The signal handler is stored with a hard reference, so you
-            need to make sure to call :class:`disconnect()` if you want the handler
+            need to make sure to call :class:`disconnect()` if you want the
+            handler
             to be garbage collected.
 
         :type  callback: object

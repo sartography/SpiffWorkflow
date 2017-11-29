@@ -125,10 +125,10 @@ class Task(object):
             if len(self.path) == 0:
                 raise StopIteration()
 
-            # If the current task has children, the first child is the next item.
-            # If the current task is LIKELY, and predicted tasks are not
-            # specificly searched, we can ignore the children, because predicted
-            # tasks should only have predicted children.
+            # If the current task has children, the first child is the next
+            # item. If the current task is LIKELY, and predicted tasks are not
+            # specificly searched, we can ignore the children, because
+            # predicted tasks should only have predicted children.
             current = self.path[-1]
             ignore_task = False
             if self.filter is not None:
@@ -137,7 +137,8 @@ class Task(object):
                 ignore_task = is_predicted and not search_predicted
             if current.children and not ignore_task:
                 self.path.append(current.children[0])
-                if self.filter is not None and current.state & self.filter == 0:
+                if (self.filter is not None and
+                        current.state & self.filter == 0):
                     return None
                 return current
 
@@ -219,11 +220,13 @@ class Task(object):
             old = self.get_state_name()
         self._state = value
         if __debug__:
-            self.log.append("Moving '%s' from %s to %s" % (self.get_name(),
-                                                           old, self.get_state_name()))
+            self.log.append("Moving '%s' from %s to %s" % (
+                self.get_name(),
+                old, self.get_state_name()))
         self.state_history.append(value)
-        LOG.debug("Moving '%s' (spec=%s) from %s to %s" % (self.get_name(),
-                                                           self.task_spec.name, old, self.get_state_name()))
+        LOG.debug("Moving '%s' (spec=%s) from %s to %s" % (
+            self.get_name(),
+            self.task_spec.name, old, self.get_state_name()))
 
     def _delstate(self):
         del self._state
@@ -377,7 +380,8 @@ class Task(object):
             # the given task spec list.
             if child._is_definite():
                 raise WorkflowException(self.task_spec,
-                                        'removal of non-predicted child %s' % repr(child))
+                                        'removal of non-predicted child %s' %
+                                        repr(child))
             remove.append(child)
 
         # Remove and add the children accordingly.
