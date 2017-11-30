@@ -76,11 +76,10 @@ class WeakMethod(object):
 
     def __call__(self, *args, **kwargs):
         """
-        Proxied to the underlying function or method. Raises :class:`DeadMethodCalled`
-        if the referenced function is dead.
+        Proxied to the underlying function or method. Raises
+        :class:`DeadMethodCalled` if the referenced function is dead.
 
-        :rtype:  object
-        :returns: Whatever the referenced function returned.
+        :rtype:  object :returns: Whatever the referenced function returned.
         """
         method = self.get_function()
         if method is None:

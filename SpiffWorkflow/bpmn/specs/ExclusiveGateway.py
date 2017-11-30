@@ -34,8 +34,8 @@ class ExclusiveGateway(ExclusiveChoice, BpmnSpecMixin):
         Checks whether all required attributes are set. Throws an exception
         if an error was detected.
         """
-        # This has been overidden to allow a single default flow out (without a condition) - useful for
-        # the converging type
+        # This has been overidden to allow a single default flow out (without a
+        # condition) - useful for the converging type
         TaskSpec.test(self)
 #        if len(self.cond_task_specs) < 1:
 #            raise WorkflowException(self, 'At least one output required.')

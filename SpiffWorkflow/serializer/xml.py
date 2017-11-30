@@ -351,7 +351,8 @@ class XmlSerializer(Serializer):
         SubElement(elem, 'mutex').text = spec.mutex
         return elem
 
-    def deserialize_acquire_mutex(self, wf_spec, elem, cls=AcquireMutex, **kwargs):
+    def deserialize_acquire_mutex(self, wf_spec, elem, cls=AcquireMutex,
+                                  **kwargs):
         mutex = elem.findtext('mutex')
         return self.deserialize_task_spec(wf_spec,
                                           elem,
@@ -365,7 +366,8 @@ class XmlSerializer(Serializer):
         SubElement(elem, 'cancel-successfully')
         return elem
 
-    def deserialize_cancel(self, wf_spec, elem, cls=Cancel, **kwargs):
+    def deserialize_cancel(self, wf_spec, elem, cls=Cancel,
+                           **kwargs):
         success = elem.find('cancel-successfully') is not None
         return self.deserialize_task_spec(wf_spec,
                                           elem,
@@ -433,7 +435,8 @@ class XmlSerializer(Serializer):
         SubElement(elem, 'default_task_spec').text = spec.default_task_spec
         return elem
 
-    def deserialize_exclusive_choice(self, wf_spec, elem, cls=ExclusiveChoice, **kwargs):
+    def deserialize_exclusive_choice(self, wf_spec, elem, cls=ExclusiveChoice,
+                                     **kwargs):
         spec = self.deserialize_multi_choice(wf_spec, elem, cls, **kwargs)
         spec.default_task_spec = elem.findtext('default_task_spec')
         return spec
@@ -498,7 +501,8 @@ class XmlSerializer(Serializer):
             SubElement(option_elem, 'output').text = spec_name
         return self.serialize_task_spec(spec, elem)
 
-    def deserialize_multi_choice(self, wf_spec, elem, cls=MultiChoice, **kwargs):
+    def deserialize_multi_choice(self, wf_spec, elem, cls=MultiChoice,
+                                 **kwargs):
         spec = self.deserialize_task_spec(wf_spec, elem, cls, **kwargs)
         if elem.find('choice') is not None:
             spec.choice = self.deserialize_value_list(elem.find('choice'))
@@ -518,7 +522,8 @@ class XmlSerializer(Serializer):
         self.serialize_value(SubElement(elem, 'times'), spec.times)
         return self.serialize_task_spec(spec, elem)
 
-    def deserialize_multi_instance(self, wf_spec, elem, cls=MultiInstance, **kwargs):
+    def deserialize_multi_instance(self, wf_spec, elem, cls=MultiInstance,
+                                   **kwargs):
         times = self.deserialize_value(elem.find('times'))
         return self.deserialize_task_spec(wf_spec, elem, cls, times=times,
                                           **kwargs)
@@ -528,7 +533,8 @@ class XmlSerializer(Serializer):
         SubElement(elem, 'mutex').text = spec.mutex
         return self.serialize_task_spec(spec, elem)
 
-    def deserialize_release_mutex(self, wf_spec, elem, cls=ReleaseMutex, **kwargs):
+    def deserialize_release_mutex(self, wf_spec, elem, cls=ReleaseMutex,
+                                  **kwargs):
         mutex = elem.findtext('mutex')
         return self.deserialize_task_spec(wf_spec, elem, cls, mutex=mutex,
                                           **kwargs)
@@ -559,7 +565,8 @@ class XmlSerializer(Serializer):
         self.serialize_value_list(out_elem, spec.out_assign)
         return self.serialize_task_spec(spec, elem)
 
-    def deserialize_sub_workflow(self, wf_spec, elem, cls=SubWorkflow, **kwargs):
+    def deserialize_sub_workflow(self, wf_spec, elem, cls=SubWorkflow,
+                                 **kwargs):
         warnings.warn("SubWorkflows cannot be safely deserialized as they " +
                       "only store a reference to the subworkflow " +
                       "specification as a path to an external XML file.")
@@ -577,7 +584,8 @@ class XmlSerializer(Serializer):
             elem = etree.Element('thread-merge')
         return self.serialize_join(spec, elem)
 
-    def deserialize_thread_merge(self, wf_spec, elem, cls=ThreadMerge, **kwargs):
+    def deserialize_thread_merge(self, wf_spec, elem, cls=ThreadMerge,
+                                 **kwargs):
         return self.deserialize_join(wf_spec, elem, cls, **kwargs)
 
     def serialize_thread_split(self, spec, elem=None):
@@ -586,7 +594,8 @@ class XmlSerializer(Serializer):
         self.serialize_value(SubElement(elem, 'times'), spec.times)
         return self.serialize_task_spec(spec, elem)
 
-    def deserialize_thread_split(self, wf_spec, elem, cls=ThreadSplit, **kwargs):
+    def deserialize_thread_split(self, wf_spec, elem, cls=ThreadSplit,
+                                 **kwargs):
         times_elem = elem.find('times')
         if times_elem is not None:
             times = self.deserialize_value(times_elem)
@@ -601,7 +610,8 @@ class XmlSerializer(Serializer):
             elem = etree.Element('thread-start')
         return self.serialize_task_spec(spec, elem)
 
-    def deserialize_thread_start(self, wf_spec, elem, cls=ThreadStart, **kwargs):
+    def deserialize_thread_start(self, wf_spec, elem, cls=ThreadStart,
+                                 **kwargs):
         return self.deserialize_task_spec(wf_spec, elem, cls, **kwargs)
 
     def serialize_merge(self, spec, elem=None):

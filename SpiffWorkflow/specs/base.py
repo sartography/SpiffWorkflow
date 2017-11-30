@@ -391,8 +391,9 @@ class TaskSpec(object):
         assert my_task is not None
 
         if my_task.workflow.debug:
-            print("Executing %s: %s (%s)" % (my_task.task_spec.__class__.__name__,
-                                             my_task.get_name(), my_task.get_description()))
+            print("Executing %s: %s (%s)" % (
+                my_task.task_spec.__class__.__name__,
+                my_task.get_name(), my_task.get_description()))
 
         self._on_complete_hook(my_task)
 

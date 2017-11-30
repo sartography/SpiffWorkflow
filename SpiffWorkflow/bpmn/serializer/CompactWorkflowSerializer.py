@@ -32,16 +32,14 @@ from ..workflow import BpmnWorkflow
 
 
 class UnrecoverableWorkflowChange(Exception):
-
     """
-    This is thrown if the workflow cannot be restored because the workflow spec has changed, and the
-    identified transitions no longer exist.
+    This is thrown if the workflow cannot be restored because the workflow spec
+    has changed, and the identified transitions no longer exist.
     """
     pass
 
 
 class _RouteNode(object):
-
     """
     Private helper class
     """
@@ -71,10 +69,10 @@ class _RouteNode(object):
             return self.to_list()[0:len(other_route)] == other_route
 
         # This only works before merging
-        assert len(
-            other_route.outgoing) <= 1, "contains(..) cannot be called after a merge"
-        assert len(
-            self.outgoing) <= 1, "contains(..) cannot be called after a merge"
+        assert len(other_route.outgoing) <= 1,\
+            "contains(..) cannot be called after a merge"
+        assert len(self.outgoing) <= 1,\
+            "contains(..) cannot be called after a merge"
 
         if other_route.task_spec == self.task_spec:
             if other_route.outgoing and self.outgoing:
@@ -96,7 +94,8 @@ class _BpmnProcessSpecState(object):
         self.spec = spec
         self.route = None
 
-    def get_path_to_transition(self, transition, state, workflow_parents, taken_routes=None):
+    def get_path_to_transition(self, transition, state, workflow_parents,
+                               taken_routes=None):
         # find a route passing through each task:
         route = [self.spec.start]
         route_to_parent_complete = None
@@ -132,7 +131,9 @@ class _BpmnProcessSpecState(object):
 
             task_spec = route_node.task_spec
             dump = '%s (%s:%s)' % (
-                task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
+                task_spec.name,
+                task_spec.__class__.__name__,
+                hex(id(task_spec))) + '\n'
             if verbose:
                 if task_spec.inputs:
                     dump += indent + '-  IN: ' + \
@@ -146,7 +147,9 @@ class _BpmnProcessSpecState(object):
             for i, t in enumerate(route_node.outgoing):
                 dump += indent + '   --> ' + \
                     recursive_dump(
-                        t, indent + ('   |   ' if i + 1 < len(route_node.outgoing) else '       '))
+                        t, indent + (
+                            '   |   ' if i + 1 < len(route_node.outgoing)
+                            else '       '))
             return dump
 
         dump = recursive_dump(self.route, '')
@@ -156,8 +159,11 @@ class _BpmnProcessSpecState(object):
         leaf_tasks = []
         self._go(workflow.task_tree.children[0], self.route, leaf_tasks)
         logging.debug('Leaf tasks after load, before _update: %s', leaf_tasks)
-        for task in sorted(leaf_tasks, key=lambda t: 0 if
-                           getattr(t, '_bpmn_load_target_state', Task.READY) == Task.READY else 1):
+        for task in sorted(
+                leaf_tasks,
+                key=lambda t: 0 if getattr(
+                    t, '_bpmn_load_target_state', Task.READY) == Task.READY
+                else 1):
             task.task_spec._update(task)
             task._inherit_data()
             if hasattr(task, '_bpmn_load_target_state'):
@@ -172,7 +178,8 @@ class _BpmnProcessSpecState(object):
         else:
             if not task._is_finished():
                 if (issubclass(task.task_spec.__class__, SubWorkflow) and
-                        task.task_spec.spec.start in [o.task_spec for o in route_node.outgoing]):
+                        task.task_spec.spec.start in
+                        [o.task_spec for o in route_node.outgoing]):
                     self._go_in_to_subworkflow(
                         task, [n.task_spec for n in route_node.outgoing])
                 else:
@@ -185,8 +192,8 @@ class _BpmnProcessSpecState(object):
                 self._go(matching_child[0], n, leaf_tasks)
 
     def _complete_task_silent(self, task, target_children_specs):
-        # This method simulates the completing of a task, but without hooks being called, and targeting a specific
-        # subset of the children
+        # This method simulates the completing of a task, but without hooks
+        # being called, and targeting a specific subset of the children
         if task._is_finished():
             return
         task._set_state(Task.COMPLETED)
@@ -196,10 +203,11 @@ class _BpmnProcessSpecState(object):
             task._add_child(task_spec)
 
     def _go_in_to_subworkflow(self, my_task, target_children_specs):
-        # This method simulates the entering of a subworkflow, but without hooks being called, and targeting a specific
-        # subset of the entry tasks in the subworkflow. It creates the new workflow instance and merges it in to
-        # the tree
-        # This is based on SubWorkflow._on_ready_before_hook(..)
+        # This method simulates the entering of a subworkflow, but without
+        # hooks being called, and targeting a specific subset of the entry
+        # tasks in the subworkflow. It creates the new workflow instance and
+        # merges it in to the tree This is based on
+        # SubWorkflow._on_ready_before_hook(..)
         if my_task._is_finished():
             return
 
@@ -233,13 +241,17 @@ class _BpmnProcessSpecState(object):
             else:
                 target.outgoing.append(out_route)
 
-    def _breadth_first_transition_search(self, transition_id, starting_route, taken_routes=None):
-        return self._breadth_first_search(starting_route, transition_id=transition_id, taken_routes=taken_routes)
+    def _breadth_first_transition_search(self, transition_id, starting_route,
+                                         taken_routes=None):
+        return self._breadth_first_search(starting_route,
+                                          transition_id=transition_id,
+                                          taken_routes=taken_routes)
 
     def _breadth_first_task_search(self, task_name, starting_route):
         return self._breadth_first_search(starting_route, task_name=task_name)
 
-    def _breadth_first_search(self, starting_route, task_name=None, transition_id=None, taken_routes=None):
+    def _breadth_first_search(self, starting_route, task_name=None,
+                              transition_id=None, taken_routes=None):
         q = deque()
         done = set()
         q.append(starting_route)
@@ -248,7 +260,8 @@ class _BpmnProcessSpecState(object):
             if not route[-1] == starting_route[-1]:
                 if task_name and route[-1].name == task_name:
                     return route
-                if (transition_id and hasattr(route[-1], 'has_outgoing_sequence_flow') and
+                if (transition_id and
+                        hasattr(route[-1], 'has_outgoing_sequence_flow') and
                         route[-1].has_outgoing_sequence_flow(transition_id)):
                     spec = route[-1].get_outgoing_sequence_flow_by_id(
                         transition_id).target_task_spec
@@ -266,8 +279,9 @@ class _BpmnProcessSpecState(object):
             for child in route[-1].outputs:
                 new_route = route + [child]
                 if len(new_route) > 10000:
-                    raise ValueError(
-                        'Maximum looping limit exceeded searching for path to %s' % (task_name or transition_id))
+                    raise ValueError("Maximum looping limit exceeded "
+                                     "searching for path to % s" %
+                                     (task_name or transition_id))
                 new_route_r = tuple(new_route)
                 if new_route_r not in done:
                     done.add(new_route_r)
@@ -276,58 +290,72 @@ class _BpmnProcessSpecState(object):
 
 
 class CompactWorkflowSerializer(Serializer):
-
     """
-    This class provides an implementation of serialize_workflow and deserialize_workflow that produces a
-    compact representation of the workflow state, that can be stored in a database column or reasonably small
-    size.
+    This class provides an implementation of serialize_workflow and
+    deserialize_workflow that produces a compact representation of the workflow
+    state, that can be stored in a database column or reasonably small size.
 
-    It records ONLY enough information to identify the transition leading in to each WAITING or READY state,
-    along with the state of that task. This is generally enough to resurrect a running BPMN workflow instance,
-    with some limitations.
+    It records ONLY enough information to identify the transition leading in to
+    each WAITING or READY state, along with the state of that task. This is
+    generally enough to resurrect a running BPMN workflow instance, with some
+    limitations.
 
     Limitations:
-    1. The compact representation does not include any workflow or task data. It is the responsibility of the
-    calling application to record whatever data is relevant to it, and set it on the restored workflow.
-    2. The restoring process will not produce exactly the same workflow tree - it finds the SHORTEST route to
-    the saved READY and WAITING tasks, not the route that was actually taken. This means that the tree cannot be
-    interrogated for historical information about the workflow. However, the workflow does follow the same logic
-    paths as would have been followed by the original workflow.
-
+    1. The compact representation does not include any workflow or task data.
+       It is the responsibility of the calling application to record whatever
+       data is relevant to it, and set it on the restored workflow.
+    2. The restoring process will not produce exactly the same workflow tree -
+       it finds the SHORTEST route to the saved READY and WAITING tasks, not
+       the route that was actually taken. This means that the tree cannot be
+       interrogated for historical information about the workflow. However, the
+       workflow does follow the same logic paths as would have been followed by
+       the original workflow.
     """
 
     STATE_SPEC_VERSION = 1
 
     def serialize_workflow_spec(self, wf_spec, **kwargs):
         raise NotImplementedError(
-            "The CompactWorkflowSerializer only supports workflow serialization.")
+            "The CompactWorkflowSerializer only supports "
+            " workflow serialization.")
 
     def deserialize_workflow_spec(self, s_state, **kwargs):
         raise NotImplementedError(
-            "The CompactWorkflowSerializer only supports workflow serialization.")
+            "The CompactWorkflowSerializer only supports "
+            "workflow serialization.")
 
     def serialize_workflow(self, workflow, include_spec=False, **kwargs):
         """
         :param workflow: the workflow instance to serialize
-        :param include_spec: Always set to False (The CompactWorkflowSerializer only supports workflow serialization)
+
+        :param include_spec: Always set to False (The CompactWorkflowSerializer
+        only supports workflow serialization)
         """
         if include_spec:
             raise NotImplementedError(
-                'Including the spec serialization with the workflow state is not implemented.')
+                'Including the spec serialization with the workflow state '
+                'is not implemented.')
         return self._get_workflow_state(workflow)
 
-    def deserialize_workflow(self, s_state, workflow_spec=None, read_only=False, **kwargs):
+    def deserialize_workflow(self, s_state, workflow_spec=None,
+                             read_only=False, **kwargs):
         """
-        :param s_state: the state of the workflow as returned by serialize_workflow
-        :param workflow_spec: the Workflow Spec of the workflow (CompactWorkflowSerializer only supports workflow
-            serialization)
-        :param read_only: (Optional) True if the workflow should be restored in READ ONLY mode
+        :param s_state: the state of the workflow as returned by
+        serialize_workflow
 
-        NB: Additional kwargs passed to the deserialize_workflow method will be passed to the new_workflow method.
+        :param workflow_spec: the Workflow Spec of the workflow
+        (CompactWorkflowSerializer only supports workflow serialization)
+
+        :param read_only: (Optional) True if the workflow should be restored in
+        READ ONLY mode
+
+        NB: Additional kwargs passed to the deserialize_workflow method will be
+        passed to the new_workflow method.
         """
         if workflow_spec is None:
             raise NotImplementedError(
-                'Including the spec serialization with the workflow state is not implemented. A \'workflow_spec\' must '
+                'Including the spec serialization with the workflow state is '
+                ' not implemented. A \'workflow_spec\' must '
                 'be provided.')
         workflow = self.new_workflow(
             workflow_spec, read_only=read_only, **kwargs)
@@ -339,8 +367,11 @@ class CompactWorkflowSerializer(Serializer):
         Create a new workflow instance from the given spec and arguments.
 
         :param workflow_spec: the workflow spec to use
+
         :param read_only: this should be in read only mode
-        :param kwargs: Any extra kwargs passed to the deserialize_workflow method will be passed through here
+
+        :param kwargs: Any extra kwargs passed to the deserialize_workflow
+        method will be passed through here
         """
         return BpmnWorkflow(workflow_spec, read_only=read_only, **kwargs)
 
@@ -349,7 +380,8 @@ class CompactWorkflowSerializer(Serializer):
         states = []
 
         for task in active_tasks:
-            transition = task.parent.task_spec.get_outgoing_sequence_flow_by_spec(
+            parent_task_spec = task.parent.task_spec
+            transition = parent_task_spec.get_outgoing_sequence_flow_by_spec(
                 task.task_spec).id
             w = task.workflow
             workflow_parents = []
@@ -361,7 +393,10 @@ class CompactWorkflowSerializer(Serializer):
                 [transition, list(reversed(workflow_parents)), state])
 
         compacted_states = []
-        for state in sorted(states, key=lambda s: ",".join([s[0], s[2], (':'.join(s[1]))])):
+        for state in sorted(states,
+                            key=lambda s: ",".join([s[0],
+                                                    s[2],
+                                                    (':'.join(s[1]))])):
             if state[-1] == 'R':
                 state.pop()
             if state[-1] == []:
@@ -393,7 +428,8 @@ class CompactWorkflowSerializer(Serializer):
             route, route_to_parent_complete = s.get_path_to_transition(
                 transition, state, workflow_parents)
             routes.append(
-                (route, route_to_parent_complete, transition, state, workflow_parents))
+                (route, route_to_parent_complete, transition, state,
+                 workflow_parents))
 
         retry = True
         retry_count = 0
@@ -404,25 +440,30 @@ class CompactWorkflowSerializer(Serializer):
             retry = False
 
             for i in range(len(routes)):
-                route, route_to_parent_complete, transition, state, workflow_parents = routes[
-                    i]
+                (route, route_to_parent_complete, transition, state,
+                 workflow_parents) = routes[i]
 
                 for j in range(len(routes)):
                     if i == j:
                         continue
                     other_route = routes[j][0]
                     route_to_parent_complete = routes[j][1]
-                    if route.contains(other_route) or (route_to_parent_complete and route.contains(
-                            route_to_parent_complete)):
+                    if route.contains(other_route) or (
+                            route_to_parent_complete and route.contains(
+                                route_to_parent_complete)):
                         taken_routes = [r for r in routes if r[0] != route]
-                        taken_routes = [r for r in [r[0]
-                                                    for r in taken_routes] + [r[1] for r in taken_routes] if r]
-                        route, route_to_parent_complete = s.get_path_to_transition(
-                            transition, state, workflow_parents, taken_routes=taken_routes)
+                        taken_routes = [r for r in [r[0] for r
+                                                    in taken_routes] +
+                                        [r[1] for r in taken_routes] if r]
+                        (route,
+                         route_to_parent_complete) = s.get_path_to_transition(
+                            transition, state, workflow_parents,
+                            taken_routes=taken_routes)
                         for r in taken_routes:
                             assert not route.contains(r)
                         routes[
-                            i] = route, route_to_parent_complete, transition, state, workflow_parents
+                            i] = (route, route_to_parent_complete, transition,
+                                  state, workflow_parents)
                         retry = True
                         retry_count += 1
                         break

@@ -27,8 +27,8 @@ import xml.etree.ElementTree as ET
 class _EndJoin(UnstructuredJoin):
 
     def _check_threshold_unstructured(self, my_task, force=False):
-        # Look at the tree to find all ready and waiting tasks (excluding ourself).
-        # The EndJoin waits for everyone!
+        # Look at the tree to find all ready and waiting tasks (excluding
+        # ourself). The EndJoin waits for everyone!
         waiting_tasks = []
         for task in my_task.workflow.get_tasks(Task.READY | Task.WAITING):
             if task.thread_id != my_task.thread_id:
@@ -48,8 +48,10 @@ class _EndJoin(UnstructuredJoin):
                 waiting_tasks.append(task)
 
         if len(waiting_tasks) == 0:
-            logging.debug('Endjoin Task ready: %s (ready/waiting tasks: %s)',
-                          my_task, list(my_task.workflow.get_tasks(Task.READY | Task.WAITING)))
+            logging.debug(
+                'Endjoin Task ready: %s (ready/waiting tasks: %s)',
+                my_task,
+                list(my_task.workflow.get_tasks(Task.READY | Task.WAITING)))
 
         return force or len(waiting_tasks) == 0, waiting_tasks
 
@@ -59,17 +61,18 @@ class _EndJoin(UnstructuredJoin):
 
 
 class BpmnProcessSpec(WorkflowSpec):
-
     """
-    This class represents the specification of a BPMN process workflow. This specialises the
-    standard Spiff WorkflowSpec class with a few extra methods and attributes.
+    This class represents the specification of a BPMN process workflow. This
+    specialises the standard Spiff WorkflowSpec class with a few extra methods
+    and attributes.
     """
 
     def __init__(self, name=None, description=None, filename=None, svg=None):
         """
         Constructor.
 
-        :param svg: This provides the SVG representation of the workflow as an LXML node. (optional)
+        :param svg: This provides the SVG representation of the workflow as an
+        LXML node. (optional)
         """
         super(BpmnProcessSpec, self).__init__(name=name, filename=filename)
         self.end = _EndJoin(self, '%s.EndJoin' % (self.name))
@@ -80,7 +83,8 @@ class BpmnProcessSpec(WorkflowSpec):
 
     def get_all_lanes(self):
         """
-        Returns a set of the distinct lane names used in the process (including called activities)
+        Returns a set of the distinct lane names used in the process (including
+        called activities)
         """
 
         done = set()
@@ -107,7 +111,8 @@ class BpmnProcessSpec(WorkflowSpec):
 
     def get_specs_depth_first(self):
         """
-        Get the specs for all processes (including called ones), in depth first order.
+        Get the specs for all processes (including called ones), in depth first
+        order.
         """
 
         done = set()
@@ -132,8 +137,8 @@ class BpmnProcessSpec(WorkflowSpec):
 
     def to_html_string(self):
         """
-        Returns an etree HTML node with a document describing the process. This is only supported
-        if the editor provided an SVG representation.
+        Returns an etree HTML node with a document describing the process. This
+        is only supported if the editor provided an SVG representation.
         """
         html = ET.Element('html')
         head = ET.SubElement(html, 'head')

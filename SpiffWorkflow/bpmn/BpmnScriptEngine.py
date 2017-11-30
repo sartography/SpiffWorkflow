@@ -22,20 +22,22 @@ from ..operators import Operator
 
 
 class BpmnScriptEngine(object):
-
     """
-    Used during execution of a BPMN workflow to evaluate condition / value expressions. These are used by
-    Gateways, and by Catching Events (non-message ones).
+    Used during execution of a BPMN workflow to evaluate condition / value
+    expressions. These are used by Gateways, and by Catching Events
+    (non-message ones).
 
     Also used to execute scripts.
 
-    If you are uncomfortable with the use of eval() and exec, then you should provide a specialised
-    subclass that parses and executes the scripts / expressions in a mini-language of your own.
+    If you are uncomfortable with the use of eval() and exec, then you should
+    provide a specialised subclass that parses and executes the scripts /
+    expressions in a mini-language of your own.
     """
 
     def evaluate(self, task, expression):
         """
-        Evaluate the given expression, within the context of the given task and return the result.
+        Evaluate the given expression, within the context of the given task and
+        return the result.
         """
         if isinstance(expression, Operator):
             return expression._matches(task)

@@ -41,7 +41,8 @@ class ValidationException(Exception):
             self.name = '<Unknown>'
             self.sourceline = '<Unknown>'
         self.filename = filename or '<Unknown File>'
-        message = '%s\nSource Details: %s (id:%s), name \'%s\', line %s in %s' % (
+        message = ('%s\nSource Details: '
+                   '%s (id:%s), name \'%s\', line %s in %s') % (
             msg, self.tag, self.id, self.name, self.sourceline, self.filename)
 
         super(ValidationException, self).__init__(message, *args, **kwargs)

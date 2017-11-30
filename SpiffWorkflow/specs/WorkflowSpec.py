@@ -110,7 +110,7 @@ class WorkflowSpec(object):
         """
         Serializes the instance using the provided serializer.
 
-        :type  serializer: :class:`SpiffWorkflow.serializer.serialzer.Serializer`
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
         :param serializer: The serializer to use.
         :type  kwargs: dict
         :param kwargs: Passed to the serializer.
@@ -124,7 +124,7 @@ class WorkflowSpec(object):
         """
         Deserializes a WorkflowSpec instance using the provided serializer.
 
-        :type  serializer: :class:`SpiffWorkflow.serializer.serialzer.Serializer`
+        :type  serializer: :class:`SpiffWorkflow.serializer.base.Serializer`
         :param serializer: The serializer to use.
         :type  s_state: object
         :param s_state: The serialized workflow specification object.
@@ -141,11 +141,13 @@ class WorkflowSpec(object):
         def recursive_dump(task_spec, indent):
             if task_spec in done:
                 return '[shown earlier] %s (%s:%s)' % (
-                    task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
+                    task_spec.name, task_spec.__class__.__name__,
+                    hex(id(task_spec))) + '\n'
 
             done.add(task_spec)
             dump = '%s (%s:%s)' % (
-                task_spec.name, task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
+                task_spec.name,
+                task_spec.__class__.__name__, hex(id(task_spec))) + '\n'
             if verbose:
                 if task_spec.inputs:
                     dump += indent + '-  IN: ' + \
@@ -160,7 +162,8 @@ class WorkflowSpec(object):
             for i, t in enumerate(sub_specs):
                 dump += indent + '   --> ' + \
                     recursive_dump(
-                        t, indent + ('   |   ' if i + 1 < len(sub_specs) else '       '))
+                        t, indent + ('   |   ' if i + 1 < len(sub_specs) else
+                                     '       '))
             return dump
 
         dump = recursive_dump(self.start, '')

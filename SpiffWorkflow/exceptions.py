@@ -34,7 +34,8 @@ class WorkflowException(Exception):
         :type error: string
         """
         Exception.__init__(self, '%s: %s' % (sender.name, error))
-        self.sender = sender  # Points to the TaskSpec that generated the exception.
+        # Points to the TaskSpec that generated the exception.
+        self.sender = sender
 
 
 class WorkflowTaskExecException(WorkflowException):

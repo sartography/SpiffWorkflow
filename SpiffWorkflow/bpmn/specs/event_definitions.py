@@ -22,16 +22,15 @@ import datetime
 
 
 class CatchingEventDefinition(object):
-
     """
-    The CatchingEventDefinition class is used by Catching Intermediate and Boundary Event tasks to know whether
-    to proceed.
+    The CatchingEventDefinition class is used by Catching Intermediate and
+    Boundary Event tasks to know whether to proceed.
     """
 
     def has_fired(self, my_task):
         """
-        This should return True if the event has occurred (i.e. the task may move from WAITING
-        to READY). This will be called multiple times.
+        This should return True if the event has occurred (i.e. the task may
+        move from WAITING to READY). This will be called multiple times.
         """
         return my_task._get_internal_data('event_fired', False)
 
@@ -43,17 +42,16 @@ class CatchingEventDefinition(object):
 
 
 class ThrowingEventDefinition(object):
-
     """
-    This class is for future functionality. It will define the methods needed on an event definition
-    that can be Thrown.
+    This class is for future functionality. It will define the methods needed
+    on an event definition that can be Thrown.
     """
 
 
 class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
-
     """
-    The MessageEventDefinition is the implementation of event definition used for Message Events.
+    The MessageEventDefinition is the implementation of event definition used
+    for Message Events.
     """
 
     def __init__(self, message):
@@ -66,7 +64,8 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
 
     def has_fired(self, my_task):
         """
-        Returns true if the message was received while the task was in a WAITING state.
+        Returns true if the message was received while the task was in a
+        WAITING state.
         """
         return my_task._get_internal_data('event_fired', False)
 
@@ -78,10 +77,9 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
 
 
 class TimerEventDefinition(CatchingEventDefinition):
-
     """
-    The TimerEventDefinition is the implementation of event definition used for Catching Timer Events
-    (Timer events aren't thrown).
+    The TimerEventDefinition is the implementation of event definition used for
+    Catching Timer Events (Timer events aren't thrown).
     """
 
     def __init__(self, label, dateTime):
@@ -89,15 +87,18 @@ class TimerEventDefinition(CatchingEventDefinition):
         Constructor.
 
         :param label: The label of the event. Used for the description.
-        :param dateTime: The dateTime expression for the expiry time. This is passed to the Script Engine and
-        must evaluate to a datetime.datetime instance.
+
+        :param dateTime: The dateTime expression for the expiry time. This is
+        passed to the Script Engine and must evaluate to a datetime.datetime
+        instance.
         """
         self.label = label
         self.dateTime = dateTime
 
     def has_fired(self, my_task):
         """
-        The Timer is considered to have fired if the evaluated dateTime expression is before datetime.datetime.now()
+        The Timer is considered to have fired if the evaluated dateTime
+        expression is before datetime.datetime.now()
         """
         dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
         if dt is None:

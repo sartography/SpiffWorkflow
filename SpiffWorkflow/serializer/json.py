@@ -63,7 +63,8 @@ class JSONSerializer(DictionarySerializer):
 
     def deserialize_workflow_spec(self, s_state, **kwargs):
         thedict = loads(s_state)
-        return super(JSONSerializer, self).deserialize_workflow_spec(thedict, **kwargs)
+        return super(JSONSerializer, self).deserialize_workflow_spec(
+            thedict, **kwargs)
 
     def serialize_workflow(self, workflow, **kwargs):
         thedict = super(JSONSerializer, self).serialize_workflow(
@@ -72,4 +73,5 @@ class JSONSerializer(DictionarySerializer):
 
     def deserialize_workflow(self, s_state, **kwargs):
         thedict = loads(s_state)
-        return super(JSONSerializer, self).deserialize_workflow(thedict, **kwargs)
+        return super(JSONSerializer, self).deserialize_workflow(
+            thedict, **kwargs)

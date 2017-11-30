@@ -25,9 +25,9 @@ LOG = logging.getLogger(__name__)
 
 
 class UnstructuredJoin(Join, BpmnSpecMixin):
-
     """
-    A helper subclass of Join that makes it work in a slightly friendlier way for the BPMN style threading
+    A helper subclass of Join that makes it work in a slightly friendlier way
+    for the BPMN style threading
     """
 
     def _check_threshold_unstructured(self, my_task, force=False):
@@ -51,10 +51,12 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
         waiting_tasks = []
         completed_inputs = set()
         for task in tasks:
-            if task.parent._has_state(Task.COMPLETED) and (task._has_state(Task.WAITING) or task == my_task):
+            if task.parent._has_state(Task.COMPLETED) and (
+                    task._has_state(Task.WAITING) or task == my_task):
                 if task.parent.task_spec in completed_inputs:
                     raise NotImplementedError(
-                        "Unsupported looping behaviour: two threads waiting on the same sequence flow.")
+                        "Unsupported looping behaviour: two threads waiting "
+                        "on the same sequence flow.")
                 completed_inputs.add(task.parent.task_spec)
             else:
                 waiting_tasks.append(task.parent)

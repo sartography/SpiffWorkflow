@@ -45,16 +45,15 @@ import xml.etree.ElementTree as ET
 
 
 class BpmnParser(object):
-
     """
-    The BpmnParser class is a pluggable base class that manages the parsing of a set of BPMN files.
-    It is intended that this class will be overriden by an application that implements a BPMN engine.
+    The BpmnParser class is a pluggable base class that manages the parsing of
+    a set of BPMN files. It is intended that this class will be overriden by an
+    application that implements a BPMN engine.
 
-    Extension points:
-    OVERRIDE_PARSER_CLASSES provides a map from full BPMN tag name to a TaskParser and Task class.
-    PROCESS_PARSER_CLASS provides a subclass of ProcessParser
-    WORKFLOW_CLASS provides a subclass of BpmnWorkflow
-
+    Extension points: OVERRIDE_PARSER_CLASSES provides a map from full BPMN tag
+    name to a TaskParser and Task class. PROCESS_PARSER_CLASS provides a
+    subclass of ProcessParser WORKFLOW_CLASS provides a subclass of
+    BpmnWorkflow
     """
 
     PARSER_CLASSES = {
@@ -63,12 +62,15 @@ class BpmnParser(object):
         full_tag('userTask'): (UserTaskParser, UserTask),
         full_tag('task'): (NoneTaskParser, NoneTask),
         full_tag('manualTask'): (ManualTaskParser, ManualTask),
-        full_tag('exclusiveGateway'): (ExclusiveGatewayParser, ExclusiveGateway),
+        full_tag('exclusiveGateway'): (ExclusiveGatewayParser,
+                                       ExclusiveGateway),
         full_tag('parallelGateway'): (ParallelGatewayParser, ParallelGateway),
-        full_tag('inclusiveGateway'): (InclusiveGatewayParser, InclusiveGateway),
+        full_tag('inclusiveGateway'): (InclusiveGatewayParser,
+                                       InclusiveGateway),
         full_tag('callActivity'): (CallActivityParser, CallActivity),
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
-        full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser, IntermediateCatchEvent),
+        full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser,
+                                             IntermediateCatchEvent),
         full_tag('boundaryEvent'): (BoundaryEventParser, BoundaryEvent),
     }
 
@@ -93,7 +95,8 @@ class BpmnParser(object):
 
     def get_process_parser(self, process_id_or_name):
         """
-        Returns the ProcessParser for the given process ID or name. It matches by name first.
+        Returns the ProcessParser for the given process ID or name. It matches
+        by name first.
         """
         if process_id_or_name in self.process_parsers_by_name:
             return self.process_parsers_by_name[process_id_or_name]
@@ -108,7 +111,8 @@ class BpmnParser(object):
 
     def add_bpmn_files_by_glob(self, g):
         """
-        Add all filenames matching the provided pattern (e.g. *.bpmn) to the parser's set.
+        Add all filenames matching the provided pattern (e.g. *.bpmn) to the
+        parser's set.
         """
         self.add_bpmn_files(glob.glob(g))
 
@@ -127,7 +131,8 @@ class BpmnParser(object):
         """
         Add the given lxml representation of the BPMN file to the parser's set.
 
-        :param svg: Optionally, provide the text data for the SVG of the BPMN file
+        :param svg: Optionally, provide the text data for the SVG of the BPMN
+          file
         :param filename: Optionally, provide the source filename.
         """
         xpath = xpath_eval(bpmn)
@@ -146,32 +151,38 @@ class BpmnParser(object):
             self.process_parsers_by_name[
                 process_parser.get_name()] = process_parser
 
-    def _parse_condition(self, outgoing_task, outgoing_task_node, sequence_flow_node, task_parser=None):
+    def _parse_condition(self, outgoing_task, outgoing_task_node,
+                         sequence_flow_node, task_parser=None):
         xpath = xpath_eval(sequence_flow_node)
         condition_expression_node = conditionExpression = first(
             xpath('.//bpmn:conditionExpression'))
         if conditionExpression is not None:
             conditionExpression = conditionExpression.text
-        return self.parse_condition(conditionExpression, outgoing_task, outgoing_task_node,
-                                    sequence_flow_node, condition_expression_node, task_parser)
+        return self.parse_condition(
+            conditionExpression, outgoing_task, outgoing_task_node,
+            sequence_flow_node, condition_expression_node, task_parser)
 
-    def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node,
+    def parse_condition(self, condition_expression, outgoing_task,
+                        outgoing_task_node, sequence_flow_node,
                         condition_expression_node, task_parser):
         """
-        Pre-parse the given condition expression, and return the parsed version.
-        The returned version will be passed to the Script Engine
-        for evaluation.
+        Pre-parse the given condition expression, and return the parsed
+        version. The returned version will be passed to the Script Engine for
+        evaluation.
         """
         return condition_expression
 
     def _parse_documentation(self, node, task_parser=None, xpath=None):
         xpath = xpath or xpath_eval(node)
         documentation_node = first(xpath('.//bpmn:documentation'))
-        return self.parse_documentation(documentation_node, node, xpath, task_parser=task_parser)
+        return self.parse_documentation(documentation_node, node, xpath,
+                                        task_parser=task_parser)
 
-    def parse_documentation(self, documentation_node, node, node_xpath, task_parser=None):
+    def parse_documentation(self, documentation_node, node, node_xpath,
+                            task_parser=None):
         """
-        Pre-parse the documentation node for the given node and return the text.
+        Pre-parse the documentation node for the given node and return the
+        text.
         """
         return None if documentation_node is None else documentation_node.text
 

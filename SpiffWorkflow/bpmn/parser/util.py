@@ -44,8 +44,8 @@ def first(nodes):
 
 def xpath_eval(node, extra_ns=None):
     """
-    Returns an XPathEvaluator, with namespace prefixes 'bpmn' for http://www.omg.org/spec/BPMN/20100524/MODEL,
-    and additional specified ones
+    Returns an XPathEvaluator, with namespace prefixes 'bpmn' for
+    http://www.omg.org/spec/BPMN/20100524/MODEL, and additional specified ones
     """
     namespaces = {'bpmn': BPMN_MODEL_NS}
     if extra_ns:
@@ -55,7 +55,8 @@ def xpath_eval(node, extra_ns=None):
 
 def full_tag(tag):
     """
-    Return the full tag name including namespace for the given BPMN tag.
-    In other words, the name with namespace http://www.omg.org/spec/BPMN/20100524/MODEL
+    Return the full tag name including namespace for the given BPMN tag. In
+    other words, the name with namespace
+    http://www.omg.org/spec/BPMN/20100524/MODEL
     """
     return '{%s}%s' % (BPMN_MODEL_NS, tag)

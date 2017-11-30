@@ -106,8 +106,8 @@ class Celery(TaskSpec):
                 task.internal_data. If None, then dicts are expanded into
                 internal_data and values are stored in 'result'.
         :type  merge_results: bool
-        :param merge_results: merge the results in instead of overwriting existing
-                fields.
+        :param merge_results: merge the results in instead of overwriting
+          existing fields.
         :type  kwargs: dict
         :param kwargs: kwargs to pass to celery task.
         """
@@ -134,8 +134,9 @@ class Celery(TaskSpec):
             args = _eval_args(self.args, my_task)
         if self.kwargs:
             kwargs = _eval_kwargs(self.kwargs, my_task)
-        LOG.debug("%s (task id %s) calling %s" % (self.name, my_task.id,
-                                                  self.call), extra=dict(data=dict(args=args, kwargs=kwargs)))
+        LOG.debug(
+            "%s (task id %s) calling %s" % (self.name, my_task.id, self.call),
+            extra=dict(data=dict(args=args, kwargs=kwargs)))
         async_call = default_app.send_task(self.call, args=args, kwargs=kwargs)
         my_task._set_internal_data(task_id=async_call.task_id)
         my_task.async_call = async_call
