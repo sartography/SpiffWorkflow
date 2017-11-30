@@ -28,30 +28,35 @@ from .Packager import Packager
 
 
 class BpmnSerializer(Serializer):
-
     """
-    The BpmnSerializer class provides support for deserializing a Bpmn Workflow Spec from a BPMN package.
-    The BPMN package must have been created using the :class:`SpiffWorkflow.bpmn.serializer.Packager`.
+    The BpmnSerializer class provides support for deserializing a Bpmn Workflow
+    Spec from a BPMN package. The BPMN package must have been created using the
+    :class:`SpiffWorkflow.bpmn.serializer.Packager`.
 
-    It will also use the appropriate subclass of BpmnParser, if one is included in the metadata.ini file.
+    It will also use the appropriate subclass of BpmnParser, if one is included
+    in the metadata.ini file.
     """
 
     def serialize_workflow_spec(self, wf_spec, **kwargs):
         raise NotImplementedError(
-            "The BpmnSerializer class cannot be used to serialize. BPMN authoring should be done using a "
-            "supported editor.")
+            "The BpmnSerializer class cannot be used to serialize. "
+            "BPMN authoring should be done using a supported editor.")
 
     def serialize_workflow(self, workflow, **kwargs):
         raise NotImplementedError(
-            "The BPMN standard does not provide a specification for serializing a running workflow.")
+            "The BPMN standard does not provide a specification for "
+            "serializing a running workflow.")
 
     def deserialize_workflow(self, s_state, **kwargs):
         raise NotImplementedError(
-            "The BPMN standard does not provide a specification for serializing a running workflow.")
+            "The BPMN standard does not provide a specification for "
+            "serializing a running workflow.")
 
     def deserialize_workflow_spec(self, s_state, filename=None):
         """
-        :param s_state: a byte-string with the contents of the packaged workflow archive, or a file-like object.
+        :param s_state: a byte-string with the contents of the packaged
+        workflow archive, or a file-like object.
+
         :param filename: the name of the package file.
         """
         if isinstance(s_state, (str, bytes)):
@@ -86,7 +91,8 @@ class BpmnSerializer(Serializer):
 
         for info in package_zip.infolist():
             parts = os.path.split(info.filename)
-            if len(parts) == 2 and not parts[0] and parts[1].lower().endswith('.bpmn'):
+            if (len(parts) == 2 and
+                    not parts[0] and parts[1].lower().endswith('.bpmn')):
                 # It is in the root of the ZIP and is a BPMN file
                 try:
                     svg = package_zip.read(info.filename[:-5] + '.svg')
@@ -100,6 +106,7 @@ class BpmnSerializer(Serializer):
                     bpmn_fp.close()
 
                 parser.add_bpmn_xml(
-                    bpmn, svg=svg, filename='%s:%s' % (filename, info.filename))
+                    bpmn, svg=svg,
+                    filename='%s:%s' % (filename, info.filename))
 
         return parser.get_spec(config.get('MetaData', 'entry_point_process'))

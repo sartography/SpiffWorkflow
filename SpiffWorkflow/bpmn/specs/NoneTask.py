@@ -21,9 +21,8 @@ from .UserTask import UserTask
 
 
 class NoneTask(UserTask):
-
     """
-    Task Spec for a bpmn:task node. In the base framework, it is assumed that a task with an unspecified type
-    is actually a user task
+    Task Spec for a bpmn:task node. In the base framework, it is assumed that a
+    task with an unspecified type is actually a user task
     """
     pass

@@ -39,8 +39,9 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
 
     def _update_hook(self, my_task):
         target_state = getattr(my_task, '_bpmn_load_target_state', None)
-        if target_state == Task.READY or (not my_task.workflow._is_busy_with_restore() and
-                                          self.event_definition.has_fired(my_task)):
+        if target_state == Task.READY or (
+                not my_task.workflow._is_busy_with_restore() and
+                self.event_definition.has_fired(my_task)):
             super(IntermediateCatchEvent, self)._update_hook(my_task)
         else:
             if not my_task.parent._is_finished():
@@ -54,7 +55,8 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
         self._predict(my_task)
 
     def accept_message(self, my_task, message):
-        if my_task.state == Task.WAITING and self.event_definition._accept_message(my_task, message):
+        if (my_task.state == Task.WAITING and
+                self.event_definition._accept_message(my_task, message)):
             self._update(my_task)
             return True
         return False

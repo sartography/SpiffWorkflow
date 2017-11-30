@@ -51,17 +51,17 @@ class SequenceFlow(object):
 
 
 class BpmnSpecMixin(TaskSpec):
-
     """
-    All BPMN spec classes should mix this superclass in. It adds a number of methods that are
-    BPMN specific to the TaskSpec.
+    All BPMN spec classes should mix this superclass in. It adds a number of
+    methods that are BPMN specific to the TaskSpec.
     """
 
     def __init__(self, wf_spec, name, lane=None, **kwargs):
         """
         Constructor.
 
-        :param lane: Indicates the name of the lane that this task belongs to (optional).
+        :param lane: Indicates the name of the lane that this task belongs to
+        (optional).
         """
         super(BpmnSpecMixin, self).__init__(wf_spec, name, **kwargs)
         self.outgoing_sequence_flows = {}
@@ -69,12 +69,15 @@ class BpmnSpecMixin(TaskSpec):
         self.lane = lane
         self.documentation = None
 
-    def connect_outgoing(self, taskspec, sequence_flow_id, sequence_flow_name, documentation):
+    def connect_outgoing(self, taskspec, sequence_flow_id, sequence_flow_name,
+                         documentation):
         """
         Connect this task spec to the indicated child.
 
         :param sequence_flow_id: The ID of the connecting sequenceFlow node.
-        :param sequence_flow_name: The name of the connecting sequenceFlow node.
+
+        :param sequence_flow_name: The name of the connecting sequenceFlow
+        node.
         """
         self.connect(taskspec)
         s = SequenceFlow(
@@ -82,13 +85,17 @@ class BpmnSpecMixin(TaskSpec):
         self.outgoing_sequence_flows[taskspec.name] = s
         self.outgoing_sequence_flows_by_id[sequence_flow_id] = s
 
-    def connect_outgoing_if(self, condition, taskspec, sequence_flow_id, sequence_flow_name, documentation):
+    def connect_outgoing_if(self, condition, taskspec, sequence_flow_id,
+                            sequence_flow_name, documentation):
         """
-        Connect this task spec to the indicated child, if the condition evaluates to true.
-        This should only be called if the task has a connect_if method (e.g. ExclusiveGateway).
+        Connect this task spec to the indicated child, if the condition
+        evaluates to true. This should only be called if the task has a
+        connect_if method (e.g. ExclusiveGateway).
 
         :param sequence_flow_id: The ID of the connecting sequenceFlow node.
-        :param sequence_flow_name: The name of the connecting sequenceFlow node.
+
+        :param sequence_flow_name: The name of the connecting sequenceFlow
+        node.
         """
         self.connect_if(_BpmnCondition(condition), taskspec)
         s = SequenceFlow(
@@ -110,7 +117,8 @@ class BpmnSpecMixin(TaskSpec):
 
     def has_outgoing_sequence_flow(self, id):
         """
-        Returns true if the SequenceFlow with the specified ID is leaving this task.
+        Returns true if the SequenceFlow with the specified ID is leaving this
+        task.
         """
         return id in self.outgoing_sequence_flows_by_id
 
@@ -118,7 +126,8 @@ class BpmnSpecMixin(TaskSpec):
         """
         Returns a list of the names of outgoing sequences. Some may be None.
         """
-        return sorted([s.name for s in list(self.outgoing_sequence_flows_by_id.values())])
+        return sorted([s.name for s in
+                       list(self.outgoing_sequence_flows_by_id.values())])
 
     def get_outgoing_sequences(self):
         """
@@ -128,8 +137,8 @@ class BpmnSpecMixin(TaskSpec):
 
     def accept_message(self, my_task, message):
         """
-        A subclass should override this method if they want to be notified of the receipt of a message
-        when in a WAITING state.
+        A subclass should override this method if they want to be notified of
+        the receipt of a message when in a WAITING state.
 
         Returns True if the task did process the message.
         """

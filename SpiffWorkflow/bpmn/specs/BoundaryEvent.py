@@ -24,17 +24,20 @@ from .IntermediateCatchEvent import IntermediateCatchEvent
 
 class _BoundaryEventParent(BpmnSpecMixin):
 
-    def __init__(self, wf_spec, name, main_child_task_spec, lane=None, **kwargs):
+    def __init__(self, wf_spec, name, main_child_task_spec, lane=None,
+                 **kwargs):
         super(_BoundaryEventParent, self).__init__(
             wf_spec, name, lane=lane, **kwargs)
         self.main_child_task_spec = main_child_task_spec
 
     def _child_complete_hook(self, child_task):
-        if child_task.task_spec == self.main_child_task_spec or self._should_cancel(child_task.task_spec):
+        if (child_task.task_spec == self.main_child_task_spec or
+                self._should_cancel(child_task.task_spec)):
             for sibling in child_task.parent.children:
                 if sibling != child_task:
-                    if sibling.task_spec == self.main_child_task_spec or (isinstance(sibling.task_spec, BoundaryEvent)
-                                                                          and not sibling._is_finished()):
+                    if (sibling.task_spec == self.main_child_task_spec or
+                        (isinstance(sibling.task_spec, BoundaryEvent)
+                         and not sibling._is_finished())):
                         sibling.cancel()
             for t in child_task.workflow._get_waiting_tasks():
                 t.task_spec._update(t)
@@ -55,16 +58,17 @@ class _BoundaryEventParent(BpmnSpecMixin):
                 child._set_state(state)
 
     def _should_cancel(self, task_spec):
-        return issubclass(task_spec.__class__, BoundaryEvent) and task_spec._cancel_activity
+        return (issubclass(task_spec.__class__, BoundaryEvent) and
+                task_spec._cancel_activity)
 
 
 class BoundaryEvent(IntermediateCatchEvent):
-
     """
     Task Spec for a bpmn:boundaryEvent node.
     """
 
-    def __init__(self, wf_spec, name, cancel_activity=None, event_definition=None, **kwargs):
+    def __init__(self, wf_spec, name, cancel_activity=None,
+                 event_definition=None, **kwargs):
         """
         Constructor.
 
