@@ -131,7 +131,7 @@ class BpmnSpecMixin(TaskSpec):
 
     def get_outgoing_sequences(self):
         """
-        Returns a list of the names of outgoing sequences. Some may be None.
+        Returns a list of outgoing sequences. Some may be None.
         """
         return iter(list(self.outgoing_sequence_flows_by_id.values()))
 
