@@ -21,7 +21,8 @@ from .ValidationException import ValidationException
 from .TaskParser import TaskParser
 from .util import first, one
 from ..specs.event_definitions import (TimerEventDefinition,
-                                       MessageEventDefinition)
+                                       MessageEventDefinition,
+                                       EscalationEventDefinition)
 import xml.etree.ElementTree as ET
 
 
@@ -43,15 +44,26 @@ class StartEventParser(TaskParser):
 class EndEventParser(TaskParser):
     """
     Parses and End Event. This also checks whether it should be a terminating
-    end event.
+    or escalation end event.
     """
 
     def create_task(self):
 
         terminateEventDefinition = self.xpath(
             './/bpmn:terminateEventDefinition')
+        escalationCode = None
+        escalationEventDefinition = first(self.xpath(
+            './/bpmn:escalationEventDefinition'))
+        if escalationEventDefinition is not None:
+            escalationRef = escalationEventDefinition.get('escalationRef')
+            if escalationRef:
+                escalation = one(self.process_parser.doc_xpath(
+                    './/bpmn:escalation[@id="%s"]' % escalationRef))
+                escalationCode = escalation.get('escalationCode')
         task = self.spec_class(self.spec, self.get_task_spec_name(),
                                is_terminate_event=terminateEventDefinition,
+                               is_escalation_event=escalationEventDefinition is not None,
+                               escalation_code=escalationCode,
                                description=self.node.get('name', None))
         task.connect_outgoing(self.spec.end, '%s.ToEndJoin' %
                               self.node.get('id'), None, None)
@@ -209,6 +221,12 @@ class IntermediateCatchEventParser(TaskParser):
         if timerEventDefinition is not None:
             return self.get_timer_event_definition(timerEventDefinition)
 
+        escalationEventDefinition = first(
+            self.xpath('.//bpmn:escalationEventDefinition'))
+        if escalationEventDefinition is not None:
+            return self.get_escalation_event_definition(
+                escalationEventDefinition)
+
         raise NotImplementedError(
             'Unsupported Intermediate Catch Event: %r', ET.tostring(self.node))
 
@@ -235,6 +253,19 @@ class IntermediateCatchEventParser(TaskParser):
             self.node.get('name', timeDate.text),
             self.parser.parse_condition(
                 timeDate.text, None, None, None, None, self))
+
+    def get_escalation_event_definition(self, escalationEventDefinition):
+        """
+        Parse the escalationEventDefinition node and return an instance of
+        EscalationEventDefinition
+        """
+        escalationRef = escalationEventDefinition.get('escalationRef')
+        if escalationRef:
+            escalation = one(self.process_parser.doc_xpath('.//bpmn:escalation[@id="%s"]' % escalationRef))
+            escalation_code = escalation.get('escalationCode')
+        else:
+            escalation_code = None
+        return EscalationEventDefinition(escalation_code)
 
 
 class BoundaryEventParser(IntermediateCatchEventParser):

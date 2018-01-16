@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.8.0">
+  <bpmn:process id="CallActivity-Escalation-Test-Sub" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_1pdxvjo</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1fftpux" name="should escalate?" default="SequenceFlow_07vs6qb">
+      <bpmn:incoming>SequenceFlow_0expyhf</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_07vs6qb</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_15hc88y</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1pdxvjo" sourceRef="StartEvent_1" targetRef="ExclusiveGateway_0faf08n" />
+    <bpmn:endEvent id="EndEvent_0kpn6yh">
+      <bpmn:incoming>SequenceFlow_07vs6qb</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_07vs6qb" name="no" sourceRef="ExclusiveGateway_1fftpux" targetRef="EndEvent_0kpn6yh" />
+    <bpmn:sequenceFlow id="SequenceFlow_15hc88y" name="yes" sourceRef="ExclusiveGateway_1fftpux" targetRef="EndEvent_09tnjk6">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python"><![CDATA[task.get_data('should_escalate')]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="EndEvent_09tnjk6">
+      <bpmn:incoming>SequenceFlow_15hc88y</bpmn:incoming>
+      <bpmn:escalationEventDefinition escalationRef="Escalation_1oeml95" />
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0faf08n" name="variable present?" default="SequenceFlow_0rwyweg">
+      <bpmn:incoming>SequenceFlow_1pdxvjo</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0expyhf</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0rwyweg</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0expyhf" name="yes" sourceRef="ExclusiveGateway_0faf08n" targetRef="ExclusiveGateway_1fftpux">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="python"><![CDATA['should_escalate' in task.data]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0rwyweg" name="no" sourceRef="ExclusiveGateway_0faf08n" targetRef="EndEvent_1iplfgs" />
+    <bpmn:endEvent id="EndEvent_1iplfgs">
+      <bpmn:incoming>SequenceFlow_0rwyweg</bpmn:incoming>
+      <bpmn:escalationEventDefinition escalationRef="Escalation_0i2y5fh" />
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:escalation id="Escalation_1oeml95" name="Escalation_1d67ilm" escalationCode="test-escalation" />
+  <bpmn:escalation id="Escalation_0i2y5fh" name="Escalation_0vdmq95" escalationCode="no-variable-present" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="CallActivity-Escalation-Test-Sub">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="79" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="52" y="138" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1fftpux_di" bpmnElement="ExclusiveGateway_1fftpux" isMarkerVisible="true">
+        <dc:Bounds x="308" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="293" y="149" width="82" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1pdxvjo_di" bpmnElement="SequenceFlow_1pdxvjo">
+        <di:waypoint xsi:type="dc:Point" x="115" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="173" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="99" y="99" width="90" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0kpn6yh_di" bpmnElement="EndEvent_0kpn6yh">
+        <dc:Bounds x="469" y="23" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="487" y="63" width="0" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_07vs6qb_di" bpmnElement="SequenceFlow_07vs6qb">
+        <di:waypoint xsi:type="dc:Point" x="333" y="95" />
+        <di:waypoint xsi:type="dc:Point" x="333" y="41" />
+        <di:waypoint xsi:type="dc:Point" x="469" y="41" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="342" y="62" width="12" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_15hc88y_di" bpmnElement="SequenceFlow_15hc88y">
+        <di:waypoint xsi:type="dc:Point" x="358" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="469" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="405" y="99" width="18" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1fzzy0c_di" bpmnElement="EndEvent_09tnjk6">
+        <dc:Bounds x="469" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="487" y="142" width="0" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0faf08n_di" bpmnElement="ExclusiveGateway_0faf08n" isMarkerVisible="true">
+        <dc:Bounds x="173" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="156" y="149" width="84" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0expyhf_di" bpmnElement="SequenceFlow_0expyhf">
+        <di:waypoint xsi:type="dc:Point" x="223" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="308" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="257" y="99" width="18" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0rwyweg_di" bpmnElement="SequenceFlow_0rwyweg">
+        <di:waypoint xsi:type="dc:Point" x="198" y="95" />
+        <di:waypoint xsi:type="dc:Point" x="198" y="59" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="207" y="71" width="12" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1bihs4n_di" bpmnElement="EndEvent_1iplfgs">
+        <dc:Bounds x="180" y="23" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="198" y="63" width="0" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

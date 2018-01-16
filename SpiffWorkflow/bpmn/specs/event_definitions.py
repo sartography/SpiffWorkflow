@@ -19,6 +19,10 @@ from builtins import object
 # 02110-1301  USA
 
 import datetime
+import logging
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CatchingEventDefinition(object):
@@ -109,3 +113,38 @@ class TimerEventDefinition(CatchingEventDefinition):
         else:
             now = datetime.datetime.now()
         return now > dt
+
+
+class EscalationEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
+    """
+    The EscalationEventDefinition is the implementation of event definition used for
+    Escalation Events.
+    """
+
+    def __init__(self, escalation_code):
+        """
+        Constructor.
+
+        :param escalation_code: The escalation code this event should
+        react to. If None then all escalations will activate this event.
+        """
+        self.escalation_code = escalation_code
+
+    def has_fired(self, my_task):
+        """
+        Returns true if the message was received while the task was in a
+        WAITING state.
+        """
+        return my_task._get_internal_data('event_fired', False)
+
+    def _accept_message(self, my_task, message):
+        if isinstance(message, basestring) and message.startswith('x_escalation:'):
+            parts = message.split(':')
+            if len(parts) == 3:
+                _, source_task_name, recv_escalation_code = parts
+                if not self.escalation_code or self.escalation_code == recv_escalation_code:
+                    main_child_task_spec = my_task.parent.task_spec.main_child_task_spec
+                    if source_task_name == main_child_task_spec.name:
+                        self._fire(my_task)
+                        return True
+        return False

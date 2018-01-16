@@ -117,6 +117,12 @@ class Workflow(object):
             self.locks[name] = mutex()
         return self.locks[name]
 
+    def set_data(self, **kwargs):
+        """
+        Defines the given attribute/value pairs.
+        """
+        self.data.update(kwargs)
+
     def get_data(self, name, default=None):
         """
         Returns the value of the data field with the given name, or the given
