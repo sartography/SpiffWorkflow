@@ -24,6 +24,9 @@ from ...specs.WorkflowSpec import WorkflowSpec
 import xml.etree.ElementTree as ET
 
 
+LOG = logging.getLogger(__name__)
+
+
 class _EndJoin(UnstructuredJoin):
 
     def _check_threshold_unstructured(self, my_task, force=False):
@@ -48,7 +51,7 @@ class _EndJoin(UnstructuredJoin):
                 waiting_tasks.append(task)
 
         if len(waiting_tasks) == 0:
-            logging.debug(
+            LOG.debug(
                 'Endjoin Task ready: %s (ready/waiting tasks: %s)',
                 my_task,
                 list(my_task.workflow.get_tasks(Task.READY | Task.WAITING)))
