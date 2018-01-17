@@ -31,6 +31,9 @@ from ...serializer.base import Serializer
 from ..workflow import BpmnWorkflow
 
 
+LOG = logging.getLogger(__name__)
+
+
 class UnrecoverableWorkflowChange(Exception):
     """
     This is thrown if the workflow cannot be restored because the workflow spec
@@ -158,7 +161,7 @@ class _BpmnProcessSpecState(object):
     def go(self, workflow):
         leaf_tasks = []
         self._go(workflow.task_tree.children[0], self.route, leaf_tasks)
-        logging.debug('Leaf tasks after load, before _update: %s', leaf_tasks)
+        LOG.debug('Leaf tasks after load, before _update: %s', leaf_tasks)
         for task in sorted(
                 leaf_tasks,
                 key=lambda t: 0 if getattr(

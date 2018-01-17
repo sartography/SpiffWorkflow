@@ -245,8 +245,9 @@ class BoundaryEventParser(IntermediateCatchEventParser):
 
     def create_task(self):
         event_definition = self.get_event_definition()
+        # BPMN spec states that cancelActivity is True by default
         cancel_activity = self.node.get(
-            'cancelActivity', default='false').lower() == 'true'
+            'cancelActivity', default='true').lower() == 'true'
         return self.spec_class(self.spec, self.get_task_spec_name(),
                                cancel_activity=cancel_activity,
                                event_definition=event_definition,
