@@ -18,6 +18,7 @@ from builtins import object
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+import sys
 import datetime
 import logging
 
@@ -138,7 +139,11 @@ class EscalationEventDefinition(CatchingEventDefinition, ThrowingEventDefinition
         return my_task._get_internal_data('event_fired', False)
 
     def _accept_message(self, my_task, message):
-        if isinstance(message, basestring) and message.startswith('x_escalation:'):
+        if sys.version_info[0] == 3:
+            string_types = str,
+        else:
+            string_types = basestring,
+        if isinstance(message, string_types) and message.startswith('x_escalation:'):
             parts = message.split(':')
             if len(parts) == 3:
                 _, source_task_name, recv_escalation_code = parts
