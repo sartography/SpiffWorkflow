@@ -55,6 +55,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         for task in self.workflow.get_tasks(Task.READY):
             task.set_data(should_escalate=True)
+        self.save_restore()
         self.workflow.complete_all()
         self.assertEqual(True, self.workflow.is_completed())
 
@@ -84,6 +85,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         for task in self.workflow.get_tasks(Task.READY):
             task.set_data(should_escalate=False)
+        self.save_restore()
         self.workflow.complete_all()
         self.assertEqual(True, self.workflow.is_completed())
 
@@ -111,6 +113,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
         completed_set = set()
         track_workflow(self.spec, completed_set)
         self.workflow = BpmnWorkflow(self.spec)
+        self.save_restore()
         self.workflow.complete_all()
         self.assertEqual(True, self.workflow.is_completed())
 
@@ -135,8 +138,20 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
         self.assertEqual(True, 'EndEvent_general_interrupting_escalated' in completed_set)
 
 
+class CallActivityEscalationWithoutSaveRestoreTest(CallActivityEscalationTest):
+    def save_restore(self):
+        pass # disabling save_restore for this test case
+
+
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(CallActivityEscalationTest)
+    loader = unittest.TestLoader()
+    return unittest.TestSuite([
+        loader.loadTestsFromTestCase(cls)
+        for cls in [
+            CallActivityEscalationTest,
+            CallActivityEscalationWithoutSaveRestoreTest,
+        ]
+    ])
 
 
 if __name__ == '__main__':
