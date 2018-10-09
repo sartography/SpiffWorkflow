@@ -58,7 +58,7 @@ wf = Workflow(spec)
 wf.complete_task_from_id(...)
 
 # Of course, you can also persist the workflow instance:
-xml = Workflow.serialize(XmlSerializer, 'workflow_state.xml')
+xml = wf.serialize(XmlSerializer, 'workflow_state.xml')
 ```
 
 ## Documentation
