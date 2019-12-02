@@ -18,7 +18,7 @@ class UserTaskSpecTest(unittest.TestCase):
         self.wf_spec = WorkflowSpec()
         self.user_spec = self.create_instance()
 
-    def test_constructor(self):
+    def testConstructor(self):
         self.assertEquals(self.user_spec.name, 'userTask')
         self.assertEqual(self.user_spec.data, {})
         self.assertEqual(self.user_spec.defines, {})
@@ -42,3 +42,13 @@ class UserTaskSpecTest(unittest.TestCase):
         enum_field.add_option('new fool', 'This is new, therefor it is better.')
         self.form.add_field(enum_field)
         self.assertEqual(enum_field, self.user_spec.form.fields[-1])
+
+    def testIsEngineTask(self):
+        self.assertFalse(self.user_spec.is_engine_task())
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(UserTaskSpecTest)
+
+
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity=2).run(suite())

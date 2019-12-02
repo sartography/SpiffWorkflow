@@ -18,3 +18,11 @@ class CamundaParserTest(unittest.TestCase):
 
         self.assertEqual((UserTaskParser, UserTask),
                          self.parser.OVERRIDE_PARSER_CLASSES.get(expected_key))
+
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(CamundaParserTest)
+
+
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity=2).run(suite())
