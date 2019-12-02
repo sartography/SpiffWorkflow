@@ -8,3 +8,4 @@ nosetests.xml
 .coverage
 tests/coverage.xml
 .c9revisions
+.idea
