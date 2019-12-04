@@ -267,17 +267,16 @@ class DictionarySerializer(Serializer):
     def serialize_join(self, spec):
         s_state = self.serialize_task_spec(spec)
         s_state['split_task'] = spec.split_task
-        s_state['threshold'] = b64encode(
-            pickle.dumps(spec.threshold, protocol=pickle.HIGHEST_PROTOCOL))
+        s_state['threshold'] = spec.threshold
         s_state['cancel_remaining'] = spec.cancel_remaining
         return s_state
 
     def deserialize_join(self, wf_spec, s_state):
         spec = Join(wf_spec,
                     s_state['name'],
-                    split_task=s_state['split_task'],
-                    threshold=pickle.loads(b64decode(s_state['threshold'])),
-                    cancel=s_state['cancel_remaining'])
+                    split_task=s_state.get('split_task', None),
+                    threshold=s_state.get('threshold', None),
+                    cancel=s_state.get('cancel_remaining', False))
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
