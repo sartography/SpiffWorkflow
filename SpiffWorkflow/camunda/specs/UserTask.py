@@ -10,8 +10,8 @@ class UserTask(Simple, BpmnSpecMixin):
     def __init__(self, wf_spec, name, form, **kwargs):
         """
         Constructor.
-        :param form: the information that needs to be provided by the user, as parsed from
-        the camunda xml file's form details.
+        :param form: the information that needs to be provided by the user,
+        as parsed from the camunda xml file's form details.
         """
         super(UserTask, self).__init__(wf_spec, name, **kwargs)
         self.form = form
@@ -35,6 +35,8 @@ class FormField:
         self.label = ""
         self.defaultValue = ""
 
+    def jsonable(self):
+        return self.__dict__
 
 class EnumFormField(FormField):
     def __init__(self):
@@ -44,11 +46,17 @@ class EnumFormField(FormField):
     def add_option(self, option_id, name):
         self.options.append(EnumFormFieldOption(option_id, name))
 
+    def jsonable(self):
+        return self.__dict__
+
 
 class EnumFormFieldOption:
     def __init__(self, option_id, name):
         self.id = option_id
         self.name = name
+
+    def jsonable(self):
+        return self.__dict__
 
 
 class Form:
@@ -58,3 +66,8 @@ class Form:
 
     def add_field(self, field):
         self.fields.append(field)
+
+    def jsonable(self):
+        return self.__dict__
+
+

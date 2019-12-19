@@ -1,3 +1,4 @@
+import json
 import unittest
 
 from SpiffWorkflow.camunda.specs.UserTask import FormField, UserTask, Form, EnumFormField, EnumFormFieldOption
@@ -45,6 +46,47 @@ class UserTaskSpecTest(unittest.TestCase):
 
     def testIsEngineTask(self):
         self.assertFalse(self.user_spec.is_engine_task())
+
+
+
+
+    def test_convert_to_dict(self):
+        form = Form()
+        field1 = FormField(form_type="text")
+        field1.id = "testinput"
+        field1.label = "Text Input"
+        field1.defaultValue = "noda"
+        field2 = EnumFormField()
+        field2.id = "color"
+        field2.label = "color?"
+        field2.add_option("red", "Red")
+        field2.add_option("blue", "Blue")
+        form.key = "formKey"
+        form.add_field(field1)
+        form.add_field(field2)
+
+        def JsonableHandler(Obj):
+            if hasattr(Obj, 'jsonable'):
+                return Obj.jsonable()
+            else:
+                raise 'Object of type %s with value of %s is not JSON serializable' % (
+                    type(Obj), repr(Obj))
+
+        json_form = json.dumps(form, default=JsonableHandler)
+        self.assertEquals('{"key": "formKey", '
+                          '"fields": ['
+                          '{"id": "testinput",'
+                          ' "type": "text", '
+                          '"label": "Text Input",'
+                          ' "defaultValue": "noda"}, '
+                          '{"id": "color", '
+                          '"type": "enum", '
+                          '"label": "color?",'
+                          ' "defaultValue": "", '
+                          '"options": ['
+                          '{"id": "red", "name": "Red"}, '
+                          '{"id": "blue", "name": "Blue"}]}]}',
+                          json_form)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(UserTaskSpecTest)
