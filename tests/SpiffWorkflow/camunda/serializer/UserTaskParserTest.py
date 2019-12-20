@@ -25,6 +25,18 @@ class UserTaskParserTest(unittest.TestCase):
         self.assertEquals("type", form.fields[0].id)
         self.assertEquals(3, len(form.fields[0].options))
 
+    def testGetFieldProperties(self):
+        form = self.spec.task_specs['Task_User_Select_Type'].form
+        self.assertEquals(1, len(form.fields[0].properties))
+        self.assertEquals('description', form.fields[0].properties[0].id)
+        self.assertEquals('Choose from the list of available types of random facts', form.fields[0].properties[0].value)
+
+    def testGetFieldValidation(self):
+        form = self.spec.task_specs['Task_User_Select_Type'].form
+        self.assertEquals(1, len(form.fields[0].validation))
+        self.assertEquals('maxlength', form.fields[0].validation[0].name)
+        self.assertEquals('25', form.fields[0].validation[0].config)
+
     def testCreateTask(self):
         pass
 

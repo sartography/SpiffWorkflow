@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1gjhqt9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1gjhqt9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.6.0-dev">
   <bpmn:process id="Process_1ds61df" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_0ik56h0</bpmn:outgoing>
@@ -9,6 +9,12 @@
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="type" label="Type" type="enum" defaultValue="cat">
+            <camunda:properties>
+              <camunda:property id="description" value="Choose from the list of available types of random facts" />
+            </camunda:properties>
+            <camunda:validation>
+              <camunda:constraint name="maxlength" config="25" />
+            </camunda:validation>
             <camunda:value id="norris" name="Chuck Norris" />
             <camunda:value id="cat" name="Cat Fact" />
             <camunda:value id="buzzword" name="Business Buzzword" />
