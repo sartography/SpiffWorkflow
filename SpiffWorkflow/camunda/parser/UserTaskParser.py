@@ -1,6 +1,5 @@
-from SpiffWorkflow.camunda.specs.UserTask import UserTask, Form, FormField, EnumFormField
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser, xpath_eval
-
+from SpiffWorkflow.camunda.specs.UserTask import Form, FormField, EnumFormField
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
@@ -8,8 +7,9 @@ CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 class UserTaskParser(TaskParser):
 
     def __init__(self, process_parser, spec_class, node):
-        super().__init__(process_parser, spec_class, node)
-        self.xpath = xpath_eval(node,extra_ns={'camunda':CAMUNDA_MODEL_NS})
+        super(UserTaskParser, self).__init__(process_parser, spec_class, node)
+        self.xpath = xpath_eval(node, extra_ns={'camunda': CAMUNDA_MODEL_NS})
+
     """
     Base class for parsing User Tasks
     """
@@ -30,18 +30,28 @@ class UserTaskParser(TaskParser):
                 field = self.get_enum_field(xml_field)
             else:
                 field = FormField()
+
             field.id = xml_field.get('id')
             field.type = xml_field.get('type')
             field.label = xml_field.get('label')
             field.default_value = xml_field.get('defaultValue')
+
+            for child in xml_field:
+                if child.tag == '{' + CAMUNDA_MODEL_NS + '}properties':
+                    for p in child:
+                        field.add_property(p.get('id'), p.get('value'))
+
+                if child.tag == '{' + CAMUNDA_MODEL_NS + '}validation':
+                    for v in child:
+                        field.add_validation(v.get('name'), v.get('config'))
+
             form.add_field(field)
-            print(xml_field.text)
         return form
 
     def get_enum_field(self, xml_field):
         field = EnumFormField()
-        for option in xml_field:
-            field.add_option(option.get('id'), option.get('name'))
+
+        for child in xml_field:
+            if child.tag == '{' + CAMUNDA_MODEL_NS + '}value':
+                field.add_option(child.get('id'), child.get('name'))
         return field
-
-
