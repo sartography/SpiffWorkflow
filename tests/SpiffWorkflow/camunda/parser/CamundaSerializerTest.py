@@ -9,7 +9,7 @@ class CamundaSerializerTest(unittest.TestCase):
     def setUp(self):
         super(CamundaSerializerTest, self).setUp()
         self.serializer = CamundaSerializer()
-        self.spec = self.serializer.deserialize_workflow_spec("../../camunda/data")
+        self.spec = self.serializer.deserialize_workflow_spec("./camunda/data")
         self.workflow = BpmnWorkflow(self.spec)
         self.return_type = str
 
