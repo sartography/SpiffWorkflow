@@ -20,6 +20,10 @@ import os
 import xml.etree.ElementTree as ET
 import glob
 
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.serializer import json as spiffJson
+from SpiffWorkflow.serializer.json import JSONSerializer
+
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 from SpiffWorkflow.serializer.base import Serializer
 
@@ -30,7 +34,7 @@ class NoBpmnFilesFound(Exception):
         pass
 
 
-class CamundaSerializer(Serializer):
+class CamundaSerializer(JSONSerializer):
 
     """
     The BpmnSerializer class provides support for deserializing a Camunda BPMN file.
@@ -43,16 +47,73 @@ class CamundaSerializer(Serializer):
             "authoring should be done using a supported editor.")
 
     def serialize_workflow(self, workflow, **kwargs):
-        raise NotImplementedError(
-            "The BPMN standard does not provide a specification for serializing a running workflow.")
+        """
+        Serializes the workflow data and task tree, but not the specification
+        That must be passed in when deserializing the data structure.
+        """
+        assert isinstance(workflow, BpmnWorkflow)
+        s_state = dict()
 
-    def deserialize_workflow(self, s_state, **kwargs):
-        raise NotImplementedError(
-            "The BPMN standard does not provide a specification for serializing a running workflow.")
+        # s_state['wf_spec'] = workflow_spec
+
+        # data
+        s_state['data'] = self.serialize_dict(workflow.data)
+
+        # last_node
+        value = workflow.last_task
+        s_state['last_task'] = value.id if value is not None else None
+
+        # outer_workflow
+        # s_state['outer_workflow'] = workflow.outer_workflow.id
+
+        # success
+        s_state['success'] = workflow.success
+
+        # task_tree
+        s_state['task_tree'] = self.serialize_task(workflow.task_tree)
+
+        return spiffJson.dumps(s_state)
+
+
+    def deserialize_workflow(self, s_state,  **kwargs):
+        """Requires that a deserialized version of the workflow spec
+        be provided as a named argument."""
+
+        wf_spec = kwargs['wf_spec']
+        workflow = BpmnWorkflow(wf_spec)
+
+        dict = spiffJson.loads(s_state)
+
+        # data
+        workflow.data = self.deserialize_dict(dict['data'])
+
+        # outer_workflow
+        # workflow.outer_workflow =
+        # find_workflow_by_id(remap_workflow_id(s_state['outer_workflow']))
+
+        # success
+        workflow.success = dict['success']
+
+        # workflow
+        workflow.spec = wf_spec
+
+        # task_tree
+        workflow.task_tree = self.deserialize_task(
+            workflow, dict['task_tree'])
+
+        # Re-connect parents
+        for task in workflow.get_tasks():
+            task.parent = workflow.get_task(task.parent)
+
+        # last_task
+        workflow.last_task = workflow.get_task(dict['last_task'])
+
+        return workflow
 
     def deserialize_workflow_spec(self, s_state):
         """
-        :param s_state: a directory where the BPMN file(s) and images resides.
+        :param s_state: a directory where the BPMN file(s) and images resides, or
+        an array of
         """
         parser = CamundaParser()
 
