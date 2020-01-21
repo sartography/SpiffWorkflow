@@ -1,15 +1,38 @@
+import os
 import unittest
+from io import BytesIO
+
+from SpiffWorkflow.bpmn.serializer.Packager import Packager
+from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
+from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 
 from SpiffWorkflow.camunda.parser.UserTaskParser import UserTaskParser
-from SpiffWorkflow.camunda.serializer.CamundaSerializer import CamundaSerializer
+
+
+class PackagerForFormTests(Packager):
+
+    PARSER_CLASS = CamundaParser
+
+    @classmethod
+    def package_in_memory(cls, workflow_name, workflow_files, editor='signavio'):
+        s = BytesIO()
+        p = cls(s, workflow_name, meta_data=[], editor=editor)
+        p.add_bpmn_files_by_glob(workflow_files)
+        p.create_package()
+        return s.getvalue()
 
 
 class UserTaskParserTest(unittest.TestCase):
     CORRELATE = UserTaskParser
 
+    def load_workflow_spec(self, filename, process_name):
+        f = os.path.join(os.path.dirname(__file__), filename)
+
+        return BpmnSerializer().deserialize_workflow_spec(
+            PackagerForFormTests.package_in_memory(process_name, f))
+
     def setUp(self):
-        serializer = CamundaSerializer()
-        self.spec = serializer.deserialize_workflow_spec("./camunda/data")
+        self.spec = self.load_workflow_spec('../data/random_fact.bpmn', 'random_fact')
 
     def testConstructor(self):
         pass  # this is accomplished through setup.

@@ -1,18 +1,26 @@
+import os
 import unittest
+from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.camunda.serializer.CamundaSerializer import CamundaSerializer
+from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
 
-class CamundaSerializerTest(unittest.TestCase):
-    CORRELATE = CamundaSerializer
+
+class BpmnSerializerTest(unittest.TestCase):
+    CORRELATE = BpmnSerializer
+
+    def load_workflow_spec(self, filename, process_name):
+        f = os.path.join(os.path.dirname(__file__), 'data', filename)
+
+        return BpmnSerializer().deserialize_workflow_spec(
+            PackagerForTests.package_in_memory(process_name, f))
 
     def setUp(self):
-        super(CamundaSerializerTest, self).setUp()
-        self.serializer = CamundaSerializer()
-        self.spec = self.serializer.deserialize_workflow_spec("./camunda/data")
+        super(BpmnSerializerTest, self).setUp()
+        self.serializer = BpmnSerializer()
+        self.spec = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
         self.workflow = BpmnWorkflow(self.spec)
         self.return_type = str
-
 
     def testDeserializeWorkflowSpec(self):
         self.assertIsNotNone(self.spec)
@@ -28,6 +36,17 @@ class CamundaSerializerTest(unittest.TestCase):
     def testDeserializeWorkflow(self):
         self._compare_with_deserialized_copy(self.workflow)
 
+    def testDeserializeCallActivityChildren(self):
+        """Tested as a part of deserialize workflow."""
+        pass
+
+    def testSerializeTask(self):
+        json = self.serializer.serialize_workflow(self.workflow)
+        print(json)
+
+    def testDeserializeTask(self):
+        self._compare_with_deserialized_copy(self.workflow)
+
     def testDeserializeActiveWorkflow(self):
         self.workflow.do_engine_steps()
         self._compare_with_deserialized_copy(self.workflow)
@@ -35,7 +54,7 @@ class CamundaSerializerTest(unittest.TestCase):
     def testDeserializeWithData(self):
         self.workflow.data["test"] = "my_test"
         json = self.serializer.serialize_workflow(self.workflow)
-        wf2 = self.serializer.deserialize_workflow(json, wf_spec=self.spec)
+        wf2 = self.serializer.deserialize_workflow(json, workflow_spec=self.spec)
         self.assertEquals('my_test', wf2.get_data("test"))
 
     def testDeserializeWithDataOnTask(self):
@@ -46,7 +65,7 @@ class CamundaSerializerTest(unittest.TestCase):
 
     def _compare_with_deserialized_copy(self, wf):
         json = self.serializer.serialize_workflow(wf)
-        wf2 = self.serializer.deserialize_workflow(json, wf_spec=self.spec)
+        wf2 = self.serializer.deserialize_workflow(json, workflow_spec=self.spec)
         self._compare_workflows(wf, wf2)
 
     def _compare_workflows(self, w1, w2):
@@ -61,7 +80,7 @@ class CamundaSerializerTest(unittest.TestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(CamundaSerializerTest)
+    return unittest.TestLoader().loadTestsFromTestCase(BpmnSerializerTest)
 
 
 if __name__ == '__main__':

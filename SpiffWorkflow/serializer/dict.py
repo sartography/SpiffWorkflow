@@ -452,11 +452,13 @@ class DictionarySerializer(Serializer):
         assert spec.start is spec.get_task_spec_from_name('Start')
         return spec
 
-    def serialize_workflow(self, workflow, **kwargs):
+    def serialize_workflow(self, workflow, include_spec=True, **kwargs):
+
         assert isinstance(workflow, Workflow)
         s_state = dict()
-        s_state['wf_spec'] = self.serialize_workflow_spec(workflow.spec,
-                                                          **kwargs)
+        if include_spec:
+            s_state['wf_spec'] = self.serialize_workflow_spec(workflow.spec,
+                                                              **kwargs)
 
         # data
         s_state['data'] = self.serialize_dict(workflow.data)
@@ -476,9 +478,17 @@ class DictionarySerializer(Serializer):
 
         return s_state
 
-    def deserialize_workflow(self, s_state, **kwargs):
-        wf_spec = self.deserialize_workflow_spec(s_state['wf_spec'], **kwargs)
-        workflow = Workflow(wf_spec)
+    def deserialize_workflow(self, s_state, wf_class=Workflow,
+                             read_only=False, wf_spec=None, **kwargs):
+        """It is possible to override the workflow class, and specify a
+        workflow_spec, otherwise the spec is assumed to be serialized in the
+        s_state['wf_spec']"""
+
+        if wf_spec is None:
+            wf_spec = self.deserialize_workflow_spec(s_state['wf_spec'], **kwargs)
+        workflow = wf_class(wf_spec)
+
+        workflow.read_only = read_only
 
         # data
         workflow.data = self.deserialize_dict(s_state['data'])
@@ -506,10 +516,16 @@ class DictionarySerializer(Serializer):
 
         return workflow
 
-    def serialize_task(self, task, skip_children=False):
+
+    def serialize_task(self, task, skip_children=False, allow_subs=False):
+        """
+             :param allow_subs: Allows sub-serialization to take place, otherwise
+             assumes that the subworkflow is stored in internal data and raises an error.
+        """
+
         assert isinstance(task, Task)
 
-        if isinstance(task.task_spec, SubWorkflow):
+        if not allow_subs and isinstance(task.task_spec, SubWorkflow):
             raise TaskNotSupportedError(
                 "Subworkflow tasks cannot be serialized (due to their use of" +
                 " internal_data to store the subworkflow).")
@@ -563,8 +579,7 @@ class DictionarySerializer(Serializer):
         task.parent = s_state['parent']
 
         # children
-        task.children = [self.deserialize_task(workflow, c)
-                         for c in s_state['children']]
+        task.children = self._deserialize_task_children(task, s_state)
 
         # state
         task._state = s_state['state']
@@ -580,3 +595,9 @@ class DictionarySerializer(Serializer):
         task.internal_data = s_state['internal_data']
 
         return task
+
+    def _deserialize_task_children(self, task, s_state):
+        """This may need to be overridden if you need to support
+         deserialization of sub-workflows"""
+        return [self.deserialize_task(task.workflow, c)
+                         for c in s_state['children']]

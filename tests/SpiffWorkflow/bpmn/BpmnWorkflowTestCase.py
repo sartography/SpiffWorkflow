@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import, division
+
+import json
 import logging
 import os
 import unittest
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
-from SpiffWorkflow.bpmn.serializer.CompactWorkflowSerializer import CompactWorkflowSerializer
 from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
 __author__ = 'matth'
@@ -94,17 +95,19 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         if state != after_state:
             logging.debug("Before save:\n%s", before_dump)
             logging.debug("After save:\n%s", after_dump)
+        self.maxDiff = None
+        self.assertEqual(before_dump, after_dump)
         self.assertEqual(state, after_state)
 
     def restore(self, state):
-        self.workflow = CompactWorkflowSerializer().deserialize_workflow(
+        self.workflow = BpmnSerializer().deserialize_workflow(
             state, workflow_spec=self.spec)
 
     def get_read_only_workflow(self):
         state = self._get_workflow_state()
-        return CompactWorkflowSerializer().deserialize_workflow(state, workflow_spec=self.spec, read_only=True)
+        return BpmnSerializer().deserialize_workflow(state, workflow_spec=self.spec, read_only=True)
 
     def _get_workflow_state(self):
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
-        return CompactWorkflowSerializer().serialize_workflow(self.workflow, include_spec=False)
+        return BpmnSerializer().serialize_workflow(self.workflow, include_spec=False)

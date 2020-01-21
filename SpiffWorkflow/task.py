@@ -282,8 +282,10 @@ class Task(object):
         Setting force to True allows for changing a state after it
         COMPLETED. This would otherwise be invalid.
         """
+        orig_state = self.state
         self._setstate(state, True)
-        self.last_state_change = time.time()
+        if state != orig_state:
+            self.last_state_change = time.time()
 
     def _has_state(self, state):
         """
