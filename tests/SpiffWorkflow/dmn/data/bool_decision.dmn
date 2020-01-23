@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn">
+  <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
+    <decisionTable id="decisionTable">
+      <input id="InputClause_1tm0ceq" label="IsItTrue">
+        <inputExpression id="LiteralExpression_04o7chw" typeRef="boolean" />
+      </input>
+      <output id="output1" label="Result" name="" typeRef="string" />
+      <rule id="row-484867957-7">
+        <description>Y Row Annotation</description>
+        <inputEntry id="UnaryTests_0u4hmbg">        <text>true</text>
+</inputEntry>
+        <outputEntry id="LiteralExpression_19qgvg3">        <text><![CDATA["Yesss"]]></text>
+</outputEntry>
+      </rule>
+      <rule id="row-683871130-2">
+        <description>N Row Annotation</description>
+        <inputEntry id="UnaryTests_0ojl8ov">        <text>false</text>
+</inputEntry>
+        <outputEntry id="LiteralExpression_0fifygd">        <text><![CDATA["Noooo"]]></text>
+</outputEntry>
+      </rule>
+      <rule id="row-683871130-3">
+        <description>ELSE Row Annotation</description>
+        <inputEntry id="UnaryTests_0tl5hup">        <text></text>
+</inputEntry>
+        <outputEntry id="LiteralExpression_1kybqmh">        <text><![CDATA["ELSE"]]></text>
+</outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>
