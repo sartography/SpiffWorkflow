@@ -20,12 +20,11 @@ class BpmnDmnParser(BpmnParser):
         self.dmn_parsers = {}
         self.dmn_parsers_by_name = {}
 
-    def add_dmn_xml(self, dmn_xml, svg=None, filename=None):
+    def add_dmn_xml(self, node, svg=None, filename=None):
         """
         Add the given lxml representation of the DMN file to the parser's set.
         """
-        xpath = xpath_eval(dmn_xml)
-        node = dmn_xml._root
+        xpath = xpath_eval(node)
         dmn_parser = DMNParser(
             self, node, svg, filename=filename, doc_xpath=xpath)
         self.dmn_parsers[dmn_parser.get_id()] = dmn_parser
@@ -51,6 +50,6 @@ class BpmnDmnParser(BpmnParser):
         for filename in filenames:
             f = open(filename, 'r')
             try:
-                self.add_dmn_xml(ET.parse(f), filename=filename)
+                self.add_dmn_xml(ET.parse(f).getroot(), filename=filename)
             finally:
                 f.close()
