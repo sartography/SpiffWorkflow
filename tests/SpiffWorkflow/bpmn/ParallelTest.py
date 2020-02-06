@@ -81,6 +81,36 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 
+class ParallelFromCamunda(BpmnWorkflowTestCase):
+
+    def setUp(self):
+        self.spec = self.load_spec()
+
+    def load_spec(self):
+        return self.load_workflow_spec('parallel2.bpmn', 'Process_1uzs4e7')
+
+    def testRunThroughParallelTaskFirst(self):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+
+        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
+
+        self.do_next_named_step('Enter SetUp')
+        self.save_restore()
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Enter DSP')
+        self.save_restore()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Enter Finance')
+        self.save_restore()
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.assertEqual(
+            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+
+
 class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
 
     def load_spec(self):

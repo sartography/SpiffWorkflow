@@ -111,6 +111,7 @@ class BpmnWorkflow(Workflow):
 
     def _task_completed_notify(self, task):
         assert (not self.read_only) or self._is_busy_with_restore()
+        self.last_task = task
         super(BpmnWorkflow, self)._task_completed_notify(task)
 
     def _task_cancelled_notify(self, task):

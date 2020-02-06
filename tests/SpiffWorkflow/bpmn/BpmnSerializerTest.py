@@ -63,6 +63,14 @@ class BpmnSerializerTest(unittest.TestCase):
         user_task.data = {"test":"my_test"}
         self._compare_with_deserialized_copy(self.workflow)
 
+    def testLastTaskIsSetAndWorksThroughRestore(self):
+        self.workflow.do_engine_steps()
+        json = self.serializer.serialize_workflow(self.workflow)
+        wf2 = self.serializer.deserialize_workflow(json, workflow_spec=self.spec)
+        self.assertIsNotNone(self.workflow.last_task)
+        self.assertIsNotNone(wf2.last_task)
+        self._compare_workflows(self.workflow, wf2)
+
     def _compare_with_deserialized_copy(self, wf):
         json = self.serializer.serialize_workflow(wf)
         wf2 = self.serializer.deserialize_workflow(json, workflow_spec=self.spec)
