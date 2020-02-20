@@ -30,6 +30,7 @@ class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
         self.workflow.get_tasks(Task.READY)[0].set_data(x=3)
         self.workflow.do_engine_steps()
         self.assertDictEqual(self.workflow.data, {'x': 3, 'y': 'A'})
+        self.assertDictEqual(self.workflow.last_task.data, {'x': 3, 'y': 'A'})
 
     def testDmnSaveRestore(self):
         self.workflow = BpmnWorkflow(self.spec)
@@ -38,6 +39,9 @@ class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
         self.assertDictEqual(self.workflow.data, {'x': 3, 'y': 'A'})
+        self.assertDictEqual(self.workflow.last_task.data, {'x': 3, 'y': 'A'})
+
+
 
 
 def suite():

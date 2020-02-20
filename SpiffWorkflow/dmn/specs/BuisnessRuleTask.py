@@ -19,8 +19,8 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
         self.resDict = None
 
     def _on_complete_hook(self, my_task):
-        super(BusinessRuleTask, self)._on_complete_hook(my_task)
         self.res = self.dmnEngine.decide(**my_task.data)
         self.resDict = self.res.outputAsDict()
         my_task.data.update(self.resDict)
+        super(BusinessRuleTask, self)._on_complete_hook(my_task)
         my_task.workflow.data.update(self.resDict)

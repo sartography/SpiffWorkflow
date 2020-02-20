@@ -56,7 +56,7 @@ class TaskSpec(object):
         (cancelled may happen at any time)
 
     The only events where implementing something other than state tracking
-    may be useful are the following:
+    may be useful are the following:_
       - Reached: You could mess with the pre-assign variables here, for
         example. Other then that, there is probably no need in a real
         application.
