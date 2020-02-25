@@ -121,6 +121,25 @@ class ParallelFromCamunda(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
 
+    def testAllParallelDataMakesItIntoGatewayTask(self):
+        """It should be true that data collected across parallel tasks
+        is all available in the join task."""
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('First Task')
+        self.do_next_named_step('Parallel Task A',
+                                set_attribs={"taskA": "taskA"})
+        self.do_next_named_step('Parallel Task B',
+                                set_attribs={"taskB": "taskB"})
+        self.do_next_named_step('Parallel Task C',
+                                set_attribs={"taskC": "taskC"})
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('Last Task')
+        self.assertEquals("taskA", self.workflow.last_task.data["taskA"])
+        self.assertEquals("taskB", self.workflow.last_task.data["taskB"])
+        self.assertEquals("taskC", self.workflow.last_task.data["taskC"])
+
+
 
 class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
 
