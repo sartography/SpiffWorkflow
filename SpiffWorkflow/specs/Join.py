@@ -268,10 +268,6 @@ class Join(TaskSpec):
                     or changed > last_changed.parent.last_state_change:
                 last_changed = task
 
-        # Update data from all the same thread tasks.
-        for task in thread_tasks:
-            self.data.update(task.data)
-
         # Mark the identified task instances as COMPLETED. The exception
         # is the most recently changed task, for which we assume READY.
         # By setting the state to READY only, we allow for calling
@@ -279,7 +275,6 @@ class Join(TaskSpec):
         # (re)built underneath the node.
         for task in thread_tasks:
             if task == last_changed:
-                task.data.update(self.data)
                 self.entered_event.emit(my_task.workflow, my_task)
                 task._ready()
             else:
