@@ -24,7 +24,10 @@ class UserTaskParser(TaskParser):
         """Camunda provides a simple form builder, this will extract the
         details from that form and construct a form model from it. """
         form = Form()
-        form.key = self.node.attrib['{' + CAMUNDA_MODEL_NS + '}formKey']
+        try:
+            form.key = self.node.attrib['{' + CAMUNDA_MODEL_NS + '}formKey']
+        except (KeyError):
+            return form
         for xml_field in self.xpath('.//camunda:formData/camunda:formField'):
             if xml_field.get('type') == 'enum':
                 field = self.get_enum_field(xml_field)

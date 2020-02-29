@@ -60,6 +60,10 @@ class UserTaskParserTest(unittest.TestCase):
         self.assertEquals('maxlength', form.fields[0].validation[0].name)
         self.assertEquals('25', form.fields[0].validation[0].config)
 
+    def testNoFormDoesNotBombOut(self):
+        self.load_workflow_spec('../data/no_form.bpmn', 'no_form')
+        self.assertTrue(True) # You can load a user task that has no form and you can still get here.
+
     def testCreateTask(self):
         pass
 
