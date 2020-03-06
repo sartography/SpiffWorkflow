@@ -23,6 +23,8 @@ import sys
 import traceback
 from .ValidationException import ValidationException
 from ..specs.BoundaryEvent import _BoundaryEventParent
+from ...specs import MultiInstance
+from ...operators import Attrib
 from .util import xpath_eval, one
 
 LOG = logging.getLogger(__name__)
@@ -65,16 +67,35 @@ class TaskParser(object):
 
             self.task.documentation = self.parser._parse_documentation(
                 self.node, xpath=self.xpath, task_parser=self)
-
+            multiinstanceElement = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics' % self.get_id())
+            multiinstance = False
+            isSequential = False
+            loopCountVar = None
+            if len(multiinstanceElement) > 0:
+                multiinstance = True
+                sequentialText = multiinstanceElement[0].get('isSequential')
+                if sequentialText == 'true':
+                    isSequential = True
+                loopcount = list(multiinstanceElement[0])[0].text
+                print ("Task Name: %s"%self.get_id())
+                print ("   Task is MultiInstance: %s"%multiinstance)
+                print ("   MultiInstance is Sequential: %s"%isSequential)
+                
+                print ("   Task has loopcount of: %s"%loopcount)
+            if multiinstance:
+                self.task.times = Attrib(loopcount) # test only - should be overridden
+                #self.task.timesvar = loopcount
+                self.task.isSequential = isSequential
+                self.task.__class__ = type(self.get_id() + '_class',(self.task.__class__,MultiInstance),{})
+                print(self.task.__class__.__bases__)
             boundary_event_nodes = self.process_xpath(
                 './/bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
             if boundary_event_nodes:
-                parent_task = _BoundaryEventParent(
+                parent_task = _BoundaryEventPareont(
                     self.spec, '%s.BoundaryEventParent' % self.get_id(),
                     self.task, lane=self.task.lane)
                 self.process_parser.parsed_nodes[
                     self.node.get('id')] = parent_task
-
                 parent_task.connect_outgoing(
                     self.task, '%s.FromBoundaryEventParent' % self.get_id(),
                     None, None)
