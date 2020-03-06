@@ -21,7 +21,7 @@ import logging
 from .Join import Join
 from ..util import merge_dictionary
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('spiffLogger')
 
 
 class Merge(Join):

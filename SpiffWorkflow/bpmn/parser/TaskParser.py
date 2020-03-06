@@ -27,7 +27,7 @@ from ...specs import MultiInstance
 from ...operators import Attrib
 from .util import xpath_eval, one
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('spiffLogger')
 
 
 class TaskParser(object):

@@ -26,7 +26,7 @@ from .util.compat import mutex
 from .util.event import Event
 from .exceptions import WorkflowException
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('spiffLogger')
 
 
 class Workflow(object):

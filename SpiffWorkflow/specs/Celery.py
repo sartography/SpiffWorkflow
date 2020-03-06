@@ -32,7 +32,7 @@ except ImportError:
 else:
     have_celery = True
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('spiffLogger')
 
 
 def _eval_args(args, my_task):

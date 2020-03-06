@@ -19,7 +19,7 @@ import logging
 
 from .base import TaskSpec
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('spiffLogger')
 
 
 class Transform(TaskSpec):

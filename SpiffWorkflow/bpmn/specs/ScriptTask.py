@@ -23,7 +23,7 @@ from ...task import Task
 from ...specs.Simple import Simple
 from ...exceptions import WorkflowTaskExecException
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('spiffLogger')
 
 
 class ScriptTask(Simple, BpmnSpecMixin):

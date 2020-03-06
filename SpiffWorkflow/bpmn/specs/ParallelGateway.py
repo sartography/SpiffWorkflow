@@ -19,7 +19,7 @@ from __future__ import division
 import logging
 from .UnstructuredJoin import UnstructuredJoin
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('spiffLogger')
 
 
 class ParallelGateway(UnstructuredJoin):
