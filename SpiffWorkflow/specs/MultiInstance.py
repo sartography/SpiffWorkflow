@@ -20,7 +20,10 @@ from builtins import range
 from ..task import Task
 from .base import TaskSpec
 from ..operators import valueof
+import logging
 
+
+LOG = logging.getLogger(__name__)
 
 class MultiInstance(TaskSpec):
 
@@ -65,7 +68,7 @@ class MultiInstance(TaskSpec):
         May be called after execute() was already completed to create an
         additional outbound task.
         """
-        # Find a Task for this TaskSpec.
+        # Find a Task for this TaksSpec.
         my_task = self._find_my_task(task_spec)
         if my_task._has_state(Task.COMPLETED):
             state = Task.READY
@@ -86,7 +89,9 @@ class MultiInstance(TaskSpec):
         return outputs
 
     def _predict_hook(self, my_task):
+        print(my_task.get_name() + 'predict hook')
         split_n = int(valueof(my_task, self.times, 1))
+        print(split_n)
         my_task._set_internal_data(splits=split_n)
 
         # Create the outgoing tasks.
@@ -99,6 +104,7 @@ class MultiInstance(TaskSpec):
             my_task._sync_children(outputs, Task.LIKELY)
 
     def _on_complete_hook(self, my_task):
+        print(my_task.get_name()+'complete hook')
         outputs = self._get_predicted_outputs(my_task)
         my_task._sync_children(outputs, Task.FUTURE)
         for child in my_task.children:
