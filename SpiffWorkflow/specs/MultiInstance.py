@@ -22,7 +22,7 @@ from .base import TaskSpec
 from ..operators import valueof
 import logging
 
-print('spiffLogger')
+
 LOG = logging.getLogger('spiffLogger')
 
 class MultiInstance(TaskSpec):
@@ -52,8 +52,12 @@ class MultiInstance(TaskSpec):
         """
         if times is None:
             raise ValueError('times argument is required')
-        TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.times = times
+        self.runtimes = 1
+        self.timesvar = 1
+        print('yea- made it')
+
+        TaskSpec.__init__(self, wf_spec, name, **kwargs)
 
     def _find_my_task(self, task):
         for thetask in task.workflow.task_tree:
@@ -69,7 +73,7 @@ class MultiInstance(TaskSpec):
         additional outbound task.
         """
         # Find a Task for this TaksSpec.
-        print(my_task.get_name() + 'trigger')
+        LOG.debug(my_task.get_name() + 'trigger')
         my_task = self._find_my_task(task_spec)
         if my_task._has_state(Task.COMPLETED):
             state = Task.READY
@@ -80,8 +84,12 @@ class MultiInstance(TaskSpec):
             new_task.triggered = True
             output._predict(new_task)
 
-    def _get_predicted_outputs(self, my_task):
+    def _get_count(self,my_task):
         split_n = int(valueof(my_task, self.times, 1))
+        return split_n
+    
+    def _get_predicted_outputs(self, my_task):
+        split_n = self._get_count(my_task)    
 
         # Predict the outputs.
         outputs = []
@@ -90,9 +98,9 @@ class MultiInstance(TaskSpec):
         return outputs
 
     def _predict_hook(self, my_task):
-        print(my_task.get_name() + 'predict hook')
-        split_n = int(valueof(my_task, self.times, 1))
-        print(split_n)
+        LOG.debug(my_task.get_name() + 'predict hook')
+        split_n = self._get_count(my_task)
+        LOG.debug("MultInstance split_n" + str(split_n))
         my_task._set_internal_data(splits=split_n)
 
         # Create the outgoing tasks.
@@ -105,7 +113,13 @@ class MultiInstance(TaskSpec):
             my_task._sync_children(outputs, Task.LIKELY)
 
     def _on_complete_hook(self, my_task):
-        print(my_task.get_name()+'complete hook')
+        runcount = self._get_count(my_task)
+        if self.runtimes < runcount:
+             my_task._set_state(my_task.READY)
+             self.runtimes += 1
+             self.runvar = self.runtimes
+        
+        LOG.debug(my_task.get_name()+'complete hook')
         outputs = self._get_predicted_outputs(my_task)
         my_task._sync_children(outputs, Task.FUTURE)
         for child in my_task.children:

@@ -84,10 +84,12 @@ class TaskParser(object):
                 print ("   Task has loopcount of: %s"%loopcount)
             if multiinstance:
                 self.task.times = Attrib(loopcount) # test only - should be overridden
-                #self.task.timesvar = loopcount
+                self.task.timesvar = 1
+                self.task.runtimes = 1  #emulating what I think should happen in the constructor, but it appears constructor never gets called. may need to change this
                 self.task.isSequential = isSequential
+                
                 self.task.__class__ = type(self.get_id() + '_class',(self.task.__class__,MultiInstance),{})
-                print(self.task.__class__.__bases__)
+                
             boundary_event_nodes = self.process_xpath(
                 './/bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
             if boundary_event_nodes:
