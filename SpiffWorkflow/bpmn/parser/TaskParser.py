@@ -77,15 +77,13 @@ class TaskParser(object):
                 if sequentialText == 'true':
                     isSequential = True
                 loopcount = list(multiinstanceElement[0])[0].text
-                print ("Task Name: %s"%self.get_id())
-                print ("   Task is MultiInstance: %s"%multiinstance)
-                print ("   MultiInstance is Sequential: %s"%isSequential)
-                
-                print ("   Task has loopcount of: %s"%loopcount)
+                LOG.debug("Task Name: %s - class %s"%(self.get_id(),self.task.__class__))
+                LOG.debug("   Task is MultiInstance: %s"%multiinstance)
+                LOG.debug("   MultiInstance is Sequential: %s"%isSequential)
+                LOG.debug("   Task has loopcount of: %s"%loopcount)
             if multiinstance:
                 self.task.times = Attrib(loopcount) # test only - should be overridden
-                self.task.timesvar = 1
-                self.task.runtimes = 1  #emulating what I think should happen in the constructor, but it appears constructor never gets called. may need to change this
+
                 self.task.isSequential = isSequential
                 
                 self.task.__class__ = type(self.get_id() + '_class',(self.task.__class__,MultiInstance),{})

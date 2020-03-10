@@ -53,9 +53,6 @@ class MultiInstance(TaskSpec):
         if times is None:
             raise ValueError('times argument is required')
         self.times = times
-        self.runtimes = 1
-        self.timesvar = 1
-        print('yea- made it')
 
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
 
@@ -100,8 +97,12 @@ class MultiInstance(TaskSpec):
     def _predict_hook(self, my_task):
         LOG.debug(my_task.get_name() + 'predict hook')
         split_n = self._get_count(my_task)
+        runtimes = int(my_task._get_internal_data('runtimes',1)) # set a default if not already run
+        runvar = int(my_task._get_internal_data('runvar',1)) # set a default if not already run - needs to be updated if we are working with a collection
         LOG.debug("MultInstance split_n" + str(split_n))
-        my_task._set_internal_data(splits=split_n)
+        my_task._set_internal_data(splits=split_n,runtimes=runtimes,runvar=runvar)
+        varname = my_task.task_spec.name+"_MICurrentVar"
+        my_task.data[varname] = runvar
 
         # Create the outgoing tasks.
         outputs = []
@@ -114,12 +115,23 @@ class MultiInstance(TaskSpec):
 
     def _on_complete_hook(self, my_task):
         runcount = self._get_count(my_task)
-        if self.runtimes < runcount:
-             my_task._set_state(my_task.READY)
-             self.runtimes += 1
-             self.runvar = self.runtimes
+        runtimes = int(my_task._get_internal_data('runtimes',1)) 
+
+
         
-        LOG.debug(my_task.get_name()+'complete hook')
+        varname = my_task.task_spec.name+"_MIData"
+        c = my_task.data.get(varname,[])
+        c.append(my_task.internal_data.copy())
+        my_task.data[varname] = c
+        if  runtimes < runcount:
+             my_task._set_state(my_task.READY)
+             my_task._set_internal_data(runtimes=runtimes+1,runvar=runtimes+1)
+             varname = my_task.task_spec.name+"_MICurrentVar"
+             my_task.data[varname] = runtimes+1
+
+
+        LOG.debug(my_task.task_spec.name+'complete hook')
+        
         outputs = self._get_predicted_outputs(my_task)
         my_task._sync_children(outputs, Task.FUTURE)
         for child in my_task.children:
