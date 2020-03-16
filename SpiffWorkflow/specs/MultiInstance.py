@@ -19,7 +19,7 @@ from builtins import range
 # 02110-1301  USA
 from ..task import Task
 from .base import TaskSpec
-from ..operators import valueof
+from ..operators import valueof,is_number
 import logging
 
 
@@ -69,6 +69,7 @@ class MultiInstance(TaskSpec):
         May be called after execute() was already completed to create an
         additional outbound task.
         """
+        print(my_task.get_name() + 'trigger hook')
         # Find a Task for this TaksSpec.
         LOG.debug(my_task.get_name() + 'trigger')
         my_task = self._find_my_task(task_spec)
@@ -81,9 +82,39 @@ class MultiInstance(TaskSpec):
             new_task.triggered = True
             output._predict(new_task)
 
+            
     def _get_count(self,my_task):
-        split_n = int(valueof(my_task, self.times, 1))
-        return split_n
+        """
+         self.times has the text entered in the BPMN model.
+         It could be just a number - in this case return the number
+         it could be a variable name - so we get the variable value from my_task
+             the variable could be a number (text representation??) - in this case return the integer value of the number 
+             it could be a list of records - in this case return the cardinality of the list
+             it could be a dict with a bunch of keys - it this case return the cardinality of the keys
+        """
+
+        if is_number(self.times):
+            return int(self.times)
+        variable = valueof(my_task, self.times, 1)  # look for variable in context, if we don't find it, default to 1
+        if is_number(variable):
+            return int(variable)
+        if type(variable) == type([]):
+            return len(variable)
+        if type(variable) == type({}):
+            return len(variable.keys())
+        return 1      # we shouldn't ever get here, but just in case return a sane value. 
+
+    def _get_current_var(self,my_task,pos):
+        variable = valueof(my_task, self.times, 1)  # look for variable in conte
+        if is_number(variable):
+            return pos
+        if type(variable) == type([]):
+            return variable[pos-1]
+        if type(variable) == type({}):
+            return variable.keys()[pos-1]
+
+         
+    
     
     def _get_predicted_outputs(self, my_task):
         split_n = self._get_count(my_task)    
@@ -95,6 +126,7 @@ class MultiInstance(TaskSpec):
         return outputs
 
     def _predict_hook(self, my_task):
+        print(my_task.get_name() + 'predict hook')
         LOG.debug(my_task.get_name() + 'predict hook')
         split_n = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',1)) # set a default if not already run
@@ -102,7 +134,8 @@ class MultiInstance(TaskSpec):
         LOG.debug("MultInstance split_n" + str(split_n))
         my_task._set_internal_data(splits=split_n,runtimes=runtimes,runvar=runvar)
         varname = my_task.task_spec.name+"_MICurrentVar"
-        my_task.data[varname] = runvar
+        
+        my_task.data[varname] = self._get_current_var(my_task,runtimes)
 
         # Create the outgoing tasks.
         outputs = []
@@ -114,9 +147,9 @@ class MultiInstance(TaskSpec):
             my_task._sync_children(outputs, Task.LIKELY)
 
     def _on_complete_hook(self, my_task):
+        print(my_task.get_name() + 'complete hook')
         runcount = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',1)) 
-
 
         
         varname = my_task.task_spec.name+"_MIData"
@@ -124,11 +157,12 @@ class MultiInstance(TaskSpec):
         c.append(my_task.internal_data.copy())
         my_task.data[varname] = c
         if  runtimes < runcount:
-             my_task._set_state(my_task.READY)
-             my_task._set_internal_data(runtimes=runtimes+1,runvar=runtimes+1)
-             varname = my_task.task_spec.name+"_MICurrentVar"
-             my_task.data[varname] = runtimes+1
-
+            #print('repeat') 
+            my_task._set_state(my_task.READY)
+            my_task._set_internal_data(runtimes=runtimes+1,runvar=runtimes+1)
+ 
+            varname = my_task.task_spec.name+"_MICurrentVar"
+            my_task.data[varname] = self._get_current_var(my_task,runtimes+1)
 
         LOG.debug(my_task.task_spec.name+'complete hook')
         
