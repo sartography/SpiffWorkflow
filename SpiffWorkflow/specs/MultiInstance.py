@@ -69,7 +69,7 @@ class MultiInstance(TaskSpec):
         May be called after execute() was already completed to create an
         additional outbound task.
         """
-        print(my_task.get_name() + 'trigger hook')
+        
         # Find a Task for this TaksSpec.
         LOG.debug(my_task.get_name() + 'trigger')
         my_task = self._find_my_task(task_spec)
@@ -123,15 +123,16 @@ class MultiInstance(TaskSpec):
         outputs = []
         for i in range(split_n):
             outputs += self.outputs
+    
         return outputs
 
     def _predict_hook(self, my_task):
-        print(my_task.get_name() + 'predict hook')
+        
         LOG.debug(my_task.get_name() + 'predict hook')
         split_n = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',1)) # set a default if not already run
         runvar = int(my_task._get_internal_data('runvar',1)) # set a default if not already run - needs to be updated if we are working with a collection
-        LOG.debug("MultInstance split_n" + str(split_n))
+        LOG.debug("MultInstance split_n " + str(split_n))
         my_task._set_internal_data(splits=split_n,runtimes=runtimes,runvar=runvar)
         varname = my_task.task_spec.name+"_MICurrentVar"
         
@@ -139,15 +140,16 @@ class MultiInstance(TaskSpec):
 
         # Create the outgoing tasks.
         outputs = []
-        for i in range(split_n):
-            outputs += self.outputs
+        #for i in range(split_n):
+        outputs += self.outputs
+        
         if my_task._is_definite():
             my_task._sync_children(outputs, Task.FUTURE)
         else:
             my_task._sync_children(outputs, Task.LIKELY)
 
     def _on_complete_hook(self, my_task):
-        print(my_task.get_name() + 'complete hook')
+        
         runcount = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',1)) 
 
@@ -155,18 +157,22 @@ class MultiInstance(TaskSpec):
         varname = my_task.task_spec.name+"_MIData"
         c = my_task.data.get(varname,[])
         c.append(my_task.internal_data.copy())
+        LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data[varname] = c
         if  runtimes < runcount:
-            #print('repeat') 
+            
             my_task._set_state(my_task.READY)
             my_task._set_internal_data(runtimes=runtimes+1,runvar=runtimes+1)
  
             varname = my_task.task_spec.name+"_MICurrentVar"
             my_task.data[varname] = self._get_current_var(my_task,runtimes+1)
 
-        LOG.debug(my_task.task_spec.name+'complete hook')
-        
-        outputs = self._get_predicted_outputs(my_task)
+        #outputs = self._get_predicted_outputs(my_task)
+        outputs = []
+        #for i in range(split_n):
+        outputs += self.outputs
+
+
         my_task._sync_children(outputs, Task.FUTURE)
         for child in my_task.children:
             child.task_spec._update(child)
