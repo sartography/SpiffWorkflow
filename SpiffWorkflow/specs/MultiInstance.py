@@ -148,6 +148,11 @@ class MultiInstance(TaskSpec):
         else:
             my_task._sync_children(outputs, Task.LIKELY)
 
+
+    def _filter_internal_data(self, my_task):
+        dictionary = my_task.internal_data
+        return {key:dictionary[key] for key in dictionary.keys() if key not in ['splits','runtimes','runvar']}
+    
     def _on_complete_hook(self, my_task):
         
         runcount = self._get_count(my_task)
@@ -156,7 +161,8 @@ class MultiInstance(TaskSpec):
         
         varname = my_task.task_spec.name+"_MIData"
         c = my_task.data.get(varname,[])
-        c.append(my_task.internal_data.copy())
+        c.append(self._filter_internal_data(my_task))
+        
         LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data[varname] = c
         if  runtimes < runcount:
