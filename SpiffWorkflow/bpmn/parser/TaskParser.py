@@ -30,6 +30,9 @@ from .util import xpath_eval, one
 LOG = logging.getLogger('spiffLogger')
 
 
+CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
+
+
 class TaskParser(object):
     """
     This class parses a single BPMN task node, and returns the Task Spec for
@@ -74,16 +77,32 @@ class TaskParser(object):
             if len(multiinstanceElement) > 0:
                 multiinstance = True
                 sequentialText = multiinstanceElement[0].get('isSequential')
+                collectionText = multiinstanceElement[0].attrib.get('{' + CAMUNDA_MODEL_NS + '}collection')
+                elementVarText = multiinstanceElement[0].attrib.get('{' + CAMUNDA_MODEL_NS + '}elementVariable')
                 if sequentialText == 'true':
                     isSequential = True
-                loopcount = list(multiinstanceElement[0])[0].text
+                loopCardinality = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics/bpmn:loopCardinality' % self.get_id())
+                if len(loopCardinality) > 0:
+                    loopcount = loopCardinality[0].text
+                else:
+                    loopcount =1
+                completionCondition = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics/bpmn:completionCondition' % self.get_id())
+                if len(completionCondition) > 0:
+                    completecondition = completionCondition[0].text
+                else:
+                    completecondition = None      # we still need to implement this section
+
+                    
+                #loopcount = list(multiinstanceElement[0])[0].text 
                 LOG.debug("Task Name: %s - class %s"%(self.get_id(),self.task.__class__))
                 LOG.debug("   Task is MultiInstance: %s"%multiinstance)
                 LOG.debug("   MultiInstance is Sequential: %s"%isSequential)
                 LOG.debug("   Task has loopcount of: %s"%loopcount)
             if multiinstance:
-                self.task.times = Attrib(loopcount) # test only - should be overridden
-
+                self.task.times = Attrib(loopcount) 
+                self.task.collection = collectionText
+                self.task.elementVar = elementVarText
+                self.task.completioncondition = completecondition # we need to define what this is
                 self.task.isSequential = isSequential
                 
                 self.task.__class__ = type(self.get_id() + '_class',(self.task.__class__,MultiInstance),{})

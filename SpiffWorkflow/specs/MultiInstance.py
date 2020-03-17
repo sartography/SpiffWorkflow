@@ -134,8 +134,11 @@ class MultiInstance(TaskSpec):
         runvar = int(my_task._get_internal_data('runvar',1)) # set a default if not already run - needs to be updated if we are working with a collection
         LOG.debug("MultInstance split_n " + str(split_n))
         my_task._set_internal_data(splits=split_n,runtimes=runtimes,runvar=runvar)
-        varname = my_task.task_spec.name+"_MICurrentVar"
-        
+        if self.elementVar:
+            varname = self.elementVar
+        else:
+            varname = my_task.task_spec.name+"_MICurrentVar"
+
         my_task.data[varname] = self._get_current_var(my_task,runtimes)
 
         # Create the outgoing tasks.
@@ -158,8 +161,11 @@ class MultiInstance(TaskSpec):
         runcount = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',1)) 
 
+        if self.collection is not None:
+            varname = self.collection
+        else:
+            varname = my_task.task_spec.name+"_MIData"
         
-        varname = my_task.task_spec.name+"_MIData"
         c = my_task.data.get(varname,[])
         c.append(self._filter_internal_data(my_task))
         
@@ -169,8 +175,11 @@ class MultiInstance(TaskSpec):
             
             my_task._set_state(my_task.READY)
             my_task._set_internal_data(runtimes=runtimes+1,runvar=runtimes+1)
- 
-            varname = my_task.task_spec.name+"_MICurrentVar"
+            if self.elementVar:
+                varname = self.elementVar
+            else:
+                varname = my_task.task_spec.name+"_MICurrentVar"
+
             my_task.data[varname] = self._get_current_var(my_task,runtimes+1)
 
         #outputs = self._get_predicted_outputs(my_task)
