@@ -104,13 +104,13 @@ class TaskParser(object):
                 self.task.elementVar = elementVarText
                 self.task.completioncondition = completecondition # we need to define what this is
                 self.task.isSequential = isSequential
-                
+                # add some kind of limits here in terms of what kinds of classes we will allow to be multiinstance
                 self.task.__class__ = type(self.get_id() + '_class',(self.task.__class__,MultiInstance),{})
                 
             boundary_event_nodes = self.process_xpath(
                 './/bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
             if boundary_event_nodes:
-                parent_task = _BoundaryEventPareont(
+                parent_task = _BoundaryEventParent(
                     self.spec, '%s.BoundaryEventParent' % self.get_id(),
                     self.task, lane=self.task.lane)
                 self.process_parser.parsed_nodes[

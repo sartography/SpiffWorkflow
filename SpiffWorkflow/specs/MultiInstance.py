@@ -53,7 +53,8 @@ class MultiInstance(TaskSpec):
         if times is None:
             raise ValueError('times argument is required')
         self.times = times
-
+        self.elementVar = None
+        self.collection = None
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
 
     def _find_my_task(self, task):
@@ -71,8 +72,9 @@ class MultiInstance(TaskSpec):
         """
         
         # Find a Task for this TaksSpec.
-        LOG.debug(my_task.get_name() + 'trigger')
+
         my_task = self._find_my_task(task_spec)
+        LOG.debug(my_task.get_name() + 'trigger')
         if my_task._has_state(Task.COMPLETED):
             state = Task.READY
         else:
