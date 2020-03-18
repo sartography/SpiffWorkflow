@@ -27,7 +27,7 @@ from ...specs import MultiInstanceTask
 from ...operators import Attrib
 from .util import xpath_eval, one
 
-LOG = logging.getLogger('spiffLogger')
+LOG = logging.getLogger(__name__)
 
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'

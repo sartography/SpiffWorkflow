@@ -24,7 +24,7 @@ from ...specs.WorkflowSpec import WorkflowSpec
 import xml.etree.ElementTree as ET
 
 
-LOG = logging.getLogger('spiffLogger')
+LOG = logging.getLogger(__name__)
 
 
 class _EndJoin(UnstructuredJoin):

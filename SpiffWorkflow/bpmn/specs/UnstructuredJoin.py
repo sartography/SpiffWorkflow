@@ -21,7 +21,7 @@ from ...task import Task
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.Join import Join
 
-LOG = logging.getLogger('spiffLogger')
+LOG = logging.getLogger(__name__)
 
 
 class UnstructuredJoin(Join, BpmnSpecMixin):

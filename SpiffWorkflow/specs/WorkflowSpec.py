@@ -23,7 +23,7 @@ import logging
 
 from ..specs import StartTask
 
-LOG = logging.getLogger('spiffLogger')
+LOG = logging.getLogger(__name__)
 
 
 class WorkflowSpec(object):

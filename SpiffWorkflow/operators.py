@@ -21,7 +21,7 @@ from builtins import object
 import logging
 import re
 
-LOG = logging.getLogger('spiffLogger')
+LOG = logging.getLogger(__name__)
 
 
 class Term(object):

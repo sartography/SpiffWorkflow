@@ -22,7 +22,7 @@ import logging
 from ...task import Task
 from .UnstructuredJoin import UnstructuredJoin
 
-LOG = logging.getLogger('spiffLogger')
+LOG = logging.getLogger(__name__)
 
 
 class InclusiveGateway(UnstructuredJoin):

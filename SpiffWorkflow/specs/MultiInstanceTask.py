@@ -23,7 +23,7 @@ from ..operators import valueof,is_number
 import logging
 
 
-LOG = logging.getLogger('spiffLogger')
+LOG = logging.getLogger(__name__)
 
 class MultiInstanceTask(TaskSpec):
 

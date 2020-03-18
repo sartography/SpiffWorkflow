@@ -31,7 +31,7 @@ from ...serializer.base import Serializer
 from ..workflow import BpmnWorkflow
 
 
-LOG = logging.getLogger('spiffLogger')
+LOG = logging.getLogger(__name__)
 
 
 class UnrecoverableWorkflowChange(Exception):

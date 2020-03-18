@@ -25,7 +25,7 @@ import time
 from uuid import uuid4
 from .exceptions import WorkflowException
 
-LOG = logging.getLogger('spiffLogger')
+LOG = logging.getLogger(__name__)
 
 
 class Task(object):

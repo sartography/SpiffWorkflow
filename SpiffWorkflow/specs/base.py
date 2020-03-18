@@ -27,7 +27,7 @@ from ..task import Task
 from ..exceptions import WorkflowException
 
 
-LOG = logging.getLogger('spiffLogger')
+LOG = logging.getLogger(__name__)
 
 
 class TaskSpec(object):
