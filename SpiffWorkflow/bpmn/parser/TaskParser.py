@@ -23,7 +23,7 @@ import sys
 import traceback
 from .ValidationException import ValidationException
 from ..specs.BoundaryEvent import _BoundaryEventParent
-from ...specs import MultiInstanceTask
+from ..specs.MultiInstanceTask import MultiInstanceTask
 from ...operators import Attrib
 from .util import xpath_eval, one
 
@@ -105,7 +105,6 @@ class TaskParser(object):
                 self.task.completioncondition = completecondition # we need to define what this is
                 self.task.isSequential = isSequential
                 # add some kind of limits here in terms of what kinds of classes we will allow to be multiinstance
-                print (self.task.__class__)
                 self.task.__class__ = type(self.get_id() + '_class',(self.task.__class__,MultiInstanceTask),{})
                 
             boundary_event_nodes = self.process_xpath(

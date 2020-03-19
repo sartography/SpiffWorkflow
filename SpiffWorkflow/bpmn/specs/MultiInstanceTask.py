@@ -17,9 +17,9 @@ from builtins import range
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ..task import Task
-from .base import TaskSpec
-from ..operators import valueof,is_number
+from ...task import Task
+from ...specs.base import TaskSpec
+from ...operators import valueof,is_number
 import logging
 
 
@@ -145,7 +145,8 @@ class MultiInstanceTask(TaskSpec):
 
         # Create the outgoing tasks.
         outputs = []
-        #for i in range(split_n):
+        # The MultiInstance class that this was based on actually
+        # duplicates the outputs - this caused our use case problems
         outputs += self.outputs
         
         if my_task._is_definite():
@@ -184,9 +185,8 @@ class MultiInstanceTask(TaskSpec):
 
             my_task.data[varname] = self._get_current_var(my_task,runtimes+1)
 
-        #outputs = self._get_predicted_outputs(my_task)
+        # please see MultiInstance code for previous version
         outputs = []
-        #for i in range(split_n):
         outputs += self.outputs
 
 

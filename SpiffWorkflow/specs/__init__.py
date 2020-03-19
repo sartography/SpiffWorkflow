@@ -14,7 +14,6 @@ from .Join import Join
 from .Merge import Merge
 from .MultiChoice import MultiChoice
 from .MultiInstance import MultiInstance
-from .MultiInstanceTask import MultiInstanceTask
 from .ReleaseMutex import ReleaseMutex
 from .Simple import Simple
 from .StartTask import StartTask
