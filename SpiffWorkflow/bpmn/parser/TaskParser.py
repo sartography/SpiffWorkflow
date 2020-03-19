@@ -93,12 +93,15 @@ class TaskParser(object):
                     completecondition = None      # we still need to implement this section
 
                     
-                #loopcount = list(multiinstanceElement[0])[0].text 
+     
                 LOG.debug("Task Name: %s - class %s"%(self.get_id(),self.task.__class__))
                 LOG.debug("   Task is MultiInstance: %s"%multiinstance)
                 LOG.debug("   MultiInstance is Sequential: %s"%isSequential)
                 LOG.debug("   Task has loopcount of: %s"%loopcount)
-            if multiinstance:
+            # currently a safeguard that this isn't applied in any condition
+            # that we do not expect. This list can be exapanded at a later date
+            # To handle other use cases
+            if multiinstance and (self.task.__class__.__name__ in ['UserTask']):
                 self.task.times = Attrib(loopcount) 
                 self.task.collection = collectionText
                 self.task.elementVar = elementVarText

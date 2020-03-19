@@ -94,9 +94,9 @@ class MultiInstanceTask(TaskSpec):
              it could be a list of records - in this case return the cardinality of the list
              it could be a dict with a bunch of keys - it this case return the cardinality of the keys
         """
-
-        if is_number(self.times):
-            return int(self.times)
+        
+        if is_number(self.times.name):
+            return int(self.times.name)
         variable = valueof(my_task, self.times, 1)  # look for variable in context, if we don't find it, default to 1
         if is_number(variable):
             return int(variable)
