@@ -98,10 +98,11 @@ class TaskParser(object):
                 LOG.debug("   Task is MultiInstance: %s"%multiinstance)
                 LOG.debug("   MultiInstance is Sequential: %s"%isSequential)
                 LOG.debug("   Task has loopcount of: %s"%loopcount)
+                LOG.debug("   Class has name of : %s"%self.task.__class__.__name__)
             # currently a safeguard that this isn't applied in any condition
             # that we do not expect. This list can be exapanded at a later date
-            # To handle other use cases
-            if multiinstance and (self.task.__class__.__name__ in ['UserTask']):
+            # To handle other use cases - don't forget the overridden test classes!
+            if multiinstance and (self.task.__class__.__name__ in ['TestUserTask','UserTask']):
                 self.task.times = Attrib(loopcount) 
                 self.task.collection = collectionText
                 self.task.elementVar = elementVarText

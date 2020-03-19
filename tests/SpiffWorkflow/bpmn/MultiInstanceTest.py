@@ -25,7 +25,7 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Activity_Loop')
         self.do_next_exclusive_step('Activity_Loop')
         self.do_next_exclusive_step('Activity_Loop')
-        self.do_next_exclusive_step('EventEnd')
+
 
 
 
@@ -39,7 +39,7 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Activity_Loop')
         self.save_restore()      
         self.do_next_exclusive_step('Activity_Loop')
-        self.do_next_exclusive_step('EventEnd')
+
 
         
 
