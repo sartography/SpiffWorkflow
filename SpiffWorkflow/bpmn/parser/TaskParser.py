@@ -92,8 +92,6 @@ class TaskParser(object):
                 else:
                     completecondition = None      # we still need to implement this section
 
-                    
-     
                 LOG.debug("Task Name: %s - class %s"%(self.get_id(),self.task.__class__))
                 LOG.debug("   Task is MultiInstance: %s"%multiinstance)
                 LOG.debug("   MultiInstance is Sequential: %s"%isSequential)
@@ -103,14 +101,14 @@ class TaskParser(object):
             # that we do not expect. This list can be exapanded at a later date
             # To handle other use cases - don't forget the overridden test classes!
             if multiinstance and (self.task.__class__.__name__ in ['TestUserTask','UserTask']):
-                self.task.times = Attrib(loopcount) 
+                self.task.times = Attrib(loopcount)
                 self.task.collection = collectionText
                 self.task.elementVar = elementVarText
                 self.task.completioncondition = completecondition # we need to define what this is
                 self.task.isSequential = isSequential
                 # add some kind of limits here in terms of what kinds of classes we will allow to be multiinstance
                 self.task.__class__ = type(self.get_id() + '_class',(self.task.__class__,MultiInstanceTask),{})
-                
+
             boundary_event_nodes = self.process_xpath(
                 './/bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
             if boundary_event_nodes:
