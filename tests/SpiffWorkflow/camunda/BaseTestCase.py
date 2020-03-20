@@ -12,7 +12,7 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-__author__ = 'matth'
+__author__ = 'danfunk'
 
 from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
@@ -21,7 +21,7 @@ class PackagerForCamundaTests(PackagerForTests):
     PARSER_CLASS = CamundaParser
 
 
-class BaseTest(unittest.TestCase):
+class BaseTestCase(BpmnWorkflowTestCase):
     """ Provides some basic tools for loading up and parsing camunda BPMN files """
 
     def load_workflow_spec(self, filename, process_name):

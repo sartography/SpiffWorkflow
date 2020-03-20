@@ -1,10 +1,10 @@
 import unittest
 
 from SpiffWorkflow.camunda.parser.UserTaskParser import UserTaskParser
-from tests.SpiffWorkflow.camunda.BaseTest import BaseTest
+from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
 
-class UserTaskParserTest(BaseTest):
+class UserTaskParserTest(BaseTestCase):
     CORRELATE = UserTaskParser
 
     def setUp(self):

@@ -8,14 +8,16 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
+from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
-class MultiInstanceTest(BpmnWorkflowTestCase):
+
+class MultiInstanceArrayTest(BaseTestCase):
     """The example bpmn diagram tests both a set cardinality from user input
     as well as looping over an existing array."""
 
     def setUp(self):
         self.spec = self.load_workflow_spec(
-            '../../camunda/data/multi_instance_array.bpmn',
+            'data/multi_instance_array.bpmn',
             'MultiInstanceArray')
 
     def testRunThroughHappy(self):
@@ -57,3 +59,9 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         if self.save_restore(): self.save_restore()
         self.assertTrue(self.workflow.is_completed())
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(MultiInstanceArrayTest)
+
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity=2).run(suite())
