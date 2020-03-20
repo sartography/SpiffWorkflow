@@ -20,7 +20,9 @@ from builtins import range
 from ...task import Task
 from ...specs.base import TaskSpec
 from ...operators import valueof,is_number
+
 import logging
+
 
 
 LOG = logging.getLogger(__name__)
@@ -174,7 +176,7 @@ class MultiInstanceTask(TaskSpec):
         
         LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data[varname] = c
-        if  runtimes < runcount:
+        if  (runtimes < runcount) and not my_task.terminate_current_loop:
             
             my_task._set_state(my_task.READY)
             my_task._set_internal_data(runtimes=runtimes+1,runvar=runtimes+1)
@@ -193,6 +195,7 @@ class MultiInstanceTask(TaskSpec):
         my_task._sync_children(outputs, Task.FUTURE)
         for child in my_task.children:
             child.task_spec._update(child)
+            
 
     def serialize(self, serializer):
         return serializer.serialize_multi_instance(self)

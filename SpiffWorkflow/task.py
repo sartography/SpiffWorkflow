@@ -191,6 +191,7 @@ class Task(object):
         self.thread_id = self.__class__.thread_id_pool
         self.last_state_change = time.time()
         self.data = {}
+        self.terminate_current_loop = False
         self.internal_data = {}
         if parent is not None:
             self.parent._child_added_notify(self)
@@ -201,6 +202,9 @@ class Task(object):
             self.get_state_name(),
             hex(id(self)))
 
+    def terminate_loop(self):
+        self.terminate_current_loop=True
+        
     def _getstate(self):
         return self._state
 
