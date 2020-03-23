@@ -22,6 +22,7 @@ import logging
 import sys
 import traceback
 from .ValidationException import ValidationException
+from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
 from ..specs.MultiInstanceTask import MultiInstanceTask
 from ...operators import Attrib
@@ -142,7 +143,7 @@ class TaskParser(object):
             # currently a safeguard that this isn't applied in any condition
             # that we do not expect. This list can be exapanded at a later date
             # To handle other use cases - don't forget the overridden test classes!
-            if multiinstance and (self.task.__class__.__name__ in ['TestUserTask','UserTask']):
+            if multiinstance and isinstance(self.task, UserTask):
                 self.task.times = Attrib(loopcount)
                 self.task.collection = collectionText
                 self.task.elementVar = elementVarText
