@@ -10,6 +10,8 @@ __author__ = 'matth'
 
 
 class MultiInstanceTest(BpmnWorkflowTestCase):
+    """The example bpmn diagram has a single task with a loop cardinality of 5.
+    It should repeat 5 times before termination."""
 
     def setUp(self):
         self.spec = self.load_workflow1_spec()
@@ -20,29 +22,26 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
     def testRunThroughHappy(self):
 
         self.workflow = BpmnWorkflow(self.spec)
-        self.do_next_exclusive_step('Activity_Loop')
-        self.do_next_exclusive_step('Activity_Loop')
-        self.do_next_exclusive_step('Activity_Loop')
-        self.do_next_exclusive_step('Activity_Loop')
-        self.do_next_exclusive_step('Activity_Loop')
 
+        for i in range(5):
+            self.workflow.do_engine_steps()
+            self.assertFalse(self.workflow.is_completed())
+            self.do_next_exclusive_step('Activity_Loop')
 
-
+        self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.is_completed())
 
     def testSaveRestore(self):
 
         self.workflow = BpmnWorkflow(self.spec)
-        self.do_next_exclusive_step('Activity_Loop')
-        self.do_next_exclusive_step('Activity_Loop')
-        self.save_restore()
-        self.do_next_exclusive_step('Activity_Loop')
-        self.do_next_exclusive_step('Activity_Loop')
-        self.save_restore()      
-        self.do_next_exclusive_step('Activity_Loop')
+        for i in range(5):
+            self.save_restore()
+            self.workflow.do_engine_steps()
+            self.assertFalse(self.workflow.is_completed())
+            self.do_next_exclusive_step('Activity_Loop')
 
-
-        
-
+        self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.is_completed())
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(MultiInstanceTest)
