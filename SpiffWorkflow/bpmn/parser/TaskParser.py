@@ -152,7 +152,7 @@ class TaskParser(object):
                 else: # must be loop
                     isSequential = True                    
                     loopcount = STANDARDLOOPCOUNT # here we default to a sane numer of loops
-
+                    self.task.loopTask = True
                 LOG.debug("Task Name: %s - class %s"%(self.get_id(),self.task.__class__))
                 LOG.debug("   Task is MultiInstance: %s"%multiinstance)
                 LOG.debug("   MultiInstance is Sequential: %s"%isSequential)

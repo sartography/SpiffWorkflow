@@ -171,11 +171,11 @@ class MultiInstanceTask(TaskSpec):
         else:
             varname = my_task.task_spec.name+"_MIData"
         
-        c = my_task.data.get(varname,[])
-        c.append(self._filter_internal_data(my_task))
+        collect = my_task.data.get(varname,[])
+        collect.append(self._filter_internal_data(my_task))
         
         LOG.debug(my_task.task_spec.name+'complete hook')
-        my_task.data[varname] = c
+        my_task.data[varname] = collect
         if  (runtimes < runcount) and not my_task.terminate_current_loop:
             
             my_task._set_state(my_task.READY)

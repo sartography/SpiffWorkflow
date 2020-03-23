@@ -66,9 +66,13 @@ class BpmnSpecMixin(TaskSpec):
         super(BpmnSpecMixin, self).__init__(wf_spec, name, **kwargs)
         self.outgoing_sequence_flows = {}
         self.outgoing_sequence_flows_by_id = {}
+        self.loopTask = False
         self.lane = lane
         self.documentation = None
 
+    def is_loop_task(self):
+        return self.loopTask
+        
     def connect_outgoing(self, taskspec, sequence_flow_id, sequence_flow_name,
                          documentation):
         """
