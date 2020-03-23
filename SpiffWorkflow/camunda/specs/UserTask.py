@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 
+from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 from SpiffWorkflow.specs import Simple
 
 
-class UserTask(Simple, BpmnSpecMixin):
+class UserTask(UserTask, BpmnSpecMixin):
 
     def __init__(self, wf_spec, name, form, **kwargs):
         """

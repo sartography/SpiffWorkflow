@@ -22,10 +22,16 @@ import logging
 import sys
 import traceback
 from .ValidationException import ValidationException
+from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
+from ..specs.MultiInstanceTask import MultiInstanceTask
+from ...operators import Attrib
 from .util import xpath_eval, one
 
 LOG = logging.getLogger(__name__)
+
+
+CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 
 class TaskParser(object):
@@ -55,6 +61,48 @@ class TaskParser(object):
         self.node = node
         self.xpath = xpath_eval(node)
 
+    def _detect_multiinstance(self):
+        multiinstanceElement = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics' % self.get_id())
+        multiinstance = False
+        isSequential = False
+        loopCountVar = None
+        if len(multiinstanceElement) > 0:
+            multiinstance = True
+            sequentialText = multiinstanceElement[0].get('isSequential')
+            collectionText = multiinstanceElement[0].attrib.get('{' + CAMUNDA_MODEL_NS + '}collection')
+            elementVarText = multiinstanceElement[0].attrib.get('{' + CAMUNDA_MODEL_NS + '}elementVariable')
+            if sequentialText == 'true':
+                isSequential = True
+            loopCardinality = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics/bpmn:loopCardinality' % self.get_id())
+            if len(loopCardinality) > 0:
+                loopcount = loopCardinality[0].text
+            else:
+                loopcount =1
+            completionCondition = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics/bpmn:completionCondition' % self.get_id())
+            if len(completionCondition) > 0:
+                completecondition = completionCondition[0].text
+            else:
+                completecondition = None      # we still need to implement this section
+
+            LOG.debug("Task Name: %s - class %s"%(self.get_id(),self.task.__class__))
+            LOG.debug("   Task is MultiInstance: %s"%multiinstance)
+            LOG.debug("   MultiInstance is Sequential: %s"%isSequential)
+            LOG.debug("   Task has loopcount of: %s"%loopcount)
+            LOG.debug("   Class has name of : %s"%self.task.__class__.__name__)
+
+        # currently a safeguard that this isn't applied in any condition
+        # that we do not expect. This list can be exapanded at a later date
+        # To handle other use cases - don't forget the overridden test classes!
+        if multiinstance and (self.task.__class__.__name__ in ['TestUserTask','UserTask']):
+            self.task.times = Attrib(loopcount)
+            self.task.collection = collectionText
+            self.task.elementVar = elementVarText
+            self.task.completioncondition = completecondition # we need to define what this is
+            self.task.isSequential = isSequential
+            # add some kind of limits here in terms of what kinds of classes we will allow to be multiinstance
+            self.task.__class__ = type(self.get_id() + '_class',(self.task.__class__,MultiInstanceTask),{})
+
+
     def parse_node(self):
         """
         Parse this node, and all children, returning the connected task spec.
@@ -65,7 +113,44 @@ class TaskParser(object):
 
             self.task.documentation = self.parser._parse_documentation(
                 self.node, xpath=self.xpath, task_parser=self)
+            multiinstanceElement = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics' % self.get_id())
+            multiinstance = False
+            isSequential = False
+            loopCountVar = None
+            if len(multiinstanceElement) > 0:
+                multiinstance = True
+                sequentialText = multiinstanceElement[0].get('isSequential')
+                collectionText = multiinstanceElement[0].attrib.get('{' + CAMUNDA_MODEL_NS + '}collection')
+                elementVarText = multiinstanceElement[0].attrib.get('{' + CAMUNDA_MODEL_NS + '}elementVariable')
+                if sequentialText == 'true':
+                    isSequential = True
+                loopCardinality = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics/bpmn:loopCardinality' % self.get_id())
+                if len(loopCardinality) > 0:
+                    loopcount = loopCardinality[0].text
+                else:
+                    loopcount =1
+                completionCondition = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics/bpmn:completionCondition' % self.get_id())
+                if len(completionCondition) > 0:
+                    completecondition = completionCondition[0].text
+                else:
+                    completecondition = None      # we still need to implement this section
 
+                LOG.debug("Task Name: %s - class %s"%(self.get_id(),self.task.__class__))
+                LOG.debug("   Task is MultiInstance: %s"%multiinstance)
+                LOG.debug("   MultiInstance is Sequential: %s"%isSequential)
+                LOG.debug("   Task has loopcount of: %s"%loopcount)
+                LOG.debug("   Class has name of : %s"%self.task.__class__.__name__)
+            # currently a safeguard that this isn't applied in any condition
+            # that we do not expect. This list can be exapanded at a later date
+            # To handle other use cases - don't forget the overridden test classes!
+            if multiinstance and isinstance(self.task, UserTask):
+                self.task.times = Attrib(loopcount)
+                self.task.collection = collectionText
+                self.task.elementVar = elementVarText
+                self.task.completioncondition = completecondition # we need to define what this is
+                self.task.isSequential = isSequential
+                # add some kind of limits here in terms of what kinds of classes we will allow to be multiinstance
+                self.task.__class__ = type(self.get_id() + '_class',(self.task.__class__,MultiInstanceTask),{})
             boundary_event_nodes = self.process_xpath(
                 './/bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
             if boundary_event_nodes:
@@ -74,7 +159,6 @@ class TaskParser(object):
                     self.task, lane=self.task.lane)
                 self.process_parser.parsed_nodes[
                     self.node.get('id')] = parent_task
-
                 parent_task.connect_outgoing(
                     self.task, '%s.FromBoundaryEventParent' % self.get_id(),
                     None, None)

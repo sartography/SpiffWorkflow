@@ -191,6 +191,13 @@ def valueof(scope, op, default=None):
     else:
         return op
 
+def is_number(text):
+    try:
+        x = int(text)
+    except:
+        return False
+    return True
+
 
 class Operator(Term):
 
