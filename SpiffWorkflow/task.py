@@ -203,6 +203,9 @@ class Task(object):
             hex(id(self)))
 
     def terminate_loop(self):
+        """Used in the case that we are working with a BPMN 'loop' task.
+           The task will loop, repeatedly asking for input until terminate_loop
+           is called on the task"""
         def raiseError():
             raise WorkflowException(self.task_spec,'The method terminate_loop should only be called in the case of a BPMN Loop Task')
         islooping = getattr(self.task_spec, "is_loop_task", None)

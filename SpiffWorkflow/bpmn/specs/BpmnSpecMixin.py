@@ -71,6 +71,10 @@ class BpmnSpecMixin(TaskSpec):
         self.documentation = None
 
     def is_loop_task(self):
+        """ 
+        Returns true if this task is a BPMN looping task
+        """
+        
         return self.loopTask
         
     def connect_outgoing(self, taskspec, sequence_flow_id, sequence_flow_name,
