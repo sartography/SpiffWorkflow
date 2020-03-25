@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
 from builtins import range
-# Copyright (C) 2007 Samuel Abels
+# Copyright (C) 2020 Sartography
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,7 @@ import logging
 
 
 LOG = logging.getLogger(__name__)
+
 
 class MultiInstanceTask(TaskSpec):
 
@@ -70,7 +71,7 @@ class MultiInstanceTask(TaskSpec):
         May be called after execute() was already completed to create an
         additional outbound task.
         """
-        
+
         # Find a Task for this TaksSpec.
 
         my_task = self._find_my_task(task_spec)
@@ -84,17 +85,16 @@ class MultiInstanceTask(TaskSpec):
             new_task.triggered = True
             output._predict(new_task)
 
-            
-    def _get_count(self,my_task):
+    def _get_count(self, my_task):
         """
          self.times has the text entered in the BPMN model.
          It could be just a number - in this case return the number
          it could be a variable name - so we get the variable value from my_task
-             the variable could be a number (text representation??) - in this case return the integer value of the number 
+             the variable could be a number (text representation??) - in this case return the integer value of the number
              it could be a list of records - in this case return the cardinality of the list
              it could be a dict with a bunch of keys - it this case return the cardinality of the keys
         """
-        
+
         if is_number(self.times.name):
             return int(self.times.name)
         variable = valueof(my_task, self.times, 1)  # look for variable in context, if we don't find it, default to 1
@@ -104,7 +104,7 @@ class MultiInstanceTask(TaskSpec):
             return len(variable)
         if type(variable) == type({}):
             return len(variable.keys())
-        return 1      # we shouldn't ever get here, but just in case return a sane value. 
+        return 1      # we shouldn't ever get here, but just in case return a sane value.
 
     def _get_current_var(self,my_task,pos):
         variable = valueof(my_task, self.times, 1)  # look for variable in conte
@@ -115,21 +115,18 @@ class MultiInstanceTask(TaskSpec):
         if type(variable) == type({}):
             return variable.keys()[pos-1]
 
-         
-    
-    
     def _get_predicted_outputs(self, my_task):
-        split_n = self._get_count(my_task)    
+        split_n = self._get_count(my_task)
 
         # Predict the outputs.
         outputs = []
         for i in range(split_n):
             outputs += self.outputs
-    
+
         return outputs
 
     def _predict_hook(self, my_task):
-        
+
         LOG.debug(my_task.get_name() + 'predict hook')
         split_n = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',1)) # set a default if not already run
@@ -148,7 +145,7 @@ class MultiInstanceTask(TaskSpec):
         # The MultiInstance class that this was based on actually
         # duplicates the outputs - this caused our use case problems
         outputs += self.outputs
-        
+
         if my_task._is_definite():
             my_task._sync_children(outputs, Task.FUTURE)
         else:
@@ -158,24 +155,24 @@ class MultiInstanceTask(TaskSpec):
     def _filter_internal_data(self, my_task):
         dictionary = my_task.internal_data
         return {key:dictionary[key] for key in dictionary.keys() if key not in ['splits','runtimes','runvar']}
-    
+
     def _on_complete_hook(self, my_task):
-        
+
         runcount = self._get_count(my_task)
-        runtimes = int(my_task._get_internal_data('runtimes',1)) 
+        runtimes = int(my_task._get_internal_data('runtimes',1))
 
         if self.collection is not None:
             varname = self.collection
         else:
             varname = my_task.task_spec.name+"_MIData"
-        
+
         c = my_task.data.get(varname,[])
         c.append(self._filter_internal_data(my_task))
-        
+
         LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data[varname] = c
         if  runtimes < runcount:
-            
+
             my_task._set_state(my_task.READY)
             my_task._set_internal_data(runtimes=runtimes+1,runvar=runtimes+1)
             if self.elementVar:

@@ -40,7 +40,10 @@ class DMNEngine:
                     if isinstance(parsedValue, Decimal) and not isinstance(inputVal, Decimal):
                         self.logger.warning('Attention, you are comparing a Decimal with %r' % (type(inputVal)))
 
-                    expression = '%r %s %r' % (inputVal, operator, parsedValue)
+                    if operator == 'in' or operator == 'not in':
+                        expression = '%r %s %r' % (parsedValue,  operator, inputVal)
+                    else:
+                        expression = '%r %s %r' % (inputVal, operator, parsedValue)
 
                     self.logger.debug(' Evaludation expression: %s' % (expression))
                     if not eval(expression):

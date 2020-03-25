@@ -218,12 +218,19 @@ class DMNParser(object):
 
     @staticmethod
     def __parseString(val):
-        not_ = False
-        if 'not' in val:
-            not_ = True
+        """This could not be worse.  But it 'works for now'"""
+        if 'not contains(' in val:
+            val = val.replace('not contains(', '').replace(')', '')
+            expression = "not in"
+        elif 'contains(' in val:
+            val = val.replace('contains(', '').replace(')', '')
+            expression = "in"
+        elif 'not' in val:
             val = val.replace('not(', '').replace(')', '')
-
-        return [('!=' if not_ else '==', literal_eval(val))]
+            expression = "!="
+        else:
+            expression = "=="
+        return [(expression, literal_eval(val))]
 
     @staticmethod
     def __parseBoolean(val):
