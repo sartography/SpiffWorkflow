@@ -111,16 +111,21 @@ class DMNParser(object):
     @staticmethod
     def __parseInput(inputElement):
         typeRef = None
-        for inputExpression in inputElement:
-            assert inputExpression.tag.endswith(
-                'inputExpression'), 'Element %r is not of type "inputExpression"' % (
-                inputExpression.tag)
+        xpath = xpath_eval(inputElement, {'dmn': DMN_NS})
+        for inputExpression in xpath('dmn:inputExpression'):
 
             typeRef = inputExpression.attrib.get('typeRef', '')
+            expressionNode = inputExpression.find('{'+DMN_NS+'}text')
+            if expressionNode is not None:
+                expression = inputExpression.find('{'+DMN_NS+'}text').text
+            else:
+                expression = None
 
         input = Input(inputElement.attrib['id'],
                       inputElement.attrib.get('label', ''),
-                      inputElement.attrib.get('name', ''), typeRef)
+                      inputElement.attrib.get('name', ''),
+                      expression,
+                      typeRef)
         return input
 
     @staticmethod

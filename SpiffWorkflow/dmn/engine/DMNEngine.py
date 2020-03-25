@@ -41,11 +41,13 @@ class DMNEngine:
                         self.logger.warning('Attention, you are comparing a Decimal with %r' % (type(inputVal)))
 
                     if operator == 'in' or operator == 'not in':
-                        expression = '%r %s %r' % (parsedValue,  operator, inputVal)
+                        expression = '%r %s %s' % (parsedValue,  operator, inputVal)
                     else:
-                        expression = '%r %s %r' % (inputVal, operator, parsedValue)
-
-                    self.logger.debug(' Evaludation expression: %s' % (expression))
+                        expression = '%s %s %r' % (inputVal, operator, parsedValue)
+                    self.logger.debug(' Evaluation expression: %s' % (expression))
+                    if inputData and isinstance(inputData[idx], dict):
+                        locals().update(inputData[idx])
+                    locals().update(inputKwargs)
                     if not eval(expression):
                         return False  # Value does not match
                     else:
@@ -61,9 +63,10 @@ class DMNEngine:
     @staticmethod
     def __getInputVal(inputEntry, idx, *inputData, **inputKwargs):
         """
-        The input of the decision method can be args or kwargs.
-        This function tries to extract the input data from args if passed,
-         otherwise from kwargs using the label of the decision input column as mapping
+        The input of the decision method can be an expression, args or kwargs.
+        It prefers an input expression per the Specification, but will fallback
+        to using inputData if available.  Finally it will fall back to the
+        likely very bad idea of trying to use the label.
 
         :param inputEntry:
         :param idx:
@@ -71,5 +74,10 @@ class DMNEngine:
         :param inputKwargs:
         :return:
         """
-
-        return inputData[idx] if inputData else inputKwargs[inputEntry.input.label] # TODO: label?
+        if inputEntry.input.expression:
+            return inputEntry.input.expression
+        elif inputData:
+            return "%r" % inputData[idx]
+        else:
+            # Backwards compatibility
+            return "%r" % inputKwargs[inputEntry.input.label]
