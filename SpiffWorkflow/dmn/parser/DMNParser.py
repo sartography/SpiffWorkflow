@@ -1,3 +1,4 @@
+import re
 from decimal import Decimal
 from ast import literal_eval
 from xml.etree import ElementTree
@@ -218,16 +219,20 @@ class DMNParser(object):
 
     @staticmethod
     def __parseString(val):
-        """This could not be worse.  But it 'works for now'"""
-        if 'not contains(' in val:
-            val = val.replace('not contains(', '').replace(')', '')
-            expression = "not in"
-        elif 'contains(' in val:
-            val = val.replace('contains(', '').replace(')', '')
-            expression = "in"
-        elif 'not' in val:
-            val = val.replace('not(', '').replace(')', '')
+        """This could be worse.  But I'm not longer wholly ashamed of it."""
+        val = val.strip()
+        match_not_contains = re.match("^not contains\((.+)\)$", val)
+        match_contains = re.match("contains\((.+)\)", val)
+        match_not = re.match("not\((.+)\)", val)
+        if match_not:
+            val = match_not.group(1)
             expression = "!="
+        elif match_contains:
+            val = match_contains.group(1)
+            expression = "in"
+        elif match_not_contains:
+            val = match_not_contains.group(1)
+            expression = "not in"
         else:
             expression = "=="
         return [(expression, literal_eval(val))]
