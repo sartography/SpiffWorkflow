@@ -20,10 +20,16 @@ from builtins import range
 from ...task import Task
 from ...specs.base import TaskSpec
 from ...operators import valueof,is_number
-
+from .ParallelGateway import ParallelGateway
 import logging
+import random
+import string
+import json
 
-
+def printTree(node,level=0):
+    print ("   "*level+node.get_name())
+    for child in node.children:
+        printTree(child,level+1)
 
 LOG = logging.getLogger(__name__)
 
@@ -130,6 +136,33 @@ class MultiInstanceTask(TaskSpec):
     
         return outputs
 
+    def _random_gateway_name(self):
+        base = 'Gateway_'
+        suffix = [random.choice(string.ascii_lowercase) for x in range(5)]
+        return base + ''.join(suffix)
+    
+    def _add_gateway(self,my_task):
+        if my_task.internal_data.get('augmented',False):
+            return 
+
+
+        start_gw_spec = ParallelGateway(self._wf_spec,self._random_gateway_name(),triggered=False,description="Begin Gateway")
+        start_gw = Task(my_task.workflow,task_spec=start_gw_spec)
+        gw_spec = ParallelGateway(self._wf_spec,self._random_gateway_name(),triggered=False,description="End Gateway")
+        
+        
+        my_task.parent.task_spec.outputs = []
+        my_task.parent.task_spec.connect(start_gw_spec)
+        my_task.parent.children = [start_gw]
+        start_gw.parent = my_task.parent
+        my_task.parent = start_gw
+        start_gw_spec.connect(self)
+        start_gw.children = [my_task]
+        gw_spec.outputs = self.outputs.copy()
+        self.connect(gw_spec)
+        self.outputs = [gw_spec]
+        my_task.internal_data['augmented'] = True
+    
     def _predict_hook(self, my_task):
         
         LOG.debug(my_task.get_name() + 'predict hook')
@@ -149,8 +182,17 @@ class MultiInstanceTask(TaskSpec):
         outputs = []
         # The MultiInstance class that this was based on actually
         # duplicates the outputs - this caused our use case problems
+
+
+        if (not self.isSequential):
+            print("messing with tree %d"%split_n)
+            #if len(my_task.parent.children) < split_n:
+            #    for x in range(split_n - len(my_task.parent.children)):
+            #        print("Add child")
+            #        my_task.parent.children.append(my_task)
+            #        #my_task.parent._add_child(my_task.task_spec)
+            self._add_gateway(my_task)
         outputs += self.outputs
-        
         if my_task._is_definite():
             my_task._sync_children(outputs, Task.FUTURE)
         else:
@@ -176,7 +218,7 @@ class MultiInstanceTask(TaskSpec):
         
         LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data[varname] = collect
-        if  (runtimes < runcount) and not my_task.terminate_current_loop:
+        if  (runtimes < runcount) and not my_task.terminate_current_loop and  self.isSequential:
             
             my_task._set_state(my_task.READY)
             my_task._set_internal_data(runtimes=runtimes+1,runvar=runtimes+1)
