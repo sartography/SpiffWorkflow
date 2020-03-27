@@ -17,6 +17,9 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 import logging
+
+from SpiffWorkflow import WorkflowException
+
 from ...task import Task
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.Join import Join
@@ -54,9 +57,10 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
             if task.parent._has_state(Task.COMPLETED) and (
                     task._has_state(Task.WAITING) or task == my_task):
                 if task.parent.task_spec in completed_inputs:
-                    raise NotImplementedError(
-                        "Unsupported looping behaviour: two threads waiting "
-                        "on the same sequence flow.")
+                    raise(WorkflowException
+                          (task.task_spec,
+                           "Unsupported looping behaviour: two threads waiting"
+                           " on the same sequence flow."))
                 completed_inputs.add(task.parent.task_spec)
             else:
                 waiting_tasks.append(task.parent)
