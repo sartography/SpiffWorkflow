@@ -24,4 +24,3 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
             self.resDict = self.res.outputAsDict()
             my_task.data.update(self.resDict)
         super(BusinessRuleTask, self)._on_complete_hook(my_task)
-        my_task.workflow.data.update(self.resDict)
