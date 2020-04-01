@@ -36,7 +36,7 @@ class MultiInstanceArrayTest(BaseTestCase):
         self.assertEquals("Activity_FamSize", task.task_spec.name)
         task.data.update({"FamilySize": 3})
         self.workflow.complete_task_from_id(task.id)
-        if self.save_restore(): self.save_restore()
+        if save_restore: self.save_restore()
 
         # Set the names of the 3 family members.
         for i in range(3):
@@ -45,7 +45,7 @@ class MultiInstanceArrayTest(BaseTestCase):
             task.data.update({"FirstName": "The Funk"})
             task.internal_data.update({"FirstName": "The Funk"})
             self.workflow.complete_task_from_id(task.id)
-            if self.save_restore(): self.save_restore()
+            if save_restore: self.save_restore()
 
         # Set the birthdays of the 3 family members.
         for i in range(3):
@@ -54,10 +54,10 @@ class MultiInstanceArrayTest(BaseTestCase):
             task.data.update({"Birthdate": "10/05/1985"})
             task.internal_data.update({"Birthdate": "10/05/1985"})
             self.workflow.complete_task_from_id(task.id)
-            if self.save_restore(): self.save_restore()
+            if save_restore: self.save_restore()
 
         self.workflow.do_engine_steps()
-        if self.save_restore(): self.save_restore()
+        if save_restore: self.save_restore()
         self.assertTrue(self.workflow.is_completed())
 
 def suite():
