@@ -25,6 +25,8 @@ import logging
 import random
 import string
 import json
+import copy
+from uuid import uuid4
 
 def printTree(node,level=0):
     print ("   "*level+node.get_name())
@@ -149,6 +151,7 @@ class MultiInstanceTask(TaskSpec):
         start_gw_spec = ParallelGateway(self._wf_spec,self._random_gateway_name(),triggered=False,description="Begin Gateway")
         start_gw = Task(my_task.workflow,task_spec=start_gw_spec)
         gw_spec = ParallelGateway(self._wf_spec,self._random_gateway_name(),triggered=False,description="End Gateway")
+        end_gw = Task(my_task.workflow,task_spec=gw_spec)
         
         
         my_task.parent.task_spec.outputs = []
@@ -161,6 +164,8 @@ class MultiInstanceTask(TaskSpec):
         gw_spec.outputs = self.outputs.copy()
         self.connect(gw_spec)
         self.outputs = [gw_spec]
+        end_gw.parent=my_task
+        my_task.children = [end_gw]
         my_task.internal_data['augmented'] = True
     
     def _predict_hook(self, my_task):
@@ -184,27 +189,40 @@ class MultiInstanceTask(TaskSpec):
         # duplicates the outputs - this caused our use case problems
 
 
+        # # #   Start here -
+        #    Unstructured Join is choking because it adds task_spec to a list
+        #    And we are using exaclty the same task_spec for all items,
+        #    it wants a different task spec. otherwise it flags and error. 
+
         if (not self.isSequential):
-            print("messing with tree %d"%split_n)
-            #if len(my_task.parent.children) < split_n:
-            #    for x in range(split_n - len(my_task.parent.children)):
-            #        print("Add child")
-            #        my_task.parent.children.append(my_task)
-            #        #my_task.parent._add_child(my_task.task_spec)
+
             self._add_gateway(my_task)
+            if len(my_task.parent.children) < split_n:
+                print("Expand Tree")
+                for x in range(split_n - len(my_task.parent.children)):
+                    new_child = copy.copy(my_task)
+                    new_child.id = uuid4()
+                    #new_child._assign_new_thread_id()
+                    new_child.children = []
+                    new_task_spec = copy.copy(my_task.task_spec)
+                    new_child.task_spec = new_task_spec
+                    self.outputs[0].inputs.append(new_task_spec)
+                    my_task.parent.children.append(new_child)
+                    my_task.parent.task_spec.outputs.append(new_task_spec)
+        
         outputs += self.outputs
         if my_task._is_definite():
             my_task._sync_children(outputs, Task.FUTURE)
         else:
             my_task._sync_children(outputs, Task.LIKELY)
-
+        
 
     def _filter_internal_data(self, my_task):
         dictionary = my_task.internal_data
-        return {key:dictionary[key] for key in dictionary.keys() if key not in ['splits','runtimes','runvar']}
+        return {key:dictionary[key] for key in dictionary.keys() if key not in ['augmented','splits','runtimes','runvar']}
     
     def _on_complete_hook(self, my_task):
-        
+        print("complete_hook")
         runcount = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',1)) 
 
@@ -219,7 +237,7 @@ class MultiInstanceTask(TaskSpec):
         LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data[varname] = collect
         if  (runtimes < runcount) and not my_task.terminate_current_loop and  self.isSequential:
-            
+            print("resetting state")
             my_task._set_state(my_task.READY)
             my_task._set_internal_data(runtimes=runtimes+1,runvar=runtimes+1)
             if self.elementVar:
@@ -235,6 +253,7 @@ class MultiInstanceTask(TaskSpec):
 
 
         my_task._sync_children(outputs, Task.FUTURE)
+        LOG.debug(my_task.task_spec.name+'updating Children')
         for child in my_task.children:
             child.task_spec._update(child)
             
