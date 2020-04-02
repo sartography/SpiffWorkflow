@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0p4zkct" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
+  <bpmn:process id="MultiInstanceArray" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0bplvtg</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_FamSize" name="Get Family Size" camunda:formKey="FamilySizeForm">
+      <bpmn:documentation>Please enter family size:</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="FamilySize" label="FamilyMembers" type="long" defaultValue="2">
+            <camunda:validation>
+              <camunda:constraint name="min1" config="&#62;=1" />
+              <camunda:constraint name="max10" config="&#60;=10" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="Output_20ie5h1">
+            <camunda:map />
+          </camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0bplvtg</bpmn:incoming>
+      <bpmn:outgoing>Flow_0zpm0rc</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0zpm0rc" sourceRef="Activity_FamSize" targetRef="FamilyMemberTask" />
+    <bpmn:userTask id="FamilyMemberTask" name="Get Name For Each Family Member" camunda:formKey="FamilyMember">
+      <bpmn:documentation>Please enter information for family member {{ FamilyMember }}:</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="FirstName" label="First Name" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0zpm0rc</bpmn:incoming>
+      <bpmn:outgoing>Flow_0659lqh</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="FamilyMembers" camunda:elementVariable="FamilyMember">
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">FamilySize</bpmn:loopCardinality>
+        <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">test completion</bpmn:completionCondition>
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0bplvtg" sourceRef="StartEvent_1" targetRef="Activity_FamSize" />
+    <bpmn:userTask id="FamilyMemberBday" name="GetBirthday for each family member in prev step" camunda:formKey="FamilyBDay">
+      <bpmn:documentation>Enter Birthday for {{  CurrentFamilyMember['FamilyMember.FormField_FirstName'] }}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Birthdate" label="Birthday" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0659lqh</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ncqf54</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="false" camunda:collection="FamilyMemberBirthday" camunda:elementVariable="CurrentFamilyMember">
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">FamilyMembers</bpmn:loopCardinality>
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0659lqh" sourceRef="FamilyMemberTask" targetRef="FamilyMemberBday" />
+    <bpmn:sequenceFlow id="Flow_0ncqf54" sourceRef="FamilyMemberBday" targetRef="Event_EndJoin" />
+    <bpmn:endEvent id="Event_EndJoin">
+      <bpmn:documentation>XXX</bpmn:documentation>
+      <bpmn:incoming>Flow_0ncqf54</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MultiInstanceArray">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00ttlok_di" bpmnElement="Activity_FamSize">
+        <dc:Bounds x="260" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0zpm0rc_di" bpmnElement="Flow_0zpm0rc">
+        <di:waypoint x="360" y="117" />
+        <di:waypoint x="410" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0sj67t1_di" bpmnElement="FamilyMemberTask">
+        <dc:Bounds x="410" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0bplvtg_di" bpmnElement="Flow_0bplvtg">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="260" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1lj1hu8_di" bpmnElement="FamilyMemberBday">
+        <dc:Bounds x="570" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0659lqh_di" bpmnElement="Flow_0659lqh">
+        <di:waypoint x="510" y="117" />
+        <di:waypoint x="570" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ncqf54_di" bpmnElement="Flow_0ncqf54">
+        <di:waypoint x="670" y="110" />
+        <di:waypoint x="806" y="110" />
+        <di:waypoint x="806" y="117" />
+        <di:waypoint x="942" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_11av7pp_di" bpmnElement="Event_EndJoin">
+        <dc:Bounds x="942" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
