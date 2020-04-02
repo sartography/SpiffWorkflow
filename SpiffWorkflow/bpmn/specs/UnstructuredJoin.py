@@ -123,7 +123,7 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
                 last_changed = task
 
         # Update data from all the same thread tasks.
-        thread_tasks.sort(key=lambda t: task.parent.last_state_change, reverse=True)
+        thread_tasks.sort(key=lambda t: t.parent.last_state_change) 
         for task in thread_tasks:
             self.data.update(task.data)
 
