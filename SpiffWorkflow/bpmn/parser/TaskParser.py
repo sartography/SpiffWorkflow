@@ -30,7 +30,7 @@ from .util import xpath_eval, one
 
 LOG = logging.getLogger(__name__)
 
-STANDARDLOOPCOUNT = '25'
+STANDARD_LOOP_COUNT = '25'
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
@@ -114,14 +114,14 @@ class TaskParser(object):
 
             self.task.documentation = self.parser._parse_documentation(
                 self.node, xpath=self.xpath, task_parser=self)
-            
+
             # get special task decorators from XML
             multiinstanceElement = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics' % self.get_id())
             standardLoopElement = self.process_xpath('.//*[@id="%s"]/bpmn:standardLoopCharacteristics' % self.get_id())
 
-            # initialize variables 
+            # initialize variables
             isMultiInstance = len(multiinstanceElement) > 0
-            isLoop = len(standardLoopElement) > 0 
+            isLoop = len(standardLoopElement) > 0
             multiinstance = False
             isSequential = False
             loopCountVar = None
@@ -137,7 +137,7 @@ class TaskParser(object):
                     sequentialText = multiinstanceElement[0].get('isSequential')
                     collectionText = multiinstanceElement[0].attrib.get('{' + CAMUNDA_MODEL_NS + '}collection')
                     elementVarText = multiinstanceElement[0].attrib.get('{' + CAMUNDA_MODEL_NS + '}elementVariable')
-        
+
                     if sequentialText == 'true':
                         isSequential = True
                     loopCardinality = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics/bpmn:loopCardinality' % self.get_id())
@@ -150,8 +150,8 @@ class TaskParser(object):
                         completecondition = completionCondition[0].text
 
                 else: # must be loop
-                    isSequential = True                    
-                    loopcount = STANDARDLOOPCOUNT # here we default to a sane numer of loops
+                    isSequential = True
+                    loopcount = STANDARD_LOOP_COUNT # here we default to a sane numer of loops
                     self.task.loopTask = True
                 LOG.debug("Task Name: %s - class %s"%(self.get_id(),self.task.__class__))
                 LOG.debug("   Task is MultiInstance: %s"%multiinstance)

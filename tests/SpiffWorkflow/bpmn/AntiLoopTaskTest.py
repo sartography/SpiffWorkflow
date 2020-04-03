@@ -11,7 +11,7 @@ __author__ = 'kellym'
 
 
 class AntiLoopTaskTest(BpmnWorkflowTestCase):
-    """The example bpmn is actually a MultiInstance. It should not report that it is a looping task and 
+    """The example bpmn is actually a MultiInstance. It should not report that it is a looping task and
        it should fail when we try to terminate the loop"""
 
     def setUp(self):
