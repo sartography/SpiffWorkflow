@@ -47,7 +47,7 @@ class ScriptTask(Simple, BpmnSpecMixin):
         assert not task.workflow.read_only
         try:
             task.workflow.script_engine.execute(task, self.script, **task.data)
-        except Exception:
+        except Exception as e:
             LOG.error('Error executing ScriptTask; task=%r',
                       task, exc_info=True)
             # set state to WAITING (because it is definitely not COMPLETED)
@@ -55,5 +55,5 @@ class ScriptTask(Simple, BpmnSpecMixin):
             # maybe upstream someone will be able to handle this situation
             task._setstate(Task.WAITING, force=True)
             raise WorkflowTaskExecException(
-                task, 'Error during script execution')
+                task, 'Error during script execution:' + str(e))
         super(ScriptTask, self)._on_complete_hook(task)
