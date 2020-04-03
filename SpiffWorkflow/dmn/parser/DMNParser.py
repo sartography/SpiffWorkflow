@@ -1,3 +1,4 @@
+import re
 from decimal import Decimal
 from ast import literal_eval
 from xml.etree import ElementTree
@@ -110,16 +111,21 @@ class DMNParser(object):
     @staticmethod
     def __parseInput(inputElement):
         typeRef = None
-        for inputExpression in inputElement:
-            assert inputExpression.tag.endswith(
-                'inputExpression'), 'Element %r is not of type "inputExpression"' % (
-                inputExpression.tag)
+        xpath = xpath_eval(inputElement, {'dmn': DMN_NS})
+        for inputExpression in xpath('dmn:inputExpression'):
 
             typeRef = inputExpression.attrib.get('typeRef', '')
+            expressionNode = inputExpression.find('{'+DMN_NS+'}text')
+            if expressionNode is not None:
+                expression = inputExpression.find('{'+DMN_NS+'}text').text
+            else:
+                expression = None
 
         input = Input(inputElement.attrib['id'],
                       inputElement.attrib.get('label', ''),
-                      inputElement.attrib.get('name', ''), typeRef)
+                      inputElement.attrib.get('name', ''),
+                      expression,
+                      typeRef)
         return input
 
     @staticmethod
@@ -218,12 +224,23 @@ class DMNParser(object):
 
     @staticmethod
     def __parseString(val):
-        not_ = False
-        if 'not' in val:
-            not_ = True
-            val = val.replace('not(', '').replace(')', '')
-
-        return [('!=' if not_ else '==', literal_eval(val))]
+        """This could be worse.  But I'm not longer wholly ashamed of it."""
+        val = val.strip()
+        match_not_contains = re.match("^not contains\((.+)\)$", val)
+        match_contains = re.match("contains\((.+)\)", val)
+        match_not = re.match("not\((.+)\)", val)
+        if match_not:
+            val = match_not.group(1)
+            expression = "!="
+        elif match_contains:
+            val = match_contains.group(1)
+            expression = "in"
+        elif match_not_contains:
+            val = match_not_contains.group(1)
+            expression = "not in"
+        else:
+            expression = "=="
+        return [(expression, literal_eval(val))]
 
     @staticmethod
     def __parseBoolean(val):
