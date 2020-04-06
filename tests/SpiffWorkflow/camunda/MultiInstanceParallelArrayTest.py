@@ -38,7 +38,7 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
         # Set initial array size to 3 in the first user form.
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEquals("Activity_FamSize", task.task_spec.name)
-        task.data.update({"FamilySize": 3})
+        task.update_data({"FamilySize": 3})
         self.workflow.complete_task_from_id(task.id)
         if save_restore: self.save_restore()
         self.workflow.do_engine_steps()
@@ -50,8 +50,7 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             self.assertEquals(len(tasks),1) # still with sequential MI
             task = tasks[0]
             self.assertEquals("FamilyMemberTask", task.task_spec.name)
-            task.data.update({"FirstName": "The Funk"+str(i)})
-            task.update_mi_collect_data({"FirstName": "The Funk"+str(i)})
+            task.update_data({"FirstName": "The Funk"+str(i)})
             self.workflow.complete_task_from_id(task.id)
             if save_restore:
                 self.save_restore()
@@ -64,8 +63,7 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             task = random.choice(tasks)
             x = task.internal_data['runtimes'] -1
             self.assertEquals("FamilyMemberBday", task.task_spec.name)
-            task.data.update({"Birthdate": "10/05/1985"+str(x)})
-            task.update_mi_collect_data({"Birthdate": "10/05/1985"+str(x)})
+            task.update_data({"Birthdate": "10/05/1985"+str(x)})
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore:
