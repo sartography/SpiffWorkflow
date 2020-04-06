@@ -43,7 +43,7 @@ class MultiInstanceArrayTest(BaseTestCase):
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEquals("FamilyMemberTask", task.task_spec.name)
             task.data.update({"FirstName": "The Funk"})
-            task.internal_data.update({"FirstName": "The Funk"})
+            task.update_mi_collect_data({"FirstName": "The Funk"})
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
 
@@ -52,7 +52,7 @@ class MultiInstanceArrayTest(BaseTestCase):
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEquals("FamilyMemberBday", task.task_spec.name)
             task.data.update({"Birthdate": "10/05/1985"})
-            task.internal_data.update({"Birthdate": "10/05/1985"})
+            task.update_mi_collect_data({"Birthdate": "10/05/1985"})
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
 

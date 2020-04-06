@@ -146,9 +146,6 @@ class MultiInstanceTask(TaskSpec):
             Once we have set up the gateways, we write a note into our internal data so that
             we don't do it again.
         """
-        if my_task.internal_data.get('augmented',False):
-            LOG.debug("MI already augmented - returning")
-            return
         if my_task.parent.task_spec.name[:7] == 'Gateway':
             LOG.debug("MI Recovering from save/restore")
             return
@@ -178,8 +175,6 @@ class MultiInstanceTask(TaskSpec):
         end_gw.parent=my_task
         my_task.children = [end_gw]
 
-        # mark myself so we don't try to do this again.
-        my_task.internal_data['augmented'] = True
     
     def _predict_hook(self, my_task):
 
@@ -268,10 +263,6 @@ class MultiInstanceTask(TaskSpec):
             my_task._sync_children(outputs, Task.LIKELY)
         
 
-    def _filter_internal_data(self, my_task):
-        dictionary = my_task.internal_data
-
-        return {key:dictionary[key] for key in dictionary.keys() if key not in ['augmented','splits','runtimes','runvar']}
     
     def _on_complete_hook(self, my_task):
 
@@ -290,7 +281,7 @@ class MultiInstanceTask(TaskSpec):
             varname = my_task.task_spec.name+"_MICurrentVar"
 
         collect = my_task.data.get(colvarname,{})
-        collect[runtimes] = self._filter_internal_data(my_task) 
+        collect[runtimes] = copy.copy(my_task.mi_collect_data)
         
         LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data[colvarname] = collect
