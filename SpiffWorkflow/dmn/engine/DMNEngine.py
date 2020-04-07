@@ -48,10 +48,16 @@ class DMNEngine:
                     if inputData and isinstance(inputData[idx], dict):
                         locals().update(inputData[idx])
                     locals().update(inputKwargs)
-                    if not eval(expression):
-                        return False  # Value does not match
-                    else:
-                        continue  # Check the other operators/columns
+                    try:
+                        if not eval(expression):
+                            return False  # Value does not match
+                        else:
+                            continue  # Check the other operators/columns
+                    except Exception as e:
+                        raise Exception("Failed to execute "
+                                                "expression: '%s' in the "
+                                                "Row with annotation '%s'" % (
+                            expression, rule.description))
                 else:
                     # Empty means ignore decision value
                     self.logger.debug(' Value not defined')
