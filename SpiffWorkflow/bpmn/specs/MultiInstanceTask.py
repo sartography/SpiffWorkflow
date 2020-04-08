@@ -180,17 +180,9 @@ class MultiInstanceTask(TaskSpec):
 
         # mark myself so we don't try to do this again.
         my_task.internal_data['augmented'] = True
-<<<<<<< HEAD
-
-    def _predict_hook(self, my_task):
-
-        LOG.debug(my_task.get_name() + 'predict hook')
-
-=======
 
     def _predict_hook(self, my_task):
         LOG.debug(my_task.get_name() + ' predict hook')
->>>>>>> ParallelMI
         split_n = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',1)) # set a default if not already run
 
@@ -208,12 +200,6 @@ class MultiInstanceTask(TaskSpec):
         outputs = []
         # The MultiInstance class that this was based on actually
         # duplicates the outputs - this caused our use case problems
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> ParallelMI
         # In the special case that this is a Parallel multiInstance, we need to
         # expand the children in the middle. This method gets called during every pass
         # through the tree, so we need to wait until our real cardinality gets updated
