@@ -75,7 +75,10 @@ class DMNParser(object):
                             decisionElement.attrib.get('name', ''))
 
         # Parse decision tables
-        DMNParser.__parseDecisionTables(decision, decisionElement)
+        try:
+            DMNParser.__parseDecisionTables(decision, decisionElement)
+        except Exception as e:
+            raise Exception("Error in Decision '%s': %s" % (decision.name, str(e)))
 
         return decision
 
