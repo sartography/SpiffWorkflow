@@ -84,6 +84,15 @@ class NoneTaskParser(UserTaskParser):
     pass
 
 
+class SubWorkflowParser(TaskParser):
+
+    """
+    Base class for parsing unspecified Tasks. Currently assumes that such Tasks
+    should be treated the same way as User Tasks.
+    """
+    pass
+
+
 class ExclusiveGatewayParser(TaskParser):
     """
     Parses an Exclusive Gateway, setting up the outgoing conditions
