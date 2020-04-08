@@ -1,7 +1,18 @@
 import logging
+from argparse import Namespace
+from collections import namedtuple
 
 from decimal import Decimal
 import datetime
+
+
+class DotDict(dict):
+    """dot.notation access to dictionary attributes"""
+    def __getattr__(*args):
+        val = dict.get(*args)
+        return DotDict(val) if type(val) is dict else val
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
 
 class DMNEngine:
     """
@@ -46,7 +57,9 @@ class DMNEngine:
                         expression = '%s %s %r' % (inputVal, operator, parsedValue)
                     self.logger.debug(' Evaluation expression: %s' % (expression))
                     if inputData and isinstance(inputData[idx], dict):
-                        locals().update(inputData[idx])
+                        # Make the dictionary accessible in dot notation
+                        for key in inputData[idx]:
+                            locals().update({key: DotDict(inputData[idx][key])})
                     locals().update(inputKwargs)
                     try:
                         if not eval(expression):
