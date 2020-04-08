@@ -11,24 +11,35 @@ class DictDotNotationDecisionTestClass(unittest.TestCase):
 
     def test_string_decision_string_output1(self):
         data = {"foods": {
-                "spam": {"delicious": False}
-                }}
+            "spam": {"delicious": False}
+        }}
         res = self.runner.decide(data)
         self.assertEqual(res.description, 'This person has a tongue, brain '
                                           'or sense of smell.')
 
+    data = {"foods": {
+        "spam": {"delicious": False}
+    }}
     def test_string_decision_string_output2(self):
         data = {"foods": {
-                "spam": {"delicious": True}
-                }}
+            "spam": {"delicious": True}
+        }}
         res = self.runner.decide(data)
         self.assertEqual(res.description, 'This person is lacking many '
                                           'critical decision making skills, '
                                           'or is a viking.')
 
+    def test_string_decision_with_kwargs(self):
+        data = {"foods": {
+            "spam": {"delicious": False}
+        }}
+        res = self.runner.decide({}, **data)
+        self.assertEqual(res.description, 'This person has a tongue, brain '
+                                          'or sense of smell.')
+
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(DictDecisionTestClass)
+    return unittest.TestLoader().loadTestsFromTestCase(DictDotNotationDecisionTestClass)
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

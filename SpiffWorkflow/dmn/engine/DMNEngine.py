@@ -56,11 +56,19 @@ class DMNEngine:
                     else:
                         expression = '%s %s %r' % (inputVal, operator, parsedValue)
                     self.logger.debug(' Evaluation expression: %s' % (expression))
+
+                    # Make any dictionaries available as objects that can be
+                    # referenced in dot notation.
+                    local_data = {}
+                    local_data.update(inputKwargs)
                     if inputData and isinstance(inputData[idx], dict):
-                        # Make the dictionary accessible in dot notation
-                        for key in inputData[idx]:
-                            locals().update({key: DotDict(inputData[idx][key])})
-                    locals().update(inputKwargs)
+                        local_data.update(inputData[idx])
+                    for key in local_data:
+                            if isinstance(local_data[key], dict):
+                                locals().update(
+                                    {key: DotDict(local_data[key])})
+                            else:
+                                locals().update()
                     try:
                         if not eval(expression):
                             return False  # Value does not match
