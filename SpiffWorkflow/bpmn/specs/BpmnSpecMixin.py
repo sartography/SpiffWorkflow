@@ -71,12 +71,11 @@ class BpmnSpecMixin(TaskSpec):
         self.documentation = None
 
     def is_loop_task(self):
-        """ 
+        """
         Returns true if this task is a BPMN looping task
         """
-        
         return self.loopTask
-        
+
     def connect_outgoing(self, taskspec, sequence_flow_id, sequence_flow_name,
                          documentation):
         """
@@ -185,8 +184,6 @@ class BpmnSpecMixin(TaskSpec):
         A subclass may override this method to do work when this happens.
         """
         pass
-
-    #
 
     def _on_complete_hook(self, my_task):
         super(BpmnSpecMixin, self)._on_complete_hook(my_task)
