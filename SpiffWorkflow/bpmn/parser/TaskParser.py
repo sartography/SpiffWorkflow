@@ -25,6 +25,7 @@ from .ValidationException import ValidationException
 from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
 from ..specs.MultiInstanceTask import MultiInstanceTask
+from ..specs.SubWorkflowTask import SubWorkflowTask
 from ...operators import Attrib
 from .util import xpath_eval, one
 
@@ -62,6 +63,26 @@ class TaskParser(object):
         self.node = node
         self.xpath = xpath_eval(node)
 
+    def _detect_subWorkflow(self):
+        if self.spec_class != SubWorkflowTask:
+            return
+        workflowStartEvent = self.process_xpath('.//*[@id="%s"]/bpmn:startEvent' % self.get_id())
+        workflowEndEvent =  self.process_xpath('.//*[@id="%s"]/bpmn:endEvent' % self.get_id())
+        if len(workflowStartEvent) != 1:
+            raise ValidationException(
+                'Multiple Start points are not allowed in SubWorkflow Task',
+                node=self.node,
+                filename=self.process_parser.filename)
+        if len(workflowEndEvent) != 1:
+            raise ValidationException(
+                'Multiple End points are not allowed in SubWorkflow Task',
+                node=self.node,
+                filename=self.process_parser.filename)
+
+        
+        print('SubWorkflow start = '+workflowStartEvent[0].get('id'))
+        print('SubWorkflow end = ' +workflowEndEvent[0].get('id'))
+        
     def _detect_multiinstance(self):
 
         # get special task decorators from XML
@@ -138,11 +159,13 @@ class TaskParser(object):
 
             self.task.documentation = self.parser._parse_documentation(
                 self.node, xpath=self.xpath, task_parser=self)
-            
+            print(self.get_id())
             self._detect_multiinstance()
+            self._detect_subWorkflow()
 
             boundary_event_nodes = self.process_xpath(
                 './/bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
+
             if boundary_event_nodes:
                 parent_task = _BoundaryEventParent(
                     self.spec, '%s.BoundaryEventParent' % self.get_id(),
@@ -166,6 +189,7 @@ class TaskParser(object):
             children = []
             outgoing = self.process_xpath(
                 './/bpmn:sequenceFlow[@sourceRef="%s"]' % self.get_id())
+            print('outgoing nodes: %s'%(str([x.get('id') for x in outgoing])))
             if len(outgoing) > 1 and not self.handles_multiple_outgoing():
                 raise ValidationException(
                     'Multiple outgoing flows are not supported for '
