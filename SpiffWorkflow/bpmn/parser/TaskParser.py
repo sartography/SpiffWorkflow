@@ -28,7 +28,8 @@ from ..specs.MultiInstanceTask import MultiInstanceTask
 from ..specs.SubWorkflowTask import SubWorkflowTask
 from ...operators import Attrib
 from .util import xpath_eval, one
-
+from xml.etree import ElementTree as ET
+import copy
 LOG = logging.getLogger(__name__)
 
 STANDARDLOOPCOUNT = '25'
@@ -66,6 +67,7 @@ class TaskParser(object):
     def _detect_subWorkflow(self):
         if self.spec_class != SubWorkflowTask:
             return
+        thisTask = self.process_xpath('.//*[@id="%s"]'% self.get_id())[0]
         workflowStartEvent = self.process_xpath('.//*[@id="%s"]/bpmn:startEvent' % self.get_id())
         workflowEndEvent =  self.process_xpath('.//*[@id="%s"]/bpmn:endEvent' % self.get_id())
         if len(workflowStartEvent) != 1:
@@ -78,10 +80,28 @@ class TaskParser(object):
                 'Multiple End points are not allowed in SubWorkflow Task',
                 node=self.node,
                 filename=self.process_parser.filename)
+        thisTaskCopy = copy.deepcopy(thisTask)
+        definitions = {'bpmn':"http://www.omg.org/spec/BPMN/20100524/MODEL",
+                       'bpmndi':"http://www.omg.org/spec/BPMN/20100524/DI",
+                       'dc':"http://www.omg.org/spec/DD/20100524/DC",
+                       'camunda':"http://camunda.org/schema/1.0/bpmn",
+                       'di':"http://www.omg.org/spec/DD/20100524/DI"}
+        
+        for ns in definitions.keys():
+            ET.register_namespace(ns,definitions[ns])
+        root = ET.Element('bpmn:definitions')
+
+
+        thisTaskCopy.tag='bpmn:process'
+        thisTaskCopy.set('id',thisTaskCopy.get('id')+"_process")
+        thisTaskCopy.set('isExecutable','true')
+        root.append(thisTaskCopy)
+
+        #ET.tostringlist(root)
+        xml = ET.tostring(root).decode('ascii')
+        self.parser.add_bpmn_xml(root)
 
         
-        print('SubWorkflow start = '+workflowStartEvent[0].get('id'))
-        print('SubWorkflow end = ' +workflowEndEvent[0].get('id'))
         
     def _detect_multiinstance(self):
 
@@ -159,7 +179,7 @@ class TaskParser(object):
 
             self.task.documentation = self.parser._parse_documentation(
                 self.node, xpath=self.xpath, task_parser=self)
-            print(self.get_id())
+            
             self._detect_multiinstance()
             self._detect_subWorkflow()
 
@@ -189,7 +209,7 @@ class TaskParser(object):
             children = []
             outgoing = self.process_xpath(
                 './/bpmn:sequenceFlow[@sourceRef="%s"]' % self.get_id())
-            print('outgoing nodes: %s'%(str([x.get('id') for x in outgoing])))
+            
             if len(outgoing) > 1 and not self.handles_multiple_outgoing():
                 raise ValidationException(
                     'Multiple outgoing flows are not supported for '
