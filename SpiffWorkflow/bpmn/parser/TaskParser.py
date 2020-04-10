@@ -25,7 +25,7 @@ from .ValidationException import ValidationException
 from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
 from ..specs.MultiInstanceTask import MultiInstanceTask
-from ...operators import Attrib
+from ...operators import Attrib,PathAttrib
 from .util import xpath_eval, one
 
 LOG = logging.getLogger(__name__)
@@ -112,7 +112,12 @@ class TaskParser(object):
             # that we do not expect. This list can be exapanded at a later date
             # To handle other use cases - don't forget the overridden test classes!
         if multiinstance and isinstance(self.task, UserTask):
-            self.task.times = Attrib(loopcount)
+            loopcount = loopcount.replace('.','/') # make dot notation compatible
+                                                   # with bmpmn path notation. 
+            if loopcount.find('/') >=0:
+                self.task.times = PathAttrib(loopcount)
+            else:
+                self.task.times = Attrib(loopcount)
             self.task.collection = collectionText
             self.task.elementVar = elementVarText
             self.task.completioncondition = completecondition # we need to define what this is
