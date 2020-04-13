@@ -87,23 +87,22 @@ class TaskParser(object):
                        'dc':"http://www.omg.org/spec/DD/20100524/DC",
                        'camunda':"http://camunda.org/schema/1.0/bpmn",
                        'di':"http://www.omg.org/spec/DD/20100524/DI"}
-        
+        # Create wrapper xml for the subworkflow
         for ns in definitions.keys():
             ET.register_namespace(ns,definitions[ns])
         root = ET.Element('bpmn:definitions')
 
-
+        # Change the subProcess into a new bpmn:process & change the ID
         thisTaskCopy.tag='bpmn:process'
         thisTaskCopy.set('id',thisTaskCopy.get('id')+"_process")
         thisTaskCopy.set('isExecutable','true')
+        #inject the subWorkflow process into the header
         root.append(thisTaskCopy)
-
-
-        xml = ET.tostring(root).decode('ascii')
-    
-        self.parser.add_bpmn_xml(ET.fromstring(xml))
-        
-        self.task.workflow_spec = BpmnWorkflow(self.parser.get_spec(thisTaskCopy.get('id')))
+        # we have to put xml into our taskspec because
+        # the actual workflow spec will not serialize to
+        # json, but the XML is just a string
+        self.task.xml = ET.tostring(root).decode('ascii')
+        self.task.workflow_name = thisTaskCopy.get('id')
         
 
         

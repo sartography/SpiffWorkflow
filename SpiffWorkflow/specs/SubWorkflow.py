@@ -127,6 +127,7 @@ class SubWorkflow(TaskSpec):
     def _on_subworkflow_completed(self, subworkflow, my_task):
         # Assign variables, if so requested.
         for child in my_task.children:
+            child.data.update(subworkflow.last_task.data)
             if child.task_spec in self.outputs:
                 for assignment in self.out_assign:
                     assignment.assign(subworkflow, child)

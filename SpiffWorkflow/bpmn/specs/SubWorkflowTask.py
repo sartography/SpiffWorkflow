@@ -20,7 +20,7 @@ from __future__ import division
 
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.SubWorkflow import SubWorkflow
-
+from ..workflow import BpmnWorkflow
 from xml.etree import ElementTree as ET
 
 class SubWorkflowTask(SubWorkflow,BpmnSpecMixin):
@@ -41,26 +41,33 @@ class SubWorkflowTask(SubWorkflow,BpmnSpecMixin):
         pass
 
     def _create_subworkflow(self, my_task):
-        print("in _create_subworkflow")
+        from ...camunda.parser.CamundaParser import CamundaParser
+        x = CamundaParser()
+        x.add_bpmn_xml(ET.fromstring(self.xml))
+        return BpmnWorkflow(x.get_spec(self.workflow_name))
 
-        print(dir(self))
+    def _on_ready_before_hook(self, my_task):
+        subworkflow = self._create_subworkflow(my_task)
+        subworkflow.completed_event.connect(
+            self._on_subworkflow_completed, my_task)
+        self._integrate_subworkflow_tree(my_task, subworkflow)
+        my_task._set_internal_data(subworkflow=self.xml)
 
-        print(dir(my_task))
+    def _on_ready_hook(self, my_task):
+        # Assign variables, if so requested.
+        subworkflow = self._create_subworkflow(my_task)
+        for child in subworkflow.task_tree.children:
+            for assignment in self.in_assign:
+                assignment.assign(my_task, child)
 
-        print(self.name)
-        return(self.workflow_spec)
-        #x = CamumdaParser.CamundaParser(ET.fromstring(self.xml))
-        #return BpmnWorkflow(x.get_spec(self.workflow_spec_name))
-        #wf_spec = self.workflow_spec_name
-        #print(wf_spec)
-        #return BpmnWorkflow(wf_spec)
+        self._predict(my_task)
+        for child in subworkflow.task_tree.children:
+            child.task_spec._update(child)
 
 
-    def serialize(self, serializer):
-        print("serialize subworkflowtask")
-        return serializer.serialize_sub_workflow(self)
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_sub_workflow(wf_spec, s_state)
-    
+    def _on_complete_hook(self, my_task):
+        for child in my_task.children:
+            print(child.data)
+            if child.task_spec in self.outputs:
+                continue
+            child.task_spec._update(child)
