@@ -26,6 +26,7 @@ from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
 from ..specs.MultiInstanceTask import MultiInstanceTask
 from ..specs.SubWorkflowTask import SubWorkflowTask
+from ..workflow import BpmnWorkflow
 from ...operators import Attrib
 from .util import xpath_eval, one
 from xml.etree import ElementTree as ET
@@ -97,9 +98,13 @@ class TaskParser(object):
         thisTaskCopy.set('isExecutable','true')
         root.append(thisTaskCopy)
 
-        #ET.tostringlist(root)
+
         xml = ET.tostring(root).decode('ascii')
-        self.parser.add_bpmn_xml(root)
+    
+        self.parser.add_bpmn_xml(ET.fromstring(xml))
+        
+        self.task.workflow_spec = BpmnWorkflow(self.parser.get_spec(thisTaskCopy.get('id')))
+        
 
         
         
