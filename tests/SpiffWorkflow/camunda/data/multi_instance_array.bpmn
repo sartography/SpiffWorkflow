@@ -44,7 +44,7 @@
       <bpmn:documentation>Enter Birthday for {{  CurrentFamilyMember['FamilyMember.FormField_FirstName'] }}</bpmn:documentation>
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="Birthdate" label="Birthday" type="string" />
+          <camunda:formField id="CurrentFamilyMember.Birthdate" label="Birthday" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0659lqh</bpmn:incoming>
@@ -70,30 +70,28 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0zpm0rc_di" bpmnElement="Flow_0zpm0rc">
         <di:waypoint x="360" y="117" />
-        <di:waypoint x="410" y="117" />
+        <di:waypoint x="420" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0sj67t1_di" bpmnElement="FamilyMemberTask">
-        <dc:Bounds x="410" y="77" width="100" height="80" />
+        <dc:Bounds x="420" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0bplvtg_di" bpmnElement="Flow_0bplvtg">
         <di:waypoint x="215" y="117" />
         <di:waypoint x="260" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1lj1hu8_di" bpmnElement="FamilyMemberBday">
-        <dc:Bounds x="570" y="77" width="100" height="80" />
+        <dc:Bounds x="590" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0659lqh_di" bpmnElement="Flow_0659lqh">
-        <di:waypoint x="510" y="117" />
-        <di:waypoint x="570" y="117" />
+        <di:waypoint x="520" y="117" />
+        <di:waypoint x="590" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ncqf54_di" bpmnElement="Flow_0ncqf54">
-        <di:waypoint x="670" y="110" />
-        <di:waypoint x="806" y="110" />
-        <di:waypoint x="806" y="117" />
-        <di:waypoint x="942" y="117" />
+        <di:waypoint x="690" y="117" />
+        <di:waypoint x="788" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_11av7pp_di" bpmnElement="Event_EndJoin">
-        <dc:Bounds x="942" y="99" width="36" height="36" />
+        <dc:Bounds x="788" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

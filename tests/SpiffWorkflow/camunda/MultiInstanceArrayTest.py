@@ -42,21 +42,31 @@ class MultiInstanceArrayTest(BaseTestCase):
         for i in range(3):
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEquals("FamilyMemberTask", task.task_spec.name)
-            task.update_data({"FirstName": "The Funk"})
+            task.update_data({"FirstName": "The Funk #%i" % i})
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
 
+        self.assertEqual({1: {'FirstName': 'The Funk #0'},
+                          2: {'FirstName': 'The Funk #1'},
+                          3: {'FirstName': 'The Funk #2'}},
+                         task.data["FamilyMembers"])
         # Set the birthdays of the 3 family members.
         for i in range(3):
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEquals("FamilyMemberBday", task.task_spec.name)
-            task.update_data({"Birthdate": "10/05/1985"})
+            task.update_data({"CurrentFamilyMember": {"Birthdate": "10/0%i/1985" % i}})
             self.workflow.complete_task_from_id(task.id)
-            if save_restore: self.save_restore()
+#            if save_restore: self.save_restore()
 
         self.workflow.do_engine_steps()
         if save_restore: self.save_restore()
         self.assertTrue(self.workflow.is_completed())
+
+        self.assertEqual({1: {'FirstName': 'The Funk #0', "Birthdate": "10/00/1985"},
+                          2: {'FirstName': 'The Funk #1', "Birthdate": "10/01/1985"},
+                          3: {'FirstName': 'The Funk #2', "Birthdate": "10/02/1985"}},
+                         self.workflow.last_task.data["FamilyMembers"])
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(MultiInstanceArrayTest)
