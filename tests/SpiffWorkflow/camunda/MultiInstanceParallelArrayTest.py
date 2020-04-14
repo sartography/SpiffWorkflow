@@ -43,7 +43,7 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
         # Set initial array size to 3 in the first user form.
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEquals("Activity_FamSize", task.task_spec.name)
-#        task.update_data({"FamilySize": 3})
+        task.update_data({"FamilySize": 3})
         self.workflow.complete_task_from_id(task.id)
         if save_restore: self.save_restore()
         self.workflow.do_engine_steps()

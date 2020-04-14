@@ -54,7 +54,7 @@ class MultiInstanceArrayTest(BaseTestCase):
         for i in range(3):
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEquals("FamilyMemberBday", task.task_spec.name)
-            task.update_data({"CurrentFamilyMember": {"Birthdate": "10/0%i/1985" % i}})
+            task.update_data({"Birthdate": "10/0%i/1985" % i})
             self.workflow.complete_task_from_id(task.id)
 #            if save_restore: self.save_restore()
 
