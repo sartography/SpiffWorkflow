@@ -20,6 +20,7 @@ from builtins import range
 from ...task import Task
 from ...specs.base import TaskSpec
 from ...operators import valueof,is_number
+from ...util.deep_merge import DeepMerge
 from .ParallelGateway import ParallelGateway
 import logging
 import random
@@ -191,7 +192,7 @@ class MultiInstanceTask(TaskSpec):
             varname = my_task.task_spec.name+"_MICurrentVar"
 
             
-        my_task.data[varname] = self._get_current_var(my_task,runtimes)
+        my_task.data[varname] = copy.copy(self._get_current_var(my_task,runtimes))
 
         # Create the outgoing tasks.
         outputs = []
@@ -281,7 +282,7 @@ class MultiInstanceTask(TaskSpec):
             varname = my_task.task_spec.name+"_MICurrentVar"
 
         collect = my_task.data.get(colvarname,{})
-        collect[runtimes] = copy.copy(my_task.mi_collect_data)
+        collect[runtimes] = DeepMerge.merge(collect.get(runtimes,{}),copy.copy(my_task.mi_collect_data))
         
         LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data[colvarname] = collect
