@@ -1,4 +1,24 @@
 # -*- coding: utf-8 -*-
+
+# Currently the subworkflow is working correctly, but there is a
+# problem with serialize/deserialize. The problem is that the outer
+# workflow spec doesn't have a specific spec for the internal
+# workflow, so when it tries to pull the internal workflow, it errors
+# out when it tries to find the  workflow spec that is associated with
+# the task.
+
+# It might be worthwile to remove the classes for the sub
+# workflow before serializing, but I'm sure this will lead to problems
+# when we do a save/restore in the middle of a subworkflow - so I'm
+# left with the prospect that I don't really have the taskspec for the
+# items in the subworkflow in the spec that we are save/restoring.
+
+# Specifically, when the subworkflow gets 'expanded' into a new
+# workflow, each task has a task spec, but that task spec is in the
+# new workflow, and that task spec is NOT in the original workflow
+# spec. When it reads in the workflow, it looks for the task_spec in
+# the original workflow spec, and it is not there, so it crashes. 
+
 from __future__ import division
 # Copyright (C) 2012 Matthew Hampton
 #
