@@ -44,6 +44,14 @@ class FormField(object):
     def add_validation(self, name, config):
         self.validation.append(FormFieldValidation(name, config))
 
+    def get_property(self, property_id):
+        for prop in self.properties:
+            if prop.id == property_id:
+                return prop.value
+
+    def has_property(self, property_id):
+        return self.get_property(property_id) is not None
+
     def jsonable(self):
         return self.__dict__
 
