@@ -14,7 +14,7 @@ class DeepMerge(object):
                 if isinstance(a[key], list) and isinstance(b[key], list):
                     a[key] = list(set().union(a[key], b[key]))
                 else:
-                    a[key] == b[key]
+                    a[key] = b[key]
             else:
                 a[key] = b[key]
         return a
