@@ -211,7 +211,7 @@ class Task(object):
             data properly
         """
         self.data = DeepMerge.merge(self.data, data)
-        self.mi_collect_data.update(data) # special variable that gets collected
+        self.mi_collect_data = DeepMerge.merge(self.mi_collect_data, data) # special variable that gets collected
                                           # in a bpmn/MultiInstance task
 
     def terminate_loop(self):
