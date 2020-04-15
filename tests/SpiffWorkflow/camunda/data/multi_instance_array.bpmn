@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0p4zkct" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0p4zkct" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
   <bpmn:process id="MultiInstanceArray" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0bplvtg</bpmn:outgoing>
@@ -8,7 +8,7 @@
       <bpmn:documentation>Please enter family size:</bpmn:documentation>
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="FamilySize" label="FamilyMembers" type="long" defaultValue="2">
+          <camunda:formField id="Family.Size" label="Family Size" type="long" defaultValue="2">
             <camunda:validation>
               <camunda:constraint name="min1" config="&#62;=1" />
               <camunda:constraint name="max10" config="&#60;=10" />
@@ -34,22 +34,24 @@
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0zpm0rc</bpmn:incoming>
       <bpmn:outgoing>Flow_0659lqh</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="FamilyMembers" camunda:elementVariable="FamilyMember">
-        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">FamilySize</bpmn:loopCardinality>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="Family.Members" camunda:elementVariable="FamilyMember">
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">Family.Size</bpmn:loopCardinality>
         <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">test completion</bpmn:completionCondition>
       </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0bplvtg" sourceRef="StartEvent_1" targetRef="Activity_FamSize" />
     <bpmn:userTask id="FamilyMemberBday" name="GetBirthday for each family member in prev step" camunda:formKey="FamilyBDay">
-      <bpmn:documentation>Enter Birthday for {{  CurrentFamilyMember.FirstName }}</bpmn:documentation>
+      <bpmn:documentation>Enter Birthday for {{  CurrentFamilyMember['FamilyMember.FormField_FirstName'] }}</bpmn:documentation>
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="Birthdate" label="Birthday" type="string" />
+          <camunda:formField id="CurrentFamilyMember.Birthdate" label="Birthday" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0659lqh</bpmn:incoming>
       <bpmn:outgoing>Flow_0ncqf54</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="FamilyMembers" camunda:elementVariable="CurrentFamilyMember" />
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="FamilyMemberBirthday" camunda:elementVariable="CurrentFamilyMember">
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">FamilyMembers</bpmn:loopCardinality>
+      </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0659lqh" sourceRef="FamilyMemberTask" targetRef="FamilyMemberBday" />
     <bpmn:sequenceFlow id="Flow_0ncqf54" sourceRef="FamilyMemberBday" targetRef="Event_EndJoin" />
