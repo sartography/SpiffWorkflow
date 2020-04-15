@@ -28,7 +28,6 @@ from ..specs.InclusiveGateway import InclusiveGateway
 from ..specs.IntermediateCatchEvent import IntermediateCatchEvent
 from ..specs.ManualTask import ManualTask
 from ..specs.NoneTask import NoneTask
-from ..specs.SubWorkflowTask import SubWorkflowTask
 from ..specs.ParallelGateway import ParallelGateway
 from ..specs.ScriptTask import ScriptTask
 from ..specs.StartEvent import StartEvent

@@ -25,7 +25,6 @@ from .ValidationException import ValidationException
 from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
 from ..specs.MultiInstanceTask import MultiInstanceTask
-from ..specs.SubWorkflowTask import SubWorkflowTask
 from ..workflow import BpmnWorkflow
 from ...operators import Attrib
 from .util import xpath_eval, one
@@ -65,46 +64,46 @@ class TaskParser(object):
         self.node = node
         self.xpath = xpath_eval(node)
 
-    def _detect_subWorkflow(self):
-        if self.spec_class != SubWorkflowTask:
-            return
-        thisTask = self.process_xpath('.//*[@id="%s"]'% self.get_id())[0]
-        workflowStartEvent = self.process_xpath('.//*[@id="%s"]/bpmn:startEvent' % self.get_id())
-        workflowEndEvent =  self.process_xpath('.//*[@id="%s"]/bpmn:endEvent' % self.get_id())
-        if len(workflowStartEvent) != 1:
-            raise ValidationException(
-                'Multiple Start points are not allowed in SubWorkflow Task',
-                node=self.node,
-                filename=self.process_parser.filename)
-        if len(workflowEndEvent) != 1:
-            raise ValidationException(
-                'Multiple End points are not allowed in SubWorkflow Task',
-                node=self.node,
-                filename=self.process_parser.filename)
-        thisTaskCopy = copy.deepcopy(thisTask)
-        definitions = {'bpmn':"http://www.omg.org/spec/BPMN/20100524/MODEL",
-                       'bpmndi':"http://www.omg.org/spec/BPMN/20100524/DI",
-                       'dc':"http://www.omg.org/spec/DD/20100524/DC",
-                       'camunda':"http://camunda.org/schema/1.0/bpmn",
-                       'di':"http://www.omg.org/spec/DD/20100524/DI"}
-        # Create wrapper xml for the subworkflow
-        for ns in definitions.keys():
-            ET.register_namespace(ns,definitions[ns])
-        root = ET.Element('bpmn:definitions')
-
-        # Change the subProcess into a new bpmn:process & change the ID
-        thisTaskCopy.tag='bpmn:process'
-        thisTaskCopy.set('id',thisTaskCopy.get('id')+"_process")
-        thisTaskCopy.set('isExecutable','true')
-        #inject the subWorkflow process into the header
-        root.append(thisTaskCopy)
-        # we have to put xml into our taskspec because
-        # the actual workflow spec will not serialize to
-        # json, but the XML is just a string
-        self.task.xml = ET.tostring(root).decode('ascii')
-        self.task.workflow_name = thisTaskCopy.get('id')
-        
-
+#    def _detect_subWorkflow(self):
+#        if self.spec_class != SubWorkflowTask:
+#            return
+#        thisTask = self.process_xpath('.//*[@id="%s"]'% self.get_id())[0]
+#        workflowStartEvent = self.process_xpath('.//*[@id="%s"]/bpmn:startEvent' % self.get_id())
+#        workflowEndEvent =  self.process_xpath('.//*[@id="%s"]/bpmn:endEvent' % self.get_id())
+#        if len(workflowStartEvent) != 1:
+#            raise ValidationException(
+#                'Multiple Start points are not allowed in SubWorkflow Task',
+#                node=self.node,
+#                filename=self.process_parser.filename)
+#        if len(workflowEndEvent) != 1:
+#            raise ValidationException(
+#                'Multiple End points are not allowed in SubWorkflow Task',
+#                node=self.node,
+#                filename=self.process_parser.filename)
+#        thisTaskCopy = copy.deepcopy(thisTask)
+#        definitions = {'bpmn':"http://www.omg.org/spec/BPMN/20100524/MODEL",
+#                       'bpmndi':"http://www.omg.org/spec/BPMN/20100524/DI",
+#                       'dc':"http://www.omg.org/spec/DD/20100524/DC",
+#                       'camunda':"http://camunda.org/schema/1.0/bpmn",
+#                       'di':"http://www.omg.org/spec/DD/20100524/DI"}
+#        # Create wrapper xml for the subworkflow
+#        for ns in definitions.keys():
+#            ET.register_namespace(ns,definitions[ns])
+#        root = ET.Element('bpmn:definitions')
+#
+#        # Change the subProcess into a new bpmn:process & change the ID
+#        thisTaskCopy.tag='bpmn:process'
+#        thisTaskCopy.set('id',thisTaskCopy.get('id')+"_process")
+#        thisTaskCopy.set('isExecutable','true')
+#        #inject the subWorkflow process into the header
+#        root.append(thisTaskCopy)
+#        # we have to put xml into our taskspec because
+#        # the actual workflow spec will not serialize to
+#        # json, but the XML is just a string
+#        self.task.xml = ET.tostring(root).decode('ascii')
+#        self.task.workflow_name = thisTaskCopy.get('id')
+#        
+#
         
         
     def _detect_multiinstance(self):
@@ -185,7 +184,7 @@ class TaskParser(object):
                 self.node, xpath=self.xpath, task_parser=self)
             
             self._detect_multiinstance()
-            self._detect_subWorkflow()
+            #self._detect_subWorkflow()
 
             boundary_event_nodes = self.process_xpath(
                 './/bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
