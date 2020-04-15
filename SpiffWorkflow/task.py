@@ -24,6 +24,7 @@ import logging
 import time
 from uuid import uuid4
 from .exceptions import WorkflowException
+from .util.deep_merge import DeepMerge
 
 LOG = logging.getLogger(__name__)
 
@@ -204,13 +205,13 @@ class Task(object):
             hex(id(self)))
 
     def update_data(self,data):
-        """ If the task.data needs to be updated from a UserTask form or 
+        """ If the task.data needs to be updated from a UserTask form or
             a Script task then use this function rather than updating task.data
-            directly, otherwise MultiInstance tasks will not collect the 
-            data properly 
+            directly, otherwise MultiInstance tasks will not collect the
+            data properly
         """
-        self.data.update(data)
-        self.mi_collect_data.update(data) # special variable that gets collected
+        self.data = DeepMerge.merge(self.data, data)
+        self.mi_collect_data = DeepMerge.merge(self.mi_collect_data, data) # special variable that gets collected
                                           # in a bpmn/MultiInstance task
 
     def terminate_loop(self):
@@ -227,7 +228,7 @@ class Task(object):
             raiseError()
 
         self.terminate_current_loop=True
-        
+
     def _getstate(self):
         return self._state
 

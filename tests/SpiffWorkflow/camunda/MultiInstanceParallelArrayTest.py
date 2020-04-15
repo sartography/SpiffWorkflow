@@ -33,6 +33,11 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
     def actual_test(self, save_restore=False):
 
         self.workflow = BpmnWorkflow(self.spec)
+        first_task = self.workflow.task_tree
+
+        # A previous task (in this case the root task) will set the data
+        # so it must be found later.
+        first_task.update_data({"FamilySize": 3})
         self.workflow.do_engine_steps()
 
         # Set initial array size to 3 in the first user form.
@@ -42,7 +47,7 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
         self.workflow.complete_task_from_id(task.id)
         if save_restore: self.save_restore()
         self.workflow.do_engine_steps()
-        
+
         # Set the names of the 3 family members.
         for i in range(3):
 

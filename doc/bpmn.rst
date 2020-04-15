@@ -48,6 +48,13 @@ case that it is a list, the loop cardinality is equal to the length of
 the list and in the case of a dictionary, it is equal to the list of
 the keys of the dictionary.
 
+If loopCardinality is left blank and the Collection is defined, or if
+loopCardinality and Collectoin are the same collection, then the
+Multiinstnace will loop over the collection and update each element of
+that collection with the new information. In this case, it is assumed
+that the incoming collection is a dictionary, currently behavior for
+working with a list in this manner is not defined and will raise an error.
+
 **Collection** This is the name of the collection that is created from
 the data generated when the task is run. Examples of this would be
 form data that is generated from a UserTask or data that is generated

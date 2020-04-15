@@ -20,7 +20,9 @@ from builtins import range
 from ...task import Task
 from ...specs.base import TaskSpec
 from ...operators import valueof,is_number
+from ...util.deep_merge import DeepMerge
 from .ParallelGateway import ParallelGateway
+from ...exceptions import WorkflowException
 import logging
 import random
 import string
@@ -92,6 +94,11 @@ class MultiInstanceTask(TaskSpec):
             new_task.triggered = True
             output._predict(new_task)
 
+    def _check_inputs(self, my_task):
+        variable = valueof(my_task, self.times, 1)  # look for variable in context, if we don't find it, default to 1
+        if self.times.name == self.collection and type(variable) == type([]):
+            raise WorkflowException(self, 'If we are updating a collection, then the collection must be a dictionary.')
+        
     def _get_count(self, my_task):
         """
          self.times has the text entered in the BPMN model.
@@ -114,7 +121,7 @@ class MultiInstanceTask(TaskSpec):
         return 1      # we shouldn't ever get here, but just in case return a sane value.
 
     def _get_current_var(self,my_task,pos):
-        variable = valueof(my_task, self.times, 1)  # look for variable in conte
+        variable = valueof(my_task, self.times, 1) 
         if is_number(variable):
             return pos
         if type(variable) == type([]):
@@ -191,7 +198,7 @@ class MultiInstanceTask(TaskSpec):
             varname = my_task.task_spec.name+"_MICurrentVar"
 
             
-        my_task.data[varname] = self._get_current_var(my_task,runtimes)
+        my_task.data[varname] = copy.copy(self._get_current_var(my_task,runtimes))
 
         # Create the outgoing tasks.
         outputs = []
@@ -265,7 +272,7 @@ class MultiInstanceTask(TaskSpec):
 
     
     def _on_complete_hook(self, my_task):
-
+        self._check_inputs(my_task)
         runcount = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',1))
 
@@ -281,7 +288,7 @@ class MultiInstanceTask(TaskSpec):
             varname = my_task.task_spec.name+"_MICurrentVar"
 
         collect = my_task.data.get(colvarname,{})
-        collect[runtimes] = copy.copy(my_task.mi_collect_data)
+        collect[runtimes] = DeepMerge.merge(collect.get(runtimes,{}),copy.copy(my_task.mi_collect_data))
         
         LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data[colvarname] = collect
