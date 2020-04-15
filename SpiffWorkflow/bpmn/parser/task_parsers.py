@@ -19,11 +19,12 @@ from __future__ import division
 
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
+from ..workflow import BpmnWorkflow
 from .util import first, one
 from ..specs.event_definitions import (TimerEventDefinition,
                                        MessageEventDefinition)
 import xml.etree.ElementTree as ET
-
+import copy
 
 class StartEventParser(TaskParser):
 
@@ -84,13 +85,7 @@ class NoneTaskParser(UserTaskParser):
     pass
 
 
-class SubWorkflowParser(TaskParser):
 
-    """
-    Base class for parsing unspecified Tasks. Currently assumes that such Tasks
-    should be treated the same way as User Tasks.
-    """
-    pass
 
 
 class ExclusiveGatewayParser(TaskParser):
@@ -172,6 +167,65 @@ class CallActivityParser(TaskParser):
                 filename=self.process_parser.filename)
         return self.parser.get_process_parser(calledElement)
 
+
+class SubWorkflowParser(CallActivityParser):
+
+    """
+    Base class for parsing unspecified Tasks. Currently assumes that such Tasks
+    should be treated the same way as User Tasks.
+    """
+    def create_task(self):
+        wf_spec = self.get_subprocess_parser()
+        return self.spec_class(
+            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
+            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            description=self.node.get('name', None))
+
+
+    def get_subprocess_parser(self):
+        from ...camunda.parser.CamundaParser import CamundaParser # get around circular dependancy
+        thisTask = self.process_xpath('.//*[@id="%s"]'% self.get_id())[0]
+        workflowStartEvent = self.process_xpath('.//*[@id="%s"]/bpmn:startEvent' % self.get_id())
+        workflowEndEvent =  self.process_xpath('.//*[@id="%s"]/bpmn:endEvent' % self.get_id())
+        if len(workflowStartEvent) != 1:
+            raise ValidationException(
+                'Multiple Start points are not allowed in SubWorkflow Task',
+                node=self.node,
+                filename=self.process_parser.filename)
+        if len(workflowEndEvent) != 1:
+            raise ValidationException(
+                'Multiple End points are not allowed in SubWorkflow Task',
+                node=self.node,
+                filename=self.process_parser.filename)
+        thisTaskCopy = copy.deepcopy(thisTask)
+        definitions = {'bpmn':"http://www.omg.org/spec/BPMN/20100524/MODEL",
+                       'bpmndi':"http://www.omg.org/spec/BPMN/20100524/DI",
+                       'dc':"http://www.omg.org/spec/DD/20100524/DC",
+                       'camunda':"http://camunda.org/schema/1.0/bpmn",
+                       'di':"http://www.omg.org/spec/DD/20100524/DI"}
+        # Create wrapper xml for the subworkflow
+        for ns in definitions.keys():
+            ET.register_namespace(ns,definitions[ns])
+        root = ET.Element('bpmn:definitions')
+
+        # Change the subProcess into a new bpmn:process & change the ID
+        thisTaskCopy.tag='bpmn:process'
+        thisTaskCopy.set('id',thisTaskCopy.get('id')+"_process")
+        thisTaskCopy.set('isExecutable','true')
+        #inject the subWorkflow process into the header
+        root.append(thisTaskCopy)
+        # we have to put xml into our taskspec because
+        # the actual workflow spec will not serialize to
+        # json, but the XML is just a string
+        
+        xml = ET.tostring(root).decode('ascii')
+        workflow_name = thisTaskCopy.get('id')
+
+        x = CamundaParser()
+        x.add_bpmn_xml(ET.fromstring(xml))
+        return x.get_spec(workflow_name)
+
+    
 
 class ScriptTaskParser(TaskParser):
     """
