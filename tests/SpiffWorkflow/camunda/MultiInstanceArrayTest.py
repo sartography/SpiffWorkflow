@@ -74,7 +74,7 @@ class MultiInstanceArrayTest(BaseTestCase):
         self.assertEqual({1: {'FirstName': 'The Funk #0', "Birthdate": "10/00/1985"},
                           2: {'FirstName': 'The Funk #1', "Birthdate": "10/01/1985"},
                           3: {'FirstName': 'The Funk #2', "Birthdate": "10/02/1985"}},
-                         self.workflow.last_task.data["FamilyMembers"])
+                         self.workflow.last_task.data["Family"]["Members"])
 
 
 
@@ -87,7 +87,7 @@ class MultiInstanceArrayTest(BaseTestCase):
         # Set initial array size to 3 in the first user form.
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEquals("Activity_FamSize", task.task_spec.name)
-        task.update_data({"FamilySize": 3})
+        task.update_data({"Family":{"Size": 3}})
         self.workflow.complete_task_from_id(task.id)
         if save_restore: self.save_restore()
 
@@ -102,14 +102,14 @@ class MultiInstanceArrayTest(BaseTestCase):
         self.assertEqual({1: {'FirstName': 'The Funk #0'},
                           2: {'FirstName': 'The Funk #1'},
                           3: {'FirstName': 'The Funk #2'}},
-                         task.data["FamilyMembers"])
+                         task.data["Family"]["Members"])
 
 
         # Make sure that if we have a list as both input and output
         # collection, that we raise an exception
 
         task = self.workflow.get_ready_user_tasks()[0]
-        task.data['FamilyMembers'] = ['The Funk #0','The Funk #1','The Funk #2']
+        task.data['Family']['Members'] = ['The Funk #0','The Funk #1','The Funk #2']
         self.assertEquals("FamilyMemberBday", task.task_spec.name)
         task.update_data({"Birthdate": "10/0%i/1985" % i})
         with self.assertRaises(WorkflowException) as context:

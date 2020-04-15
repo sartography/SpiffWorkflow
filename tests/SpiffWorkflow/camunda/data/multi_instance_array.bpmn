@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0p4zkct" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0p4zkct" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
   <bpmn:process id="MultiInstanceArray" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0bplvtg</bpmn:outgoing>
@@ -44,14 +44,12 @@
       <bpmn:documentation>Enter Birthday for {{  CurrentFamilyMember['FamilyMember.FormField_FirstName'] }}</bpmn:documentation>
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="CurrentFamilyMember.Birthdate" label="Birthday" type="string" />
+          <camunda:formField id="Birthdate" label="Birthday" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0659lqh</bpmn:incoming>
       <bpmn:outgoing>Flow_0ncqf54</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="FamilyMemberBirthday" camunda:elementVariable="CurrentFamilyMember">
-        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">FamilyMembers</bpmn:loopCardinality>
-      </bpmn:multiInstanceLoopCharacteristics>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="Family.Members" camunda:elementVariable="CurrentFamilyMember" />
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0659lqh" sourceRef="FamilyMemberTask" targetRef="FamilyMemberBday" />
     <bpmn:sequenceFlow id="Flow_0ncqf54" sourceRef="FamilyMemberBday" targetRef="Event_EndJoin" />
