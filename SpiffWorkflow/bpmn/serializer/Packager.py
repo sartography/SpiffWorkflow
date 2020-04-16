@@ -158,8 +158,11 @@ class Packager(object):
             self.package_file, "w", compression=zipfile.ZIP_DEFLATED)
 
         done_files = set()
+
         for spec in self.wf_spec.get_specs_depth_first():
             filename = spec.file
+            if filename is None:
+                print(dir(spec))
             if filename not in done_files:
                 done_files.add(filename)
 

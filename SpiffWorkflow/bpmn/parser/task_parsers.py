@@ -221,9 +221,12 @@ class SubWorkflowParser(CallActivityParser):
         xml = ET.tostring(root).decode('ascii')
         workflow_name = thisTaskCopy.get('id')
 
-        x = CamundaParser()
-        x.add_bpmn_xml(ET.fromstring(xml))
-        return x.get_spec(workflow_name)
+        parser = CamundaParser()
+        parser.add_bpmn_xml(ET.fromstring(xml)) #,filename=self.process_parser.filename) # infinite loop??
+        wf_spec = parser.get_spec(workflow_name)
+        #print('-->'+str(wf_spec))
+        #wf_spec.file = workflow_name
+        return wf_spec
 
     
 
