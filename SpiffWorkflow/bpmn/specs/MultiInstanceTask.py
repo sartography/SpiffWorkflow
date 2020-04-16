@@ -295,13 +295,16 @@ class MultiInstanceTask(TaskSpec):
             varname = my_task.task_spec.name+"_MICurrentVar"
 
         collect = valueof(my_task,self.collection,{})
-        if type(collect) == type({}):
+
+
+        # if we are updating the same collection as was our loopcardinality
+        # then all the keys should be there and we can use the sorted keylist
+        # if not, we use an integer - we should be guaranteed that the
+        # collection is a dictionary
+        if self.collection is not None and self.times.name == self.collection.name:
             keys = list(collect.keys())
-            if len(keys) < runtimes:
-                runtimesvar = runtimes
-            else:
-                keys.sort()
-                runtimesvar = keys[runtimes-1]
+            keys.sort()
+            runtimesvar = keys[runtimes-1]
         else:
             runtimesvar = runtimes
         
