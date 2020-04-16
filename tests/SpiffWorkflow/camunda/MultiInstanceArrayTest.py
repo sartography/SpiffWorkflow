@@ -2,7 +2,10 @@
 from __future__ import print_function, absolute_import, division
 
 from __future__ import division, absolute_import
+import sys
+import os
 import unittest
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 from SpiffWorkflow.exceptions import WorkflowException
@@ -147,15 +150,18 @@ class MultiInstanceArrayTest(BaseTestCase):
                           3: {'FirstName': 'The Funk #2'}},
                          task.data["Family"]["Members"])
 
-        # Modify to be a dict not an array
-        task.data["Family"]["Members"] = {
-            "a": {'FirstName': 'The Funk #0'},
-            "b": {'FirstName': 'The Funk #1'},
-            "c": {'FirstName': 'The Funk #2'}}
+        
 
         # Set the birthdays of the 3 family members.
         for i in range(3):
             task = self.workflow.get_ready_user_tasks()[0]
+            if i == 0:
+                # Modify so that the dict keys are alpha rather than int
+                task.data["Family"]["Members"] = {
+                    "a": {'FirstName': 'The Funk #0'},
+                    "b": {'FirstName': 'The Funk #1'},
+                    "c": {'FirstName': 'The Funk #2'}}
+                
             self.assertEquals("FamilyMemberBday", task.task_spec.name)
             task.update_data({"Birthdate": "10/0%i/1985" % i})
             self.workflow.complete_task_from_id(task.id)
@@ -168,7 +174,7 @@ class MultiInstanceArrayTest(BaseTestCase):
         self.assertEqual({"a": {'FirstName': 'The Funk #0', "Birthdate": "10/00/1985"},
                           "b": {'FirstName': 'The Funk #1', "Birthdate": "10/01/1985"},
                           "c": {'FirstName': 'The Funk #2', "Birthdate": "10/02/1985"}},
-                         self.workflow.last_task.data["FamilyMembers"])
+                         self.workflow.last_task.data["Family"]["Members"])
 
 
 
