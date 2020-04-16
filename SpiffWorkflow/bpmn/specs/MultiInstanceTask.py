@@ -295,7 +295,17 @@ class MultiInstanceTask(TaskSpec):
             varname = my_task.task_spec.name+"_MICurrentVar"
 
         collect = valueof(my_task,self.collection,{})
-        collect[runtimes] = DeepMerge.merge(collect.get(runtimes,{}),copy.copy(my_task.mi_collect_data))
+        if type(collect) == type({}):
+            keys = list(collect.keys())
+            if len(keys) < runtimes:
+                runtimesvar = runtimes
+            else:
+                keys.sort()
+                runtimesvar = keys[runtimes-1]
+        else:
+            runtimesvar = runtimes
+        
+        collect[runtimesvar] = DeepMerge.merge(collect.get(runtimesvar,{}),copy.copy(my_task.mi_collect_data))
         
         LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data=DeepMerge.merge(my_task.data,gendict(colvarname.split('/'),collect))
