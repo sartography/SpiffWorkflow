@@ -33,7 +33,11 @@ from uuid import uuid4
 
 
 LOG = logging.getLogger(__name__)
-
+def gendict(path,d):
+    if len(path)==0:
+        return d
+    else:
+        return gendict(path[:-1],{path[-1]:d})
 
 class MultiInstanceTask(TaskSpec):
 
@@ -95,8 +99,10 @@ class MultiInstanceTask(TaskSpec):
             output._predict(new_task)
 
     def _check_inputs(self, my_task):
+        if self.collection is None:
+            return
         variable = valueof(my_task, self.times, 1)  # look for variable in context, if we don't find it, default to 1
-        if self.times.name == self.collection and type(variable) == type([]):
+        if self.times.name == self.collection.name and type(variable) == type([]):
             raise WorkflowException(self, 'If we are updating a collection, then the collection must be a dictionary.')
         
     def _get_count(self, my_task):
@@ -108,10 +114,11 @@ class MultiInstanceTask(TaskSpec):
              it could be a list of records - in this case return the cardinality of the list
              it could be a dict with a bunch of keys - it this case return the cardinality of the keys
         """
-
+        
         if is_number(self.times.name):
             return int(self.times.name)
         variable = valueof(my_task, self.times, 1)  # look for variable in context, if we don't find it, default to 1
+        
         if is_number(variable):
             return int(variable)
         if type(variable) == type([]):
@@ -277,7 +284,7 @@ class MultiInstanceTask(TaskSpec):
         runtimes = int(my_task._get_internal_data('runtimes',1))
 
         if self.collection is not None:
-            colvarname = self.collection
+            colvarname = self.collection.name
         else:
 
             colvarname = my_task.task_spec.name+"_MIData"
@@ -287,11 +294,12 @@ class MultiInstanceTask(TaskSpec):
         else:
             varname = my_task.task_spec.name+"_MICurrentVar"
 
-        collect = my_task.data.get(colvarname,{})
+        collect = valueof(my_task,self.collection,{})
         collect[runtimes] = DeepMerge.merge(collect.get(runtimes,{}),copy.copy(my_task.mi_collect_data))
         
         LOG.debug(my_task.task_spec.name+'complete hook')
-        my_task.data[colvarname] = collect
+        my_task.data=DeepMerge.merge(my_task.data,gendict(colvarname.split('/'),collect))
+    
         if  (runtimes < runcount) and not my_task.terminate_current_loop and  self.isSequential:
 
             my_task._set_state(my_task.READY)
@@ -311,7 +319,8 @@ class MultiInstanceTask(TaskSpec):
                 if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
                     LOG.debug("fix up save/restore")
                     task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
-                task.data[colvarname] = collect
+                task.data=DeepMerge.merge(task.data,gendict(colvarname.split('/'),collect))
+
 
                 
                 

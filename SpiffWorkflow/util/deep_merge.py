@@ -11,11 +11,10 @@ class DeepMerge(object):
             if key in a:
                 if isinstance(a[key], dict) and isinstance(b[key], dict):
                     DeepMerge.merge(a[key], b[key], path + [str(key)])
-                if isinstance(a[key], list) and isinstance(b[key], list):
+                elif isinstance(a[key], list) and isinstance(b[key], list):
                     a[key] = list(set().union(a[key], b[key]))
                 else:
                     a[key] = b[key]
             else:
                 a[key] = b[key]
         return a
-

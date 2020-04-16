@@ -207,12 +207,13 @@ class Task(object):
     def update_data(self,data):
         """ If the task.data needs to be updated from a UserTask form or
             a Script task then use this function rather than updating task.data
-            directly, otherwise MultiInstance tasks will not collect the
-            data properly
+            directly.  It will handle deeper merges of data,
+            and MultiInstance tasks will be updated correctly.
         """
         self.data = DeepMerge.merge(self.data, data)
-        self.mi_collect_data = DeepMerge.merge(self.mi_collect_data, data) # special variable that gets collected
-                                          # in a bpmn/MultiInstance task
+        # special variable that gets collected in a bpmn/MultiInstance task
+        self.mi_collect_data = DeepMerge.merge(self.mi_collect_data, data)
+
 
     def terminate_loop(self):
         """Used in the case that we are working with a BPMN 'loop' task.

@@ -114,13 +114,27 @@ class TaskParser(object):
             # that we do not expect. This list can be exapanded at a later date
             # To handle other use cases - don't forget the overridden test classes!
         if multiinstance and isinstance(self.task, UserTask):
+
             loopcount = loopcount.replace('.','/') # make dot notation compatible
-                                                   # with bmpmn path notation. 
+                                                   # with bmpmn path notation.
+
             if loopcount.find('/') >=0:
                 self.task.times = PathAttrib(loopcount)
             else:
                 self.task.times = Attrib(loopcount)
-            self.task.collection = collectionText
+
+            if collectionText is not None:
+                collectionText = collectionText.replace('.','/') # make dot notation compatible
+                # with bmpmn path notation. 
+                if collectionText.find('/') >=0:
+                    self.task.collection = PathAttrib(collectionText)
+                else:
+                    self.task.collection = Attrib(collectionText)
+            else:
+                self.task.collection = None
+
+                
+#            self.task.collection = collectionText
             self.task.elementVar = elementVarText
             self.task.completioncondition = completecondition # we need to define what this is
             self.task.isSequential = isSequential
