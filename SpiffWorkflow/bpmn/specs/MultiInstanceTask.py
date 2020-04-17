@@ -104,7 +104,7 @@ class MultiInstanceTask(TaskSpec):
         variable = valueof(my_task, self.times, 1)  # look for variable in context, if we don't find it, default to 1
         if self.times.name == self.collection.name and type(variable) == type([]):
             raise WorkflowException(self, 'If we are updating a collection, then the collection must be a dictionary.')
-        
+
     def _get_count(self, my_task):
         """
          self.times has the text entered in the BPMN model.
@@ -114,11 +114,11 @@ class MultiInstanceTask(TaskSpec):
              it could be a list of records - in this case return the cardinality of the list
              it could be a dict with a bunch of keys - it this case return the cardinality of the keys
         """
-        
+
         if is_number(self.times.name):
             return int(self.times.name)
         variable = valueof(my_task, self.times, 1)  # look for variable in context, if we don't find it, default to 1
-        
+
         if is_number(variable):
             return int(variable)
         if type(variable) == type([]):
@@ -128,13 +128,15 @@ class MultiInstanceTask(TaskSpec):
         return 1      # we shouldn't ever get here, but just in case return a sane value.
 
     def _get_current_var(self,my_task,pos):
-        variable = valueof(my_task, self.times, 1) 
+        variable = valueof(my_task, self.times, 1)
         if is_number(variable):
             return pos
-        if type(variable) == type([]):
+        if type(variable) == type([]) and len(variable) >= pos:
             return variable[pos-1]
-        if type(variable) == type({}):
+        elif type(variable) == type({}) and len(list(variable.keys())) >= pos:
             return variable[list(variable.keys())[pos-1]]
+        else:
+            return pos
 
     def _get_predicted_outputs(self, my_task):
         split_n = self._get_count(my_task)
@@ -152,11 +154,11 @@ class MultiInstanceTask(TaskSpec):
         suffix = [random.choice(string.ascii_lowercase) for x in range(5)]
         LOG.debug("MI New Gateway "+base+''.join(suffix))
         return base + ''.join(suffix)
-    
+
     def _add_gateway(self,my_task):
         """ Generate parallel gateway tasks on either side of the current task.
-            This emulates a standard BPMN pattern of having parallel tasks between 
-            two parallel gateways. 
+            This emulates a standard BPMN pattern of having parallel tasks between
+            two parallel gateways.
             Once we have set up the gateways, we write a note into our internal data so that
             we don't do it again.
         """
@@ -171,7 +173,7 @@ class MultiInstanceTask(TaskSpec):
         start_gw = Task(my_task.workflow,task_spec=start_gw_spec)
         gw_spec = ParallelGateway(self._wf_spec,self._random_gateway_name(),triggered=False,description="End Gateway")
         end_gw = Task(my_task.workflow,task_spec=gw_spec)
-        
+
         # Set up the parent task and insert it into the workflow
         my_task.parent.task_spec.outputs = []
         my_task.parent.task_spec.connect(start_gw_spec)
@@ -189,22 +191,22 @@ class MultiInstanceTask(TaskSpec):
         end_gw.parent=my_task
         my_task.children = [end_gw]
 
-    
+
     def _predict_hook(self, my_task):
 
         LOG.debug(my_task.get_name() + 'predict hook')
 
         split_n = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',1)) # set a default if not already run
-        
-        
+
+
         my_task._set_internal_data(splits=split_n,runtimes=runtimes)
         if self.elementVar:
             varname = self.elementVar
         else:
             varname = my_task.task_spec.name+"_MICurrentVar"
 
-            
+
         my_task.data[varname] = copy.copy(self._get_current_var(my_task,runtimes))
 
         # Create the outgoing tasks.
@@ -228,7 +230,7 @@ class MultiInstanceTask(TaskSpec):
                 # basically every task that we have expanded out needs its own task_spec.
                 # the save restore gets the right thing in the child, but not on each of the
                 # intermediate tasks.
-                
+
                 if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
                     LOG.debug("fix up save/restore in predict")
                     task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
@@ -245,12 +247,12 @@ class MultiInstanceTask(TaskSpec):
                     # internal data and the copy of the public data to get the
                     # variables correct
                     new_child.internal_data = copy.copy(my_task.internal_data)
-                    
+
                     new_child.internal_data['runtimes'] = x+2 # working with base 1 and we already have one done
-                    
+
                     new_child.data = copy.copy(my_task.data)
                     new_child.data[varname] = self._get_current_var(my_task,x+2)
-                    
+
                     new_child.children = [] # make sure we have a distinct list of children for
                                             # each child. The copy is not a deep copy, and
                                             # I was having problems with tasks sharing
@@ -268,16 +270,16 @@ class MultiInstanceTask(TaskSpec):
                     my_task.parent.task_spec.outputs.append(new_task_spec)
                 else:
                     LOG.debug("parent child length:"+str(len(my_task.task_spec.outputs)))
-                    
-        
+
+
         outputs += self.outputs
         if my_task._is_definite():
             my_task._sync_children(outputs, Task.FUTURE)
         else:
             my_task._sync_children(outputs, Task.LIKELY)
-        
 
-    
+
+
     def _on_complete_hook(self, my_task):
         self._check_inputs(my_task)
         runcount = self._get_count(my_task)
@@ -307,12 +309,12 @@ class MultiInstanceTask(TaskSpec):
             runtimesvar = keys[runtimes-1]
         else:
             runtimesvar = runtimes
-        
+
         collect[runtimesvar] = DeepMerge.merge(collect.get(runtimesvar,{}),copy.copy(my_task.mi_collect_data))
-        
+
         LOG.debug(my_task.task_spec.name+'complete hook')
         my_task.data=DeepMerge.merge(my_task.data,gendict(colvarname.split('/'),collect))
-    
+
         if  (runtimes < runcount) and not my_task.terminate_current_loop and  self.isSequential:
 
             my_task._set_state(my_task.READY)
@@ -328,15 +330,15 @@ class MultiInstanceTask(TaskSpec):
                 # basically every task that we have expanded out needs its own task_spec.
                 # the save restore gets the right thing in the child, but not on each of the
                 # intermediate tasks.
-        
+
                 if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
                     LOG.debug("fix up save/restore")
                     task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
                 task.data=DeepMerge.merge(task.data,gendict(colvarname.split('/'),collect))
 
 
-                
-                
+
+
         # please see MultiInstance code for previous version
         outputs = []
         outputs += self.outputs
