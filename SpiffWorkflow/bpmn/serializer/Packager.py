@@ -164,6 +164,10 @@ class Packager(object):
         for spec in self.wf_spec.get_specs_depth_first():
             filename = spec.file
             if filename is None:
+                # This is for when we are doing a subworkflow, and it
+                # creates something in the bpmn spec list, but it really has
+                # no file. In this case, it is safe to skip the add to the
+                # zip file.
                 continue
             if filename not in done_files:
                 done_files.add(filename)
