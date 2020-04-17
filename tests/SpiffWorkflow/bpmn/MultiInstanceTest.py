@@ -2,7 +2,10 @@
 from __future__ import print_function, absolute_import, division
 
 from __future__ import division, absolute_import
+import sys
+import os
 import unittest
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
