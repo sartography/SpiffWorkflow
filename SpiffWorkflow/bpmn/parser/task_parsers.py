@@ -217,18 +217,17 @@ class SubWorkflowParser(CallActivityParser):
         # we have to put xml into our taskspec because
         # the actual workflow spec will not serialize to
         # json, but the XML is just a string
-        
+
         xml = ET.tostring(root).decode('ascii')
         workflow_name = thisTaskCopy.get('id')
 
         parser = CamundaParser()
-        parser.add_bpmn_xml(ET.fromstring(xml)) #,filename=self.process_parser.filename) # infinite loop??
+        parser.add_bpmn_xml(ET.fromstring(xml))
         wf_spec = parser.get_spec(workflow_name)
-        #print('-->'+str(wf_spec))
-        #wf_spec.file = workflow_name
+        wf_spec.xml = root
         return wf_spec
 
-    
+
 
 class ScriptTaskParser(TaskParser):
     """

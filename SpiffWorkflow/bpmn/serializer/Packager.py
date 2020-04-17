@@ -150,7 +150,9 @@ class Packager(object):
         # Now check that we can parse it fine:
         for filename, bpmn in list(self.bpmn.items()):
             self.parser.add_bpmn_xml(bpmn, filename=filename)
-
+        # at this point, we have a item in self.wf_spec.get_specs_depth_first()
+        # that has a filename of None and a bpmn that needs to be added to the
+        # list below in for spec.
         self.wf_spec = self.parser.get_spec(self.entry_point_process)
 
         # Now package everything:
@@ -162,15 +164,25 @@ class Packager(object):
         for spec in self.wf_spec.get_specs_depth_first():
             filename = spec.file
             if filename is None:
-                print(dir(spec))
-            if filename not in done_files:
+                filename = spec.description
+                done_files.add(filename)
+
+                self.write_to_package_zip(
+                    "%s.bpmn" % spec.description, ET.tostring(spec.xml))
+
+                self.write_to_package_zip(
+                    "src/"+filename+".bpmn", ET.tostring(spec.xml))
+
+                self._call_editor_hook('package_for_editor', spec, filename)
+
+            elif filename not in done_files:
                 done_files.add(filename)
 
                 bpmn = self.bpmn[os.path.abspath(filename)]
                 self.write_to_package_zip(
                     "%s.bpmn" % spec.name, ET.tostring(bpmn.getroot()))
 
-                self.write_file_to_package_zip(
+                self.write_to_package_zip(
                     "src/" + self._get_zip_path(filename), filename)
 
                 self._call_editor_hook('package_for_editor', spec, filename)
@@ -301,7 +313,7 @@ class Packager(object):
                 for b in list(self.bpmn.values()):
                     for p in xpath_eval(b)(".//bpmn:process"):
                         if (p.get('name', p.get('id', None)) ==
-                                subprocess_reference):
+                            subprocess_reference):
                             matches.append(p)
                 if not matches:
                     raise ValidationException(

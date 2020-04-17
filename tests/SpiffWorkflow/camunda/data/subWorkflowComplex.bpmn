@@ -22,8 +22,8 @@
         <bpmn:outgoing>Flow_0j8meqp</bpmn:outgoing>
       </bpmn:userTask>
       <bpmn:sequenceFlow id="Flow_0j8meqp" sourceRef="Activity_A" targetRef="Gateway_0gi1483" />
-      <bpmn:sequenceFlow id="Flow_1jbvpss" sourceRef="Gateway_0gi1483" targetRef="Activity_FormA1" />
-      <bpmn:userTask id="Activity_FormA1" name="Form A1" camunda:formKey="FormA1">
+      <bpmn:sequenceFlow id="Flow_1jbvpss" sourceRef="Gateway_0gi1483" targetRef="Activity_A1" />
+      <bpmn:userTask id="Activity_A1" name="Form A1" camunda:formKey="FormA1">
         <bpmn:documentation>Enter Form A1</bpmn:documentation>
         <bpmn:extensionElements>
           <camunda:formData>
@@ -33,8 +33,8 @@
         <bpmn:incoming>Flow_1jbvpss</bpmn:incoming>
         <bpmn:outgoing>Flow_1w00bbg</bpmn:outgoing>
       </bpmn:userTask>
-      <bpmn:sequenceFlow id="Flow_0vl1ixa" sourceRef="Gateway_0gi1483" targetRef="Activity_FormA2" />
-      <bpmn:userTask id="Activity_FormA2" name="Form A2" camunda:formKey="FormA2">
+      <bpmn:sequenceFlow id="Flow_0vl1ixa" sourceRef="Gateway_0gi1483" targetRef="Activity_A2" />
+      <bpmn:userTask id="Activity_A2" name="Form A2" camunda:formKey="FormA2">
         <bpmn:documentation>Enter Form A2</bpmn:documentation>
         <bpmn:extensionElements>
           <camunda:formData>
@@ -44,8 +44,8 @@
         <bpmn:incoming>Flow_0vl1ixa</bpmn:incoming>
         <bpmn:outgoing>Flow_0kzcljc</bpmn:outgoing>
       </bpmn:userTask>
-      <bpmn:sequenceFlow id="Flow_1w00bbg" sourceRef="Activity_FormA1" targetRef="Gateway_0hzteug" />
-      <bpmn:sequenceFlow id="Flow_0kzcljc" sourceRef="Activity_FormA2" targetRef="Gateway_0hzteug" />
+      <bpmn:sequenceFlow id="Flow_1w00bbg" sourceRef="Activity_A1" targetRef="Gateway_0hzteug" />
+      <bpmn:sequenceFlow id="Flow_0kzcljc" sourceRef="Activity_A2" targetRef="Gateway_0hzteug" />
       <bpmn:endEvent id="Event_0rmbmgv">
         <bpmn:incoming>Flow_1cnvx4h</bpmn:incoming>
       </bpmn:endEvent>
@@ -126,7 +126,7 @@
         <di:waypoint x="615" y="190" />
         <di:waypoint x="630" y="190" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Activity_0crzdp1_di" bpmnElement="Activity_FormA1">
+      <bpmndi:BPMNShape id="Activity_0crzdp1_di" bpmnElement="Activity_A1">
         <dc:Bounds x="630" y="150" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0vl1ixa_di" bpmnElement="Flow_0vl1ixa">
@@ -134,7 +134,7 @@
         <di:waypoint x="590" y="300" />
         <di:waypoint x="630" y="300" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Activity_15v0710_di" bpmnElement="Activity_FormA2">
+      <bpmndi:BPMNShape id="Activity_15v0710_di" bpmnElement="Activity_A2">
         <dc:Bounds x="630" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1w00bbg_di" bpmnElement="Flow_1w00bbg">
