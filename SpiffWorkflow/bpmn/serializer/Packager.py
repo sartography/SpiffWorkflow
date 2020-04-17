@@ -164,18 +164,8 @@ class Packager(object):
         for spec in self.wf_spec.get_specs_depth_first():
             filename = spec.file
             if filename is None:
-                filename = spec.description
-                done_files.add(filename)
-
-                self.write_to_package_zip(
-                    "%s.bpmn" % spec.description, ET.tostring(spec.xml))
-
-                self.write_to_package_zip(
-                    "src/"+filename+".bpmn", ET.tostring(spec.xml))
-
-                self._call_editor_hook('package_for_editor', spec, filename)
-
-            elif filename not in done_files:
+                continue
+            if filename not in done_files:
                 done_files.add(filename)
 
                 bpmn = self.bpmn[os.path.abspath(filename)]

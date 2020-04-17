@@ -224,7 +224,7 @@ class SubWorkflowParser(CallActivityParser):
         parser = CamundaParser()
         parser.add_bpmn_xml(ET.fromstring(xml))
         wf_spec = parser.get_spec(workflow_name)
-        wf_spec.xml = root
+        wf_spec.file = self.process_parser.filename
         return wf_spec
 
 
