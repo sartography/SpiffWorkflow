@@ -16,13 +16,14 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
+
+from SpiffWorkflow.specs import Simple
 
 from .UserTask import UserTask
 
 
-class ManualTask(UserTask):
+class ManualTask(Simple, BpmnSpecMixin):
 
-    """
-    Task Spec for a bpmn:manualTask node.
-    """
-    pass
+    def is_engine_task(self):
+        return False
