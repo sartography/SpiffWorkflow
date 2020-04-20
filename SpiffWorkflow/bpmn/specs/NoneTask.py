@@ -16,13 +16,14 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+from SpiffWorkflow.specs import Simple
+
+from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 
 from .UserTask import UserTask
 
 
-class NoneTask(UserTask):
-    """
-    Task Spec for a bpmn:task node. In the base framework, it is assumed that a
-    task with an unspecified type is actually a user task
-    """
-    pass
+class NoneTask(Simple, BpmnSpecMixin):
+
+    def is_engine_task(self):
+        return False
