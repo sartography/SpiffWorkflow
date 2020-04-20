@@ -7,7 +7,7 @@
           <text></text>
         </inputExpression>
       </input>
-      <output id="output1" label="y" name="" typeRef="string" />
+      <output id="output1" label="They Label Y" name="y" typeRef="string" />
       <rule id="row-484867957-5">
         <description>A Annotation</description>
         <inputEntry id="UnaryTests_0vir5ok">
