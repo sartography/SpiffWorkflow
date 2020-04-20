@@ -46,6 +46,14 @@ class UserTaskSpecTest(unittest.TestCase):
         self.form.add_field(enum_field)
         self.assertEqual(enum_field, self.user_spec.form.fields[-1])
 
+    def test_properties(self):
+        form_field = FormField(form_type="text")
+        self.assertFalse(form_field.has_property("wilma"))
+        form_field.add_property("wilma", "flintstone")
+        self.assertTrue(form_field.has_property("wilma"))
+        self.assertEquals("flintstone", form_field.get_property("wilma"))
+
+
     def testIsEngineTask(self):
         self.assertFalse(self.user_spec.is_engine_task())
 

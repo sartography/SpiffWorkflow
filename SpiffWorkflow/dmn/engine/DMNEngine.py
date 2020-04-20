@@ -1,7 +1,11 @@
 import logging
-
+from argparse import Namespace
+from collections import namedtuple
+from ...operators import DotDict
 from decimal import Decimal
 import datetime
+
+
 
 class DMNEngine:
     """
@@ -45,13 +49,29 @@ class DMNEngine:
                     else:
                         expression = '%s %s %r' % (inputVal, operator, parsedValue)
                     self.logger.debug(' Evaluation expression: %s' % (expression))
+
+                    # Make any dictionaries available as objects that can be
+                    # referenced in dot notation.
+                    local_data = {}
+                    local_data.update(inputKwargs)
                     if inputData and isinstance(inputData[idx], dict):
-                        locals().update(inputData[idx])
-                    locals().update(inputKwargs)
-                    if not eval(expression):
-                        return False  # Value does not match
-                    else:
-                        continue  # Check the other operators/columns
+                        local_data.update(inputData[idx])
+                    for key in local_data:
+                            if isinstance(local_data[key], dict):
+                                locals().update(
+                                    {key: DotDict(local_data[key])})
+                            else:
+                                locals().update()
+                    try:
+                        if not eval(expression):
+                            return False  # Value does not match
+                        else:
+                            continue  # Check the other operators/columns
+                    except Exception as e:
+                        raise Exception("Failed to execute "
+                                                "expression: '%s' in the "
+                                                "Row with annotation '%s'" % (
+                            expression, rule.description))
                 else:
                     # Empty means ignore decision value
                     self.logger.debug(' Value not defined')
