@@ -215,6 +215,26 @@ class Task(object):
         self.mi_collect_data = DeepMerge.merge(self.mi_collect_data, data)
 
 
+    def taskInfo(self):
+        """
+        Returns a dictionary of information about the current task, so that
+        we can give hints to the user about what kind of task we are working
+        with such as a looping task or a Parallel MultiInstance task
+        """
+        default = {'isLooping':False,
+                   'isSequentialMI':False,
+                   'isParallelMI':False,
+                   'mi_count':0,
+                   'mi_index':0}
+
+        miInfo = getattr(self.task_spec, "multiinstance_info", None)
+        if callable(miInfo):
+            return miInfo(self)
+        else:
+            return default
+
+
+
     def terminate_loop(self):
         """Used in the case that we are working with a BPMN 'loop' task.
            The task will loop, repeatedly asking for input until terminate_loop
@@ -227,7 +247,6 @@ class Task(object):
                 raiseError()
         else:
             raiseError()
-
         self.terminate_current_loop=True
 
     def _getstate(self):

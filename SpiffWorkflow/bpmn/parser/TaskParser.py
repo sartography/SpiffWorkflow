@@ -69,16 +69,15 @@ class TaskParser(object):
         standardLoopElement = self.process_xpath('.//*[@id="%s"]/bpmn:standardLoopCharacteristics' % self.get_id())
 
 
-        # initialize variables 
+        # initialize variables
         isMultiInstance = len(multiinstanceElement) > 0
-        isLoop = len(standardLoopElement) > 0 
+        isLoop = len(standardLoopElement) > 0
         multiinstance = False
         isSequential = False
-        loopCountVar = None
         completecondition = None
         collectionText = None
         elementVarText = None
-        
+        self.task.loopTask = False
         # Fix up MultiInstance mixin to take care of both
         # MultiInstance and standard Looping task
         if isMultiInstance or isLoop:
@@ -87,7 +86,7 @@ class TaskParser(object):
                 sequentialText = multiinstanceElement[0].get('isSequential')
                 collectionText = multiinstanceElement[0].attrib.get('{' + CAMUNDA_MODEL_NS + '}collection')
                 elementVarText = multiinstanceElement[0].attrib.get('{' + CAMUNDA_MODEL_NS + '}elementVariable')
-                
+
                 if sequentialText == 'true':
                     isSequential = True
                 loopCardinality = self.process_xpath('.//*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics/bpmn:loopCardinality' % self.get_id())
@@ -102,17 +101,19 @@ class TaskParser(object):
                     completecondition = completionCondition[0].text
 
             else: # must be loop
-                isSequential = True                    
+                isSequential = True
                 loopcount = STANDARDLOOPCOUNT # here we default to a sane numer of loops
                 self.task.loopTask = True
             LOG.debug("Task Name: %s - class %s"%(self.get_id(),self.task.__class__))
             LOG.debug("   Task is MultiInstance: %s"%multiinstance)
             LOG.debug("   MultiInstance is Sequential: %s"%isSequential)
             LOG.debug("   Task has loopcount of: %s"%loopcount)
-            LOG.debug("   Class has name of : %s"%self.task.__class__.__name__)
+            LOG.debug("   Class has name of : "
+                       "%s"%self.task.__class__.__name__)
             # currently a safeguard that this isn't applied in any condition
-            # that we do not expect. This list can be exapanded at a later date
-            # To handle other use cases - don't forget the overridden test classes!
+            # that we do not expect. This list can be exapanded at a later
+            # date To handle other use cases - don't forget the overridden
+            # test classes!
         if multiinstance and isinstance(self.task, UserTask):
 
             loopcount = loopcount.replace('.','/') # make dot notation compatible
@@ -124,8 +125,9 @@ class TaskParser(object):
                 self.task.times = Attrib(loopcount)
 
             if collectionText is not None:
-                collectionText = collectionText.replace('.','/') # make dot notation compatible
-                # with bmpmn path notation. 
+                collectionText = collectionText.replace('.','/') # make dot
+                # notation compatible
+                # with bmpmn path notation.
                 if collectionText.find('/') >=0:
                     self.task.collection = PathAttrib(collectionText)
                 else:
@@ -133,20 +135,16 @@ class TaskParser(object):
             else:
                 self.task.collection = None
 
-                
+
 #            self.task.collection = collectionText
             self.task.elementVar = elementVarText
             self.task.completioncondition = completecondition # we need to define what this is
             self.task.isSequential = isSequential
-            # add some kind of limits here in terms of what kinds of classes we will allow to be multiinstance
+            # add some kind of limits here in terms of what kinds of classes
+            # we will allow to be multiinstance
             self.task.__class__ = type(self.get_id() + '_class',(self.task.__class__,MultiInstanceTask),{})
-  
-
-
-
-
-
-        
+            self.task.multiInstance = multiinstance
+            self.task.isSequential = isSequential
 
 
     def parse_node(self):
@@ -159,7 +157,7 @@ class TaskParser(object):
 
             self.task.documentation = self.parser._parse_documentation(
                 self.node, xpath=self.xpath, task_parser=self)
-            
+
             self._detect_multiinstance()
 
             boundary_event_nodes = self.process_xpath(
