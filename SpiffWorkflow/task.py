@@ -215,15 +215,15 @@ class Task(object):
         self.mi_collect_data = DeepMerge.merge(self.mi_collect_data, data)
 
 
-    def taskInfo(self):
+    def task_info(self):
         """
         Returns a dictionary of information about the current task, so that
         we can give hints to the user about what kind of task we are working
         with such as a looping task or a Parallel MultiInstance task
         """
-        default = {'isLooping':False,
-                   'isSequentialMI':False,
-                   'isParallelMI':False,
+        default = {'is_looping':False,
+                   'is_sequential_mi':False,
+                   'is_parallel_mi':False,
                    'mi_count':0,
                    'mi_index':0}
 

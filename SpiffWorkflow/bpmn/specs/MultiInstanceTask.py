@@ -215,9 +215,9 @@ class MultiInstanceTask(TaskSpec):
         else:
             parallel = True
 
-        return {'isLooping': loop,
-                'isSequentialMI': sequential,
-                'isParallelMI': parallel,
+        return {'is_looping': loop,
+                'is_sequential_mi': sequential,
+                'is_parallel_mi': parallel,
                 'mi_count': split_n,
                 'mi_index': runtimes}
 
@@ -243,12 +243,13 @@ class MultiInstanceTask(TaskSpec):
         # The MultiInstance class that this was based on actually
         # duplicates the outputs - this caused our use case problems
 
-        # In the special case that this is a Parallel multiInstance, we need to
-        # expand the children in the middle. This method gets called during every pass
-        # through the tree, so we need to wait until our real cardinality gets updated
-        # to expand the tree.
+        # In the special case that this is a Parallel multiInstance, we need
+        # to expand the children in the middle. This method gets called
+        # during every pass through the tree, so we need to wait until our
+        # real cardinality gets updated to expand the tree.
         if (not self.isSequential):
-            # Each time we call _add_gateway - the contents should only happen once
+            # Each time we call _add_gateway - the contents should only
+            # happen once
             self._add_gateway(my_task)
 
             for tasknum in range(len(my_task.parent.children)):
