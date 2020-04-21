@@ -57,7 +57,7 @@ class MultiInstanceArrayTest(BaseTestCase):
                    'is_parallel_mi':False,
                    'mi_count':0,
                    'mi_index':0})
-        self.assertEquals("Activity_FamSize", task.task_spec.name)
+        self.assertEqual("Activity_FamSize", task.task_spec.name)
         task.update_data({"Family": {"Size": 3}})
         self.workflow.complete_task_from_id(task.id)
         if save_restore: self.save_restore()
@@ -71,7 +71,7 @@ class MultiInstanceArrayTest(BaseTestCase):
                                         'is_parallel_mi': False,
                                         'mi_count': 3,
                                         'mi_index': i+1})
-            self.assertEquals("FamilyMemberTask", task.task_spec.name)
+            self.assertEqual("FamilyMemberTask", task.task_spec.name)
             task.update_data({"FirstName": "The Funk #%i" % i})
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
@@ -83,7 +83,7 @@ class MultiInstanceArrayTest(BaseTestCase):
         # Set the birthdays of the 3 family members.
         for i in range(3):
             task = self.workflow.get_ready_user_tasks()[0]
-            self.assertEquals("FamilyMemberBday", task.task_spec.name)
+            self.assertEqual("FamilyMemberBday", task.task_spec.name)
             task.update_data({"Birthdate": "10/0%i/1985" % i})
             self.workflow.complete_task_from_id(task.id)
 #            if save_restore: self.save_restore()
@@ -107,7 +107,7 @@ class MultiInstanceArrayTest(BaseTestCase):
 
         # Set initial array size to 3 in the first user form.
         task = self.workflow.get_ready_user_tasks()[0]
-        self.assertEquals("Activity_FamSize", task.task_spec.name)
+        self.assertEqual("Activity_FamSize", task.task_spec.name)
         task.update_data({"Family":{"Size": 3}})
         self.workflow.complete_task_from_id(task.id)
         if save_restore: self.save_restore()
@@ -115,7 +115,7 @@ class MultiInstanceArrayTest(BaseTestCase):
         # Set the names of the 3 family members.
         for i in range(3):
             task = self.workflow.get_ready_user_tasks()[0]
-            self.assertEquals("FamilyMemberTask", task.task_spec.name)
+            self.assertEqual("FamilyMemberTask", task.task_spec.name)
             task.update_data({"FirstName": "The Funk #%i" % i})
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
@@ -131,7 +131,7 @@ class MultiInstanceArrayTest(BaseTestCase):
 
         task = self.workflow.get_ready_user_tasks()[0]
         task.data['Family']['Members'] = ['The Funk #0','The Funk #1','The Funk #2']
-        self.assertEquals("FamilyMemberBday", task.task_spec.name)
+        self.assertEqual("FamilyMemberBday", task.task_spec.name)
         task.update_data({"Birthdate": "10/0%i/1985" % i})
         with self.assertRaises(WorkflowException) as context:
             self.workflow.complete_task_from_id(task.id)
@@ -144,7 +144,7 @@ class MultiInstanceArrayTest(BaseTestCase):
 
         # Set initial array size to 3 in the first user form.
         task = self.workflow.get_ready_user_tasks()[0]
-        self.assertEquals("Activity_FamSize", task.task_spec.name)
+        self.assertEqual("Activity_FamSize", task.task_spec.name)
         task.update_data({"Family":{"Size": 3}})
         self.workflow.complete_task_from_id(task.id)
         if save_restore: self.save_restore()
@@ -152,7 +152,7 @@ class MultiInstanceArrayTest(BaseTestCase):
         # Set the names of the 3 family members.
         for i in range(3):
             task = self.workflow.get_ready_user_tasks()[0]
-            self.assertEquals("FamilyMemberTask", task.task_spec.name)
+            self.assertEqual("FamilyMemberTask", task.task_spec.name)
             task.update_data({"FirstName": "The Funk #%i" % i})
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
@@ -174,7 +174,7 @@ class MultiInstanceArrayTest(BaseTestCase):
                     "b": {'FirstName': 'The Funk #1'},
                     "c": {'FirstName': 'The Funk #2'}}
 
-            self.assertEquals("FamilyMemberBday", task.task_spec.name)
+            self.assertEqual("FamilyMemberBday", task.task_spec.name)
             task.update_data({"Birthdate": "10/0%i/1985" % i})
             self.workflow.complete_task_from_id(task.id)
 #            if save_restore: self.save_restore()
