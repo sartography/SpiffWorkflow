@@ -179,7 +179,7 @@ class BpmnParser(object):
         extension_nodes = xpath(
             './/bpmn:extensionElements/{%s}properties/{%s}property'%(
                 CAMUNDA_MODEL_NS,CAMUNDA_MODEL_NS))
-        for node in extension_nodes:v
+        for node in extension_nodes:
             extensions[node.get('name')] = node.get('value')
         return extensions
 
