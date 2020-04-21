@@ -42,6 +42,8 @@ class MultiInstanceArrayTest(BaseTestCase):
     def testRunThroughSaveRestoreDict(self):
         self.actual_test_with_dict(True)
 
+    def testGetTaskExtensions(self):
+        self.actual_test_for_extensions(False)
 
 
     def actual_test(self, save_restore=False):
@@ -190,6 +192,16 @@ class MultiInstanceArrayTest(BaseTestCase):
 
 
 
+    def actual_test_for_extensions(self, save_restore=False):
+
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+
+        # Set initial array size to 3 in the first user form.
+        task = self.workflow.get_ready_user_tasks()[0]
+        self.assertEqual("Activity_FamSize", task.task_spec.name)
+        extensions = task.task_spec.extensions # assume bpmn
+        self.assertEqual(extensions,{'Test1':'Value1','Test2':'Value2'})
 
 
 def suite():
