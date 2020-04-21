@@ -80,7 +80,7 @@ class Task(object):
     created to allow for visualizing the workflow at a time where
     the required decisions have not yet been made.
     """
-    # Note: The states in this list are ordered in the sequence in which
+    # Note: The s in this list are ordered in the sequence in which
     # they may appear. Do not change.
     MAYBE = 1
     LIKELY = 2
@@ -230,6 +230,11 @@ class Task(object):
 
         self.terminate_current_loop=True
 
+    def reset_token(self):
+        self._set_state(self.READY)
+        self._drop_children(force=True)
+        self._sync_children(self.task_spec.outputs)
+
     def _getstate(self):
         return self._state
 
@@ -296,10 +301,10 @@ class Task(object):
         assert child is not None
         self.children.append(child)
 
-    def _drop_children(self):
+    def _drop_children(self,force=False):
         drop = []
         for child in self.children:
-            if not child._is_finished():
+            if force or ( not child._is_finished()):
                 drop.append(child)
             else:
                 child._drop_children()

@@ -79,7 +79,7 @@ class BpmnSpecMixin(TaskSpec):
     def connect_outgoing(self, taskspec, sequence_flow_id, sequence_flow_name,
                          documentation):
         """
-        Connect this task spec to the indicated child.
+        Connect this task spec to the indicated child.b
 
         :param sequence_flow_id: The ID of the connecting sequenceFlow node.
 
