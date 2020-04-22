@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1nsvcwb" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <bpmn:process id="token" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_03vnrmv</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="First" name="First" camunda:formKey="GWForm">
+      <bpmn:documentation>Do you want to do the next steps?</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="do_step" label="Do Steps?" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_03vnrmv</bpmn:incoming>
+      <bpmn:outgoing>Flow_10pdq2v</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="FormC" name="FormC" camunda:formKey="FormC">
+      <bpmn:documentation>FormC</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="C" label="Enter Value For C" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ztfesh</bpmn:incoming>
+      <bpmn:outgoing>Flow_039y4lk</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_03vnrmv" sourceRef="StartEvent_1" targetRef="First" />
+    <bpmn:endEvent id="Event_0xfwzm8">
+      <bpmn:incoming>Flow_039y4lk</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_039y4lk" sourceRef="FormC" targetRef="Event_0xfwzm8" />
+    <bpmn:userTask id="FormA" name="FormA" camunda:formKey="FormA">
+      <bpmn:documentation>MI item</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="A" label="Enter A" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_10pdq2v</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ztfesh</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="output" camunda:elementVariable="current">
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">3</bpmn:loopCardinality>
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_10pdq2v" sourceRef="First" targetRef="FormA" />
+    <bpmn:sequenceFlow id="Flow_0ztfesh" sourceRef="FormA" targetRef="FormC" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="token">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1oyfku7_di" bpmnElement="First">
+        <dc:Bounds x="270" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1byzp7w_di" bpmnElement="FormC">
+        <dc:Bounds x="640" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_03vnrmv_di" bpmnElement="Flow_03vnrmv">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="270" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0xfwzm8_di" bpmnElement="Event_0xfwzm8">
+        <dc:Bounds x="812" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_039y4lk_di" bpmnElement="Flow_039y4lk">
+        <di:waypoint x="740" y="117" />
+        <di:waypoint x="812" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0z6yohn_di" bpmnElement="FormA">
+        <dc:Bounds x="460" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_10pdq2v_di" bpmnElement="Flow_10pdq2v">
+        <di:waypoint x="370" y="117" />
+        <di:waypoint x="460" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ztfesh_di" bpmnElement="Flow_0ztfesh">
+        <di:waypoint x="560" y="117" />
+        <di:waypoint x="640" y="117" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

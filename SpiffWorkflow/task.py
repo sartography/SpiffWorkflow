@@ -250,8 +250,13 @@ class Task(object):
         self.terminate_current_loop=True
 
     def reset_token(self,reset_data=False):
+        taskinfo = self.task_info()
+
+
         if not reset_data:
             self.data = self.workflow.last_task.data
+        if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
+            self.internal_data['runtimes']=1
         self._set_state(self.READY)
         self._drop_children(force=True)
         self._sync_children(self.task_spec.outputs)
