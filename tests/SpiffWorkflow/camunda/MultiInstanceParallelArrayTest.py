@@ -47,7 +47,7 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
 
         # Set initial array size to 3 in the first user form.
         task = self.workflow.get_ready_user_tasks()[0]
-        self.assertEquals("Activity_FamSize", task.task_spec.name)
+        self.assertEqual("Activity_FamSize", task.task_spec.name)
         task.update_data({"FamilySize": 3})
         self.workflow.complete_task_from_id(task.id)
         if save_restore: self.save_restore()
@@ -57,9 +57,9 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
         for i in range(3):
 
             tasks = self.workflow.get_ready_user_tasks()
-            self.assertEquals(len(tasks),1) # still with sequential MI
+            self.assertEqual(len(tasks),1) # still with sequential MI
             task = tasks[0]
-            self.assertEquals("FamilyMemberTask", task.task_spec.name)
+            self.assertEqual("FamilyMemberTask", task.task_spec.name)
             task.update_data({"FirstName": "The Funk"+str(i)})
             self.workflow.complete_task_from_id(task.id)
             if save_restore:
@@ -67,12 +67,12 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             self.workflow.do_engine_steps()
         tasks = self.workflow.get_ready_user_tasks()
 
-        self.assertEquals(len(tasks),3)
+        self.assertEqual(len(tasks),3)
         # Set the birthdays of the 3 family members.
         for i in range(3): # emulate random Access
             task = random.choice(tasks)
             x = task.internal_data['runtimes'] -1
-            self.assertEquals("FamilyMemberBday", task.task_spec.name)
+            self.assertEqual("FamilyMemberBday", task.task_spec.name)
             task.update_data({"Birthdate": "10/05/1985"+str(x)})
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
@@ -88,7 +88,7 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
         names = task.data['FamilyMembers']
         bdays = task.data['FamilyMemberBirthday']
         for x in list(names.keys()):
-            self.assertEquals(str(names[x]['FirstName'][-1]),str(bdays[x]['Birthdate'][-1]))
+            self.assertEqual(str(names[x]['FirstName'][-1]),str(bdays[x]['Birthdate'][-1]))
         self.assertTrue(self.workflow.is_completed())
 
 def suite():

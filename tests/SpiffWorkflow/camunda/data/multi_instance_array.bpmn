@@ -20,6 +20,10 @@
             <camunda:map />
           </camunda:outputParameter>
         </camunda:inputOutput>
+        <camunda:properties>
+          <camunda:property name="Test1" value="Value1" />
+          <camunda:property name="Test2" value="Value2" />
+        </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0bplvtg</bpmn:incoming>
       <bpmn:outgoing>Flow_0zpm0rc</bpmn:outgoing>
