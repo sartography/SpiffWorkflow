@@ -230,7 +230,9 @@ class Task(object):
 
         self.terminate_current_loop=True
 
-    def reset_token(self):
+    def reset_token(self,reset_data=False):
+        if not reset_data:
+            self.data = self.workflow.last_task.data
         self._set_state(self.READY)
         self._drop_children(force=True)
         self._sync_children(self.task_spec.outputs)
