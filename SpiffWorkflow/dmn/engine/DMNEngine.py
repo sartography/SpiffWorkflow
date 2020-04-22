@@ -61,7 +61,9 @@ class DMNEngine:
                                 locals().update(
                                     {key: DotDict(local_data[key])})
                             else:
-                                locals().update()
+                                locals().update(
+                                    {key: local_data[key]}
+                                )
                     try:
                         if not eval(expression):
                             return False  # Value does not match
@@ -70,8 +72,8 @@ class DMNEngine:
                     except Exception as e:
                         raise Exception("Failed to execute "
                                                 "expression: '%s' in the "
-                                                "Row with annotation '%s'" % (
-                            expression, rule.description))
+                                                "Row with annotation '%s', %s" % (
+                            expression, rule.description, str(e)))
                 else:
                     # Empty means ignore decision value
                     self.logger.debug(' Value not defined')

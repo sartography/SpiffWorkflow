@@ -1,34 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn">
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
   <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="input1" label="Gender">
-        <inputExpression id="inputExpression1" typeRef="string">        <text></text>
-</inputExpression>
+        <inputExpression id="inputExpression1" typeRef="string">
+          <text>Gender</text>
+        </inputExpression>
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
       <rule id="row-484867957-5">
         <description>m Row Annotation</description>
         <inputEntry id="UnaryTests_148tr41">
           <description>mGender Description</description>
-          <text><![CDATA["m"]]></text>
+          <text>"m"</text>
         </inputEntry>
-        <outputEntry id="LiteralExpression_0dvud7t">        <text><![CDATA["isM"]]></text>
-</outputEntry>
+        <outputEntry id="LiteralExpression_0dvud7t">
+          <text>"isM"</text>
+        </outputEntry>
       </rule>
       <rule id="row-484867957-2">
         <description>f Row Annotation</description>
-        <inputEntry id="UnaryTests_197hyvw">        <text><![CDATA["f"]]></text>
-</inputEntry>
-        <outputEntry id="LiteralExpression_16njszh">        <text><![CDATA["isF"]]></text>
-</outputEntry>
+        <inputEntry id="UnaryTests_197hyvw">
+          <text>"f"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_16njszh">
+          <text>"isF"</text>
+        </outputEntry>
       </rule>
       <rule id="row-484867957-7">
         <description>ELSE Row Annotation</description>
-        <inputEntry id="UnaryTests_1swc6fh">        <text></text>
-</inputEntry>
-        <outputEntry id="LiteralExpression_19qgvg3">        <text><![CDATA["ELSE"]]></text>
-</outputEntry>
+        <inputEntry id="UnaryTests_1swc6fh">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_19qgvg3">
+          <text>"ELSE"</text>
+        </outputEntry>
       </rule>
     </decisionTable>
   </decision>
