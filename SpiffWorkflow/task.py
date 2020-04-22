@@ -30,7 +30,6 @@ LOG = logging.getLogger(__name__)
 
 
 class Task(object):
-
     """
     Used internally for composing a tree that represents the path that
     is taken (or predicted) within the workflow.
@@ -96,13 +95,13 @@ class Task(object):
     NOT_FINISHED_MASK = PREDICTED_MASK | WAITING | READY
     ANY_MASK = FINISHED_MASK | NOT_FINISHED_MASK
 
-    state_names = {FUTURE:    'FUTURE',
-                   WAITING:   'WAITING',
-                   READY:     'READY',
+    state_names = {FUTURE: 'FUTURE',
+                   WAITING: 'WAITING',
+                   READY: 'READY',
                    CANCELLED: 'CANCELLED',
                    COMPLETED: 'COMPLETED',
-                   LIKELY:    'LIKELY',
-                   MAYBE:     'MAYBE'}
+                   LIKELY: 'LIKELY',
+                   MAYBE: 'MAYBE'}
 
     class Iterator(object):
 
@@ -204,28 +203,29 @@ class Task(object):
             self.get_state_name(),
             hex(id(self)))
 
-    def update_data(self,data):
-        """ If the task.data needs to be updated from a UserTask form or
-            a Script task then use this function rather than updating task.data
-            directly.  It will handle deeper merges of data,
-            and MultiInstance tasks will be updated correctly.
+    def update_data(self, data):
+        """
+        If the task.data needs to be updated from a UserTask form or
+        a Script task then use this function rather than updating task.data
+        directly.  It will handle deeper merges of data,
+        and MultiInstance tasks will be updated correctly.
         """
         self.data = DeepMerge.merge(self.data, data)
         # special variable that gets collected in a bpmn/MultiInstance task
         self.mi_collect_data = DeepMerge.merge(self.mi_collect_data, data)
-
 
     def task_info(self):
         """
         Returns a dictionary of information about the current task, so that
         we can give hints to the user about what kind of task we are working
         with such as a looping task or a Parallel MultiInstance task
+        :returns: dictionary
         """
-        default = {'is_looping':False,
-                   'is_sequential_mi':False,
-                   'is_parallel_mi':False,
-                   'mi_count':0,
-                   'mi_index':0}
+        default = {'is_looping': False,
+                   'is_sequential_mi': False,
+                   'is_parallel_mi': False,
+                   'mi_count': 0,
+                   'mi_index': 0}
 
         miInfo = getattr(self.task_spec, "multiinstance_info", None)
         if callable(miInfo):
@@ -233,32 +233,46 @@ class Task(object):
         else:
             return default
 
-
-
     def terminate_loop(self):
-        """Used in the case that we are working with a BPMN 'loop' task.
-           The task will loop, repeatedly asking for input until terminate_loop
-           is called on the task"""
+        """
+        Used in the case that we are working with a BPMN 'loop' task.
+        The task will loop, repeatedly asking for input until terminate_loop
+        is called on the task
+        """
+
         def raiseError():
-            raise WorkflowException(self.task_spec,'The method terminate_loop should only be called in the case of a BPMN Loop Task')
+            raise WorkflowException(self.task_spec,
+                                    'The method terminate_loop should only be called in the case of a BPMN Loop Task')
+
         islooping = getattr(self.task_spec, "is_loop_task", None)
         if callable(islooping):
-            if not(self.task_spec.is_loop_task()):
+            if not (self.task_spec.is_loop_task()):
                 raiseError()
         else:
             raiseError()
-        self.terminate_current_loop=True
+        self.terminate_current_loop = True
 
-    def reset_token(self,reset_data=False):
+    def reset_token(self, reset_data=False):
+        """
+        Resets the token to this task. This should allow a trip 'back in time'
+        as it were to items that have already been completed.
+        :type  reset_data: bool
+        :param reset_data: Do we want to have the data be where we left of in
+                           this task or not
+        """
         taskinfo = self.task_info()
-
 
         if not reset_data:
             self.data = self.workflow.last_task.data
         if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
-            self.internal_data['runtimes']=1
+            # if looping or sequential, we want to start from the beginning
+            self.internal_data['runtimes'] = 1
         self._set_state(self.READY)
         if taskinfo['is_parallel_mi']:
+            # for a parallel multi instance, we need to set up our
+            # children so that the gateway figures out that it needs to join up
+            # the inputs - otherwise our child process never gets marked as
+            # 'READY'
             for child in self.parent.children:
                 child.children[0]._drop_children(force=True)
                 child.children[0]._set_state(self.WAITING)
@@ -332,10 +346,10 @@ class Task(object):
         assert child is not None
         self.children.append(child)
 
-    def _drop_children(self,force=False):
+    def _drop_children(self, force=False):
         drop = []
         for child in self.children:
-            if force or ( not child._is_finished()):
+            if force or (not child._is_finished()):
                 drop.append(child)
             else:
                 child._drop_children()
