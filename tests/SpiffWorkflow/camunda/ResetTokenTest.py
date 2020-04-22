@@ -24,15 +24,20 @@ class ResetTokenTest(BaseTestCase):
             'token')
 
     def testRunThroughHappy(self):
-        self.actual_test(False)
+        self.actual_test(save_restore=False)
 
     def testRunThroughSaveRestore(self):
-        self.actual_test(True)
+        self.actual_test(save_restore=True)
+
+    def testRunThroughHappyReset(self):
+        self.actual_test(save_restore=False,reset_data=True,expected={'do_step':False,'C':'c'})
+
+    def testRunThroughSaveRestoreReset(self):
+        self.actual_test(save_restore=True,reset_data=True,expected={'do_step':False,'C':'c'})
 
 
 
-
-    def actual_test(self, save_restore=False):
+    def actual_test(self, save_restore=False,reset_data=False,expected={'do_step':False,'A':'a','B':'b','C':'c'}):
 
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
