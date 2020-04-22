@@ -258,7 +258,12 @@ class Task(object):
         if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
             self.internal_data['runtimes']=1
         self._set_state(self.READY)
-        self._drop_children(force=True)
+        if taskinfo['is_parallel_mi']:
+            for child in self.parent.children:
+                child.children[0]._drop_children(force=True)
+                child.children[0]._set_state(self.WAITING)
+        else:
+            self._drop_children(force=True)
         self._sync_children(self.task_spec.outputs)
 
     def _getstate(self):

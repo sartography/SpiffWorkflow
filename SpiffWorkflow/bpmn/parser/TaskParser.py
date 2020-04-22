@@ -99,7 +99,7 @@ class TaskParser(object):
                 elif collectionText is not None:
                     loopcount = collectionText
                 else:
-                    loopcount = 1
+                    loopcount = '1'
                 completionCondition = self.process_xpath(
                     './/*[@id="%s"]/bpmn:multiInstanceLoopCharacteristics/bpmn:completionCondition' % self.get_id())
                 if len(completionCondition) > 0:
