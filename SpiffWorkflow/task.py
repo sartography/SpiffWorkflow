@@ -279,6 +279,10 @@ class Task(object):
             self.children[0]._set_state(self.FUTURE)
         else:
             self._drop_children(force=True)
+        if taskinfo['is_looping'] or \
+                taskinfo['is_sequential_mi'] or \
+                taskinfo['is_parallel_mi']:
+            self.task_spec._predict(self)
         self._sync_children(self.task_spec.outputs)
 
     def _getstate(self):

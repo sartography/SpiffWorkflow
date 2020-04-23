@@ -70,8 +70,6 @@ class ResetTokenTestMIParallel(BaseTestCase):
                   'answer': 'c'},
                  ]
         for step in steps:
-            print(step)
-            print(self.workflow.get_ready_user_tasks())
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
