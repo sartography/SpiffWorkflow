@@ -276,6 +276,7 @@ class Task(object):
             for child in self.parent.children:
                 child.children[0]._drop_children(force=True)
                 child.children[0]._set_state(self.WAITING)
+            self.children[0]._set_state(self.FUTURE)
         else:
             self._drop_children(force=True)
         self._sync_children(self.task_spec.outputs)
