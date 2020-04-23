@@ -20,16 +20,19 @@ from builtins import object
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+from SpiffWorkflow.exceptions import WorkflowException
 import logging
 import time
 from uuid import uuid4
-from .exceptions import WorkflowException
+
 from .util.deep_merge import DeepMerge
 
 LOG = logging.getLogger(__name__)
 
 
+
 class Task(object):
+
     """
     Used internally for composing a tree that represents the path that
     is taken (or predicted) within the workflow.
@@ -252,6 +255,30 @@ class Task(object):
             raiseError()
         self.terminate_current_loop = True
 
+    def child_has_parallel_gateway(self):
+        """
+        for a parallel gateway, we need to set up our
+        children so that the gateway figures out that it needs to join up
+        the inputs - otherwise our child process never gets marked as
+        'READY'
+        """
+        from .bpmn.specs.ParallelGateway import ParallelGateway
+        if isinstance(self.task_spec, ParallelGateway):
+            # go fine all of the gateways with the same name as this one,
+            # drop children and set state to WAITING
+            for t in list(self.workflow.task_tree):
+                if t.task_spec.name == self.task_spec.name:
+                    t._drop_children(force=True)
+                    t._set_state(self.WAITING)
+                    # now we set this one to execute
+            self._set_state(self.FUTURE)
+            return True
+        else:
+            answerlist = []
+            for child in self.children:
+                answerlist.append(child.child_has_parallel_gateway())
+            return any(answerlist)  # if we found a ParallelGateway in our child list
+
     def reset_token(self, reset_data=False):
         """
         Resets the token to this task. This should allow a trip 'back in time'
@@ -261,28 +288,16 @@ class Task(object):
                            this task or not
         """
         taskinfo = self.task_info()
-
         if not reset_data:
             self.data = self.workflow.last_task.data
         if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
             # if looping or sequential, we want to start from the beginning
             self.internal_data['runtimes'] = 1
         self._set_state(self.READY)
-        if taskinfo['is_parallel_mi']:
-            # for a parallel multi instance, we need to set up our
-            # children so that the gateway figures out that it needs to join up
-            # the inputs - otherwise our child process never gets marked as
-            # 'READY'
-            for child in self.parent.children:
-                child.children[0]._drop_children(force=True)
-                child.children[0]._set_state(self.WAITING)
-            self.children[0]._set_state(self.FUTURE)
-        else:
+
+        if not self.child_has_parallel_gateway(): # this method actually fixes the problem
             self._drop_children(force=True)
-        if taskinfo['is_looping'] or \
-                taskinfo['is_sequential_mi'] or \
-                taskinfo['is_parallel_mi']:
-            self.task_spec._predict(self)
+        self.task_spec._predict(self)
         self._sync_children(self.task_spec.outputs)
 
     def _getstate(self):
