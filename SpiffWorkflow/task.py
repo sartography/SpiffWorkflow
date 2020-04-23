@@ -264,10 +264,11 @@ class Task(object):
         """
         from .bpmn.specs.ParallelGateway import ParallelGateway
         if isinstance(self.task_spec, ParallelGateway):
-            # go fine all of the gateways with the same name as this one,
+            # go find all of the gateways with the same name as this one,
             # drop children and set state to WAITING
             for t in list(self.workflow.task_tree):
-                if t.task_spec.name == self.task_spec.name:
+                if t.task_spec.name == self.task_spec.name and \
+                        t.state == self.COMPLETED:
                     t._drop_children(force=True)
                     t._set_state(self.WAITING)
                     # now we set this one to execute
