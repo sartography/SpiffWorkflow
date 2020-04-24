@@ -100,18 +100,17 @@ class ResetTokenTestParallelMatrix(BaseTestCase):
 
         self.assertTrue(self.workflow.is_completed())
 
-        self.assertEqual({'current': 3,
-                          'First': 'Yes',
+        self.assertEqual({'First': 'Yes',
                           'A1': 'xa1',
                           'A2': 'xa2',
                           'A3': 'xa3',
                           'B1': 'xb1',
                           'B2': 'b2',
                           'B3': 'b3',
-                          'C1': 'xa1',
-                          'C2': 'xa1',
-                          'C3': 'xa1',
-                          'D': 'd'}
+                          'C1': 'xc1',
+                          'C2': 'xc2',
+                          'C3': 'xc3',
+                          'D': 'd'},
 
                           self.workflow.last_task.data)
 
@@ -126,4 +125,4 @@ def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ResetTokenTestParallelMatrix)
 
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())C
+    unittest.TextTestRunner(verbosity=2).run(suite())
