@@ -262,8 +262,8 @@ class Task(object):
         the inputs - otherwise our child process never gets marked as
         'READY'
         """
-        from .bpmn.specs.ParallelGateway import ParallelGateway
-        if isinstance(self.task_spec, ParallelGateway):
+        from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
+        if isinstance(self.task_spec, UnstructuredJoin):
             # go find all of the gateways with the same name as this one,
             # drop children and set state to WAITING
             for t in list(self.workflow.task_tree):
