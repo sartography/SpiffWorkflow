@@ -255,7 +255,7 @@ class Task(object):
             raiseError()
         self.terminate_current_loop = True
 
-    def child_has_parallel_gateway(self):
+    def set_children_future(self):
         """
         for a parallel gateway, we need to set up our
         children so that the gateway figures out that it needs to join up
@@ -269,16 +269,13 @@ class Task(object):
             for t in list(self.workflow.task_tree):
                 if t.task_spec.name == self.task_spec.name and \
                         t.state == self.COMPLETED:
-                    t._drop_children(force=True)
+                    #t._drop_children(force=True)
                     t._set_state(self.WAITING)
                     # now we set this one to execute
-            self._set_state(self.FUTURE)
-            return True
-        else:
-            answerlist = []
-            for child in self.children:
-                answerlist.append(child.child_has_parallel_gateway())
-            return any(answerlist)  # if we found a ParallelGateway in our child list
+        self._set_state(self.MAYBE)
+        for child in self.children:
+            child.set_children_future()
+
 
     def reset_token(self, reset_data=False):
         """
@@ -294,10 +291,8 @@ class Task(object):
         if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
             # if looping or sequential, we want to start from the beginning
             self.internal_data['runtimes'] = 1
+        self.set_children_future() # this method actually fixes the problem
         self._set_state(self.READY)
-
-        if not self.child_has_parallel_gateway(): # this method actually fixes the problem
-            self._drop_children(force=True)
         self.task_spec._predict(self)
         self._sync_children(self.task_spec.outputs)
 
