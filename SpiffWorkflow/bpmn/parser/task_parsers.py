@@ -183,7 +183,6 @@ class SubWorkflowParser(CallActivityParser):
 
 
     def get_subprocess_parser(self):
-        from ...camunda.parser.CamundaParser import CamundaParser # get around circular dependancy
         thisTask = self.process_xpath('.//*[@id="%s"]'% self.get_id())[0]
         workflowStartEvent = self.process_xpath('.//*[@id="%s"]/bpmn:startEvent' % self.get_id())
         workflowEndEvent =  self.process_xpath('.//*[@id="%s"]/bpmn:endEvent' % self.get_id())
@@ -221,9 +220,8 @@ class SubWorkflowParser(CallActivityParser):
         xml = ET.tostring(root).decode('ascii')
         workflow_name = thisTaskCopy.get('id')
 
-        parser = CamundaParser()
-        parser.add_bpmn_xml(ET.fromstring(xml))
-        wf_spec = parser.get_spec(workflow_name)
+        self.parser.add_bpmn_xml(ET.fromstring(xml))
+        wf_spec = self.parser.get_spec(workflow_name)
         wf_spec.file = self.process_parser.filename
         return wf_spec
 

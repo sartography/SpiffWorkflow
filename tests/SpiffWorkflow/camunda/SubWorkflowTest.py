@@ -35,13 +35,13 @@ class SubWorkflowTest(BaseTestCase):
         # Set initial array size to 3 in the first user form.
         for answer in answers:
             task = self.workflow.get_ready_user_tasks()[0]
-            self.assertEquals("Activity_"+answer, task.task_spec.name)
+            self.assertEqual("Activity_"+answer, task.task_spec.name)
             task.update_data({"Field"+answer: answer})
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 
-        self.assertEquals(self.workflow.last_task.data,{'FieldA': 'A',
+        self.assertEqual(self.workflow.last_task.data,{'FieldA': 'A',
                                                         'FieldA1': 'A1',
                                                         'FieldA2': 'A2',
                                                         'FieldB': 'B'})
