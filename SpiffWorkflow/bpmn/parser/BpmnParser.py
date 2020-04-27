@@ -164,7 +164,7 @@ class BpmnParser(object):
             sequence_flow_node, condition_expression_node, task_parser)
 
     def parse_condition(self, condition_expression, outgoing_task,
-                        outgoing_task_node, sequence_flow_noder,
+                        outgoing_task_node, sequence_flow_node,
                         condition_expression_node, task_parser):
         """
         Pre-parse the given condition expression, and return the parsed
