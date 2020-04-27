@@ -24,15 +24,12 @@ from SpiffWorkflow.exceptions import WorkflowException
 import logging
 import time
 from uuid import uuid4
-
 from .util.deep_merge import DeepMerge
 
 LOG = logging.getLogger(__name__)
 
 
-
 class Task(object):
-
     """
     Used internally for composing a tree that represents the path that
     is taken (or predicted) within the workflow.
@@ -82,7 +79,7 @@ class Task(object):
     created to allow for visualizing the workflow at a time where
     the required decisions have not yet been made.
     """
-    # Note: The s in this list are ordered in the sequence in which
+    # Note: The states in this list are ordered in the sequence in which
     # they may appear. Do not change.
     MAYBE = 1
     LIKELY = 2
@@ -276,7 +273,6 @@ class Task(object):
         for child in self.children:
             child.set_children_future()
 
-
     def reset_token(self, reset_data=False):
         """
         Resets the token to this task. This should allow a trip 'back in time'
@@ -291,7 +287,7 @@ class Task(object):
         if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
             # if looping or sequential, we want to start from the beginning
             self.internal_data['runtimes'] = 1
-        self.set_children_future() # this method actually fixes the problem
+        self.set_children_future()  # this method actually fixes the problem
         self._set_state(self.READY)
         self.task_spec._predict(self)
         self._sync_children(self.task_spec.outputs)
