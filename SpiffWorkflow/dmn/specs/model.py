@@ -61,6 +61,8 @@ class Rule:
     def outputAsDict(self):
         out = OrderedDict()
         for outputEntry in self.outputEntries:
-            out[outputEntry.output.label] = outputEntry.parsedValue # TODO: label?
+            # try to use the id, but fall back to label if no name is provided.
+            key = outputEntry.output.name or outputEntry.output.label
+            out[key] = outputEntry.parsedValue
 
         return out

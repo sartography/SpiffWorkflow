@@ -43,6 +43,7 @@ from .task_parsers import (StartEventParser, EndEventParser, UserTaskParser,
                            BoundaryEventParser,SubWorkflowParser)
 import xml.etree.ElementTree as ET
 
+CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class BpmnParser(object):
     """
@@ -165,7 +166,7 @@ class BpmnParser(object):
             sequence_flow_node, condition_expression_node, task_parser)
 
     def parse_condition(self, condition_expression, outgoing_task,
-                        outgoing_task_node, sequence_flow_node,
+                        outgoing_task_node, sequence_flow_nodeer,
                         condition_expression_node, task_parser):
         """
         Pre-parse the given condition expression, and return the parsed
@@ -173,6 +174,16 @@ class BpmnParser(object):
         evaluation.
         """
         return condition_expression
+
+    def parse_extensions(self, node, task_parser=None, xpath=None):
+        extensions = {}
+        xpath = xpath or xpath_eval(node)
+        extension_nodes = xpath(
+            './/bpmn:extensionElements/{%s}properties/{%s}property'%(
+                CAMUNDA_MODEL_NS,CAMUNDA_MODEL_NS))
+        for node in extension_nodes:
+            extensions[node.get('name')] = node.get('value')
+        return extensions
 
     def _parse_documentation(self, node, task_parser=None, xpath=None):
         xpath = xpath or xpath_eval(node)
