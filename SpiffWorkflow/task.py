@@ -269,10 +269,10 @@ class Task(object):
             for t in list(self.workflow.task_tree):
                 if t.task_spec.name == self.task_spec.name and \
                         t.state == self.COMPLETED:
-                    #t._drop_children(force=True)
                     t._set_state(self.WAITING)
-                    # now we set this one to execute
+        # now we set this one to execute
         self._set_state(self.MAYBE)
+        self._sync_children(self.task_spec.outputs)
         for child in self.children:
             child.set_children_future()
 
