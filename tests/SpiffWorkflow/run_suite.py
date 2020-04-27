@@ -93,21 +93,26 @@ def suite():
     return load_suite([os.path.basename(f) for f in files])
 
 
-def recursive_suite():
-    return load_suite(find('.', '*Test.py'))
+def recursive_suite(glob):
+    return load_suite(find('.', glob))
 
 if __name__ == '__main__':
     # Parse CLI options.
     if len(sys.argv) == 1:
+        filename = '*Test.py'
         verbosity = 2
     elif len(sys.argv) == 2:
-        verbosity = int(sys.argv[1])
+        filename = sys.argv[1]
+        verbosity = 2
+    elif len(sys.argv) == 3:
+        filename = sys.argv[1]
+        verbosity = int(sys.argv[2])
     else:
-        print('Syntax:', sys.argv[0], '[verbosity]')
+        print('Syntax:', sys.argv[0], '[testfile] [verbosity]')
         print('Default verbosity is 2')
         sys.exit(2)
 
     # Run.
     results = unittest.TextTestRunner(
-        verbosity=verbosity).run(recursive_suite())
+        verbosity=verbosity).run(recursive_suite(filename))
     sys.exit(0 if results.wasSuccessful() else 1)
