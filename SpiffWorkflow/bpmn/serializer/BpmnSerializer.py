@@ -91,7 +91,7 @@ class BpmnSerializer(spiff_json.JSONSerializer):
                     # our last task should be on the top.
                     tasks = sub_workflow.get_tasks(task.COMPLETED)
                     tasks.sort(key=lambda x: x.last_state_change,reverse=True)
-                    if tasks and len(tasks)>0:
+                    if len(tasks)>0:
                         last_task = tasks[0]
                         sub_workflow.last_task = last_task
                 else:
