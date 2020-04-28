@@ -40,7 +40,7 @@ from .task_parsers import (StartEventParser, EndEventParser, UserTaskParser,
                            ExclusiveGatewayParser, ParallelGatewayParser,
                            InclusiveGatewayParser, CallActivityParser,
                            ScriptTaskParser, IntermediateCatchEventParser,
-                           BoundaryEventParser)
+                           BoundaryEventParser,SubWorkflowParser)
 import xml.etree.ElementTree as ET
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
@@ -62,6 +62,8 @@ class BpmnParser(object):
         full_tag('endEvent'): (EndEventParser, EndEvent),
         full_tag('userTask'): (UserTaskParser, UserTask),
         full_tag('task'): (NoneTaskParser, NoneTask),
+        full_tag('subProcess'): (SubWorkflowParser, CallActivity),
+        
         full_tag('manualTask'): (ManualTaskParser, ManualTask),
         full_tag('exclusiveGateway'): (ExclusiveGatewayParser,
                                        ExclusiveGateway),

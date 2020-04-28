@@ -103,7 +103,10 @@ class ProcessParser(object):
                         self.id_to_lane_lookup[id] = name
 
     def _parse(self):
-        start_node_list = self.xpath('.//bpmn:startEvent')
+        # here we only look in the top level, We will have another
+        # bpmn:startEvent if we have a subworkflow task 
+        start_node_list = self.xpath('./bpmn:startEvent')
+        
         if not start_node_list:
             raise ValidationException(
                 "No start event found", node=self.node, filename=self.filename)
