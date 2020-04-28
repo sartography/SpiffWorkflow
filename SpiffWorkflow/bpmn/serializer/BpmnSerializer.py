@@ -87,6 +87,13 @@ class BpmnSerializer(spiff_json.JSONSerializer):
                     children.append(start_task)
                     start_task.parent = task.id
                     sub_workflow.task_tree = start_task
+                    # get a list of tasks in reverse order of change
+                    # our last task should be on the top.
+                    tasks = sub_workflow.get_tasks(task.COMPLETED)
+                    tasks.sort(key=lambda x: x.last_state_change,reverse=True)
+                    if tasks and len(tasks)>0:
+                        last_task = tasks[0]
+                        sub_workflow.last_task = last_task
                 else:
                     resume_task = self.deserialize_task(task.workflow, c)
                     resume_task.parent = task.id
