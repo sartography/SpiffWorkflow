@@ -37,7 +37,7 @@ class DMNEngine:
             input = self.decisionTable.inputs[idx]
 
             self.logger.debug(' Checking input entry %s (%s: %s)...' % (inputEntry.id, input.label, inputEntry.operators))
-
+            #:SCRIPT
             for operator, parsedValue in inputEntry.operators:
                 if parsedValue is not None:
                     inputVal = DMNEngine.__getInputVal(inputEntry, idx, *inputData, **inputKwargs)

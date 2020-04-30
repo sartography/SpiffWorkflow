@@ -120,7 +120,7 @@ class DMNParser(object):
             typeRef = inputExpression.attrib.get('typeRef', '')
             expressionNode = inputExpression.find('{'+DMN_NS+'}text')
             if expressionNode is not None:
-                expression = inputExpression.find('{'+DMN_NS+'}text').text
+                expression = expressionNode.text
             else:
                 expression = None
 
@@ -224,7 +224,7 @@ class DMNParser(object):
 
         else:
             raise NotImplementedError(typeRef)
-
+    #:SCRIPT
     @staticmethod
     def __parseString(val):
         """This could be worse.  But I'm not longer wholly ashamed of it."""
