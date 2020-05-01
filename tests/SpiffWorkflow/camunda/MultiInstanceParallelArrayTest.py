@@ -45,6 +45,10 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
         first_task.update_data({"FamilySize": 3})
         self.workflow.do_engine_steps()
 
+        self.spec = self.load_workflow_spec(
+            'data/multi_instance_array_parallel.bpmn',
+            'MultiInstanceArray')
+        self.save_restore()
         # Set initial array size to 3 in the first user form.
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual("Activity_FamSize", task.task_spec.name)
