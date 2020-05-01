@@ -153,12 +153,14 @@ class MultiInstanceTask(TaskSpec):
 
         return outputs
 
-    def _random_gateway_name(self):
-        """ Generates a random name for our fabricated gateway tasks """
-        base = 'Gateway_'
-        suffix = [random.choice(string.ascii_lowercase) for x in range(5)]
-        LOG.debug("MI New Gateway " + base + ''.join(suffix))
-        return base + ''.join(suffix)
+    def _build_gateway_name(self,position):
+        """
+        Build a unique name for each task - need to be the
+        same over save/restore of the workflow spec.
+        """
+        base = 'Gateway_for_' + str(self.name) + "_" + position
+        LOG.debug("MI New Gateway " + base )
+        return base
 
     def _add_gateway(self, my_task):
         """ Generate parallel gateway tasks on either side of the current task.
@@ -175,11 +177,11 @@ class MultiInstanceTask(TaskSpec):
         # Spiff wants a distinct spec for each task
         # that it has in the workflow or it will throw an error
         start_gw_spec = ParallelGateway(self._wf_spec,
-                                        self._random_gateway_name(),
+                                        self._build_gateway_name('start'),
                                         triggered=False,
                                         description="Begin Gateway")
         start_gw = Task(my_task.workflow, task_spec=start_gw_spec)
-        gw_spec = ParallelGateway(self._wf_spec, self._random_gateway_name(),
+        gw_spec = ParallelGateway(self._wf_spec, self._build_gateway_name('end'),
                                   triggered=False, description="End Gateway")
         end_gw = Task(my_task.workflow, task_spec=gw_spec)
 
