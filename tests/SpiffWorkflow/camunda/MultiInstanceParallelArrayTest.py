@@ -35,6 +35,12 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
     def testRunThroughSaveRestore(self):
         self.actual_test(True)
 
+    def reload_save_restore(self):
+        self.spec = self.load_workflow_spec(
+            'data/multi_instance_array_parallel.bpmn',
+            'MultiInstanceArray')
+        self.save_restore()
+
     def actual_test(self, save_restore=False):
 
         self.workflow = BpmnWorkflow(self.spec)
@@ -44,17 +50,13 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
         # so it must be found later.
         first_task.update_data({"FamilySize": 3})
         self.workflow.do_engine_steps()
-
-        self.spec = self.load_workflow_spec(
-            'data/multi_instance_array_parallel.bpmn',
-            'MultiInstanceArray')
-        self.save_restore()
+        self.reload_save_restore()
         # Set initial array size to 3 in the first user form.
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual("Activity_FamSize", task.task_spec.name)
         task.update_data({"FamilySize": 3})
         self.workflow.complete_task_from_id(task.id)
-        if save_restore: self.save_restore()
+        if save_restore: self.reload_save_restore()
         self.workflow.do_engine_steps()
 
         # Set the names of the 3 family members.
@@ -67,7 +69,7 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             task.update_data({"FirstName": "The Funk"+str(i)})
             self.workflow.complete_task_from_id(task.id)
             if save_restore:
-                self.save_restore()
+                self.reload_save_restore()
             self.workflow.do_engine_steps()
         tasks = self.workflow.get_ready_user_tasks()
 
@@ -81,13 +83,13 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore:
-                self.save_restore()
+                self.reload_save_restore()
 
             tasks = self.workflow.get_ready_user_tasks()
 
         self.workflow.do_engine_steps()
         if save_restore:
-            self.save_restore()
+            self.reload_save_restore()
 
         names = task.data['FamilyMembers']
         bdays = task.data['FamilyMemberBirthday']
