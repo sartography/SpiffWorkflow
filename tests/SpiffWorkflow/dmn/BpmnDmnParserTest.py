@@ -2,7 +2,7 @@ import unittest
 
 from SpiffWorkflow.dmn.parser.BusinessRuleTaskParser import BusinessRuleTaskParser
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from SpiffWorkflow.dmn.specs.BuisnessRuleTask import BusinessRuleTask
+from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
 
 
 class BpmnDmnParserTest(unittest.TestCase):

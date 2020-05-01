@@ -6,7 +6,7 @@ from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
-from SpiffWorkflow.dmn.specs.BuisnessRuleTask import BusinessRuleTask
+from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
