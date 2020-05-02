@@ -167,8 +167,10 @@ class Workflow(object):
         :rtype: Task
         :returns: The task with the given id.
         """
-        tasks = [task for task in self.get_tasks() if task.id == id]
-        return tasks[0] if len(tasks) == 1 else None
+        for task in self.get_tasks_iterator():
+            if task.id == id:
+                return task
+        return None
 
     def get_tasks_from_spec_name(self, name):
         """
@@ -179,7 +181,7 @@ class Workflow(object):
         :rtype: Task
         :return: The task that relates to the spec with the given name.
         """
-        return [task for task in self.get_tasks()
+        return [task for task in self.get_tasks_iterator()
                 if task.task_spec.name == name]
 
     def get_tasks(self, state=Task.ANY_MASK):
@@ -192,6 +194,17 @@ class Workflow(object):
         :returns: A list of tasks.
         """
         return [t for t in Task.Iterator(self.task_tree, state)]
+
+    def get_tasks_iterator(self, state=Task.ANY_MASK):
+        """
+        Returns a iterator of Task objects with the given state.
+
+        :type  state: integer
+        :param state: A bitmask of states.
+        :rtype:  Task.Iterator
+        :returns: A list of tasks.
+        """
+        return Task.Iterator(self.task_tree, state)
 
     def complete_task_from_id(self, task_id):
         """
