@@ -169,6 +169,7 @@ class MultiInstanceTask(TaskSpec):
             Once we have set up the gateways, we write a note into our internal data so that
             we don't do it again.
         """
+
         if my_task.parent.task_spec.name[:7] == 'Gateway':
             LOG.debug("MI Recovering from save/restore")
             return
@@ -223,9 +224,17 @@ class MultiInstanceTask(TaskSpec):
                 'mi_count': split_n,
                 'mi_index': runtimes}
 
+    def _fix_task_spec_tree(self,my_task):
+        """
+        Make sure the task spec tree aligns with our children.
+        """
+        for x in range(len(my_task.parent.children)-1):
+            new_task_spec = copy.copy(my_task.task_spec)
+            self.outputs[0].inputs.append(new_task_spec)
+
     def _predict_hook(self, my_task):
 
-        LOG.debug(my_task.get_name() + 'predict hook')
+        LOG.debug(my_task.get_name() + 'pre hook')
 
         split_n = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',
@@ -359,6 +368,13 @@ class MultiInstanceTask(TaskSpec):
         # if this is a parallel mi - then update all siblings with the
         # current data
         if not self.isSequential:
+            if len(my_task.task_spec.outputs[0].inputs) < len(my_task.parent.children):
+                # if we landed here, we have the children all correct, but the
+                # task spec tree is not correct. This can happen when we have
+                # predicted the right amount of children, and then to a restore
+                # on the spec.
+                self._fix_task_spec_tree(my_task)
+
             for tasknum in range(len(my_task.parent.children)):
                 task = my_task.parent.children[tasknum]
                 # we had an error on save/restore that was causing a problem
@@ -366,7 +382,6 @@ class MultiInstanceTask(TaskSpec):
                 # out needs its own task_spec. the save restore gets the
                 # right thing in the child, but not on each of the
                 # intermediate tasks.
-
                 if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
                     LOG.debug("fix up save/restore")
                     task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
