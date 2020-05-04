@@ -33,6 +33,35 @@ class DeepMergeTest(TaskSpecTest):
                           }, c)
 
 
+    def testOutOfOrderMerge(self):
+        a = {"foods": [{"fruit": {"apples": "tasty", "oranges": "also tasty"}}]}
+        b = {"foods": [{"fruit": {"oranges": "also tasty", "apples": "tasty"}},
+             {"canned meats": {"spam": "nope."}}]}
+        c = DeepMerge.merge(a, b)
+        self.assertEqual({"foods": [
+            {"fruit":
+                 {"apples": "tasty",
+                  "oranges": "also tasty"
+                  }
+             },
+            {"canned meats":
+                 {"spam": "nope."}
+             }
+        ]}, c)
+
+    def testMixOfArrayTypes(self):
+        a = {"foods": [{"fruit": {"apples": "tasty", "oranges": "also tasty"}},
+                       {"canned_meats":["spam", "more spam"]}]}
+        b = {"foods": [{"fruit": {"apples": "tasty", "oranges": "also tasty"}},
+                       {"canned_meats":["wonderful spam", "spam", "more spam"]}]}
+
+        c = DeepMerge.merge(a, b)
+
+        self.assertEqual({"foods": [{"fruit": {"apples": "tasty", "oranges": "also tasty"}},
+                       {"canned_meats":["spam", "more spam", "wonderful spam"]}]}, c)
+
+
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(DeepMergeTest)
 if __name__ == '__main__':
