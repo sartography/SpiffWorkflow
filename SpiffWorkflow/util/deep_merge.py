@@ -20,8 +20,7 @@ class DeepMerge(object):
                 elif isinstance(a[key], list) and isinstance(b[key], list):
                     DeepMerge.merge_array(a[key], b[key], path + [str(key)])
                 else:
-                    raise Exception(
-                        'Conflict at %s' % '.'.join(path + [str(key)]))
+                    a[key] = b[key]  # Just overwrite the value in a.
             else:
                 a[key] = b[key]
         return a
