@@ -67,7 +67,9 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             self.assertEqual(len(tasks),1) # still with sequential MI
             task = tasks[0]
             self.assertEqual("FamilyMemberTask", task.task_spec.name)
-            task.update_data({"FirstName": "The Funk"+str(i)})
+           # task.update_data({"FirstName": "The Funk"+str(i)})
+            task.update_data({"FamilyMember": {"FirstName": "The Funk #%i" % i}})
+
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore:
@@ -80,7 +82,8 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             task = random.choice(tasks)
             x = task.internal_data['runtimes'] -1
             self.assertEqual("FamilyMemberBday", task.task_spec.name)
-            task.update_data({"Birthdate": "10/05/1985"+str(x)})
+            task.update_data(
+                {"CurrentFamilyMember": {"Birthdate": "10/05/1985" + str(x)}})
             self.workflow.do_engine_steps()
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()

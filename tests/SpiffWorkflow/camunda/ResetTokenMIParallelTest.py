@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
+from __future__ import division, absolute_import
 from __future__ import print_function, absolute_import, division
 
-from __future__ import division, absolute_import
-import sys
 import os
+import sys
 import unittest
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-from SpiffWorkflow.exceptions import WorkflowException
+
 __author__ = 'kellym'
 
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
@@ -37,52 +37,51 @@ class ResetTokenTestMIParallel(BaseTestCase):
         self.workflow.do_engine_steps()
         firsttaskid = None
         steps = [{'taskname':'First',
-                  'formvar': 'First',
-                  'answer': 'Yes'},
+                  'task_data': {'do_step':'Yes'}},
                  {'taskname': 'FormA',
-                  'formvar': 'A',
-                  'answer': 'x'},
+                  'task_data': {'current': {'A' : 'x'}}},
                  {'taskname': 'FormA',
-                  'formvar': 'A',
-                  'answer': 'y'},
+                  'task_data': {'current': {'A' : 'y'}}},
                  {'taskname': 'FormA',
-                  'formvar': 'A',
-                  'answer': 'z'},
-
+                  'task_data': {'current': {'A' : 'z'}}}
                  ]
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
             if firsttaskid == None and step['taskname']=='FormA':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
-            task.update_data({step['formvar']: step['answer']})
+            task.update_data(step['task_data'])
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 
+        self.assertEqual({'do_step': 'Yes',
+                          'output': {1: {'A': 'x'}, 2: {'A': 'y'}, 3: {'A': 'z'}}},
+                         self.workflow.last_task.data)
+
         self.workflow.reset_task_from_id(firsttaskid)
         #NB - this won't test random access
         steps = [{'taskname': 'FormA',
-                  'formvar': 'A',
-                  'answer': 'a1'},
+                  'task_data': {'current': {'A' : 'a1'}}},
                  {'taskname': 'FormC',
-                  'formvar': 'C',
-                  'answer': 'c'},
+                  'task_data': {'C' : 'c'}},
                  ]
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
-            task.update_data({step['formvar']: step['answer']})
+            task.update_data(step['task_data'])
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 
         self.assertTrue(self.workflow.is_completed())
 
-        self.assertEqual({'current': 1, 'First': 'Yes', 'A': 'a1', 'output': {1: {'A': 'a1'}, 2: {'A': 'y'},
-                                                                               3: {'A': 'z'}}, 'C': 'c'},
+        self.assertEqual({'do_step': 'Yes',
+                          'C': 'c',
+                          'output': {1: {'A': 'a1'},
+                                     2: {'A': 'y'},
+                                     3: {'A': 'z'}}},
                          self.workflow.last_task.data)
-
 
 
 

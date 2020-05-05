@@ -241,12 +241,10 @@ class MultiInstanceTask(TaskSpec):
                                                   1))  # set a default if not already run
 
         my_task._set_internal_data(splits=split_n, runtimes=runtimes)
-        if self.elementVar:
-            varname = self.elementVar
-        else:
-            varname = my_task.task_spec.name + "_MICurrentVar"
+        if not self.elementVar:
+            self.elementVar = my_task.task_spec.name + "_MICurrentVar"
 
-        my_task.data[varname] = copy.copy(
+        my_task.data[self.elementVar] = copy.copy(
             self._get_current_var(my_task, runtimes))
 
         # Create the outgoing tasks.
@@ -291,7 +289,7 @@ class MultiInstanceTask(TaskSpec):
                         'runtimes'] = x + 2  # working with base 1 and we already have one done
 
                     new_child.data = copy.copy(my_task.data)
-                    new_child.data[varname] = self._get_current_var(my_task,
+                    new_child.data[self.elementVar] = self._get_current_var(my_task,
                                                                     x + 2)
 
                     new_child.children = []  # make sure we have a distinct list of children for
@@ -330,10 +328,6 @@ class MultiInstanceTask(TaskSpec):
 
             colvarname = my_task.task_spec.name + "_MIData"
 
-        if self.elementVar:
-            varname = self.elementVar
-        else:
-            varname = my_task.task_spec.name + "_MICurrentVar"
 
         collect = valueof(my_task, self.collection, {})
 
@@ -349,21 +343,22 @@ class MultiInstanceTask(TaskSpec):
         else:
             runtimesvar = runtimes
 
-        collect[runtimesvar] = DeepMerge.merge(collect.get(runtimesvar, {}),
-                                               copy.copy(my_task.
-                                                         mi_collect_data))
+        if self.elementVar in my_task.data and isinstance(my_task.data[self.elementVar], dict):
+            collect[runtimesvar] = DeepMerge.merge(collect.get(runtimesvar, {}),
+                                                   copy.copy(my_task.data[self.elementVar]))
 
         LOG.debug(my_task.task_spec.name + 'complete hook')
         my_task.data = DeepMerge.merge(my_task.data,
                                        gendict(colvarname.split('/'), collect))
+
+        # The element var is temporary, and should not be in the final data.
+        my_task.data.pop(self.elementVar, None)  # Remove once merged.
 
         if (runtimes < runcount) and not \
             my_task.terminate_current_loop and \
             self.isSequential:
             my_task._set_state(my_task.READY)
             my_task._set_internal_data(runtimes=runtimes + 1)
-            my_task.data[varname] = self._get_current_var(my_task,
-                                                          runtimes + 1)
 
         # if this is a parallel mi - then update all siblings with the
         # current data

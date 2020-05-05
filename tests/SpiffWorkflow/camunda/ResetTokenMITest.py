@@ -37,25 +37,20 @@ class ResetTokenTestMI(BaseTestCase):
         self.workflow.do_engine_steps()
         firsttaskid = None
         steps = [{'taskname':'First',
-                  'formvar': 'First',
-                  'answer': 'Yes'},
+                  'task_data': {'do_step':'Yes'}},
                  {'taskname': 'FormA',
-                  'formvar': 'A',
-                  'answer': 'x'},
+                  'task_data': {'current': {'A' : 'x'}}},
                  {'taskname': 'FormA',
-                  'formvar': 'A',
-                  'answer': 'y'},
+                  'task_data': {'current': {'A' : 'y'}}},
                  {'taskname': 'FormA',
-                  'formvar': 'A',
-                  'answer': 'z'},
-
+                  'task_data': {'current': {'A' : 'z'}}}
                  ]
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
             if firsttaskid == None and step['taskname']=='FormA':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
-            task.update_data({step['formvar']: step['answer']})
+            task.update_data(step['task_data'])
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
@@ -63,31 +58,31 @@ class ResetTokenTestMI(BaseTestCase):
         self.workflow.reset_task_from_id(firsttaskid)
 
         steps = [{'taskname': 'FormA',
-                  'formvar': 'A',
-                  'answer': 'a1'},
+                  'task_data': {'current': {'A': 'a1'}}},
                  {'taskname': 'FormA',
-                  'formvar': 'A',
-                  'answer': 'a2'},
+                  'task_data': {'current': {'A': 'a2'}}},
                  {'taskname': 'FormA',
-                  'formvar': 'A',
-                  'answer': 'a3'},
+                  'task_data': {'current': {'A': 'a3'}}},
                  {'taskname': 'FormC',
-                  'formvar': 'C',
-                  'answer': 'c'},
+                  'task_data': {'C': 'c'}}
                  ]
+
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
-            task.update_data({step['formvar']: step['answer']})
+            task.update_data(step['task_data'])
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 
         self.assertTrue(self.workflow.is_completed())
-
-        self.assertEqual({'current': 3, 'First': 'Yes', 'A': 'a3', 'output': {1: {'A': 'a1'}, 2: {'A': 'a2'},
-                                                                               3: {'A': 'a3'}}, 'C': 'c'},
+        self.assertEqual({'do_step': 'Yes',
+                          'output': {1: {'A': 'a1'},
+                                     2: {'A': 'a2'},
+                                     3: {'A': 'a3'}},
+                          'C': 'c'},
                          self.workflow.last_task.data)
+
 
 
 

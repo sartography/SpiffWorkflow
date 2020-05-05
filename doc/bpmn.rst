@@ -36,20 +36,20 @@ MultiInstance Notes
 -------------------
 
 A subset of MultiInstance and Looping Tasks are supported. Notably,
-the completion condition is not currently supported. 
+the completion condition is not currently supported.
 
 The following definitions should prove helpful
 
 **loopCardinality** - This variable can be a text representation of a
 number - for example '2' or it can be the name of a variable in
-task.data that resolves to a text representatoin of a number.
+task.data that resolves to a text representation of a number.
 It can also be a collection such as a list or a dictionary. In the
 case that it is a list, the loop cardinality is equal to the length of
 the list and in the case of a dictionary, it is equal to the list of
 the keys of the dictionary.
 
 If loopCardinality is left blank and the Collection is defined, or if
-loopCardinality and Collectoin are the same collection, then the
+loopCardinality and Collection are the same collection, then the
 Multiinstnace will loop over the collection and update each element of
 that collection with the new information. In this case, it is assumed
 that the incoming collection is a dictionary, currently behavior for
@@ -64,26 +64,28 @@ loopCardinality. For example, if we set the loopCardinality to be a
 list such as ['a','b','c] the resulting collection would be {1:'result
 from a',2:'result from b',3:'result from c'} - and this would be true
 even if it is a parallel MultiInstance where it was filled out in a
-different order. 
+different order.
 
 **Element Variable** This is the variable name for the current
 iteration of the MultiInstance. In the case of the loopCardinality
 being just a number, this would be 1,2,3, . . .  If the
 loopCardinality variable is mapped to a collection it would be either
 the list value from that position, or it would be the value from the
-dictionary where the keys are in sorted order.
+dictionary where the keys are in sorted order.  It is the content of the
+element variable that should be updated in the task.data. This content
+will then be added to the collection each time the task is completed.
 
 Example:
   In a sequential MultiInstance, loop cardinality is ['a','b','c'] and elementVariable is 'myvar'
   then in the case of a sequential multiinstance the first call would
   have 'myvar':'a' in the first run of the task and 'myvar':'b' in the
-  second. 
+  second.
 
 Example:
   In a Parallel MultiInstance, Loop cardinality is a variable that contains
   {'a':'A','b':'B','c':'C'} and elementVariable is 'myvar' - when the multiinstance is ready, there
-  will be 3 tasks. If we chooose the second task, the task.data will
-  contain 'myvar':'B'
+  will be 3 tasks. If we choose the second task, the task.data will
+  contain 'myvar':'B'.
 
 Updating Data
 ------------
@@ -97,9 +99,18 @@ on a variable.
 Each time the MultiInstance task generates data, the method
 task.update_data(data) should be called where data is the data
 generated. The 'data' variable that is passed in is assumed to be a
-dictionary. Calling task.update_data(...) will ensure that the
-MultiInstance gets the correct data to include in the collection. The
-task.data is also updated with the dictionary passed to this method.
+dictionary that contains the element variable. Calling task.update_data(...)
+will ensure that the MultiInstance gets the correct data to include in the
+collection. The task.data is also updated with the dictionary passed to
+this method.
+
+Example:
+  In a Parallel MultiInstance, Loop cardinality is a variable that contains
+  {'a':'A','b':'B','c':'C'} and elementVariable is 'myvar'.
+  If we choose the second task, the task.data will contain 'myvar':{'b':'B'}.
+  If we wish to update the data, we would call task.update_data('myvar':{'b':'B2'})
+  When the task is completed, the task.data will now contain:
+  {'a':'A','b':'B2','c':'C'}
 
 Looping Tasks
 -------------
@@ -123,7 +134,7 @@ At the current time a sequential MultiInstance behaves more like a
 Looping Task than a MultiInstance - A true MultiInstace would actually
 create multiple copies of the task in the task tree - currently only
 one task is created and it is repeated the number of the
-loopCardinality 
+loopCardinality
 
 
 

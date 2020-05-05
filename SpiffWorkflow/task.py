@@ -211,8 +211,6 @@ class Task(object):
         and MultiInstance tasks will be updated correctly.
         """
         self.data = DeepMerge.merge(self.data, data)
-        # special variable that gets collected in a bpmn/MultiInstance task
-        self.mi_collect_data = DeepMerge.merge(self.mi_collect_data, data)
 
     def task_info(self):
         """
