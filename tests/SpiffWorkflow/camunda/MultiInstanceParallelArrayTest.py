@@ -26,12 +26,11 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
     def setUp(self):
 
         self.spec = self.load_workflow_spec(
-            'data/multi_instance_array_parallel.bpmn',
+            'data/multi_instance_array.bpmn',
             'MultiInstanceArray')
 
     def testRunThroughHappy(self):
-        pass
-        # self.actual_test(False)
+        self.actual_test(False)
 
     def testRunThroughSaveRestore(self):
         self.actual_test(True)
@@ -55,7 +54,7 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
         # Set initial array size to 3 in the first user form.
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual("Activity_FamSize", task.task_spec.name)
-        task.update_data({"FamilySize": 3})
+        task.update_data({"family": {"size" : 3}})
         self.workflow.complete_task_from_id(task.id)
         if save_restore: self.reload_save_restore()
         self.workflow.do_engine_steps()
@@ -75,6 +74,15 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             if save_restore:
                 self.reload_save_restore()
         tasks = self.workflow.get_ready_user_tasks()
+        self.assertEqual({
+            'Family': {
+                'Members': {1: {'FirstName': 'The Funk #0'},
+                            2: {'FirstName': 'The Funk #1'},
+                            3: {'FirstName': 'The Funk #2'}
+                        }},
+            'FamilySize': 3},
+            task.data
+        )
 
         self.assertEqual(len(tasks),3)
         # Set the birthdays of the 3 family members.
@@ -82,8 +90,15 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             task = random.choice(tasks)
             x = task.internal_data['runtimes'] -1
             self.assertEqual("FamilyMemberBday", task.task_spec.name)
-            task.update_data(
-                {"CurrentFamilyMember": {"Birthdate": "10/05/1985" + str(x)}})
+            # Existing data from last task should be avaiable for each
+            # pass through this multi-instance task
+            self.assertEqual({"FirstName": "The Funk #%i" % x}, task.data['CurrentFamilyMember'])
+            if save_restore:
+                self.reload_save_restore()
+            self.assertEqual({"FirstName": "The Funk #%i" % x}, task.data['CurrentFamilyMember'])
+            data = task.data
+            data['CurrentFamilyMember']["Birthdate"] = "10/05/1985" + str(x)
+            task.update_data(data)
             self.workflow.do_engine_steps()
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
@@ -96,6 +111,17 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
         self.workflow.do_engine_steps()
         if save_restore:
             self.reload_save_restore()
+
+        task = self.workflow.last_task
+        self.assertEqual({
+            'Family': {
+                'Members': {1: {'FirstName': 'The Funk #0', 'Birthdate': '10/05/19850'},
+                            2: {'FirstName': 'The Funk #1', 'Birthdate': '10/05/19850'},
+                            3: {'FirstName': 'The Funk #2', 'Birthdate': '10/05/19850'}
+                        }},
+            'FamilySize': 3},
+            task.data
+        )
 
         names = task.data['FamilyMembers']
         bdays = task.data['FamilyMemberBirthday']
