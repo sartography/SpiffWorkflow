@@ -325,7 +325,6 @@ class MultiInstanceTask(TaskSpec):
         if self.collection is not None:
             colvarname = self.collection.name
         else:
-
             colvarname = my_task.task_spec.name + "_MIData"
 
 
@@ -338,7 +337,6 @@ class MultiInstanceTask(TaskSpec):
         if self.collection is not None and \
             self.times.name == self.collection.name:
             keys = list(collect.keys())
-            keys.sort()
             runtimesvar = keys[runtimes - 1]
         else:
             runtimesvar = runtimes

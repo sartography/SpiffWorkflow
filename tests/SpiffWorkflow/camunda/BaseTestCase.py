@@ -29,3 +29,8 @@ class BaseTestCase(BpmnWorkflowTestCase):
         return BpmnSerializer().deserialize_workflow_spec(
             PackagerForCamundaTests.package_in_memory(process_name, f))
 
+    def reload_save_restore(self):
+        self.spec = self.load_workflow_spec(
+            'data/multi_instance_array_parallel.bpmn',
+            'MultiInstanceArray')
+        self.save_restore()
