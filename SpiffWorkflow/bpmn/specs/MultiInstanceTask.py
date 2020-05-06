@@ -349,14 +349,15 @@ class MultiInstanceTask(TaskSpec):
         my_task.data = DeepMerge.merge(my_task.data,
                                        gendict(colvarname.split('/'), collect))
 
-        # The element var is temporary, and should not be in the final data.
-        my_task.data.pop(self.elementVar, None)  # Remove once merged.
-
         if (runtimes < runcount) and not \
             my_task.terminate_current_loop and \
             self.isSequential:
             my_task._set_state(my_task.READY)
             my_task._set_internal_data(runtimes=runtimes + 1)
+            my_task.data[self.elementVar] = self._get_current_var(my_task,
+                                                      runtimes + 1)
+        else:
+            my_task.data.pop(self.elementVar, None)  # Remove once merged.
 
         # if this is a parallel mi - then update all siblings with the
         # current data
@@ -386,6 +387,8 @@ class MultiInstanceTask(TaskSpec):
         outputs = []
         outputs += self.outputs
         my_task._sync_children(outputs, Task.FUTURE)
+
+        # The element var is temporary, and should be removed before moving on.
         for child in my_task.children:
             child.task_spec._update(child)
         LOG.debug("return from updateHook")
