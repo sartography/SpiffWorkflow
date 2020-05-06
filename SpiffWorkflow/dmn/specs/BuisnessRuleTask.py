@@ -26,6 +26,6 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
         except Exception as e:
             raise WorkflowTaskExecException(my_task, str(e))
         if self.res is not None: # it is conceivable that no rules would fire.
-            self.resDict = self.res.outputAsDict()
+            self.resDict = self.res.outputAsDict(my_task.data)
             my_task.data.update(self.resDict)
         super(BusinessRuleTask, self)._on_complete_hook(my_task)

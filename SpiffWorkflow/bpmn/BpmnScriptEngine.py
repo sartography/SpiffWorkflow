@@ -44,5 +44,6 @@ class BpmnScriptEngine(PythonSriptEngine):
             # judging from the contents of operators.py
             return expression._matches(task)
         else:
-            return super()._eval(task, expression, **task.data)
+            #return super()._eval(task, expression, **task.data)
+            return super()._eval(expression, **task.data)
 

@@ -8,8 +8,10 @@ from SpiffWorkflow.bpmn.parser.util import xpath_eval
 
 from SpiffWorkflow.dmn.specs.model import Decision, DecisionTable, InputEntry, \
     OutputEntry, Input, Output, Rule
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonSriptEngine
 
 DMN_NS = 'http://www.omg.org/spec/DMN/20151101/dmn.xsd'
+
 
 class DMNParser(object):
     """
@@ -39,9 +41,10 @@ class DMNParser(object):
         self.filename = filename
         self.doc_xpath = doc_xpath
         self.xpath = xpath_eval(self.node, {'dmn': DMN_NS})
+        self.scriptEngine = PythonSriptEngine()
 
     def parse(self):
-        self.decision = DMNParser.__parse_decision(self.node)
+        self.decision = self._parse_decision(self.node)
 
     def get_id(self):
         """
@@ -55,10 +58,7 @@ class DMNParser(object):
         """
         return self.xpath('dmn:decision[1]')[0].get('name')
 
-
-
-    @staticmethod
-    def __parse_decision(root):
+    def _parse_decision(self, root):
         decisionElements = list(root)
         if len(decisionElements) == 0:
             raise Exception('No decisions found')
@@ -76,14 +76,13 @@ class DMNParser(object):
 
         # Parse decision tables
         try:
-            DMNParser.__parseDecisionTables(decision, decisionElement)
+            self._parseDecisionTables(decision, decisionElement)
         except Exception as e:
             raise Exception("Error in Decision '%s': %s" % (decision.name, str(e)))
 
         return decision
 
-    @staticmethod
-    def __parseDecisionTables(decision, decisionElement):
+    def _parseDecisionTables(self, decision, decisionElement):
         xpath = xpath_eval(decisionElement, {'dmn': DMN_NS})
         for decisionTableElement in xpath('dmn:decisionTable'):
             decisionTable = DecisionTable(decisionTableElement.attrib['id'],
@@ -92,33 +91,31 @@ class DMNParser(object):
             decision.decisionTables.append(decisionTable)
 
             # parse inputs
-            DMNParser.__parseInputsOutputs(decision, decisionTable,
-                                           decisionTableElement)
+            self._parseInputsOutputs(decision, decisionTable,
+                                     decisionTableElement)
 
-    @staticmethod
-    def __parseInputsOutputs(decision, decisionTable, decisionTableElement):
+    def _parseInputsOutputs(self, decision, decisionTable, decisionTableElement):
         for element in decisionTableElement:
             if element.tag.endswith('input'):
-                input = DMNParser.__parseInput(element)
+                input = self._parseInput(element)
                 decisionTable.inputs.append(input)
             elif element.tag.endswith('output'):
-                output = DMNParser.__parseOutput(element)
+                output = self._parseOutput(element)
                 decisionTable.outputs.append(output)
             elif element.tag.endswith('rule'):
-                rule = DMNParser.__parseRule(decision, decisionTable, element)
+                rule = self._parseRule(decision, decisionTable, element)
                 decisionTable.rules.append(rule)
             else:
                 raise Exception(
                     'Unknown type in decision table: %r' % (element.tag))
 
-    @staticmethod
-    def __parseInput(inputElement):
+    def _parseInput(self, inputElement):
         typeRef = None
         xpath = xpath_eval(inputElement, {'dmn': DMN_NS})
         for inputExpression in xpath('dmn:inputExpression'):
 
             typeRef = inputExpression.attrib.get('typeRef', '')
-            expressionNode = inputExpression.find('{'+DMN_NS+'}text')
+            expressionNode = inputExpression.find('{' + DMN_NS + '}text')
             if expressionNode is not None:
                 expression = expressionNode.text
             else:
@@ -131,16 +128,14 @@ class DMNParser(object):
                       typeRef)
         return input
 
-    @staticmethod
-    def __parseOutput(outputElement):
+    def _parseOutput(self, outputElement):
         output = Output(outputElement.attrib['id'],
                         outputElement.attrib.get('label', ''),
                         outputElement.attrib.get('name', ''),
                         outputElement.attrib.get('typeRef', ''))
         return output
 
-    @staticmethod
-    def __parseRule(decision, decisionTable, ruleElement):
+    def _parseRule(self, decision, decisionTable, ruleElement):
         rule = Rule(ruleElement.attrib['id'])
 
         inputIdx = 0
@@ -152,7 +147,7 @@ class DMNParser(object):
 
             # Load input entries
             elif child.tag.endswith('inputEntry'):
-                inputEntry = DMNParser.__parseInputOutputElement(decision,
+                inputEntry = self._parseInputOutputElement(decision,
                                                                  decisionTable,
                                                                  child,
                                                                  InputEntry,
@@ -162,143 +157,34 @@ class DMNParser(object):
 
             # Load output entries
             elif child.tag.endswith('outputEntry'):
-                outputEntry = DMNParser.__parseInputOutputElement(decision,
-                                                                  decisionTable,
-                                                                  child,
-                                                                  OutputEntry,
-                                                                  outputIdx)
+                outputEntry = self._parseInputOutputElement(decision,
+                                                            decisionTable,
+                                                            child,
+                                                            OutputEntry,
+                                                            outputIdx)
                 rule.outputEntries.append(outputEntry)
                 outputIdx += 1
 
         return rule
 
-    @staticmethod
-    def __parseInputOutputElement(decision, decisionTable, element, cls, idx):
+    def _parseInputOutputElement(self, decision, decisionTable, element, cls, idx):
         inputOrOutput = (
             decisionTable.inputs if cls == InputEntry else decisionTable.outputs if cls == OutputEntry else None)[
             idx]
         entry = cls(element.attrib['id'], inputOrOutput)
-
+        possible_binary = False
         for child in element:
             if child.tag.endswith('description'):
                 entry.description = child.text
             elif child.tag.endswith('text'):
                 entry.text = child.text
-
-                if cls == InputEntry:
-                    entry.operators = list(
-                        DMNParser.__parseRef(inputOrOutput.typeRef,
-                                             entry.text))
-                elif cls == OutputEntry:
-                    operators = list(
-                        DMNParser.__parseRef(inputOrOutput.typeRef,
-                                             entry.text))
-                    assert len(
-                        operators) <= 1, 'Normally it is impossible to have multiple values as output column! %s: %r' % (
-                    inputOrOutput.typeRef, entry.text)
-                    entry.parsedValue = operators[0][1]
+        if cls == InputEntry:
+            entry.lhs.append(entry.text)
+        elif cls == OutputEntry:
+            if entry.text != '':
+                py, needsEquals = self.scriptEngine.validateExpression(entry.text)
+                if not needsEquals:
+                    raise Exception("Malformed Output Expression '%s' " % entry.text)
                 else:
-                    raise NotImplementedError(cls.__name__)
-
+                    entry.parsedRef = py
         return entry
-
-    @staticmethod
-    def __parseRef(typeRef, val):
-        if val is None:
-            return []
-
-        if typeRef == 'string':
-            return DMNParser.__parseString(val)
-
-        elif typeRef == 'boolean':
-            return DMNParser.__parseBoolean(val)
-
-        elif typeRef == 'integer':
-            return DMNParser.__parseInteger(val)
-
-        elif typeRef in ('long', 'double'):
-            return DMNParser.__parseLongOrDouble(val)
-
-        elif typeRef == 'date':
-            return DMNParser.__parseDate(val)
-
-        else:
-            raise NotImplementedError(typeRef)
-    #:SCRIPT
-    @staticmethod
-    def __parseString(val):
-        """This could be worse.  But I'm not longer wholly ashamed of it."""
-        val = val.strip()
-        match_not_contains = re.match("^not contains\((.+)\)$", val)
-        match_contains = re.match("contains\((.+)\)", val)
-        match_not = re.match("not\((.+)\)", val)
-        if match_not:
-            val = match_not.group(1)
-            expression = "!="
-        elif match_contains:
-            val = match_contains.group(1)
-            expression = "in"
-        elif match_not_contains:
-            val = match_not_contains.group(1)
-            expression = "not in"
-        else:
-            expression = "=="
-        return [(expression, literal_eval(val))]
-
-    @staticmethod
-    def __parseBoolean(val):
-        return [('==', {'true': True, 'false': False}.get(val, None))]
-
-    @staticmethod
-    def __parseInteger(val):
-        if '..' in val:
-            intStrFrm, intStrTo = val[1:-1].split('..')
-            return [
-                ('>=' if val[0] == '[' else '>', int(intStrFrm)),
-                ('<=' if val[-1] == ']' else '<', int(intStrTo))
-            ]
-        elif val.startswith(('<', '>', '=')):
-            vals = val.split(' ')
-            return [(vals[0], int(vals[1]))]
-        else:
-            return [('==', int(val))]
-
-    @staticmethod
-    def __parseLongOrDouble(val):
-        if '..' in val:
-            intStrFrm, intStrTo = val[1:-1].split('..')
-            return [
-                ('>=' if val[0] == '[' else '>', Decimal(intStrFrm)),
-                ('<=' if val[-1] == ']' else '<', Decimal(intStrTo))
-            ]
-        elif val.startswith(('<', '>', '=')):
-            vals = val.split(' ')
-            return [(vals[0], Decimal(vals[1]))]
-        else:
-            return [('==', Decimal(val))]
-
-    @staticmethod
-    def __parseDate(val):
-        if '..' in val:
-            # Example: [date and time("2017-11-03T00:00:00")..date and time("2017-11-04T23:59:59")]
-            dtStrFrm, dtStrTo = val[1:-1].split('..')
-            dtFrm = DMNParser.__parseDateStr(dtStrFrm)
-            dtTo = DMNParser.__parseDateStr(dtStrTo)
-            return [
-                ('>=' if val[0] == '[' else '>', dtFrm),
-                ('<=' if val[-1] == ']' else '<', dtTo)
-            ]
-        elif val.startswith(('>', '<')):
-            # Example: > date and time("2017-11-03T00:00:00")
-            # Example: < date and time("2017-11-03T00:00:00")
-            operator, dtStr = val.split(' ', 1)
-            dt = DMNParser.__parseDateStr(dtStr)
-            return [(operator, dt)]
-        else:
-            return [('==', DMNParser.__parseDateStr(val))]
-
-    @staticmethod
-    def __parseDateStr(val):
-        # Example: date and time("2017-11-03T00:00:00")
-        dtStrVal = val.replace('date and time("', '').replace('")', '')
-        return datetime.strptime(dtStrVal, DMNParser.DT_FORMAT)
