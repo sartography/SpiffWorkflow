@@ -21,7 +21,7 @@ from decimal import Decimal
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-def convertTime(datestr,parsestr):
+def feelConvertTime(datestr,parsestr):
     return datetime.datetime.strptime(datestr,parsestr)
 
 class FeelInterval():
@@ -73,17 +73,51 @@ class FeelNot():
         else:
             return True
 
+def feelConcatenate(*lst):
+    ilist = []
+    for l in lst:
+        ilist = ilist + l
+    return ilist
+
+def feelAppend(lst,item):
+    newlist = lst[:]  # get a copy
+    newlist.append(item)
+    return newlist
+
+def feelNow():
+    return datetime.datetime.now()
+
+def feelGregorianDOW(date):
+    # we assume date is either date in Y-m-d format
+    # or it is of datetime class
+    if isinstance(date,str):
+        date = datetime.datetime.strptime(date,'%Y-%m-%d')
+    return date.isoweekday()%7
+
+
 def expandDotDict(text):
     parts = text.split('.')
     suffix = ''.join(["['%s']"%x for x in parts[1:]])
     prefix = parts[0]
     return prefix+suffix
 
+
 # Order Matters!!
-fixes = [('not\s+?contains\((.+?)\)','FeelContains(\\1,invert=True)'), # not  contains('something')
+fixes = [('string\s+length\((.+?)\)','len(\\1)'),
+         ('count\((.+?)\)','len(\1)'),
+         ('concatenate\((.+?)\)','feelConcatenate(\\1)'),
+         ('append\((.+?),(.+?)\)','feelAppend(\\1,\\2)'), # again will not work with literal list
+         ('list\s+contains\((.+?),(.+?)\)','\\2 in \\1'), # list contains(['a','b','stupid,','c'],'stupid,') will break
+         ('contains\((.+?),(.+?)\)','\\2 in \\1'), # contains('my stupid, stupid comment','stupid') will break
+         ('not\s+?contains\((.+?)\)','FeelContains(\\1,invert=True)'), # not  contains('something')
          ('not\((.+?)\)','FeelNot(\\1)'),   # not('x')
+
+         ('now\(\)','feelNow()'),
          ('contains\((.+?)\)', 'FeelContains(\\1)'), # contains('x')
-         ('date\s+?and\s+?time\s*\((.+?)\)','convertTime(\\1,"%Y-%m-%dT%H:%M:%S")'), # date  and time (<datestring>)
+         # date  and time (<datestr>)
+         ('date\s+?and\s+?time\s*\((.+?)\)', 'feelConvertTime(\\1,"%Y-%m-%dT%H:%M:%S")'),
+         ('date\s*\((.+?)\)', 'feelConvertTime(\\1,"%Y-%m-%d)'),  # date (<datestring>)
+         ('day\s+of\s+\week\((.+?)\)','feelGregorianDOW(\\1)'),
          ('\[([^\[\]]+?)[.]{2}([^\[\]]+?)\]','FeelInterval(\\1,\\2)'),                # closed interval on both sides
          ('[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\)\(]+?)\]','FeelInterval(\\1,\\2,leftOpen=True)'),  # open lhs
          ('\[([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]','FeelInterval(\\1,\\2,rightOpen=True)'), # open rhs
@@ -107,7 +141,15 @@ fixes = [('not\s+?contains\((.+?)\)','FeelContains(\\1,invert=True)'), # not  co
          ('true','True'),
          ('false','False')
          ]
-
+externalFuncs = {
+    'feelConvertTime':feelConvertTime,
+    'FeelInterval':FeelInterval,
+    'FeelNot':FeelNot,
+    'Decimal':Decimal,
+    'feelConcatenate': feelConcatenate,
+    'feelAppend': feelAppend,
+    'feelGregorianDOW':feelGregorianDOW,
+}
 
 default_header = """
 
@@ -124,6 +166,8 @@ class PythonSriptEngine(object):
     provide a specialised subclass that parses and executes the scripts /
     expressions in a mini-language of your own.
     """
+    def __init__(selfs):
+        pass
 
     def patch_expression(self,invalid_python,lhs=''):
         if invalid_python is None:
@@ -175,10 +219,7 @@ class PythonSriptEngine(object):
            expression = lhs + ' == ' + rhs
         else:
             expression = lhs + rhs
-        kwargs['convertTime'] = convertTime
-        kwargs['FeelInterval'] = FeelInterval
-        kwargs['FeelNot'] = FeelNot
-        kwargs['Decimal'] = Decimal
+        kwargs.update(externalFuncs)
 
         return self.evaluate(default_header + expression, **kwargs)
 
@@ -187,7 +228,8 @@ class PythonSriptEngine(object):
         Evaluate the given expression, within the context of the given task and
         return the result.
         """
-        return self._eval(expression, **kwargs)
+        exp,valid = self.validateExpression(expression)
+        return self._eval(exp, **kwargs)
 
     def execute(self, task, script, **kwargs):
         """
