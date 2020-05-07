@@ -41,9 +41,13 @@ class PythonExpressionTest(BpmnWorkflowTestCase):
                   {}),
                  ("day of week('2020-05-07')",4,{}),
                  ("day of week(a)",0,{'a':datetime.datetime(2020,5,3)}),
-
+                 ("list contains(a.b,'x')", True, {'a': {'b': ['a', 'x']}}), #combo
+                 ("list contains(a.b,'c')", False, {'a': {'b': ['a', 'x']}}),
+                 ("list contains(a.keys(),'b')", True, {'a': {'b': ['a', 'x']}}),
+                 ("list contains(a.keys(),'c')", False, {'a': {'b': ['a', 'x']}}),
                  ]
         for test in tests:
+            print(test[0])
             self.assertEqual(self.expressionEngine.evaluate(test[0],**test[2]),
                   test[1],"test --> %s <-- with variables ==> %s <==Fail!"%(test[0],str(test[2])))
 
