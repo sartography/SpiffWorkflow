@@ -147,18 +147,16 @@ class DMNParser(object):
 
             # Load input entries
             elif child.tag.endswith('inputEntry'):
-                inputEntry = self._parseInputOutputElement(decision,
-                                                                 decisionTable,
-                                                                 child,
-                                                                 InputEntry,
-                                                                 inputIdx)
+                inputEntry = self._parseInputOutputElement(decisionTable,
+                                                           child,
+                                                           InputEntry,
+                                                           inputIdx)
                 rule.inputEntries.append(inputEntry)
                 inputIdx += 1
 
             # Load output entries
             elif child.tag.endswith('outputEntry'):
-                outputEntry = self._parseInputOutputElement(decision,
-                                                            decisionTable,
+                outputEntry = self._parseInputOutputElement(decisionTable,
                                                             child,
                                                             OutputEntry,
                                                             outputIdx)
@@ -167,12 +165,11 @@ class DMNParser(object):
 
         return rule
 
-    def _parseInputOutputElement(self, decision, decisionTable, element, cls, idx):
+    def _parseInputOutputElement(self, decision_table, element, cls, idx):
         inputOrOutput = (
-            decisionTable.inputs if cls == InputEntry else decisionTable.outputs if cls == OutputEntry else None)[
+            decision_table.inputs if cls == InputEntry else decision_table.outputs if cls == OutputEntry else None)[
             idx]
         entry = cls(element.attrib['id'], inputOrOutput)
-        possible_binary = False
         for child in element:
             if child.tag.endswith('description'):
                 entry.description = child.text
