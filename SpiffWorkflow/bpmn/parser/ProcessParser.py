@@ -122,7 +122,6 @@ class ProcessParser(object):
                 bound = bounds[0]
                 self.id_to_coords_lookup[position.attrib['bpmnElement']] = \
                     {'x': bound.attrib['x'], 'y': bound.attrib['y']}
-        print(self.id_to_coords_lookup)
 
     def _parse(self):
         # here we only look in the top level, We will have another
