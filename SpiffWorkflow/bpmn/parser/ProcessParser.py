@@ -118,7 +118,7 @@ class ProcessParser(object):
         self.id_to_coords_lookup = {}
         for position in self.doc_xpath('.//bpmndi:BPMNShape'):
             bounds = xpath_eval(position)("dc:Bounds")
-            if len(bounds) > 0:
+            if len(bounds) > 0 and 'bpmnElement' in position.attrib:
                 bound = bounds[0]
                 self.id_to_coords_lookup[position.attrib['bpmnElement']] = \
                     {'x': bound.attrib['x'], 'y': bound.attrib['y']}
