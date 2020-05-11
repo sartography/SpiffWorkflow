@@ -211,7 +211,7 @@ class TaskParser(object):
 
             if children:
                 # Sort children by their y coordinate.
-                children = sorted(children, key=lambda tup: tup[0]["y"])
+                children = sorted(children, key=lambda tup: float(tup[0]["y"]))
 
                 default_outgoing = self.node.get('default')
                 if not default_outgoing:
