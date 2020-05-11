@@ -206,15 +206,19 @@ class TaskParser(object):
                 target_node = one(
                     self.process_xpath('.//*[@id="%s"]' % target_ref))
                 c = self.process_parser.parse_node(target_node)
-                children.append((c, target_node, sequence_flow))
+                position = self.process_parser.get_coord(c.name)
+                children.append((position, c, target_node, sequence_flow))
 
             if children:
+                # Sort children by their y coordinate.
+                children = sorted(children, key=lambda tup: tup[0]["y"])
+
                 default_outgoing = self.node.get('default')
                 if not default_outgoing:
-                    (c, target_node, sequence_flow) = children[0]
+                    (position, c, target_node, sequence_flow) = children[0]
                     default_outgoing = sequence_flow.get('id')
 
-                for (c, target_node, sequence_flow) in children:
+                for (position, c, target_node, sequence_flow) in children:
                     self.connect_outgoing(
                         c, target_node, sequence_flow,
                         sequence_flow.get('id') == default_outgoing)

@@ -1,5 +1,5 @@
 from collections import OrderedDict
-
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonSriptEngine
 
 class Decision:
     def __init__(self, id, name):
@@ -31,8 +31,7 @@ class InputEntry:
         self.input = input
 
         self.description = ''
-        self.text = ''
-        self.operators = []
+        self.lhs = []
 
 class Output:
     def __init__(self, id, label, name, typeRef):
@@ -48,7 +47,6 @@ class OutputEntry:
 
         self.description = ''
         self.text = ''
-        self.parsedValue = None
 
 class Rule:
     def __init__(self, id):
@@ -58,11 +56,10 @@ class Rule:
         self.inputEntries = []
         self.outputEntries = []
 
-    def outputAsDict(self):
+    def outputAsDict(self, data):
         out = OrderedDict()
         for outputEntry in self.outputEntries:
             # try to use the id, but fall back to label if no name is provided.
             key = outputEntry.output.name or outputEntry.output.label
-            out[key] = outputEntry.parsedValue
-
+        out[key] = PythonSriptEngine().evaluate(outputEntry.parsedRef,**data)
         return out

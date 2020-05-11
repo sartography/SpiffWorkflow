@@ -4,19 +4,20 @@ from collections import namedtuple
 from ...operators import DotDict
 from decimal import Decimal
 import datetime
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonSriptEngine
 
 
 
 class DMNEngine:
     """
-    Handles the processing of a decision table.
+    Handles the prbocessing of a decision table.
     """
 
 
     def __init__(self, decisionTable, debug=None):
         self.decisionTable = decisionTable
         self.debug = debug
-
+        self.scriptEngine = PythonSriptEngine()
         self.logger = logging.getLogger('DMNEngine')
         if not self.logger.handlers:
             self.logger.addHandler(logging.StreamHandler())
@@ -36,44 +37,30 @@ class DMNEngine:
         for idx, inputEntry in enumerate(rule.inputEntries):
             input = self.decisionTable.inputs[idx]
 
-            self.logger.debug(' Checking input entry %s (%s: %s)...' % (inputEntry.id, input.label, inputEntry.operators))
+            self.logger.debug(' Checking input entry %s (%s: %s)...' % (inputEntry.id, input.label, inputEntry.lhs))
 
-            for operator, parsedValue in inputEntry.operators:
-                if parsedValue is not None:
+            # if inputData:
+            #     self.logger.debug('inputData:', inputData)
+            # if inputKwargs:
+            #     self.logger.debug('inputKwargs:', inputKwargs)
+            local_data = {}
+            local_data.update(inputKwargs)
+            if inputData and isinstance(inputData[idx], dict):
+                local_data.update(inputData[idx])
+
+            for lhs in inputEntry.lhs:
+                if lhs is not None:
                     inputVal = DMNEngine.__getInputVal(inputEntry, idx, *inputData, **inputKwargs)
-                    if isinstance(parsedValue, Decimal) and not isinstance(inputVal, Decimal):
-                        self.logger.warning('Attention, you are comparing a Decimal with %r' % (type(inputVal)))
-
-                    if operator == 'in' or operator == 'not in':
-                        expression = '%r %s %s' % (parsedValue,  operator, inputVal)
-                    else:
-                        expression = '%s %s %r' % (inputVal, operator, parsedValue)
-                    self.logger.debug(' Evaluation expression: %s' % (expression))
-
-                    # Make any dictionaries available as objects that can be
-                    # referenced in dot notation.
-                    local_data = {}
-                    local_data.update(inputKwargs)
-                    if inputData and isinstance(inputData[idx], dict):
-                        local_data.update(inputData[idx])
-                    for key in local_data:
-                            if isinstance(local_data[key], dict):
-                                locals().update(
-                                    {key: DotDict(local_data[key])})
-                            else:
-                                locals().update(
-                                    {key: local_data[key]}
-                                )
-                    try:
-                        if not eval(expression):
-                            return False  # Value does not match
-                        else:
-                            continue  # Check the other operators/columns
-                    except Exception as e:
-                        raise Exception("Failed to execute "
-                                                "expression: '%s' in the "
-                                                "Row with annotation '%s', %s" % (
-                            expression, rule.description, str(e)))
+                else:
+                    inputVal = None
+                try:
+                    if not self.scriptEngine.eval_bmn_expression(inputVal, lhs, **local_data):
+                        return False
+                except Exception as e:
+                    raise Exception("Failed to execute "
+                                    "expression: '%s' is '%s' in the "
+                                    "Row with annotation '%s', %s" % (
+                                        inputVal, lhs, rule.description, str(e)))
                 else:
                     # Empty means ignore decision value
                     self.logger.debug(' Value not defined')

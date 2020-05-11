@@ -36,10 +36,11 @@ class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
         except WorkflowTaskExecException as we:
             self.assertTrue(True, "An error was raised..")
             self.assertEquals("InvalidDecisionTaskId", we.sender.name)
+            self.maxDiff  = 1000
             self.assertEquals("InvalidDecisionTaskId: Failed to execute "
-                              "expression: 'spam = 1' in the Row with "
+                              "expression: 'spam' is '= 1' in the Row with "
                               "annotation 'This is complletely wrong.'"
-                              ", invalid syntax (<string>, line 1)",
+                              ", invalid syntax (<string>, line 5)",
                               str(we))
 
 def suite():
