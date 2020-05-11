@@ -4,6 +4,7 @@ import ast
 import re
 import datetime
 from decimal import Decimal
+from SpiffWorkflow.workflow import WorkflowException
 # Copyright (C) 2020 Kelly McDonald
 #
 # This library is free software; you can redistribute it and/or
@@ -198,7 +199,7 @@ class PythonSriptEngine(object):
                 ast.parse(revised_text)
                 return revised_text[1:],False
             except:
-                raise Exception("error parsing expression "+text)
+                raise WorkflowException("error parsing expression "+text)
 
 
 
@@ -214,7 +215,7 @@ class PythonSriptEngine(object):
         rhs, needsEquals = self.validateExpression(matchExpr)
         lhs, lhsNeedsEquals = self.validateExpression(inputExpr)
         if not lhsNeedsEquals:
-            raise Exception("Input Expression '%s' is malformed"%inputExpr)
+            raise WorkflowException("Input Expression '%s' is malformed"%inputExpr)
         if needsEquals:
            expression = lhs + ' == ' + rhs
         else:
