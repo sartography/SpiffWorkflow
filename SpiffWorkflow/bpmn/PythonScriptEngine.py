@@ -135,10 +135,10 @@ fixes = [('string\s+length\((.+?)\)','len(\\1)'),
          #               somedict.keys()  - because that is actually in the tests.
          # however, it would be fixed by doing:
          #              x contains( this.dotdict.item )
-         ('\s[a-zA-Z][a-zA-Z0-9.]+?\s',expandDotDict),  # In the middle of a string
-         ('^[a-zA-Z][a-zA-Z0-9.]+?\s',expandDotDict),   # at beginning with stuff after
-         ('^[a-zA-Z][a-zA-Z0-9.]+?$',expandDotDict),    # all by itself & lonely :-(
-         ('\s[a-zA-Z][a-zA-Z0-9.]+?$',expandDotDict),   # at the very end of a string
+         ('\s[a-zA-Z][a-zA-Z0-9_\-.]+?\s',expandDotDict),  # In the middle of a string
+         ('^[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),   # at beginning with stuff after
+         ('^[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),    # all by itself & lonely :-(
+         ('\s[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),   # at the very end of a string
          ('true','True'),
          ('false','False')
          ]
