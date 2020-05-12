@@ -7,7 +7,7 @@
     <decisionTable id="decisionTable">
       <input id="input1" label="Spam is Delicious?">
         <inputExpression id="inputExpression1" typeRef="boolean">
-          <text>odd_foods.spam-like.delicious</text>
+          <text>odd_foods.SPAM_LIKE.delicious</text>
         </inputExpression>
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />

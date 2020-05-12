@@ -80,6 +80,11 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
                 {"CurrentFamilyMember": {"Birthdate": "10/05/1985" + str(x)}})
             self.workflow.do_engine_steps()
             self.workflow.complete_task_from_id(task.id)
+            # The data should still be available on the current task.
+            self.assertEquals({'FirstName': "The Funk #%i" % x,
+                               'Birthdate': '10/05/1985' + str(x)},
+                              self.workflow.get_task(task.id)
+                              .data['CurrentFamilyMember'])
             self.workflow.do_engine_steps()
             if save_restore:
                 self.reload_save_restore()
@@ -96,6 +101,7 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
         for x in list(names.keys()):
             self.assertEqual(str(names[x]['FirstName'][-1]),str(bdays[x]['Birthdate'][-1]))
         self.assertTrue(self.workflow.is_completed())
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(MultiInstanceParallelArrayTest)

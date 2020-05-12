@@ -11,7 +11,7 @@ class DictDotNotationDecisionWeirdCharactersTestClass(unittest.TestCase):
 
     def test_string_decision_string_output1(self):
         data = {"odd_foods": {
-            "spam-like": {"delicious": False}
+            "SPAM_LIKE": {"delicious": False}
         }}
         res = self.runner.decide(data)
         self.assertEqual(res.description, 'This person has a tongue, brain '
