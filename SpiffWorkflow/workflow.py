@@ -29,6 +29,141 @@ from .exceptions import WorkflowException
 LOG = logging.getLogger(__name__)
 
 
+def same_ending_length(node):
+    """
+    return the length of the endings of each child that match each other
+    """
+    # go get a modified list of just the ids in each child.
+    endings = [[leaf['id'] for leaf in branch['children']] for branch in node]
+    # the longest identical ending will be equal to the lenght of the
+    # shortest list
+    shortest_list = min([len(x) for x in endings])
+    # walk through the list and determine if they are all the same
+    # for each. If they are not the same, then we back off the snip point
+    snip_point = shortest_list
+    for x in reversed(range(shortest_list)):
+        current_pos = -(x+1)
+        if not all([idlist[current_pos]] for idlist in endings):
+            snip_point = -current_pos
+    return snip_point
+
+def snip_same_ending(node,length):
+    """
+    shorten each child task list to be only it's unique children,
+    return a list of the same endings so we can tack it on the
+    parent tree.
+    """
+    retlist = node[0]['children'][-length:]
+    for branch in node:
+        branch['children'] = branch['children'][:-length]
+    return retlist
+
+def flatten(list,output=[],level=0):
+    """
+    Traverse the tree and return a list
+    """
+    for x in list:
+        x['indent'] = level
+        x['childcount'] = len(x['children'])
+        output.append(x)
+        if len(x['children']) >0:
+            flatten(x['children'],output,level+1)
+        del x['children']
+    return output
+
+
+def follow_tree(tree,output=[],found=set(),level=0):
+    from SpiffWorkflow.bpmn.specs.UnstructuredJoin import UnstructuredJoin
+
+
+    outputs = list(tree.outgoing_sequence_flows.keys())
+    if len(outputs)==0:
+        # This has no children, so we append it and terminate the recursion
+        if tree.description is not None and \
+                tree.description != '' and \
+            tree.id not in [x['id'] for x in output]:
+            output.append({'id': tree.id,
+                           'name': tree.name,
+                           'description': tree.description,
+                           'backtracks': None,
+                           'children': [],
+                           'level': level})
+        return output
+    if len(outputs) == 1:
+        # there are no branching points here, so our job is simple
+        # add to the tree and descend into the tree some more
+        link = tree.outgoing_sequence_flows[outputs[0]]
+        if tree.description is not None and \
+                tree.description != '' and \
+                tree.id not in [x['id'] for x in output]:
+            output.append({'id': tree.id,
+                           'name': tree.name,
+                           'description': tree.description,
+                           'backtracks': None,
+                           'children':[],
+                           'level': level })
+        output = follow_tree(link.target_task_spec, output, found, level+1)
+        return output
+
+    if isinstance(tree,UnstructuredJoin):
+        # here we have a parallel gateway, so we want to
+        # add myself to the tree - subsequent calls will
+        # not add if it is already in the list
+        for key in outputs:
+            link = tree.outgoing_sequence_flows[key]
+
+            # consider to check and see if this one is already
+            # in the list - we may have a problem if we are nesting
+            # parallel gateways.
+            if tree.description is not None and \
+                tree.description != '':
+                output.append({'id': tree.id,
+                               'name': tree.name,
+                               'description': tree.description,
+                               'is_decision': False,
+                               'children':[],
+                               'backtracks':None,
+                               'level': level})
+            output = follow_tree(link.target_task_spec, output, found, level + 1)
+        return output
+    # if we are here, then we assume that we have a decision point and process
+    # accordingly - this may be incorrect and we may want to add some other
+    # cases -
+    taskchildren = []
+    for key in outputs:
+        link = tree.outgoing_sequence_flows[key]
+        if link.name is not None:
+            mychildren = []
+            follow_tree(link.target_task_spec, mychildren, found, level + 2)
+            mychildren.sort(key=lambda x: x['level'])
+            taskchildren.append({'id':link.id,
+                                 'name':link.name,
+                                 'description':link.name,
+                                 'is_decision': True,
+                                 'backtracks':None,
+                                 'children':mychildren,
+                                 'level':level+1})
+        # we know we have several decision points which may merge in the future. The lists
+        # should be identical except for the levels.
+        # essentially, we want to find the list of ID's that are in each of the taskchildren's children
+        # and remove that from each list.
+        # in addition, this should be the same length on each end because of the sort above.
+    # now that we have our children lists, we can remove the intersection of the group
+    if tree.id not in  [x['id'] for x in output]:
+        snip_lists = same_ending_length(taskchildren)
+        merge_list = snip_same_ending(taskchildren, snip_lists)
+        output.append({'id':tree.id,
+                       'name':tree.name,
+                       'description':tree.description,
+                       'backtracks':None,
+                       'is_decision':False,
+                       'children':taskchildren,
+                       'level':level+1})
+        output =  output + merge_list
+    return output
+
+
+
 class Workflow(object):
 
     """
@@ -181,6 +316,81 @@ class Workflow(object):
         """
         return [task for task in self.get_tasks()
                 if task.task_spec.name == name]
+
+    def empty(self,str):
+        if str == None:
+            return True
+        if str == '':
+            return True
+        return False
+
+    def get_nav_list(self):
+        """
+        Return a list of waypoints for this workflow along with some key metrics
+        - Each list item has :
+               id               -   Task or Sequence flow id
+               name             -   The name of the task spec (or sequence)
+               description      -   Text description
+               backtracks       -   Boolean, if this backtracks back up the list or not
+               level            -   Depth in the tree - probably not needed
+               indent           -   A hint for indentation
+               childcount       -   The number of children that should be associated with
+                                    this item.
+               state            -   Text based state (may be half baked in the case that we have
+                                    more than one state for a task spec - but I don't think those
+                                    are being reported in the list, so it may not matter)
+
+                Any task with a blank or None as the description are excluded from the list (i.e. gateways)
+        """
+        # get the top of our list
+        top = self.task_tree.children[0].task_spec.outputs[0]
+
+        # traverse the tree
+        l = follow_tree(top,output=[],found=set())
+
+        # make sure things get presented in order - I may need to take another
+        # look at why this is needed. Ideally, it would come out of the traversal in
+        # the correct order
+        l = sorted(l,key = lambda x: x['level'])
+
+        # flatten the list to aid in display -
+        # if I don't provide a new output, it just
+        # appends.
+        l = flatten(l,output=[])
+
+        # Get all of our current tasks
+        task_list = self.get_tasks()
+
+        # look up task status for each item in the list
+        for task_spec in l:
+
+            # get a list of statuses for the current task_spec
+            # we may have more than one task for each
+            status = [x.state_names[x.state]
+                      for x
+                      in task_list
+                      if x.task_spec.id == task_spec['id']]
+
+            if len(status)==0:
+                # Sequence flows will not be in this list -
+                # we will not find any status
+                task_spec['state'] = 'None'
+            else:
+                if all(status):
+                    # if all of the statuses are the same,
+                    # we just pull the first one
+                    task_spec['state'] = status[0]
+                else:
+                    # The statuses are not all the same,
+                    # in some conditions we may have to decide, but for the
+                    # moment, the ones that would fall under this won't be
+                    # displayed (i.e. closing parallel gateway that is either
+                    # 'future' or 'waiting'
+                    # for now, just grab one.
+                    print(task_spec['id'])
+                    task_spec['state'] = status[0]
+        return l
+
 
     def get_tasks(self, state=Task.ANY_MASK):
         """
