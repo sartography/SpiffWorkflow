@@ -357,8 +357,11 @@ class MultiInstanceTask(TaskSpec):
             my_task._set_internal_data(runtimes=runtimes + 1)
             my_task.data[self.elementVar] = self._get_current_var(my_task,
                                                       runtimes + 1)
+            element_var_data = None
         else:
-            my_task.data.pop(self.elementVar, None)  # Remove once merged.
+            # The element var data should not be passed on to children
+            # but will add this back onto this task later.
+            element_var_data = my_task.data.pop(self.elementVar, None)
 
         # if this is a parallel mi - then update all siblings with the
         # current data
@@ -387,12 +390,15 @@ class MultiInstanceTask(TaskSpec):
         # please see MultiInstance code for previous version
         outputs = []
         outputs += self.outputs
+
         my_task._sync_children(outputs, Task.FUTURE)
 
-        # The element var is temporary, and should be removed before moving on.
         for child in my_task.children:
             child.task_spec._update(child)
-        LOG.debug("return from updateHook")
+
+        # If removed, add the element_var_data back onto this task.
+        if(element_var_data):
+            my_task.data[self.elementVar] = element_var_data
 
     def serialize(self, serializer):
         return serializer.serialize_multi_instance(self)

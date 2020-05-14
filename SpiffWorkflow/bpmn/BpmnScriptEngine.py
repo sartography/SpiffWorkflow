@@ -17,6 +17,8 @@ from builtins import object
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+from SpiffWorkflow.exceptions import WorkflowTaskExecException
+
 from .PythonScriptEngine import PythonSriptEngine
 from ..operators import Operator
 
@@ -39,11 +41,15 @@ class BpmnScriptEngine(PythonSriptEngine):
         Evaluate the given expression, within the context of the given task and
         return the result.
         """
-        if isinstance(expression, Operator):
-            # I am assuming that this takes care of some kind of XML expression
-            # judging from the contents of operators.py
-            return expression._matches(task)
-        else:
-            #return super()._eval(task, expression, **task.data)
-            return super()._eval(expression, **task.data)
+        try:
+            if isinstance(expression, Operator):
+                # I am assuming that this takes care of some kind of XML
+                # expression judging from the contents of operators.py
+                return expression._matches(task)
+            else:
+                return super()._eval(expression, **task.data)
+        except Exception as e:
+            raise WorkflowTaskExecException(task,
+                                            "Error evaluating expression "
+                                            "'%s', %s" % (expression, str(e)))
 

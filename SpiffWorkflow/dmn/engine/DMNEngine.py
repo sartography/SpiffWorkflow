@@ -1,6 +1,9 @@
 import logging
 from argparse import Namespace
 from collections import namedtuple
+
+from SpiffWorkflow import WorkflowException
+
 from ...operators import DotDict
 from decimal import Decimal
 import datetime
@@ -56,6 +59,12 @@ class DMNEngine:
                 try:
                     if not self.scriptEngine.eval_bmn_expression(inputVal, lhs, **local_data):
                         return False
+                except KeyError as e:
+                    raise Exception("Failed to execute "
+                                    "expression: '%s' is '%s' in the "
+                                    "Row with annotation '%s'.  The following "
+                                    "value does not exist: %s" % (
+                                        inputVal, lhs, rule.description, str(e)))
                 except Exception as e:
                     raise Exception("Failed to execute "
                                     "expression: '%s' is '%s' in the "
