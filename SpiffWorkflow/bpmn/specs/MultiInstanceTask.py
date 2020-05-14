@@ -304,6 +304,7 @@ class MultiInstanceTask(TaskSpec):
 
                     new_task_spec = copy.copy(my_task.task_spec)
                     new_child.task_spec = new_task_spec
+                    new_child.task_spec.id = str(new_task_spec.id) + "_%d"%x
                     self.outputs[0].inputs.append(new_task_spec)
                     my_task.parent.children.append(new_child)
                     my_task.parent.task_spec.outputs.append(new_task_spec)

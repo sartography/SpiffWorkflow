@@ -74,6 +74,7 @@ def flatten(list,output=[],level=0):
 
 def follow_tree(tree,output=[],found=set(),level=0):
     from SpiffWorkflow.bpmn.specs.UnstructuredJoin import UnstructuredJoin
+    from SpiffWorkflow.bpmn.specs.MultiInstanceTask import MultiInstanceTask
 
 
     outputs = list(tree.outgoing_sequence_flows.keys())
@@ -81,14 +82,42 @@ def follow_tree(tree,output=[],found=set(),level=0):
         # This has no children, so we append it and terminate the recursion
         if tree.description is not None and \
                 tree.description != '' and \
-            tree.id not in [x['id'] for x in output]:
+                tree.id not in [x['id'] for x in output]:
             output.append({'id': tree.id,
                            'name': tree.name,
                            'description': tree.description,
                            'backtracks': None,
                            'children': [],
                            'level': level})
+        found.add(tree.id)
         return output
+
+    if isinstance(tree,MultiInstanceTask) and\
+            not tree.isSequential:
+        # NB: Not technically correct but expedient
+        for task in tree.inputs[1].outputs:
+            linkkey = list(task.outgoing_sequence_flows.keys())[0]
+            link = task.outgoing_sequence_flows[linkkey]
+
+            # consider to check and see if this one is already
+            # in the list - we may have a problem if we are nesting
+            # parallel gateways.
+            if task.description is not None and \
+                task.description != '':
+                output.append({'id': task.id,
+                               'name': task.name,
+                               'description': task.description,
+                               'is_decision': False,
+                               'children':[],
+                               'backtracks':None,
+                               'level': level})
+            if task.id not in found:
+                found.add(task.id)
+                output = follow_tree(link.target_task_spec, output, found, level + 1)
+
+        return output
+
+
     if len(outputs) == 1:
         # there are no branching points here, so our job is simple
         # add to the tree and descend into the tree some more
@@ -102,13 +131,16 @@ def follow_tree(tree,output=[],found=set(),level=0):
                            'backtracks': None,
                            'children':[],
                            'level': level })
-        output = follow_tree(link.target_task_spec, output, found, level+1)
+        if tree.id not in found:
+            found.add(tree.id)
+            output = follow_tree(link.target_task_spec, output, found, level+1)
         return output
 
     if isinstance(tree,UnstructuredJoin):
         # here we have a parallel gateway, so we want to
         # add myself to the tree - subsequent calls will
         # not add if it is already in the list
+
         for key in outputs:
             link = tree.outgoing_sequence_flows[key]
 
@@ -124,7 +156,10 @@ def follow_tree(tree,output=[],found=set(),level=0):
                                'children':[],
                                'backtracks':None,
                                'level': level})
-            output = follow_tree(link.target_task_spec, output, found, level + 1)
+            if tree.id not in found:
+                found.add(tree.id)
+                output = follow_tree(link.target_task_spec, output, found, level + 1)
+
         return output
     # if we are here, then we assume that we have a decision point and process
     # accordingly - this may be incorrect and we may want to add some other
@@ -134,13 +169,17 @@ def follow_tree(tree,output=[],found=set(),level=0):
         link = tree.outgoing_sequence_flows[key]
         if link.name is not None:
             mychildren = []
-            follow_tree(link.target_task_spec, mychildren, found, level + 2)
+            if link.target_task_spec.id not in found:
+                follow_tree(link.target_task_spec, mychildren, found, level + 2)
+                backtracklink = None
+            else:
+                backtracklink = (link.target_task_spec.id,link.target_task_spec.description)
             mychildren.sort(key=lambda x: x['level'])
             taskchildren.append({'id':link.id,
                                  'name':link.name,
                                  'description':link.name,
                                  'is_decision': True,
-                                 'backtracks':None,
+                                 'backtracks':backtracklink,
                                  'children':mychildren,
                                  'level':level+1})
         # we know we have several decision points which may merge in the future. The lists
@@ -160,6 +199,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
                        'children':taskchildren,
                        'level':level+1})
         output =  output + merge_list
+    found.add(tree.id)
     return output
 
 
@@ -370,16 +410,24 @@ class Workflow(object):
                       for x
                       in task_list
                       if x.task_spec.id == task_spec['id']]
-
+            taskids = [x.id
+                      for x
+                      in task_list
+                      if x.task_spec.id == task_spec['id']]
             if len(status)==0:
                 # Sequence flows will not be in this list -
                 # we will not find any status
-                task_spec['state'] = 'None'
+                if task_spec.get('is_decision') is not None:
+                    task_spec['state'] = 'NOOP'
+                else:
+                    task_spec['state'] = 'None'
+                task_spec['taskid'] = None
             else:
                 if all(status):
                     # if all of the statuses are the same,
                     # we just pull the first one
                     task_spec['state'] = status[0]
+                    task_spec['taskid'] = taskids[0]
                 else:
                     # The statuses are not all the same,
                     # in some conditions we may have to decide, but for the
@@ -389,6 +437,7 @@ class Workflow(object):
                     # for now, just grab one.
                     print(task_spec['id'])
                     task_spec['state'] = status[0]
+                    task_spec['taskid'] = taskids[0]
         return l
 
 
