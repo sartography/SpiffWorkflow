@@ -74,6 +74,7 @@ def flatten(list,output=[],level=0):
 
 def follow_tree(tree,output=[],found=set(),level=0):
     from SpiffWorkflow.bpmn.specs.UnstructuredJoin import UnstructuredJoin
+    from SpiffWorkflow.bpmn.specs.MultiInstanceTask import MultiInstanceTask
 
 
     outputs = list(tree.outgoing_sequence_flows.keys())
@@ -90,7 +91,34 @@ def follow_tree(tree,output=[],found=set(),level=0):
                            'level': level})
         found.add(tree.id)
         return output
-    if len(outputs) == 1 and len(outputs)==len(tree.outputs):
+
+    if isinstance(tree,MultiInstanceTask) and\
+            not tree.isSequential:
+        # NB: Not technically correct but expedient
+        for task in tree.inputs[1].outputs:
+            linkkey = list(task.outgoing_sequence_flows.keys())[0]
+            link = task.outgoing_sequence_flows[linkkey]
+
+            # consider to check and see if this one is already
+            # in the list - we may have a problem if we are nesting
+            # parallel gateways.
+            if task.description is not None and \
+                task.description != '':
+                output.append({'id': task.id,
+                               'name': task.name,
+                               'description': task.description,
+                               'is_decision': False,
+                               'children':[],
+                               'backtracks':None,
+                               'level': level})
+            if task.id not in found:
+                found.add(task.id)
+                output = follow_tree(link.target_task_spec, output, found, level + 1)
+
+        return output
+
+
+    if len(outputs) == 1:
         # there are no branching points here, so our job is simple
         # add to the tree and descend into the tree some more
         link = tree.outgoing_sequence_flows[outputs[0]]
@@ -113,9 +141,9 @@ def follow_tree(tree,output=[],found=set(),level=0):
         # add myself to the tree - subsequent calls will
         # not add if it is already in the list
 
-        # MultiInstanceTask doesn't add anything to the outgoing_sequence_flows
-        # so we have to add those in.
-        for task in tree.outputs:
+        for key in outputs:
+            link = tree.outgoing_sequence_flows[key]
+
             # consider to check and see if this one is already
             # in the list - we may have a problem if we are nesting
             # parallel gateways.
@@ -130,7 +158,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
                                'level': level})
             if tree.id not in found:
                 found.add(tree.id)
-                output = follow_tree(task, output, found, level + 1)
+                output = follow_tree(link.target_task_spec, output, found, level + 1)
 
         return output
     # if we are here, then we assume that we have a decision point and process
@@ -389,7 +417,11 @@ class Workflow(object):
             if len(status)==0:
                 # Sequence flows will not be in this list -
                 # we will not find any status
-                task_spec['state'] = 'None'
+                if task_spec.get('is_decision') is not None:
+                    task_spec['state'] = 'NOOP'
+                else:
+                    task_spec['state'] = 'None'
+                task_spec['taskid'] = None
             else:
                 if all(status):
                     # if all of the statuses are the same,
