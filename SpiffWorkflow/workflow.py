@@ -64,7 +64,7 @@ def flatten(list,output=[],level=0):
     """
     for x in list:
         x['indent'] = level
-        x['childcount'] = len(x['children'])
+        x['child_count'] = len(x['children'])
         output.append(x)
         if len(x['children']) >0:
             flatten(x['children'],output,level+1)
@@ -368,13 +368,14 @@ class Workflow(object):
         """
         Return a list of waypoints for this workflow along with some key metrics
         - Each list item has :
-               id               -   Task or Sequence flow id
+               id               -   TaskSpec or Sequence flow id
+               task_id          -   The uuid of the actual task instance, if it exists.
                name             -   The name of the task spec (or sequence)
                description      -   Text description
                backtracks       -   Boolean, if this backtracks back up the list or not
                level            -   Depth in the tree - probably not needed
                indent           -   A hint for indentation
-               childcount       -   The number of children that should be associated with
+               child_count       -   The number of children that should be associated with
                                     this item.
                state            -   Text based state (may be half baked in the case that we have
                                     more than one state for a task spec - but I don't think those
@@ -421,13 +422,13 @@ class Workflow(object):
                     task_spec['state'] = 'NOOP'
                 else:
                     task_spec['state'] = 'None'
-                task_spec['taskid'] = None
+                task_spec['task_id'] = None
             else:
                 if all(status):
                     # if all of the statuses are the same,
                     # we just pull the first one
                     task_spec['state'] = status[0]
-                    task_spec['taskid'] = taskids[0]
+                    task_spec['task_id'] = taskids[0]
                 else:
                     # The statuses are not all the same,
                     # in some conditions we may have to decide, but for the
@@ -437,7 +438,7 @@ class Workflow(object):
                     # for now, just grab one.
                     print(task_spec['id'])
                     task_spec['state'] = status[0]
-                    task_spec['taskid'] = taskids[0]
+                    task_spec['task_id'] = taskids[0]
         return l
 
 
