@@ -121,6 +121,8 @@ class Task(object):
             return self
 
         def _next(self):
+            # fixme:  Don't recurse forever!!!! Froze us up on staging.
+
             # Make sure that the end is not yet reached.
             if len(self.path) == 0:
                 raise StopIteration()

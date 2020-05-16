@@ -55,7 +55,11 @@ def snip_same_ending(node,length):
     """
     retlist = node[0]['children'][-length:]
     for branch in node:
-        branch['children'] = branch['children'][:-length]
+        new_children = []
+        for child in branch['children']:
+            if not child in retlist:
+                new_children.append(child)
+        branch['children'] = new_children
     return retlist
 
 def flatten(list,output=[],level=0):
