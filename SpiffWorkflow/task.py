@@ -20,7 +20,8 @@ from builtins import object
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from SpiffWorkflow.exceptions import WorkflowException
+from SpiffWorkflow.exceptions import WorkflowException, \
+    WorkflowTaskExecException
 import logging
 import time
 from uuid import uuid4
@@ -121,7 +122,6 @@ class Task(object):
             return self
 
         def _next(self):
-            # fixme:  Don't recurse forever!!!! Froze us up on staging.
 
             # Make sure that the end is not yet reached.
             if len(self.path) == 0:
@@ -164,10 +164,15 @@ class Task(object):
 
         def __next__(self):
             # By using this loop we avoid an (expensive) recursive call.
-            while True:
+            i = 0
+            while i < 10000:
                 next = self._next()
                 if next is not None:
                     return next
+            if i == 10000:
+                raise WorkflowTaskExecException(self,
+                                                "infinite loop finding the "
+                                                "next task in Task iterator.")
 
         # Python 3 iterator protocol
         next = __next__
