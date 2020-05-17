@@ -20,8 +20,7 @@ from builtins import object
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from SpiffWorkflow.exceptions import WorkflowException, \
-    WorkflowTaskExecException
+from SpiffWorkflow.exceptions import WorkflowException
 import logging
 import time
 from uuid import uuid4
@@ -106,6 +105,8 @@ class Task(object):
 
     class Iterator(object):
 
+        MAX_ITERATIONS = 10000
+
         """
         This is a tree iterator that supports filtering such that a client
         may walk through all tasks that have a specific state.
@@ -117,6 +118,8 @@ class Task(object):
             """
             self.filter = filter
             self.path = [current]
+            self.count = 1
+
 
         def __iter__(self):
             return self
@@ -127,11 +130,19 @@ class Task(object):
             if len(self.path) == 0:
                 raise StopIteration()
 
+            current = self.path[-1]
+
+            # Assure we don't recurse forever.
+            self.count += 1
+            if self.count > self.MAX_ITERATIONS:
+                raise WorkflowException(current,
+                "Task Iterator entered infinite recursion loop" )
+
+
             # If the current task has children, the first child is the next
             # item. If the current task is LIKELY, and predicted tasks are not
             # specificly searched, we can ignore the children, because
             # predicted tasks should only have predicted children.
-            current = self.path[-1]
             ignore_task = False
             if self.filter is not None:
                 search_predicted = self.filter & Task.LIKELY != 0
@@ -164,15 +175,10 @@ class Task(object):
 
         def __next__(self):
             # By using this loop we avoid an (expensive) recursive call.
-            i = 0
-            while i < 10000:
+            while True:
                 next = self._next()
                 if next is not None:
                     return next
-            if i == 10000:
-                raise WorkflowTaskExecException(self,
-                                                "infinite loop finding the "
-                                                "next task in Task iterator.")
 
         # Python 3 iterator protocol
         next = __next__
