@@ -9,7 +9,7 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 __author__ = 'kellym'
 
 
-class LoopTaskTest(BpmnWorkflowTestCase):
+class NavListExclusiveGatewayTest(BpmnWorkflowTestCase):
     """The example bpmn diagram looks roughtly like this
 
     [Task 1] -> <x exclusive gateway x>
@@ -50,6 +50,6 @@ class LoopTaskTest(BpmnWorkflowTestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(LoopTaskTest)
+    return unittest.TestLoader().loadTestsFromTestCase(NavListExclusiveGatewayTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

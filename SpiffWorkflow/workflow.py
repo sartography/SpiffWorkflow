@@ -162,7 +162,8 @@ def follow_tree(tree,output=[],found=set(),level=0):
                                'level': level})
             if tree.id not in found:
                 found.add(tree.id)
-                output = follow_tree(link.target_task_spec, output, found, level + 1)
+            # For parallel tasks, Check all the children, not just the first one.
+            output = follow_tree(link.target_task_spec, output, found, level + 1)
 
         return output
     # if we are here, then we assume that we have a decision point and process
