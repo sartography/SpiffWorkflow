@@ -280,7 +280,7 @@ class Task(object):
                     t._set_state(self.WAITING)
         # now we set this one to execute
         self._set_state(self.MAYBE)
-        self._sync_children(self.task_spec.outputs)
+        #self._sync_children(self.task_spec.outputs)
         for child in self.children:
             child.set_children_future()
 
