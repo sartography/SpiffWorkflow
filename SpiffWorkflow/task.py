@@ -271,6 +271,8 @@ class Task(object):
         'READY'
         """
         from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
+        if self.state != self.COMPLETED:
+            return
         if isinstance(self.task_spec, UnstructuredJoin):
             # go find all of the gateways with the same name as this one,
             # drop children and set state to WAITING
@@ -280,9 +282,12 @@ class Task(object):
                     t._set_state(self.WAITING)
         # now we set this one to execute
         self._set_state(self.MAYBE)
-        #self._sync_children(self.task_spec.outputs)
         for child in self.children:
             child.set_children_future()
+        self._sync_children(self.task_spec.outputs)
+
+    def taskcount(self):
+        return len([x for x in self.workflow.task_tree])
 
     def reset_token(self, reset_data=False):
         """
