@@ -175,7 +175,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
             mychildren = []
             if link.target_task_spec.id not in found:
                 f = copy.copy(found)
-                follow_tree(link.target_task_spec, mychildren, f, level + 2)
+                mychildren = follow_tree(link.target_task_spec, mychildren, f, level + 2)
                 backtracklink = None
             else:
                 backtracklink = (link.target_task_spec.id,link.target_task_spec.description)
