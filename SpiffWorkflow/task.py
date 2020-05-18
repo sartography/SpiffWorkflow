@@ -286,8 +286,6 @@ class Task(object):
             child.set_children_future()
         self._sync_children(self.task_spec.outputs)
 
-    def taskcount(self):
-        return len([x for x in self.workflow.task_tree])
 
     def reset_token(self, reset_data=False):
         """
