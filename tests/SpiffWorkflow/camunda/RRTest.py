@@ -32,12 +32,13 @@ class ResetTokenParallelTaskCountTest(BaseTestCase):
         self.actual_test(save_restore=True)
 
     def actual_test(self, save_restore=False):
-        total = 330  # Still seems like a ludicrous number of tasks, but ok.
+        total = 226  # Still seems like a ludicrous number of tasks, but ok.
 
         # Set the workflow in motion, and assure we have the right
         # number of tasks
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
+        nl = self.workflow.get_nav_list()
         self.assertEquals(total, len(self.workflow.get_tasks()))
         first_task = self.workflow.get_ready_user_tasks()[0]
 

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
 from __future__ import print_function
+
+import copy
 from builtins import next
 from builtins import object
 # Copyright (C) 2007 Samuel Abels
@@ -43,8 +45,9 @@ def same_ending_length(node):
     snip_point = shortest_list
     for x in reversed(range(shortest_list)):
         current_pos = -(x+1)
-        if not all([idlist[current_pos]] for idlist in endings):
-            snip_point = -current_pos
+        end_ids = [el[current_pos] for el in endings]
+        if not len(set(end_ids)) <= 1:
+            snip_point = snip_point - 1
     return snip_point
 
 def snip_same_ending(node,length):
@@ -55,11 +58,7 @@ def snip_same_ending(node,length):
     """
     retlist = node[0]['children'][-length:]
     for branch in node:
-        new_children = []
-        for child in branch['children']:
-            if not child in retlist:
-                new_children.append(child)
-        branch['children'] = new_children
+        branch['children'] = branch['children'][:-length]
     return retlist
 
 def flatten(list,output=[],level=0):
@@ -175,7 +174,8 @@ def follow_tree(tree,output=[],found=set(),level=0):
         if link.name is not None:
             mychildren = []
             if link.target_task_spec.id not in found:
-                follow_tree(link.target_task_spec, mychildren, found, level + 2)
+                f = copy.copy(found)
+                follow_tree(link.target_task_spec, mychildren, f, level + 2)
                 backtracklink = None
             else:
                 backtracklink = (link.target_task_spec.id,link.target_task_spec.description)
