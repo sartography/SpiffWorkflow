@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1oogn9j" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
+  <bpmn:process id="token_trial_parallel_simple" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1w2tcdp</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent_09wp7av">
+      <bpmn:incoming>Flow_1vtdwmy</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="UserTask_0fd3nql" name="Task P1" camunda:formKey="Physical Interactions">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="nterviews" label="Interviews" type="boolean">
+            <camunda:properties>
+              <camunda:property id="description" value="Can any interviews and check ins be conducted remotely?" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="StaffInteractions" label="Staff Interactions" type="textarea">
+            <camunda:properties>
+              <camunda:property id="rows" value="10" />
+              <camunda:property id="description" value="How do study staff interact with each other?" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="SubjectInteractions" label="Subject Interactions" type="textarea">
+            <camunda:properties>
+              <camunda:property id="rows" value="10" />
+              <camunda:property id="description" value="How do study staff interact with study subjects?" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="FaceToFaceInteractions" label="Face to Face Interactions" type="long">
+            <camunda:properties>
+              <camunda:property id="description" value="How many face-to-face interactions are required per subject?" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="InteractionsDuringVisits" label="Interactions During Visits:" type="enum">
+            <camunda:properties>
+              <camunda:property id="description" value="Do research interactions happen during standard of care visits (if applicable)?" />
+            </camunda:properties>
+            <camunda:value id="Yes" name="Yes, all interactions occur during standard  of care visits" />
+            <camunda:value id="No" name="No, special vistis are always or sometimes required" />
+          </camunda:formField>
+          <camunda:formField id="Screening" label="Screening" type="textarea">
+            <camunda:properties>
+              <camunda:property id="rows" value="10" />
+              <camunda:property id="description" value="Please describe your plans for health screening of subjects." />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="AtRiskParticipants" label="At Risk Participants" type="textarea">
+            <camunda:properties>
+              <camunda:property id="rows" value="10" />
+              <camunda:property id="description" value="Describe the plan to identify study participants who are at increased risk of COVID-19, and provide extra protections, or the plan to phase them in at a later time." />
+            </camunda:properties>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1242uxm</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_09c4dnr</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="UserTask_1k9gxsc" name="Task P2" camunda:formKey="Client Materials">
+      <bpmn:documentation>#### Please plan to ensure adequate supplies for staff cleaning before and after patients</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="ClientSupplyLevel" label="Supply Level" type="boolean">
+            <camunda:properties>
+              <camunda:property id="description" value="Do you have sufficient supplies to resume in-person activities?" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="ClientPPE" label="PPE" type="boolean">
+            <camunda:properties>
+              <camunda:property id="description" value="Do you have the needed PPE?" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="ClientPPE_Resupply" label="PPE Resupply" type="enum">
+            <camunda:properties>
+              <camunda:property id="description" value="When will PPE need to be replenished?" />
+            </camunda:properties>
+            <camunda:value id="immediately" name="Immediately" />
+            <camunda:value id="weeks_1to2" name="1 to 2 weeks" />
+            <camunda:value id="weeks_3to4" name="3 to 4 weeks" />
+            <camunda:value id="weeks_5to8" name="5 to 8 weeks" />
+            <camunda:value id="weeks_more_than_8" name="More than 8 weeks" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1ylxjys</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0rwnquq</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:parallelGateway id="ExclusiveGateway_0unlseb">
+      <bpmn:incoming>Flow_0f6q83k</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1242uxm</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1ylxjys</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1242uxm" sourceRef="ExclusiveGateway_0unlseb" targetRef="UserTask_0fd3nql" />
+    <bpmn:sequenceFlow id="SequenceFlow_1ylxjys" sourceRef="ExclusiveGateway_0unlseb" targetRef="UserTask_1k9gxsc" />
+    <bpmn:parallelGateway id="ExclusiveGateway_1knbrs3">
+      <bpmn:incoming>SequenceFlow_09c4dnr</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0rwnquq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_00fpfhi</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_09c4dnr" sourceRef="UserTask_0fd3nql" targetRef="ExclusiveGateway_1knbrs3" />
+    <bpmn:sequenceFlow id="SequenceFlow_0rwnquq" sourceRef="UserTask_1k9gxsc" targetRef="ExclusiveGateway_1knbrs3" />
+    <bpmn:sequenceFlow id="SequenceFlow_00fpfhi" sourceRef="ExclusiveGateway_1knbrs3" targetRef="Gateway_191l7i1" />
+    <bpmn:exclusiveGateway id="Gateway_191l7i1">
+      <bpmn:incoming>SequenceFlow_00fpfhi</bpmn:incoming>
+      <bpmn:incoming>Flow_0wycgzo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vtdwmy</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_14vibx9" name="Skip parallel">
+      <bpmn:incoming>Flow_00zjlx7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0f6q83k</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0wycgzo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0f6q83k" name="No" sourceRef="Gateway_14vibx9" targetRef="ExclusiveGateway_0unlseb">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">skipParallel == False</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0wycgzo" name="Yes" sourceRef="Gateway_14vibx9" targetRef="Gateway_191l7i1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">skipParallel == True</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1w2tcdp" sourceRef="StartEvent_1" targetRef="Activity_1ghr6kd" />
+    <bpmn:sequenceFlow id="Flow_00zjlx7" sourceRef="Activity_1ghr6kd" targetRef="Gateway_14vibx9" />
+    <bpmn:userTask id="Activity_1ghr6kd" name="Set data">
+      <bpmn:incoming>Flow_1w2tcdp</bpmn:incoming>
+      <bpmn:outgoing>Flow_00zjlx7</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1vtdwmy" sourceRef="Gateway_191l7i1" targetRef="EndEvent_09wp7av" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="token_trial_parallel_simple">
+      <bpmndi:BPMNEdge id="Flow_0wycgzo_di" bpmnElement="Flow_0wycgzo">
+        <di:waypoint x="480" y="222" />
+        <di:waypoint x="480" y="100" />
+        <di:waypoint x="960" y="100" />
+        <di:waypoint x="960" y="222" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="711" y="82" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0f6q83k_di" bpmnElement="Flow_0f6q83k">
+        <di:waypoint x="505" y="247" />
+        <di:waypoint x="575" y="247" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="533" y="229" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_00fpfhi_di" bpmnElement="SequenceFlow_00fpfhi">
+        <di:waypoint x="885" y="247" />
+        <di:waypoint x="935" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0rwnquq_di" bpmnElement="SequenceFlow_0rwnquq">
+        <di:waypoint x="780" y="330" />
+        <di:waypoint x="860" y="330" />
+        <di:waypoint x="860" y="272" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_09c4dnr_di" bpmnElement="SequenceFlow_09c4dnr">
+        <di:waypoint x="780" y="190" />
+        <di:waypoint x="860" y="190" />
+        <di:waypoint x="860" y="222" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ylxjys_di" bpmnElement="SequenceFlow_1ylxjys">
+        <di:waypoint x="600" y="272" />
+        <di:waypoint x="600" y="330" />
+        <di:waypoint x="680" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1242uxm_di" bpmnElement="SequenceFlow_1242uxm">
+        <di:waypoint x="600" y="222" />
+        <di:waypoint x="600" y="190" />
+        <di:waypoint x="680" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1w2tcdp_di" bpmnElement="Flow_1w2tcdp">
+        <di:waypoint x="188" y="247" />
+        <di:waypoint x="260" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00zjlx7_di" bpmnElement="Flow_00zjlx7">
+        <di:waypoint x="360" y="247" />
+        <di:waypoint x="455" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vtdwmy_di" bpmnElement="Flow_1vtdwmy">
+        <di:waypoint x="985" y="247" />
+        <di:waypoint x="1062" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_0fd3nql_di" bpmnElement="UserTask_0fd3nql">
+        <dc:Bounds x="680" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_1k9gxsc_di" bpmnElement="UserTask_1k9gxsc">
+        <dc:Bounds x="680" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ParallelGateway_137cg69_di" bpmnElement="ExclusiveGateway_0unlseb">
+        <dc:Bounds x="575" y="222" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ParallelGateway_11lvr1m_di" bpmnElement="ExclusiveGateway_1knbrs3">
+        <dc:Bounds x="835" y="222" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_191l7i1_di" bpmnElement="Gateway_191l7i1" isMarkerVisible="true">
+        <dc:Bounds x="935" y="222" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="891" y="196" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_14vibx9_di" bpmnElement="Gateway_14vibx9" isMarkerVisible="true">
+        <dc:Bounds x="455" y="222" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="451" y="279" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="229" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0n0v1lt_di" bpmnElement="Activity_1ghr6kd">
+        <dc:Bounds x="260" y="207" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_09wp7av_di" bpmnElement="EndEvent_09wp7av">
+        <dc:Bounds x="1062" y="229" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
