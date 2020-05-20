@@ -271,6 +271,11 @@ class Task(object):
         'READY'
         """
         from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
+
+        if (self.state != self.COMPLETED) and \
+                not (isinstance(self.task_spec,UnstructuredJoin)):
+            return
+
         if isinstance(self.task_spec, UnstructuredJoin):
             # go find all of the gateways with the same name as this one,
             # drop children and set state to WAITING
@@ -279,10 +284,18 @@ class Task(object):
                         t.state == self.COMPLETED:
                     t._set_state(self.WAITING)
         # now we set this one to execute
+
         self._set_state(self.MAYBE)
-        #self._sync_children(self.task_spec.outputs)
+        self._sync_children(self.task_spec.outputs)
         for child in self.children:
             child.set_children_future()
+
+
+    def find_children_by_name(self,name):
+        """
+        for debugging
+        """
+        return [x for x in self.workflow.task_tree if x.task_spec.name == name]
 
     def reset_token(self, reset_data=False):
         """

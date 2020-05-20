@@ -22,12 +22,10 @@ class ResetTokenTestNestedParallel(BaseTestCase):
             'token')
 
     def testRunThroughHappy(self):
-        pass
-#        self.actual_test(save_restore=False)
+        self.actual_test(save_restore=False)
 
     def testRunThroughSaveRestore(self):
-        pass
-#        self.actual_test(save_restore=True)
+        self.actual_test(save_restore=True)
 
     def testRunThroughHappyAlt(self):
         self.actual_test2(save_restore=False)
@@ -103,7 +101,7 @@ class ResetTokenTestNestedParallel(BaseTestCase):
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
-
+        notworking = self.workflow.get_ready_user_tasks()
         self.assertTrue(self.workflow.is_completed())
         self.assertEqual({'First': 'Yes',
                           'A1': 'xa1',
