@@ -508,11 +508,12 @@ class DictionarySerializer(Serializer):
             workflow, s_state['task_tree'])
 
         # Re-connect parents
-        for task in workflow.get_tasks():
-            task.parent = workflow.get_task(task.parent)
+        tasklist = list(workflow.get_tasks())
+        for task in tasklist:
+            task.parent = workflow.get_task(task.parent,tasklist)
 
         # last_task
-        workflow.last_task = workflow.get_task(s_state['last_task'])
+        workflow.last_task = workflow.get_task(s_state['last_task'],tasklist)
 
         return workflow
 

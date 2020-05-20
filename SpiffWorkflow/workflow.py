@@ -338,16 +338,22 @@ class Workflow(object):
         """
         return self.spec.get_task_spec_from_name(name)
 
-    def get_task(self, id):
+    def get_task(self, id,tasklist=None):
         """
         Returns the task with the given id.
 
         :type id:integer
         :param id: The id of a task.
+        :param tasklist: Optional cache of get_tasks for operations
+                         where we are calling multiple times as when we
+                         are deserializing the workflow
         :rtype: Task
         :returns: The task with the given id.
         """
-        tasks = [task for task in self.get_tasks() if task.id == id]
+        if tasklist:
+            tasks = [task for task in tasklist if task.id == id]
+        else:
+            tasks = [task for task in self.get_tasks() if task.id == id]
         return tasks[0] if len(tasks) == 1 else None
 
     def get_tasks_from_spec_name(self, name):
