@@ -1,14 +1,6 @@
 import logging
-from argparse import Namespace
-from collections import namedtuple
 
-from SpiffWorkflow import WorkflowException
-
-from ...operators import DotDict
-from decimal import Decimal
-import datetime
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonSriptEngine
-
 
 
 class DMNEngine:
