@@ -211,6 +211,7 @@ class Workflow(object):
                indent           -   A hint for indentation
                child_count       -   The number of children that should be associated with
                                     this item.
+               lane             -   This is the swimlane for the task if indicated.
                state            -   Text based state (may be half baked in the case that we have
                                     more than one state for a task spec - but I don't think those
                                     are being reported in the list, so it may not matter)

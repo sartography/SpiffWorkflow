@@ -53,6 +53,7 @@ def conditional_task_add(task,output,found,level):
                        'name': task.name,
                        'description': task.description,
                        'backtracks': None,
+                       'lane': task.lane,
                        'children': [],
                        'level': level})
 
@@ -144,6 +145,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
                                  'name':link.name,
                                  'description':link.name,
                                  'is_decision': True,
+                                 'lane': tree.lane,
                                  'backtracks':backtracklink,
                                  'children':mychildren,
                                  'level':level+1})
@@ -161,6 +163,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
                        'description':tree.description,
                        'backtracks':None,
                        'is_decision':False,
+                       'lane': tree.lane,
                        'children':taskchildren,
                        'level':level+1})
         output =  output + merge_list
