@@ -87,12 +87,17 @@ class BpmnWorkflow(Workflow):
         for my_task in self.get_tasks(Task.WAITING):
             my_task.task_spec._update(my_task)
 
-    def get_ready_user_tasks(self):
+    def get_ready_user_tasks(self,lane=None):
         """
         Returns a list of User Tasks that are READY for user action
         """
-        return [t for t in self.get_tasks(Task.READY)
-                if not self._is_engine_task(t.task_spec)]
+        if lane is not None:
+            return [t for t in self.get_tasks(Task.READY)
+                       if (not self._is_engine_task(t.task_spec))
+                           and (t.task_spec.lane == lane)]
+        else:
+            return [t for t in self.get_tasks(Task.READY)
+                       if not self._is_engine_task(t.task_spec)]
 
     def get_waiting_tasks(self):
         """
