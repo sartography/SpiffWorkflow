@@ -178,7 +178,7 @@ class DMNParser(object):
         if cls == InputEntry:
             entry.lhs.append(entry.text)
         elif cls == OutputEntry:
-            if entry.text != '':
+            if entry.text and entry.text != '':
                 py, needsEquals = self.scriptEngine.validateExpression(entry.text)
                 if not needsEquals:
                     raise Exception("Malformed Output Expression '%s' " % entry.text)
