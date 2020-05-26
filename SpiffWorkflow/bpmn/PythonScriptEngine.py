@@ -198,8 +198,9 @@ class PythonSriptEngine(object):
                 revised_text = self.patch_expression(text, 's')
                 ast.parse(revised_text)
                 return revised_text[1:],False
-            except:
-                raise WorkflowException("error parsing expression "+text)
+            except Exception as e:
+                raise Exception("error parsing expression "+text + " " +
+                                str(e))
 
 
 
