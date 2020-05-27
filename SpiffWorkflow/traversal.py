@@ -53,6 +53,7 @@ def conditional_task_add(task,output,found,level):
                        'name': task.name,
                        'description': task.description,
                        'backtracks': None,
+                       'lane': task.lane,
                        'children': [],
                        'level': level})
 
@@ -63,8 +64,20 @@ def follow_tree(tree,output=[],found=set(),level=0):
     from SpiffWorkflow.bpmn.specs.MultiInstanceTask import MultiInstanceTask
 
 
+    # I had an issue with a test being nondeterministic the yes/no
+    # were in an alternate order in some cases. To be 100% correct, this should
+    # probably also use the X/Y information that we are parsing elsewhere, but
+    # I did not see that information in the task spec.
+    # At a bare minimum, this should fix the problem where keys in a dict are
+    # flip-flopping.
+    # After I'm done, you should be able to manage the order of the sequence flows by
+    # naming the Flow_xxxxx names in the order you want them to appear.
 
     outputs = list(tree.outgoing_sequence_flows.keys())
+    idlinks = [(x,tree.outgoing_sequence_flows[x]) for x in outputs]
+    idlinks.sort(key=lambda x: x[1].id)
+    outputs = [x[0] for x in idlinks]
+
     # ---------------------
     # Endpoint, no children
     # ---------------------
@@ -144,6 +157,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
                                  'name':link.name,
                                  'description':link.name,
                                  'is_decision': True,
+                                 'lane': tree.lane,
                                  'backtracks':backtracklink,
                                  'children':mychildren,
                                  'level':level+1})
@@ -161,6 +175,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
                        'description':tree.description,
                        'backtracks':None,
                        'is_decision':False,
+                       'lane': tree.lane,
                        'children':taskchildren,
                        'level':level+1})
         output =  output + merge_list
