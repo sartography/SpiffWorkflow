@@ -61,5 +61,8 @@ class Rule:
         for outputEntry in self.outputEntries:
             # try to use the id, but fall back to label if no name is provided.
             key = outputEntry.output.name or outputEntry.output.label
-        out[key] = PythonSriptEngine().evaluate(outputEntry.parsedRef,**data)
+            if hasattr(outputEntry, "parsedRef"):
+                out[key] = PythonSriptEngine().evaluate(outputEntry.parsedRef,**data)
+            else:
+                out[key] = ""
         return out
