@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 from builtins import object
+import datetime
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -101,6 +102,13 @@ class TimerEventDefinition(CatchingEventDefinition):
         expression is before datetime.datetime.now()
         """
         dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
+        if isinstance(dt,datetime.timedelta):
+            if my_task.start_time is not None:
+                return (datetime.datetime.now() - my_task.start_time) > dt
+            else:
+                my_task.start_time = datetime.datetime.now()
+                return False
+
         if dt is None:
             return False
         if dt.tzinfo:

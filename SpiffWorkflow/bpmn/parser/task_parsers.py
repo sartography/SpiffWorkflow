@@ -25,6 +25,7 @@ from ..specs.event_definitions import (TimerEventDefinition,
                                        MessageEventDefinition)
 import xml.etree.ElementTree as ET
 import copy
+from SpiffWorkflow.exceptions import WorkflowException
 
 class StartEventParser(TaskParser):
 
@@ -292,12 +293,57 @@ class IntermediateCatchEventParser(TaskParser):
 
         This currently only supports the timeDate node for specifying an expiry
         time for the timer.
+
+        =============================
+        WIP: add other definitions such as timeDuration and timeCycle
+        for both timeDuration and timeCycle - from when?? certainly not from the time
+        we parse the document, so how do we define total time inside a process or subprocess?
+
+
+        Furthermore . . .
+
+        do we add a start time for any process that we are working on, i.e. do I need to add a begin time for a
+        subprocess to use a timer boundary event? or do we start the timer on entry?
+
+        What about a process that has a duration of 5 days and no one actually touches the workflow for 7 days? How
+        does this get triggered when no one is using the workflow on a day-to-day basis - do we need a cron job to go
+        discover waiting tasks and fire them if no one is doing anything?
+
         """
         timeDate = first(self.xpath('.//bpmn:timeDate'))
-        return TimerEventDefinition(
-            self.node.get('name', timeDate.text),
-            self.parser.parse_condition(
-                timeDate.text, None, None, None, None, self))
+        # Camunda allows both a timeDate and a timeDuration entry
+        # this is only looking for a timeDate
+        # I need to make sure I know what we should be able to put in here.
+        # i'm unsure of why we need to do parse_condition as it just returns
+        # the text - seems like a confusing mess to me
+        # it ends up in the Scripting Engine anyhow.
+
+        if timeDate is not None:
+            return TimerEventDefinition(
+                      self.node.get('name'),
+                      timeDate.text)
+#                      self.parser.parse_condition(
+#                              timeDate.text, None, None, None, None, self))
+        # in the case that it is a duration
+        timeDuration = first(self.xpath('.//bpmn:timeDuration'))
+        if timeDuration is not None:
+            return TimerEventDefinition(
+                      self.node.get('name'),
+                      timeDuration.text)
+#                self.parser.parse_condition(
+#                    timeDuration.text, None, None, None, None, self))
+
+        # in the case that it is a cycle - for now, it is an error
+        timeCycle = first(self.xpath('.//bpmn:timeCycle'))
+        if timeCycle is not None:
+            raise WorkflowException(self, 'Cycle Time Definition is not currently supported.')
+            return TimerEventDefinition(
+            self.node.get('name'),timeCycle.text)
+#            self.parser.parse_condition(
+#                   timeCycle.text, None, None, None, None, self))
+
+        raise WorkflowException(self, 'Unknown Time Specification')
+
 
 
 class BoundaryEventParser(IntermediateCatchEventParser):
