@@ -8,7 +8,10 @@ def same_ending_length(node):
     endings = [[leaf['id'] for leaf in branch['children']] for branch in node]
     # the longest identical ending will be equal to the lenght of the
     # shortest list
-    shortest_list = min([len(x) for x in endings])
+    if len(endings) == 0:
+        shortest_list = 0
+    else:
+        shortest_list = min([len(x) for x in endings])
     # walk through the list and determine if they are all the same
     # for each. If they are not the same, then we back off the snip point
     snip_point = shortest_list
@@ -25,6 +28,8 @@ def snip_same_ending(node,length):
     return a list of the same endings so we can tack it on the
     parent tree.
     """
+    if len(node) == 0:
+        return []
     retlist = node[0]['children'][-length:]
     for branch in node:
         branch['children'] = branch['children'][:-length]

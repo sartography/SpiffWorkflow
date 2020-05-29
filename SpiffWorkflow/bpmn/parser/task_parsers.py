@@ -273,7 +273,7 @@ class IntermediateCatchEventParser(TaskParser):
         if timerEventDefinition is not None:
             return self.get_timer_event_definition(timerEventDefinition)
 
-        raise NotImplementedError(
+            raise NotImplementedError(
             'Unsupported Intermediate Catch Event: %r', ET.tostring(self.node))
 
     def get_message_event_definition(self, messageEventDefinition):
@@ -330,13 +330,15 @@ class IntermediateCatchEventParser(TaskParser):
         # in the case that it is a cycle - for now, it is an error
         timeCycle = first(self.xpath('.//bpmn:timeCycle'))
         if timeCycle is not None:
-            raise WorkflowException(self, 'Cycle Time Definition is not currently supported.')
+            raise NotImplementedError('Cycle Time Definition is not currently supported.')
             return TimerEventDefinition(
             self.node.get('name'),timeCycle.text)
 #            self.parser.parse_condition(
 #                   timeCycle.text, None, None, None, None, self))
+        raise ValidationException("Unknown Time Specification",
+                                  node=self.node,
+                                  filename=self.process_parser.filename)
 
-        raise WorkflowException(self, 'Unknown Time Specification')
 
 
 
