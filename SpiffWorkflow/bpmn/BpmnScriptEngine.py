@@ -47,7 +47,7 @@ class BpmnScriptEngine(PythonSriptEngine):
                 # expression judging from the contents of operators.py
                 return expression._matches(task)
             else:
-                return super()._eval(expression, **task.data)
+                return super().evaluate(expression, **task.data)
         except Exception as e:
             raise WorkflowTaskExecException(task,
                                             "Error evaluating expression "

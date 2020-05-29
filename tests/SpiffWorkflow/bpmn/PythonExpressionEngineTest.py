@@ -31,6 +31,7 @@ class PythonExpressionTest(BpmnWorkflowTestCase):
                  ("all ([True,False,True])", False, {}),
                  ("any ([False,False,False])", False, {}),
                  ("any ([True,False,True])", True, {}),
+                 ("PT3S", datetime.timedelta(seconds=3), {}),
                  ("concatenate(a,b,c)",['a','b','c'],{'a':['a'],
                                                       'b': ['b'],
                                                       'c': ['c'],
