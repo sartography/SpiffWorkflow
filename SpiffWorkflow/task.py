@@ -205,7 +205,6 @@ class Task(object):
         self.thread_id = self.__class__.thread_id_pool
         self.last_state_change = time.time()
         self.data = {}
-        self.start_time = None  # for duration time events
         self.terminate_current_loop = False
         self.internal_data = {}
         self.mi_collect_data = {}

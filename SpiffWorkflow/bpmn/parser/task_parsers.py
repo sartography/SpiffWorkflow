@@ -311,12 +311,6 @@ class IntermediateCatchEventParser(TaskParser):
 
         """
         timeDate = first(self.xpath('.//bpmn:timeDate'))
-        # Camunda allows both a timeDate and a timeDuration entry
-        # this is only looking for a timeDate
-        # I need to make sure I know what we should be able to put in here.
-        # i'm unsure of why we need to do parse_condition as it just returns
-        # the text - seems like a confusing mess to me
-        # it ends up in the Scripting Engine anyhow.
 
         if timeDate is not None:
             return TimerEventDefinition(

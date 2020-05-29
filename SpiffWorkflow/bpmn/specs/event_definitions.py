@@ -103,10 +103,13 @@ class TimerEventDefinition(CatchingEventDefinition):
         """
         dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
         if isinstance(dt,datetime.timedelta):
-            if my_task.start_time is not None:
-                return (datetime.datetime.now() - my_task.start_time) > dt
+            if my_task._get_internal_data('start_time',None) is not None:
+                start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time',None),'%Y-%m-%d '
+                                                                                                   '%H:%M:%S.%f')
+                elapsed = datetime.datetime.now() - start_time
+                return elapsed > dt
             else:
-                my_task.start_time = datetime.datetime.now()
+                my_task.internal_data['start_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
                 return False
 
         if dt is None:
