@@ -52,6 +52,14 @@ class FormField(object):
     def has_property(self, property_id):
         return self.get_property(property_id) is not None
 
+    def get_validation(self, name):
+        for v in self.validation:
+            if v.name == name:
+                return v.config
+
+    def has_validation(self, name):
+        return self.get_validation(name) is not None
+
     def jsonable(self):
         return self.__dict__
 
