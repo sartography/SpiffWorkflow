@@ -33,7 +33,6 @@ class DMNEngine:
             input = self.decisionTable.inputs[idx]
 
             self.logger.debug(' Checking input entry %s (%s: %s)...' % (inputEntry.id, input.label, inputEntry.lhs))
-b
             # if inputData:
             #     self.logger.debug('inputData:', inputData)
             # if inputKwargs:
