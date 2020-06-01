@@ -1,5 +1,6 @@
 import logging
-
+import Levenshtein
+import re
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 
 
@@ -50,12 +51,17 @@ class DMNEngine:
                 try:
                     if not self.scriptEngine.eval_dmn_expression(inputVal, lhs, **local_data):
                         return False
-                except KeyError as e:
-                    raise Exception("Failed to execute "
+                except NameError as e:
+                    x = re.match("name '(.+)' is not defined",str(e))
+                    name = x.group(1)
+                    distances = [(key,Levenshtein.distance(name,key)) for key in local_data.keys()]
+                    distances.sort(key=lambda x: x[1])
+
+                    raise NameError("Failed to execute "
                                     "expression: '%s' is '%s' in the "
                                     "Row with annotation '%s'.  The following "
-                                    "value does not exist: %s" % (
-                                        inputVal, lhs, rule.description, str(e)))
+                                    "value does not exist: %s - did you mean one of %s?" % (
+                                        inputVal, lhs, rule.description, str(e),str([x[0] for x in distances[:3]])))
                 except Exception as e:
                     raise Exception("Failed to execute "
                                     "expression: '%s' is '%s' in the "
