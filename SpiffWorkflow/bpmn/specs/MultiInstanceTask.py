@@ -338,6 +338,9 @@ class MultiInstanceTask(TaskSpec):
         if self.collection is not None and \
             self.times.name == self.collection.name:
             keys = list(collect.keys())
+            if len(keys)<runtimes:
+                raise WorkflowException(self,"There is a mismatch between runtimes and the number items in the"
+                                             "collection, please check for empty collection '%s'."%self.collection.name)
             runtimesvar = keys[runtimes - 1]
         else:
             runtimesvar = runtimes
