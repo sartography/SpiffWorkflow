@@ -1,2 +1,4 @@
 celery
+python-Levenshtein
+lxml
 .
