@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonSriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 
 class Decision:
     def __init__(self, id, name):
@@ -62,7 +62,7 @@ class Rule:
             # try to use the id, but fall back to label if no name is provided.
             key = outputEntry.output.name or outputEntry.output.label
             if hasattr(outputEntry, "parsedRef"):
-                out[key] = PythonSriptEngine().evaluate(outputEntry.parsedRef,**data)
+                out[key] = PythonScriptEngine().evaluate(outputEntry.parsedRef,**data)
             else:
                 out[key] = ""
         return out

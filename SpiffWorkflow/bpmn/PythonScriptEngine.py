@@ -218,7 +218,7 @@ default_header = """
 
 
 """
-class PythonSriptEngine(object):
+class PythonScriptEngine(object):
     """
     This should serve as a base for all scripting & expression evaluation
     operations that are done within both BPMN and BMN. Eventually it will also
@@ -263,11 +263,7 @@ class PythonSriptEngine(object):
                 raise Exception("error parsing expression "+text + " " +
                                 str(e))
 
-
-
-
-
-    def eval_bmn_expression(self, inputExpr, matchExpr, **kwargs):
+    def eval_dmn_expression(self, inputExpr, matchExpr, **kwargs):
         """
         Here we need to handle a few things such as if it is an equality or if
         the equality has already been taken care of. For now, we just assume it is equality.

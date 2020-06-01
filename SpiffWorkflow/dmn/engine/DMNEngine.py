@@ -1,6 +1,6 @@
 import logging
 
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonSriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 
 
 class DMNEngine:
@@ -12,7 +12,7 @@ class DMNEngine:
     def __init__(self, decisionTable, debug=None):
         self.decisionTable = decisionTable
         self.debug = debug
-        self.scriptEngine = PythonSriptEngine()
+        self.scriptEngine = PythonScriptEngine()
         self.logger = logging.getLogger('DMNEngine')
         if not self.logger.handlers:
             self.logger.addHandler(logging.StreamHandler())
@@ -33,7 +33,7 @@ class DMNEngine:
             input = self.decisionTable.inputs[idx]
 
             self.logger.debug(' Checking input entry %s (%s: %s)...' % (inputEntry.id, input.label, inputEntry.lhs))
-
+b
             # if inputData:
             #     self.logger.debug('inputData:', inputData)
             # if inputKwargs:
@@ -49,7 +49,7 @@ class DMNEngine:
                 else:
                     inputVal = None
                 try:
-                    if not self.scriptEngine.eval_bmn_expression(inputVal, lhs, **local_data):
+                    if not self.scriptEngine.eval_dmn_expression(inputVal, lhs, **local_data):
                         return False
                 except KeyError as e:
                     raise Exception("Failed to execute "

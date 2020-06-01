@@ -19,11 +19,11 @@ from builtins import object
 # 02110-1301  USA
 from SpiffWorkflow.exceptions import WorkflowTaskExecException
 
-from .PythonScriptEngine import PythonSriptEngine
+from .PythonScriptEngine import PythonScriptEngine
 from ..operators import Operator
 
 
-class BpmnScriptEngine(PythonSriptEngine):
+class BpmnScriptEngine(PythonScriptEngine):
     """
     Used during execution of a BPMN workflow to evaluate condition / value
     expressions. These are used by Gateways, and by Catching Events
