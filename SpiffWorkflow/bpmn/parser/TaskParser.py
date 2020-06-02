@@ -203,8 +203,16 @@ class TaskParser(object):
                     filename=self.process_parser.filename)
             for sequence_flow in outgoing:
                 target_ref = sequence_flow.get('targetRef')
-                target_node = one(
-                    self.process_xpath('.//*[@id="%s"]' % target_ref))
+                try:
+                    target_node = one(
+                           self.process_xpath('.//*[@id="%s"]' % target_ref))
+                except:
+                    raise ValidationException(
+                        'When looking for a task sepc, we found two items, perhaps a form'
+                        'has the same ID? (%s)'%target_ref,
+                        node=self.node,
+                        filename=self.process_parser.filename)
+
                 c = self.process_parser.parse_node(target_node)
                 position = self.process_parser.get_coord(c.name)
                 children.append((position, c, target_node, sequence_flow))
