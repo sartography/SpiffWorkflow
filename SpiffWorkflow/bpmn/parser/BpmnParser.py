@@ -139,6 +139,20 @@ class BpmnParser(object):
         :param filename: Optionally, provide the source filename.
         """
         xpath = xpath_eval(bpmn)
+        # do a check on our bpmn to ensure that no id appears twice
+        # this *should* be taken care of by our modeler - so this test
+        # should never fail.
+        ids = [x for x in xpath('.//bpmn:*[@id]')]
+        foundids = {}
+        for node in ids:
+            id = node.get('id')
+            if foundids.get(id,None) is not None:
+                raise ValidationException(
+                    'The bpmn document should have no repeating ids but (%s) repeats'%id,
+                    node=node,
+                    filename=filename)
+            else:
+                foundids[id] = 1
 
         processes = xpath('.//bpmn:process')
         for process in processes:

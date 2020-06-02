@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <model:definitions xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di_1="http://www.omg.org/spec/DD/20100524/DI" xmlns:model="http://www.omg.org/spec/BPMN/20100524/MODEL" exporter="BonitaSoft" exporterVersion="5.7" expressionLanguage="http://groovy.codehaus.org/" targetNamespace="http://bonitasoft.com/Approvals">
-  <model:collaboration id="Approvals_main">
+  <model:collaboration id="Approvals">
     <model:documentation></model:documentation>
     <model:participant id="Initiator">
       <model:documentation>Person who takes the first action to start the process</model:documentation>
