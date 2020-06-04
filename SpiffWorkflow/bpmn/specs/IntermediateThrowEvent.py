@@ -22,7 +22,7 @@ from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.Simple import Simple
 
 
-class IntermediateCatchEvent(Simple, BpmnSpecMixin):
+class IntermediateThrowEvent(Simple, BpmnSpecMixin):
 
     """
     Task Spec for a bpmn:intermediateCatchEvent node.
@@ -34,34 +34,33 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
 
         :param event_definition: the EventDefinition that we must wait for.
         """
-        super(IntermediateCatchEvent, self).__init__(wf_spec, name, **kwargs)
+        super(IntermediateThrowEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
 
     def _update_hook(self, my_task):
         target_state = getattr(my_task, '_bpmn_load_target_state', None)
-        message = self.event_definition._message_ready(my_task)
-        if message:
-            my_task.data[my_task.task_spec.name+'_Response'] = message
-            self.accept_message(my_task,message)
-            super(IntermediateCatchEvent, self)._update_hook(my_task)
-        elif target_state == Task.READY or (
+        if target_state == Task.READY or (
                 not my_task.workflow._is_busy_with_restore() and
                 self.event_definition.has_fired(my_task)):
-            super(IntermediateCatchEvent, self)._update_hook(my_task)
+            super(IntermediateThrowEvent, self)._update_hook(my_task)
         else:
             if not my_task.parent._is_finished():
                 return
-            if not my_task.state == Task.WAITING:
-                my_task._set_state(Task.WAITING)
-                if not my_task.workflow._is_busy_with_restore():
-                    self.entering_waiting_state(my_task)
+            # here we diverge from the previous
+            # and we just send the message
+            self.event_definition._send_message(my_task)
+            # if we throw the message, then we need to be completed.
+            if not my_task.state == Task.READY:
+                my_task._set_state(Task.READY)
+                #if not my_task.workflow._is_busy_with_restore():
+                #    self.entering_waiting_state(my_task)
 
     def _on_ready_hook(self, my_task):
         self._predict(my_task)
 
-    def accept_message(self, my_task, message):
-        if (my_task.state == Task.WAITING and
-                self.event_definition._accept_message(my_task, message)):
-            self._update(my_task)
-            return True
-        return False
+    # def accept_message(self, my_task, message):
+    #     if (my_task.state == Task.WAITING and
+    #             self.event_definition._accept_message(my_task, message)):
+    #         self._update(my_task)
+    #         return True
+    #     return False

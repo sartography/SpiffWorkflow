@@ -56,28 +56,29 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
             self.assertTrue('No Start Event' in ('%r' % ex),
                             '\'No Start Event\' should be a substring of error message: \'%r\'' % ex)
 
-    def testMultipleStartEvents(self):
-        try:
-            self.load_workflow_spec(
-                'Invalid-Workflows/Multiple-Start-Events.bpmn20.xml', 'Multiple Start Events')
-            self.fail(
-                "self.load_workflow_spec('Invalid-Workflows/Multiple-Start-Events.bpmn20.xml', 'Multiple Start Events') should fail.")
-        except ValidationException as ex:
-            self.assertTrue(
-                'Only one Start Event is supported in each process' in (
-                    '%r' % ex),
-                '\'Only one Start Event is supported in each process\' should be a substring of error message: \'%r\'' % ex)
-#            self.assertTrue('line 10' in ('%r'%ex),
-#                '\'line 10\' should be a substring of error message: \'%r\'' % ex)
-            self.assertTrue('Multiple-Start-Events.bpmn20.xml' in ('%r' % ex),
-                            '\'Multiple-Start-Events.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
-            self.assertTrue('process' in ('%r' % ex),
-                            '\'process\' should be a substring of error message: \'%r\'' % ex)
-            self.assertTrue(
-                'sid-1e457abc-2ee3-4d60-a4df-d2ddf5b18c2b' in ('%r' % ex),
-                '\'sid-1e457abc-2ee3-4d60-a4df-d2ddf5b18c2b\' should be a substring of error message: \'%r\'' % ex)
-            self.assertTrue('Multiple Start Events' in ('%r' % ex),
-                            '\'Multiple Start Events\' should be a substring of error message: \'%r\'' % ex)
+#     Removed as we now allow a start catching message
+#     def testMultipleStartEvents(self):
+#         try:
+#             self.load_workflow_spec(
+#                 'Invalid-Workflows/Multiple-Start-Events.bpmn20.xml', 'Multiple Start Events')
+#             self.fail(
+#                 "self.load_workflow_spec('Invalid-Workflows/Multiple-Start-Events.bpmn20.xml', 'Multiple Start Events') should fail.")
+#         except ValidationException as ex:
+#             self.assertTrue(
+#                 'Only one Start Event is supported in each process' in (
+#                     '%r' % ex),
+#                 '\'Only one Start Event is supported in each process\' should be a substring of error message: \'%r\'' % ex)
+# #            self.assertTrue('line 10' in ('%r'%ex),
+# #                '\'line 10\' should be a substring of error message: \'%r\'' % ex)
+#             self.assertTrue('Multiple-Start-Events.bpmn20.xml' in ('%r' % ex),
+#                             '\'Multiple-Start-Events.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
+#             self.assertTrue('process' in ('%r' % ex),
+#                             '\'process\' should be a substring of error message: \'%r\'' % ex)
+#             self.assertTrue(
+#                 'sid-1e457abc-2ee3-4d60-a4df-d2ddf5b18c2b' in ('%r' % ex),
+#                 '\'sid-1e457abc-2ee3-4d60-a4df-d2ddf5b18c2b\' should be a substring of error message: \'%r\'' % ex)
+#             self.assertTrue('Multiple Start Events' in ('%r' % ex),
+#                             '\'Multiple Start Events\' should be a substring of error message: \'%r\'' % ex)
 
     def testSubprocessNotFound(self):
         try:

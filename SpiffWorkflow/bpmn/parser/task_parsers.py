@@ -27,6 +27,8 @@ import xml.etree.ElementTree as ET
 import copy
 from SpiffWorkflow.exceptions import WorkflowException
 
+CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
+
 class StartEventParser(TaskParser):
 
     """
@@ -249,7 +251,7 @@ class ScriptTaskParser(TaskParser):
 
 class IntermediateCatchEventParser(TaskParser):
     """
-    Parses an Intermediate Catch Event. This currently onlt supports Message
+    Parses an Intermediate Catch Event. This currently only supports Message
     and Timer event definitions.
     """
 
@@ -257,6 +259,7 @@ class IntermediateCatchEventParser(TaskParser):
         event_definition = self.get_event_definition()
         return self.spec_class(
             self.spec, self.get_task_spec_name(), event_definition,
+            lane = self.get_lane(),
             description=self.node.get('name', None))
 
     def get_event_definition(self):
@@ -281,10 +284,14 @@ class IntermediateCatchEventParser(TaskParser):
         Parse the messageEventDefinition node and return an instance of
         MessageEventDefinition
         """
-        messageRef = first(self.xpath('.//bpmn:messageRef'))
-        message = messageRef.get(
-            'name') if messageRef is not None else self.node.get('name')
+        message = messageEventDefinition.get(
+            'messageRef') if messageEventDefinition is not None else self.node.get('name')
         return MessageEventDefinition(message)
+
+        # messageRef = first(self.xpath('.//bpmn:messageRef'))
+        # message = messageRef.get(
+        #     'messageRef') if messageRef is not None else self.node.get('name')
+        # return MessageEventDefinition(message)
 
     def get_timer_event_definition(self, timerEventDefinition):
         """
@@ -338,6 +345,43 @@ class IntermediateCatchEventParser(TaskParser):
         raise ValidationException("Unknown Time Specification",
                                   node=self.node,
                                   filename=self.process_parser.filename)
+
+class IntermediateThrowEventParser(TaskParser):
+    """
+    Parses an Intermediate Catch Event. This currently onlt supports Message
+    and Timer event definitions.
+    """
+
+    def create_task(self):
+        event_definition = self.get_event_definition()
+        return self.spec_class(
+            self.spec, self.get_task_spec_name(), event_definition,
+            lane=self.get_lane(),
+            description=self.node.get('name', None))
+
+    def get_event_definition(self):
+        """
+        Parse the event definition node, and return an instance of Event
+        """
+        messageEventDefinition = first(
+            self.xpath('.//bpmn:messageEventDefinition'))
+        if messageEventDefinition is not None:
+            return self.get_message_event_definition(messageEventDefinition)
+
+
+            raise NotImplementedError(
+            'Unsupported Intermediate Catch Event: %r', ET.tostring(self.node))
+
+    def get_message_event_definition(self, messageEventDefinition):
+        """
+        Parse the messageEventDefinition node and return an instance of
+        MessageEventDefinition
+        """
+        #messageRef = first(self.xpath('.//bpmn:messageEventDefinition'))
+        message = messageEventDefinition.get(
+            'messageRef') if messageEventDefinition is not None else self.node.get('name')
+        payload = messageEventDefinition.attrib.get('{'+ CAMUNDA_MODEL_NS +'}expression')
+        return MessageEventDefinition(message,payload)
 
 
 

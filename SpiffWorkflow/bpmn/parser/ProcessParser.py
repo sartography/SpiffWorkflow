@@ -131,12 +131,13 @@ class ProcessParser(object):
         if not start_node_list:
             raise ValidationException(
                 "No start event found", node=self.node, filename=self.filename)
-        elif len(start_node_list) != 1:
-            raise ValidationException(
-                "Only one Start Event is supported in each process",
-                node=self.node, filename=self.filename)
+        # elif len(start_node_list) != 1:
+        #     raise ValidationException(
+        #         "Only one Start Event is supported in each process",
+        #         node=self.node, filename=self.filename)
         self.parsing_started = True
-        self.parse_node(start_node_list[0])
+        for node in start_node_list:
+            self.parse_node(node)
         self.is_parsed = True
 
     def get_spec(self):
