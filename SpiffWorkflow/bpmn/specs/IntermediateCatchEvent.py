@@ -20,7 +20,7 @@ from __future__ import division
 from ...task import Task
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.Simple import Simple
-
+from SpiffWorkflow.bpmn.specs.StartEvent import StartEvent
 
 class IntermediateCatchEvent(Simple, BpmnSpecMixin):
 
@@ -41,9 +41,20 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
         target_state = getattr(my_task, '_bpmn_load_target_state', None)
         message = self.event_definition._message_ready(my_task)
         if message:
+            my_task.data = my_task.workflow.last_task.data
             my_task.data[my_task.task_spec.name+'_Response'] = message
-            self.accept_message(my_task,message)
+            like_me = my_task.workflow.get_tasks_from_spec_name(my_task.task_spec.name)
+            #self.accept_message(my_task,self.event_definition.message)
+            #self._on_complete_hook(my_task)
+            my_task.children = []
+            my_task._sync_children(my_task.task_spec.outputs)
             super(IntermediateCatchEvent, self)._update_hook(my_task)
+            data = my_task.data
+            # the update loop on all waiting tasks copies the information
+            # from their parents. I'm not sure what the ramifications are if I
+            # disable that.
+            for task in like_me:
+                task.parent.data = data
         elif target_state == Task.READY or (
                 not my_task.workflow._is_busy_with_restore() and
                 self.event_definition.has_fired(my_task)):
@@ -58,6 +69,14 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
 
     def _on_ready_hook(self, my_task):
         self._predict(my_task)
+
+    def _on_complete_hook(self, my_task):
+        for task in my_task.children:
+            task.data = my_task.data
+            task._set_state(Task.READY)
+
+        my_task._set_state(Task.WAITING)
+        #del(my_task.internal_data['has_fired'])
 
     def accept_message(self, my_task, message):
         if (my_task.state == Task.WAITING and

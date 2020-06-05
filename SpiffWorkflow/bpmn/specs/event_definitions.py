@@ -87,8 +87,6 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
             return evaledpayload
 
     def _send_message(self, my_task):
-        print(self.message)
-        print(self.payload)
         if (my_task.workflow.task_tree.internal_data.get('messages')) is None:
             my_task.workflow.task_tree.internal_data['messages'] = {}
         my_task.workflow.task_tree.internal_data['messages'][self.message] = PythonScriptEngine().evaluate(self.payload,

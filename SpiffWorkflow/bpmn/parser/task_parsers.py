@@ -26,7 +26,7 @@ from ..specs.event_definitions import (TimerEventDefinition,
 import xml.etree.ElementTree as ET
 import copy
 from SpiffWorkflow.exceptions import WorkflowException
-
+from SpiffWorkflow.bpmn.specs.IntermediateCatchEvent import IntermediateCatchEvent
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class StartEventParser(TaskParser):
@@ -36,6 +36,16 @@ class StartEventParser(TaskParser):
     """
 
     def create_task(self):
+
+        isMessageCatchingEvent = self.xpath('.//bpmn:messageEventDefinition')
+        if len(isMessageCatchingEvent) > 0:
+            # we need to fix this up to wait on an event
+            self.__class__ = type(self.get_id() + '_class', (
+            self.__class__, IntermediateCatchEventParser), {})
+            self.spec_class = IntermediateCatchEvent
+            t = IntermediateCatchEventParser.create_task(self)
+            self.spec.start.connect(t)
+            return t
         t = super(StartEventParser, self).create_task()
         self.spec.start.connect(t)
         return t
