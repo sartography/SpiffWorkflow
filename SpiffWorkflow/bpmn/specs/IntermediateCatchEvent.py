@@ -71,12 +71,10 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
         self._predict(my_task)
 
     def _on_complete_hook(self, my_task):
-        for task in my_task.children:
-            task.data = my_task.data
-            task._set_state(Task.READY)
+        super(IntermediateCatchEvent, self)._on_complete_hook(my_task)
+        if not 'start_time' in my_task.internal_data.keys():
+            my_task._set_state(Task.WAITING)
 
-        my_task._set_state(Task.WAITING)
-        #del(my_task.internal_data['has_fired'])
 
     def accept_message(self, my_task, message):
         if (my_task.state == Task.WAITING and
