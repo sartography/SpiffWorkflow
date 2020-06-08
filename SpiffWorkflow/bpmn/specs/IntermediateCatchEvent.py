@@ -21,6 +21,7 @@ from ...task import Task
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.Simple import Simple
 from SpiffWorkflow.bpmn.specs.StartEvent import StartEvent
+from SpiffWorkflow.specs.StartTask import StartTask
 
 class IntermediateCatchEvent(Simple, BpmnSpecMixin):
 
@@ -72,7 +73,7 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
 
     def _on_complete_hook(self, my_task):
         super(IntermediateCatchEvent, self)._on_complete_hook(my_task)
-        if not 'start_time' in my_task.internal_data.keys():
+        if  isinstance(my_task.parent.task_spec, StartTask):
             my_task._set_state(Task.WAITING)
 
 

@@ -294,14 +294,18 @@ class IntermediateCatchEventParser(TaskParser):
         Parse the messageEventDefinition node and return an instance of
         MessageEventDefinition
         """
-        message = messageEventDefinition.get(
-            'messageRef') if messageEventDefinition is not None else self.node.get('name')
+        # we have two different modelers that handle messages
+        # in different ways.
+        # first the Signavio :
+        messageRef = first(self.xpath('.//bpmn:messageRef'))
+        if messageRef is not None:
+            message = messageRef.get('name')
+        elif messageEventDefinition is not None:
+            message = messageEventDefinition.get('messageRef')
+            if message is None:
+                message = self.node.get('name')
         return MessageEventDefinition(message)
 
-        # messageRef = first(self.xpath('.//bpmn:messageRef'))
-        # message = messageRef.get(
-        #     'messageRef') if messageRef is not None else self.node.get('name')
-        # return MessageEventDefinition(message)
 
     def get_timer_event_definition(self, timerEventDefinition):
         """
