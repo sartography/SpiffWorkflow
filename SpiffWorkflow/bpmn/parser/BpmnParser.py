@@ -26,6 +26,7 @@ from ..specs.CallActivity import CallActivity
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
 from ..specs.IntermediateCatchEvent import IntermediateCatchEvent
+from ..specs.IntermediateThrowEvent import IntermediateThrowEvent
 from ..specs.ManualTask import ManualTask
 from ..specs.NoneTask import NoneTask
 from ..specs.ParallelGateway import ParallelGateway
@@ -40,6 +41,7 @@ from .task_parsers import (StartEventParser, EndEventParser, UserTaskParser,
                            ExclusiveGatewayParser, ParallelGatewayParser,
                            InclusiveGatewayParser, CallActivityParser,
                            ScriptTaskParser, IntermediateCatchEventParser,
+                           IntermediateThrowEventParser,
                            BoundaryEventParser,SubWorkflowParser)
 import xml.etree.ElementTree as ET
 
@@ -74,6 +76,8 @@ class BpmnParser(object):
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
         full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser,
                                              IntermediateCatchEvent),
+        full_tag('intermediateThrowEvent'): (IntermediateThrowEventParser,
+                                             IntermediateThrowEvent),
         full_tag('boundaryEvent'): (BoundaryEventParser, BoundaryEvent),
     }
 

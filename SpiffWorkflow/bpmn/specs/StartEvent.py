@@ -27,5 +27,6 @@ class StartEvent(Simple, BpmnSpecMixin):
     Task Spec for a bpmn:startEvent node.
     """
 
-    def __init__(self, wf_spec, name, **kwargs):
+    def __init__(self, wf_spec, name, event_definition=None, **kwargs):
         super(StartEvent, self).__init__(wf_spec, name, **kwargs)
+        self.event_definition = event_definition
