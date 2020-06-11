@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ucc3vj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <bpmn:collaboration id="Collaboration_0fh00ao">
+    <bpmn:participant id="Participant_1p8gtyd" name="Sample Process&#10;" processRef="Process_1kjyavs" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_1kjyavs" name="MessageBoundary" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1dwwv2e">
+      <bpmn:lane id="Lane_0gfw5kf" name="Slave">
+        <bpmn:flowNodeRef>Event_12moz8m</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_0mlgg9d</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_WorkLateReason</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1w6cide</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1m4766l</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_InterruptBoundary</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_0rpib5y" name="Master">
+        <bpmn:flowNodeRef>Event_0d3xq5q</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_WorkLate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_0ncff13</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0g8w85g</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0l8sadb</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Event_0d3xq5q">
+      <bpmn:outgoing>Flow_0bvln2b</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_WorkLate" name="Is work Late?" camunda:formKey="Interrupt">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="flag_task" label="Is Task Late?" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0bvln2b</bpmn:incoming>
+      <bpmn:incoming>Flow_1t2ocwk</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ya6ran</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_0ncff13" name="Send Message?" default="Flow_1t2ocwk">
+      <bpmn:incoming>Flow_1ya6ran</bpmn:incoming>
+      <bpmn:outgoing>Flow_0saykw5</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1t2ocwk</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateThrowEvent id="Event_0g8w85g" name="Send Tardy Message">
+      <bpmn:incoming>Flow_0saykw5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0lekhj5</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1cph049" messageRef="Message_0vb4lj2" camunda:expression="&#34;Youre late!&#34;" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="Event_0l8sadb">
+      <bpmn:incoming>Flow_0lekhj5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="Event_12moz8m">
+      <bpmn:outgoing>Flow_1gd7a2h</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:parallelGateway id="Gateway_0mlgg9d">
+      <bpmn:incoming>Flow_1g8u810</bpmn:incoming>
+      <bpmn:incoming>Flow_1firdqj</bpmn:incoming>
+      <bpmn:outgoing>Flow_10gq9an</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:userTask id="Activity_WorkLateReason" name="Why was the work Late?" camunda:formKey="LateWork">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="work_late_reason" label="Why is this work running late?" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0o0l113</bpmn:incoming>
+      <bpmn:outgoing>Flow_1g8u810</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_1w6cide">
+      <bpmn:incoming>Flow_10gq9an</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:subProcess id="Activity_1m4766l">
+      <bpmn:incoming>Flow_1gd7a2h</bpmn:incoming>
+      <bpmn:outgoing>Flow_1firdqj</bpmn:outgoing>
+      <bpmn:startEvent id="Event_0akpdke">
+        <bpmn:outgoing>Flow_1gs89vo</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="Flow_11u0pgk" sourceRef="Activity_DoWork" targetRef="Gateway_0u34qof" />
+      <bpmn:sequenceFlow id="Flow_1gs89vo" sourceRef="Event_0akpdke" targetRef="Activity_DoWork" />
+      <bpmn:exclusiveGateway id="Gateway_0u34qof" name="Work Done?" default="Flow_0wuxluk">
+        <bpmn:incoming>Flow_11u0pgk</bpmn:incoming>
+        <bpmn:outgoing>Flow_18d90uu</bpmn:outgoing>
+        <bpmn:outgoing>Flow_0wuxluk</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="Event_0pjkpp2">
+        <bpmn:incoming>Flow_1x6ji2h</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_18d90uu" name="Work is Done" sourceRef="Gateway_0u34qof" targetRef="Activity_WorkCompleted">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">work_done == 'Yes'</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_0wuxluk" name="Get Back to work" sourceRef="Gateway_0u34qof" targetRef="Activity_DoWork" />
+      <bpmn:userTask id="Activity_DoWork" name="Do Work" camunda:formKey="WorkForm">
+        <bpmn:extensionElements>
+          <camunda:formData>
+            <camunda:formField id="work_done" label="Is the Work Done?" type="string" />
+          </camunda:formData>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_1gs89vo</bpmn:incoming>
+        <bpmn:incoming>Flow_0wuxluk</bpmn:incoming>
+        <bpmn:outgoing>Flow_11u0pgk</bpmn:outgoing>
+      </bpmn:userTask>
+      <bpmn:sequenceFlow id="Flow_1x6ji2h" sourceRef="Activity_WorkCompleted" targetRef="Event_0pjkpp2" />
+      <bpmn:userTask id="Activity_WorkCompleted" name="What work was completed?" camunda:formKey="CompletedWork">
+        <bpmn:extensionElements>
+          <camunda:formData>
+            <camunda:formField id="work_completed" label="What work did you complete?" type="string" />
+          </camunda:formData>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_18d90uu</bpmn:incoming>
+        <bpmn:outgoing>Flow_1x6ji2h</bpmn:outgoing>
+      </bpmn:userTask>
+    </bpmn:subProcess>
+    <bpmn:boundaryEvent id="Event_InterruptBoundary" name="Your late!" cancelActivity="false" attachedToRef="Activity_1m4766l">
+      <bpmn:outgoing>Flow_0o0l113</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0fs04v7" messageRef="Message_0vb4lj2" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_0o0l113" sourceRef="Event_InterruptBoundary" targetRef="Activity_WorkLateReason" />
+    <bpmn:sequenceFlow id="Flow_1gd7a2h" sourceRef="Event_12moz8m" targetRef="Activity_1m4766l" />
+    <bpmn:sequenceFlow id="Flow_1t2ocwk" name="No&#10;&#10;" sourceRef="Gateway_0ncff13" targetRef="Activity_WorkLate" />
+    <bpmn:sequenceFlow id="Flow_0lekhj5" sourceRef="Event_0g8w85g" targetRef="Event_0l8sadb" />
+    <bpmn:sequenceFlow id="Flow_0saykw5" name="Yes" sourceRef="Gateway_0ncff13" targetRef="Event_0g8w85g">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">flag_task == 'Yes'</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1ya6ran" sourceRef="Activity_WorkLate" targetRef="Gateway_0ncff13" />
+    <bpmn:sequenceFlow id="Flow_0bvln2b" sourceRef="Event_0d3xq5q" targetRef="Activity_WorkLate" />
+    <bpmn:sequenceFlow id="Flow_1g8u810" sourceRef="Activity_WorkLateReason" targetRef="Gateway_0mlgg9d" />
+    <bpmn:sequenceFlow id="Flow_1firdqj" sourceRef="Activity_1m4766l" targetRef="Gateway_0mlgg9d" />
+    <bpmn:sequenceFlow id="Flow_10gq9an" sourceRef="Gateway_0mlgg9d" targetRef="Event_1w6cide" />
+  </bpmn:process>
+  <bpmn:message id="Message_0vb4lj2" name="Message_Tardy" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0fh00ao">
+      <bpmndi:BPMNShape id="Participant_1p8gtyd_di" bpmnElement="Participant_1p8gtyd" isHorizontal="true">
+        <dc:Bounds x="156" y="70" width="1352" height="638" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0rpib5y_di" bpmnElement="Lane_0rpib5y" isHorizontal="true">
+        <dc:Bounds x="186" y="70" width="1322" height="202" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0gfw5kf_di" bpmnElement="Lane_0gfw5kf" isHorizontal="true">
+        <dc:Bounds x="186" y="272" width="1322" height="436" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0d3xq5q_di" bpmnElement="Event_0d3xq5q">
+        <dc:Bounds x="258" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0bvln2b_di" bpmnElement="Flow_0bvln2b">
+        <di:waypoint x="294" y="170" />
+        <di:waypoint x="346" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1ugbw2a_di" bpmnElement="Activity_WorkLate">
+        <dc:Bounds x="346" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ncff13_di" bpmnElement="Gateway_0ncff13" isMarkerVisible="true">
+        <dc:Bounds x="501" y="145" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="486" y="115" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1ya6ran_di" bpmnElement="Flow_1ya6ran">
+        <di:waypoint x="446" y="170" />
+        <di:waypoint x="501" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0saykw5_di" bpmnElement="Flow_0saykw5">
+        <di:waypoint x="551" y="170" />
+        <di:waypoint x="608" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="570" y="152" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_15z0u0c_di" bpmnElement="Event_0g8w85g">
+        <dc:Bounds x="608" y="152" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="598" y="195" width="57" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0l8sadb_di" bpmnElement="Event_0l8sadb">
+        <dc:Bounds x="708" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0lekhj5_di" bpmnElement="Flow_0lekhj5">
+        <di:waypoint x="644" y="170" />
+        <di:waypoint x="708" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1t2ocwk_di" bpmnElement="Flow_1t2ocwk">
+        <di:waypoint x="526" y="195" />
+        <di:waypoint x="526" y="250" />
+        <di:waypoint x="396" y="250" />
+        <di:waypoint x="396" y="210" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="454" y="232" width="15" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_12moz8m_di" bpmnElement="Event_12moz8m">
+        <dc:Bounds x="258" y="412" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1m4766l_di" bpmnElement="Activity_1m4766l" isExpanded="true">
+        <dc:Bounds x="316" y="360" width="780" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0akpdke_di" bpmnElement="Event_0akpdke">
+        <dc:Bounds x="356" y="442" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1gd7a2h_di" bpmnElement="Flow_1gd7a2h">
+        <di:waypoint x="294" y="430" />
+        <di:waypoint x="305" y="430" />
+        <di:waypoint x="305" y="460" />
+        <di:waypoint x="316" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0o0l113_di" bpmnElement="Flow_0o0l113">
+        <di:waypoint x="907" y="578" />
+        <di:waypoint x="907" y="610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11u0pgk_di" bpmnElement="Flow_11u0pgk">
+        <di:waypoint x="541" y="470" />
+        <di:waypoint x="601" y="470" />
+        <di:waypoint x="601" y="460" />
+        <di:waypoint x="661" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1gs89vo_di" bpmnElement="Flow_1gs89vo">
+        <di:waypoint x="392" y="460" />
+        <di:waypoint x="417" y="460" />
+        <di:waypoint x="417" y="470" />
+        <di:waypoint x="441" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_0u34qof_di" bpmnElement="Gateway_0u34qof" isMarkerVisible="true">
+        <dc:Bounds x="661" y="435" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="656" y="405" width="61" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0pjkpp2_di" bpmnElement="Event_0pjkpp2">
+        <dc:Bounds x="958" y="442" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_18d90uu_di" bpmnElement="Flow_18d90uu">
+        <di:waypoint x="711" y="460" />
+        <di:waypoint x="796" y="460" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="729" y="442" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wuxluk_di" bpmnElement="Flow_0wuxluk">
+        <di:waypoint x="686" y="485" />
+        <di:waypoint x="686" y="540" />
+        <di:waypoint x="491" y="540" />
+        <di:waypoint x="491" y="510" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="546" y="522" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0bqfhsy_di" bpmnElement="Activity_DoWork">
+        <dc:Bounds x="441" y="430" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_18ala6m_di" bpmnElement="Event_InterruptBoundary">
+        <dc:Bounds x="889" y="542" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="884" y="585" width="47" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ktc6pw_di" bpmnElement="Activity_WorkLateReason">
+        <dc:Bounds x="857" y="610" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1x6ji2h_di" bpmnElement="Flow_1x6ji2h">
+        <di:waypoint x="896" y="460" />
+        <di:waypoint x="958" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_19e2njg_di" bpmnElement="Gateway_0mlgg9d">
+        <dc:Bounds x="1135" y="445" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1g8u810_di" bpmnElement="Flow_1g8u810">
+        <di:waypoint x="957" y="650" />
+        <di:waypoint x="1160" y="650" />
+        <di:waypoint x="1160" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1firdqj_di" bpmnElement="Flow_1firdqj">
+        <di:waypoint x="1096" y="460" />
+        <di:waypoint x="1116" y="460" />
+        <di:waypoint x="1116" y="470" />
+        <di:waypoint x="1135" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1w6cide_di" bpmnElement="Event_1w6cide">
+        <dc:Bounds x="1372" y="452" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_10gq9an_di" bpmnElement="Flow_10gq9an">
+        <di:waypoint x="1185" y="470" />
+        <di:waypoint x="1372" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1b8s2le_di" bpmnElement="Activity_WorkCompleted">
+        <dc:Bounds x="796" y="420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
