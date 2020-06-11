@@ -22,7 +22,8 @@ from .TaskParser import TaskParser
 from ..workflow import BpmnWorkflow
 from .util import first, one
 from ..specs.event_definitions import (TimerEventDefinition,
-                                       MessageEventDefinition)
+                                       MessageEventDefinition,
+                                       SignalEventDefinition)
 import xml.etree.ElementTree as ET
 import copy
 from SpiffWorkflow.exceptions import WorkflowException
@@ -38,7 +39,9 @@ class StartEventParser(TaskParser):
     def create_task(self):
 
         isMessageCatchingEvent = self.xpath('.//bpmn:messageEventDefinition')
-        if len(isMessageCatchingEvent) > 0:
+        isSignalCatchingEvent = self.xpath('.//bpmn:signalEventDefinition')
+        if (len(isMessageCatchingEvent) > 0)\
+                or (len(isSignalCatchingEvent) > 0):
             # we need to fix this up to wait on an event
             self.__class__ = type(self.get_id() + '_class', (
             self.__class__, IntermediateCatchEventParser), {})
@@ -281,6 +284,11 @@ class IntermediateCatchEventParser(TaskParser):
         if messageEventDefinition is not None:
             return self.get_message_event_definition(messageEventDefinition)
 
+        signalEventDefinition = first(
+            self.xpath('.//bpmn:signalEventDefinition'))
+        if signalEventDefinition is not None:
+            return self.get_signal_event_definition(signalEventDefinition)
+
         timerEventDefinition = first(
             self.xpath('.//bpmn:timerEventDefinition'))
         if timerEventDefinition is not None:
@@ -306,6 +314,22 @@ class IntermediateCatchEventParser(TaskParser):
                 message = self.node.get('name')
         return MessageEventDefinition(message)
 
+    def get_signal_event_definition(self, signalEventDefinition):
+        """
+        Parse the messageEventDefinition node and return an instance of
+        MessageEventDefinition
+        """
+        # we have two different modelers that handle messages
+        # in different ways.
+        # first the Signavio :
+        signalRef = first(self.xpath('.//bpmn:signalRef'))
+        if signalRef is not None:
+            message = signalRef.get('name')
+        elif signalEventDefinition is not None:
+            message = signalEventDefinition.get('signalRef')
+            if message is None:
+                message = self.node.get('name')
+        return SignalEventDefinition(message)
 
     def get_timer_event_definition(self, timerEventDefinition):
         """
@@ -382,6 +406,10 @@ class IntermediateThrowEventParser(TaskParser):
         if messageEventDefinition is not None:
             return self.get_message_event_definition(messageEventDefinition)
 
+        signalEventDefinition = first(
+            self.xpath('.//bpmn:signalEventDefinition'))
+        if signalEventDefinition is not None:
+            return self.get_signal_event_definition(signalEventDefinition)
 
             raise NotImplementedError(
             'Unsupported Intermediate Catch Event: %r', ET.tostring(self.node))
@@ -396,6 +424,19 @@ class IntermediateThrowEventParser(TaskParser):
             'messageRef') if messageEventDefinition is not None else self.node.get('name')
         payload = messageEventDefinition.attrib.get('{'+ CAMUNDA_MODEL_NS +'}expression')
         return MessageEventDefinition(message,payload)
+
+
+    def get_signal_event_definition(self, signalEventDefinition):
+        """
+        Parse the signalEventDefinition node and return an instance of
+        SignalEventDefinition
+        """
+
+        message = signalEventDefinition.get(
+            'signalRef') if signalEventDefinition is not None else self.node.get('name')
+        # camunda doesn't have payload for signals evidently
+        #payload = signalEventDefinition.attrib.get('{'+ CAMUNDA_MODEL_NS +'}expression')
+        return SignalEventDefinition(message)
 
 
 

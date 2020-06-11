@@ -101,6 +101,53 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         return True
 
 
+class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
+    """
+    The MessageEventDefinition is the implementation of event definition used
+    for Message Events.
+    """
+
+    def __init__(self, message):
+        """
+        Constructor.
+
+        :param message: The message to wait for.
+        """
+        self.message = message
+        #self.payload = payload
+
+    def has_fired(self, my_task):
+        """
+        Returns true if the message was received while the task was in a
+        WAITING state.
+        """
+        return my_task._get_internal_data('event_fired', False)
+
+    def _message_ready(self, my_task):
+        waiting_messages = my_task.workflow.task_tree.internal_data.get('signals',{})
+        if (self.message in waiting_messages.keys()):
+            #evaledpayload = waiting_messages[self.message]
+            #del(waiting_messages[self.message])
+            return True
+        return False
+
+    def _send_message(self, my_task):
+        if (my_task.workflow.task_tree.internal_data.get('signals')) is None:
+            my_task.workflow.task_tree.internal_data['signals'] = {}
+        my_task.workflow.task_tree.internal_data['signals'][self.message] = True
+        #my_task.workflow.task_tree.internal_data['messages'][self.message] = PythonScriptEngine().evaluate(
+            # self.payload,
+         #                                                                                         **my_task.data)
+        #self.message.send(None)
+        return True
+
+    def _accept_message(self, my_task, message):
+        if message != self.message:
+            return False
+        self._fire(my_task)
+        return True
+
+
 class TimerEventDefinition(CatchingEventDefinition):
     """
     The TimerEventDefinition is the implementation of event definition used for
