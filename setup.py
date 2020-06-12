@@ -23,7 +23,8 @@ included with the package.
       author_email     = 'cheeseshop.python.org@debain.org',
       license          = 'lGPLv2',
       packages         = find_packages(exclude=['tests', 'tests.*']),
-      install_requires = ['future', 'configparser', 'lxml', 'celery', 'python-Levenshtein'],
+      install_requires = ['future', 'configparser', 'lxml', 'celery',
+                          'python-Levenshtein-wheels'],
       keywords         = 'spiff workflow bpmn engine',
       url              = 'https://github.com/knipknap/SpiffWorkflow',
       classifiers      = [
