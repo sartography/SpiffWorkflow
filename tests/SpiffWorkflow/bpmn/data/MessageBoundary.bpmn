@@ -5,14 +5,14 @@
   </bpmn:collaboration>
   <bpmn:process id="Process_1kjyavs" name="MessageBoundary" isExecutable="true">
     <bpmn:laneSet id="LaneSet_1dwwv2e">
-      <bpmn:lane id="Lane_0rpib5y" name="Master">
+      <bpmn:lane id="Lane_0rpib5y" name="Boss">
         <bpmn:flowNodeRef>Event_0d3xq5q</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_Interrupt</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0ncff13</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0l8sadb</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0g8w85g</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_0gfw5kf" name="Slave">
+      <bpmn:lane id="Lane_0gfw5kf" name="Worker">
         <bpmn:flowNodeRef>Event_12moz8m</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0j702hl</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1m4766l</bpmn:flowNodeRef>
