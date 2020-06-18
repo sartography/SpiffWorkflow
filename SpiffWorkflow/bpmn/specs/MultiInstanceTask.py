@@ -242,7 +242,7 @@ class MultiInstanceTask(TaskSpec):
 
         my_task._set_internal_data(splits=split_n, runtimes=runtimes)
         if not self.elementVar:
-            self.elementVar = my_task.task_spec.name + "_MICurrentVar"
+            self.elementVar = my_task.task_spec.name + "_CurrentVar"
 
         my_task.data[self.elementVar] = copy.copy(
             self._get_current_var(my_task, runtimes))
@@ -326,7 +326,7 @@ class MultiInstanceTask(TaskSpec):
         if self.collection is not None:
             colvarname = self.collection.name
         else:
-            colvarname = my_task.task_spec.name + "_MIData"
+            colvarname = my_task.task_spec.name
 
 
         collect = valueof(my_task, self.collection, {})
