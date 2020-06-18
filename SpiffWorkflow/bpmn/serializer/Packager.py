@@ -23,14 +23,14 @@ import configparser
 import glob
 import hashlib
 import inspect
-import xml.etree.ElementTree as ET
+#import xml.etree.ElementTree as ET
 import zipfile
 from io import StringIO
 from optparse import OptionParser, OptionGroup
 from ..parser.BpmnParser import BpmnParser
 from ..parser.ValidationException import ValidationException
 from ..parser.util import xpath_eval, one
-
+from lxml import etree
 SIGNAVIO_NS = 'http://www.signavio.com'
 CONFIG_SECTION_NAME = "Packager Options"
 
@@ -139,7 +139,7 @@ class Packager(object):
         # Parse all of the XML:
         self.bpmn = {}
         for filename in self.input_files:
-            bpmn = ET.parse(filename)
+            bpmn = etree.parse(filename)
             self.bpmn[os.path.abspath(filename)] = bpmn
 
         # Now run through pre-parsing and validation:
@@ -174,7 +174,7 @@ class Packager(object):
 
                 bpmn = self.bpmn[os.path.abspath(filename)]
                 self.write_to_package_zip(
-                    "%s.bpmn" % spec.name, ET.tostring(bpmn.getroot()))
+                    "%s.bpmn" % spec.name, etree.tostring(bpmn.getroot()))
 
                 self.write_to_package_zip(
                     "src/" + self._get_zip_path(filename), filename)
@@ -339,7 +339,7 @@ class Packager(object):
 
             f = open(signavio_file, 'r')
             try:
-                signavio_tree = ET.parse(f)
+                signavio_tree = etree.parse(f)
             finally:
                 f.close()
             svg_node = one(signavio_tree.findall('.//svg-representation'))

@@ -21,8 +21,8 @@ from ...task import Task
 from .UnstructuredJoin import UnstructuredJoin
 from ...specs.Simple import Simple
 from ...specs.WorkflowSpec import WorkflowSpec
-import xml.etree.ElementTree as ET
-
+#import xml.etree.ElementTree as ET
+import lxml.etree as ET
 
 LOG = logging.getLogger(__name__)
 
