@@ -43,8 +43,7 @@ from .task_parsers import (StartEventParser, EndEventParser, UserTaskParser,
                            ScriptTaskParser, IntermediateCatchEventParser,
                            IntermediateThrowEventParser,
                            BoundaryEventParser,SubWorkflowParser)
-import xml.etree.ElementTree as ET
-
+from lxml import etree
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class BpmnParser(object):
@@ -130,7 +129,7 @@ class BpmnParser(object):
         for filename in filenames:
             f = open(filename, 'r')
             try:
-                self.add_bpmn_xml(ET.parse(f), filename=filename)
+                self.add_bpmn_xml(etree.parse(f), filename=filename)
             finally:
                 f.close()
 

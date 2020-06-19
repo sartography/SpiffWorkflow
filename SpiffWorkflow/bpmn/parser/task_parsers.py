@@ -24,7 +24,7 @@ from .util import first, one
 from ..specs.event_definitions import (TimerEventDefinition,
                                        MessageEventDefinition,
                                        SignalEventDefinition)
-import xml.etree.ElementTree as ET
+from lxml import etree
 import copy
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.bpmn.specs.IntermediateCatchEvent import IntermediateCatchEvent
@@ -220,11 +220,12 @@ class SubWorkflowParser(CallActivityParser):
                        'di':"http://www.omg.org/spec/DD/20100524/DI"}
         # Create wrapper xml for the subworkflow
         for ns in definitions.keys():
-            ET.register_namespace(ns,definitions[ns])
-        root = ET.Element('bpmn:definitions')
+            etree.register_namespace(ns,definitions[ns])
+        #root = etree.Element('bpmn:definitions')
+        root = etree.Element('{'+definitions['bpmn']+'}definitions')
 
         # Change the subProcess into a new bpmn:process & change the ID
-        thisTaskCopy.tag='bpmn:process'
+        thisTaskCopy.tag='{'+definitions['bpmn']+'}process'
         thisTaskCopy.set('id',thisTaskCopy.get('id')+"_process")
         thisTaskCopy.set('isExecutable','true')
         #inject the subWorkflow process into the header
@@ -233,10 +234,10 @@ class SubWorkflowParser(CallActivityParser):
         # the actual workflow spec will not serialize to
         # json, but the XML is just a string
 
-        xml = ET.tostring(root).decode('ascii')
+        xml = etree.tostring(root).decode('ascii')
         workflow_name = thisTaskCopy.get('id')
 
-        self.parser.add_bpmn_xml(ET.fromstring(xml))
+        self.parser.add_bpmn_xml(etree.fromstring(xml))
         wf_spec = self.parser.get_spec(workflow_name)
         wf_spec.file = self.process_parser.filename
         return wf_spec
@@ -295,7 +296,7 @@ class IntermediateCatchEventParser(TaskParser):
             return self.get_timer_event_definition(timerEventDefinition)
 
             raise NotImplementedError(
-            'Unsupported Intermediate Catch Event: %r', ET.tostring(self.node))
+            'Unsupported Intermediate Catch Event: %r', etree.tostring(self.node))
 
     def get_message_event_definition(self, messageEventDefinition):
         """
@@ -412,7 +413,7 @@ class IntermediateThrowEventParser(TaskParser):
             return self.get_signal_event_definition(signalEventDefinition)
 
             raise NotImplementedError(
-            'Unsupported Intermediate Catch Event: %r', ET.tostring(self.node))
+            'Unsupported Intermediate Catch Event: %r', etree.tostring(self.node))
 
     def get_message_event_definition(self, messageEventDefinition):
         """

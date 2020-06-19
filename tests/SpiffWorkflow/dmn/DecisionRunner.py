@@ -1,6 +1,6 @@
 import os
-import xml.etree.ElementTree as ET
 
+from lxml import etree
 from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
 from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
 
@@ -13,7 +13,7 @@ class DecisionRunner:
 
         f = open(self.path, 'r')
         try:
-            node = ET.parse(f)
+            node = etree.parse(f)
         finally:
             f.close()
         self.dmnParser = DMNParser(None, node.getroot())

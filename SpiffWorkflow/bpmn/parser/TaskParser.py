@@ -205,7 +205,8 @@ class TaskParser(object):
                 target_ref = sequence_flow.get('targetRef')
                 try:
                     target_node = one(
-                           self.process_xpath('.//bpmn:*[@id="%s"]' % target_ref))
+                         self.process_xpath('.//bpmn:*[@id="%s"]'% \
+                                target_ref))
                 except:
                     raise ValidationException(
                         'When looking for a task sepc, we found two items, perhaps a form'

@@ -19,7 +19,7 @@ from __future__ import division, absolute_import
 
 import configparser
 from io import BytesIO, TextIOWrapper
-import xml.etree.ElementTree as ElementTree
+from lxml import etree
 import zipfile
 import os
 
@@ -147,7 +147,7 @@ class BpmnSerializer(spiff_json.JSONSerializer):
 
                 bpmn_fp = package_zip.open(info)
                 try:
-                    bpmn = ElementTree.parse(bpmn_fp)
+                    bpmn = etree.parse(bpmn_fp)
                 finally:
                     bpmn_fp.close()
 
