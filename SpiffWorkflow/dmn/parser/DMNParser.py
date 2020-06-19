@@ -1,7 +1,6 @@
 import re
 from decimal import Decimal
 from ast import literal_eval
-#from xml.etree import ElementTree
 from datetime import datetime
 
 from SpiffWorkflow.bpmn.parser.util import xpath_eval

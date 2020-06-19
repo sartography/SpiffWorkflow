@@ -6,7 +6,6 @@ from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser, full_tag
 from SpiffWorkflow.dmn.parser.BusinessRuleTaskParser import BusinessRuleTaskParser
 from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
 from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
-#import xml.etree.ElementTree as ET
 from lxml import etree
 
 class BpmnDmnParser(BpmnParser):

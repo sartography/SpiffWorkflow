@@ -24,7 +24,6 @@ from .util import first, one
 from ..specs.event_definitions import (TimerEventDefinition,
                                        MessageEventDefinition,
                                        SignalEventDefinition)
-#import xml.etree.ElementTree as ET
 from lxml import etree
 import copy
 from SpiffWorkflow.exceptions import WorkflowException

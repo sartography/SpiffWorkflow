@@ -23,7 +23,6 @@ import configparser
 import glob
 import hashlib
 import inspect
-#import xml.etree.ElementTree as ET
 import zipfile
 from io import StringIO
 from optparse import OptionParser, OptionGroup

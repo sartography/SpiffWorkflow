@@ -1,5 +1,5 @@
 import os
-#import xml.etree.ElementTree as ET
+
 from lxml import etree
 from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
 from SpiffWorkflow.dmn.parser.DMNParser import DMNParser

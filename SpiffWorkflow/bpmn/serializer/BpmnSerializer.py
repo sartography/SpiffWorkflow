@@ -19,7 +19,6 @@ from __future__ import division, absolute_import
 
 import configparser
 from io import BytesIO, TextIOWrapper
-#import xml.etree.ElementTree as ElementTree
 from lxml import etree
 import zipfile
 import os

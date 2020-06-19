@@ -43,7 +43,6 @@ from .task_parsers import (StartEventParser, EndEventParser, UserTaskParser,
                            ScriptTaskParser, IntermediateCatchEventParser,
                            IntermediateThrowEventParser,
                            BoundaryEventParser,SubWorkflowParser)
-#import xml.etree.ElementTree as ET
 from lxml import etree
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
