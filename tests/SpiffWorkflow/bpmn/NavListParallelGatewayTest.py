@@ -55,6 +55,20 @@ class NavListParallelGatewayTest(BpmnWorkflowTestCase):
         self.assertEqual(2, nav_list[5]["indent"])
         self.assertEqual(2, nav_list[6]["indent"])
         self.assertEqual(0, nav_list[7]["indent"])
+        x = self.workflow.get_ready_user_tasks()
+        x[0].data['skip_to_task_3'] = False
+        self.workflow.complete_task_from_id(x[0].id)
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        nav_list = self.workflow.get_nav_list()
+        self.assertEqual("Enter Task 1", nav_list[0]["description"])
+        self.assertEqual("Skip to Task 3?", nav_list[1]["description"])
+        self.assertEqual("Yes", nav_list[2]["description"])
+        self.assertEqual("No", nav_list[3]["description"])
+        self.assertEqual("Enter Task 2a", nav_list[4]["description"])
+        self.assertEqual("Enter Task 2b", nav_list[5]["description"])
+        self.assertEqual("Enter Task 2c", nav_list[6]["description"])
+        self.assertEqual("Enter Task 3", nav_list[7]["description"])
 
 
 def suite():
