@@ -209,8 +209,8 @@ class TaskParser(object):
                                 target_ref))
                 except:
                     raise ValidationException(
-                        'When looking for a task sepc, we found two items, perhaps a form'
-                        'has the same ID? (%s)'%target_ref,
+                        'When looking for a task spec, we found two items, '
+                        'perhaps a form has the same ID? (%s)' % target_ref,
                         node=self.node,
                         filename=self.process_parser.filename)
 
