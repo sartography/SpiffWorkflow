@@ -95,6 +95,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
     if isinstance(tree,MultiInstanceTask) and\
             not tree.isSequential:
         # NB: Not technically correct but expedient
+        # FIXME: we whould only have one input
         for task in tree.inputs[1].outputs:
             linkkey = list(task.outgoing_sequence_flows.keys())[0]
             link = task.outgoing_sequence_flows[linkkey]

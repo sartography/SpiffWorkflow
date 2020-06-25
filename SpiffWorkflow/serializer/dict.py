@@ -30,6 +30,7 @@ from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
 from .base import Serializer
 from .exceptions import TaskNotSupportedError
 import warnings
+import copy
 
 
 class DictionarySerializer(Serializer):
@@ -569,6 +570,13 @@ class DictionarySerializer(Serializer):
         assert isinstance(workflow, Workflow)
         # task_spec
         task_spec = workflow.get_task_spec_from_name(s_state['task_spec'])
+        if s_state['internal_data'].get('runtimes',None) is not None \
+            and s_state['internal_data']['runtimes'] > 1 and \
+            len(task_spec.inputs) > 1:
+            task_spec = copy.copy(task_spec)
+            task_spec.id = str(task_spec.id) + '_%d'%(s_state['internal_data']['runtimes']-1)
+            #FIXME: we should only have 1 input, not 2
+            task_spec.inputs[1].outputs.append(task_spec)
         task = Task(workflow, task_spec)
 
         # id
