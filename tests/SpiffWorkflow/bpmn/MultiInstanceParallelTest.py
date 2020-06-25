@@ -20,10 +20,17 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
     and five items for the repeating section. """
 
     def setUp(self):
+        self.filename = 'MultiInstanceParallelTask.bpmn'
+        self.process_name = 'MultiInstance'
         self.spec = self.load_workflow1_spec()
 
+
+    def reload_save_restore(self):
+        self.spec = self.load_workflow1_spec()
+        self.save_restore()
+
     def load_workflow1_spec(self):
-        return self.load_workflow_spec('MultiInstanceParallelTask.bpmn', 'MultiInstance')
+        return self.load_workflow_spec(self.filename, self.process_name)
 
     def testRunThroughHappy(self):
         self.actualTest()
@@ -34,13 +41,17 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
     def actualTest(self, save_restore=False):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
-        self.assertEquals(5, len(self.workflow.get_ready_user_tasks()))
+        self.assertEqual(1, len(self.workflow.get_ready_user_tasks()))
+        task = self.workflow.get_ready_user_tasks()[0]
+        task.data['collection'] = [1,2,3,4,5]
+        self.workflow.complete_task_from_id(task.id)
+        self.workflow.do_engine_steps()
         for task in self.workflow.get_ready_user_tasks():
             self.assertFalse(self.workflow.is_completed())
             self.workflow.complete_task_from_id(task.id)
-            self.assertEquals(7, len(self.workflow.get_nav_list()))
+            self.assertEqual(8, len(self.workflow.get_nav_list()))
             if(save_restore):
-                self.save_restore()
+                self.reload_save_restore()
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
 

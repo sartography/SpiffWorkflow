@@ -1,47 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_17fwemw" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_17fwemw" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
   <bpmn:process id="MultiInstance" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1" name="StartEvent_1">
       <bpmn:outgoing>Flow_0t6p1sb</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_0t6p1sb" sourceRef="StartEvent_1" targetRef="Activity_Loop" />
+    <bpmn:sequenceFlow id="Flow_0t6p1sb" sourceRef="StartEvent_1" targetRef="Activity_088tnzu" />
     <bpmn:endEvent id="Event_End" name="Event_End">
       <bpmn:incoming>Flow_0ugjw69</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0ugjw69" sourceRef="Activity_Loop" targetRef="Event_End" />
     <bpmn:userTask id="Activity_Loop" name="Activity_Loop">
-      <bpmn:incoming>Flow_0t6p1sb</bpmn:incoming>
+      <bpmn:incoming>Flow_0ds4mp0</bpmn:incoming>
       <bpmn:outgoing>Flow_0ugjw69</bpmn:outgoing>
       <bpmn:multiInstanceLoopCharacteristics>
-        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">5</bpmn:loopCardinality>
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">collection</bpmn:loopCardinality>
       </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:userTask>
+    <bpmn:task id="Activity_088tnzu" name="Setup">
+      <bpmn:incoming>Flow_0t6p1sb</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ds4mp0</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_0ds4mp0" sourceRef="Activity_088tnzu" targetRef="Activity_Loop" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MultiInstance">
       <bpmndi:BPMNEdge id="Flow_0ugjw69_di" bpmnElement="Flow_0ugjw69">
-        <di:waypoint x="390" y="117" />
-        <di:waypoint x="492" y="117" />
+        <di:waypoint x="480" y="117" />
+        <di:waypoint x="582" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0t6p1sb_di" bpmnElement="Flow_0t6p1sb">
-        <di:waypoint x="198" y="117" />
-        <di:waypoint x="290" y="117" />
+        <di:waypoint x="208" y="117" />
+        <di:waypoint x="230" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1g0pmib_di" bpmnElement="Event_End">
-        <dc:Bounds x="492" y="99" width="36" height="36" />
+        <dc:Bounds x="582" y="99" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="485" y="142" width="54" height="14" />
+          <dc:Bounds x="575" y="142" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="162" y="99" width="36" height="36" />
+        <dc:Bounds x="172" y="99" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="149" y="142" width="64" height="14" />
+          <dc:Bounds x="159" y="142" width="64" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1iyilui_di" bpmnElement="Activity_Loop">
-        <dc:Bounds x="290" y="77" width="100" height="80" />
+        <dc:Bounds x="380" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_088tnzu_di" bpmnElement="Activity_088tnzu">
+        <dc:Bounds x="230" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0ds4mp0_di" bpmnElement="Flow_0ds4mp0">
+        <di:waypoint x="330" y="117" />
+        <di:waypoint x="380" y="117" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
