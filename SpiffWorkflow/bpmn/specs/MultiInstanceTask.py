@@ -262,18 +262,15 @@ class MultiInstanceTask(TaskSpec):
             self._add_gateway(my_task)
 
 
-            # the following code was made redundant by a fix included in STG-26
-            # where we patched up the task specs when we restored the entire
-            # task tree - I've left it in for now.
-            # for tasknum in range(len(my_task.parent.children)):
-            #     task = my_task.parent.children[tasknum]
-            #     # we had an error on save/restore that was causing a problem down the line
-            #     # basically every task that we have expanded out needs its own task_spec.
-            #     # the save restore gets the right thing in the child, but not on each of the
-            #     # intermediate tasks.
-            #      if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
-            #          LOG.debug("fix up save/restore in predict")
-            #          task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
+            for tasknum in range(len(my_task.parent.children)):
+                task = my_task.parent.children[tasknum]
+                # we had an error on save/restore that was causing a problem down the line
+                # basically every task that we have expanded out needs its own task_spec.
+                # the save restore gets the right thing in the child, but not on each of the
+                # intermediate tasks.
+                if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
+                    LOG.debug("fix up save/restore in predict")
+                    task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
 
             if len(my_task.parent.children) < split_n:
                 # expand the tree

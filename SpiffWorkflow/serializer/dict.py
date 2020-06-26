@@ -566,17 +566,31 @@ class DictionarySerializer(Serializer):
 
         return s_state
 
+        # comments for the if statement below:
+        # --------------------------------------
+        # if s_state['internal_data'].get('runtimes',None) is not None \  # <-- if we are in a multiinstance
+        #     and s_state['internal_data']['runtimes'] > 1 and \ # <-- and the cardinality has gone above one,
+        #                                                     \ #     presumably because we are using a collection
+        #         len(task_spec.inputs) > 1 and \  #<- and we have previously patched up the task spec tree
+        #                                          #   which should happen as soon as we load the original task spec
+        #     len(task_spec.inputs[1].outputs)  < s_state['internal_data']['runtimes'] : # <-- and we haven't expanded
+        #                                                                                #      the tree yet (i.e. we are
+        #                                                                                #      re-loading the task spec)
+
+
+
     def deserialize_task(self, workflow, s_state):
         assert isinstance(workflow, Workflow)
-        # task_spec
         task_spec = workflow.get_task_spec_from_name(s_state['task_spec'])
-        if s_state['internal_data'].get('runtimes',None) is not None \
-            and s_state['internal_data']['runtimes'] > 1 and \
-            len(task_spec.inputs) > 1:
+        if s_state['internal_data'].get('runtimes', None) is not None \
+        and s_state['internal_data']['runtimes'] > 1 and \
+        len(task_spec.inputs) > 1 and \
+        len(task_spec.inputs[1].outputs) < s_state['internal_data']['runtimes']:
             task_spec = copy.copy(task_spec)
             task_spec.id = str(task_spec.id) + '_%d'%(s_state['internal_data']['runtimes']-1)
             #FIXME: we should only have 1 input, not 2
             task_spec.inputs[1].outputs.append(task_spec)
+            task_spec.outputs[0].inputs.append(task_spec)
         task = Task(workflow, task_spec)
 
         # id
