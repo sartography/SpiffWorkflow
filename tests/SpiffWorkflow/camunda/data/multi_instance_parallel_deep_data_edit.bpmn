@@ -8,8 +8,8 @@
     <bpmn:endEvent id="Event_End" name="Event_End">
       <bpmn:incoming>Flow_0ugjw69</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0ugjw69" sourceRef="MutiInstanceTask" targetRef="Event_End" />
-    <bpmn:userTask id="MutiInstanceTask" name="Gather more information" camunda:formKey="GetEmail">
+    <bpmn:sequenceFlow id="Flow_0ugjw69" sourceRef="MultiInstanceTask" targetRef="Event_End" />
+    <bpmn:userTask id="MultiInstanceTask" name="Gather more information" camunda:formKey="GetEmail">
       <bpmn:documentation># Please provide addtional information about:
 ## Investigator ID: {{investigator.user_id}} 
 ## Role: {{investigator.type_full}}</bpmn:documentation>
@@ -22,7 +22,7 @@
       <bpmn:outgoing>Flow_0ugjw69</bpmn:outgoing>
       <bpmn:multiInstanceLoopCharacteristics camunda:collection="StudyInfo.investigators" camunda:elementVariable="investigator" />
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="SequenceFlow_1p568pp" sourceRef="Task_1v0e2zu" targetRef="MutiInstanceTask" />
+    <bpmn:sequenceFlow id="SequenceFlow_1p568pp" sourceRef="Task_1v0e2zu" targetRef="MultiInstanceTask" />
     <bpmn:manualTask id="Task_1v0e2zu" name="Load Personnel">
       <bpmn:documentation>Imagine a script task here that loads a complex data set.</bpmn:documentation>
       <bpmn:incoming>Flow_0t6p1sb</bpmn:incoming>
@@ -55,7 +55,7 @@
           <dc:Bounds x="575" y="142" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1iyilui_di" bpmnElement="MutiInstanceTask">
+      <bpmndi:BPMNShape id="Activity_1iyilui_di" bpmnElement="MultiInstanceTask">
         <dc:Bounds x="410" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0jcnzcm_di" bpmnElement="Task_1v0e2zu">

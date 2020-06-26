@@ -79,7 +79,7 @@ class MultiInstanceDeepDictTest(BaseTestCase):
                    'is_parallel_mi':True,
                    'mi_count':2,
                    'mi_index':1})
-        self.assertEqual("MutiInstanceTask", task.task_spec.name)
+        self.assertEqual("MultiInstanceTask", task.task_spec.name)
         self.assertTrue("investigator" in task.data)
         data = copy.copy(task.data)
         data['investigator']['email'] = "john.smith@gmail.com"
@@ -95,7 +95,7 @@ class MultiInstanceDeepDictTest(BaseTestCase):
                    'is_parallel_mi':True,
                    'mi_count':2,
                    'mi_index':2})
-        self.assertEqual("MutiInstanceTask", task.task_spec.name)
+        self.assertEqual("MultiInstanceTask", task.task_spec.name)
         self.assertTrue("investigator" in task.data)
         data = copy.copy(task.data)
         data['investigator']['email'] = "dan.funk@gmail.com"
