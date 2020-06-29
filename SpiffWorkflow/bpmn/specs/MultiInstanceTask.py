@@ -242,7 +242,7 @@ class MultiInstanceTask(TaskSpec):
 
         my_task._set_internal_data(splits=split_n, runtimes=runtimes)
         if not self.elementVar:
-            self.elementVar = my_task.task_spec.name + "_MICurrentVar"
+            self.elementVar = my_task.task_spec.name + "_CurrentVar"
 
         my_task.data[self.elementVar] = copy.copy(
             self._get_current_var(my_task, runtimes))
@@ -261,13 +261,13 @@ class MultiInstanceTask(TaskSpec):
             # happen once
             self._add_gateway(my_task)
 
+
             for tasknum in range(len(my_task.parent.children)):
                 task = my_task.parent.children[tasknum]
                 # we had an error on save/restore that was causing a problem down the line
                 # basically every task that we have expanded out needs its own task_spec.
                 # the save restore gets the right thing in the child, but not on each of the
                 # intermediate tasks.
-
                 if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
                     LOG.debug("fix up save/restore in predict")
                     task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
@@ -326,7 +326,7 @@ class MultiInstanceTask(TaskSpec):
         if self.collection is not None:
             colvarname = self.collection.name
         else:
-            colvarname = my_task.task_spec.name + "_MIData"
+            colvarname = my_task.task_spec.name
 
 
         collect = valueof(my_task, self.collection, {})
@@ -338,6 +338,9 @@ class MultiInstanceTask(TaskSpec):
         if self.collection is not None and \
             self.times.name == self.collection.name:
             keys = list(collect.keys())
+            if len(keys)<runtimes:
+                raise WorkflowException(self,"There is a mismatch between runtimes and the number items in the"
+                                             "collection, please check for empty collection '%s'."%self.collection.name)
             runtimesvar = keys[runtimes - 1]
         else:
             runtimesvar = runtimes

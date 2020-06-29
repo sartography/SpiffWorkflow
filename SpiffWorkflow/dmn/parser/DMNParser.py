@@ -1,14 +1,13 @@
 import re
 from decimal import Decimal
 from ast import literal_eval
-from xml.etree import ElementTree
 from datetime import datetime
 
 from SpiffWorkflow.bpmn.parser.util import xpath_eval
 
 from SpiffWorkflow.dmn.specs.model import Decision, DecisionTable, InputEntry, \
     OutputEntry, Input, Output, Rule
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonSriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 
 DMN_NS = 'http://www.omg.org/spec/DMN/20151101/dmn.xsd'
 
@@ -41,7 +40,7 @@ class DMNParser(object):
         self.filename = filename
         self.doc_xpath = doc_xpath
         self.xpath = xpath_eval(self.node, {'dmn': DMN_NS})
-        self.scriptEngine = PythonSriptEngine()
+        self.scriptEngine = PythonScriptEngine()
 
     def parse(self):
         self.decision = self._parse_decision(self.node)

@@ -211,6 +211,7 @@ class Workflow(object):
                indent           -   A hint for indentation
                child_count       -   The number of children that should be associated with
                                     this item.
+               lane             -   This is the swimlane for the task if indicated.
                state            -   Text based state (may be half baked in the case that we have
                                     more than one state for a task spec - but I don't think those
                                     are being reported in the list, so it may not matter)
@@ -221,8 +222,11 @@ class Workflow(object):
         top = self.task_tree.children[0].task_spec.outputs[0]
 
         # traverse the tree
-        l = follow_tree(top,output=[],found=set())
 
+        list_paths = [follow_tree(top,output=[],found=set()) for top in self.task_tree.children[0].task_spec.outputs]
+        l = []
+        for path in list_paths:
+            l = l + path
         # make sure things get presented in order - I may need to take another
         # look at why this is needed. Ideally, it would come out of the traversal in
         # the correct order
@@ -273,6 +277,7 @@ class Workflow(object):
                     print(task_spec['id'])
                     task_spec['state'] = status[0]
                     task_spec['task_id'] = taskids[0]
+        #l.sort(key=lambda x: ' ' if x['lane'] is None else x['lane'])
         return l
 
 

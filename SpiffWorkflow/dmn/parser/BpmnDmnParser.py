@@ -6,7 +6,7 @@ from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser, full_tag
 from SpiffWorkflow.dmn.parser.BusinessRuleTaskParser import BusinessRuleTaskParser
 from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
 from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
-import xml.etree.ElementTree as ET
+from lxml import etree
 
 class BpmnDmnParser(BpmnParser):
 
@@ -50,6 +50,6 @@ class BpmnDmnParser(BpmnParser):
         for filename in filenames:
             f = open(filename, 'r')
             try:
-                self.add_dmn_xml(ET.parse(f).getroot(), filename=filename)
+                self.add_dmn_xml(etree.parse(f).getroot(), filename=filename)
             finally:
                 f.close()

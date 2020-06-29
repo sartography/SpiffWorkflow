@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ilr8m3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <bpmn:process id="timer" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1pahvlr</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:manualTask id="Activity_1ybpou3" name="Get Coffee">
+      <bpmn:incoming>Flow_1pahvlr</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pvkgnu</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:intermediateCatchEvent id="Event_0bxivgz" name="Take 5">
+      <bpmn:incoming>Flow_1pvkgnu</bpmn:incoming>
+      <bpmn:outgoing>Flow_1elbn9u</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1jrn73k">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT.25S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:manualTask id="Activity_1rbj8j1" name="Get Back To Work">
+      <bpmn:incoming>Flow_1elbn9u</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ekgt3x</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:endEvent id="Event_03w65sk">
+      <bpmn:incoming>Flow_1ekgt3x</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1ekgt3x" sourceRef="Activity_1rbj8j1" targetRef="Event_03w65sk" />
+    <bpmn:sequenceFlow id="Flow_1elbn9u" sourceRef="Event_0bxivgz" targetRef="Activity_1rbj8j1" />
+    <bpmn:sequenceFlow id="Flow_1pvkgnu" sourceRef="Activity_1ybpou3" targetRef="Event_0bxivgz" />
+    <bpmn:sequenceFlow id="Flow_1pahvlr" sourceRef="StartEvent_1" targetRef="Activity_1ybpou3" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="timer">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0tjl9dd_di" bpmnElement="Activity_1ybpou3">
+        <dc:Bounds x="260" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0bljn9v_di" bpmnElement="Event_0bxivgz">
+        <dc:Bounds x="412" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="414" y="142" width="33" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15zi5m4_di" bpmnElement="Activity_1rbj8j1">
+        <dc:Bounds x="530" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_03w65sk_di" bpmnElement="Event_03w65sk">
+        <dc:Bounds x="682" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1ekgt3x_di" bpmnElement="Flow_1ekgt3x">
+        <di:waypoint x="630" y="117" />
+        <di:waypoint x="682" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1elbn9u_di" bpmnElement="Flow_1elbn9u">
+        <di:waypoint x="448" y="117" />
+        <di:waypoint x="530" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pvkgnu_di" bpmnElement="Flow_1pvkgnu">
+        <di:waypoint x="360" y="117" />
+        <di:waypoint x="412" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pahvlr_di" bpmnElement="Flow_1pahvlr">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="260" y="117" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

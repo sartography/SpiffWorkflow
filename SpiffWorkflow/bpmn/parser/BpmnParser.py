@@ -26,6 +26,7 @@ from ..specs.CallActivity import CallActivity
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
 from ..specs.IntermediateCatchEvent import IntermediateCatchEvent
+from ..specs.IntermediateThrowEvent import IntermediateThrowEvent
 from ..specs.ManualTask import ManualTask
 from ..specs.NoneTask import NoneTask
 from ..specs.ParallelGateway import ParallelGateway
@@ -40,9 +41,9 @@ from .task_parsers import (StartEventParser, EndEventParser, UserTaskParser,
                            ExclusiveGatewayParser, ParallelGatewayParser,
                            InclusiveGatewayParser, CallActivityParser,
                            ScriptTaskParser, IntermediateCatchEventParser,
+                           IntermediateThrowEventParser,
                            BoundaryEventParser,SubWorkflowParser)
-import xml.etree.ElementTree as ET
-
+from lxml import etree
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class BpmnParser(object):
@@ -74,6 +75,8 @@ class BpmnParser(object):
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
         full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser,
                                              IntermediateCatchEvent),
+        full_tag('intermediateThrowEvent'): (IntermediateThrowEventParser,
+                                             IntermediateThrowEvent),
         full_tag('boundaryEvent'): (BoundaryEventParser, BoundaryEvent),
     }
 
@@ -126,7 +129,7 @@ class BpmnParser(object):
         for filename in filenames:
             f = open(filename, 'r')
             try:
-                self.add_bpmn_xml(ET.parse(f), filename=filename)
+                self.add_bpmn_xml(etree.parse(f), filename=filename)
             finally:
                 f.close()
 
@@ -139,6 +142,20 @@ class BpmnParser(object):
         :param filename: Optionally, provide the source filename.
         """
         xpath = xpath_eval(bpmn)
+        # do a check on our bpmn to ensure that no id appears twice
+        # this *should* be taken care of by our modeler - so this test
+        # should never fail.
+        ids = [x for x in xpath('.//bpmn:*[@id]')]
+        foundids = {}
+        for node in ids:
+            id = node.get('id')
+            if foundids.get(id,None) is not None:
+                raise ValidationException(
+                    'The bpmn document should have no repeating ids but (%s) repeats'%id,
+                    node=node,
+                    filename=filename)
+            else:
+                foundids[id] = 1
 
         processes = xpath('.//bpmn:process')
         for process in processes:

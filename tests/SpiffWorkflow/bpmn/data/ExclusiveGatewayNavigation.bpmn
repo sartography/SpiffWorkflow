@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_83c9f25" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_83c9f25" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
   <bpmn:process id="ExclusiveGatewayNavigation" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_1ux3ndu</bpmn:outgoing>
@@ -7,14 +7,14 @@
     <bpmn:sequenceFlow id="Flow_1ux3ndu" sourceRef="StartEvent_1" targetRef="Activity_07iglj7" />
     <bpmn:exclusiveGateway id="Gateway_1lh8c45" name="Decide Which Branch?">
       <bpmn:incoming>Flow_1ut95vk</bpmn:incoming>
-      <bpmn:outgoing>Flow_1fok0lz</bpmn:outgoing>
-      <bpmn:outgoing>Flow_01he29w</bpmn:outgoing>
+      <bpmn:outgoing>Flow_a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_b</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1ut95vk" sourceRef="Activity_07iglj7" targetRef="Gateway_1lh8c45" />
-    <bpmn:sequenceFlow id="Flow_1fok0lz" name="a" sourceRef="Gateway_1lh8c45" targetRef="Activity_19ig0xo">
+    <bpmn:sequenceFlow id="Flow_a" name="a" sourceRef="Gateway_1lh8c45" targetRef="Activity_19ig0xo">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">which_branch == 'a'</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_01he29w" name="b" sourceRef="Gateway_1lh8c45" targetRef="Activity_1hx53cu">
+    <bpmn:sequenceFlow id="Flow_b" name="b" sourceRef="Gateway_1lh8c45" targetRef="Activity_1hx53cu">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">which_branch == 'b'</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0ikuwt5">
@@ -43,7 +43,7 @@
           <camunda:formField id="FormField_0taj99h" label="What is your favorite color?" type="string" />
         </camunda:formData>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1fok0lz</bpmn:incoming>
+      <bpmn:incoming>Flow_a</bpmn:incoming>
       <bpmn:outgoing>Flow_03ddkww</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:userTask id="Activity_1hx53cu" name="Enter Task 2b" camunda:formKey="form_task2b">
@@ -52,7 +52,7 @@
           <camunda:formField id="FormField_1l30p68" label="Do you like pie?" type="boolean" />
         </camunda:formData>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_01he29w</bpmn:incoming>
+      <bpmn:incoming>Flow_b</bpmn:incoming>
       <bpmn:outgoing>Flow_0ozlczo</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:userTask id="Activity_1b15riu" name="Enter Task 3" camunda:formKey="form_task3">
@@ -88,19 +88,19 @@
         <di:waypoint x="630" y="177" />
         <di:waypoint x="685" y="177" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_01he29w_di" bpmnElement="Flow_01he29w">
+      <bpmndi:BPMNEdge id="Flow_01he29w_di" bpmnElement="Flow_b">
         <di:waypoint x="450" y="202" />
         <di:waypoint x="450" y="290" />
         <di:waypoint x="530" y="290" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="462" y="243" width="6" height="14" />
+          <dc:Bounds x="462" y="243" width="7" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1fok0lz_di" bpmnElement="Flow_1fok0lz">
+      <bpmndi:BPMNEdge id="Flow_1fok0lz_di" bpmnElement="Flow_a">
         <di:waypoint x="475" y="177" />
         <di:waypoint x="530" y="177" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="500" y="159" width="6" height="14" />
+          <dc:Bounds x="500" y="159" width="7" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ut95vk_di" bpmnElement="Flow_1ut95vk">

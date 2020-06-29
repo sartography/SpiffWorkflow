@@ -8,7 +8,10 @@ def same_ending_length(node):
     endings = [[leaf['id'] for leaf in branch['children']] for branch in node]
     # the longest identical ending will be equal to the lenght of the
     # shortest list
-    shortest_list = min([len(x) for x in endings])
+    if len(endings) == 0:
+        shortest_list = 0
+    else:
+        shortest_list = min([len(x) for x in endings])
     # walk through the list and determine if they are all the same
     # for each. If they are not the same, then we back off the snip point
     snip_point = shortest_list
@@ -25,6 +28,8 @@ def snip_same_ending(node,length):
     return a list of the same endings so we can tack it on the
     parent tree.
     """
+    if len(node) == 0:
+        return []
     retlist = node[0]['children'][-length:]
     for branch in node:
         branch['children'] = branch['children'][:-length]
@@ -53,6 +58,7 @@ def conditional_task_add(task,output,found,level):
                        'name': task.name,
                        'description': task.description,
                        'backtracks': None,
+                       'lane': task.lane,
                        'children': [],
                        'level': level})
 
@@ -63,8 +69,20 @@ def follow_tree(tree,output=[],found=set(),level=0):
     from SpiffWorkflow.bpmn.specs.MultiInstanceTask import MultiInstanceTask
 
 
+    # I had an issue with a test being nondeterministic the yes/no
+    # were in an alternate order in some cases. To be 100% correct, this should
+    # probably also use the X/Y information that we are parsing elsewhere, but
+    # I did not see that information in the task spec.
+    # At a bare minimum, this should fix the problem where keys in a dict are
+    # flip-flopping.
+    # After I'm done, you should be able to manage the order of the sequence flows by
+    # naming the Flow_xxxxx names in the order you want them to appear.
 
     outputs = list(tree.outgoing_sequence_flows.keys())
+    idlinks = [(x,tree.outgoing_sequence_flows[x]) for x in outputs]
+    idlinks.sort(key=lambda x: x[1].id)
+    outputs = [x[0] for x in idlinks]
+
     # ---------------------
     # Endpoint, no children
     # ---------------------
@@ -77,6 +95,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
     if isinstance(tree,MultiInstanceTask) and\
             not tree.isSequential:
         # NB: Not technically correct but expedient
+        # FIXME: we whould only have one input
         for task in tree.inputs[1].outputs:
             linkkey = list(task.outgoing_sequence_flows.keys())[0]
             link = task.outgoing_sequence_flows[linkkey]
@@ -144,6 +163,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
                                  'name':link.name,
                                  'description':link.name,
                                  'is_decision': True,
+                                 'lane': tree.lane,
                                  'backtracks':backtracklink,
                                  'children':mychildren,
                                  'level':level+1})
@@ -161,6 +181,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
                        'description':tree.description,
                        'backtracks':None,
                        'is_decision':False,
+                       'lane': tree.lane,
                        'children':taskchildren,
                        'level':level+1})
         output =  output + merge_list

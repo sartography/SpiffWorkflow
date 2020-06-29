@@ -24,6 +24,7 @@ from SpiffWorkflow.exceptions import WorkflowException
 import logging
 import time
 from uuid import uuid4
+import random
 from .util.deep_merge import DeepMerge
 
 LOG = logging.getLogger(__name__)
@@ -200,7 +201,7 @@ class Task(object):
         self.state_history = [state]
         self.log = []
         self.task_spec = task_spec
-        self.id = uuid4()
+        self.id = uuid4() #UUID(int=random.getrandbits(128),version=4)
         self.thread_id = self.__class__.thread_id_pool
         self.last_state_change = time.time()
         self.data = {}

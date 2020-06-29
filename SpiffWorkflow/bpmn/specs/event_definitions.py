@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from builtins import object
+import datetime
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -34,6 +36,9 @@ class CatchingEventDefinition(object):
         """
         return my_task._get_internal_data('event_fired', False)
 
+    def _message_ready(self, my_task):
+        return False
+
     def _accept_message(self, my_task, message):
         return False
 
@@ -46,9 +51,57 @@ class ThrowingEventDefinition(object):
     This class is for future functionality. It will define the methods needed
     on an event definition that can be Thrown.
     """
+    def _send_message(self, my_task, message):
+        return False
+
+
 
 
 class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
+    """
+    The MessageEventDefinition is the implementation of event definition used
+    for Message Events.
+    """
+
+    def __init__(self, message,payload=""):
+        """
+        Constructor.
+
+        :param message: The message to wait for.
+        """
+        self.message = message
+        self.payload = payload
+
+    def has_fired(self, my_task):
+        """
+        Returns true if the message was received while the task was in a
+        WAITING state.
+        """
+        return my_task._get_internal_data('event_fired', False)
+
+    def _message_ready(self, my_task):
+        waiting_messages = my_task.workflow.task_tree.internal_data.get('messages',{})
+        if (self.message in waiting_messages.keys()):
+            evaledpayload = waiting_messages[self.message]
+            del(waiting_messages[self.message])
+            return evaledpayload
+
+    def _send_message(self, my_task):
+        if (my_task.workflow.task_tree.internal_data.get('messages')) is None:
+            my_task.workflow.task_tree.internal_data['messages'] = {}
+        my_task.workflow.task_tree.internal_data['messages'][self.message] = PythonScriptEngine().evaluate(self.payload,
+                                                                                                  **my_task.data)
+        #self.message.send(self.payload)
+        return True
+
+    def _accept_message(self, my_task, message):
+        if message != self.message:
+            return False
+        self._fire(my_task)
+        return True
+
+
+class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
     """
     The MessageEventDefinition is the implementation of event definition used
     for Message Events.
@@ -61,6 +114,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         :param message: The message to wait for.
         """
         self.message = message
+        #self.payload = payload
 
     def has_fired(self, my_task):
         """
@@ -68,6 +122,24 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         WAITING state.
         """
         return my_task._get_internal_data('event_fired', False)
+
+    def _message_ready(self, my_task):
+        waiting_messages = my_task.workflow.task_tree.internal_data.get('signals',{})
+        if (self.message in waiting_messages.keys()):
+            #evaledpayload = waiting_messages[self.message]
+            #del(waiting_messages[self.message])
+            return True
+        return False
+
+    def _send_message(self, my_task):
+        if (my_task.workflow.task_tree.internal_data.get('signals')) is None:
+            my_task.workflow.task_tree.internal_data['signals'] = {}
+        my_task.workflow.task_tree.internal_data['signals'][self.message] = True
+        #my_task.workflow.task_tree.internal_data['messages'][self.message] = PythonScriptEngine().evaluate(
+            # self.payload,
+         #                                                                                         **my_task.data)
+        #self.message.send(None)
+        return True
 
     def _accept_message(self, my_task, message):
         if message != self.message:
@@ -101,6 +173,16 @@ class TimerEventDefinition(CatchingEventDefinition):
         expression is before datetime.datetime.now()
         """
         dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
+        if isinstance(dt,datetime.timedelta):
+            if my_task._get_internal_data('start_time',None) is not None:
+                start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time',None),'%Y-%m-%d '
+                                                                                                   '%H:%M:%S.%f')
+                elapsed = datetime.datetime.now() - start_time
+                return elapsed > dt
+            else:
+                my_task.internal_data['start_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+                return False
+
         if dt is None:
             return False
         if dt.tzinfo:

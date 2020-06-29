@@ -3,6 +3,7 @@ from builtins import object
 import ast
 import re
 import datetime
+from datetime import timedelta
 from decimal import Decimal
 from SpiffWorkflow.workflow import WorkflowException
 # Copyright (C) 2020 Kelly McDonald
@@ -96,6 +97,55 @@ def feelGregorianDOW(date):
     return date.isoweekday()%7
 
 
+def transformDuration(duration,td):
+    if duration:
+        return td * float(duration)
+    else:
+        return timedelta(seconds=0)
+
+def lookupPart(code,base):
+    x= re.search("([0-9.]+)"+code,base)
+    if x:
+        return x.group(1)
+    else:
+        return None
+
+
+def feelParseISODuration(input):
+    """
+    Given an ISO duration designation
+    such as :
+        P0Y1M2DT3H2S
+    and convert it into a python timedelta
+
+    Abbreviations may be made as in :
+
+       PT30S
+
+    NB:
+    Months are defined as 30 days currently - as I am dreading getting into
+    Date arithmetic edge cases.
+
+    """
+    if input[0] != 'P':
+        raise Exception("Oh Crap!")
+    input = input[1:]
+    days, time = input.split("T")
+    lookups = [("Y",days,timedelta(days=365)),
+               ("M", days, timedelta(days=30)),
+               ("W", days, timedelta(days=7)),
+               ("D", days, timedelta(days=1)),
+               ("H", time, timedelta(seconds=60*60)),
+               ("M", time, timedelta(seconds=60)),
+               ("S", time, timedelta(seconds=1)),
+               ]
+    totaltime = [transformDuration(lookupPart(x[0],x[1]),x[2]) for x in lookups]
+    return sum(totaltime,timedelta(seconds=0))
+
+
+
+
+
 def expandDotDict(text):
     parts = text.split('.')
     suffix = ''.join(["['%s']"%x for x in parts[1:]])
@@ -122,6 +172,17 @@ fixes = [('string\s+length\((.+?)\)','len(\\1)'),
          ('\[([^\[\]]+?)[.]{2}([^\[\]]+?)\]','FeelInterval(\\1,\\2)'),                # closed interval on both sides
          ('[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\)\(]+?)\]','FeelInterval(\\1,\\2,leftOpen=True)'),  # open lhs
          ('\[([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]','FeelInterval(\\1,\\2,rightOpen=True)'), # open rhs
+         # I was having problems with this matching a "P" somewhere in another expression
+         # so I added a bunch of different cases that should isolate this.
+         ('^(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
+          'feelParseISODuration("\\1")'), ## Parse ISO Duration convert to timedelta - standalone
+         ('^(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)\s',
+          'feelParseISODuration("\\1") '),  ## Parse ISO Duration convert to timedelta beginning
+         ('\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)\s',
+          ' feelParseISODuration("\\1") '),  ## Parse ISO Duration convert to timedelta in context
+         ('\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
+          ' feelParseISODuration("\\1")'),  ## Parse ISO Duration convert to timedelta end
+
          ('[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]',
                 'FeelInterval(\\1,\\2,rightOpen=True,leftOpen=True)'), # open both
 
@@ -157,7 +218,7 @@ default_header = """
 
 
 """
-class PythonSriptEngine(object):
+class PythonScriptEngine(object):
     """
     This should serve as a base for all scripting & expression evaluation
     operations that are done within both BPMN and BMN. Eventually it will also
@@ -202,11 +263,7 @@ class PythonSriptEngine(object):
                 raise Exception("error parsing expression "+text + " " +
                                 str(e))
 
-
-
-
-
-    def eval_bmn_expression(self, inputExpr, matchExpr, **kwargs):
+    def eval_dmn_expression(self, inputExpr, matchExpr, **kwargs):
         """
         Here we need to handle a few things such as if it is an equality or if
         the equality has already been taken care of. For now, we just assume it is equality.
