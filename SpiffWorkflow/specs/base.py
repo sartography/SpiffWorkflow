@@ -115,7 +115,7 @@ class TaskSpec(object):
         self.pre_assign = kwargs.get('pre_assign',  [])
         self.post_assign = kwargs.get('post_assign', [])
         self.locks = kwargs.get('lock',        [])
-        self.position = kwargs.get('position', {'x': '0', 'y': '0'})
+        self.position = kwargs.get('position', {'x': 0, 'y': 0})
         self.lookahead = 2  # Maximum number of MAYBE predictions.
 
         # Events.
