@@ -273,7 +273,7 @@ class Task(object):
         """
         from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
 
-        if (self.state != self.COMPLETED) and \
+        if (self.state != self.COMPLETED and self.state != self.READY) and \
                 not (isinstance(self.task_spec,UnstructuredJoin)):
             return
 
