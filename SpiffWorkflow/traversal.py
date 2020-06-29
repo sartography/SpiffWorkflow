@@ -80,7 +80,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
 
     outputs = list(tree.outgoing_sequence_flows.keys())
     idlinks = [(x,tree.outgoing_sequence_flows[x]) for x in outputs]
-    idlinks.sort(key=lambda x: x[1].id)
+    idlinks.sort(key=lambda x: x[1].target_task_spec.position['y'])
     outputs = [x[0] for x in idlinks]
 
     # ---------------------

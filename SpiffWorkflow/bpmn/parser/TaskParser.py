@@ -215,7 +215,7 @@ class TaskParser(object):
                         filename=self.process_parser.filename)
 
                 c = self.process_parser.parse_node(target_node)
-                position = self.process_parser.get_coord(c.name)
+                position = c.position
                 children.append((position, c, target_node, sequence_flow))
 
             if children:
@@ -269,7 +269,8 @@ class TaskParser(object):
         """
         return self.spec_class(self.spec, self.get_task_spec_name(),
                                lane=self.get_lane(),
-                               description=self.node.get('name', None))
+                               description=self.node.get('name', None),
+                               position=self.process_parser.get_coord(self.get_id()))
 
     def connect_outgoing(self, outgoing_task, outgoing_task_node,
                          sequence_flow_node, is_default):

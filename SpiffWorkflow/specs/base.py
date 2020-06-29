@@ -95,6 +95,10 @@ class TaskSpec(object):
         :param pre_assign: a list of name/value pairs
         :type  post_assign: list((str, object))
         :param post_assign: a list of name/value pairs
+        :type  position: dict((str, object))
+        :param position: a dict containing an 'x' and 'y' with coordinates
+                            that describe where the element occured in the
+                            diagram.
         """
         assert wf_spec is not None
         assert name is not None
@@ -111,6 +115,7 @@ class TaskSpec(object):
         self.pre_assign = kwargs.get('pre_assign',  [])
         self.post_assign = kwargs.get('post_assign', [])
         self.locks = kwargs.get('lock',        [])
+        self.position = kwargs.get('position', {'x': '0', 'y': '0'})
         self.lookahead = 2  # Maximum number of MAYBE predictions.
 
         # Events.
