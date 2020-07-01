@@ -122,7 +122,6 @@ class TaskParser(object):
             # date To handle other use cases - don't forget the overridden
             # test classes!
         if multiinstance and isinstance(self.task, UserTask):
-
             loopcount = loopcount.replace('.',
                                           '/')  # make dot notation compatible
             # with bmpmn path notation.

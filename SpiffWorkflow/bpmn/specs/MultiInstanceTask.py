@@ -70,6 +70,7 @@ class MultiInstanceTask(TaskSpec):
         self.times = times
         self.elementVar = None
         self.collection = None
+        self.expanded = 1 # this code never gets run
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
 
     def _find_my_task(self, task):
@@ -317,9 +318,11 @@ class MultiInstanceTask(TaskSpec):
             # this is different from PMI because the children all link together, not to
             # the gateways on both ends.
             # first let's check for a task in the task spec tree
-
-            expanded = int(my_task._get_internal_data('expanded',
-                                                      1))  # set a default if not already run
+            if self.name[-2:] == "_0":
+                print('caught you!')
+            expanded = getattr(self, 'expanded', 1)
+            if split_n >= expanded:
+                setattr(self, 'expanded', split_n)
             if (expanded == split_n) and \
                 runtimes > 1 and \
                 '_' in my_task.task_spec.id and \
@@ -328,7 +331,7 @@ class MultiInstanceTask(TaskSpec):
                 print(my_task.task_spec.id)
 
             if not (expanded == split_n):
-                my_task._set_internal_data(expanded=split_n)
+
 
                 # # this next part is only critical for when we are re-loading the task_tree
                 # # but not the task_spec tree - it gets hooked up incorrectly. It would be great
@@ -343,10 +346,11 @@ class MultiInstanceTask(TaskSpec):
                 #     if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
                 #         LOG.debug("fix up save/restore in predict")
                 #         task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
-
+                my_task_copy = copy.copy(my_task)
+#                my_task_children = my_task.children
                 current_task = my_task
                 current_task_spec = self
-                proto_task_spec = copy.copy(my_task.task_spec)
+                proto_task_spec = copy.copy(self)
 
 
 
@@ -357,21 +361,24 @@ class MultiInstanceTask(TaskSpec):
                         # here we generate a distinct copy of our original task and spec for each
                         # parallel instance, and hook them up into the task tree
                         LOG.debug("MI creating new child & task spec")
-                        new_child = copy.copy(my_task)
+                        new_child = copy.copy(my_task_copy)
                         new_child.id = uuid4()
                         # I think we will need to update both every variables
                         # internal data and the copy of the public data to get the
                         # variables correct
-                        new_child.internal_data = copy.copy(my_task.internal_data)
+                        new_child.internal_data = copy.copy(my_task_copy.internal_data)
 
                         new_child.internal_data[
                             'runtimes'] = x + 2  # working with base 1 and we already have one done
 
-                        new_child.data = copy.copy(my_task.data)
-                        new_child.data[self.elementVar] = self._get_current_var(my_task,
+                        new_child.data = copy.copy(my_task_copy.data)
+                        new_child.data[self.elementVar] = self._get_current_var(my_task_copy,
                                                                                 x + 2)
-                        new_child.children = []
-                        new_child.parent = current_task
+
+                        new_child.children = copy.copy(my_task_copy.children)  # make sure we have a distinct list of
+                        for child in new_child.children:
+                            child.parent=new_child
+                        # children for
 
                         # NB - at this point, many of the tasks have a null children, but
                         # Spiff will actually generate the child when it rolls through and
@@ -379,19 +386,21 @@ class MultiInstanceTask(TaskSpec):
                         # have the task spec in the right place.
 
                         new_task_spec = copy.copy(proto_task_spec)
+                        if x == 0:
+                            print ('try to catch issue')
                         new_task_spec.name = new_task_spec.name + "_%d" % x
                         new_task_spec.id = str(new_task_spec.id) + "_%d" % x
                         my_task.workflow.spec.task_specs[new_task_spec.name] = new_task_spec # add to registry
                         new_child.task_spec = new_task_spec
-                        # here we diverge - need a different model
                         new_child._set_state(Task.MAYBE)
+
+
                         #for nextitem in current_task_spec.outputs:
                         #    nextitem.inputs = [new_task_spec]
                         current_task_spec.outputs = [new_task_spec]
                         new_task_spec.inputs = [current_task_spec]
                         current_task.children = [new_child]
-
-
+                        new_child.parent = current_task
 
                         current_task = new_child
                         current_task_spec = new_task_spec
@@ -401,6 +410,7 @@ class MultiInstanceTask(TaskSpec):
             my_task._sync_children(outputs, Task.FUTURE)
         else:
             my_task._sync_children(outputs, Task.LIKELY)
+
 
     def _on_complete_hook(self, my_task):
         self._check_inputs(my_task)

@@ -60,7 +60,10 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             tasks = self.workflow.get_ready_user_tasks()
             self.assertEqual(len(tasks),1) # still with sequential MI
             task = tasks[0]
-            self.assertEqual("FamilyMemberTask", task.task_spec.name)
+            if i > 0:
+                self.assertEqual("FamilyMemberTask"+"_%d"%(i-1), task.task_spec.name)
+            else:
+                self.assertEqual("FamilyMemberTask", task.task_spec.name)
             task.update_data({"FamilyMember": {"FirstName": "The Funk #%i" % i}})
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()

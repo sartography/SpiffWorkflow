@@ -40,9 +40,9 @@ class ResetTokenTestMI(BaseTestCase):
                   'task_data': {'do_step':'Yes'}},
                  {'taskname': 'FormA',
                   'task_data': {'current': {'A' : 'x'}}},
-                 {'taskname': 'FormA',
+                 {'taskname': 'FormA_0',
                   'task_data': {'current': {'A' : 'y'}}},
-                 {'taskname': 'FormA',
+                 {'taskname': 'FormA_1',
                   'task_data': {'current': {'A' : 'z'}}}
                  ]
         for step in steps:
@@ -59,9 +59,9 @@ class ResetTokenTestMI(BaseTestCase):
 
         steps = [{'taskname': 'FormA',
                   'task_data': {'current': {'A': 'a1'}}},
-                 {'taskname': 'FormA',
+                 {'taskname': 'FormA_0',
                   'task_data': {'current': {'A': 'a2'}}},
-                 {'taskname': 'FormA',
+                 {'taskname': 'FormA_1',
                   'task_data': {'current': {'A': 'a3'}}},
                  {'taskname': 'FormC',
                   'task_data': {'C': 'c'}}
