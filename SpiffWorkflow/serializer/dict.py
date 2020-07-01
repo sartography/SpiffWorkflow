@@ -582,6 +582,8 @@ class DictionarySerializer(Serializer):
     def deserialize_task(self, workflow, s_state):
         assert isinstance(workflow, Workflow)
         task_spec = workflow.get_task_spec_from_name(s_state['task_spec'])
+        print('sstate = ' ,s_state['task_spec'])
+        print('internal = ' ,s_state['internal_data'])
         if s_state['internal_data'].get('runtimes', None) is not None \
         and s_state['internal_data']['runtimes'] > 1 and \
         len(task_spec.inputs) > 1 and \
