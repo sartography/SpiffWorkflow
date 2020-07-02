@@ -318,17 +318,10 @@ class MultiInstanceTask(TaskSpec):
             # this is different from PMI because the children all link together, not to
             # the gateways on both ends.
             # first let's check for a task in the task spec tree
-            if self.name[-2:] == "_0":
-                print('caught you!')
             expanded = getattr(self, 'expanded', 1)
             if split_n >= expanded:
                 setattr(self, 'expanded', split_n)
-            if (expanded == split_n) and \
-                runtimes > 1 and \
-                '_' in my_task.task_spec.id and \
-                (int(my_task.task_spec.id[-1])) != (runtimes -2):
-                print(my_task.internal_data)
-                print(my_task.task_spec.id)
+
 
             if not (expanded == split_n):
 
@@ -386,8 +379,6 @@ class MultiInstanceTask(TaskSpec):
                         # have the task spec in the right place.
 
                         new_task_spec = copy.copy(proto_task_spec)
-                        if x == 0:
-                            print ('try to catch issue')
                         new_task_spec.name = new_task_spec.name + "_%d" % x
                         new_task_spec.id = str(new_task_spec.id) + "_%d" % x
                         my_task.workflow.spec.task_specs[new_task_spec.name] = new_task_spec # add to registry

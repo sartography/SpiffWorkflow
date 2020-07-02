@@ -594,7 +594,6 @@ class DictionarySerializer(Serializer):
             # in order to patch things up correctly, we need to append in the correct order
             # I'm really hoping that things get added to save list in saved order
             # otherwise I'll have some problems.
-            print("Copying",newtaskname)
             task_spec = workflow.get_task_spec_from_name(newtaskname)
             new_task_spec = copy.copy(task_spec)
             new_task_spec.name = oldtaskname
@@ -609,8 +608,6 @@ class DictionarySerializer(Serializer):
             for item in inter_out:
                 item.inputs = [new_task_spec]
             task_spec = new_task_spec
-        print('sstate = ' ,s_state['task_spec'])
-        print('internal = ' ,s_state['internal_data'])
         if s_state['internal_data'].get('runtimes', None) is not None \
         and s_state['internal_data']['runtimes'] > 1 and \
         len(task_spec.inputs) > 1 and \
