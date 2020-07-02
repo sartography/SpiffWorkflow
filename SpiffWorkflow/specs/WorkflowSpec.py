@@ -62,7 +62,7 @@ class WorkflowSpec(object):
         :rtype:  TaskSpec
         :returns: The task spec with the given name.
         """
-        return self.task_specs[name]
+        return self.task_specs.get(name)
 
     def validate(self):
         """Checks integrity of workflow and reports any problems with it.
