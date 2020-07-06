@@ -60,7 +60,10 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             tasks = self.workflow.get_ready_user_tasks()
             self.assertEqual(len(tasks),1) # still with sequential MI
             task = tasks[0]
-            self.assertEqual("FamilyMemberTask", task.task_spec.name)
+            if i > 0:
+                self.assertEqual("FamilyMemberTask"+"_%d"%(i-1), task.task_spec.name)
+            else:
+                self.assertEqual("FamilyMemberTask", task.task_spec.name)
             task.update_data({"FamilyMember": {"FirstName": "The Funk #%i" % i}})
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()
@@ -74,14 +77,14 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
             task = random.choice(tasks)
             x = task.internal_data['runtimes'] -1
             self.assertEqual("FamilyMemberBday", task.task_spec.name)
-            self.assertEquals({"FirstName": "The Funk #%i" % x},
+            self.assertEqual({"FirstName": "The Funk #%i" % x},
                               task.data["CurrentFamilyMember"])
             task.update_data(
                 {"CurrentFamilyMember": {"Birthdate": "10/05/1985" + str(x)}})
             self.workflow.do_engine_steps()
             self.workflow.complete_task_from_id(task.id)
             # The data should still be available on the current task.
-            self.assertEquals({'FirstName': "The Funk #%i" % x,
+            self.assertEqual({'FirstName': "The Funk #%i" % x,
                                'Birthdate': '10/05/1985' + str(x)},
                               self.workflow.get_task(task.id)
                               .data['CurrentFamilyMember'])

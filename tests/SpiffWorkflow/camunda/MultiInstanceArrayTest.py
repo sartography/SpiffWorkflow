@@ -73,22 +73,40 @@ class MultiInstanceArrayTest(BaseTestCase):
                                         'is_parallel_mi': False,
                                         'mi_count': 3,
                                         'mi_index': i+1})
-            self.assertEqual("FamilyMemberTask", task.task_spec.name)
+
+            if i > 0:
+                self.assertEqual("FamilyMemberTask"+"_%d"%(i-1), task.task_spec.name)
+            else:
+                self.assertEqual("FamilyMemberTask", task.task_spec.name)
+
+
             task.update_data({"FamilyMember": {"FirstName": "The Funk #%i" % i}})
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
+            self.workflow.do_engine_steps()
 
         self.assertEqual({1: {'FirstName': 'The Funk #0'},
                           2: {'FirstName': 'The Funk #1'},
                           3: {'FirstName': 'The Funk #2'}},
                          task.data["Family"]["Members"])
+        #### NB - start here
+        ###  Data is not correctly getting to the next task upon complete of the last task
+        ###  after do_engine_steps, the next task in the list should be the same as task.data
+        ###  but it is not.
+
+        ### invalid copy of data?? ## appears that parent is not hooked up correctly
+
         # Set the birthdays of the 3 family members.
         for i in range(3):
             task = self.workflow.get_ready_user_tasks()[0]
-            self.assertEqual("FamilyMemberBday", task.task_spec.name)
+            if i > 0:
+                self.assertEqual("FamilyMemberBday"+"_%d"%(i-1), task.task_spec.name)
+            else:
+                self.assertEqual("FamilyMemberBday", task.task_spec.name)
             task.update_data({"CurrentFamilyMember": {"Birthdate": "10/0%i/1985" % i}})
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
+            self.workflow.do_engine_steps()
 
         self.workflow.do_engine_steps()
         if save_restore: self.save_restore()
@@ -117,7 +135,10 @@ class MultiInstanceArrayTest(BaseTestCase):
         # Set the names of the 3 family members.
         for i in range(3):
             task = self.workflow.get_ready_user_tasks()[0]
-            self.assertEqual("FamilyMemberTask", task.task_spec.name)
+            if i > 0:
+                self.assertEqual("FamilyMemberTask"+"_%d"%(i-1), task.task_spec.name)
+            else:
+                self.assertEqual("FamilyMemberTask", task.task_spec.name)
             task.update_data({"FamilyMember": {"FirstName": "The Funk #%i" % i}})
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
@@ -155,7 +176,10 @@ class MultiInstanceArrayTest(BaseTestCase):
         # Set the names of the 3 family members.
         for i in range(3):
             task = self.workflow.get_ready_user_tasks()[0]
-            self.assertEqual("FamilyMemberTask", task.task_spec.name)
+            if i > 0:
+                self.assertEqual("FamilyMemberTask"+"_%d"%(i-1), task.task_spec.name)
+            else:
+                self.assertEqual("FamilyMemberTask", task.task_spec.name)
             task.update_data({"FamilyMember": {"FirstName": "The Funk #%i" % i}})
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
@@ -176,8 +200,10 @@ class MultiInstanceArrayTest(BaseTestCase):
                     "a": {'FirstName': 'The Funk #0'},
                     "b": {'FirstName': 'The Funk #1'},
                     "c": {'FirstName': 'The Funk #2'}}
-
-            self.assertEqual("FamilyMemberBday", task.task_spec.name)
+            if (i > 0):
+                self.assertEqual("FamilyMemberBday"+"_%d"%(i-1), task.task_spec.name)
+            else:
+                self.assertEqual("FamilyMemberBday", task.task_spec.name)
             task.update_data(
                 {"CurrentFamilyMember": {"Birthdate": "10/0%i/1985" % i}})
             self.workflow.complete_task_from_id(task.id)

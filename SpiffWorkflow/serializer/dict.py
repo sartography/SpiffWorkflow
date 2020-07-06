@@ -581,7 +581,33 @@ class DictionarySerializer(Serializer):
 
     def deserialize_task(self, workflow, s_state):
         assert isinstance(workflow, Workflow)
-        task_spec = workflow.get_task_spec_from_name(s_state['task_spec'])
+        splits = s_state['task_spec'].split('_')
+        oldtaskname = s_state['task_spec']
+        task_spec = workflow.get_task_spec_from_name(oldtaskname)
+        if task_spec is None and \
+            splits[-1].isdigit():
+            num = int(splits[-1])
+            if num == 0:
+                newtaskname = '_'.join(splits[:-1])
+            else:
+                newtaskname = '_'.join(splits[:-1]) + "_%d"%(num-1)
+            # in order to patch things up correctly, we need to append in the correct order
+            # I'm really hoping that things get added to save list in saved order
+            # otherwise I'll have some problems.
+            task_spec = workflow.get_task_spec_from_name(newtaskname)
+            new_task_spec = copy.copy(task_spec)
+            new_task_spec.name = oldtaskname
+            if isinstance(new_task_spec.id,int):
+                new_task_spec.id = "%d_%d"%(new_task_spec.id,num)
+            else:
+                new_task_spec.id = '_'.join(new_task_spec.id.split('_')[:-1])+"_%d"%num
+            workflow.spec.task_specs[oldtaskname] = new_task_spec
+            inter_out = task_spec.outputs
+            task_spec.outputs=[new_task_spec]
+            new_task_spec.outputs = inter_out
+            for item in inter_out:
+                item.inputs = [new_task_spec]
+            task_spec = new_task_spec
         if s_state['internal_data'].get('runtimes', None) is not None \
         and s_state['internal_data']['runtimes'] > 1 and \
         len(task_spec.inputs) > 1 and \
@@ -592,6 +618,11 @@ class DictionarySerializer(Serializer):
             task_spec.inputs[1].outputs.append(task_spec)
             task_spec.outputs[0].inputs.append(task_spec)
         task = Task(workflow, task_spec)
+
+        if getattr(task_spec,'isSequential',False) and \
+            s_state['internal_data'].get('splits') is not None:
+            task.task_spec.expanded = s_state['internal_data']['splits']
+
 
         # id
         task.id = s_state['id']
@@ -616,7 +647,6 @@ class DictionarySerializer(Serializer):
 
         # internal_data
         task.internal_data = s_state['internal_data']
-
         return task
 
     def _deserialize_task_children(self, task, s_state):
