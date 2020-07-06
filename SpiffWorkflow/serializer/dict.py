@@ -617,7 +617,7 @@ class DictionarySerializer(Serializer):
             #FIXME: we should only have 1 input, not 2
             task_spec.inputs[1].outputs.append(task_spec)
             task_spec.outputs[0].inputs.append(task_spec)
-        if TaskSpec is None:
+        if task_spec is None:
             raise MissingSpecError("Unknown task spec: " + oldtaskname)
         task = Task(workflow, task_spec)
 
