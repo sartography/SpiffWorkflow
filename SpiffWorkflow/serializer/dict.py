@@ -28,7 +28,7 @@ from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
                      TaskSpec, SubWorkflow, StartTask, ThreadMerge,
                      ThreadSplit, ThreadStart, Merge, Trigger)
 from .base import Serializer
-from .exceptions import TaskNotSupportedError
+from .exceptions import TaskNotSupportedError, MissingSpecError
 import warnings
 import copy
 
@@ -617,6 +617,8 @@ class DictionarySerializer(Serializer):
             #FIXME: we should only have 1 input, not 2
             task_spec.inputs[1].outputs.append(task_spec)
             task_spec.outputs[0].inputs.append(task_spec)
+        if TaskSpec is None:
+            raise MissingSpecError("Unknown task spec: " + oldtaskname)
         task = Task(workflow, task_spec)
 
         if getattr(task_spec,'isSequential',False) and \
