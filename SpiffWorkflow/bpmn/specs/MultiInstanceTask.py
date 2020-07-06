@@ -171,7 +171,7 @@ class MultiInstanceTask(TaskSpec):
             we don't do it again.
         """
 
-        if my_task.parent.task_spec.name[:7] == 'Gateway':
+        if my_task.parent.task_spec.name[:11] == 'Gateway_for':
             LOG.debug("MI Recovering from save/restore")
             return
         LOG.debug("MI being augmented")
@@ -189,6 +189,11 @@ class MultiInstanceTask(TaskSpec):
 
         # Set up the parent task and insert it into the workflow
         my_task.parent.task_spec.outputs = []
+        # in the case that our parent is a gateway with a default route,
+        # we need to ensure that the default route is empty
+        # so that connect can set it up properly
+        my_task.parent.task_spec.default_task_spec = None
+
         my_task.parent.task_spec.connect(start_gw_spec)
         my_task.parent.children = [start_gw]
         start_gw.parent = my_task.parent
