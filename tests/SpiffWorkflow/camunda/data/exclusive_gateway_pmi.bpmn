@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1n0u11m" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <bpmn:process id="DefaultGateway" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1wis1un</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="DoStuff" name="Do Stuff?" camunda:formKey="morestuffform">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="morestuff" label="Do we need to do more stuff?" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1wis1un</bpmn:incoming>
+      <bpmn:outgoing>Flow_144jxvd</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1wis1un" sourceRef="StartEvent_1" targetRef="DoStuff" />
+    <bpmn:exclusiveGateway id="Gateway_1yn93jn">
+      <bpmn:incoming>Flow_144jxvd</bpmn:incoming>
+      <bpmn:outgoing>Flow_1riszc2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0xdvee4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_144jxvd" sourceRef="DoStuff" targetRef="Gateway_1yn93jn" />
+    <bpmn:sequenceFlow id="Flow_1riszc2" name="Yes" sourceRef="Gateway_1yn93jn" targetRef="GetMoreStuff">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">morestuff == 'Yes'</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_1xfyeiq">
+      <bpmn:incoming>Flow_13ncefd</bpmn:incoming>
+      <bpmn:incoming>Flow_0xdvee4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_13ncefd" sourceRef="GetMoreStuff" targetRef="Event_1xfyeiq" />
+    <bpmn:userTask id="GetMoreStuff" name="Add More Stuff">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="stuff.addstuff" label="Add More Stuff" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1riszc2</bpmn:incoming>
+      <bpmn:outgoing>Flow_13ncefd</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="collectstuff" camunda:elementVariable="stuff">
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">3</bpmn:loopCardinality>
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0xdvee4" name="No" sourceRef="Gateway_1yn93jn" targetRef="Event_1xfyeiq">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">morestuff == 'No'</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DefaultGateway">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10nt4mt_di" bpmnElement="DoStuff">
+        <dc:Bounds x="260" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1wis1un_di" bpmnElement="Flow_1wis1un">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="260" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_1yn93jn_di" bpmnElement="Gateway_1yn93jn" isMarkerVisible="true">
+        <dc:Bounds x="405" y="92" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_144jxvd_di" bpmnElement="Flow_144jxvd">
+        <di:waypoint x="360" y="117" />
+        <di:waypoint x="405" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1riszc2_di" bpmnElement="Flow_1riszc2">
+        <di:waypoint x="455" y="117" />
+        <di:waypoint x="520" y="117" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="478" y="99" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1xfyeiq_di" bpmnElement="Event_1xfyeiq">
+        <dc:Bounds x="692" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_13ncefd_di" bpmnElement="Flow_13ncefd">
+        <di:waypoint x="620" y="117" />
+        <di:waypoint x="692" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0msdtf4_di" bpmnElement="GetMoreStuff">
+        <dc:Bounds x="520" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0xdvee4_di" bpmnElement="Flow_0xdvee4">
+        <di:waypoint x="430" y="142" />
+        <di:waypoint x="430" y="240" />
+        <di:waypoint x="710" y="240" />
+        <di:waypoint x="710" y="135" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="563" y="222" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
