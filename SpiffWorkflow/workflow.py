@@ -239,6 +239,7 @@ class Workflow(object):
             # get a list of statuses for the current task_spec
             # we may have more than one task for each
             tasks = [x for x in task_list if x.task_spec.id == task_spec['id']]
+            task_spec['is_decision'] = False  # Assure some value.
             if len(tasks)==0:
                 # Sequence flows will not be in this list -
                 # we will not find any status
