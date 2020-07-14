@@ -218,65 +218,44 @@ class Workflow(object):
 
                 Any task with a blank or None as the description are excluded from the list (i.e. gateways)
         """
-        # get the top of our list
-        top = self.task_tree.children[0].task_spec.outputs[0]
 
         # traverse the tree
-
-        list_paths = [follow_tree(top,output=[],found=set()) for top in self.task_tree.children[0].task_spec.outputs]
+        list_paths = [follow_tree(top,output=[],found=set())
+                      for top in self.task_tree.children[0].task_spec.outputs]
         l = []
         for path in list_paths:
             l = l + path
         # make sure things get presented in order - I may need to take another
         # look at why this is needed. Ideally, it would come out of the traversal in
         # the correct order
-        l = sorted(l,key = lambda x: x['level'])
+        l = sorted(l, key=lambda x: x['level'])
 
         # flatten the list to aid in display -
-        # if I don't provide a new output, it just
-        # appends.
-        l = flatten(l,output=[])
-
-        # Get all of our current tasks
+        l = flatten(l, output=[])
         task_list = self.get_tasks()
 
         # look up task status for each item in the list
         for task_spec in l:
-
             # get a list of statuses for the current task_spec
             # we may have more than one task for each
-            status = [x.state_names[x.state]
-                      for x
-                      in task_list
-                      if x.task_spec.id == task_spec['id']]
-            taskids = [x.id
-                      for x
-                      in task_list
-                      if x.task_spec.id == task_spec['id']]
-            if len(status)==0:
+            tasks = [x for x in task_list if x.task_spec.id == task_spec['id']]
+            if len(tasks)==0:
                 # Sequence flows will not be in this list -
                 # we will not find any status
                 if task_spec.get('is_decision') is not None:
                     task_spec['state'] = 'NOOP'
                 else:
+                    task_spec['is_decision'] = False  # Assure some value.
                     task_spec['state'] = 'None'
                 task_spec['task_id'] = None
             else:
-                if all(status):
-                    # if all of the statuses are the same,
-                    # we just pull the first one
-                    task_spec['state'] = status[0]
-                    task_spec['task_id'] = taskids[0]
-                else:
-                    # The statuses are not all the same,
-                    # in some conditions we may have to decide, but for the
-                    # moment, the ones that would fall under this won't be
-                    # displayed (i.e. closing parallel gateway that is either
-                    # 'future' or 'waiting'
-                    # for now, just grab one.
-                    print(task_spec['id'])
-                    task_spec['state'] = status[0]
-                    task_spec['task_id'] = taskids[0]
+                # in some conditions we may have to decide, but for the
+                # moment, the ones that would fall under this won't be
+                # displayed (i.e. closing parallel gateway that is either
+                # 'future' or 'waiting'  for now, just grab the first one.
+                task_spec['state'] = tasks[0].state_names[tasks[0].state]
+                task_spec['task_id'] = tasks[0].id
+
         #l.sort(key=lambda x: ' ' if x['lane'] is None else x['lane'])
         return l
 
