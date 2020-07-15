@@ -3,6 +3,7 @@ from builtins import object
 import ast
 import re
 import datetime
+import operator
 from datetime import timedelta
 from decimal import Decimal
 from SpiffWorkflow.workflow import WorkflowException
@@ -110,6 +111,47 @@ def lookupPart(code,base):
     else:
         return None
 
+def feelFilter(var,a,b,op,column=None):
+    """
+    here we are trying to cover some of the basic test cases,
+    dict, list of dicts and list.
+    """
+    opmap = {'=':operator.eq,
+             '<':operator.lt,
+             '>':operator.gt,
+             '<=':operator.le,
+             '>=':operator.ge,
+             '!=':operator.ne}
+    #print('eval b',a,b,op,column)
+    b = eval(b)
+    # if it is a list and we are referring to 'item' then we
+    # expect the variable to be a simple list
+    if (isinstance(var,list)) and a == 'item':
+        return [x for x in var if opmap[op](x,b)]
+    # if it is a dictionary, and the keys refer to dictionaries,
+    # then we convert it to a list of dictionaries with the elements
+    # all having {'key':key,<rest of dict>}
+    # if it is a dictionary and the key refers to a non-dict, then
+    # we conver to a dict having {'key':key,'value':value}
+    if (isinstance(var,dict)):
+        newvar = []
+        for key in var.keys():
+            if isinstance(var[key],dict):
+                newterm = var[key]
+                newterm.update({'key':key})
+                newvar.append(newterm)
+            else:
+                newvar.append({'key':key,'value':var[key]})
+        var = newvar
+
+    #print (var)
+    #print(column)
+    if column!=None:
+        return [x.get(column) for x in var if opmap[op](x.get(a), b)]
+    else:
+        return [x for x in var if opmap[op](x.get(a), b)]
+
+
 
 def feelParseISODuration(input):
     """
@@ -183,6 +225,14 @@ fixes = [('string\s+length\((.+?)\)','len(\\1)'),
          ('\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
           ' feelParseISODuration("\\1")'),  ## Parse ISO Duration convert to timedelta end
 
+         ('(.+)\[(.+)?(<=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         ('(.+)\[(.+)?(>=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         ('(.+)\[(.+)?(!=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         ('(.+)\[(.+)?([=<>])(.+)]\.(\S+)', 'feelFilter(\\1,"\\2",\\4,"\\3","\\5")'),  # implement a simple filter
+         ('(.+)\[(.+)?(<=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         ('(.+)\[(.+)?(>=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         ('(.+)\[(.+)?(!=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         ('(.+)\[(.+)?([=<>])(.+)]','feelFilter(\\1,"\\2","\\4","\\3")'), # implement a simple filter
          ('[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]',
                 'FeelInterval(\\1,\\2,rightOpen=True,leftOpen=True)'), # open both
 
@@ -210,6 +260,7 @@ externalFuncs = {
     'Decimal':Decimal,
     'feelConcatenate': feelConcatenate,
     'feelAppend': feelAppend,
+    'feelFilter': feelFilter,
     'feelGregorianDOW':feelGregorianDOW,
 }
 
