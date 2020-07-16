@@ -225,14 +225,14 @@ fixes = [('string\s+length\((.+?)\)','len(\\1)'),
          ('\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
           ' feelParseISODuration("\\1")'),  ## Parse ISO Duration convert to timedelta end
 
-         ('(.+)\[(.+)?(<=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
-         ('(.+)\[(.+)?(>=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
-         ('(.+)\[(.+)?(!=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
-         ('(.+)\[(.+)?([=<>])(.+)]\.(\S+)', 'feelFilter(\\1,"\\2",\\4,"\\3","\\5")'),  # implement a simple filter
-         ('(.+)\[(.+)?(<=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
-         ('(.+)\[(.+)?(>=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
-         ('(.+)\[(.+)?(!=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
-         ('(.+)\[(.+)?([=<>])(.+)]','feelFilter(\\1,"\\2","\\4","\\3")'), # implement a simple filter
+         # ('(.+)\[(.+)?(<=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         # ('(.+)\[(.+)?(>=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         # ('(.+)\[(.+)?(!=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         # ('(.+)\[(.+)?([=<>])(.+)]\.(\S+)', 'feelFilter(\\1,"\\2",\\4,"\\3","\\5")'),  # implement a simple filter
+         # ('(.+)\[(.+)?(<=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         # ('(.+)\[(.+)?(>=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         # ('(.+)\[(.+)?(!=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         # ('(.+)\[(.+)?([=<>])(.+)]','feelFilter(\\1,"\\2","\\4","\\3")'), # implement a simple filter
          ('[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]',
                 'FeelInterval(\\1,\\2,rightOpen=True,leftOpen=True)'), # open both
 
@@ -348,6 +348,18 @@ class PythonScriptEngine(object):
         locals().update(kwargs)
         locals().update({'task':task})
         exec(script)
+
+    def execute_data(self, task, script, data):
+        """
+        Execute the script, within the context of the specified task
+        """
+        globals = {}
+        data.update({'task':task}) # one of our legacy tests is looking at task.
+                                   # this may cause a problem down the road if we
+                                   # actually have a variable named 'task'
+        exec(script,globals,data)
+        del(data['task'])
+
 
     def _eval(self, expression, **kwargs):
         locals().update(kwargs)
