@@ -298,6 +298,16 @@ class PythonScriptEngine(object):
         locals().update({'task':task})
         exec(script)
 
+    def execute_data(self, task, script, data):
+        """
+        Execute the script, within the context of the specified task
+        """
+        globals = {}
+        #locals().update(kwargs)
+        #locals().update({'task':task})
+        exec(script,globals,data)
+
+
     def _eval(self, expression, **kwargs):
         locals().update(kwargs)
         return eval(expression)
