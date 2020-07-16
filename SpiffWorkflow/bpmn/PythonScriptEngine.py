@@ -303,9 +303,11 @@ class PythonScriptEngine(object):
         Execute the script, within the context of the specified task
         """
         globals = {}
-        #locals().update(kwargs)
-        #locals().update({'task':task})
+        data.update({'task':task}) # one of our legacy tests is looking at task.
+                                   # this may cause a problem down the road if we
+                                   # actually have a variable named 'task'
         exec(script,globals,data)
+        del(data['task'])
 
 
     def _eval(self, expression, **kwargs):
