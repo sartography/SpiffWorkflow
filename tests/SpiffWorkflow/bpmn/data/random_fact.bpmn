@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1gjhqt9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1gjhqt9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
   <bpmn:process id="random_fact" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_0ik56h0</bpmn:outgoing>
@@ -66,7 +66,7 @@
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1291h6i</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0am07in</bpmn:outgoing>
-      <bpmn:script>scripts.FactService</bpmn:script>
+      <bpmn:script>#! scripts.FactService</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="EndEvent_0u1cgrf">
       <bpmn:incoming>SequenceFlow_0am07in</bpmn:incoming>
