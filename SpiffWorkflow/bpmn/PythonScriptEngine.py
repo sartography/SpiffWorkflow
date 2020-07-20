@@ -196,44 +196,44 @@ def expandDotDict(text):
 
 
 # Order Matters!!
-fixes = [('string\s+length\((.+?)\)','len(\\1)'),
-         ('count\((.+?)\)','len(\1)'),
-         ('concatenate\((.+?)\)','feelConcatenate(\\1)'),
-         ('append\((.+?),(.+?)\)','feelAppend(\\1,\\2)'), # again will not work with literal list
-         ('list\s+contains\((.+?),(.+?)\)','\\2 in \\1'), # list contains(['a','b','stupid,','c'],'stupid,') will break
-         ('contains\((.+?),(.+?)\)','\\2 in \\1'), # contains('my stupid, stupid comment','stupid') will break
-         ('not\s+?contains\((.+?)\)','FeelContains(\\1,invert=True)'), # not  contains('something')
-         ('not\((.+?)\)','FeelNot(\\1)'),   # not('x')
+fixes = [(r'string\s+length\((.+?)\)','len(\\1)'),
+         (r'count\((.+?)\)','len(\1)'),
+         (r'concatenate\((.+?)\)','feelConcatenate(\\1)'),
+         (r'append\((.+?),(.+?)\)','feelAppend(\\1,\\2)'), # again will not work with literal list
+         (r'list\s+contains\((.+?),(.+?)\)','\\2 in \\1'), # list contains(['a','b','stupid,','c'],'stupid,') will break
+         (r'contains\((.+?),(.+?)\)','\\2 in \\1'), # contains('my stupid, stupid comment','stupid') will break
+         (r'not\s+?contains\((.+?)\)','FeelContains(\\1,invert=True)'), # not  contains('something')
+         (r'not\((.+?)\)','FeelNot(\\1)'),   # not('x')
 
-         ('now\(\)','feelNow()'),
-         ('contains\((.+?)\)', 'FeelContains(\\1)'), # contains('x')
+         (r'now\(\)','feelNow()'),
+         (r'contains\((.+?)\)', 'FeelContains(\\1)'), # contains('x')
          # date  and time (<datestr>)
-         ('date\s+?and\s+?time\s*\((.+?)\)', 'feelConvertTime(\\1,"%Y-%m-%dT%H:%M:%S")'),
-         ('date\s*\((.+?)\)', 'feelConvertTime(\\1,"%Y-%m-%d)'),  # date (<datestring>)
-         ('day\s+of\s+\week\((.+?)\)','feelGregorianDOW(\\1)'),
-         ('\[([^\[\]]+?)[.]{2}([^\[\]]+?)\]','FeelInterval(\\1,\\2)'),                # closed interval on both sides
-         ('[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\)\(]+?)\]','FeelInterval(\\1,\\2,leftOpen=True)'),  # open lhs
-         ('\[([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]','FeelInterval(\\1,\\2,rightOpen=True)'), # open rhs
+         (r'date\s+?and\s+?time\s*\((.+?)\)', 'feelConvertTime(\\1,"%Y-%m-%dT%H:%M:%S")'),
+         (r'date\s*\((.+?)\)', 'feelConvertTime(\\1,"%Y-%m-%d)'),  # date (<datestring>)
+         (r'day\s+of\s+\week\((.+?)\)','feelGregorianDOW(\\1)'),
+         (r'\[([^\[\]]+?)[.]{2}([^\[\]]+?)\]','FeelInterval(\\1,\\2)'),                # closed interval on both sides
+         (r'[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\)\(]+?)\]','FeelInterval(\\1,\\2,leftOpen=True)'),  # open lhs
+         (r'\[([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]','FeelInterval(\\1,\\2,rightOpen=True)'), # open rhs
          # I was having problems with this matching a "P" somewhere in another expression
          # so I added a bunch of different cases that should isolate this.
-         ('^(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
+         (r'^(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
           'feelParseISODuration("\\1")'), ## Parse ISO Duration convert to timedelta - standalone
-         ('^(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)\s',
+         (r'^(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)\s',
           'feelParseISODuration("\\1") '),  ## Parse ISO Duration convert to timedelta beginning
-         ('\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)\s',
+         (r'\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)\s',
           ' feelParseISODuration("\\1") '),  ## Parse ISO Duration convert to timedelta in context
-         ('\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
+         (r'\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
           ' feelParseISODuration("\\1")'),  ## Parse ISO Duration convert to timedelta end
 
-         ('(.+)\[(\S+)?(<=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
-         ('(.+)\[(\S+)?(>=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
-         ('(.+)\[(\S+)?(!=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
-         ('(.+)\[(\S+)?([=<>])(.+)]\.(\S+)', 'feelFilter(\\1,"\\2",\\4,"\\3","\\5")'),  # implement a simple filter
-         ('(.+)\[(\S+)?(<=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
-         ('(.+)\[(\S+)?(>=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
-         ('(.+)\[(\S+)?(!=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
-         ('(.+)\[(\S+)?([=<>])(.+)]','feelFilter(\\1,"\\2","\\4","\\3")'), # implement a simple filter
-         ('[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]',
+         (r'(.+)\[(\S+)?(<=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?(>=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?(!=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?([=<>])(.+)]\.(\S+)', 'feelFilter(\\1,"\\2",\\4,"\\3","\\5")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?(<=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?(>=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?(!=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?([=<>])(.+)]','feelFilter(\\1,"\\2","\\4","\\3")'), # implement a simple filter
+         (r'[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]',
                 'FeelInterval(\\1,\\2,rightOpen=True,leftOpen=True)'), # open both
 
 
@@ -246,10 +246,10 @@ fixes = [('string\s+length\((.+?)\)','len(\\1)'),
          #               somedict.keys()  - because that is actually in the tests.
          # however, it would be fixed by doing:
          #              x contains( this.dotdict.item )
-         ('\s[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),  # In the middle of a string
-         ('^[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),   # at beginning with stuff after
-         ('^[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),    # all by itself & lonely :-(
-         ('\s[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),   # at the very end of a string
+         (r'\s[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),  # In the middle of a string
+         (r'^[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),   # at beginning with stuff after
+         (r'^[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),    # all by itself & lonely :-(
+         (r'\s[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),   # at the very end of a string
          ('true','True'),
          ('false','False')
          ]
