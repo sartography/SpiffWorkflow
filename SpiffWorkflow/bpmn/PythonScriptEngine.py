@@ -3,6 +3,7 @@ from builtins import object
 import ast
 import re
 import datetime
+import operator
 from datetime import timedelta
 from decimal import Decimal
 from SpiffWorkflow.workflow import WorkflowException
@@ -110,6 +111,47 @@ def lookupPart(code,base):
     else:
         return None
 
+def feelFilter(var,a,b,op,column=None):
+    """
+    here we are trying to cover some of the basic test cases,
+    dict, list of dicts and list.
+    """
+    opmap = {'=':operator.eq,
+             '<':operator.lt,
+             '>':operator.gt,
+             '<=':operator.le,
+             '>=':operator.ge,
+             '!=':operator.ne}
+    #print('eval b',a,b,op,column)
+    b = eval(b)
+    # if it is a list and we are referring to 'item' then we
+    # expect the variable to be a simple list
+    if (isinstance(var,list)) and a == 'item':
+        return [x for x in var if opmap[op](x,b)]
+    # if it is a dictionary, and the keys refer to dictionaries,
+    # then we convert it to a list of dictionaries with the elements
+    # all having {'key':key,<rest of dict>}
+    # if it is a dictionary and the key refers to a non-dict, then
+    # we conver to a dict having {'key':key,'value':value}
+    if (isinstance(var,dict)):
+        newvar = []
+        for key in var.keys():
+            if isinstance(var[key],dict):
+                newterm = var[key]
+                newterm.update({'key':key})
+                newvar.append(newterm)
+            else:
+                newvar.append({'key':key,'value':var[key]})
+        var = newvar
+
+    #print (var)
+    #print(column)
+    if column!=None:
+        return [x.get(column) for x in var if opmap[op](x.get(a), b)]
+    else:
+        return [x for x in var if opmap[op](x.get(a), b)]
+
+
 
 def feelParseISODuration(input):
     """
@@ -154,36 +196,44 @@ def expandDotDict(text):
 
 
 # Order Matters!!
-fixes = [('string\s+length\((.+?)\)','len(\\1)'),
-         ('count\((.+?)\)','len(\1)'),
-         ('concatenate\((.+?)\)','feelConcatenate(\\1)'),
-         ('append\((.+?),(.+?)\)','feelAppend(\\1,\\2)'), # again will not work with literal list
-         ('list\s+contains\((.+?),(.+?)\)','\\2 in \\1'), # list contains(['a','b','stupid,','c'],'stupid,') will break
-         ('contains\((.+?),(.+?)\)','\\2 in \\1'), # contains('my stupid, stupid comment','stupid') will break
-         ('not\s+?contains\((.+?)\)','FeelContains(\\1,invert=True)'), # not  contains('something')
-         ('not\((.+?)\)','FeelNot(\\1)'),   # not('x')
+fixes = [(r'string\s+length\((.+?)\)','len(\\1)'),
+         (r'count\((.+?)\)','len(\1)'),
+         (r'concatenate\((.+?)\)','feelConcatenate(\\1)'),
+         (r'append\((.+?),(.+?)\)','feelAppend(\\1,\\2)'), # again will not work with literal list
+         (r'list\s+contains\((.+?),(.+?)\)','\\2 in \\1'), # list contains(['a','b','stupid,','c'],'stupid,') will break
+         (r'contains\((.+?),(.+?)\)','\\2 in \\1'), # contains('my stupid, stupid comment','stupid') will break
+         (r'not\s+?contains\((.+?)\)','FeelContains(\\1,invert=True)'), # not  contains('something')
+         (r'not\((.+?)\)','FeelNot(\\1)'),   # not('x')
 
-         ('now\(\)','feelNow()'),
-         ('contains\((.+?)\)', 'FeelContains(\\1)'), # contains('x')
+         (r'now\(\)','feelNow()'),
+         (r'contains\((.+?)\)', 'FeelContains(\\1)'), # contains('x')
          # date  and time (<datestr>)
-         ('date\s+?and\s+?time\s*\((.+?)\)', 'feelConvertTime(\\1,"%Y-%m-%dT%H:%M:%S")'),
-         ('date\s*\((.+?)\)', 'feelConvertTime(\\1,"%Y-%m-%d)'),  # date (<datestring>)
-         ('day\s+of\s+\week\((.+?)\)','feelGregorianDOW(\\1)'),
-         ('\[([^\[\]]+?)[.]{2}([^\[\]]+?)\]','FeelInterval(\\1,\\2)'),                # closed interval on both sides
-         ('[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\)\(]+?)\]','FeelInterval(\\1,\\2,leftOpen=True)'),  # open lhs
-         ('\[([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]','FeelInterval(\\1,\\2,rightOpen=True)'), # open rhs
+         (r'date\s+?and\s+?time\s*\((.+?)\)', 'feelConvertTime(\\1,"%Y-%m-%dT%H:%M:%S")'),
+         (r'date\s*\((.+?)\)', 'feelConvertTime(\\1,"%Y-%m-%d)'),  # date (<datestring>)
+         (r'day\s+of\s+\week\((.+?)\)','feelGregorianDOW(\\1)'),
+         (r'\[([^\[\]]+?)[.]{2}([^\[\]]+?)\]','FeelInterval(\\1,\\2)'),                # closed interval on both sides
+         (r'[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\)\(]+?)\]','FeelInterval(\\1,\\2,leftOpen=True)'),  # open lhs
+         (r'\[([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]','FeelInterval(\\1,\\2,rightOpen=True)'), # open rhs
          # I was having problems with this matching a "P" somewhere in another expression
          # so I added a bunch of different cases that should isolate this.
-         ('^(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
+         (r'^(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
           'feelParseISODuration("\\1")'), ## Parse ISO Duration convert to timedelta - standalone
-         ('^(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)\s',
+         (r'^(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)\s',
           'feelParseISODuration("\\1") '),  ## Parse ISO Duration convert to timedelta beginning
-         ('\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)\s',
+         (r'\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)\s',
           ' feelParseISODuration("\\1") '),  ## Parse ISO Duration convert to timedelta in context
-         ('\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
+         (r'\s(P(([0-9.]+Y)?([0-9.]+M)?([0-9.]+W)?([0-9.]+D)?)?(T([0-9.]+H)?([0-9.]+M)?([0-9.]+S)?)?)$',
           ' feelParseISODuration("\\1")'),  ## Parse ISO Duration convert to timedelta end
 
-         ('[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]',
+         (r'(.+)\[(\S+)?(<=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?(>=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?(!=)(.+)]\.(\S+)', 'feelFilter(\\1,"\\2","\\4","\\3","\\5")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?([=<>])(.+)]\.(\S+)', 'feelFilter(\\1,"\\2",\\4,"\\3","\\5")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?(<=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?(>=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?(!=)(.+)]', 'feelFilter(\\1,"\\2","\\4","\\3")'),  # implement a simple filter
+         (r'(.+)\[(\S+)?([=<>])(.+)]','feelFilter(\\1,"\\2","\\4","\\3")'), # implement a simple filter
+         (r'[\]\(]([^\[\]\(\)]+?)[.]{2}([^\[\]\(\)]+?)[\[\)]',
                 'FeelInterval(\\1,\\2,rightOpen=True,leftOpen=True)'), # open both
 
 
@@ -196,10 +246,10 @@ fixes = [('string\s+length\((.+?)\)','len(\\1)'),
          #               somedict.keys()  - because that is actually in the tests.
          # however, it would be fixed by doing:
          #              x contains( this.dotdict.item )
-         ('\s[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),  # In the middle of a string
-         ('^[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),   # at beginning with stuff after
-         ('^[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),    # all by itself & lonely :-(
-         ('\s[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),   # at the very end of a string
+         (r'\s[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),  # In the middle of a string
+         (r'^[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),   # at beginning with stuff after
+         (r'^[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),    # all by itself & lonely :-(
+         (r'\s[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),   # at the very end of a string
          ('true','True'),
          ('false','False')
          ]
@@ -210,6 +260,7 @@ externalFuncs = {
     'Decimal':Decimal,
     'feelConcatenate': feelConcatenate,
     'feelAppend': feelAppend,
+    'feelFilter': feelFilter,
     'feelGregorianDOW':feelGregorianDOW,
 }
 
@@ -290,13 +341,19 @@ class PythonScriptEngine(object):
         exp,valid = self.validateExpression(expression)
         return self._eval(exp, **kwargs)
 
-    def execute(self, task, script, **kwargs):
+    def execute(self, task, script, data):
         """
         Execute the script, within the context of the specified task
         """
-        locals().update(kwargs)
-        locals().update({'task':task})
-        exec(script)
+
+        globals = {}
+        data.update({'task':task}) # one of our legacy tests is looking at task.
+                                   # this may cause a problem down the road if we
+                                   # actually have a variable named 'task'
+        exec(script,globals,data)
+        del(data['task'])
+
+
 
     def _eval(self, expression, **kwargs):
         locals().update(kwargs)
