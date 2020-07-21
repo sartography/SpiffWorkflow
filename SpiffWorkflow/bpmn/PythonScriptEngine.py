@@ -350,7 +350,9 @@ class PythonScriptEngine(object):
         data.update({'task':task}) # one of our legacy tests is looking at task.
                                    # this may cause a problem down the road if we
                                    # actually have a variable named 'task'
+        globals.update(data)   # dict comprehensions cause problems when the variables are not viable.
         exec(script,globals,data)
+
         del(data['task'])
 
 
