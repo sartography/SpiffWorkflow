@@ -7,6 +7,7 @@ import operator
 from datetime import timedelta
 from decimal import Decimal
 from SpiffWorkflow.workflow import WorkflowException
+from box import Box
 # Copyright (C) 2020 Kelly McDonald
 #
 # This library is free software; you can redistribute it and/or
@@ -246,10 +247,13 @@ fixes = [(r'string\s+length\((.+?)\)','len(\\1)'),
          #               somedict.keys()  - because that is actually in the tests.
          # however, it would be fixed by doing:
          #              x contains( this.dotdict.item )
-         (r'\s[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),  # In the middle of a string
-         (r'^[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),   # at beginning with stuff after
-         (r'^[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),    # all by itself & lonely :-(
-         (r'\s[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),   # at the very end of a string
+
+
+
+         # (r'\s[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),  # In the middle of a string
+         # (r'^[a-zA-Z][a-zA-Z0-9_.\-]+?\s',expandDotDict),   # at beginning with stuff after
+         # (r'^[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),    # all by itself & lonely :-(
+         # (r'\s[a-zA-Z][a-zA-Z0-9_.\-]+?$',expandDotDict),   # at the very end of a string
          ('true','True'),
          ('false','False')
          ]
@@ -261,6 +265,10 @@ externalFuncs = {
     'feelConcatenate': feelConcatenate,
     'feelAppend': feelAppend,
     'feelFilter': feelFilter,
+    'feelNow': feelNow,
+    'FeelContains': FeelContains,
+    'datetime':datetime,
+    'feelParseISODuration': feelParseISODuration,
     'feelGregorianDOW':feelGregorianDOW,
 }
 
@@ -329,7 +337,7 @@ class PythonScriptEngine(object):
            expression = lhs + ' == ' + rhs
         else:
             expression = lhs + rhs
-        kwargs.update(externalFuncs)
+        #kwargs.update(externalFuncs)
 
         return self.evaluate(default_header + expression, **kwargs)
 
@@ -347,14 +355,26 @@ class PythonScriptEngine(object):
         """
 
         globals = {}
+        for x in data.keys():
+            if isinstance(data[x],dict):
+                data[x] = Box(data[x])
         data.update({'task':task}) # one of our legacy tests is looking at task.
                                    # this may cause a problem down the road if we
                                    # actually have a variable named 'task'
+        globals.update(data)   # dict comprehensions cause problems when the variables are not viable.
         exec(script,globals,data)
+
         del(data['task'])
 
 
 
     def _eval(self, expression, **kwargs):
-        locals().update(kwargs)
-        return eval(expression)
+        lcls = {}
+        lcls.update(kwargs)
+        globals = {}
+        for x in lcls.keys():
+            if isinstance(lcls[x], dict):
+                lcls[x] = Box(lcls[x])
+        globals.update(lcls)
+        globals.update(externalFuncs)
+        return eval(expression,globals,lcls)
