@@ -24,7 +24,7 @@ included with the package.
       license          = 'lGPLv2',
       packages         = find_packages(exclude=['tests', 'tests.*']),
       install_requires = ['future', 'configparser', 'lxml', 'celery',
-                          'python-Levenshtein-wheels'],
+                          'python-Levenshtein-wheels', 'python-box'],
       keywords         = 'spiff workflow bpmn engine',
       url              = 'https://github.com/knipknap/SpiffWorkflow',
       classifiers      = [

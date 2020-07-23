@@ -256,25 +256,27 @@ class Workflow(object):
                     task_spec['is_decision'] = False  # Assure some value.
                     task_spec['state'] = 'None'
                 task_spec['task_id'] = None
+            elif len(tasks) == 1:
+                task_spec['state'] = tasks[0].state_names[tasks[0].state]
+                task_spec['task_id'] = tasks[0].id
             else:
-                if task_spec.get('is_decision') is None:
-                    task_spec['is_decision'] = False  # Assure some value.
-
-                if all(status):
-                    # if all of the statuses are the same,
-                    # we just pull the first one
-                    task_spec['state'] = status[0]
-                    task_spec['task_id'] = taskids[0]
+                # Something has caused us to loop back around in some way to
+                # this task spec again, and so there are multiple states for
+                # this navigation item. Opt for returning the first ready task,
+                # if available, then fall back to the last completed task.
+                ready_task = next((t for t in tasks
+                                   if t.state == Task.READY), None)
+                comp_task = next((t for t in reversed(tasks)
+                                  if t.state == Task.COMPLETED), None)
+                if ready_task:
+                    task = ready_task
+                elif comp_task:
+                    task = comp_task
                 else:
-                    # The statuses are not all the same,
-                    # in some conditions we may have to decide, but for the
-                    # moment, the ones that would fall under this won't be
-                    # displayed (i.e. closing parallel gateway that is either
-                    # 'future' or 'waiting'
-                    # for now, just grab one.
-                    task_spec['state'] = status[0]
-                    task_spec['task_id'] = taskids[0]
-        #l.sort(key=lambda x: ' ' if x['lane'] is None else x['lane'])
+                    task = tasks[0] # Not sure what else to do here yet.
+                task_spec['state'] = task.state_names[task.state]
+                task_spec['task_id'] = task.id
+
         return l
 
 
