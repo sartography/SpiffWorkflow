@@ -249,15 +249,27 @@ class Workflow(object):
                     task_spec['is_decision'] = False  # Assure some value.
                     task_spec['state'] = 'None'
                 task_spec['task_id'] = None
-            else:
-                # in some conditions we may have to decide, but for the
-                # moment, the ones that would fall under this won't be
-                # displayed (i.e. closing parallel gateway that is either
-                # 'future' or 'waiting'  for now, just grab the first one.
+            elif len(tasks) == 1:
                 task_spec['state'] = tasks[0].state_names[tasks[0].state]
                 task_spec['task_id'] = tasks[0].id
+            else:
+                # Something has caused us to loop back around in some way to
+                # this task spec again, and so there are multiple states for
+                # this navigation item. Opt for returning the first ready task,
+                # if available, then fall back to the last completed task.
+                ready_task = next((t for t in tasks
+                                   if t.state == Task.READY), None)
+                comp_task = next((t for t in reversed(tasks)
+                                  if t.state == Task.COMPLETED), None)
+                if ready_task:
+                    task = ready_task
+                elif comp_task:
+                    task = comp_task
+                else:
+                    task = tasks[0] # Not sure what else to do here yet.
+                task_spec['state'] = task.state_names[task.state]
+                task_spec['task_id'] = task.id
 
-        #l.sort(key=lambda x: ' ' if x['lane'] is None else x['lane'])
         return l
 
 
