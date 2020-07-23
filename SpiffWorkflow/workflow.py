@@ -239,14 +239,13 @@ class Workflow(object):
         for task_spec in l:
             # get a list of statuses for the current task_spec
             # we may have more than one task for each
+            tasks = [x for x in task_list if (x.task_spec.id == task_spec['id']) and (x.task_spec.name == task_spec['name'])]
             status = [x.state_names[x.state]
                       for x
-                      in task_list
-                      if (x.task_spec.id == task_spec['id']) and (x.task_spec.name == task_spec['name'])]
+                      in tasks]
             taskids = [x.id
                       for x
-                      in task_list
-                      if (x.task_spec.id == task_spec['id']) and (x.task_spec.name == task_spec['name'])]
+                      in tasks]
             if len(status)==0:
                 # Sequence flows will not be in this list -
                 # we will not find any status
@@ -257,8 +256,8 @@ class Workflow(object):
                     task_spec['state'] = 'None'
                 task_spec['task_id'] = None
             elif len(tasks) == 1:
-                task_spec['state'] = tasks[0].state_names[tasks[0].state]
-                task_spec['task_id'] = tasks[0].id
+                task_spec['state'] = status[0]
+                task_spec['task_id'] = taskids[0]
             else:
                 # Something has caused us to loop back around in some way to
                 # this task spec again, and so there are multiple states for
