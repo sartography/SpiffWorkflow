@@ -258,6 +258,7 @@ class Workflow(object):
             elif len(tasks) == 1:
                 task_spec['state'] = status[0]
                 task_spec['task_id'] = taskids[0]
+                task_spec['is_decision'] = task_spec.get('is_decision', False)
             else:
                 # Something has caused us to loop back around in some way to
                 # this task spec again, and so there are multiple states for
@@ -275,6 +276,7 @@ class Workflow(object):
                     task = tasks[0] # Not sure what else to do here yet.
                 task_spec['state'] = task.state_names[task.state]
                 task_spec['task_id'] = task.id
+                task_spec['is_decision'] = task_spec.get('is_decision', False)
 
         return l
 
