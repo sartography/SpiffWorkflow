@@ -64,10 +64,10 @@ def conditional_task_add(task,output,found,level):
 
 
 
-def follow_tree(tree,output=[],found=set(),level=0):
+def follow_tree(tree,output=[],found=set(),level=0,workflow=None):
     from SpiffWorkflow.bpmn.specs.UnstructuredJoin import UnstructuredJoin
     from SpiffWorkflow.bpmn.specs.MultiInstanceTask import MultiInstanceTask
-
+    from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 
     # I had an issue with a test being nondeterministic the yes/no
     # were in an alternate order in some cases. To be 100% correct, this should
@@ -92,6 +92,25 @@ def follow_tree(tree,output=[],found=set(),level=0):
         found.add(tree.id)
         return output
 
+    # ---------------------
+    # Call Activity - follow subtree
+    # ---------------------
+    if isinstance(tree,CallActivity):
+        tsk = workflow.get_tasks_from_spec_name(tree.name)[0]
+        x = tree.create_sub_workflow(tsk)
+        sublist_outputs =  [follow_tree(top,output=[],found=set(),level=level,workflow=x) for top in
+                           x.task_tree.children[
+            0].task_spec.outputs]
+        for lst in sublist_outputs:
+            for item in lst:
+                level = level + 1
+                output.append(item)
+        for key in tree.outgoing_sequence_flows.keys():
+            link = tree.outgoing_sequence_flows[key]
+            output = follow_tree(link.target_task_spec, output, found, level + 1, workflow)
+        return output
+
+
     if isinstance(tree,MultiInstanceTask) and\
             not tree.isSequential:
         # NB: Not technically correct but expedient
@@ -103,7 +122,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
             conditional_task_add(task,output,found,level)
             if task.id not in found:
                 found.add(task.id)
-                output = follow_tree(link.target_task_spec, output, found, level + 1)
+                output = follow_tree(link.target_task_spec, output, found, level + 1,workflow)
 
         return output
 
@@ -118,7 +137,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
         conditional_task_add(tree,output,found,level)
         if tree.id not in found:
             found.add(tree.id)
-            output = follow_tree(link.target_task_spec, output, found, level+1)
+            output = follow_tree(link.target_task_spec, output, found, level+1,workflow)
         return output
     # --------------------
     # I need to check and see if we are really using this section
@@ -141,7 +160,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
             if tree.id not in found:
                 found.add(tree.id)
             # For parallel tasks, Check all the children, not just the first one.
-            output = follow_tree(link.target_task_spec, output, found, level + 1)
+            output = follow_tree(link.target_task_spec, output, found, level + 1, workflow)
 
         return output
     # if we are here, then we assume that we have a decision point and process
@@ -154,7 +173,7 @@ def follow_tree(tree,output=[],found=set(),level=0):
             mychildren = []
             if link.target_task_spec.id not in found:
                 f = copy.copy(found)
-                mychildren = follow_tree(link.target_task_spec, mychildren, f, level + 2)
+                mychildren = follow_tree(link.target_task_spec, mychildren, f, level + 2,workflow)
                 backtracklink = None
             else:
                 backtracklink = (link.target_task_spec.id,link.target_task_spec.description)

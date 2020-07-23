@@ -368,6 +368,18 @@ class PythonScriptEngine(object):
 
 
 
+    def execute_data(self, task, script, data):
+        """
+        Execute the script, within the context of the specified task
+        """
+        globals = {}
+        data.update({'task':task}) # one of our legacy tests is looking at task.
+                                   # this may cause a problem down the road if we
+                                   # actually have a variable named 'task'
+        exec(script,globals,data)
+        del(data['task'])
+
+
     def _eval(self, expression, **kwargs):
         lcls = {}
         lcls.update(kwargs)

@@ -223,7 +223,8 @@ class Workflow(object):
 
         # traverse the tree
 
-        list_paths = [follow_tree(top,output=[],found=set()) for top in self.task_tree.children[0].task_spec.outputs]
+        list_paths = [follow_tree(top,output=[],found=set(),workflow=self) for top in self.task_tree.children[
+            0].task_spec.outputs]
         l = []
         for path in list_paths:
             l = l + path
@@ -248,11 +249,11 @@ class Workflow(object):
             status = [x.state_names[x.state]
                       for x
                       in task_list
-                      if x.task_spec.id == task_spec['id']]
+                      if (x.task_spec.id == task_spec['id']) and (x.task_spec.name == task_spec['name'])]
             taskids = [x.id
                       for x
                       in task_list
-                      if x.task_spec.id == task_spec['id']]
+                      if (x.task_spec.id == task_spec['id']) and (x.task_spec.name == task_spec['name'])]
             if len(status)==0:
                 # Sequence flows will not be in this list -
                 # we will not find any status
