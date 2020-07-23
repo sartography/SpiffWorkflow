@@ -96,7 +96,7 @@ def follow_tree(tree,output=[],found=set(),level=0,workflow=None):
     # Call Activity - follow subtree
     # ---------------------
     if isinstance(tree,CallActivity):
-        tsk = workflow.get_tasks_from_spec_name(tree.name)[0]
+        tsk = workflow.get_tasks_from_spec_name(tree.name)[0]F
         x = tree.create_sub_workflow(tsk)
         sublist_outputs =  [follow_tree(top,output=[],found=set(),level=level,workflow=x) for top in
                            x.task_tree.children[

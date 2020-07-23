@@ -220,7 +220,8 @@ class Workflow(object):
         """
 
         # traverse the tree
-        list_paths = [follow_tree(top,output=[],found=set())
+
+        list_paths = [follow_tree(top,output=[],found=set(),workflow=self)
                       for top in self.task_tree.children[0].task_spec.outputs]
         l = []
         for path in list_paths:
@@ -238,9 +239,15 @@ class Workflow(object):
         for task_spec in l:
             # get a list of statuses for the current task_spec
             # we may have more than one task for each
-            tasks = [x for x in task_list if x.task_spec.id == task_spec['id']]
-            task_spec['is_decision'] = False  # Assure some value.
-            if len(tasks)==0:
+            status = [x.state_names[x.state]
+                      for x
+                      in task_list
+                      if (x.task_spec.id == task_spec['id']) and (x.task_spec.name == task_spec['name'])]
+            taskids = [x.id
+                      for x
+                      in task_list
+                      if (x.task_spec.id == task_spec['id']) and (x.task_spec.name == task_spec['name'])]
+            if len(status)==0:
                 # Sequence flows will not be in this list -
                 # we will not find any status
                 if task_spec.get('is_decision') is not None:
@@ -250,13 +257,23 @@ class Workflow(object):
                     task_spec['state'] = 'None'
                 task_spec['task_id'] = None
             else:
-                # in some conditions we may have to decide, but for the
-                # moment, the ones that would fall under this won't be
-                # displayed (i.e. closing parallel gateway that is either
-                # 'future' or 'waiting'  for now, just grab the first one.
-                task_spec['state'] = tasks[0].state_names[tasks[0].state]
-                task_spec['task_id'] = tasks[0].id
+                if task_spec.get('is_decision') is None:
+                    task_spec['is_decision'] = False  # Assure some value.
 
+                if all(status):
+                    # if all of the statuses are the same,
+                    # we just pull the first one
+                    task_spec['state'] = status[0]
+                    task_spec['task_id'] = taskids[0]
+                else:
+                    # The statuses are not all the same,
+                    # in some conditions we may have to decide, but for the
+                    # moment, the ones that would fall under this won't be
+                    # displayed (i.e. closing parallel gateway that is either
+                    # 'future' or 'waiting'
+                    # for now, just grab one.
+                    task_spec['state'] = status[0]
+                    task_spec['task_id'] = taskids[0]
         #l.sort(key=lambda x: ' ' if x['lane'] is None else x['lane'])
         return l
 

@@ -337,19 +337,17 @@ class PythonScriptEngine(object):
            expression = lhs + ' == ' + rhs
         else:
             expression = lhs + rhs
-        #kwargs.update(externalFuncs)
-
         return self.evaluate(default_header + expression, **kwargs)
 
-    def evaluate(self, expression, **kwargs):
+    def evaluate(self, expression,externalMethods={}, **kwargs):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
         """
         exp,valid = self.validateExpression(expression)
-        return self._eval(exp, **kwargs)
+        return self._eval(exp, **kwargs,externalMethods=externalMethods)
 
-    def execute(self, task, script, data):
+    def execute(self, task, script, data,externalMethods={}):
         """
         Execute the script, within the context of the specified task
         """
@@ -362,25 +360,17 @@ class PythonScriptEngine(object):
                                    # this may cause a problem down the road if we
                                    # actually have a variable named 'task'
         globals.update(data)   # dict comprehensions cause problems when the variables are not viable.
+        globals.update(externalFuncs)
+        globals.update(externalMethods)
         exec(script,globals,data)
 
         del(data['task'])
 
 
 
-    def execute_data(self, task, script, data):
-        """
-        Execute the script, within the context of the specified task
-        """
-        globals = {}
-        data.update({'task':task}) # one of our legacy tests is looking at task.
-                                   # this may cause a problem down the road if we
-                                   # actually have a variable named 'task'
-        exec(script,globals,data)
-        del(data['task'])
 
 
-    def _eval(self, expression, **kwargs):
+    def _eval(self, expression,externalMethods={}, **kwargs):
         lcls = {}
         lcls.update(kwargs)
         globals = {}
@@ -389,4 +379,5 @@ class PythonScriptEngine(object):
                 lcls[x] = Box(lcls[x])
         globals.update(lcls)
         globals.update(externalFuncs)
+        globals.update(externalMethods)
         return eval(expression,globals,lcls)
