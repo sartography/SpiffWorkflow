@@ -127,9 +127,9 @@ class MultiInstanceTask(TaskSpec):
 
         if is_number(variable):
             return int(variable)
-        if type(variable) == type([]):
+        if isinstance(variable,list):
             return len(variable)
-        if type(variable) == type({}):
+        if isinstance(variable,dict):
             return len(variable.keys())
         return 1  # we shouldn't ever get here, but just in case return a sane value.
 
