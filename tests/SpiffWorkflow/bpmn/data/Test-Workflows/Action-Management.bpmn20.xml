@@ -97,7 +97,7 @@
          </extensionElements>
          <incoming>sid-4B3460BF-1433-4961-BEA6-CD4766A5F509</incoming>
          <outgoing>sid-C06ACF4A-E241-4E40-B283-F35060801420</outgoing>
-         <script>task.set_data(script_output='NEW ACTION')</script>
+         <script>script_output='NEW ACTION'</script>
       </scriptTask>
       <scriptTask completionQuantity="1" id="sid-2ABC7FB8-98FF-4BE6-8A7F-941CBDEE3232" isForCompensation="false" name="Notify Responsible Person: Action Cancelled" scriptFormat="" startQuantity="1">
          <extensionElements>
@@ -107,7 +107,7 @@
          </extensionElements>
          <incoming>sid-CA558A2D-1F6E-4BEB-B04F-6868529FCC24</incoming>
          <outgoing>sid-6B67CBBC-E314-4DCF-B12F-968AEA30B05D</outgoing>
-         <script>task.set_data(script_output='ACTION CANCELLED')</script>
+         <script>script_output='ACTION CANCELLED'</script>
       </scriptTask>
       <callActivity completionQuantity="1" id="sid-09C66072-F204-4E32-A501-80D7BD2F45E7" isForCompensation="false" name="Do Work" startQuantity="1">
          <extensionElements>
@@ -125,7 +125,7 @@
          </extensionElements>
          <incoming>sid-2F70B74A-5D28-4D73-9C3B-540E7F9723F2</incoming>
          <outgoing>sid-2DE53FE2-6F50-4EF5-9B11-E3733E2BD494</outgoing>
-         <script>task.set_data(script_output= 'ACTION OVERDUE')</script>
+         <script>script_output= 'ACTION OVERDUE'</script>
       </scriptTask>
       <endEvent id="sid-F2919669-F486-4C9A-B80E-6EDE1876962A" name="">
          <extensionElements>
