@@ -315,9 +315,11 @@ class PythonScriptEngine(object):
             return revised_text,True
         except:
             try:
-                revised_text = self.patch_expression(text, 's')
+                revised_text = self.patch_expression(text, 's ') # if we have problems parsing, then we introduce a
+                # variable on the left hand side and try that and see if that parses. If so, then we know that
+                # we do not need to introduce an equality operator later in the dmn
                 ast.parse(revised_text)
-                return revised_text[1:],False
+                return revised_text[2:],False
             except Exception as e:
                 raise Exception("error parsing expression "+text + " " +
                                 str(e))
