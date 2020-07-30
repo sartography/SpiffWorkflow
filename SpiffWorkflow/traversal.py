@@ -115,7 +115,17 @@ def follow_tree(tree,output=[],found=set(),level=0,workflow=None):
             not tree.isSequential:
         # NB: Not technically correct but expedient
         # FIXME: we whould only have one input
-        for task in tree.inputs[1].outputs:
+
+        # this if statement handles the case when we are building
+        # the nav list, but the PMI hasn't been expanded yet.
+        # this is a stopgap to keep it from crashing, but probably won't
+        # do the correct thing.
+        if len(tree.inputs) > 1:
+            # we have expanded the tree:
+            outputs = tree.inputs[1].outputs
+        else:
+            outputs = tree.inputs[0].outputs
+        for task in outputs:
             linkkey = list(task.outgoing_sequence_flows.keys())[0]
             link = task.outgoing_sequence_flows[linkkey]
 
