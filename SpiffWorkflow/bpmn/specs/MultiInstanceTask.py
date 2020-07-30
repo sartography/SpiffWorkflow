@@ -127,9 +127,9 @@ class MultiInstanceTask(TaskSpec):
 
         if is_number(variable):
             return int(variable)
-        if type(variable) == type([]):
+        if isinstance(variable,list):
             return len(variable)
-        if type(variable) == type({}):
+        if isinstance(variable,dict):
             return len(variable.keys())
         return 1  # we shouldn't ever get here, but just in case return a sane value.
 
@@ -137,9 +137,9 @@ class MultiInstanceTask(TaskSpec):
         variable = valueof(my_task, self.times, 1)
         if is_number(variable):
             return pos
-        if type(variable) == type([]) and len(variable) >= pos:
+        if isinstance(variable,list) and len(variable) >= pos:
             return variable[pos - 1]
-        elif type(variable) == type({}) and len(list(variable.keys())) >= pos:
+        elif isinstance(variable,dict) and len(list(variable.keys())) >= pos:
             return variable[list(variable.keys())[pos - 1]]
         else:
             return pos

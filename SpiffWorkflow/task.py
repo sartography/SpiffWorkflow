@@ -25,6 +25,7 @@ import logging
 import time
 from uuid import uuid4
 import random
+
 from .util.deep_merge import DeepMerge
 
 LOG = logging.getLogger(__name__)
@@ -306,12 +307,18 @@ class Task(object):
         :param reset_data: Do we want to have the data be where we left of in
                            this task or not
         """
+        from .bpmn.specs.CallActivity import CallActivity
         taskinfo = self.task_info()
         if not reset_data:
             self.data = self.workflow.last_task.data
         if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
             # if looping or sequential, we want to start from the beginning
             self.internal_data['runtimes'] = 1
+        for child in self.children:
+            if isinstance(child.task_spec,CallActivity):
+                self.children = [] # if we have a call activity,
+                                   # force reset of children.
+        self.workflow.last_task = self.parent
         self.set_children_future()  # this method actually fixes the problem
         self._set_state(self.READY)
         self.task_spec._predict(self)

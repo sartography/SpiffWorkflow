@@ -220,7 +220,8 @@ class Workflow(object):
         """
 
         # traverse the tree
-        list_paths = [follow_tree(top,output=[],found=set())
+
+        list_paths = [follow_tree(top,output=[],found=set(),workflow=self)
                       for top in self.task_tree.children[0].task_spec.outputs]
         l = []
         for path in list_paths:
@@ -238,9 +239,14 @@ class Workflow(object):
         for task_spec in l:
             # get a list of statuses for the current task_spec
             # we may have more than one task for each
-            tasks = [x for x in task_list if x.task_spec.id == task_spec['id']]
-            task_spec['is_decision'] = False  # Assure some value.
-            if len(tasks)==0:
+            tasks = [x for x in task_list if (x.task_spec.id == task_spec['id']) and (x.task_spec.name == task_spec['name'])]
+            status = [x.state_names[x.state]
+                      for x
+                      in tasks]
+            taskids = [x.id
+                      for x
+                      in tasks]
+            if len(status)==0:
                 # Sequence flows will not be in this list -
                 # we will not find any status
                 if task_spec.get('is_decision') is not None:
@@ -250,8 +256,9 @@ class Workflow(object):
                     task_spec['state'] = 'None'
                 task_spec['task_id'] = None
             elif len(tasks) == 1:
-                task_spec['state'] = tasks[0].state_names[tasks[0].state]
-                task_spec['task_id'] = tasks[0].id
+                task_spec['state'] = status[0]
+                task_spec['task_id'] = taskids[0]
+                task_spec['is_decision'] = task_spec.get('is_decision', False)
             else:
                 # Something has caused us to loop back around in some way to
                 # this task spec again, and so there are multiple states for
@@ -269,6 +276,7 @@ class Workflow(object):
                     task = tasks[0] # Not sure what else to do here yet.
                 task_spec['state'] = task.state_names[task.state]
                 task_spec['task_id'] = task.id
+                task_spec['is_decision'] = task_spec.get('is_decision', False)
 
         return l
 
