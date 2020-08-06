@@ -617,6 +617,22 @@ class DictionarySerializer(Serializer):
             #FIXME: we should only have 1 input, not 2
             task_spec.inputs[1].outputs.append(task_spec)
             task_spec.outputs[0].inputs.append(task_spec)
+        if task_spec is None and  \
+            splits[0] == 'Gateway' and \
+            splits[-1] in ['start','end']:
+               # if we are here, then we have a task tree that has an expanded PMI - but the task
+               # spec tree that we are importing is not expanded - we are dealing with a lot of other
+               # parallel multi-instance stuff here, so I'm going to try to do this as well.
+            newtaskname = '_'.join(splits[2:-1])
+            task_spec = workflow.get_task_spec_from_name(newtaskname)
+            newtaskspec = copy.copy(task_spec)
+            newtaskspec.name = oldtaskname
+            task_spec = newtaskspec
+            # probably need to do something with inputs and outputs here based
+            # on whether it is a start or end task - but how the hell do I know what those are?
+
+
+
         if task_spec is None:
             raise MissingSpecError("Unknown task spec: " + oldtaskname)
         task = Task(workflow, task_spec)
