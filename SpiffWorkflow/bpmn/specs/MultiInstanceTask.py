@@ -178,16 +178,32 @@ class MultiInstanceTask(TaskSpec):
         # build the gateway specs and the tasks.
         # Spiff wants a distinct spec for each task
         # that it has in the workflow or it will throw an error
+
+
+        # I've encountered a case where the task_spec tree has already been expanded
+        # such as a workflow that has multiple exclusive gateways -
+        # in this case I try to detect it and use the task_spec tree as it already
+        # is without fixing things up.
+
+        startgatewayname = self._build_gateway_name('start')
+        start_gw_spec = my_task.workflow.get_task_spec_from_name(startgatewayname)
+        if start_gw_spec is not None:
+            return
         start_gw_spec = ParallelGateway(self._wf_spec,
                                         self._build_gateway_name('start'),
                                         triggered=False,
                                         description="Begin Gateway")
         start_gw = Task(my_task.workflow, task_spec=start_gw_spec)
-        gw_spec = ParallelGateway(self._wf_spec, self._build_gateway_name('end'),
-                                  triggered=False, description="End Gateway")
+
+        endgatewayname = self._build_gateway_name('end')
+
+
+        gw_spec = ParallelGateway(self._wf_spec, endgatewayname,
+                                      triggered=False, description="End Gateway")
         end_gw = Task(my_task.workflow, task_spec=gw_spec)
 
         # Set up the parent task and insert it into the workflow
+
         my_task.parent.task_spec.outputs = []
         # in the case that our parent is a gateway with a default route,
         # we need to ensure that the default route is empty
