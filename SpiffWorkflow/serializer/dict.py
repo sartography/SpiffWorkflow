@@ -28,9 +28,11 @@ from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
                      TaskSpec, SubWorkflow, StartTask, ThreadMerge,
                      ThreadSplit, ThreadStart, Merge, Trigger)
 from .base import Serializer
+from ..bpmn.specs.ParallelGateway import ParallelGateway
 from .exceptions import TaskNotSupportedError, MissingSpecError
 import warnings
 import copy
+
 
 
 class DictionarySerializer(Serializer):
@@ -617,6 +619,49 @@ class DictionarySerializer(Serializer):
             #FIXME: we should only have 1 input, not 2
             task_spec.inputs[1].outputs.append(task_spec)
             task_spec.outputs[0].inputs.append(task_spec)
+        if task_spec is None and  \
+            splits[0] == 'Gateway' and \
+            splits[-1] == 'start':
+               # if we are here, then we have a task tree that has an expanded PMI - but the task
+               # spec tree that we are importing is not expanded - we are dealing with a lot of other
+               # parallel multi-instance stuff here, so I'm going to try to do this as well.
+            newtaskname = '_'.join(splits[2:-1])
+            endtaskname = '_'.join(splits[:-1])+"_end"
+            task_spec = workflow.get_task_spec_from_name(newtaskname)
+            #--------------------------------------------------------------
+            # it may be best to try and use the code from MultiInstanceTask._add_gateway
+            # instead of re-create it here, the problem is that
+            # it requires a task to be created for it and I don't actually have the
+            # task yet, because I've got a chicken/egg problem  - the code below outlines
+            # what I need to do but it doesn't accurately represent the way the
+            # PMI instances are getting set up.
+            #--------------------------------------------------------------
+            # create the beginning gateway
+            task_spec._wf_spec
+            newtaskspec = ParallelGateway(task_spec._wf_spec,
+                                               oldtaskname,
+                                               triggered=False,
+                                               description="Begin Gateway")
+
+            endtaskspec = ParallelGateway(task_spec._wf_spec, endtaskname,
+                                         triggered=False, description="End Gateway")
+
+
+            # patch middle task into begin gateway
+            newtaskspec.outputs = [task_spec]
+            task_spec.inputs.append(newtaskspec)
+            # patch middle into end gateway
+            endtaskspec.inputs = [task_spec]
+            endtaskspec.outputs = copy.copy(task_spec.outputs)
+            task_spec.outputs = [endtaskspec]
+            # inform registry about new task specs
+            workflow.spec.task_specs[oldtaskname] = newtaskspec
+            workflow.spec.task_specs[endtaskname] = endtaskspec
+
+            task_spec = newtaskspec # change to our beginning gateway
+
+
+
         if task_spec is None:
             raise MissingSpecError("Unknown task spec: " + oldtaskname)
         task = Task(workflow, task_spec)
