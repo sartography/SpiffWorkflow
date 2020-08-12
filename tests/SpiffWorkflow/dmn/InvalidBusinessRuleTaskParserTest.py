@@ -40,7 +40,7 @@ class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
             self.assertEquals("InvalidDecisionTaskId: Failed to execute "
                               "expression: 'spam' is '= 1' in the Row with "
                               "annotation 'This is complletely wrong.'"
-                              ", invalid syntax (<string>, line 5)",
+                              ", invalid syntax (<string>, line 1)",
                               str(we))
 
 def suite():

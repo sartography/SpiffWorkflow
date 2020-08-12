@@ -8,6 +8,8 @@ from SpiffWorkflow.bpmn.parser.util import xpath_eval
 from SpiffWorkflow.dmn.specs.model import Decision, DecisionTable, InputEntry, \
     OutputEntry, Input, Output, Rule
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
+from SpiffWorkflow.bpmn.DMNPythonScriptEngine import DMNPythonScriptEngine
 
 DMN_NS = 'http://www.omg.org/spec/DMN/20151101/dmn.xsd'
 
@@ -40,7 +42,7 @@ class DMNParser(object):
         self.filename = filename
         self.doc_xpath = doc_xpath
         self.xpath = xpath_eval(self.node, {'dmn': DMN_NS})
-        self.scriptEngine = PythonScriptEngine()
+        self.scriptEngine = DMNPythonScriptEngine()
 
     def parse(self):
         self.decision = self._parse_decision(self.node)
@@ -114,6 +116,11 @@ class DMNParser(object):
         for inputExpression in xpath('dmn:inputExpression'):
 
             typeRef = inputExpression.attrib.get('typeRef', '')
+            scriptEngine = self.scriptEngine
+            engine = inputExpression.attrib.get('expressionLanguage')
+            if engine == 'feel':
+                scriptEngine = FeelLikeScriptEngine()
+
             expressionNode = inputExpression.find('{' + DMN_NS + '}text')
             if expressionNode is not None:
                 expression = expressionNode.text
@@ -124,6 +131,7 @@ class DMNParser(object):
                       inputElement.attrib.get('label', ''),
                       inputElement.attrib.get('name', ''),
                       expression,
+                      scriptEngine,
                       typeRef)
         return input
 

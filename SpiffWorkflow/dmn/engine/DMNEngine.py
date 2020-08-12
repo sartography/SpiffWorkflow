@@ -1,19 +1,19 @@
 import logging
 import Levenshtein
 import re
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.DMNPythonScriptEngine import DMNPythonScriptEngine
 
 
 class DMNEngine:
     """
-    Handles the prbocessing of a decision table.
+    Handles the processing of a decision table.
     """
 
 
     def __init__(self, decisionTable, debug=None):
         self.decisionTable = decisionTable
         self.debug = debug
-        self.scriptEngine = PythonScriptEngine()
+        self.scriptEngine = DMNPythonScriptEngine()
         self.logger = logging.getLogger('DMNEngine')
         if not self.logger.handlers:
             self.logger.addHandler(logging.StreamHandler())
@@ -49,7 +49,7 @@ class DMNEngine:
                 else:
                     inputVal = None
                 try:
-                    if not self.scriptEngine.eval_dmn_expression(inputVal, lhs, **local_data):
+                    if not input.scriptEngine.eval_dmn_expression(inputVal, lhs, **local_data):
                         return False
                 except NameError as e:
                     x = re.match("name '(.+)' is not defined",str(e))

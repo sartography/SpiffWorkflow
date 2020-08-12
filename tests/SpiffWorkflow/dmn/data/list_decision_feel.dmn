@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/1.0" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
-  <decision id="DictDecisionStringOutputTable" name="DictDecisionStringOutput">
-    <extensionElements>
-      <biodi:bounds x="150" y="150" width="180" height="80" />
-    </extensionElements>
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
+  <decision id="ListDecisionStringOutputTable" name="ListDecisionStringOutput">
     <decisionTable id="decisionTable">
-      <input id="input1" label="Allergy Keys">
-        <inputExpression id="inputExpression1" typeRef="string">
-          <text>allergies.keys()</text>
+      <input id="input1" label="allergies">
+        <inputExpression id="inputExpression1" typeRef="string" expressionLanguage="feel">
+          <text></text>
         </inputExpression>
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
@@ -15,7 +12,7 @@
         <description>They are allergic to peanuts</description>
         <inputEntry id="UnaryTests_148tr41">
           <description>mGender Description</description>
-          <text>"PEANUTS" in ?</text>
+          <text>contains("PEANUTS")</text>
         </inputEntry>
         <outputEntry id="LiteralExpression_0dvud7t">
           <text>"isPeanuts"</text>
@@ -24,7 +21,7 @@
       <rule id="DecisionRule_03tv1cj">
         <description>They are not allergic to peanuts</description>
         <inputEntry id="UnaryTests_0jrbm9a">
-          <text>"PEANUTS" not in ?</text>
+          <text>not contains("PEANUTS") </text>
         </inputEntry>
         <outputEntry id="LiteralExpression_0irzqma">
           <text>"IsNotPeanuts"</text>

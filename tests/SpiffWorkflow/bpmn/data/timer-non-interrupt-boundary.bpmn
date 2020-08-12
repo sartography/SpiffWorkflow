@@ -38,7 +38,7 @@
     <bpmn:boundaryEvent id="Event_0jyy8ao" name="BenchmarkTime" cancelActivity="false" attachedToRef="Activity_0e5qk4z">
       <bpmn:outgoing>Flow_03e1mfr</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_15a4lk2">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT.2S</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=.2)</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:userTask id="GetReason" name="Delay Reason" camunda:formKey="DelayForm">

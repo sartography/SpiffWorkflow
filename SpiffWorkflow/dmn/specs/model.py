@@ -18,11 +18,12 @@ class DecisionTable:
         self.rules = []
 
 class Input:
-    def __init__(self, id, label, name, expression, typeRef):
+    def __init__(self, id, label, name, expression, scriptEngine, typeRef):
         self.id = id
         self.label = label
         self.name = name
         self.expression = expression
+        self.scriptEngine = scriptEngine
         self.typeRef = typeRef
 
 class InputEntry:

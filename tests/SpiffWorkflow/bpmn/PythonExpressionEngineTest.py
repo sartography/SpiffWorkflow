@@ -8,7 +8,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine, FeelInterval
+from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine, FeelInterval
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 import datetime
 
@@ -166,7 +166,7 @@ class PythonExpressionTest(BpmnWorkflowTestCase):
             ],
             "shared": []
         }
-        self.expressionEngine = PythonScriptEngine()
+        self.expressionEngine = FeelLikeScriptEngine()
 
     def testRunThroughExpressions(self):
         tests = [("string length('abcd')", 4, {}),

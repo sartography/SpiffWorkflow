@@ -6,8 +6,8 @@
     </extensionElements>
     <decisionTable id="decisionTable">
       <input id="input1" label="Spam is Delicious?">
-        <inputExpression id="inputExpression1" typeRef="boolean">
-          <text>odd_foods.SPAM_LIKE.delicious</text>
+        <inputExpression id="inputExpression1" typeRef="boolean" expressionLanguage="feel">
+          <text>foods.spam.delicious</text>
         </inputExpression>
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />

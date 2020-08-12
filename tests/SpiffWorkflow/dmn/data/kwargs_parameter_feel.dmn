@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
   <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="input1" label="Gender">
-        <inputExpression id="inputExpression1" typeRef="string">
-          <text></text>
+        <inputExpression id="inputExpression1" typeRef="string" expressionLanguage="feel">
+          <text>Gender</text>
         </inputExpression>
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
@@ -25,15 +25,6 @@
         </inputEntry>
         <outputEntry id="LiteralExpression_16njszh">
           <text>"isF"</text>
-        </outputEntry>
-      </rule>
-      <rule id="row-650602887-3">
-        <description>NOT x Row Annotation</description>
-        <inputEntry id="UnaryTests_1n7idt8">
-          <text>? != "x"</text>
-        </inputEntry>
-        <outputEntry id="LiteralExpression_15pr8b4">
-          <text>"notX"</text>
         </outputEntry>
       </rule>
       <rule id="row-484867957-7">
