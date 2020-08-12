@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn">
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
   <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="InputClause_1tm0ceq" label="Age">
@@ -8,17 +8,21 @@
       <output id="output1" label="Result" name="" typeRef="string" />
       <rule id="row-650602887-1">
         <description>100-110 Exclusive Annotation</description>
-        <inputEntry id="UnaryTests_06vadwt">        <text>]100..110[</text>
-</inputEntry>
-        <outputEntry id="LiteralExpression_0kqckzk">        <text><![CDATA["100-110 Exclusive"]]></text>
-</outputEntry>
+        <inputEntry id="UnaryTests_06vadwt">
+          <text>100 &lt; ? &lt; 110</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0kqckzk">
+          <text>"100-110 Exclusive"</text>
+        </outputEntry>
       </rule>
       <rule id="row-484867957-7">
         <description>ELSE Row Annotation</description>
-        <inputEntry id="UnaryTests_0u4hmbg">        <text></text>
-</inputEntry>
-        <outputEntry id="LiteralExpression_19qgvg3">        <text><![CDATA["ELSE"]]></text>
-</outputEntry>
+        <inputEntry id="UnaryTests_0u4hmbg">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_19qgvg3">
+          <text>"ELSE"</text>
+        </outputEntry>
       </rule>
     </decisionTable>
   </decision>

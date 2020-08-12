@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn">
+  <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
+    <decisionTable id="decisionTable">
+      <input id="InputClause_1tm0ceq" label="Age">
+        <inputExpression id="LiteralExpression_04o7chw" typeRef="integer" / expressionLanguage="feel">
+      </input>
+      <output id="output1" label="Result" name="" typeRef="string" />
+      <rule id="row-484867957-5">
+        <description>30 Row Annotation</description>
+        <inputEntry id="UnaryTests_0vir5ok">        <text>30</text>
+</inputEntry>
+        <outputEntry id="LiteralExpression_0dvud7t">        <text><![CDATA["30"]]></text>
+</outputEntry>
+      </rule>
+      <rule id="row-484867957-1">
+        <description>L Row Annotation</description>
+        <inputEntry id="UnaryTests_1ldsism">        <text><![CDATA[< 25]]></text>
+</inputEntry>
+        <outputEntry id="LiteralExpression_01n13q2">        <text><![CDATA["low"]]></text>
+</outputEntry>
+      </rule>
+      <rule id="row-484867957-3">
+        <description>H Row Annotation</description>
+        <inputEntry id="UnaryTests_0vf51t0">        <text><![CDATA[>= 25]]></text>
+</inputEntry>
+        <outputEntry id="LiteralExpression_0uvxx6a">        <text><![CDATA["high"]]></text>
+</outputEntry>
+      </rule>
+      <rule id="row-484867957-7">
+        <description>ELSE Row Annotation</description>
+        <inputEntry id="UnaryTests_0u4hmbg">        <text></text>
+</inputEntry>
+        <outputEntry id="LiteralExpression_19qgvg3">        <text><![CDATA["ELSE"]]></text>
+</outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

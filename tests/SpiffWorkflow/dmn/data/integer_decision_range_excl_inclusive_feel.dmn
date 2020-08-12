@@ -3,16 +3,16 @@
   <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="InputClause_1tm0ceq" label="Age">
-        <inputExpression id="LiteralExpression_04o7chw" typeRef="double" />
+        <inputExpression id="LiteralExpression_04o7chw" typeRef="integer" / expressionLanguage="feel">
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
-      <rule id="row-650602887-1">
-        <description>100.05-110.05 Exclusive Annotation</description>
-        <inputEntry id="UnaryTests_06vadwt">
-          <text>Decimal('100.05') &lt; ? &lt; Decimal('110.05')</text>
+      <rule id="table-341529265-2">
+        <description>100-110 ExclInclusive Annotation</description>
+        <inputEntry id="UnaryTests_1x7wp9y">
+          <text>]100..110]</text>
         </inputEntry>
-        <outputEntry id="LiteralExpression_0kqckzk">
-          <text>"100.05-110.05 Exclusive"</text>
+        <outputEntry id="LiteralExpression_1t3s8ih">
+          <text>"100-110 ExclInclusive"</text>
         </outputEntry>
       </rule>
       <rule id="row-484867957-7">

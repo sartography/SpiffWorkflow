@@ -1,7 +1,7 @@
 import logging
 import Levenshtein
 import re
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
+from SpiffWorkflow.bpmn.DMNPythonScriptEngine import DMNPythonScriptEngine
 
 
 class DMNEngine:
@@ -13,7 +13,7 @@ class DMNEngine:
     def __init__(self, decisionTable, debug=None):
         self.decisionTable = decisionTable
         self.debug = debug
-        self.scriptEngine = FeelLikeScriptEngine()
+        self.scriptEngine = DMNPythonScriptEngine()
         self.logger = logging.getLogger('DMNEngine')
         if not self.logger.handlers:
             self.logger.addHandler(logging.StreamHandler())

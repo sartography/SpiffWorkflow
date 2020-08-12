@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/1.0" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
-  <decision id="DictDecisionStringOutputTable" name="DictDotNotationDecisionStringOutput">
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/1.0" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
+  <decision id="InvalidDecisionId" name="InvalidDecision">
     <extensionElements>
       <biodi:bounds x="150" y="150" width="180" height="80" />
     </extensionElements>
     <decisionTable id="decisionTable">
-      <input id="input1" label="Spam is Delicious?">
-        <inputExpression id="inputExpression1" typeRef="boolean">
-          <text>foods.spam.delicious</text>
+      <input id="input1" label="Spam is Decimal?">
+        <inputExpression id="inputExpression1" typeRef="integer">
+          <text>spam</text>
         </inputExpression>
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
       <rule id="row-484867957-5">
-        <description>This person is lacking many critical decision making skills, or is a viking.</description>
+        <description>This is complletely wrong.</description>
         <inputEntry id="UnaryTests_148tr41">
           <description>mGender Description</description>
-          <text>True</text>
+          <text>= 1</text>
         </inputEntry>
         <outputEntry id="LiteralExpression_0dvud7t">
           <text>"wrong"</text>
         </outputEntry>
       </rule>
       <rule id="DecisionRule_03tv1cj">
-        <description>This person has a tongue, brain or sense of smell.</description>
+        <description>so is this.</description>
         <inputEntry id="UnaryTests_0jrbm9a">
-          <text>False</text>
+          <text>&gt;= 100</text>
         </inputEntry>
         <outputEntry id="LiteralExpression_0irzqma">
-          <text>"correct, spam is not delicious"</text>
+          <text>"My cat's breath smells like cat food."</text>
         </outputEntry>
       </rule>
     </decisionTable>
