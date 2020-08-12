@@ -49,7 +49,7 @@ class DMNEngine:
                 else:
                     inputVal = None
                 try:
-                    if not self.scriptEngine.eval_dmn_expression(inputVal, lhs, **local_data):
+                    if not input.scriptEngine.eval_dmn_expression(inputVal, lhs, **local_data):
                         return False
                 except NameError as e:
                     x = re.match("name '(.+)' is not defined",str(e))

@@ -3,7 +3,7 @@
   <decision id="DateDecisionStringOutputTable" name="DateDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="InputClause_1tm0ceq" label="IsItTrue">
-        <inputExpression id="LiteralExpression_04o7chw" typeRef="date" / expressionLanguage="feel">
+        <inputExpression id="LiteralExpression_04o7chw" typeRef="date"  expressionLanguage="feel"/>
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
       <rule id="row-502775238-5">

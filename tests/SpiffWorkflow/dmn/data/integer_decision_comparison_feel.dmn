@@ -3,7 +3,7 @@
   <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="InputClause_1tm0ceq" label="Age">
-        <inputExpression id="LiteralExpression_04o7chw" typeRef="integer" / expressionLanguage="feel">
+        <inputExpression id="LiteralExpression_04o7chw" typeRef="integer" expressionLanguage="feel"/>
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
       <rule id="row-484867957-5">

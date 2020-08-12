@@ -3,7 +3,7 @@
   <decision id="Decision_ExclusiveAMCheck" name="Exclusive AM Check">
     <decisionTable id="decisionTable_1">
       <input id="input_1" label="Number of Exclusive Spaces Without Area Monitor">
-        <inputExpression id="inputExpression_1" typeRef="integer" expressionLanguage="feel" expressionLanguage="feel">
+        <inputExpression id="inputExpression_1" typeRef="integer" expressionLanguage="feel">
           <text>sum([1 for x in exclusive if x.ExclusiveSpaceAMComputingID is None])</text>
         </inputExpression>
       </input>

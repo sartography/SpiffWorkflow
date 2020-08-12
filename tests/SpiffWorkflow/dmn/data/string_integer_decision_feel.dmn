@@ -3,11 +3,13 @@
   <decision id="StrIntegerDecisionStringOutputTable" name="StrIntegerDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="input1" label="Gender">
-        <inputExpression id="inputExpression1" typeRef="string">        <text></text expressionLanguage="feel">
-</inputExpression>
+        <inputExpression id="inputExpression1" typeRef="string" expressionLanguage="feel">
+
+	<text></text>
+	</inputExpression>
       </input>
       <input id="InputClause_1tm0ceq" label="Age">
-        <inputExpression id="LiteralExpression_04o7chw" typeRef="integer" / expressionLanguage="feel">
+        <inputExpression id="LiteralExpression_04o7chw" typeRef="integer"  expressionLanguage="feel"/>
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
       <rule id="row-484867957-5">
