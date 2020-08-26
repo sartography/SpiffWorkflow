@@ -109,13 +109,13 @@ class PythonScriptEngine(object):
 
 
     def _eval(self, expression,externalMethods={}, **kwargs):
-        lcls = {}
+        lcls = Box()
         lcls.update(kwargs)
         globals = {'timedelta':timedelta,
                    'datetime':datetime}
-        for x in lcls.keys():
-            if isinstance(lcls[x], dict):
-                lcls[x] = Box(lcls[x])
+#        for x in lcls.keys():
+#            if isinstance(lcls[x], dict):
+#                lcls[x] = Box(lcls[x])
         globals.update(lcls)
         globals.update(externalMethods)
         return eval(expression,globals,lcls)
