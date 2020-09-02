@@ -30,3 +30,8 @@ class StartEvent(Simple, BpmnSpecMixin):
     def __init__(self, wf_spec, name, event_definition=None, **kwargs):
         super(StartEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic(wf_spec, s_state, StartEvent)
+

@@ -61,6 +61,10 @@ class _EndJoin(UnstructuredJoin):
         super(_EndJoin, self)._on_complete_hook(my_task)
         my_task.workflow.data.update(my_task.data)
 
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic(wf_spec, s_state, _EndJoin)
+
 
 class BpmnProcessSpec(WorkflowSpec):
     """

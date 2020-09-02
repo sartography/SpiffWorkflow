@@ -27,9 +27,9 @@ class MultiInstanceCondTest(BpmnWorkflowTestCase):
 
     def reload_save_restore(self):
         state = self._get_workflow_state()
-        self.spec = self.load_workflow1_spec()
-        self.workflow = BpmnWorkflow(self.spec)
-        self.restore(state)
+        #self.spec = self.load_workflow1_spec()
+        #self.workflow = BpmnWorkflow(self.spec)
+        self.restore(state,spec_from_state=True)
         # We should still have the same state:
         after_state = self._get_workflow_state(do_steps=False)
         self.maxDiff = None

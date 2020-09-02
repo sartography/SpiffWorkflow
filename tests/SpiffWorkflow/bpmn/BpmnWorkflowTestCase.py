@@ -22,7 +22,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:
-            self.save_restore()
+            self.save_restore_all()
 
         self.workflow.do_engine_steps()
         tasks = self.workflow.get_tasks(Task.READY)
@@ -30,7 +30,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def do_next_named_step(self, step_name, with_save_load=False, set_attribs=None, choice=None, only_one_instance=True):
         if with_save_load:
-            self.save_restore()
+            self.save_restore_all()
 
         self.workflow.do_engine_steps()
         step_name_path = step_name.split("|")
@@ -99,11 +99,30 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(before_dump, after_dump)
         self.assertEqual(state, after_state)
-        
-        
-    def restore(self, state):
-        self.workflow = BpmnSerializer().deserialize_workflow(
-            state, workflow_spec=self.spec)
+
+    def save_restore_all(self):
+        state = self._get_workflow_state()
+        logging.debug('Saving state: %s', state)
+        before_dump = self.workflow.get_dump()
+        self.restore(state,spec_from_state=True)
+        # We should still have the same state:
+        after_dump = self.workflow.get_dump()
+        after_state = self._get_workflow_state(do_steps=False)
+
+        if state != after_state:
+            logging.debug("Before save:\n%s", before_dump)
+            logging.debug("After save:\n%s", after_dump)
+        self.maxDiff = None
+        self.assertEqual(before_dump, after_dump)
+        self.assertEqual(state, after_state)
+
+    def restore(self, state, spec_from_state=False):
+        if spec_from_state:
+            self.workflow = BpmnSerializer().deserialize_workflow(
+                state, workflow_spec=None)
+        else:
+            self.workflow = BpmnSerializer().deserialize_workflow(
+                state, workflow_spec=self.spec)
 
     def get_read_only_workflow(self):
         state = self._get_workflow_state()

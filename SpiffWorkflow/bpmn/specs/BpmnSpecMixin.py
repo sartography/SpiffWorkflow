@@ -49,6 +49,12 @@ class SequenceFlow(object):
         self.documentation = documentation
         self.target_task_spec = target_task_spec
 
+    def serialize(self):
+        return {'id':self.id,
+                'name':self.name,
+                'documentation':self.documentation,
+                'target_task_spec':self.target_task_spec.id}
+
 
 class BpmnSpecMixin(TaskSpec):
     """

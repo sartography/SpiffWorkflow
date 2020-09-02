@@ -443,6 +443,22 @@ class TaskSpec(object):
         :rtype:  object
         :returns: The serialized object.
         """
+        return {
+                  'id':self.id,
+                  'name':self.name,
+                  'description':self.description,
+                  'inputs':[x.id for x in self.inputs],
+                  'outputs':[x.id for x in self.outputs],
+                  'manual':self.manual,
+                  'internal':self.internal,
+                  'data':self.data,
+                  'defines':self.defines,
+                  'pre_assign':self.pre_assign,
+                  'post_assign':self.post_assign,
+                  'locks':self.locks,
+                  'position':self.position,
+                  'lookahead':self.lookahead,
+                  }
         raise NotImplementedError
 
     @classmethod
@@ -467,4 +483,22 @@ class TaskSpec(object):
         :rtype:  TaskSpec
         :returns: The task specification instance.
         """
-        raise NotImplementedError
+        print(s_state)
+        print(wf_spec)
+        out = cls(wf_spec,s_state.get('name'))
+        out.id = s_state.get('id')
+        out.name = s_state.get('name')
+        out.description = s_state.get('description')
+        out.inputs = s_state.get('inputs')
+        out.outputs = s_state.get('outputs')
+        out.manual = s_state.get('manual')
+        out.internal = s_state.get('internal')
+        out.data = s_state.get('data')
+        out.defines = s_state.get('defines')
+        out.pre_assign = s_state.get('pre_assign')
+        out.post_assign = s_state.get('post_assign')
+        out.locks = s_state.get('locks')
+        out.position = s_state.get('position')
+        out.lookahead = s_state.get('lookahead')
+        return out
+        #raise NotImplementedError

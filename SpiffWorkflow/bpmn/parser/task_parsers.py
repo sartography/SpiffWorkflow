@@ -43,6 +43,7 @@ class StartEventParser(TaskParser):
         if (len(isMessageCatchingEvent) > 0)\
                 or (len(isSignalCatchingEvent) > 0):
             # we need to fix this up to wait on an event
+
             self.__class__ = type(self.get_id() + '_class', (
             self.__class__, IntermediateCatchEventParser), {})
             self.spec_class = IntermediateCatchEvent

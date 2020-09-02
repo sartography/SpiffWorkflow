@@ -27,3 +27,6 @@ class NoneTask(Simple, BpmnSpecMixin):
 
     def is_engine_task(self):
         return False
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic(wf_spec, s_state, NoneTask)

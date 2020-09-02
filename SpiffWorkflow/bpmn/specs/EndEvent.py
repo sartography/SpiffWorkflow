@@ -71,3 +71,8 @@ class EndEvent(Simple, BpmnSpecMixin):
             my_task.workflow.refresh_waiting_tasks()
 
         super(EndEvent, self)._on_complete_hook(my_task)
+
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic(wf_spec, s_state, EndEvent)
