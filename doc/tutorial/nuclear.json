@@ -2,21 +2,23 @@
     "task_specs": {
         "Start": {
             "class": "SpiffWorkflow.specs.StartTask.StartTask",
+	    "id" : 1,
             "manual": false,
             "outputs": [
-                "general"
+                2
             ]
         },
         "general": {
             "class": "SpiffWorkflow.specs.ExclusiveChoice.ExclusiveChoice",
             "name": "general",
+	    "id" : 2,
             "manual": true,
             "inputs": [
-                "Start"
+                1
             ],
             "outputs": [
-                "workflow_aborted",
-                "president"
+                5,
+                3
             ],
             "choice": null,
             "default_task_spec": "workflow_aborted",
@@ -42,13 +44,14 @@
         "president": {
             "class": "SpiffWorkflow.specs.ExclusiveChoice.ExclusiveChoice",
             "name": "president",
+	    "id" : 3,
             "manual": true,
             "inputs": [
-                "general"
+                2
             ],
             "outputs": [
-                "workflow_aborted",
-                "nuclear_strike"
+                5,
+                4
             ],
             "choice": null,
             "default_task_spec": "workflow_aborted",
@@ -72,18 +75,20 @@
             ]
         },
         "nuclear_strike": {
+	    "id" : 4,
             "class": "SpiffWorkflow.specs.Simple.Simple",
             "name": "nuclear_strike",
             "inputs": [
-                "president"
+                3
             ]
         },
         "workflow_aborted": {
+	    "id" : 5,
             "class": "SpiffWorkflow.specs.Cancel.Cancel",
             "name": "workflow_aborted",
             "inputs": [
-                "general",
-                "president"
+                2,
+                3
             ]
         }
     },
