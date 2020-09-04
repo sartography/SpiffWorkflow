@@ -443,8 +443,12 @@ class TaskSpec(object):
         :rtype:  object
         :returns: The serialized object.
         """
+        module = self.__class__.__module__
+        class_name = module + '.' + self.__class__.__name__
+
         return {
                   'id':self.id,
+                  'class': class_name,
                   'name':self.name,
                   'description':self.description,
                   'inputs':[x.id for x in self.inputs],

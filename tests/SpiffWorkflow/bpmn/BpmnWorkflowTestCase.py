@@ -85,10 +85,11 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         tasks[0].complete()
 
     def save_restore(self):
+
         state = self._get_workflow_state()
         logging.debug('Saving state: %s', state)
         before_dump = self.workflow.get_dump()
-        self.restore(state)
+        self.restore(state,spec_from_state=True)
         # We should still have the same state:
         after_dump = self.workflow.get_dump()
         after_state = self._get_workflow_state(do_steps=False)

@@ -84,3 +84,11 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
         for child in self.sub_workflow.task_tree.children:
             child.task_spec._update(child)
 
+    def serialize(self, serializer):
+        return serializer.serialize_call_activity(self)
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_call_activity(wf_spec, s_state, CallActivity)
+
+
+

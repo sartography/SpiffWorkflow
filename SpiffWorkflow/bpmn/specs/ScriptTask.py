@@ -57,3 +57,11 @@ class ScriptTask(Simple, BpmnSpecMixin):
             raise WorkflowTaskExecException(
                 task, 'Error during script execution:' + str(e))
         super(ScriptTask, self)._on_complete_hook(task)
+
+    def serialize(self, serializer):
+        return serializer.serialize_script_task(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_script_task(wf_spec, s_state)
+

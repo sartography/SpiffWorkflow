@@ -19,6 +19,7 @@ import uuid
 from .dict import DictionarySerializer
 from ..operators import Attrib
 from SpiffWorkflow.camunda.specs.UserTask import Form
+from ..util.impl import get_class
 
 def object_hook(dct):
     if '__uuid__' in dct:
@@ -32,6 +33,7 @@ def object_hook(dct):
 
     if '__attrib__' in dct:
         return Form(init=dct['__form__'])
+
 
     return dct
 

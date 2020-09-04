@@ -75,6 +75,7 @@ class BpmnSerializer(spiff_json.JSONSerializer):
         if not isinstance(task.task_spec, CallActivity):
             return super()._deserialize_task_children(task, s_state)
         else:
+
             sub_workflow = task.task_spec.create_sub_workflow(task)
             children = []
             for c in s_state['children']:

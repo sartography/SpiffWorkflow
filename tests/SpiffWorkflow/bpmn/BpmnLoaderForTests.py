@@ -32,6 +32,10 @@ class TestUserTask(UserTask):
         task.set_data(choice=choice)
         task.complete()
 
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic(wf_spec, s_state, TestUserTask)
+
 
 class TestEndEvent(EndEvent):
 
@@ -53,6 +57,10 @@ class TestCallActivity(CallActivity):
     def __init__(self, parent, name, **kwargs):
         super(TestCallActivity, self).__init__(parent, name,
                                                out_assign=[Assign('choice', 'end_event')], **kwargs)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_call_activity(wf_spec, s_state, TestCallActivity)
 
 
 class TestBpmnParser(BpmnParser):

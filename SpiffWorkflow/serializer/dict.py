@@ -32,6 +32,7 @@ from .base import Serializer
 from ..bpmn.specs.MultiInstanceTask import MultiInstanceTask
 from ..camunda.specs.UserTask import UserTask
 from ..bpmn.specs.ExclusiveGateway import ExclusiveGateway
+from ..bpmn.specs.ScriptTask import ScriptTask
 from .exceptions import TaskNotSupportedError, MissingSpecError
 import warnings
 import copy
@@ -302,6 +303,89 @@ class DictionarySerializer(Serializer):
         spec = Gate(wf_spec, s_state['name'], s_state['context'])
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
+
+    def serialize_script_task(self, spec):
+        s_state = self.serialize_task_spec(spec)
+        s_state['script'] = spec.script
+        return s_state
+
+    def deserialize_script_task(self, wf_spec, s_state):
+        spec = ScriptTask(wf_spec, s_state['name'], s_state['script'])
+        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
+
+
+    def serialize_call_activity(self, spec):
+        s_state = self.serialize_task_spec(spec)
+        s_state['wf_class'] = spec.wf_class.__module__ + "." + spec.wf_class.__name__
+        s_state['spec'] = self.serialize_workflow_spec(spec.spec)
+        return s_state
+
+    def deserialize_call_activity(self, wf_spec, s_state, cls):
+        spec = cls(wf_spec, s_state['name'])
+        spec.wf_class = get_class(s_state['wf_class'])
+        spec.spec = self.deserialize_workflow_spec(s_state['spec'])
+        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
+
+
+    def serialize_generic_event(self, spec):
+        s_state = self.serialize_task_spec(spec)
+        if spec.event_definition:
+            s_state['event_definition'] = spec.event_definition.serialize()
+        else:
+            s_state['event_definition'] = None
+        return s_state
+
+    def deserialize_generic_event(self, wf_spec, s_state, cls):
+        if s_state.get('event_definition',None):
+            evtcls = get_class(s_state['event_definition']['classname'])
+            event = evtcls.deserialize(s_state['event_definition'])
+        else:
+            event = None
+        spec = cls(wf_spec, s_state['name'], event)
+        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
+
+
+    def serialize_boundary_event_parent(self, spec):
+        s_state = self.serialize_task_spec(spec)
+        s_state['main_child_task_spec'] = spec.main_child_task_spec.id
+        return s_state
+
+    def deserialize_boundary_event_parent(self, wf_spec, s_state, cls):
+
+        main_child_task_spec = wf_spec.get_task_spec_from_id(s_state['main_child_task_spec'])
+        spec = cls(wf_spec, s_state['name'], main_child_task_spec)
+        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
+
+
+
+    def serialize_boundary_event(self, spec):
+        s_state = self.serialize_task_spec(spec)
+        if spec._cancel_activity:
+            s_state['cancel_activity'] = spec._cancel_activity
+        else:
+            s_state['cancel_activity'] = None
+        if spec.event_definition:
+            s_state['event_definition'] = spec.event_definition.serialize()
+        else:
+            s_state['event_definition'] = None
+        return s_state
+
+    def deserialize_boundary_event(self, wf_spec, s_state, cls):
+        cancel_activity = s_state.get('cancel_activity',None)
+        if s_state['event_definition']:
+            eventclass = get_class(s_state['event_definition']['classname'])
+            event = eventclass.deserialize(s_state['event_definition'])
+        else:
+            event = None
+        spec = cls(wf_spec, s_state['name'], cancel_activity=cancel_activity,event_definition=event)
+        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
+
+
 
     def serialize_user_task(self, spec):
         s_state = self.serialize_task_spec(spec)
