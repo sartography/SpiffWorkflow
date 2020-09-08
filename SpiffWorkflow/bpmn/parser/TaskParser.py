@@ -156,6 +156,10 @@ class TaskParser(object):
             #       MultiInstanceTask,self.task.__class__ ), {})
             self.task.multiInstance = multiinstance
             self.task.isSequential = isSequential
+            try:
+                self.task.expanded = int(loopcount)
+            except:
+                self.task.expanded = 1
 
     def parse_node(self):
         """

@@ -176,6 +176,11 @@ class MultiInstanceTask(TaskSpec):
         if my_task.parent.task_spec.name[:11] == 'Gateway_for':
             LOG.debug("MI Recovering from save/restore")
             return
+        split_n = self._get_count(my_task)
+        expanded = getattr(self, 'expanded', 1)
+        if split_n >= expanded:
+            setattr(self, 'expanded', split_n)
+
         LOG.debug("MI being augmented")
         # build the gateway specs and the tasks.
         # Spiff wants a distinct spec for each task
@@ -229,6 +234,7 @@ class MultiInstanceTask(TaskSpec):
 
     def multiinstance_info(self, my_task):
         split_n = self._get_count(my_task)
+
         runtimes = int(my_task._get_internal_data('runtimes',
                                                   1))  # set a default if not already run
         loop = False
@@ -258,6 +264,7 @@ class MultiInstanceTask(TaskSpec):
             self.outputs[0].inputs.append(new_task_spec)
 
     def _make_new_task_spec(self,proto_task_spec,my_task,suffix):
+
         new_task_spec = copy.copy(proto_task_spec)
         new_task_spec.name = new_task_spec.name + "_%d" % suffix
         new_task_spec.id = str(new_task_spec.id) + "_%d" % suffix
@@ -516,6 +523,7 @@ class MultiInstanceTask(TaskSpec):
             my_task.data[self.elementVar] = element_var_data
 
     def serialize(self, serializer):
+
         return serializer.serialize_multi_instance(self)
 
     @classmethod

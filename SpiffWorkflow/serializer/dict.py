@@ -453,6 +453,8 @@ class DictionarySerializer(Serializer):
             s_state['elementVar'] = self.serialize_arg(spec.elementVar)
             s_state['isSequential'] = self.serialize_arg(spec.isSequential)
             s_state['loopTask'] = self.serialize_arg(spec.loopTask)
+            if (hasattr(spec,'expanded')):
+                s_state['expanded'] = self.serialize_arg(spec.expanded)
         s_state['times'] = self.serialize_arg(spec.times)
         s_state['prevtaskclass'] = spec.prevtaskclass
         return s_state
@@ -470,6 +472,8 @@ class DictionarySerializer(Serializer):
             cls.loopTask = self.deserialize_arg(s_state['loopTask'])
             cls.elementVar = self.deserialize_arg(s_state['elementVar'])
             cls.collection = self.deserialize_arg(s_state['collection'])
+            if s_state.get('expanded',None):
+                cls.expanded = self.deserialize_arg(s_state['expanded'])
 
         self.deserialize_task_spec(wf_spec, s_state, spec=cls)
         return cls
