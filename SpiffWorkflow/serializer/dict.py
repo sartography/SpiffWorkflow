@@ -585,9 +585,19 @@ class DictionarySerializer(Serializer):
         s_state = dict(name=spec.name,
                        description=spec.description,
                        file=spec.file)
+
+        if 'Root' not in spec.task_specs:
+            # This is to fix up the case when we
+            # load in a task spec and there is no root object.
+            # it causes problems when we deserialize and then re-serialize
+            # because the deserialize process adds a root.
+            root = Simple(spec, 'Root')
+            spec.task_specs['Root'] = root
+
         mylista = [v for k, v in list(spec.task_specs.items())]
         mylist = [(k, v.serialize(self))
                                      for k, v in list(spec.task_specs.items())]
+
         s_state['task_specs'] = dict(mylist)
         return s_state
 
