@@ -145,6 +145,7 @@ class DictionarySerializer(Serializer):
         s_state['inputs'] = [t.id for t in spec.inputs]
         s_state['outputs'] = [t.id for t in spec.outputs]
         s_state['data'] = self.serialize_dict(spec.data)
+        s_state['position'] = self.serialize_dict(spec.position)
         if hasattr(spec,'lane'):
             s_state['lane'] = spec.lane
 
@@ -174,6 +175,7 @@ class DictionarySerializer(Serializer):
         if 'lane' in s_state.keys():
             spec.lane = s_state.get('lane',None)
         spec.defines = self.deserialize_dict(s_state.get('defines', {}))
+        spec.position = self.deserialize_dict(s_state.get('position', {}))
         spec.pre_assign = self.deserialize_list(s_state.get('pre_assign', []))
         spec.post_assign = self.deserialize_list(
             s_state.get('post_assign', []))
