@@ -43,9 +43,14 @@ class TestEndEvent(EndEvent):
         my_task.set_data(end_event=self.description)
         super(TestEndEvent, self)._on_complete_hook(my_task)
 
+
+    def serialize(self, serializer):
+        return serializer.serialize_end_event(self)
+
+
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_generic(wf_spec, s_state, TestEndEvent)
+        return serializer.deserialize_end_event(wf_spec, s_state, TestEndEvent)
 
 
 

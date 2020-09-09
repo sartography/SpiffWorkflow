@@ -33,4 +33,4 @@ class BaseTestCase(BpmnWorkflowTestCase):
         #self.spec = self.load_workflow_spec(
         #    'data/multi_instance_array_parallel.bpmn',
         #    'MultiInstanceArray')
-        self.save_restore_all()
+        self.save_restore()

@@ -389,6 +389,18 @@ class DictionarySerializer(Serializer):
 
 
 
+    def serialize_end_event(self, spec):
+        s_state = self.serialize_task_spec(spec)
+        s_state['is_terminate_event'] = spec.is_terminate_event
+        return s_state
+
+    def deserialize_end_event(self, wf_spec, s_state, cls):
+        terminateEvent = s_state.get('is_terminate_event',None)
+        spec = cls(wf_spec, s_state['name'],terminateEvent)
+        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
+
+
     def serialize_user_task(self, spec):
         s_state = self.serialize_task_spec(spec)
         s_state['form'] = spec.form
@@ -410,12 +422,12 @@ class DictionarySerializer(Serializer):
         s_state['cancel_remaining'] = spec.cancel_remaining
         return s_state
 
-    def deserialize_join(self, wf_spec, s_state):
+    def deserialize_join(self, wf_spec, s_state, cls=Join):
         if isinstance(s_state['threshold'],dict):
             byte_payload = s_state['threshold']['__bytes__']
         else:
             byte_payload = s_state['threshold']
-        spec = Join(wf_spec,
+        spec = cls(wf_spec,
                     s_state['name'],
                     split_task=s_state['split_task'],
                     threshold=pickle.loads(b64decode(byte_payload)),
@@ -603,7 +615,8 @@ class DictionarySerializer(Serializer):
         mylista = [v for k, v in list(spec.task_specs.items())]
         mylist = [(k, v.serialize(self))
                                      for k, v in list(spec.task_specs.items())]
-
+        if hasattr(spec,'end'):
+            s_state['end']=spec.end.id
         s_state['task_specs'] = dict(mylist)
         return s_state
 
@@ -618,7 +631,6 @@ class DictionarySerializer(Serializer):
             self, spec, start_task_spec_state)
         spec.start = start_task_spec
         spec.task_specs['Start'] = start_task_spec
-
         for name, task_spec_state in list(s_state['task_specs'].items()):
             if name == 'Start':
                 continue
@@ -651,6 +663,8 @@ class DictionarySerializer(Serializer):
                                 for t in task_spec.inputs]
             task_spec.outputs = [spec.get_task_spec_from_id(t)
                                  for t in task_spec.outputs]
+        if s_state.get('end', None):
+            spec.end = spec.get_task_spec_from_id(s_state['end'])
 
         assert spec.start is spec.get_task_spec_from_name('Start')
         return spec
