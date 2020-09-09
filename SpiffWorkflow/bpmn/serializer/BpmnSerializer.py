@@ -52,7 +52,8 @@ class BpmnSerializer(spiff_json.JSONSerializer):
         That must be passed in when deserializing the data structure.
         """
         assert isinstance(workflow, BpmnWorkflow)
-        return super().serialize_workflow(workflow, include_spec=True)
+        include_spec = kwargs.get('include_spec',True)
+        return super().serialize_workflow(workflow, include_spec=include_spec)
 
     def serialize_task(self, task, skip_children=False, **kwargs):
         return super().serialize_task(task,

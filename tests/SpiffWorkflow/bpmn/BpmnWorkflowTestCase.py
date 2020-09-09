@@ -86,13 +86,13 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def save_restore(self,spec_from_state=True):
 
-        state = self._get_workflow_state()
+        state = self._get_workflow_state(include_spec=spec_from_state)
         logging.debug('Saving state: %s', state)
         before_dump = self.workflow.get_dump()
         self.restore(state,spec_from_state=spec_from_state)
         # We should still have the same state:
         after_dump = self.workflow.get_dump()
-        after_state = self._get_workflow_state(do_steps=False)
+        after_state = self._get_workflow_state(do_steps=False,include_spec=spec_from_state)
         
         if state != after_state:
             logging.debug("Before save:\n%s", before_dump)
@@ -114,8 +114,8 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         state = self._get_workflow_state()
         return BpmnSerializer().deserialize_workflow(state, workflow_spec=self.spec, read_only=True)
 
-    def _get_workflow_state(self,do_steps=True):
+    def _get_workflow_state(self,do_steps=True,include_spec=True):
         if do_steps:
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
-        return BpmnSerializer().serialize_workflow(self.workflow, include_spec=False)
+        return BpmnSerializer().serialize_workflow(self.workflow, include_spec=include_spec)
