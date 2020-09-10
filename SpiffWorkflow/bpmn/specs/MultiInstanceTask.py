@@ -218,7 +218,16 @@ class MultiInstanceTask(TaskSpec):
         my_task.parent.task_spec.default_task_spec = None
 
         my_task.parent.task_spec.connect(start_gw_spec)
-        my_task.parent.children = [start_gw]
+        # here we had assumed that the only child of the parent was us -
+        # this is an error - we need to find any child of the parent that is us
+        # and replace it with the start gateway.
+        newchildren = []
+        for child in my_task.parent.children:
+            if child == my_task:
+                newchildren.append(start_gw)
+            else:
+                newchildren.append(child)
+        my_task.parent.children = newchildren
         start_gw.parent = my_task.parent
         my_task.parent = start_gw
         start_gw_spec.connect(self)
