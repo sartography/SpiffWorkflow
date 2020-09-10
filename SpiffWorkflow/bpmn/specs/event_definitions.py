@@ -100,6 +100,17 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         self._fire(my_task)
         return True
 
+    @classmethod
+    def deserialize(self, dct):
+        return MessageEventDefinition(dct['message'],dct['payload'])
+
+    def serialize(self):
+        retdict = {}
+        module_name = self.__class__.__module__
+        retdict['classname'] = module_name + '.' + self.__class__.__name__
+        retdict['message'] = self.message
+        retdict['payload'] = self.payload
+        return retdict
 
 class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
     """
@@ -147,6 +158,17 @@ class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         self._fire(my_task)
         return True
 
+    @classmethod
+    def deserialize(self, dct):
+        return SignalEventDefinition(dct['message'])
+
+    def serialize(self):
+        retdict = {}
+        module_name = self.__class__.__module__
+        retdict['classname'] = module_name + '.' + self.__class__.__name__
+        retdict['message'] = self.message
+        return retdict
+
 
 class TimerEventDefinition(CatchingEventDefinition):
     """
@@ -191,3 +213,16 @@ class TimerEventDefinition(CatchingEventDefinition):
         else:
             now = datetime.datetime.now()
         return now > dt
+
+    @classmethod
+    def deserialize(self, dct):
+        return TimerEventDefinition(dct['label'],dct['dateTime'])
+
+    def serialize(self):
+        retdict = {}
+        module_name = self.__class__.__module__
+        retdict['classname'] = module_name + '.' + self.__class__.__name__
+        retdict['label'] = self.label
+        retdict['dateTime'] = self.dateTime
+        return retdict
+

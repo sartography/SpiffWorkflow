@@ -28,6 +28,13 @@ class UserTask(UserTask, BpmnSpecMixin):
     def is_engine_task(self):
         return False
 
+    def serialize(self, serializer):
+        return serializer.serialize_user_task(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_user_task(wf_spec, s_state)
+
 
 class FormField(object):
     def __init__(self, form_type="text"):
@@ -103,14 +110,35 @@ class FormFieldValidation:
 
 
 class Form:
-    def __init__(self):
+    def __init__(self,init=None):
         self.key = ""
         self.fields = []
+        if init:
+            self.from_dict(init)
 
     def add_field(self, field):
         self.fields.append(field)
 
     def jsonable(self):
         return self.__dict__
+
+    def from_dict(self,formdict):
+        self.key = formdict['key']
+        for field in formdict['fields']:
+            if field.get('options',None):
+                newfield = EnumFormField()
+                for option in field['options']:
+                    newfield.add_option(option['id'],option['name'])
+            else:
+                newfield = FormField()
+            newfield.id = field['id']
+            newfield.defaultValue = field['defaultValue']
+            newfield.label = field['label']
+            newfield.type = field['type']
+            for prop in field['properties']:
+                newfield.add_property(prop['id'],prop['value'])
+            for validation in field['validation']:
+                newfield.add_validation(validation['name'],validation['config'])
+            self.add_field(newfield)
 
 

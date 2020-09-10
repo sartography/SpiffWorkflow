@@ -7,11 +7,12 @@ import random
 import string
 from builtins import range
 from uuid import uuid4
-
+import re
 from .ParallelGateway import ParallelGateway
 from ...exceptions import WorkflowException, WorkflowTaskExecException
 from ...operators import valueof, is_number
 from ...specs.base import TaskSpec
+from ...util.impl import get_class
 # Copyright (C) 2020 Sartography
 #
 # This library is free software; you can redistribute it and/or
@@ -39,6 +40,7 @@ def gendict(path, d):
         return d
     else:
         return gendict(path[:-1], {path[-1]: d})
+
 
 
 class MultiInstanceTask(TaskSpec):
@@ -174,6 +176,11 @@ class MultiInstanceTask(TaskSpec):
         if my_task.parent.task_spec.name[:11] == 'Gateway_for':
             LOG.debug("MI Recovering from save/restore")
             return
+        split_n = self._get_count(my_task)
+        expanded = getattr(self, 'expanded', 1)
+        if split_n >= expanded:
+            setattr(self, 'expanded', split_n)
+
         LOG.debug("MI being augmented")
         # build the gateway specs and the tasks.
         # Spiff wants a distinct spec for each task
@@ -227,6 +234,7 @@ class MultiInstanceTask(TaskSpec):
 
     def multiinstance_info(self, my_task):
         split_n = self._get_count(my_task)
+
         runtimes = int(my_task._get_internal_data('runtimes',
                                                   1))  # set a default if not already run
         loop = False
@@ -251,8 +259,17 @@ class MultiInstanceTask(TaskSpec):
         Make sure the task spec tree aligns with our children.
         """
         for x in range(len(my_task.parent.children)-1):
-            new_task_spec = copy.copy(my_task.task_spec)
+            new_task_spec = self._make_new_task_spec(my_task.task_spec,my_task,x)
+            #new_task_spec = copy.copy(my_task.task_spec)
             self.outputs[0].inputs.append(new_task_spec)
+
+    def _make_new_task_spec(self,proto_task_spec,my_task,suffix):
+
+        new_task_spec = copy.copy(proto_task_spec)
+        new_task_spec.name = new_task_spec.name + "_%d" % suffix
+        new_task_spec.id = str(new_task_spec.id) + "_%d" % suffix
+        my_task.workflow.spec.task_specs[new_task_spec.name] = new_task_spec  # add to registry
+        return new_task_spec
 
     def _predict_hook(self, my_task):
 
@@ -323,10 +340,10 @@ class MultiInstanceTask(TaskSpec):
                     # Spiff will actually generate the child when it rolls through and
                     # does a sync children - it is enough at this point to
                     # have the task spec in the right place.
+                    new_task_spec = self._make_new_task_spec(my_task.task_spec,my_task,x)
 
-                    new_task_spec = copy.copy(my_task.task_spec)
                     new_child.task_spec = new_task_spec
-                    new_child.task_spec.id = str(new_task_spec.id) + "_%d"%x
+
                     self.outputs[0].inputs.append(new_task_spec)
                     my_task.parent.children.append(new_child)
                     my_task.parent.task_spec.outputs.append(new_task_spec)
@@ -398,11 +415,7 @@ class MultiInstanceTask(TaskSpec):
                         # Spiff will actually generate the child when it rolls through and
                         # does a sync children - it is enough at this point to
                         # have the task spec in the right place.
-
-                        new_task_spec = copy.copy(proto_task_spec)
-                        new_task_spec.name = new_task_spec.name + "_%d" % x
-                        new_task_spec.id = str(new_task_spec.id) + "_%d" % x
-                        my_task.workflow.spec.task_specs[new_task_spec.name] = new_task_spec # add to registry
+                        new_task_spec = self._make_new_task_spec(proto_task_spec,my_task,x)
                         new_child.task_spec = new_task_spec
                         new_child._set_state(Task.MAYBE)
 
@@ -513,8 +526,18 @@ class MultiInstanceTask(TaskSpec):
             my_task.data[self.elementVar] = element_var_data
 
     def serialize(self, serializer):
+
         return serializer.serialize_multi_instance(self)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_multi_instance(wf_spec, s_state)
+        prevclass = get_class(s_state['prevtaskclass'])
+        spec = getDynamicMIClass(s_state['name'], prevclass)(wf_spec,s_state['name'],s_state['times'])
+        spec.prevtaskclass = s_state['prevtaskclass']
+
+        return serializer.deserialize_multi_instance(wf_spec, s_state, spec)
+
+def getDynamicMIClass(id,prevclass):
+    id = re.sub('(.+)_[0-9]','\\1',id)
+    return type(id + '_class', (
+        MultiInstanceTask, prevclass), {})

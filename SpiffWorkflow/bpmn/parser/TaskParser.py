@@ -24,7 +24,7 @@ import traceback
 from .ValidationException import ValidationException
 from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
-from ..specs.MultiInstanceTask import MultiInstanceTask
+from ..specs.MultiInstanceTask import getDynamicMIClass
 from ...operators import Attrib, PathAttrib
 from .util import xpath_eval, one
 
@@ -148,10 +148,18 @@ class TaskParser(object):
             self.task.isSequential = isSequential
             # add some kind of limits here in terms of what kinds of classes
             # we will allow to be multiinstance
-            self.task.__class__ = type(self.get_id() + '_class', (
-            self.task.__class__, MultiInstanceTask), {})
+
+            self.task.prevtaskclass = self.task.__module__ + "." + self.task.__class__.__name__
+            newtaskclass = getDynamicMIClass(self.get_id(),self.task.__class__)
+            self.task.__class__ = newtaskclass
+            # self.task.__class__ = type(self.get_id() + '_class', (
+            #       MultiInstanceTask,self.task.__class__ ), {})
             self.task.multiInstance = multiinstance
             self.task.isSequential = isSequential
+            if isLoop:
+                self.task.expanded = 25
+            else:
+                self.task.expanded = 1
 
     def parse_node(self):
         """

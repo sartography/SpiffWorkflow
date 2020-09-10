@@ -64,3 +64,13 @@ class IntermediateThrowEvent(Simple, BpmnSpecMixin):
     #         self._update(my_task)
     #         return True
     #     return False
+
+    def serialize(self, serializer):
+        return serializer.serialize_generic_event(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic_event(wf_spec, s_state,IntermediateThrowEvent)
+
+
+

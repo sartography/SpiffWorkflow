@@ -29,3 +29,7 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
             super(BusinessRuleTask, self)._on_complete_hook(my_task)
         except Exception as e:
             raise WorkflowTaskExecException(my_task, str(e))
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic(wf_spec, s_state, BusinessRuleTask)

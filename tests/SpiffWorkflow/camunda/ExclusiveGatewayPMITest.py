@@ -54,7 +54,10 @@ class ExclusiveGatewayPMITest(BaseTestCase):
         if response == 'Yes':
             for i in range(3):
                 task = self.workflow.get_ready_user_tasks()[0]
-                self.assertEqual("GetMoreStuff", task.task_spec.name)
+                if i == 0:
+                    self.assertEqual("GetMoreStuff", task.task_spec.name)
+                else:
+                    self.assertEqual("GetMoreStuff_%d"%(i-1), task.task_spec.name)
 
 
                 task.update_data({"stuff.addstuff": "Stuff %d"%i})

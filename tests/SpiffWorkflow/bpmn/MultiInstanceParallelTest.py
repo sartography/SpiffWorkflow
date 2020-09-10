@@ -26,7 +26,7 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
 
 
     def reload_save_restore(self):
-        self.spec = self.load_workflow1_spec()
+        #self.spec = self.load_workflow1_spec()
         self.save_restore()
 
     def load_workflow1_spec(self):

@@ -22,7 +22,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:
-            self.save_restore()
+            self.save_restore_all()
 
         self.workflow.do_engine_steps()
         tasks = self.workflow.get_tasks(Task.READY)
@@ -84,14 +84,15 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             tasks[0].set_data(**set_attribs)
         tasks[0].complete()
 
-    def save_restore(self):
-        state = self._get_workflow_state()
+    def save_restore(self,spec_from_state=True):
+
+        state = self._get_workflow_state(include_spec=spec_from_state)
         logging.debug('Saving state: %s', state)
         before_dump = self.workflow.get_dump()
-        self.restore(state)
+        self.restore(state,spec_from_state=spec_from_state)
         # We should still have the same state:
         after_dump = self.workflow.get_dump()
-        after_state = self._get_workflow_state(do_steps=False)
+        after_state = self._get_workflow_state(do_steps=False,include_spec=spec_from_state)
         
         if state != after_state:
             logging.debug("Before save:\n%s", before_dump)
@@ -99,18 +100,22 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(before_dump, after_dump)
         self.assertEqual(state, after_state)
-        
-        
-    def restore(self, state):
-        self.workflow = BpmnSerializer().deserialize_workflow(
-            state, workflow_spec=self.spec)
+
+
+    def restore(self, state, spec_from_state=False):
+        if spec_from_state:
+            self.workflow = BpmnSerializer().deserialize_workflow(
+                state, workflow_spec=None)
+        else:
+            self.workflow = BpmnSerializer().deserialize_workflow(
+                state, workflow_spec=self.spec)
 
     def get_read_only_workflow(self):
         state = self._get_workflow_state()
         return BpmnSerializer().deserialize_workflow(state, workflow_spec=self.spec, read_only=True)
 
-    def _get_workflow_state(self,do_steps=True):
+    def _get_workflow_state(self,do_steps=True,include_spec=True):
         if do_steps:
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
-        return BpmnSerializer().serialize_workflow(self.workflow, include_spec=False)
+        return BpmnSerializer().serialize_workflow(self.workflow, include_spec=include_spec)
