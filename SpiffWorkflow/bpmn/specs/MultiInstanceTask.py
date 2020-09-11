@@ -211,13 +211,17 @@ class MultiInstanceTask(TaskSpec):
 
         # Set up the parent task and insert it into the workflow
 
-        my_task.parent.task_spec.outputs = []
+        my_task.parent.task_spec.outputs = [x for x in my_task.parent.task_spec.outputs if x != my_task.task_spec]
         # in the case that our parent is a gateway with a default route,
         # we need to ensure that the default route is empty
         # so that connect can set it up properly
-        my_task.parent.task_spec.default_task_spec = None
-
-        my_task.parent.task_spec.connect(start_gw_spec)
+        if hasattr(my_task.parent.task_spec,'default_task_spec') and \
+                 my_task.parent.task_spec.default_task_spec == my_task.task_spec.name:
+            my_task.parent.task_spec.default_task_spec = None
+            my_task.parent.task_spec.connect(start_gw_spec)
+        else:
+            my_task.parent.task_spec.outputs.append(start_gw_spec)
+            start_gw_spec.inputs.append(my_task.parent.task_spec)
         # here we had assumed that the only child of the parent was us -
         # this is an error - we need to find any child of the parent that is us
         # and replace it with the start gateway.
