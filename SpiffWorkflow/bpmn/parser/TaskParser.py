@@ -156,6 +156,7 @@ class TaskParser(object):
             #       MultiInstanceTask,self.task.__class__ ), {})
             self.task.multiInstance = multiinstance
             self.task.isSequential = isSequential
+            self.task.runorder = 1
             if isLoop:
                 self.task.expanded = 25
             else:

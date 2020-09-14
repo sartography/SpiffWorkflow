@@ -72,6 +72,7 @@ class MultiInstanceTask(TaskSpec):
         self.times = times
         self.elementVar = None
         self.collection = None
+        self.runorder = 1
         self.expanded = 1 # this code never gets run
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
 
@@ -178,8 +179,10 @@ class MultiInstanceTask(TaskSpec):
             return
         split_n = self._get_count(my_task)
         expanded = getattr(self, 'expanded', 1)
+
         if split_n >= expanded:
             setattr(self, 'expanded', split_n)
+
 
         LOG.debug("MI being augmented")
         # build the gateway specs and the tasks.
@@ -249,7 +252,7 @@ class MultiInstanceTask(TaskSpec):
         split_n = self._get_count(my_task)
 
         runtimes = int(my_task._get_internal_data('runtimes',
-                                                  1))  # set a default if not already run
+                                                  self.runorder))  # set a default if not already run
         loop = False
         parallel = False
         sequential = False
@@ -273,7 +276,6 @@ class MultiInstanceTask(TaskSpec):
         """
         for x in range(len(my_task.parent.children)-1):
             new_task_spec = self._make_new_task_spec(my_task.task_spec,my_task,x)
-            #new_task_spec = copy.copy(my_task.task_spec)
             self.outputs[0].inputs.append(new_task_spec)
 
     def _make_new_task_spec(self,proto_task_spec,my_task,suffix):
@@ -281,6 +283,7 @@ class MultiInstanceTask(TaskSpec):
         new_task_spec = copy.copy(proto_task_spec)
         new_task_spec.name = new_task_spec.name + "_%d" % suffix
         new_task_spec.id = str(new_task_spec.id) + "_%d" % suffix
+        new_task_spec.runorder = suffix + 2
         my_task.workflow.spec.task_specs[new_task_spec.name] = new_task_spec  # add to registry
         return new_task_spec
 
@@ -290,7 +293,7 @@ class MultiInstanceTask(TaskSpec):
 
         split_n = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes',
-                                                  1))  # set a default if not already run
+                                                  self.runorder))  # set a default if not already run
 
         my_task._set_internal_data(splits=split_n, runtimes=runtimes)
         if not self.elementVar:
@@ -453,7 +456,7 @@ class MultiInstanceTask(TaskSpec):
     def _on_complete_hook(self, my_task):
         self._check_inputs(my_task)
         runcount = self._get_count(my_task)
-        runtimes = int(my_task._get_internal_data('runtimes', 1))
+        runtimes = int(my_task._get_internal_data('runtimes', self.runorder))
 
         if self.collection is not None:
             colvarname = self.collection.name
