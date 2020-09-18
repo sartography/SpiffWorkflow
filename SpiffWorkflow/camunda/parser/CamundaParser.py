@@ -1,9 +1,9 @@
 from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.camunda.parser.UserTaskParser import UserTaskParser
-from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser, full_tag
+from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser, full_tag
 
 
-class CamundaParser(BpmnDmnParser):
+class CamundaParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
         full_tag('userTask'): (UserTaskParser, UserTask),
     }
