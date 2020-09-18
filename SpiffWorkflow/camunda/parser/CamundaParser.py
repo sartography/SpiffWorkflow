@@ -4,7 +4,7 @@ from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser, full_tag
 
 
 class CamundaParser(BpmnDmnParser):
-    OVERRIDE_PARSER_CLASSES = {F
+    OVERRIDE_PARSER_CLASSES = {
         full_tag('userTask'): (UserTaskParser, UserTask),
     }
 
