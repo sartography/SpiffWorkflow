@@ -41,7 +41,7 @@ class FormField(object):
         self.id = ""
         self.type = form_type
         self.label = ""
-        self.defaultValue = ""
+        self.default_value = ""
         self.properties = []
         self.validation = []
 

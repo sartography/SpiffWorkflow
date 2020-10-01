@@ -69,7 +69,7 @@ class UserTaskSpecTest(unittest.TestCase):
         field1 = FormField(form_type="text")
         field1.id = "quest"
         field1.label = "What is your quest?"
-        field1.defaultValue = "I seek the grail!"
+        field1.default_value = "I seek the grail!"
 
         field2 = EnumFormField()
         field2.id = "color"
@@ -102,7 +102,7 @@ class UserTaskSpecTest(unittest.TestCase):
         expected = {
             "fields": [
                 {
-                    "defaultValue": "I seek the grail!",
+                    "default_value": "I seek the grail!",
                     "label": "What is your quest?",
                     "id": "quest",
                     "properties": [],
@@ -110,7 +110,7 @@ class UserTaskSpecTest(unittest.TestCase):
                     "validation": [],
                 },
                 {
-                    "defaultValue": "",
+                    "default_value": "",
                     "id": "color",
                     "label": "What is your favorite color?",
                     "options": [

@@ -30,6 +30,17 @@ from .util.deep_merge import DeepMerge
 
 LOG = logging.getLogger(__name__)
 
+def updateDotDict(dict,id,value):
+    x = id.split('.')
+    print(x)
+    if len(x) == 1:
+        dict[x[0]]=value
+    elif dict.get(x[0]):
+        dict[x[0]][x[1]] = value
+    else:
+        dict[x[0]] = {x[1]:value}
+
+
 
 class Task(object):
     """
@@ -217,6 +228,11 @@ class Task(object):
             self.task_spec.name,
             self.get_state_name(),
             hex(id(self)))
+
+    def update_data_var(self, fieldid, value):
+        model = {}
+        updateDotDict(model,fieldid, value)
+        self.update_data(model)
 
     def update_data(self, data):
         """

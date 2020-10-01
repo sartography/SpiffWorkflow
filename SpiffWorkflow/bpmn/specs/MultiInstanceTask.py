@@ -9,7 +9,7 @@ from builtins import range
 from uuid import uuid4
 import re
 from .ParallelGateway import ParallelGateway
-from ...exceptions import WorkflowException
+from ...exceptions import WorkflowException, WorkflowTaskExecException
 from ...operators import valueof, is_number
 from ...specs.base import TaskSpec
 from ...util.impl import get_class
@@ -109,7 +109,7 @@ class MultiInstanceTask(TaskSpec):
                            1)  # look for variable in context, if we don't find it, default to 1
         if self.times.name == self.collection.name and type(variable) == type(
             []):
-            raise WorkflowException(self,
+            raise WorkflowTaskExecException(my_task,
                                     'If we are updating a collection, then the collection must be a dictionary.')
 
     def _get_count(self, my_task):
@@ -458,8 +458,11 @@ class MultiInstanceTask(TaskSpec):
             self.times.name == self.collection.name:
             keys = list(collect.keys())
             if len(keys)<runtimes:
-                raise WorkflowException(self,"There is a mismatch between runtimes and the number items in the"
-                                             "collection, please check for empty collection '%s'."%self.collection.name)
+                msg = f"There is a mismatch between runtimes and the number " \
+                      f"items in the collection, please check for empty " \
+                      f"collection {self.collection.name}."
+                raise WorkflowTaskExecException(my_task, msg)
+
             runtimesvar = keys[runtimes - 1]
         else:
             runtimesvar = runtimes
