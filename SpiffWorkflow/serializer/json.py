@@ -31,8 +31,8 @@ def object_hook(dct):
     if '__attrib__' in dct:
         return Attrib(dct['__attrib__'])
 
-    if '__attrib__' in dct:
-        return Form(init=dct['__form__'])
+    if '__form__' in dct:
+        return Form(init=json.loads(dct['__form__']))
 
 
     return dct

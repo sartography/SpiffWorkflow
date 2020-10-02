@@ -462,6 +462,14 @@ class DictionarySerializer(Serializer):
 
     def serialize_multi_instance(self, spec):
         s_state = self.serialize_task_spec(spec)
+        # here we need to add in all of the things that would get serialized
+        # for other classes that the MultiInstance could be -
+        #
+        if hasattr(spec,'form'):
+            s_state['form'] = spec.form
+        if hasattr(spec,'documentation'):
+            s_state['documentation'] = spec.documentation
+
         if isinstance(spec,MultiInstanceTask):
             s_state['collection'] = self.serialize_arg(spec.collection)
             s_state['elementVar'] = self.serialize_arg(spec.elementVar)
@@ -488,6 +496,10 @@ class DictionarySerializer(Serializer):
             cls.collection = self.deserialize_arg(s_state['collection'])
             if s_state.get('expanded',None):
                 cls.expanded = self.deserialize_arg(s_state['expanded'])
+        if s_state.get('form',None):
+            cls.form = s_state['form']
+        if s_state.get('documentation',None):
+            cls.documentation = s_state['documentation']
 
         self.deserialize_task_spec(wf_spec, s_state, spec=cls)
         return cls
