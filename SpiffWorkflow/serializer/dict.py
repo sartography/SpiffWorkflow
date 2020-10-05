@@ -467,8 +467,8 @@ class DictionarySerializer(Serializer):
         #
         if hasattr(spec,'form'):
             s_state['form'] = spec.form
-        #if hasattr(spec,'documentation'):
-        #    s_state['documentation'] = spec.documentation
+        if hasattr(spec,'documentation'):
+            s_state['documentation'] = spec.documentation
 
         if isinstance(spec,MultiInstanceTask):
             s_state['collection'] = self.serialize_arg(spec.collection)
@@ -498,8 +498,9 @@ class DictionarySerializer(Serializer):
                 cls.expanded = self.deserialize_arg(s_state['expanded'])
         if s_state.get('form',None):
             cls.form = s_state['form']
-        #if s_state.get('documentation',None):
-        #    cls.documentation = s_state['documentation']
+
+        if 'documentation' in s_state.keys():
+            cls.documentation = s_state['documentation']
 
         self.deserialize_task_spec(wf_spec, s_state, spec=cls)
         return cls
