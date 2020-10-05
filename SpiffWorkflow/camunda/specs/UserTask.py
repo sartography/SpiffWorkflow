@@ -132,7 +132,7 @@ class Form:
             else:
                 newfield = FormField()
             newfield.id = field['id']
-            newfield.defaultValue = field['default_value']
+            newfield.default_value = field['default_value']
             newfield.label = field['label']
             newfield.type = field['type']
             for prop in field['properties']:
