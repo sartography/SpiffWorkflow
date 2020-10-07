@@ -145,6 +145,8 @@ class DictionarySerializer(Serializer):
         s_state['inputs'] = [t.id for t in spec.inputs]
         s_state['outputs'] = [t.id for t in spec.outputs]
         s_state['data'] = self.serialize_dict(spec.data)
+        if hasattr(spec,'extensions'):
+            s_state['extensions'] = self.serialize_dict(spec.extensions)
         s_state['position'] = self.serialize_dict(spec.position)
         if hasattr(spec,'lane'):
             s_state['lane'] = spec.lane
@@ -171,6 +173,10 @@ class DictionarySerializer(Serializer):
         spec.manual = s_state.get('manual', False)
         spec.internal = s_state.get('internal', False)
         spec.lookahead = s_state.get('lookahead', 2)
+        # I would use the s_state.get('extensions',{}) inside of the deserialize
+        # but many tasks have no extensions on them.
+        if s_state.get('extensions',None) != None:
+            spec.extensions = self.deserialize_dict(s_state['extensions'])
         spec.data = self.deserialize_dict(s_state.get('data', {}))
         if 'lane' in s_state.keys():
             spec.lane = s_state.get('lane',None)
