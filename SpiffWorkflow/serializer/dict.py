@@ -145,6 +145,8 @@ class DictionarySerializer(Serializer):
         s_state['inputs'] = [t.id for t in spec.inputs]
         s_state['outputs'] = [t.id for t in spec.outputs]
         s_state['data'] = self.serialize_dict(spec.data)
+        if hasattr(spec,'documentation'):
+            s_state['documentation'] = spec.documentation
         if hasattr(spec,'extensions'):
             s_state['extensions'] = self.serialize_dict(spec.extensions)
         s_state['position'] = self.serialize_dict(spec.position)
@@ -177,6 +179,9 @@ class DictionarySerializer(Serializer):
         # but many tasks have no extensions on them.
         if s_state.get('extensions',None) != None:
             spec.extensions = self.deserialize_dict(s_state['extensions'])
+        if 'documentation' in s_state.keys():
+            spec.documentation = s_state['documentation']
+
         spec.data = self.deserialize_dict(s_state.get('data', {}))
         if 'lane' in s_state.keys():
             spec.lane = s_state.get('lane',None)
@@ -473,8 +478,6 @@ class DictionarySerializer(Serializer):
         #
         if hasattr(spec,'form'):
             s_state['form'] = spec.form
-        if hasattr(spec,'documentation'):
-            s_state['documentation'] = spec.documentation
 
         if isinstance(spec,MultiInstanceTask):
             s_state['collection'] = self.serialize_arg(spec.collection)
@@ -504,9 +507,6 @@ class DictionarySerializer(Serializer):
                 cls.expanded = self.deserialize_arg(s_state['expanded'])
         if s_state.get('form',None):
             cls.form = s_state['form']
-
-        if 'documentation' in s_state.keys():
-            cls.documentation = s_state['documentation']
 
         self.deserialize_task_spec(wf_spec, s_state, spec=cls)
         return cls
