@@ -258,6 +258,7 @@ class ScriptTaskParser(TaskParser):
     def create_task(self):
         script = self.get_script()
         return self.spec_class(self.spec, self.get_task_spec_name(), script,
+                               lane=self.get_lane(),
                                description=self.node.get('name', None))
 
     def get_script(self):
