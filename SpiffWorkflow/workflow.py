@@ -28,6 +28,7 @@ from .util.compat import mutex
 from .util.event import Event
 from .exceptions import WorkflowException
 from .bpmn.specs.BoundaryEvent import _BoundaryEventParent
+from .bpmn.specs.StartEvent import StartEvent
 from .traversal import follow_tree, flatten
 LOG = logging.getLogger(__name__)
 
@@ -199,31 +200,35 @@ class Workflow(object):
             return True
         return False
 
-    def message_ready(self,message_name,payload):
+    def message(self,message_name,payload):
         message_name_xlate = {}
-        tasks = self.get_tasks(state=Task.READY)
+
+        alltasks = self.get_tasks()
+        tasks = [x for x in alltasks if x.state == x.READY or x.state== x.WAITING]
+        #tasks = self.get_tasks(state=Task.READY)
 
         for task in tasks:
             parent = task.parent
+            if hasattr(task.task_spec,'event_definition'):
+                message_name_xlate[task.task_spec.event_definition.name] = task.task_spec.event_definition.message
             if isinstance(parent.task_spec,_BoundaryEventParent):
                 for sibling in parent.children:
                     if hasattr(sibling.task_spec,'event_definition') \
                        and sibling.task_spec.event_definition is not None:
                         message_name_xlate[sibling.task_spec.event_definition.name] = \
                             sibling.task_spec.event_definition.message
-        if message_name in message_name_xlate:
-            self.task_tree.internal_data['messages'][message_name_xlate[message_name]] = payload
+        if message_name in message_name_xlate.keys() or \
+            message_name in message_name_xlate.values():
+            if message_name in message_name_xlate.keys():
+                message_name = message_name_xlate[message_name]
+            self.task_tree.internal_data['messages'] = self.task_tree.internal_data.get('messages',{}) # ensure
+            self.task_tree.internal_data['messages'][message_name] = payload
+        self.refresh_waiting_tasks()
+        self.do_engine_steps()
+        self.task_tree.internal_data['messages'] = {}
 
 
-    def message(self,message_name,payload):
-        message_name_xlate = {}
-        tasks = self.get_tasks()
-        for task in tasks:
-            if hasattr(task.task_spec,'event_definition') \
-                and task.task_spec.event_definition is not None:
-                message_name_xlate[task.task_spec.event_definition.name] = task.task_spec.event_definition.message
-        if message_name in message_name_xlate:
-            self.task_tree.internal_data['messages'][message_name_xlate[message_name]] = payload
+
 
     def get_nav_list(self):
         """

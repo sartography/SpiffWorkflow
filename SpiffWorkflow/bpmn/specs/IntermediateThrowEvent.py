@@ -36,6 +36,7 @@ class IntermediateThrowEvent(Simple, BpmnSpecMixin):
         """
         super(IntermediateThrowEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
+        self.name = name
 
     def _update_hook(self, my_task):
         target_state = getattr(my_task, '_bpmn_load_target_state', None)
