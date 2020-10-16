@@ -63,7 +63,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
     for Message Events.
     """
 
-    def __init__(self, message,payload=""):
+    def __init__(self, message,payload="",name=""):
         """
         Constructor.
 
@@ -71,6 +71,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         """
         self.message = message
         self.payload = payload
+        self.name = name
 
     def has_fired(self, my_task):
         """
@@ -102,7 +103,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
 
     @classmethod
     def deserialize(self, dct):
-        return MessageEventDefinition(dct['message'],dct['payload'])
+        return MessageEventDefinition(dct['message'],dct['payload'],dct['name'])
 
     def serialize(self):
         retdict = {}
@@ -110,6 +111,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         retdict['classname'] = module_name + '.' + self.__class__.__name__
         retdict['message'] = self.message
         retdict['payload'] = self.payload
+        retdict['name'] = self.name
         return retdict
 
 class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
@@ -118,13 +120,14 @@ class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
     for Message Events.
     """
 
-    def __init__(self, message):
+    def __init__(self, message,name=''):
         """
         Constructor.
 
         :param message: The message to wait for.
         """
         self.message = message
+        self.name = name
         #self.payload = payload
 
     def has_fired(self, my_task):
@@ -160,13 +163,14 @@ class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
 
     @classmethod
     def deserialize(self, dct):
-        return SignalEventDefinition(dct['message'])
+        return SignalEventDefinition(dct['message'],dct['name'])
 
     def serialize(self):
         retdict = {}
         module_name = self.__class__.__module__
         retdict['classname'] = module_name + '.' + self.__class__.__name__
         retdict['message'] = self.message
+        retdict['name'] = self.name
         return retdict
 
 

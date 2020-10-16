@@ -27,6 +27,7 @@ from .task import Task
 from .util.compat import mutex
 from .util.event import Event
 from .exceptions import WorkflowException
+from .bpmn.specs.BoundaryEvent import _BoundaryEventParent
 from .traversal import follow_tree, flatten
 LOG = logging.getLogger(__name__)
 
@@ -197,6 +198,32 @@ class Workflow(object):
         if str == '':
             return True
         return False
+
+    def message_ready(self,message_name,payload):
+        message_name_xlate = {}
+        tasks = self.get_tasks(state=Task.READY)
+
+        for task in tasks:
+            parent = task.parent
+            if isinstance(parent.task_spec,_BoundaryEventParent):
+                for sibling in parent.children:
+                    if hasattr(sibling.task_spec,'event_definition') \
+                       and sibling.task_spec.event_definition is not None:
+                        message_name_xlate[sibling.task_spec.event_definition.name] = \
+                            sibling.task_spec.event_definition.message
+        if message_name in message_name_xlate:
+            self.task_tree.internal_data['messages'][message_name_xlate[message_name]] = payload
+
+
+    def message(self,message_name,payload):
+        message_name_xlate = {}
+        tasks = self.get_tasks()
+        for task in tasks:
+            if hasattr(task.task_spec,'event_definition') \
+                and task.task_spec.event_definition is not None:
+                message_name_xlate[task.task_spec.event_definition.name] = task.task_spec.event_definition.message
+        if message_name in message_name_xlate:
+            self.task_tree.internal_data['messages'][message_name_xlate[message_name]] = payload
 
     def get_nav_list(self):
         """

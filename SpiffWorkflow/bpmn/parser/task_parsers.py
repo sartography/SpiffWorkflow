@@ -320,7 +320,7 @@ class IntermediateCatchEventParser(TaskParser):
             message = messageEventDefinition.get('messageRef')
             if message is None:
                 message = self.node.get('name')
-        return MessageEventDefinition(message)
+        return MessageEventDefinition(message,name=self.process_parser.message_lookup.get(message,''))
 
     def get_signal_event_definition(self, signalEventDefinition):
         """
@@ -337,7 +337,7 @@ class IntermediateCatchEventParser(TaskParser):
             message = signalEventDefinition.get('signalRef')
             if message is None:
                 message = self.node.get('name')
-        return SignalEventDefinition(message)
+        return SignalEventDefinition(message,name=self.process_parser.message_lookup.get(message,''))
 
     def get_timer_event_definition(self, timerEventDefinition):
         """

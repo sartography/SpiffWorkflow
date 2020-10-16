@@ -68,6 +68,7 @@ def follow_tree(tree,output=[],found=set(),level=0,workflow=None):
     from SpiffWorkflow.bpmn.specs.UnstructuredJoin import UnstructuredJoin
     from SpiffWorkflow.bpmn.specs.MultiInstanceTask import MultiInstanceTask
     from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
+    from SpiffWorkflow.bpmn.specs.BoundaryEvent import _BoundaryEventParent
 
     # I had an issue with a test being nondeterministic the yes/no
     # were in an alternate order in some cases. To be 100% correct, this should
@@ -149,6 +150,16 @@ def follow_tree(tree,output=[],found=set(),level=0,workflow=None):
             found.add(tree.id)
             output = follow_tree(link.target_task_spec, output, found, level+1,workflow)
         return output
+
+    if isinstance(tree,_BoundaryEventParent):
+        for task in outputs:
+            link = tree.outgoing_sequence_flows[task]
+            conditional_task_add(tree,output,found,level)
+            if link.target_task_spec.id not in found:
+                found.add(link.target_task_spec.id)
+                output = follow_tree(link.target_task_spec, output, found, level + 1,workflow)
+        return output
+
     # --------------------
     # I need to check and see if we are really using this section
     # It should get here in the case of a normal parallel gateway,
