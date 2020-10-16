@@ -209,7 +209,8 @@ class Workflow(object):
 
         for task in tasks:
             parent = task.parent
-            if hasattr(task.task_spec,'event_definition'):
+            if hasattr(task.task_spec,'event_definition') \
+                and hasattr(task.task_spec.event_definition,'message'):
                 message_name_xlate[task.task_spec.event_definition.name] = task.task_spec.event_definition.message
             if isinstance(parent.task_spec,_BoundaryEventParent):
                 for sibling in parent.children:
