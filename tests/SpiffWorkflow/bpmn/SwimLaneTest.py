@@ -48,6 +48,6 @@ class SwimLaneTest(BpmnWorkflowTestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(NavListExclusiveGatewayTest)
+    return unittest.TestLoader().loadTestsFromTestCase(SwimLaneTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
