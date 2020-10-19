@@ -432,8 +432,10 @@ class IntermediateThrowEventParser(TaskParser):
         message = messageEventDefinition.get(
             'messageRef') if messageEventDefinition is not None else name
 
-        payload = messageEventDefinition.attrib.get('{'+ CAMUNDA_MODEL_NS +'}expression')
-        return MessageEventDefinition(message,payload)
+        payload = messageEventDefinition.attrib.get('{' + CAMUNDA_MODEL_NS + '}expression')
+        resultVar = messageEventDefinition.attrib.get('{' + CAMUNDA_MODEL_NS + '}resultVariable')
+
+        return MessageEventDefinition(message,payload,resultVar=resultVar)
 
 
     def get_signal_event_definition(self, signalEventDefinition):

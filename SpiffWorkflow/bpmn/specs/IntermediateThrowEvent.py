@@ -49,7 +49,7 @@ class IntermediateThrowEvent(Simple, BpmnSpecMixin):
                 return
             # here we diverge from the previous
             # and we just send the message
-            self.event_definition._send_message(my_task)
+            self.event_definition._send_message(my_task,self.event_definition.resultVar)
             # if we throw the message, then we need to be completed.
             if not my_task.state == Task.READY:
                 my_task._set_state(Task.READY)

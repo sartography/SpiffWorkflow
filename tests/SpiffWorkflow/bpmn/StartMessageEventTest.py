@@ -55,12 +55,9 @@ class StartMessageTest(BpmnWorkflowTestCase):
             ready_tasks = self.workflow.get_tasks(Task.READY)
         self.assertEqual(self.workflow.is_completed(),True,'Expected the workflow to be complete at this point')
         self.assertEqual(self.workflow.last_task.data,{'plan_details': 'Best',
-                                                       #'Event_GotRequest_Response': 'Best',
-                                                       #'approved': 'Yes',
-                                                       'Event_GetRequest_Response': 'Yes',
+                                                       'ApprovalResult': 'Yes',
                                                        'Done': 'OK!',
-                                                       'end_event': None}
-)
+                                                       'end_event': None})
 
 
 def suite():

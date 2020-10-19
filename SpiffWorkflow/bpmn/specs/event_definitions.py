@@ -63,7 +63,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
     for Message Events.
     """
 
-    def __init__(self, message,payload="",name=""):
+    def __init__(self, message,payload="",name="",resultVar=None):
         """
         Constructor.
 
@@ -71,6 +71,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         """
         self.message = message
         self.payload = payload
+        self.resultVar = resultVar
         self.name = name
 
     def has_fired(self, my_task):
@@ -87,9 +88,9 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
             del(waiting_messages[self.message])
             return evaledpayload
 
-    def _send_message(self, my_task):
+    def _send_message(self, my_task,resultVar):
         payload = PythonScriptEngine().evaluate(self.payload, **my_task.data)
-        my_task.workflow.message(self.message,payload,prevtask=my_task)
+        my_task.workflow.message(self.message,payload,resultVar=resultVar)
         return True
 
     def _accept_message(self, my_task, message):
@@ -100,7 +101,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
 
     @classmethod
     def deserialize(self, dct):
-        return MessageEventDefinition(dct['message'],dct['payload'],dct['name'])
+        return MessageEventDefinition(dct['message'],dct['payload'],dct['name'],dct['resultVar'])
 
     def serialize(self):
         retdict = {}
@@ -108,6 +109,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         retdict['classname'] = module_name + '.' + self.__class__.__name__
         retdict['message'] = self.message
         retdict['payload'] = self.payload
+        retdict['resultVar'] = self.resultVar
         retdict['name'] = self.name
         return retdict
 
