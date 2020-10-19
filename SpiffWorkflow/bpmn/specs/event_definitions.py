@@ -89,7 +89,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
 
     def _send_message(self, my_task):
         payload = PythonScriptEngine().evaluate(self.payload, **my_task.data)
-        my_task.workflow.message(self.message,payload)
+        my_task.workflow.message(self.message,payload,prevtask=my_task)
         return True
 
     def _accept_message(self, my_task, message):

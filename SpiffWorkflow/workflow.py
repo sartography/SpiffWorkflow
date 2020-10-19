@@ -200,7 +200,7 @@ class Workflow(object):
             return True
         return False
 
-    def message(self,message_name,payload):
+    def message(self,message_name,payload,prevtask=None):
         message_name_xlate = {}
 
         alltasks = self.get_tasks()
@@ -224,6 +224,8 @@ class Workflow(object):
                 message_name = message_name_xlate[message_name]
             self.task_tree.internal_data['messages'] = self.task_tree.internal_data.get('messages',{}) # ensure
             self.task_tree.internal_data['messages'][message_name] = payload
+        if prevtask is not None:
+            print('yipee')
         self.refresh_waiting_tasks()
         self.do_engine_steps()
         self.task_tree.internal_data['messages'] = {}
