@@ -214,8 +214,8 @@ class PythonExpressionTest(BpmnWorkflowTestCase):
         self.assertEqual(x, False)
 
 
-    def suite():
-        return unittest.TestLoader().loadTestsFromTestCase(PythonExpressionTest)
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(PythonExpressionTest)
 
-    if __name__ == '__main__':
-        unittest.TextTestRunner(verbosity=2).run(suite())
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity=2).run(suite())
