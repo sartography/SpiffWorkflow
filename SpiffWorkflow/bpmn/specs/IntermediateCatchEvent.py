@@ -42,8 +42,12 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
         target_state = getattr(my_task, '_bpmn_load_target_state', None)
         message = self.event_definition._message_ready(my_task)
         if message:
+            if message[1] != None:
+                resultVar = message[1]
+            else:
+                resultVar = my_task.task_spec.name + '_Response'
             my_task.data = my_task.workflow.last_task.data
-            my_task.data[my_task.task_spec.name+'_Response'] = message
+            my_task.data[resultVar] = message[0]
             like_me = my_task.workflow.get_tasks_from_spec_name(my_task.task_spec.name)
             #self.accept_message(my_task,self.event_definition.message)
             #self._on_complete_hook(my_task)

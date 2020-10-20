@@ -63,7 +63,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
     for Message Events.
     """
 
-    def __init__(self, message,payload="",name=""):
+    def __init__(self, message,payload="",name="",resultVar=None):
         """
         Constructor.
 
@@ -71,6 +71,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         """
         self.message = message
         self.payload = payload
+        self.resultVar = resultVar
         self.name = name
 
     def has_fired(self, my_task):
@@ -86,13 +87,11 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
             evaledpayload = waiting_messages[self.message]
             del(waiting_messages[self.message])
             return evaledpayload
+        return False
 
-    def _send_message(self, my_task):
-        if (my_task.workflow.task_tree.internal_data.get('messages')) is None:
-            my_task.workflow.task_tree.internal_data['messages'] = {}
-        my_task.workflow.task_tree.internal_data['messages'][self.message] = PythonScriptEngine().evaluate(self.payload,
-                                                                                                  **my_task.data)
-        #self.message.send(self.payload)
+    def _send_message(self, my_task,resultVar):
+        payload = PythonScriptEngine().evaluate(self.payload, **my_task.data)
+        my_task.workflow.message(self.message,payload,resultVar=resultVar)
         return True
 
     def _accept_message(self, my_task, message):
@@ -103,7 +102,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
 
     @classmethod
     def deserialize(self, dct):
-        return MessageEventDefinition(dct['message'],dct['payload'],dct['name'])
+        return MessageEventDefinition(dct['message'],dct['payload'],dct['name'],dct['resultVar'])
 
     def serialize(self):
         retdict = {}
@@ -111,6 +110,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         retdict['classname'] = module_name + '.' + self.__class__.__name__
         retdict['message'] = self.message
         retdict['payload'] = self.payload
+        retdict['resultVar'] = self.resultVar
         retdict['name'] = self.name
         return retdict
 
@@ -139,20 +139,12 @@ class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
 
     def _message_ready(self, my_task):
         waiting_messages = my_task.workflow.task_tree.internal_data.get('signals',{})
-        if (self.message in waiting_messages.keys()):
-            #evaledpayload = waiting_messages[self.message]
-            #del(waiting_messages[self.message])
-            return True
+        if (self.message in waiting_messages.keys()) :
+            return (self.message,None)
         return False
 
     def _send_message(self, my_task):
-        if (my_task.workflow.task_tree.internal_data.get('signals')) is None:
-            my_task.workflow.task_tree.internal_data['signals'] = {}
-        my_task.workflow.task_tree.internal_data['signals'][self.message] = True
-        #my_task.workflow.task_tree.internal_data['messages'][self.message] = PythonScriptEngine().evaluate(
-            # self.payload,
-         #                                                                                         **my_task.data)
-        #self.message.send(None)
+        my_task.workflow.signal(self.message)
         return True
 
     def _accept_message(self, my_task, message):

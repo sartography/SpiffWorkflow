@@ -36,6 +36,7 @@ class IntermediateThrowEvent(Simple, BpmnSpecMixin):
         """
         super(IntermediateThrowEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
+        self.name = name
 
     def _update_hook(self, my_task):
         target_state = getattr(my_task, '_bpmn_load_target_state', None)
@@ -48,7 +49,10 @@ class IntermediateThrowEvent(Simple, BpmnSpecMixin):
                 return
             # here we diverge from the previous
             # and we just send the message
-            self.event_definition._send_message(my_task)
+            if hasattr(self.event_definition,'resultVar'):
+                self.event_definition._send_message(my_task, self.event_definition.resultVar)
+            else:
+                self.event_definition._send_message(my_task)
             # if we throw the message, then we need to be completed.
             if not my_task.state == Task.READY:
                 my_task._set_state(Task.READY)

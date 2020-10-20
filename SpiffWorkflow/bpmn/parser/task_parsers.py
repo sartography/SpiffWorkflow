@@ -428,10 +428,14 @@ class IntermediateThrowEventParser(TaskParser):
         MessageEventDefinition
         """
         #messageRef = first(self.xpath('.//bpmn:messageEventDefinition'))
+        name = self.node.get('name')
         message = messageEventDefinition.get(
-            'messageRef') if messageEventDefinition is not None else self.node.get('name')
-        payload = messageEventDefinition.attrib.get('{'+ CAMUNDA_MODEL_NS +'}expression')
-        return MessageEventDefinition(message,payload)
+            'messageRef') if messageEventDefinition is not None else name
+
+        payload = messageEventDefinition.attrib.get('{' + CAMUNDA_MODEL_NS + '}expression')
+        resultVar = messageEventDefinition.attrib.get('{' + CAMUNDA_MODEL_NS + '}resultVariable')
+
+        return MessageEventDefinition(message,payload,resultVar=resultVar)
 
 
     def get_signal_event_definition(self, signalEventDefinition):
