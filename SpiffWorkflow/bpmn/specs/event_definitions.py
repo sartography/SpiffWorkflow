@@ -87,6 +87,7 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
             evaledpayload = waiting_messages[self.message]
             del(waiting_messages[self.message])
             return evaledpayload
+        return False
 
     def _send_message(self, my_task,resultVar):
         payload = PythonScriptEngine().evaluate(self.payload, **my_task.data)
@@ -139,19 +140,11 @@ class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
     def _message_ready(self, my_task):
         waiting_messages = my_task.workflow.task_tree.internal_data.get('signals',{})
         if (self.message in waiting_messages.keys()) :
-            #evaledpayload = waiting_messages[self.message]
-            #del(waiting_messages[self.message])
-            return True
+            return (self.message,None)
         return False
 
     def _send_message(self, my_task):
-        if (my_task.workflow.task_tree.internal_data.get('signals')) is None:
-            my_task.workflow.task_tree.internal_data['signals'] = {}
-        my_task.workflow.task_tree.internal_data['signals'][self.message] = []
-        #my_task.workflow.task_tree.internal_data['messages'][self.message] = PythonScriptEngine().evaluate(
-            # self.payload,
-         #                                                                                         **my_task.data)
-        #self.message.send(None)
+        my_task.workflow.signal(self.message)
         return True
 
     def _accept_message(self, my_task, message):
