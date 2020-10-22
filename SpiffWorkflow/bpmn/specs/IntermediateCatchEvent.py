@@ -49,8 +49,6 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
             my_task.data = my_task.workflow.last_task.data
             my_task.data[resultVar] = message[0]
             like_me = my_task.workflow.get_tasks_from_spec_name(my_task.task_spec.name)
-            #self.accept_message(my_task,self.event_definition.message)
-            #self._on_complete_hook(my_task)
             my_task.children = []
             my_task._sync_children(my_task.task_spec.outputs)
             super(IntermediateCatchEvent, self)._update_hook(my_task)
