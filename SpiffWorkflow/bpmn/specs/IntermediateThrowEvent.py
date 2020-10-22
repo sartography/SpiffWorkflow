@@ -56,18 +56,9 @@ class IntermediateThrowEvent(Simple, BpmnSpecMixin):
             # if we throw the message, then we need to be completed.
             if not my_task.state == Task.READY:
                 my_task._set_state(Task.READY)
-                #if not my_task.workflow._is_busy_with_restore():
-                #    self.entering_waiting_state(my_task)
 
     def _on_ready_hook(self, my_task):
         self._predict(my_task)
-
-    # def accept_message(self, my_task, message):
-    #     if (my_task.state == Task.WAITING and
-    #             self.event_definition._accept_message(my_task, message)):
-    #         self._update(my_task)
-    #         return True
-    #     return False
 
     def serialize(self, serializer):
         return serializer.serialize_generic_event(self)
