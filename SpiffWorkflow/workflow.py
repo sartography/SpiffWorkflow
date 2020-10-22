@@ -226,11 +226,6 @@ class Workflow(object):
             self.task_tree.internal_data['messages'][message_name] = (payload,resultVar)
         self.refresh_waiting_tasks()
         self.do_engine_steps()
-        for task in tasks:
-            if isinstance(task.task_spec,BoundaryEvent) and \
-                task.state == Task.COMPLETED:
-                task._setstate(Task.WAITING,force=True)
-
         self.task_tree.internal_data['messages'] = {}
 
 
@@ -260,10 +255,6 @@ class Workflow(object):
             self.task_tree.internal_data['signals'][message_name] = True
         self.refresh_waiting_tasks()
         self.do_engine_steps()
-        for task in tasks:
-            if isinstance(task.task_spec,BoundaryEvent) and \
-                task.state == Task.COMPLETED:
-                task._setstate(Task.WAITING,force=True)
         self.task_tree.internal_data['signals'] = {}
 
 
