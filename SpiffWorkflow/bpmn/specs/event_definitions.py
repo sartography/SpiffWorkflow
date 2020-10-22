@@ -128,7 +128,7 @@ class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         """
         self.message = message
         self.name = name
-        #self.payload = payload
+
 
     def has_fired(self, my_task):
         """
