@@ -204,7 +204,8 @@ class Workflow(object):
         message_name_xlate = {}
 
         alltasks = self.get_tasks()
-        tasks = [x for x in alltasks if x.state == x.READY or x.state== x.WAITING]
+        tasks = [x for x in alltasks if (x.state == x.READY or x.state== x.WAITING or x.state==x.COMPLETED) and
+                 hasattr(x.task_spec,'event_definition')]
         #tasks = self.get_tasks(state=Task.READY)
 
         for task in tasks:
@@ -218,6 +219,11 @@ class Workflow(object):
                        and sibling.task_spec.event_definition is not None:
                         message_name_xlate[sibling.task_spec.event_definition.name] = \
                             sibling.task_spec.event_definition.message
+                        # doing this for the case that we have triggered the event and it is now completed
+                        # but the task is still active, so we would like to be able to re-trigger the event
+                        if task.state == Task.COMPLETED:
+                            task._setstate(Task.WAITING, force=True)
+
         if message_name in message_name_xlate.keys() or \
             message_name in message_name_xlate.values():
             if message_name in message_name_xlate.keys():
@@ -234,7 +240,8 @@ class Workflow(object):
         message_name_xlate = {}
 
         alltasks = self.get_tasks()
-        tasks = [x for x in alltasks if x.state == x.READY or x.state== x.WAITING]
+        tasks = [x for x in alltasks if (x.state == x.READY or x.state== x.WAITING or x.state==x.COMPLETED)
+                 and hasattr(x.task_spec,'event_definition')]
         #tasks = self.get_tasks(state=Task.READY)
         for task in tasks:
             parent = task.parent
@@ -247,6 +254,10 @@ class Workflow(object):
                        and sibling.task_spec.event_definition is not None:
                         message_name_xlate[sibling.task_spec.event_definition.name] = \
                             sibling.task_spec.event_definition.message
+                        # doing this for the case that we have triggered the event and it is now completed
+                        # but the task is still active, so we would like to be able to re-trigger the event
+                        if task.state == Task.COMPLETED:
+                            task._setstate(Task.WAITING, force=True)
         if message_name in message_name_xlate.keys() or \
             message_name in message_name_xlate.values():
             if message_name in message_name_xlate.keys():
