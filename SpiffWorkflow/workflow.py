@@ -204,8 +204,8 @@ class Workflow(object):
         message_name_xlate = {}
 
         alltasks = self.get_tasks()
-        tasks = [x for x in alltasks if (x.state == x.READY or x.state== x.WAITING or x.state==x.COMPLETED) and
-                 hasattr(x.task_spec,'event_definition')]
+        tasks = [x for x in alltasks if (x.state == x.READY or x.state== x.WAITING or x.state==x.COMPLETED)
+                 and hasattr(x.parent,'task_spec')]
         #tasks = self.get_tasks(state=Task.READY)
 
         for task in tasks:
@@ -221,8 +221,8 @@ class Workflow(object):
                             sibling.task_spec.event_definition.message
                         # doing this for the case that we have triggered the event and it is now completed
                         # but the task is still active, so we would like to be able to re-trigger the event
-                        if task.state == Task.COMPLETED:
-                            task._setstate(Task.WAITING, force=True)
+                        if sibling.state == Task.COMPLETED and task.state == Task.READY:
+                            sibling._setstate(Task.WAITING, force=True)
 
         if message_name in message_name_xlate.keys() or \
             message_name in message_name_xlate.values():
@@ -241,7 +241,7 @@ class Workflow(object):
 
         alltasks = self.get_tasks()
         tasks = [x for x in alltasks if (x.state == x.READY or x.state== x.WAITING or x.state==x.COMPLETED)
-                 and hasattr(x.task_spec,'event_definition')]
+                 and hasattr(x.parent,'task_spec')]
         #tasks = self.get_tasks(state=Task.READY)
         for task in tasks:
             parent = task.parent
@@ -256,8 +256,8 @@ class Workflow(object):
                             sibling.task_spec.event_definition.message
                         # doing this for the case that we have triggered the event and it is now completed
                         # but the task is still active, so we would like to be able to re-trigger the event
-                        if task.state == Task.COMPLETED:
-                            task._setstate(Task.WAITING, force=True)
+                        if sibling.state == Task.COMPLETED and task.state==Task.READY:
+                            sibling._setstate(Task.WAITING, force=True)
         if message_name in message_name_xlate.keys() or \
             message_name in message_name_xlate.values():
             if message_name in message_name_xlate.keys():
