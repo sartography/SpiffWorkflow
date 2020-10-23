@@ -11,7 +11,17 @@ from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
 from SpiffWorkflow.bpmn.DMNPythonScriptEngine import DMNPythonScriptEngine
 
-DMN_NS = 'http://www.omg.org/spec/DMN/20151101/dmn.xsd'
+def get_dmn_ns(node):
+    """
+    Returns the namespace definition for the current DMN
+
+    :param node: the XML node for the DMN document
+    """
+    if 'http://www.omg.org/spec/DMN/20151101/dmn.xsd' in node.nsmap.values():
+        return 'http://www.omg.org/spec/DMN/20151101/dmn.xsd'
+    elif 'https://www.omg.org/spec/DMN/20191111/MODEL/' in node.nsmap.values():
+        return 'https://www.omg.org/spec/DMN/20191111/MODEL/'
+    return None
 
 
 class DMNParser(object):
@@ -41,7 +51,8 @@ class DMNParser(object):
         self.svg = svg
         self.filename = filename
         self.doc_xpath = doc_xpath
-        self.xpath = xpath_eval(self.node, {'dmn': DMN_NS})
+        self.dmn_ns = get_dmn_ns(self.node)
+        self.xpath = xpath_eval(self.node, {'dmn': self.dmn_ns})
         self.scriptEngine = DMNPythonScriptEngine()
 
     def parse(self):
@@ -84,7 +95,7 @@ class DMNParser(object):
         return decision
 
     def _parseDecisionTables(self, decision, decisionElement):
-        xpath = xpath_eval(decisionElement, {'dmn': DMN_NS})
+        xpath = xpath_eval(decisionElement, {'dmn': self.dmn_ns})
         for decisionTableElement in xpath('dmn:decisionTable'):
             decisionTable = DecisionTable(decisionTableElement.attrib['id'],
                                           decisionTableElement.attrib.get(
@@ -112,7 +123,7 @@ class DMNParser(object):
 
     def _parseInput(self, inputElement):
         typeRef = None
-        xpath = xpath_eval(inputElement, {'dmn': DMN_NS})
+        xpath = xpath_eval(inputElement, {'dmn': self.dmn_ns})
         for inputExpression in xpath('dmn:inputExpression'):
 
             typeRef = inputExpression.attrib.get('typeRef', '')
@@ -121,7 +132,7 @@ class DMNParser(object):
             if engine == 'feel':
                 scriptEngine = FeelLikeScriptEngine()
 
-            expressionNode = inputExpression.find('{' + DMN_NS + '}text')
+            expressionNode = inputExpression.find('{' + self.dmn_ns + '}text')
             if expressionNode is not None:
                 expression = expressionNode.text
             else:
