@@ -46,18 +46,11 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
                 resultVar = message[1]
             else:
                 resultVar = my_task.task_spec.name + '_Response'
-            my_task.data = my_task.workflow.last_task.data
             my_task.data[resultVar] = message[0]
-            like_me = my_task.workflow.get_tasks_from_spec_name(my_task.task_spec.name)
+            # this next line actually matters for some start events.
             my_task.children = []
             my_task._sync_children(my_task.task_spec.outputs)
             super(IntermediateCatchEvent, self)._update_hook(my_task)
-            data = my_task.data
-            # the update loop on all waiting tasks copies the information
-            # from their parents. I'm not sure what the ramifications are if I
-            # disable that.
-            for task in like_me:
-                task.parent.data = data
         elif target_state == Task.READY or (
                 not my_task.workflow._is_busy_with_restore() and
                 self.event_definition.has_fired(my_task)):
