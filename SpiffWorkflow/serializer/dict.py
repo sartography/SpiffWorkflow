@@ -145,6 +145,10 @@ class DictionarySerializer(Serializer):
         s_state['inputs'] = [t.id for t in spec.inputs]
         s_state['outputs'] = [t.id for t in spec.outputs]
         s_state['data'] = self.serialize_dict(spec.data)
+        if hasattr(spec,'documentation'):
+            s_state['documentation'] = spec.documentation
+        if hasattr(spec,'extensions'):
+            s_state['extensions'] = self.serialize_dict(spec.extensions)
         s_state['position'] = self.serialize_dict(spec.position)
         if hasattr(spec,'lane'):
             s_state['lane'] = spec.lane
@@ -171,6 +175,13 @@ class DictionarySerializer(Serializer):
         spec.manual = s_state.get('manual', False)
         spec.internal = s_state.get('internal', False)
         spec.lookahead = s_state.get('lookahead', 2)
+        # I would use the s_state.get('extensions',{}) inside of the deserialize
+        # but many tasks have no extensions on them.
+        if s_state.get('extensions',None) != None:
+            spec.extensions = self.deserialize_dict(s_state['extensions'])
+        if 'documentation' in s_state.keys():
+            spec.documentation = s_state['documentation']
+
         spec.data = self.deserialize_dict(s_state.get('data', {}))
         if 'lane' in s_state.keys():
             spec.lane = s_state.get('lane',None)
@@ -462,6 +473,12 @@ class DictionarySerializer(Serializer):
 
     def serialize_multi_instance(self, spec):
         s_state = self.serialize_task_spec(spec)
+        # here we need to add in all of the things that would get serialized
+        # for other classes that the MultiInstance could be -
+        #
+        if hasattr(spec,'form'):
+            s_state['form'] = spec.form
+
         if isinstance(spec,MultiInstanceTask):
             s_state['collection'] = self.serialize_arg(spec.collection)
             s_state['elementVar'] = self.serialize_arg(spec.elementVar)
@@ -488,6 +505,8 @@ class DictionarySerializer(Serializer):
             cls.collection = self.deserialize_arg(s_state['collection'])
             if s_state.get('expanded',None):
                 cls.expanded = self.deserialize_arg(s_state['expanded'])
+        if s_state.get('form',None):
+            cls.form = s_state['form']
 
         self.deserialize_task_spec(wf_spec, s_state, spec=cls)
         return cls

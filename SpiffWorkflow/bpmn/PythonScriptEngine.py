@@ -41,8 +41,10 @@ class PythonScriptEngine(object):
     provide a specialised subclass that parses and executes the scripts /
     expressions in a mini-language of your own.
     """
-    def __init__(self):
-        pass
+    def __init__(self,scriptingAdditions = {}):
+        self.globals = {'timedelta':timedelta,
+                         'datetime':datetime}
+        self.globals.update(scriptingAdditions)
 
     def validateExpression (self,text):
         if text is None:
@@ -94,8 +96,7 @@ class PythonScriptEngine(object):
         """
 
 
-        globals = {'timedelta':timedelta,
-                   'datetime':datetime}
+        globals = self.globals
 
         for x in data.keys():
             if isinstance(data[x],dict):
