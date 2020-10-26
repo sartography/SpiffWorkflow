@@ -31,6 +31,9 @@ class UserTaskSpecTest(unittest.TestCase):
     def test_set_form(self):
         self.assertEqual(self.form, self.user_spec.form)
 
+    def testSerialize(self):
+        pass
+
     def test_text_field(self):
         form_field = FormField(form_type="text")
         form_field.id = "1234"
