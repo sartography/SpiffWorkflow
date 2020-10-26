@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191112/MODEL/" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <decision id="ListDecisionStringOutputTable" name="ListDecisionStringOutput">
+    <decisionTable id="decisionTable">
+      <input id="input1" label="allergies">
+        <inputExpression id="inputExpression1" typeRef="string">
+          <text></text>
+        </inputExpression>
+      </input>
+      <output id="output1" label="Result" name="" typeRef="string" />
+      <rule id="row-484867957-5">
+        <description>They are allergic to peanuts</description>
+        <inputEntry id="UnaryTests_148tr41">
+          <description>mGender Description</description>
+          <text>"PEANUTS" in ?</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0dvud7t">
+          <text>"isPeanuts"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_03tv1cj">
+        <description>They are not allergic to peanuts</description>
+        <inputEntry id="UnaryTests_0jrbm9a">
+          <text>"PEANUTS" not in ?</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0irzqma">
+          <text>"IsNotPeanuts"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>
