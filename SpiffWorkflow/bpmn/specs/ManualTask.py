@@ -25,5 +25,10 @@ from .UserTask import UserTask
 
 class ManualTask(Simple, BpmnSpecMixin):
 
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic(wf_spec, s_state, ManualTask)
+
+
     def is_engine_task(self):
         return False

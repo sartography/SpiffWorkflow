@@ -43,6 +43,7 @@ class StartEventParser(TaskParser):
         if (len(isMessageCatchingEvent) > 0)\
                 or (len(isSignalCatchingEvent) > 0):
             # we need to fix this up to wait on an event
+
             self.__class__ = type(self.get_id() + '_class', (
             self.__class__, IntermediateCatchEventParser), {})
             self.spec_class = IntermediateCatchEvent
@@ -67,6 +68,11 @@ class EndEventParser(TaskParser):
 
         terminateEventDefinition = self.xpath(
             './/bpmn:terminateEventDefinition')
+        if terminateEventDefinition:
+            terminateEventDefinition = True  # here it is just assigning the lxml object, I couldn't see where it was
+            # ever using this other than just a boolean
+        else:
+            terminateEventDefinition = False
         task = self.spec_class(self.spec, self.get_task_spec_name(),
                                is_terminate_event=terminateEventDefinition,
                                description=self.node.get('name', None))

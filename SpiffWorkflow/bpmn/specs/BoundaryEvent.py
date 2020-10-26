@@ -61,6 +61,12 @@ class _BoundaryEventParent(BpmnSpecMixin):
         return (issubclass(task_spec.__class__, BoundaryEvent) and
                 task_spec._cancel_activity)
 
+    def serialize(self, serializer):
+        return serializer.serialize_boundary_event_parent(self)
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_boundary_event_parent(wf_spec, s_state, _BoundaryEventParent)
+
 
 class BoundaryEvent(IntermediateCatchEvent):
     """
@@ -77,3 +83,9 @@ class BoundaryEvent(IntermediateCatchEvent):
         super(BoundaryEvent, self).__init__(
             wf_spec, name, event_definition=event_definition, **kwargs)
         self._cancel_activity = cancel_activity
+
+    def serialize(self, serializer):
+        return serializer.serialize_boundary_event(self)
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_boundary_event(wf_spec, s_state, BoundaryEvent)

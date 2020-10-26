@@ -49,3 +49,7 @@ class ParallelGateway(UnstructuredJoin):
         # If the threshold was reached, get ready to fire.
         return (force or len(completed_inputs) >= len(self.inputs),
                 waiting_tasks)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic(wf_spec, s_state, ParallelGateway)

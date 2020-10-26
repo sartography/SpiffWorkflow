@@ -29,7 +29,7 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.filename = 'resetworkflowB-*.bpmn'
         self.spec = self.load_workflow1_spec()
         self.workflow.do_engine_steps()
-        self.save_restore()
+        self.save_restore(spec_from_state=False)
 
     def load_workflow1_spec(self):
         return self.load_workflow_spec(self.filename, self.process_name)

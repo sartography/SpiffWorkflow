@@ -49,7 +49,7 @@ class ResetTokenTestMIParallel(BaseTestCase):
             task = self.workflow.get_ready_user_tasks()[0]
             if firsttaskid == None and step['taskname']=='FormA':
                 firsttaskid = task.id
-            self.assertEqual(step['taskname'], task.task_spec.name)
+            self.assertEqual(step['taskname'], task.task_spec.name[:len(step['taskname'])])
             task.update_data(step['task_data'])
             self.workflow.complete_task_from_id(task.id)
             self.workflow.do_engine_steps()

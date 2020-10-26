@@ -522,8 +522,11 @@ class XmlSerializer(Serializer):
         self.serialize_value(SubElement(elem, 'times'), spec.times)
         return self.serialize_task_spec(spec, elem)
 
-    def deserialize_multi_instance(self, wf_spec, elem, cls=MultiInstance,
+    def deserialize_multi_instance(self, wf_spec, elem, cls=None,
                                    **kwargs):
+        if cls == None:
+            cls = MultiInstance
+            #cls = MultiInstance(wf_spec,elem.find('name'),elem.find('times'))
         times = self.deserialize_value(elem.find('times'))
         return self.deserialize_task_spec(wf_spec, elem, cls, times=times,
                                           **kwargs)

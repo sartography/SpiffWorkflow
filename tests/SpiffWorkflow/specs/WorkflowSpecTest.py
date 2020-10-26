@@ -110,6 +110,8 @@ class WorkflowSpecTest(unittest.TestCase):
         self.assertIn("Found loop with 'First': First->Second then 'First' "
                       "again", results)
 
+    def testGetTaskSpecFromId(self):
+        pass
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(WorkflowSpecTest)

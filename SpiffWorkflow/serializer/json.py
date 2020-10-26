@@ -18,7 +18,8 @@ import json
 import uuid
 from .dict import DictionarySerializer
 from ..operators import Attrib
-
+from SpiffWorkflow.camunda.specs.UserTask import Form
+from ..util.impl import get_class
 
 def object_hook(dct):
     if '__uuid__' in dct:
@@ -30,7 +31,22 @@ def object_hook(dct):
     if '__attrib__' in dct:
         return Attrib(dct['__attrib__'])
 
+    if '__attrib__' in dct:
+        return Form(init=dct['__form__'])
+
+
     return dct
+
+
+def JsonableHandler(Obj):
+    if hasattr(Obj, 'jsonable'):
+        return Obj.jsonable()
+    else:
+        raise 'Object of type %s with value of %s is not JSON serializable' % (
+            type(Obj), repr(Obj))
+
+
+
 
 
 def default(obj):
@@ -42,6 +58,9 @@ def default(obj):
 
     if isinstance(obj, Attrib):
         return {'__attrib__': obj.name}
+
+    if isinstance(obj,Form):
+        return {'__form__': json.dumps(obj, default=JsonableHandler)}
 
     raise TypeError('%r is not JSON serializable' % obj)
 

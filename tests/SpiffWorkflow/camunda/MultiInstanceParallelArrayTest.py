@@ -71,12 +71,12 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
                 self.reload_save_restore()
         tasks = self.workflow.get_ready_user_tasks()
 
-        self.assertEqual(len(tasks),3)
+        self.assertEqual(3,len(tasks))
         # Set the birthdays of the 3 family members.
         for i in range(3): # emulate random Access
             task = random.choice(tasks)
             x = task.internal_data['runtimes'] -1
-            self.assertEqual("FamilyMemberBday", task.task_spec.name)
+            self.assertEqual("FamilyMemberBday", task.task_spec.name[:16])
             self.assertEqual({"FirstName": "The Funk #%i" % x},
                               task.data["CurrentFamilyMember"])
             task.update_data(

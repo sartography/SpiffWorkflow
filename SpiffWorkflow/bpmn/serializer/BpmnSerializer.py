@@ -22,11 +22,11 @@ from io import BytesIO, TextIOWrapper
 from lxml import etree
 import zipfile
 import os
+from json import loads
 
 from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.serializer import json as spiff_json
-
 from ..parser.BpmnParser import BpmnParser
 from .Packager import Packager
 
@@ -45,10 +45,6 @@ class BpmnSerializer(spiff_json.JSONSerializer):
     be passed as an argument when deserializing.
     """
 
-    def serialize_workflow_spec(self, wf_spec, **kwargs):
-        raise NotImplementedError(
-            "The BpmnSerializer class cannot be used to serialize. "
-            "BPMN authoring should be done using a supported editor.")
 
     def serialize_workflow(self, workflow, **kwargs):
         """
@@ -56,7 +52,8 @@ class BpmnSerializer(spiff_json.JSONSerializer):
         That must be passed in when deserializing the data structure.
         """
         assert isinstance(workflow, BpmnWorkflow)
-        return super().serialize_workflow(workflow, include_spec=False)
+        include_spec = kwargs.get('include_spec',True)
+        return super().serialize_workflow(workflow, include_spec=include_spec)
 
     def serialize_task(self, task, skip_children=False, **kwargs):
         return super().serialize_task(task,
@@ -79,6 +76,7 @@ class BpmnSerializer(spiff_json.JSONSerializer):
         if not isinstance(task.task_spec, CallActivity):
             return super()._deserialize_task_children(task, s_state)
         else:
+
             sub_workflow = task.task_spec.create_sub_workflow(task)
             children = []
             for c in s_state['children']:
@@ -111,7 +109,11 @@ class BpmnSerializer(spiff_json.JSONSerializer):
 
         :param filename: the name of the package file.
         """
-        if isinstance(s_state, (str, bytes)):
+        if isinstance(s_state,dict):
+            return super().deserialize_workflow_spec(s_state)
+        if isinstance(s_state,str):
+            return super().deserialize_workflow_spec(s_state)
+        if isinstance(s_state, bytes):
             s_state = BytesIO(s_state)
 
         package_zip = zipfile.ZipFile(
