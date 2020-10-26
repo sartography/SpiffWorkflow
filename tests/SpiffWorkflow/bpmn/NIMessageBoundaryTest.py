@@ -101,6 +101,6 @@ class NIMessageBoundaryTest(BpmnWorkflowTestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(NITimerDurationTest)
+    return unittest.TestLoader().loadTestsFromTestCase(NIMessageBoundaryTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
