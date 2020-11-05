@@ -152,7 +152,7 @@ class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
 
         :param message: The message to wait for.
         """
-        breakpoint()
+        # breakpoint()
         self.message = message
         self.name = name
 
@@ -205,7 +205,7 @@ class CancelEventDefinition(EventBase):
 
         :param event: The event to wait for.
         """
-        breakpoint()
+        # breakpoint()
         self.event = event
         self.name = name
 
