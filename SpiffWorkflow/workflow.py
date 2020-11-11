@@ -144,7 +144,6 @@ class Workflow(object):
         :param success: Whether the Workflow should be marked as successfully
                         completed.
         """
-        breakpoint()
         self.success = success
         cancel = []
         mask = Task.NOT_FINISHED_MASK
@@ -257,18 +256,8 @@ class Workflow(object):
         self.task_tree.internal_data['signals'] = {}
 
     def cancel_notify(self):
-        # breakpoint()
-        # event_name_xlate = self.get_message_name_xlate()
-
-        # for event in self.get_tasks():
-        #     print(type(event))
-        #     # if isinstance()
-
-        # if event_name in event_name_xlate.keys() or \
-        #     event_name in event_name_xlate.values():
-        #     if event_name in event_name_xlate.keys():
-        #         event_name = event_name_xlate[event_name]
-        self.task_tree.internal_data['cancels'] = self.task_tree.internal_data.get('cancels',{}) # ensure
+        self.task_tree.internal_data['cancels'] = \
+                self.task_tree.internal_data.get('cancels', {})  # ensure
         self.task_tree.internal_data['cancels']['TokenReset'] = True
         self.refresh_waiting_tasks()
         self.do_engine_steps()
