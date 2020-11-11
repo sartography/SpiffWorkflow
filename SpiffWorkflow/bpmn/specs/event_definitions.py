@@ -193,31 +193,60 @@ class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         return retdict
 
 
-class CancelEventDefinition(EventBase):
+class CancelEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
     """
     The MessageEventDefinition is the implementation of event definition used
     for Message Events.
     """
 
-    def __init__(self, event,name=''):
+    def __init__(self, message,name=''):
         """
         Constructor.
 
-        :param event: The event to wait for.
+        :param message: The message to wait for.
         """
         # breakpoint()
-        self.event = event
+        self.message = message
         self.name = name
+
+    def has_fired(self, my_task):
+        """
+        Returns true if the message was received while the task was in a
+        WAITING state.
+        """
+        return my_task._get_internal_data('event_fired', False)
+
+    def _event_ready(self, my_task):
+        waiting_events = my_task.workflow.task_tree.internal_data.get('cancels', {})
+        if (self.event in waiting_events.keys()):
+            evaledpayload = waiting_events[self.event]
+            del(waiting_events[self.event])
+            return evaledpayload
+        return False
+
+    # def _send_message(self, my_task,resultVar):
+    #     payload = PythonScriptEngine().evaluate(self.payload, **my_task.data)
+    #     my_task.workflow.message(self.message,payload,resultVar=resultVar)
+    #     return True
+    def _send_message(self, my_task):
+        my_task.workflow.cancel_notify(self.message)
+        return True
+
+    def _accept_message(self, my_task, message):
+        if message != self.message:
+            return False
+        self._fire(my_task)
+        return True
 
     @classmethod
     def deserialize(self, dct):
-        return SignalEventDefinition(dct['event'],dct['name'])
+        return SignalEventDefinition(dct['message'],dct['name'])
 
     def serialize(self):
         retdict = {}
         module_name = self.__class__.__module__
         retdict['classname'] = module_name + '.' + self.__class__.__name__
-        retdict['event'] = self.event
+        retdict['message'] = self.message
         retdict['name'] = self.name
         return retdict
 

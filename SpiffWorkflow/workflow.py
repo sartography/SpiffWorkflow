@@ -144,6 +144,7 @@ class Workflow(object):
         :param success: Whether the Workflow should be marked as successfully
                         completed.
         """
+        breakpoint()
         self.success = success
         cancel = []
         mask = Task.NOT_FINISHED_MASK
@@ -239,9 +240,8 @@ class Workflow(object):
         self.do_engine_steps()
         self.task_tree.internal_data['messages'] = {}
 
-
-
-    def signal(self,message_name):
+    def signal(self, message_name):
+        # breakpoint()
         message_name_xlate = self.get_message_name_xlate()
 
         if message_name in message_name_xlate.keys() or \
@@ -250,10 +250,29 @@ class Workflow(object):
                 message_name = message_name_xlate[message_name]
             self.task_tree.internal_data['signals'] = self.task_tree.internal_data.get('signals',{}) # ensure
             self.task_tree.internal_data['signals'][message_name] = True
+        LOG.debug("signal Workflow instance: %s" % self.task_tree.internal_data)
         self.refresh_waiting_tasks()
+        LOG.debug("signal Workflow instance: %s" % self.task_tree.internal_data)
         self.do_engine_steps()
         self.task_tree.internal_data['signals'] = {}
 
+    def cancel_notify(self):
+        # breakpoint()
+        # event_name_xlate = self.get_message_name_xlate()
+
+        # for event in self.get_tasks():
+        #     print(type(event))
+        #     # if isinstance()
+
+        # if event_name in event_name_xlate.keys() or \
+        #     event_name in event_name_xlate.values():
+        #     if event_name in event_name_xlate.keys():
+        #         event_name = event_name_xlate[event_name]
+        self.task_tree.internal_data['cancels'] = self.task_tree.internal_data.get('cancels',{}) # ensure
+        self.task_tree.internal_data['cancels']['TokenReset'] = True
+        self.refresh_waiting_tasks()
+        self.do_engine_steps()
+        self.task_tree.internal_data['cancels'] = {}
 
 
 

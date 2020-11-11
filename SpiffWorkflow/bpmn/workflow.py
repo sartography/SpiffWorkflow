@@ -67,16 +67,20 @@ class BpmnWorkflow(Workflow):
         those tasks until there are only READY User tasks, or WAITING tasks
         left.
         """
+        # breakpoint()
         assert not self.read_only
         engine_steps = list(
             [t for t in self.get_tasks(Task.READY)
              if self._is_engine_task(t.task_spec)])
+        # breakpoint()
         while engine_steps:
             for task in engine_steps:
+                # breakpoint()
                 task.complete()
             engine_steps = list(
                 [t for t in self.get_tasks(Task.READY)
                  if self._is_engine_task(t.task_spec)])
+        # breakpoint()
 
     def refresh_waiting_tasks(self):
         """
