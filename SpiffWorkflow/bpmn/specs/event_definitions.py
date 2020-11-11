@@ -193,13 +193,13 @@ class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         return retdict
 
 
-class CancelEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
+class CancelEventDefinition(CatchingEventDefinition):
     """
-    The MessageEventDefinition is the implementation of event definition used
-    for Message Events.
+    The CancelEventDefinition is the implementation of event definition used
+    for Cancel Events.
     """
 
-    def __init__(self, message,name=''):
+    def __init__(self, message, name=''):
         """
         Constructor.
 
@@ -216,21 +216,8 @@ class CancelEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         """
         return my_task._get_internal_data('event_fired', False)
 
-    def _event_ready(self, my_task):
-        waiting_events = my_task.workflow.task_tree.internal_data.get('cancels', {})
-        if (self.event in waiting_events.keys()):
-            evaledpayload = waiting_events[self.event]
-            del(waiting_events[self.event])
-            return evaledpayload
-        return False
-
-    # def _send_message(self, my_task,resultVar):
-    #     payload = PythonScriptEngine().evaluate(self.payload, **my_task.data)
-    #     my_task.workflow.message(self.message,payload,resultVar=resultVar)
-    #     return True
-    def _send_message(self, my_task):
-        my_task.workflow.cancel_notify(self.message)
-        return True
+    def _message_ready(self, my_task):
+        return ('CancelEvent', None)
 
     def _accept_message(self, my_task, message):
         if message != self.message:
