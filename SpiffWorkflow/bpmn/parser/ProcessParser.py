@@ -55,6 +55,8 @@ class ProcessParser(object):
         self._init_lane_lookup()
         self.id_to_coords_lookup = None  # Dictionary of positional arguments for each node.
         self._init_coord_lookup()
+        self.message_lookup = {}  # Dictionary of positional arguments for each node.
+        self._init_message_lookup()
 
     def get_id(self):
         """
@@ -110,6 +112,15 @@ class ProcessParser(object):
         Return the x,y coordinates of the given task, if available.
         """
         return self.id_to_coords_lookup.get(id, {'x':0, 'y':0})
+
+    def _init_message_lookup(self):
+        """Creates a lookup table for the name/id of all messages in the workflow
+        """
+        self.message_lookup = {}
+        for message in self.doc_xpath('.//bpmn:message'):
+            self.message_lookup[message.attrib['id']] = message.attrib['name']
+        for message in self.doc_xpath('.//bpmn:signal'):
+            self.message_lookup[message.attrib['id']] = message.attrib['name']
 
     def _init_coord_lookup(self):
         """Creates a lookup table with the x/y coordinates of each shape.

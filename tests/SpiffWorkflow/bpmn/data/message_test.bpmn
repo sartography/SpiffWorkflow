@@ -44,7 +44,7 @@
     <bpmn:sequenceFlow id="Flow_1t3bhky" sourceRef="Event_SendRequest" targetRef="Event_GetRequest" />
     <bpmn:sequenceFlow id="Flow_1nsjil4" sourceRef="Activity_EnterPlan" targetRef="Event_SendRequest" />
     <bpmn:sequenceFlow id="Flow_0jqxt85" name="Sure" sourceRef="Gateway_Approved" targetRef="Activity_EnablePlan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Event_GetRequest_Response=="Yes"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">ApprovalResult=="Yes"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0m1dzpq" sourceRef="Activity_ApproveOrDeny" targetRef="Event_SendRequestResponse" />
     <bpmn:sequenceFlow id="Flow_1ym5g7r" sourceRef="Event_GotRequest" targetRef="Activity_ApproveOrDeny" />
@@ -73,7 +73,7 @@
     <bpmn:intermediateThrowEvent id="Event_SendRequestResponse" name="SendResponse">
       <bpmn:incoming>Flow_0m1dzpq</bpmn:incoming>
       <bpmn:outgoing>Flow_0abuvsx</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1un6meh" messageRef="Message_0sqqwvq" camunda:expression="approved" />
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1un6meh" messageRef="Message_0sqqwvq" camunda:expression="approved" camunda:resultVariable="ApprovalResult" />
     </bpmn:intermediateThrowEvent>
     <bpmn:endEvent id="Event_EndEvent2">
       <bpmn:incoming>Flow_0abuvsx</bpmn:incoming>

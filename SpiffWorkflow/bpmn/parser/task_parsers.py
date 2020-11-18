@@ -23,7 +23,8 @@ from ..workflow import BpmnWorkflow
 from .util import first, one
 from ..specs.event_definitions import (TimerEventDefinition,
                                        MessageEventDefinition,
-                                       SignalEventDefinition)
+                                       SignalEventDefinition,
+                                       CancelEventDefinition)
 from lxml import etree
 import copy
 from SpiffWorkflow.exceptions import WorkflowException
@@ -40,8 +41,10 @@ class StartEventParser(TaskParser):
 
         isMessageCatchingEvent = self.xpath('.//bpmn:messageEventDefinition')
         isSignalCatchingEvent = self.xpath('.//bpmn:signalEventDefinition')
+        isCancelCatchingEvent = self.xpath('.//bpmn:cancelEventDefinition')
         if (len(isMessageCatchingEvent) > 0)\
-                or (len(isSignalCatchingEvent) > 0):
+                or (len(isSignalCatchingEvent) > 0)\
+                or (len(isCancelCatchingEvent) > 0):
             # we need to fix this up to wait on an event
 
             self.__class__ = type(self.get_id() + '_class', (
@@ -297,6 +300,11 @@ class IntermediateCatchEventParser(TaskParser):
         if signalEventDefinition is not None:
             return self.get_signal_event_definition(signalEventDefinition)
 
+        cancelEventDefinition = first(
+            self.xpath('.//bpmn:cancelEventDefinition'))
+        if cancelEventDefinition is not None:
+            return self.get_cancel_event_definition(cancelEventDefinition)
+
         timerEventDefinition = first(
             self.xpath('.//bpmn:timerEventDefinition'))
         if timerEventDefinition is not None:
@@ -320,7 +328,7 @@ class IntermediateCatchEventParser(TaskParser):
             message = messageEventDefinition.get('messageRef')
             if message is None:
                 message = self.node.get('name')
-        return MessageEventDefinition(message)
+        return MessageEventDefinition(message,name=self.process_parser.message_lookup.get(message,''))
 
     def get_signal_event_definition(self, signalEventDefinition):
         """
@@ -337,7 +345,24 @@ class IntermediateCatchEventParser(TaskParser):
             message = signalEventDefinition.get('signalRef')
             if message is None:
                 message = self.node.get('name')
-        return SignalEventDefinition(message)
+        return SignalEventDefinition(message,name=self.process_parser.message_lookup.get(message,''))
+
+    def get_cancel_event_definition(self, cancelEventDefinition):
+        """
+        Parse the messageEventDefinition node and return an instance of
+        MessageEventDefinition
+        """
+        # we have two different modelers that handle messages
+        # in different ways.
+        # first the Signavio :
+        cancelRef = first(self.xpath('.//bpmn:cancelRef'))
+        if cancelRef is not None:
+            message = cancelRef.get('name')
+        elif cancelEventDefinition is not None:
+            message = cancelEventDefinition.get('cancelRef')
+            if message is None:
+                message = self.node.get('name')
+        return CancelEventDefinition(message,name=self.process_parser.message_lookup.get(message,''))
 
     def get_timer_event_definition(self, timerEventDefinition):
         """
@@ -419,6 +444,11 @@ class IntermediateThrowEventParser(TaskParser):
         if signalEventDefinition is not None:
             return self.get_signal_event_definition(signalEventDefinition)
 
+        cancelEventDefinition = first(
+            self.xpath('.//bpmn:cancelEventDefinition'))
+        if cancelEventDefinition is not None:
+            return self.get_cancel_event_definition(cancelEventDefinition)
+
             raise NotImplementedError(
             'Unsupported Intermediate Catch Event: %r', etree.tostring(self.node))
 
@@ -428,10 +458,14 @@ class IntermediateThrowEventParser(TaskParser):
         MessageEventDefinition
         """
         #messageRef = first(self.xpath('.//bpmn:messageEventDefinition'))
+        name = self.node.get('name')
         message = messageEventDefinition.get(
-            'messageRef') if messageEventDefinition is not None else self.node.get('name')
-        payload = messageEventDefinition.attrib.get('{'+ CAMUNDA_MODEL_NS +'}expression')
-        return MessageEventDefinition(message,payload)
+            'messageRef') if messageEventDefinition is not None else name
+
+        payload = messageEventDefinition.attrib.get('{' + CAMUNDA_MODEL_NS + '}expression')
+        resultVar = messageEventDefinition.attrib.get('{' + CAMUNDA_MODEL_NS + '}resultVariable')
+
+        return MessageEventDefinition(message,payload,resultVar=resultVar)
 
 
     def get_signal_event_definition(self, signalEventDefinition):
@@ -445,6 +479,18 @@ class IntermediateThrowEventParser(TaskParser):
         # camunda doesn't have payload for signals evidently
         #payload = signalEventDefinition.attrib.get('{'+ CAMUNDA_MODEL_NS +'}expression')
         return SignalEventDefinition(message)
+
+    def get_cancel_event_definition(self, cancelEventDefinition):
+        """
+        Parse the cancelEventDefinition node and return an instance of
+        cancelEventDefinition
+        """
+
+        message = cancelEventDefinition.get(
+            'cancelRef') if cancelEventDefinition is not None else self.node.get('name')
+        # camunda doesn't have payload for cancels evidently
+        #payload = cancelEventDefinition.attrib.get('{'+ CAMUNDA_MODEL_NS +'}expression')
+        return CancelEventDefinition(message)
 
 
 
