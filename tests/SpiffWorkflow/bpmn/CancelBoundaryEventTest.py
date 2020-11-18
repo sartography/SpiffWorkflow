@@ -28,6 +28,7 @@ class CancelBoundaryTest(BpmnWorkflowTestCase):
         # task is Activity_GetData which has a form
         ready_tasks[0].update_data(data={'formdata': 'asdf'})
         self.workflow.complete_task_from_id(ready_tasks[0].id)
+        self.save_restore()
         # refresh and do engine steps again
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()

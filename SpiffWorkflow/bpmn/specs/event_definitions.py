@@ -200,7 +200,7 @@ class CancelEventDefinition(CatchingEventDefinition):
 
     @classmethod
     def deserialize(self, dct):
-        return SignalEventDefinition(dct['message'],dct['name'])
+        return CancelEventDefinition(dct['message'],dct['name'])
 
     def serialize(self):
         retdict = {}
