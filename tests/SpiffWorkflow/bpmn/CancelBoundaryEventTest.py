@@ -33,6 +33,7 @@ class CancelBoundaryTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         # this gets us to Activity_HowMany, where we cancel the workflow
         self.workflow.cancel_notify()
+        self.assertEqual(self.workflow.last_task.data['title'], 'New Title')
         # assert that Activity_TestMessage state is Completed
         self.assertEqual(self.workflow.last_task.get_name(), 'Activity_TestMessage')
         self.assertEqual(self.workflow.last_task.get_state(), 32)
