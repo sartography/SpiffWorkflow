@@ -176,7 +176,6 @@ class CancelEventDefinition(CatchingEventDefinition):
 
         :param message: The message to wait for.
         """
-        # breakpoint()
         self.message = message
         self.name = name
 
@@ -188,7 +187,10 @@ class CancelEventDefinition(CatchingEventDefinition):
         return my_task._get_internal_data('event_fired', False)
 
     def _message_ready(self, my_task):
-        return ('CancelEvent', None)
+        waiting_messages = my_task.workflow.task_tree.internal_data.get('cancels',{})
+        if ('TokenReset' in waiting_messages.keys()) :
+            return ('TokenReset', None)
+        return False
 
     def _accept_message(self, my_task, message):
         if message != self.message:
