@@ -38,6 +38,26 @@ class CancelBoundaryTest(BpmnWorkflowTestCase):
         self.assertEqual(self.workflow.last_task.get_name(), 'Activity_TestMessage')
         self.assertEqual(self.workflow.last_task.get_state(), 32)
 
+    def testNoCancelEvent(self):
+        # get the workflow
+        self.workflow = BpmnWorkflow(self.spec)
+        # do engine steps
+        self.workflow.do_engine_steps()
+        ready_tasks = self.workflow.get_tasks(Task.READY)
+        # task = ready_tasks[0]
+        # task is Activity_GetData which has a form
+        ready_tasks[0].update_data(data={'formdata': 'asdf'})
+        self.workflow.complete_task_from_id(ready_tasks[0].id)
+        # refresh and do engine steps again
+        self.workflow.refresh_waiting_tasks()
+        self.workflow.do_engine_steps()
+        # this time we don't cancel
+        # 'title' should not be in last_task.data
+        self.assertNotIn('title', self.workflow.last_task.data)
+        # and Activity_HowMany should be Completed
+        self.assertEqual(self.workflow.last_task.get_name(), 'Activity_HowMany.BoundaryEventParent')
+        self.assertEqual(self.workflow.last_task.get_state(), 32)
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(CancelBoundaryTest)
