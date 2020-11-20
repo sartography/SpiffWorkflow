@@ -63,7 +63,17 @@ class Rule:
             # try to use the id, but fall back to label if no name is provided.
             key = outputEntry.output.name or outputEntry.output.label
             if hasattr(outputEntry, "parsedRef"):
-                out[key] = PythonScriptEngine().evaluate(outputEntry.parsedRef,**data)
+                outvalue = PythonScriptEngine().evaluate(outputEntry.parsedRef,**data)
             else:
-                out[key] = ""
+                outvalue = ""
+            if '.' in key:
+                currentout = {}
+                subkeylist = list(reversed(key.split('.')))
+                for subkey in subkeylist[:-1]:
+                    currentout[subkey] = outvalue
+                    outvalue = currentout
+                    currentout = {}
+                out[subkeylist[-1]] = outvalue
+            else:
+                out[key] = outvalue
         return out
