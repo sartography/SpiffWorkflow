@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
+
+import codecs
 from builtins import str
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -19,6 +21,9 @@ import pickle
 from base64 import b64encode, b64decode
 from .. import Workflow
 from ..bpmn.specs.BpmnSpecMixin import SequenceFlow
+from ..dmn.engine.DMNEngine import DMNEngine
+from ..dmn.specs.BusinessRuleTask import BusinessRuleTask
+from ..dmn.specs.model import DecisionTable
 from ..util.impl import get_class
 from ..task import Task
 from ..operators import (Attrib, PathAttrib, Equal, NotEqual,
@@ -419,6 +424,22 @@ class DictionarySerializer(Serializer):
 
     def deserialize_user_task(self, wf_spec, s_state):
         spec = UserTask(wf_spec, s_state['name'], s_state['form'])
+        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
+
+
+    def serialize_business_rule_task(self, spec):
+        s_state = self.serialize_task_spec(spec)
+        dictrep = spec.dmnEngine.decisionTable.serialize()
+        # future
+        s_state['dmn'] = dictrep
+        return s_state
+
+    def deserialize_business_rule_task(self, wf_spec, s_state):
+        dt = DecisionTable(None,None)
+        dt.deserialize(s_state['dmn'])
+        dmnEngine = DMNEngine(dt)
+        spec = BusinessRuleTask(wf_spec, s_state['name'], dmnEngine)
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
