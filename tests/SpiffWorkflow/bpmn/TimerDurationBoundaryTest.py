@@ -44,7 +44,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         # test bpmn has a timeout of .25s
         # we should terminate loop before that.
         starttime = datetime.datetime.now()
-        while loopcount < 10:
+        while loopcount < 11:
             ready_tasks = self.workflow.get_tasks(Task.READY)
             if len(ready_tasks) < 1:
                 break
@@ -59,11 +59,9 @@ class TimerDurationTest(BpmnWorkflowTestCase):
             loopcount = loopcount +1
         endtime = datetime.datetime.now()
         duration = endtime-starttime
-        # appropriate time here is .5 seconds
-        # due to the .3 seconds that we loop and then
-        # the two conditions that we complete after the timer completes.
-        self.assertEqual(duration<datetime.timedelta(seconds=.6),True)
-        self.assertEqual(duration>datetime.timedelta(seconds=.25),True)
+        # Assure that the loopcount is less than 10, and the timer interrupt fired, rather
+        # than allowing us to continue to loop the full 10 times.
+        self.assertTrue(loopcount < 10)
         print(duration)
 
 
