@@ -29,11 +29,17 @@ class DMNDictTest(BpmnWorkflowTestCase):
     def testDmnHappy(self):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
+        x = self.workflow.get_ready_user_tasks()
+        self.workflow.complete_task_from_id(x[0].id)
+        self.workflow.do_engine_steps()
         self.assertDictEqual(self.workflow.last_task.data, self.expectedResult)
 
     def testDmnSaveRestore(self):
         self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
         self.save_restore()
+        x = self.workflow.get_ready_user_tasks()
+        self.workflow.complete_task_from_id(x[0].id)
         self.workflow.do_engine_steps()
         self.save_restore()
         self.assertDictEqual(self.workflow.last_task.data, self.expectedResult)

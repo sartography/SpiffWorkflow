@@ -4,9 +4,9 @@
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0k348ph</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_0k348ph" sourceRef="StartEvent_1" targetRef="Activity_1wejtm3" />
+    <bpmn:sequenceFlow id="Flow_0k348ph" sourceRef="StartEvent_1" targetRef="HaltingTask" />
     <bpmn:scriptTask id="Activity_1wejtm3" name="Set up Variable">
-      <bpmn:incoming>Flow_0k348ph</bpmn:incoming>
+      <bpmn:incoming>Flow_132mhgo</bpmn:incoming>
       <bpmn:outgoing>Flow_03rcoxc</bpmn:outgoing>
       <bpmn:script>pi = {'test':{'me':'stupid var'}}
 inputvar = 1</bpmn:script>
@@ -20,33 +20,45 @@ inputvar = 1</bpmn:script>
       <bpmn:incoming>Flow_0pvahf7</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0pvahf7" sourceRef="Activity_0zug9f0" targetRef="Event_0w8dkiu" />
+    <bpmn:sequenceFlow id="Flow_132mhgo" sourceRef="HaltingTask" targetRef="Activity_1wejtm3" />
+    <bpmn:manualTask id="HaltingTask" name="Halting Task">
+      <bpmn:incoming>Flow_0k348ph</bpmn:incoming>
+      <bpmn:outgoing>Flow_132mhgo</bpmn:outgoing>
+    </bpmn:manualTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0k7ga4b">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="179" y="99" width="36" height="36" />
+        <dc:Bounds x="152" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0k348ph_di" bpmnElement="Flow_0k348ph">
-        <di:waypoint x="215" y="117" />
-        <di:waypoint x="240" y="117" />
+        <di:waypoint x="188" y="117" />
+        <di:waypoint x="230" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_172h5vr_di" bpmnElement="Activity_1wejtm3">
-        <dc:Bounds x="240" y="77" width="100" height="80" />
+        <dc:Bounds x="400" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1cb776x_di" bpmnElement="Activity_0zug9f0">
-        <dc:Bounds x="380" y="77" width="100" height="80" />
+        <dc:Bounds x="540" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_03rcoxc_di" bpmnElement="Flow_03rcoxc">
-        <di:waypoint x="340" y="117" />
-        <di:waypoint x="380" y="117" />
+        <di:waypoint x="500" y="117" />
+        <di:waypoint x="540" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0w8dkiu_di" bpmnElement="Event_0w8dkiu">
-        <dc:Bounds x="522" y="99" width="36" height="36" />
+        <dc:Bounds x="682" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0pvahf7_di" bpmnElement="Flow_0pvahf7">
-        <di:waypoint x="480" y="117" />
-        <di:waypoint x="522" y="117" />
+        <di:waypoint x="640" y="117" />
+        <di:waypoint x="682" y="117" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_132mhgo_di" bpmnElement="Flow_132mhgo">
+        <di:waypoint x="330" y="117" />
+        <di:waypoint x="400" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_137uv6k_di" bpmnElement="HaltingTask">
+        <dc:Bounds x="230" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

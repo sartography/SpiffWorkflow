@@ -32,6 +32,11 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
         except Exception as e:
             raise WorkflowTaskExecException(my_task, str(e))
 
+    def serialize(self, serializer):
+        return serializer.serialize_business_rule_task(self)
+
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_generic(wf_spec, s_state, BusinessRuleTask)
+        return serializer.deserialize_business_rule_task(wf_spec, s_state)
+
+
