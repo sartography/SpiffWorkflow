@@ -1,5 +1,7 @@
 from collections import OrderedDict
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.util.deep_merge import DeepMerge
+
 
 class Decision:
     def __init__(self, id, name):
@@ -63,7 +65,22 @@ class Rule:
             # try to use the id, but fall back to label if no name is provided.
             key = outputEntry.output.name or outputEntry.output.label
             if hasattr(outputEntry, "parsedRef"):
-                out[key] = PythonScriptEngine().evaluate(outputEntry.parsedRef,**data)
+                outvalue = PythonScriptEngine().evaluate(outputEntry.parsedRef,**data)
             else:
-                out[key] = ""
+                outvalue = ""
+            if '.' in key:         # we need to allow for dot notation in the DMN -
+                                   # I would use box to do this, but they didn't have a feature to build
+                                   # a dict based on a dot notation withoug eval
+                                   # so we build up a dictionary structure based on the key, and let the parent
+                                   # do a deep merge
+                currentout = {}
+                subkeylist = list(reversed(key.split('.')))
+                for subkey in subkeylist[:-1]:
+                    currentout[subkey] = outvalue
+                    outvalue = currentout
+                    currentout = {}
+                basekey = subkeylist[-1]
+                out[basekey] = DeepMerge.merge(out.get(basekey,{}),outvalue)
+            else:
+                out[key] = outvalue
         return out

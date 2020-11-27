@@ -3,7 +3,8 @@ from SpiffWorkflow.exceptions import WorkflowTaskExecException
 from SpiffWorkflow.specs import Simple
 
 from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-
+from box import Box
+from ...util.deep_merge import DeepMerge
 
 class BusinessRuleTask(Simple, BpmnSpecMixin):
     """
@@ -25,7 +26,8 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
             self.res = self.dmnEngine.decide(**my_task.data)
             if self.res is not None:  # it is conceivable that no rules fire.
                 self.resDict = self.res.outputAsDict(my_task.data)
-                my_task.data.update(self.resDict)
+                my_task.data = DeepMerge.merge(my_task.data,self.resDict)
+
             super(BusinessRuleTask, self)._on_complete_hook(my_task)
         except Exception as e:
             raise WorkflowTaskExecException(my_task, str(e))
