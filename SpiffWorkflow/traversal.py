@@ -28,7 +28,7 @@ def snip_same_ending(node,length):
     return a list of the same endings so we can tack it on the
     parent tree.
     """
-    if len(node) == 0:
+    if len(node) == 0 or length == 0:
         return []
     retlist = node[0]['children'][-length:]
     for branch in node:
@@ -214,6 +214,8 @@ def follow_tree(tree,output=[],found=set(),level=0,workflow=None):
         # in addition, this should be the same length on each end because of the sort above.
     # now that we have our children lists, we can remove the intersection of the group
     if tree.id not in  [x['id'] for x in output]:
+        # We need to avoid adding the same children over and over again in cases
+        # where the workflow loops or breaks off, and comes back in.
         snip_lists = same_ending_length(taskchildren)
         merge_list = snip_same_ending(taskchildren, snip_lists)
         output.append({'id':tree.id,
