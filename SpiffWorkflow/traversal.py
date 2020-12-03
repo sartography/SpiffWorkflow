@@ -190,23 +190,22 @@ def follow_tree(tree,output=[],found=set(),level=0,workflow=None):
     taskchildren = []
     for key in outputs:
         link = tree.outgoing_sequence_flows[key]
-        if link.name is not None:
-            mychildren = []
-            if link.target_task_spec.id not in found:
-                f = copy.copy(found)
-                mychildren = follow_tree(link.target_task_spec, mychildren, f, level + 2,workflow)
-                backtracklink = None
-            else:
-                backtracklink = (link.target_task_spec.id,link.target_task_spec.description)
-            mychildren.sort(key=lambda x: x['level'])
-            taskchildren.append({'id':link.id,
-                                 'name':link.name,
-                                 'description':link.name,
-                                 'is_decision': True,
-                                 'lane': tree.lane,
-                                 'backtracks':backtracklink,
-                                 'children':mychildren,
-                                 'level':level+1})
+        mychildren = []
+        if link.target_task_spec.id not in found:
+            f = copy.copy(found)
+            mychildren = follow_tree(link.target_task_spec, mychildren, f, level + 2,workflow)
+            backtracklink = None
+        else:
+            backtracklink = (link.target_task_spec.id,link.target_task_spec.description)
+        mychildren.sort(key=lambda x: x['level'])
+        taskchildren.append({'id':link.id,
+                             'name':link.name,
+                             'description':link.name,
+                             'is_decision': True,
+                             'lane': tree.lane,
+                             'backtracks':backtracklink,
+                             'children':mychildren,
+                             'level':level+1})
         # we know we have several decision points which may merge in the future. The lists
         # should be identical except for the levels.
         # essentially, we want to find the list of ID's that are in each of the taskchildren's children
