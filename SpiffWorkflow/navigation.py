@@ -66,6 +66,17 @@ class NavItem(object):
             indent=indent
         )
 
+    def __eq__(self, other):
+        if isinstance(other, NavItem):
+            return self.spec_id == other.spec_id and\
+                   self.name == other.name and\
+                   self.spec_type == other.spec_type and\
+                   self.description == other.description and\
+                   self.lane == other.lane and\
+                   self.backtracks == other.backtracks and\
+                   self.indent == other.indent
+        return False
+
     def __str__(self):
         text = self.description
         if self.spec_type == "StartEvent":
