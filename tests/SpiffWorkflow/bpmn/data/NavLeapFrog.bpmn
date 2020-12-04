@@ -6,44 +6,14 @@
     </bpmn:startEvent>
     <bpmn:endEvent id="Event_0l7thbn" name="End">
       <bpmn:documentation>temp</bpmn:documentation>
-      <bpmn:incoming>Flow_0pdoc38</bpmn:incoming>
-      <bpmn:incoming>Flow_0b0p6td</bpmn:incoming>
+      <bpmn:incoming>Flow_1g7q28p</bpmn:incoming>
+      <bpmn:incoming>Flow_15xpsq8</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:exclusiveGateway id="Gateway_1ykz8u2" name="How many chickens">
-      <bpmn:incoming>Flow_1c4kg6v</bpmn:incoming>
-      <bpmn:incoming>Flow_15w791d</bpmn:incoming>
-      <bpmn:outgoing>Flow_0pdoc38</bpmn:outgoing>
-      <bpmn:outgoing>Flow_12xhnza</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Activity_0rcrs1i" name="Tell me bout da Chikens" camunda:formKey="SI_AccessEmails">
-      <bpmn:documentation>The following Sub-Investigators were entered in Protocol Builder:
-{%+ for key, value in subs.items() %}{{value.display_name}} ({{key}}){% if loop.index is lt cnt_subs %}, {% endif %}{% endfor %}
-To Save the current settings for all Sub-Investigators, select Save All.
-
-
-Otherwise, edit each Sub-Investigator as necessary and select the Save button for each.
-
-
-### Please provide supplemental information for:
- #### {{ sub.display_name }} 
- ##### Title: {{ sub.title }}
-
- ##### Department: {{ sub.department }}
- ##### Affiliation: {{ sub.affiliation }}</bpmn:documentation>
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="sub.access" label="Should this Sub-Investigator have full editing access in the system?" type="boolean" defaultValue="false" />
-          <camunda:formField id="sub.emails" label="Should this Sub-Investigator receive automated email notifications?" type="boolean" defaultValue="false" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_12xhnza</bpmn:incoming>
-      <bpmn:outgoing>Flow_1lg47i0</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics />
-    </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_0gjk91e" name="How many Pigs?">
-      <bpmn:incoming>Flow_1j25zj6</bpmn:incoming>
-      <bpmn:outgoing>Flow_1hk5s3z</bpmn:outgoing>
-      <bpmn:outgoing>Flow_00h4zii</bpmn:outgoing>
+    <bpmn:exclusiveGateway id="Gateway_0gjk91e" name="How many Pigs?" default="Flow_1g7q28p">
+      <bpmn:incoming>Flow_0pdoc38</bpmn:incoming>
+      <bpmn:incoming>Flow_07vu2b0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1g7q28p</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0qti1ms</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:userTask id="Activity_1uzsp1r" name="Tell me boud dem Pigs" camunda:formKey="AP_AccessEmails">
       <bpmn:documentation>The following Additional Personnel were entered in Protocol Builder:
@@ -71,11 +41,10 @@ Otherwise, edit each Additional Personnel as necessary and select the Save butto
           <camunda:formField id="FormField_27dit3u" label="Should this Additional Personnel receive automated email notifications?" />
         </camunda:formData>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1hk5s3z</bpmn:incoming>
-      <bpmn:outgoing>Flow_01qbjbx</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics camunda:collection="pigs" camunda:elementVariable="pig" />
+      <bpmn:incoming>Flow_0qti1ms</bpmn:incoming>
+      <bpmn:outgoing>Flow_15xpsq8</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:elementVariable="ap" />
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_0pdoc38" name="no chickens" sourceRef="Gateway_1ykz8u2" targetRef="Event_0l7thbn" />
     <bpmn:sequenceFlow id="Flow_1d5ya6o" sourceRef="StartEvent_1" targetRef="Activity_0o0x7bz" />
     <bpmn:userTask id="Activity_0o0x7bz" name="Get Data">
       <bpmn:incoming>Flow_1d5ya6o</bpmn:incoming>
@@ -95,11 +64,8 @@ Otherwise, edit each Additional Personnel as necessary and select the Save butto
         <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">cows</bpmn:loopCardinality>
       </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_1c4kg6v" sourceRef="Activity_1px5dx2" targetRef="Gateway_1ykz8u2" />
-    <bpmn:sequenceFlow id="Flow_15w791d" name="no cows" sourceRef="Gateway_0tovzzw" targetRef="Gateway_1ykz8u2" />
     <bpmn:exclusiveGateway id="Gateway_083qcb2" name="how many cats">
-      <bpmn:incoming>Flow_01qbjbx</bpmn:incoming>
-      <bpmn:incoming>Flow_00h4zii</bpmn:incoming>
+      <bpmn:incoming>Flow_1j25zj6</bpmn:incoming>
       <bpmn:outgoing>Flow_0yq9y65</bpmn:outgoing>
       <bpmn:outgoing>Flow_0rdfr06</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -110,165 +76,187 @@ Otherwise, edit each Additional Personnel as necessary and select the Save butto
         <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">cats</bpmn:loopCardinality>
       </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_1j25zj6" sourceRef="Activity_0o0x7bz" targetRef="Gateway_0gjk91e" />
+    <bpmn:sequenceFlow id="Flow_1j25zj6" sourceRef="Activity_0o0x7bz" targetRef="Gateway_083qcb2" />
     <bpmn:sequenceFlow id="Flow_0yq9y65" name="many a cat" sourceRef="Gateway_083qcb2" targetRef="Activity_0cqjxvr" />
     <bpmn:sequenceFlow id="Flow_1284s5t" sourceRef="Activity_0cqjxvr" targetRef="Gateway_0tovzzw" />
     <bpmn:sequenceFlow id="Flow_0rdfr06" name="no cats" sourceRef="Gateway_083qcb2" targetRef="Gateway_0tovzzw" />
-    <bpmn:sequenceFlow id="Flow_01qbjbx" sourceRef="Activity_1uzsp1r" targetRef="Gateway_083qcb2" />
-    <bpmn:sequenceFlow id="Flow_1hk5s3z" name="lotta dem dar pips" sourceRef="Gateway_0gjk91e" targetRef="Activity_1uzsp1r" />
-    <bpmn:sequenceFlow id="Flow_00h4zii" name="aint got no swine" sourceRef="Gateway_0gjk91e" targetRef="Gateway_083qcb2" />
-    <bpmn:sequenceFlow id="Flow_12xhnza" name="one or more chickens" sourceRef="Gateway_1ykz8u2" targetRef="Activity_0rcrs1i" />
-    <bpmn:sequenceFlow id="Flow_1lg47i0" sourceRef="Activity_0rcrs1i" targetRef="Activity_0qhud6v" />
-    <bpmn:task id="Activity_0qhud6v" name="helps some?">
-      <bpmn:incoming>Flow_1lg47i0</bpmn:incoming>
-      <bpmn:outgoing>Flow_0b0p6td</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_0b0p6td" sourceRef="Activity_0qhud6v" targetRef="Event_0l7thbn" />
+    <bpmn:sequenceFlow id="Flow_15w791d" name="no cows" sourceRef="Gateway_0tovzzw" targetRef="Gateway_1ykz8u2" />
+    <bpmn:sequenceFlow id="Flow_1c4kg6v" sourceRef="Activity_1px5dx2" targetRef="Gateway_1ykz8u2" />
+    <bpmn:exclusiveGateway id="Gateway_1ykz8u2" name="How many chickens" default="Flow_0pdoc38">
+      <bpmn:incoming>Flow_1c4kg6v</bpmn:incoming>
+      <bpmn:incoming>Flow_15w791d</bpmn:incoming>
+      <bpmn:outgoing>Flow_0pdoc38</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ljn2v6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0pdoc38" name="no chickens" sourceRef="Gateway_1ykz8u2" targetRef="Gateway_0gjk91e" />
+    <bpmn:userTask id="Activity_0rcrs1i" name="Tell me bout da Chikens" camunda:formKey="SI_AccessEmails">
+      <bpmn:documentation>The following Sub-Investigators were entered in Protocol Builder:
+{%+ for key, value in subs.items() %}{{value.display_name}} ({{key}}){% if loop.index is lt cnt_subs %}, {% endif %}{% endfor %}
+To Save the current settings for all Sub-Investigators, select Save All.
+
+
+Otherwise, edit each Sub-Investigator as necessary and select the Save button for each.
+
+
+### Please provide supplemental information for:
+ #### {{ sub.display_name }} 
+ ##### Title: {{ sub.title }}
+
+ ##### Department: {{ sub.department }}
+ ##### Affiliation: {{ sub.affiliation }}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="sub.access" label="Should this Sub-Investigator have full editing access in the system?" type="boolean" defaultValue="false" />
+          <camunda:formField id="sub.emails" label="Should this Sub-Investigator receive automated email notifications?" type="boolean" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ljn2v6</bpmn:incoming>
+      <bpmn:outgoing>Flow_07vu2b0</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="chickens" camunda:elementVariable="chiken" />
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0ljn2v6" name="1 or more chicks" sourceRef="Gateway_1ykz8u2" targetRef="Activity_0rcrs1i" />
+    <bpmn:sequenceFlow id="Flow_1g7q28p" name="no pigs" sourceRef="Gateway_0gjk91e" targetRef="Event_0l7thbn" />
+    <bpmn:sequenceFlow id="Flow_07vu2b0" sourceRef="Activity_0rcrs1i" targetRef="Gateway_0gjk91e" />
+    <bpmn:sequenceFlow id="Flow_0qti1ms" name="1 or more pigs" sourceRef="Gateway_0gjk91e" targetRef="Activity_1uzsp1r" />
+    <bpmn:sequenceFlow id="Flow_15xpsq8" sourceRef="Activity_1uzsp1r" targetRef="Event_0l7thbn" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="NavLeapFrog">
-      <bpmndi:BPMNEdge id="Flow_0pdoc38_di" bpmnElement="Flow_0pdoc38">
-        <di:waypoint x="1400" y="245" />
-        <di:waypoint x="1400" y="320" />
-        <di:waypoint x="1830" y="320" />
-        <di:waypoint x="1830" y="238" />
+      <bpmndi:BPMNEdge id="Flow_0qti1ms_di" bpmnElement="Flow_0qti1ms">
+        <di:waypoint x="1395" y="170" />
+        <di:waypoint x="1500" y="170" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1586" y="302" width="59" height="14" />
+          <dc:Bounds x="1413" y="152" width="71" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07vu2b0_di" bpmnElement="Flow_07vu2b0">
+        <di:waypoint x="1280" y="170" />
+        <di:waypoint x="1345" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pdoc38_di" bpmnElement="Flow_0pdoc38">
+        <di:waypoint x="1050" y="195" />
+        <di:waypoint x="1050" y="270" />
+        <di:waypoint x="1370" y="270" />
+        <di:waypoint x="1370" y="195" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1181" y="252" width="59" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ljn2v6_di" bpmnElement="Flow_0ljn2v6">
+        <di:waypoint x="1075" y="170" />
+        <di:waypoint x="1180" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1087" y="152" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1g7q28p_di" bpmnElement="Flow_1g7q28p">
+        <di:waypoint x="1370" y="145" />
+        <di:waypoint x="1370" y="80" />
+        <di:waypoint x="1720" y="80" />
+        <di:waypoint x="1720" y="152" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1528" y="62" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15xpsq8_di" bpmnElement="Flow_15xpsq8">
+        <di:waypoint x="1600" y="170" />
+        <di:waypoint x="1702" y="170" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1d5ya6o_di" bpmnElement="Flow_1d5ya6o">
-        <di:waypoint x="188" y="220" />
-        <di:waypoint x="250" y="220" />
+        <di:waypoint x="188" y="170" />
+        <di:waypoint x="270" y="170" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1qfn1re_di" bpmnElement="Flow_1qfn1re">
-        <di:waypoint x="1125" y="220" />
-        <di:waypoint x="1190" y="220" />
+        <di:waypoint x="775" y="170" />
+        <di:waypoint x="890" y="170" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1112" y="202" width="76" height="14" />
+          <dc:Bounds x="781" y="152" width="76" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1c4kg6v_di" bpmnElement="Flow_1c4kg6v">
-        <di:waypoint x="1290" y="220" />
-        <di:waypoint x="1375" y="220" />
+        <di:waypoint x="990" y="170" />
+        <di:waypoint x="1025" y="170" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15w791d_di" bpmnElement="Flow_15w791d">
-        <di:waypoint x="1100" y="195" />
-        <di:waypoint x="1100" y="120" />
-        <di:waypoint x="1400" y="120" />
-        <di:waypoint x="1400" y="195" />
+        <di:waypoint x="750" y="145" />
+        <di:waypoint x="750" y="70" />
+        <di:waypoint x="1050" y="70" />
+        <di:waypoint x="1050" y="145" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1230" y="102" width="41" height="14" />
+          <dc:Bounds x="880" y="52" width="41" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1j25zj6_di" bpmnElement="Flow_1j25zj6">
-        <di:waypoint x="350" y="220" />
-        <di:waypoint x="395" y="220" />
+        <di:waypoint x="370" y="170" />
+        <di:waypoint x="415" y="170" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0yq9y65_di" bpmnElement="Flow_0yq9y65">
-        <di:waypoint x="815" y="220" />
-        <di:waypoint x="880" y="220" />
+        <di:waypoint x="465" y="170" />
+        <di:waypoint x="530" y="170" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="821" y="202" width="54" height="14" />
+          <dc:Bounds x="471" y="152" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1284s5t_di" bpmnElement="Flow_1284s5t">
-        <di:waypoint x="980" y="220" />
-        <di:waypoint x="1075" y="220" />
+        <di:waypoint x="630" y="170" />
+        <di:waypoint x="725" y="170" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0rdfr06_di" bpmnElement="Flow_0rdfr06">
-        <di:waypoint x="790" y="245" />
-        <di:waypoint x="790" y="320" />
-        <di:waypoint x="1100" y="320" />
-        <di:waypoint x="1100" y="245" />
+        <di:waypoint x="440" y="195" />
+        <di:waypoint x="440" y="270" />
+        <di:waypoint x="750" y="270" />
+        <di:waypoint x="750" y="195" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="928" y="302" width="36" height="14" />
+          <dc:Bounds x="578" y="252" width="36" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_01qbjbx_di" bpmnElement="Flow_01qbjbx">
-        <di:waypoint x="650" y="220" />
-        <di:waypoint x="765" y="220" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1hk5s3z_di" bpmnElement="Flow_1hk5s3z">
-        <di:waypoint x="445" y="220" />
-        <di:waypoint x="550" y="220" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="456" y="202" width="88" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_00h4zii_di" bpmnElement="Flow_00h4zii">
-        <di:waypoint x="420" y="195" />
-        <di:waypoint x="420" y="100" />
-        <di:waypoint x="790" y="100" />
-        <di:waypoint x="790" y="195" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="564" y="82" width="83" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_12xhnza_di" bpmnElement="Flow_12xhnza">
-        <di:waypoint x="1425" y="220" />
-        <di:waypoint x="1550" y="220" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1458" y="202" width="60" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1lg47i0_di" bpmnElement="Flow_1lg47i0">
-        <di:waypoint x="1650" y="220" />
-        <di:waypoint x="1680" y="220" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0b0p6td_di" bpmnElement="Flow_0b0p6td">
-        <di:waypoint x="1780" y="220" />
-        <di:waypoint x="1812" y="220" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Gateway_1ykz8u2_di" bpmnElement="Gateway_1ykz8u2" isMarkerVisible="true">
-        <dc:Bounds x="1375" y="195" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1433" y="245" width="53" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0tovzzw_di" bpmnElement="Gateway_0tovzzw" isMarkerVisible="true">
-        <dc:Bounds x="1075" y="195" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1061" y="252" width="79" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1px5dx2_di" bpmnElement="Activity_1px5dx2">
-        <dc:Bounds x="1190" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_083qcb2_di" bpmnElement="Gateway_083qcb2" isMarkerVisible="true">
-        <dc:Bounds x="765" y="195" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="753" y="171" width="74" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0cqjxvr_di" bpmnElement="Activity_0cqjxvr">
-        <dc:Bounds x="880" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="152" y="202" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_039iwbl_di" bpmnElement="Activity_0o0x7bz">
-        <dc:Bounds x="250" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0gjk91e_di" bpmnElement="Gateway_0gjk91e" isMarkerVisible="true">
-        <dc:Bounds x="395" y="195" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="429" y="239" width="83" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1uzsp1r_di" bpmnElement="Activity_1uzsp1r">
-        <dc:Bounds x="550" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0l7thbn_di" bpmnElement="Event_0l7thbn">
-        <dc:Bounds x="1812" y="202" width="36" height="36" />
+        <dc:Bounds x="1702" y="152" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1820" y="178" width="20" height="14" />
+          <dc:Bounds x="1710" y="198" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1ykz8u2_di" bpmnElement="Gateway_1ykz8u2" isMarkerVisible="true">
+        <dc:Bounds x="1025" y="145" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1083" y="195" width="53" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0rcrs1i_di" bpmnElement="Activity_0rcrs1i">
-        <dc:Bounds x="1550" y="180" width="100" height="80" />
+        <dc:Bounds x="1180" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0qhud6v_di" bpmnElement="Activity_0qhud6v">
-        <dc:Bounds x="1680" y="180" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_0gjk91e_di" bpmnElement="Gateway_0gjk91e" isMarkerVisible="true">
+        <dc:Bounds x="1345" y="145" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1379" y="189" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1uzsp1r_di" bpmnElement="Activity_1uzsp1r">
+        <dc:Bounds x="1500" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0tovzzw_di" bpmnElement="Gateway_0tovzzw" isMarkerVisible="true">
+        <dc:Bounds x="725" y="145" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="711" y="202" width="79" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_039iwbl_di" bpmnElement="Activity_0o0x7bz">
+        <dc:Bounds x="270" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_083qcb2_di" bpmnElement="Gateway_083qcb2" isMarkerVisible="true">
+        <dc:Bounds x="415" y="145" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="403" y="121" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0cqjxvr_di" bpmnElement="Activity_0cqjxvr">
+        <dc:Bounds x="530" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1px5dx2_di" bpmnElement="Activity_1px5dx2">
+        <dc:Bounds x="890" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

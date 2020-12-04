@@ -233,32 +233,29 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
         return output
 
     if isinstance(tree, MultiInstanceTask) and not tree.isSequential:
-        # NB: Not technically correct but expedient
-        # FIXME: we whould only have one input
-
-        # this if statement handles the case when we are building
-        # the nav list, but the PMI hasn't been expanded yet.
-        # this is a stopgap to keep it from crashing, but probably won't
-        # do the correct thing.
+        # When we have expanded the tree, we'll have multiple tasks, and
+        # need this special case.  If the tree has not yet been expanded
+        # it should just run through logic lower on in this function,
         if len(tree.inputs) > 1:
             # we have expanded the tree:
             outputs = tree.inputs[1].outputs
+            for task_spec in outputs:
+                last_spec = task_spec
+                linkkey = list(task_spec.outgoing_sequence_flows.keys())[0]
+                link = task_spec.outgoing_sequence_flows[linkkey]
+                conditional_task_add(output, task_spec,
+                                     task=None, backtracks=False, indent=level)
+                if task_spec.id not in found:
+                    found.add(task_spec.id)
+
+            if last_spec:
+                output = follow_tree(link.target_task_spec, output, found,
+                                     level, workflow)
+                return output
         else:
-            outputs = tree.inputs[0].outputs
-        for task_spec in outputs:
-            last_spec = task_spec
-            linkkey = list(task_spec.outgoing_sequence_flows.keys())[0]
-            link = task_spec.outgoing_sequence_flows[linkkey]
-            conditional_task_add(output, task_spec,
-                                 task=None, backtracks=False, indent=level)
-            if task_spec.id not in found:
-                found.add(task_spec.id)
+            # Don't treat this like a multi-instance yet, and continue.
+            pass
 
-        if last_spec:
-            output = follow_tree(link.target_task_spec, output, found,
-                                 level, workflow)
-
-        return output
 
     # ------------------
     # Simple case - no branching
@@ -292,17 +289,18 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
     # and then sync those paths and realign.
     task_children = []
     structured = not(isinstance(tree, UnstructuredJoin))
-    f = copy.copy(found)
     for key in outputs:
+        f = copy.copy(found)
         flow = tree.outgoing_sequence_flows[key]
         my_children = []
         level_increment = 1
         if structured: level_increment = 2
-        my_children = follow_tree(flow.target_task_spec, my_children, f,
-                                  level + level_increment, workflow)
         if flow.target_task_spec.id not in found:
+            my_children = follow_tree(flow.target_task_spec, my_children, f,
+                                      level + level_increment, workflow)
             backtrack_link = None
         else:
+            my_children = [] # This is backtracking, no need to follow it.
             backtrack_link = flow.target_task_spec.name
 
         # Note that we append the NavWithChildren here, not just nav
