@@ -27,9 +27,7 @@ from .task import Task
 from .util.compat import mutex
 from .util.event import Event
 from .exceptions import WorkflowException
-from .bpmn.specs.BoundaryEvent import _BoundaryEventParent,BoundaryEvent
-from .bpmn.specs.StartEvent import StartEvent
-from .traversal import follow_tree, flatten
+from .bpmn.specs.BoundaryEvent import _BoundaryEventParent
 LOG = logging.getLogger(__name__)
 
 
@@ -266,86 +264,9 @@ class Workflow(object):
 
 
     def get_nav_list(self):
-        """
-        Return a list of waypoints for this workflow along with some key metrics
-        - Each list item has :
-               id               -   TaskSpec or Sequence flow id
-               task_id          -   The uuid of the actual task instance, if it exists.
-               name             -   The name of the task spec (or sequence)
-               description      -   Text description
-               backtracks       -   Boolean, if this backtracks back up the list or not
-               level            -   Depth in the tree - probably not needed
-               indent           -   A hint for indentation
-               child_count       -   The number of children that should be associated with
-                                    this item.
-               lane             -   This is the swimlane for the task if indicated.
-               state            -   Text based state (may be half baked in the case that we have
-                                    more than one state for a task spec - but I don't think those
-                                    are being reported in the list, so it may not matter)
+        from . import navigation
+        return navigation.get_nav_list(self)
 
-                Any task with a blank or None as the description are excluded from the list (i.e. gateways)
-        """
-
-        # traverse the tree
-
-        list_paths = [follow_tree(top,output=[],found=set(),workflow=self)
-                      for top in self.task_tree.children[0].task_spec.outputs]
-        l = []
-        for path in list_paths:
-            l = l + path
-        # make sure things get presented in order - I may need to take another
-        # look at why this is needed. Ideally, it would come out of the traversal in
-        # the correct order
-        l = sorted(l, key=lambda x: x['level'])
-
-        # flatten the list to aid in display -
-        l = flatten(l, output=[])
-        task_list = self.get_tasks()
-
-        # look up task status for each item in the list
-        for task_spec in l:
-            # get a list of statuses for the current task_spec
-            # we may have more than one task for each
-            tasks = [x for x in task_list if (x.task_spec.id == task_spec['id']) and (x.task_spec.name == task_spec['name'])]
-            status = [x.state_names[x.state]
-                      for x
-                      in tasks]
-            taskids = [x.id
-                      for x
-                      in tasks]
-            if len(status)==0:
-                # Sequence flows will not be in this list -
-                # we will not find any status
-                if task_spec.get('is_decision') is not None:
-                    task_spec['state'] = 'NOOP'
-                else:
-                    task_spec['is_decision'] = False  # Assure some value.
-                    task_spec['state'] = 'None'
-                task_spec['task_id'] = None
-            elif len(tasks) == 1:
-                task_spec['state'] = status[0]
-                task_spec['task_id'] = taskids[0]
-                task_spec['is_decision'] = task_spec.get('is_decision', False)
-            else:
-                # Something has caused us to loop back around in some way to
-                # this task spec again, and so there are multiple states for
-                # this navigation item. Opt for returning the first ready task,
-                # if available, then fall back to the last completed task.
-                ready_task = next((t for t in tasks
-                                   if t.state == Task.READY), None)
-                comp_task = next((t for t in reversed(tasks)
-                                  if t.state == Task.COMPLETED), None)
-                if ready_task:
-                    task = ready_task
-                elif comp_task:
-                    task = comp_task
-                else:
-                    task = tasks[0] # Not sure what else to do here yet.
-                task_spec['state'] = task.state_names[task.state]
-                task_spec['task_id'] = task.id
-                task_spec['is_decision'] = task_spec.get('is_decision', False)
-
-        return l
 
 
     def get_tasks(self, state=Task.ANY_MASK):

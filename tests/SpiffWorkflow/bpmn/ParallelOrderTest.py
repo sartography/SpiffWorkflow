@@ -38,10 +38,10 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
         self.assertEquals("Task 4", tasks[3].get_description())
 
         nav = self.workflow.get_nav_list()
-        self.assertEquals("Task 1", nav[0]['description'])
-        self.assertEquals("Task 2", nav[1]['description'])
-        self.assertEquals("Task 3", nav[2]['description'])
-        self.assertEquals("Task 4", nav[3]['description'])
+        self.assertNav(nav[2], description="Task 1")
+        self.assertNav(nav[3], description="Task 2")
+        self.assertNav(nav[4], description="Task 3")
+        self.assertNav(nav[5], description="Task 4")
 
 
 

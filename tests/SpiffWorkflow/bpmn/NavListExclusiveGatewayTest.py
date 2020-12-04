@@ -23,33 +23,29 @@ class NavListExclusiveGatewayTest(BpmnWorkflowTestCase):
         self.spec = self.load_workflow1_spec()
 
     def load_workflow1_spec(self):
-        return self.load_workflow_spec('ExclusiveGatewayNavigation.bpmn','ExclusiveGatewayNavigation')
+        return self.load_workflow_spec('ExclusiveGatewayNavigation.bpmn',
+                                       'ExclusiveGatewayNavigation')
 
     def testRunThroughHappy(self):
-
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         nav_list = self.workflow.get_nav_list()
-        self.assertEquals(7, len(nav_list))
+        self.assertEquals(10, len(nav_list))
 
-        self.assertEquals("Enter Task 1", nav_list[0]["description"])
-        self.assertEquals("Decide Which Branch?", nav_list[1]["description"])
-        self.assertEquals("a", nav_list[2]["description"])
-        self.assertEquals("Enter Task 2a", nav_list[3]["description"])
-        self.assertEquals("b", nav_list[4]["description"])
-        self.assertEquals("Enter Task 2b", nav_list[5]["description"])
-        self.assertEquals("Enter Task 3", nav_list[6]["description"])
-
-        self.assertEquals(0, nav_list[0]["indent"])
-        self.assertEquals(0, nav_list[1]["indent"])
-        self.assertEquals(1, nav_list[2]["indent"])
-        self.assertEquals(2, nav_list[3]["indent"])
-        self.assertEquals(1, nav_list[4]["indent"])
-        self.assertEquals(2, nav_list[5]["indent"])
-        self.assertEquals(0, nav_list[6]["indent"])
-
+        self.assertNav(nav_list[1], description="Enter Task 1", indent=0)
+        self.assertNav(nav_list[2], description="Decide Which Branch?",
+                       indent=0)
+        self.assertNav(nav_list[3], description="a", indent=1)
+        self.assertNav(nav_list[4], description="Enter Task 2a", indent=2)
+        self.assertNav(nav_list[5], description="b", indent=1)
+        self.assertNav(nav_list[6], description="Enter Task 2b", indent=2)
+        self.assertNav(nav_list[7], spec_type="ExclusiveGateway", indent=0)
+        self.assertNav(nav_list[8], description="Enter Task 3", indent=0)
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(NavListExclusiveGatewayTest)
+    return unittest.TestLoader().loadTestsFromTestCase(
+        NavListExclusiveGatewayTest)
+
+
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

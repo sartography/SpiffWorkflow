@@ -29,16 +29,16 @@ class NavListBacktrackTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         nav_list = self.workflow.get_nav_list()
-        self.assertEqual(6, len(nav_list))
+        self.assertEqual(8, len(nav_list))
 
-        self.assertEqual("Step 1", nav_list[0]["description"])
-        self.assertEqual("Gateway", nav_list[1]["description"])
-        self.assertEqual("True", nav_list[2]["description"])
-        self.assertEqual("Step 2", nav_list[3]["description"])
-        self.assertEqual("Step 3", nav_list[4]["description"])
-        self.assertEqual("False", nav_list[5]["description"])
-
-        self.assertEqual(0, nav_list[0]["indent"])
+        self.assertNav(nav_list[0], name="StartEvent_1", indent=0)
+        self.assertNav(nav_list[1], description="Step 1", indent=0)
+        self.assertNav(nav_list[2], description="Gateway", indent=0)
+        self.assertNav(nav_list[3], description="True", indent=1)
+        self.assertNav(nav_list[4], description="Step 2", indent=2)
+        self.assertNav(nav_list[5], description="Step 3", indent=2)
+        self.assertNav(nav_list[6], spec_type="TestEndEvent", indent=2)
+        self.assertNav(nav_list[7], description="False", indent=1)
 
 
 def suite():

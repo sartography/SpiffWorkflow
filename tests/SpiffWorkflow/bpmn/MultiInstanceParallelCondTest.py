@@ -61,8 +61,7 @@ class MultiInstanceCondTest(BpmnWorkflowTestCase):
             self.assertFalse(self.workflow.is_completed())
             self.workflow.complete_task_from_id(task.id)
             nav_list = self.workflow.get_nav_list()
-            self.assertEqual(12, len(nav_list))
-            self.assertNotEqual(None, nav_list[2]['task_id'])
+            self.assertNotEqual(None, nav_list[1].task_id)
             if(save_restore):
                 self.reload_save_restore()
         self.workflow.do_engine_steps()

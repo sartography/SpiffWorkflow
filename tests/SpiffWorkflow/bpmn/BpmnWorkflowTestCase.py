@@ -5,6 +5,8 @@ import json
 import logging
 import os
 import unittest
+
+from SpiffWorkflow import NavItem
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
@@ -93,7 +95,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         # We should still have the same state:
         after_dump = self.workflow.get_dump()
         after_state = self._get_workflow_state(do_steps=False,include_spec=spec_from_state)
-        
+
         if state != after_state:
             logging.debug("Before save:\n%s", before_dump)
             logging.debug("After save:\n%s", after_dump)
@@ -119,3 +121,18 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
         return BpmnSerializer().serialize_workflow(self.workflow, include_spec=include_spec)
+
+    def assertNav(self, nav_item: NavItem, name=None, description=None,
+                  spec_type=None, indent=None, state=None, lane=None):
+        if name:
+            self.assertEqual(nav_item.name, name)
+        if description:
+            self.assertEqual(nav_item.description, description)
+        if spec_type:
+            self.assertEqual(nav_item.spec_type, spec_type)
+        if indent:
+            self.assertEqual(nav_item.indent, indent)
+        if state:
+            self.assertEqual(nav_item.state, state)
+        if lane:
+            self.assertEqual(nav_item.lane, lane)
