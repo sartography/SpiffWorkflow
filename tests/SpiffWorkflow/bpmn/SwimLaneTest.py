@@ -27,7 +27,7 @@ class SwimLaneTest(BpmnWorkflowTestCase):
 
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
-        nav_list = self.workflow.get_nav_list()
+        nav_list = self.workflow.get_flat_nav_list()
         self.assertEqual(9, len(nav_list))
         self.assertNav(nav_list[1], description="Request Feature", lane="A")
         self.assertNav(nav_list[2], description="Clarifying Questions?", lane="B")

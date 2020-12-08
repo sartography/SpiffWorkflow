@@ -17,43 +17,40 @@ class NavItem(object):
            spec_type        -   The type of task spec (it's class name)
            task_id          -   The uuid of the actual task instance, if it exists
            description      -   Text description
-           backtracks       -   Boolean, if this backtracks back up the list or not
+           backtrack_to     -   The spec_id of the task this will back track to.
            indent           -   A hint for indentation
            lane             -   This is the lane for the task if indicated.
            state            -   State of the task
     """
 
     def __init__(self, spec_id, name, spec_type, description,
-                 lane=None, backtracks=None, indent=0):
+                 lane=None, backtrack_to=None, indent=0):
         self.spec_id = spec_id
         self.name = name
         self.spec_type = spec_type
         self.description = description
         self.lane = lane
-        self.backtracks = backtracks
+        self.backtrack_to = backtrack_to
         self.indent = indent
         self.task_id = None
         self.state = None
+        self.children = []
 
     @classmethod
-    def from_spec(cls, spec: BpmnSpecMixin, task:Task=None, backtracks=None, indent=None):
+    def from_spec(cls, spec: BpmnSpecMixin, backtrack_to=None, indent=None):
         instance = cls(
             spec_id=spec.id,
             name=spec.name,
             spec_type=spec.__class__.__name__,
             description=spec.description,
             lane=spec.lane,
-            backtracks=backtracks,
+            backtrack_to=backtrack_to,
             indent=indent
         )
-        if task:
-            instance.task_id = task.id
-            instance.state = task.state
         return instance
 
-
     @classmethod
-    def from_flow(cls, flow: SequenceFlow, lane, backtracks, indent):
+    def from_flow(cls, flow: SequenceFlow, lane, backtrack_to, indent):
         """We include flows in the navigation if we hit a conditional gateway,
         as in do this if x, do this if y...."""
         return cls(
@@ -62,18 +59,18 @@ class NavItem(object):
             spec_type=flow.__class__.__name__,
             description=flow.name,
             lane=lane,
-            backtracks=backtracks,
+            backtrack_to=backtrack_to,
             indent=indent
         )
 
     def __eq__(self, other):
         if isinstance(other, NavItem):
-            return self.spec_id == other.spec_id and\
-                   self.name == other.name and\
-                   self.spec_type == other.spec_type and\
-                   self.description == other.description and\
-                   self.lane == other.lane and\
-                   self.backtracks == other.backtracks and\
+            return self.spec_id == other.spec_id and \
+                   self.name == other.name and \
+                   self.spec_type == other.spec_type and \
+                   self.description == other.description and \
+                   self.lane == other.lane and \
+                   self.backtrack_to == other.backtrack_to and \
                    self.indent == other.indent
         return False
 
@@ -89,37 +86,74 @@ class NavItem(object):
             text = f"+ {text}"
         elif self.spec_type == "SequenceFlow":
             text = f"-> {text}"
-            if self.backtracks:
-                text += f"  (BACKTRACK to {self.backtracks}"
+            if self.backtrack_to:
+                text += f"  (BACKTRACK to {self.backtrack_to}"
         elif self.spec_type[-4:] == "Task":
-            text = f"[{text}] STATE: {self.state}  TASK ID: {self.task_id}"
+            text = f"[{text}] TASK ID: {self.task_id}"
         else:
             text = f"({self.spec_type}) {text}"
 
-        result = f' {"..," * self.indent }{text}'
+        result = f' {"..," * self.indent} STATE: {self.state} {text}'
         if self.lane:
             result = f'|{self.lane}| {result}'
         return result
 
-class NavWithChildren(object):
-    def __init__(self, nav:NavItem, children):
-        self.nav_item = nav
-        self.children = children
+def get_deep_nav_list(workflow):
+    # converts a flat nav into a hierarchical list, that is easier to render
+    # in some cases. This assumes that we never jump more than one indent
+    # forward at a time, which should always be the case, but that we might
+    # un-indent any amount.
+    nav_items = []
+    flat_navs = get_flat_nav_list(workflow)
+    parents = []
+    for nav_item in flat_navs:
+        if nav_item.indent == 0:
+            nav_items.append(nav_item)
+            parents = [nav_item]
+        else:
+            parents[nav_item.indent - 1].children.append(nav_item)
+            if len(parents) > nav_item.indent:
+                parents = parents[:nav_item.indent] # Trim back to branch point.
+            parents.append(nav_item)
+
+    # With this navigation now deep, we can work back trough tasks, and set
+    # states with a little more clarity
+    set_deep_state(nav_items)
+
+    return nav_items
 
 
-def get_nav_list(workflow):
-    # traverse the tree, getting a complete navigation, but without
-    # task states.
+def set_deep_state(nav_items):
+    # recursive, in a deeply nested navigation, use the state of children to
+    # inform the state of the parent, so we have some idea what is going on at
+    # that deeper level.  This may override the state of a gateway, which
+    # may be completed, but contain children that are not.
+    state_precedence = ['READY', 'LIKELY', 'FUTURE', 'MAYBE', 'WAITING',
+                        'COMPLETED', 'CANCELLED']
+    for nav_item in nav_items:
+        if len(nav_item.children) > 0:
+            child_states = []
+            for child in nav_item.children:
+                child_states.append(set_deep_state([child]))
+            for state in state_precedence:
+                if state in child_states:
+                    nav_item.state = state
+                    return state
+    return nav_item.state
+
+def get_flat_nav_list(workflow):
+    # This takes the flat navigation returned from the follow_tree, and
+    # adds task states, producing a full flat navigation list.
     nav_items = []
     for top in workflow.task_tree.children[0].task_spec.outputs:
         nav_items.extend(follow_tree(top, output=[],
-                                      found=set(), workflow=workflow))
+                                     found=set(), workflow=workflow))
     task_list = workflow.get_tasks()
 
     # Remove any ignorable navigation items, these are classes that begin
     # with an _
-    nav_items = list(filter(lambda ni: not(ni.spec_type.startswith("_")), nav_items))
-
+    nav_items = list(
+        filter(lambda ni: not (ni.spec_type.startswith("_")), nav_items))
 
     # look up task status for each item in the list
     for nav_item in nav_items:
@@ -129,6 +163,8 @@ def get_nav_list(workflow):
                  (x.task_spec.id == nav_item.spec_id) and (
                      x.task_spec.name == nav_item.name)]
         if len(tasks) == 0:
+            # There is no task associated with this nav item, so we don't
+            # know its state here.
             nav_item.state = None
             nav_item.task_id = None
         else:
@@ -159,7 +195,8 @@ def same_ending_length(nav_with_children):
     return the length of the endings of each child that match each other
     """
     # go get a modified list of just the ids in each child.
-    endings = [[leaf.spec_id for leaf in branch.children] for branch in nav_with_children]
+    endings = [[leaf.spec_id for leaf in branch.children] for branch in
+               nav_with_children]
     # the longest identical ending will be equal to the lenght of the
     # shortest list
     if len(endings) == 0:
@@ -191,10 +228,11 @@ def snip_same_ending(nav_with_children, length):
     return retlist
 
 
-def conditional_task_add(output, task_spec, task, backtracks, indent):
+def conditional_task_add(output, task_spec, indent, backtrack_to=None):
     if task_spec.id not in [x.spec_id for x in output]:
-        output.append(NavItem.from_spec(spec=task_spec, task=task,
-                              backtracks=backtracks, indent=indent))
+        output.append(NavItem.from_spec(spec=task_spec,
+                                        backtrack_to=backtrack_to,
+                                        indent=indent))
 
 
 def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
@@ -220,7 +258,7 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
     if len(outputs) == 0:
         # This has no children, so we append it and terminate the recursion
         conditional_task_add(output, tree,
-                             task=None, backtracks=False, indent=level)
+                             backtrack_to=False, indent=level)
         found.add(tree.id)
         return output
 
@@ -254,8 +292,7 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
                 last_spec = task_spec
                 linkkey = list(task_spec.outgoing_sequence_flows.keys())[0]
                 link = task_spec.outgoing_sequence_flows[linkkey]
-                conditional_task_add(output, task_spec,
-                                     task=None, backtracks=False, indent=level)
+                conditional_task_add(output, task_spec, indent=level)
                 if task_spec.id not in found:
                     found.add(task_spec.id)
 
@@ -267,7 +304,6 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
             # Don't treat this like a multi-instance yet, and continue.
             pass
 
-
     # ------------------
     # Simple case - no branching
     # -----------------
@@ -276,8 +312,7 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
         # there are no branching points here, so our job is simple
         # add to the tree and descend into the tree some more
         link = tree.outgoing_sequence_flows[outputs[0]]
-        conditional_task_add(output, tree,
-                             task=None, backtracks=False, indent=level)
+        conditional_task_add(output, tree, indent=level)
         if tree.id not in found:
             found.add(tree.id)
             output = follow_tree(link.target_task_spec, output, found,
@@ -287,8 +322,7 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
     if isinstance(tree, _BoundaryEventParent):
         for task in outputs:
             link = tree.outgoing_sequence_flows[task]
-            conditional_task_add(output, tree,
-                                 task=None, backtracks=False, indent=level)
+            conditional_task_add(output, tree, indent=level)
             if link.target_task_spec.id not in found:
                 found.add(link.target_task_spec.id)
                 output = follow_tree(link.target_task_spec, output, found,
@@ -299,7 +333,7 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
     # where more than one path will exist, we need to follow multiple paths
     # and then sync those paths and realign.
     task_children = []
-    structured = not(isinstance(tree, UnstructuredJoin))
+    structured = not (isinstance(tree, UnstructuredJoin))
     for key in outputs:
         f = copy.copy(found)
         flow = tree.outgoing_sequence_flows[key]
@@ -311,13 +345,14 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
                                       level + level_increment, workflow)
             backtrack_link = None
         else:
-            my_children = [] # This is backtracking, no need to follow it.
+            my_children = []  # This is backtracking, no need to follow it.
             backtrack_link = flow.target_task_spec.name
 
         # Note that we append the NavWithChildren here, not just nav
-        task_children.append(NavWithChildren(NavItem.from_flow(flow=flow, lane=tree.lane,
-                             backtracks=backtrack_link, indent=level+1),
-                             my_children))
+        item = NavItem.from_flow(flow=flow, lane=tree.lane,
+                                 backtrack_to=backtrack_link, indent=level + 1)
+        item.children = my_children
+        task_children.append(item)
 
     """ we know we have several decision points which may merge in the future.
         The lists should be identical except for the levels.
@@ -329,15 +364,17 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
     if tree.id not in [x.spec_id for x in output]:
         snip_lists = same_ending_length(task_children)
         merge_list = snip_same_ending(task_children, snip_lists)
-        output.append(NavItem.from_spec(spec=tree, task=None,
-                                        backtracks=None, indent=level))
+        output.append(NavItem.from_spec(spec=tree,
+                                        backtrack_to=None, indent=level))
         for child in task_children:
             # Add the flow nav item, but only if this is an exclsive gateway,
             # and not an instructured join
             if structured:
-                output.append(child.nav_item)
+                output.append(child)
             for descendent in child.children:
                 output.append(descendent)
+            child.children = [] # Remove internal children, as the results
+                                  # of this should be flat.
 
         if len(merge_list) > 0:
             # This bit gets the indentation right, we are merging back out

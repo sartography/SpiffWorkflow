@@ -29,7 +29,7 @@ class LoopBackNavTest(BpmnWorkflowTestCase):
         self.assertTrue(len(ready_tasks) == 1)
         task = ready_tasks[0]
         #
-        nav = self.workflow.get_nav_list()
+        nav = self.workflow.get_flat_nav_list()
         self.assertEquals(6, len(nav), "Navigation should include 6 elements, "
                                        "start, the task, gateway, and true,"
                                        " false, and end paths.")
@@ -43,18 +43,19 @@ class LoopBackNavTest(BpmnWorkflowTestCase):
         self.assertFalse(self.workflow.is_completed())
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEquals("Loop Again?", task.task_spec.description)
-        nav = self.workflow.get_nav_list()
+        nav = self.workflow.get_flat_nav_list()
         self.assertEquals("Loop Again?", nav[1].description)
         self.assertEquals("READY", nav[1].state)
 
         task = self.workflow.get_ready_user_tasks()[0]
         task.data = {"loop_again": False}
         self.workflow.complete_task_from_id(task.id)
-        nav = self.workflow.get_nav_list()
+        nav = self.workflow.get_flat_nav_list()
         self.assertEquals("COMPLETED", nav[1].state)
 
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
+
 
 
 def suite():

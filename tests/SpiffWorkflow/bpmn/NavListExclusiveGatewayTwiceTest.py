@@ -33,7 +33,7 @@ class NavListExclusiveGatewayTest(BpmnWorkflowTestCase):
 
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
-        nav_list = self.workflow.get_nav_list()
+        nav_list = self.workflow.get_flat_nav_list()
         self.assertEqual(12, len(nav_list))
 
         self.assertNav(nav_list[0], name="StartEvent_1", indent=0)

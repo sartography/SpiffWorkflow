@@ -28,7 +28,7 @@ class NavDoubleGateway(BpmnWorkflowTestCase):
 
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
-        nav_list = self.workflow.get_nav_list()
+        nav_list = self.workflow.get_flat_nav_list()
         self.assertEqual(13, len(nav_list))
 
         self.assertEqual("StartEvent", nav_list[0].spec_type)
@@ -47,6 +47,18 @@ class NavDoubleGateway(BpmnWorkflowTestCase):
         for nav_item in nav_list:
             if nav_item.spec_type[-4:] == "Task":
                 self.assertIsNotNone(nav_item.task_id)
+
+
+        # Sanity check on deep nav.
+        nav_list = self.workflow.get_deep_nav_list()
+        self.assertNav(nav_list[0], spec_type="StartEvent", state="COMPLETED")
+        self.assertNav(nav_list[1], description="Task 1", state="READY")
+        self.assertNav(nav_list[2], description="Decide Which Branch?")
+        self.assertNav(nav_list[2].children[0], description="a")
+        self.assertNav(nav_list[2].children[0].children[0], description="Enter Task 2a")
+        self.assertNav(nav_list[2].children[1], description="flow b or c")
+        self.assertNav(nav_list[3], description="Enter Task 3")
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(NavDoubleGateway)

@@ -52,7 +52,7 @@ Otherwise, edit each Additional Personnel as necessary and select the Save butto
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_0tovzzw" name="how many cows">
       <bpmn:incoming>Flow_1284s5t</bpmn:incoming>
-      <bpmn:incoming>Flow_0rdfr06</bpmn:incoming>
+      <bpmn:incoming>Flow_011udmb</bpmn:incoming>
       <bpmn:outgoing>Flow_1qfn1re</bpmn:outgoing>
       <bpmn:outgoing>Flow_15w791d</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -77,9 +77,13 @@ Otherwise, edit each Additional Personnel as necessary and select the Save butto
       </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_1j25zj6" sourceRef="Activity_0o0x7bz" targetRef="Gateway_083qcb2" />
-    <bpmn:sequenceFlow id="Flow_0yq9y65" name="many a cat" sourceRef="Gateway_083qcb2" targetRef="Activity_0cqjxvr" />
+    <bpmn:sequenceFlow id="Flow_0yq9y65" name="many a cat" sourceRef="Gateway_083qcb2" targetRef="Activity_0cqjxvr">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">cats&gt;0</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1284s5t" sourceRef="Activity_0cqjxvr" targetRef="Gateway_0tovzzw" />
-    <bpmn:sequenceFlow id="Flow_0rdfr06" name="no cats" sourceRef="Gateway_083qcb2" targetRef="Gateway_0tovzzw" />
+    <bpmn:sequenceFlow id="Flow_0rdfr06" name="no cats" sourceRef="Gateway_083qcb2" targetRef="Activity_1g964oa">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">cats==0</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_15w791d" name="no cows" sourceRef="Gateway_0tovzzw" targetRef="Gateway_1ykz8u2" />
     <bpmn:sequenceFlow id="Flow_1c4kg6v" sourceRef="Activity_1px5dx2" targetRef="Gateway_1ykz8u2" />
     <bpmn:exclusiveGateway id="Gateway_1ykz8u2" name="How many chickens" default="Flow_0pdoc38">
@@ -119,9 +123,18 @@ Otherwise, edit each Sub-Investigator as necessary and select the Save button fo
     <bpmn:sequenceFlow id="Flow_07vu2b0" sourceRef="Activity_0rcrs1i" targetRef="Gateway_0gjk91e" />
     <bpmn:sequenceFlow id="Flow_0qti1ms" name="1 or more pigs" sourceRef="Gateway_0gjk91e" targetRef="Activity_1uzsp1r" />
     <bpmn:sequenceFlow id="Flow_15xpsq8" sourceRef="Activity_1uzsp1r" targetRef="Event_0l7thbn" />
+    <bpmn:sequenceFlow id="Flow_011udmb" sourceRef="Activity_1g964oa" targetRef="Gateway_0tovzzw" />
+    <bpmn:userTask id="Activity_1g964oa" name="Get som dem cats">
+      <bpmn:incoming>Flow_0rdfr06</bpmn:incoming>
+      <bpmn:outgoing>Flow_011udmb</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="NavLeapFrog">
+      <bpmndi:BPMNEdge id="Flow_15xpsq8_di" bpmnElement="Flow_15xpsq8">
+        <di:waypoint x="1600" y="170" />
+        <di:waypoint x="1702" y="170" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0qti1ms_di" bpmnElement="Flow_0qti1ms">
         <di:waypoint x="1395" y="170" />
         <di:waypoint x="1500" y="170" />
@@ -133,22 +146,6 @@ Otherwise, edit each Sub-Investigator as necessary and select the Save button fo
         <di:waypoint x="1280" y="170" />
         <di:waypoint x="1345" y="170" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0pdoc38_di" bpmnElement="Flow_0pdoc38">
-        <di:waypoint x="1050" y="195" />
-        <di:waypoint x="1050" y="270" />
-        <di:waypoint x="1370" y="270" />
-        <di:waypoint x="1370" y="195" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1181" y="252" width="59" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ljn2v6_di" bpmnElement="Flow_0ljn2v6">
-        <di:waypoint x="1075" y="170" />
-        <di:waypoint x="1180" y="170" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1087" y="152" width="82" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1g7q28p_di" bpmnElement="Flow_1g7q28p">
         <di:waypoint x="1370" y="145" />
         <di:waypoint x="1370" y="80" />
@@ -158,19 +155,20 @@ Otherwise, edit each Sub-Investigator as necessary and select the Save button fo
           <dc:Bounds x="1528" y="62" width="36" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_15xpsq8_di" bpmnElement="Flow_15xpsq8">
-        <di:waypoint x="1600" y="170" />
-        <di:waypoint x="1702" y="170" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1d5ya6o_di" bpmnElement="Flow_1d5ya6o">
-        <di:waypoint x="188" y="170" />
-        <di:waypoint x="270" y="170" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1qfn1re_di" bpmnElement="Flow_1qfn1re">
-        <di:waypoint x="775" y="170" />
-        <di:waypoint x="890" y="170" />
+      <bpmndi:BPMNEdge id="Flow_0ljn2v6_di" bpmnElement="Flow_0ljn2v6">
+        <di:waypoint x="1075" y="170" />
+        <di:waypoint x="1180" y="170" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="781" y="152" width="76" height="14" />
+          <dc:Bounds x="1087" y="152" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pdoc38_di" bpmnElement="Flow_0pdoc38">
+        <di:waypoint x="1050" y="195" />
+        <di:waypoint x="1050" y="270" />
+        <di:waypoint x="1370" y="270" />
+        <di:waypoint x="1370" y="195" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1181" y="252" width="59" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1c4kg6v_di" bpmnElement="Flow_1c4kg6v">
@@ -186,9 +184,17 @@ Otherwise, edit each Sub-Investigator as necessary and select the Save button fo
           <dc:Bounds x="880" y="52" width="41" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1j25zj6_di" bpmnElement="Flow_1j25zj6">
-        <di:waypoint x="370" y="170" />
-        <di:waypoint x="415" y="170" />
+      <bpmndi:BPMNEdge id="Flow_0rdfr06_di" bpmnElement="Flow_0rdfr06">
+        <di:waypoint x="440" y="195" />
+        <di:waypoint x="440" y="320" />
+        <di:waypoint x="530" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="441" y="302" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1284s5t_di" bpmnElement="Flow_1284s5t">
+        <di:waypoint x="630" y="170" />
+        <di:waypoint x="725" y="170" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0yq9y65_di" bpmnElement="Flow_0yq9y65">
         <di:waypoint x="465" y="170" />
@@ -197,33 +203,34 @@ Otherwise, edit each Sub-Investigator as necessary and select the Save button fo
           <dc:Bounds x="471" y="152" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1284s5t_di" bpmnElement="Flow_1284s5t">
-        <di:waypoint x="630" y="170" />
-        <di:waypoint x="725" y="170" />
+      <bpmndi:BPMNEdge id="Flow_1j25zj6_di" bpmnElement="Flow_1j25zj6">
+        <di:waypoint x="370" y="170" />
+        <di:waypoint x="415" y="170" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0rdfr06_di" bpmnElement="Flow_0rdfr06">
-        <di:waypoint x="440" y="195" />
-        <di:waypoint x="440" y="270" />
-        <di:waypoint x="750" y="270" />
-        <di:waypoint x="750" y="195" />
+      <bpmndi:BPMNEdge id="Flow_1qfn1re_di" bpmnElement="Flow_1qfn1re">
+        <di:waypoint x="775" y="170" />
+        <di:waypoint x="890" y="170" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="578" y="252" width="36" height="14" />
+          <dc:Bounds x="781" y="152" width="76" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1d5ya6o_di" bpmnElement="Flow_1d5ya6o">
+        <di:waypoint x="188" y="170" />
+        <di:waypoint x="270" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_011udmb_di" bpmnElement="Flow_011udmb">
+        <di:waypoint x="630" y="320" />
+        <di:waypoint x="750" y="320" />
+        <di:waypoint x="750" y="195" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0l7thbn_di" bpmnElement="Event_0l7thbn">
         <dc:Bounds x="1702" y="152" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1710" y="198" width="20" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1ykz8u2_di" bpmnElement="Gateway_1ykz8u2" isMarkerVisible="true">
-        <dc:Bounds x="1025" y="145" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1083" y="195" width="53" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0rcrs1i_di" bpmnElement="Activity_0rcrs1i">
-        <dc:Bounds x="1180" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0gjk91e_di" bpmnElement="Gateway_0gjk91e" isMarkerVisible="true">
         <dc:Bounds x="1345" y="145" width="50" height="50" />
@@ -234,17 +241,17 @@ Otherwise, edit each Sub-Investigator as necessary and select the Save button fo
       <bpmndi:BPMNShape id="Activity_1uzsp1r_di" bpmnElement="Activity_1uzsp1r">
         <dc:Bounds x="1500" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_039iwbl_di" bpmnElement="Activity_0o0x7bz">
+        <dc:Bounds x="270" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0tovzzw_di" bpmnElement="Gateway_0tovzzw" isMarkerVisible="true">
         <dc:Bounds x="725" y="145" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="711" y="202" width="79" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="152" y="152" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_039iwbl_di" bpmnElement="Activity_0o0x7bz">
-        <dc:Bounds x="270" y="130" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_1px5dx2_di" bpmnElement="Activity_1px5dx2">
+        <dc:Bounds x="890" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_083qcb2_di" bpmnElement="Gateway_083qcb2" isMarkerVisible="true">
         <dc:Bounds x="415" y="145" width="50" height="50" />
@@ -255,8 +262,17 @@ Otherwise, edit each Sub-Investigator as necessary and select the Save button fo
       <bpmndi:BPMNShape id="Activity_0cqjxvr_di" bpmnElement="Activity_0cqjxvr">
         <dc:Bounds x="530" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1px5dx2_di" bpmnElement="Activity_1px5dx2">
-        <dc:Bounds x="890" y="130" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_1ykz8u2_di" bpmnElement="Gateway_1ykz8u2" isMarkerVisible="true">
+        <dc:Bounds x="1025" y="145" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1083" y="195" width="53" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0rcrs1i_di" bpmnElement="Activity_0rcrs1i">
+        <dc:Bounds x="1180" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1whjmqo_di" bpmnElement="Activity_1g964oa">
+        <dc:Bounds x="530" y="280" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

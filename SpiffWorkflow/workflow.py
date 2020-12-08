@@ -261,12 +261,17 @@ class Workflow(object):
         self.do_engine_steps()
         self.task_tree.internal_data['cancels'] = {}
 
-
-
-    def get_nav_list(self):
+    def get_flat_nav_list(self):
+        """Returns a navigation list with indentation hints, but the list
+        is completly flat, and a nav item has no children."""
         from . import navigation
-        return navigation.get_nav_list(self)
+        return navigation.get_flat_nav_list(self)
 
+    def get_deep_nav_list(self):
+        """Returns a nested navigation list, where indentation hints are
+        applied to recreate a deep structure."""
+        from . import navigation
+        return navigation.get_deep_nav_list(self)
 
 
     def get_tasks(self, state=Task.ANY_MASK):
