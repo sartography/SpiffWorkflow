@@ -123,16 +123,19 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         return BpmnSerializer().serialize_workflow(self.workflow, include_spec=include_spec)
 
     def assertNav(self, nav_item: NavItem, name=None, description=None,
-                  spec_type=None, indent=None, state=None, lane=None):
+                  spec_type=None, indent=None, state=None, lane=None,
+                  backtrack_to=None):
         if name:
-            self.assertEqual(nav_item.name, name)
+            self.assertEqual(name, nav_item.name)
         if description:
-            self.assertEqual(nav_item.description, description)
+            self.assertEqual(description, nav_item.description)
         if spec_type:
-            self.assertEqual(nav_item.spec_type, spec_type)
+            self.assertEqual(spec_type, nav_item.spec_type)
         if indent:
-            self.assertEqual(nav_item.indent, indent)
+            self.assertEqual(indent, nav_item.indent)
         if state:
-            self.assertEqual(nav_item.state, state)
+            self.assertEqual(state, nav_item.state)
         if lane:
-            self.assertEqual(nav_item.lane, lane)
+            self.assertEqual(lane, nav_item.lane)
+        if backtrack_to:
+            self.assertEqual(backtrack_to, nav_item.backtrack_to)

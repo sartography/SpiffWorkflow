@@ -86,8 +86,6 @@ class NavItem(object):
             text = f"+ {text}"
         elif self.spec_type == "SequenceFlow":
             text = f"-> {text}"
-            if self.backtrack_to:
-                text += f"  (BACKTRACK to {self.backtrack_to}"
         elif self.spec_type[-4:] == "Task":
             text = f"[{text}] TASK ID: {self.task_id}"
         else:
@@ -96,6 +94,9 @@ class NavItem(object):
         result = f' {"..," * self.indent} STATE: {self.state} {text}'
         if self.lane:
             result = f'|{self.lane}| {result}'
+        if self.backtrack_to:
+            result += f"  (BACKTRACK to {self.backtrack_to}"
+
         return result
 
 def get_deep_nav_list(workflow):
@@ -156,34 +157,40 @@ def get_flat_nav_list(workflow):
         filter(lambda ni: not (ni.spec_type.startswith("_")), nav_items))
 
     # look up task status for each item in the list
+    used_tasks = set()  # set of tasks already used to get state.
     for nav_item in nav_items:
         # get a list of statuses for the current task_spec
         # we may have more than one task for each
         tasks = [x for x in task_list if
-                 (x.task_spec.id == nav_item.spec_id) and (
-                     x.task_spec.name == nav_item.name)]
+                 x.task_spec.id == nav_item.spec_id and
+                 x.task_spec.name == nav_item.name and
+                 x not in used_tasks]
+
         if len(tasks) == 0:
             # There is no task associated with this nav item, so we don't
             # know its state here.
             nav_item.state = None
             nav_item.task_id = None
         else:
-            # Something has caused us to loop back around in some way to
-            # this task spec again, and so there are multiple states for
-            # this navigation item. Opt for returning the first ready task,
-            # if available, then fall back to the last completed task.
-            ready_task = next((t for t in tasks
-                               if t.state == Task.READY), None)
-            comp_task = next((t for t in reversed(tasks)
-                              if t.state == Task.COMPLETED), None)
             if len(tasks) == 1:
                 task = tasks[0]
-            elif ready_task:
-                task = ready_task
-            elif comp_task:
-                task = comp_task
             else:
-                task = tasks[0]  # Not sure what else to do here yet.
+                # Something has caused us to loop back around in some way to
+                # this task spec again, and so there are multiple states for
+                # this navigation item. Opt for returning the last state.
+                # the first ready task,
+                # if available, then fall back to the last completed task.
+                ready_task = next((t for t in tasks
+                                   if t.state == Task.READY), None)
+                comp_task = next((t for t in reversed(tasks)
+                                  if t.state == Task.COMPLETED), None)
+                if ready_task:
+                    task = ready_task
+                elif comp_task:
+                    task = comp_task
+                else:
+                    task = tasks[0]  # Not sure what else to do here yet.
+            used_tasks.add(task)
             nav_item.state = task.state_names[task.state]
             nav_item.task_id = task.id
 
@@ -229,10 +236,10 @@ def snip_same_ending(nav_with_children, length):
 
 
 def conditional_task_add(output, task_spec, indent, backtrack_to=None):
-    if task_spec.id not in [x.spec_id for x in output]:
-        output.append(NavItem.from_spec(spec=task_spec,
-                                        backtrack_to=backtrack_to,
-                                        indent=indent))
+    #if task_spec.id not in [x.spec_id for x in output]:
+    output.append(NavItem.from_spec(spec=task_spec,
+                                    backtrack_to=backtrack_to,
+                                    indent=indent))
 
 
 def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
@@ -268,12 +275,14 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
     if isinstance(tree, CallActivity):
         tsk = workflow.get_tasks_from_spec_name(tree.name)[0]
         x = tree.create_sub_workflow(tsk)
+
+        output.append( NavItem.from_spec(tree, indent=level))
+
         sublist_outputs = [
-            follow_tree(top, output=[], found=set(), level=level, workflow=x)
+            follow_tree(top, output=[], found=set(), level=level + 1, workflow=x)
             for top in x.task_tree.children[0].task_spec.outputs]
         for lst in sublist_outputs:
             for item in lst:
-                item.indent = level + 1
                 output.append(item)
         for key in tree.outgoing_sequence_flows.keys():
             link = tree.outgoing_sequence_flows[key]
@@ -312,11 +321,13 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
         # there are no branching points here, so our job is simple
         # add to the tree and descend into the tree some more
         link = tree.outgoing_sequence_flows[outputs[0]]
-        conditional_task_add(output, tree, indent=level)
         if tree.id not in found:
+            conditional_task_add(output, tree, indent=level)
             found.add(tree.id)
             output = follow_tree(link.target_task_spec, output, found,
                                  level, workflow)
+        else:
+            conditional_task_add(output, tree, indent=level, backtrack_to=tree.name)
         return output
 
     if isinstance(tree, _BoundaryEventParent):
