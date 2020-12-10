@@ -46,6 +46,11 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
 
+    def testNav(self):
+        self.workflow = BpmnWorkflow(self.spec)
+        nav = self.workflow.get_flat_nav_list()
+        print(nav)
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(MultiInstanceTest)
 if __name__ == '__main__':

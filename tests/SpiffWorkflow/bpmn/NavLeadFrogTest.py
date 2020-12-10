@@ -35,7 +35,7 @@ class NavLeapfrogTest(BpmnWorkflowTestCase):
         # Complete a little bit, so we can see the states in action.
 
         nav_list = self.workflow.get_flat_nav_list()
-        self.assertEqual(20, len(nav_list))
+        self.assertEqual(21, len(nav_list))
 
         self.assertNav(nav_list[0], name="StartEvent_1", indent=0, state="COMPLETED")
         self.assertNav(nav_list[1], description="Get Data", indent=0, state="COMPLETED")
@@ -56,19 +56,19 @@ class NavLeapfrogTest(BpmnWorkflowTestCase):
         self.assertNav(nav_list[16], description="no pigs", indent=1)
         self.assertNav(nav_list[17], description="1 or more pigs", indent=1)
         self.assertNav(nav_list[18], description="Tell me boud dem Pigs", indent=2)
-        self.assertNav(nav_list[19], spec_type="TestEndEvent", indent=0)
+        self.assertNav(nav_list[19], spec_type="EndEvent", indent=0)
 
     def testRunThroughDeepNav(self):
 
         nav_list = self.workflow.get_deep_nav_list()
-        self.assertEqual(7, len(nav_list))
+        self.assertEqual(8, len(nav_list))
         self.assertNav(nav_list[0], name="StartEvent_1", indent=0, state="COMPLETED")
         self.assertNav(nav_list[1], description="Get Data", indent=0, state="COMPLETED")
         self.assertNav(nav_list[2], description="how many cats", indent=0, state="READY")
         self.assertNav(nav_list[3], description="how many cows", indent=0, state="LIKELY")
         self.assertNav(nav_list[4], description="How many chickens", indent=0, state="MAYBE")
         self.assertNav(nav_list[5], description="How many Pigs?", indent=0, state=None)
-        self.assertNav(nav_list[6], spec_type="TestEndEvent", indent=0, state=None)
+        self.assertNav(nav_list[6], spec_type="EndEvent", indent=0, state=None)
 
         # Cats
         self.assertNav(nav_list[2].children[0], description="many a cat", state="READY")

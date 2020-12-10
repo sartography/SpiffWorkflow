@@ -50,7 +50,7 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
         self.assertNav(nav[1].children[2], description="Task 3")
         self.assertNav(nav[1].children[3], description="Task 4")
         self.assertNav(nav[2], spec_type="ParallelGateway")
-        self.assertNav(nav[3], spec_type="TestEndEvent")
+        self.assertNav(nav[3], spec_type="EndEvent")
 
 
 def suite():

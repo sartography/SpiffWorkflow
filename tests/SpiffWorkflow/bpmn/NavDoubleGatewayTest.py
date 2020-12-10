@@ -29,7 +29,7 @@ class NavDoubleGateway(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         nav_list = self.workflow.get_flat_nav_list()
-        self.assertEqual(13, len(nav_list))
+        self.assertEqual(14, len(nav_list))
 
         self.assertEqual("StartEvent", nav_list[0].spec_type)
         self.assertEqual("Task 1", nav_list[1].description)

@@ -36,8 +36,6 @@ class NavListParallelGatewayTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         nav_list = self.workflow.get_flat_nav_list()
-        self.assertEqual(13, len(nav_list))
-
         self.assertNav(nav_list[0], name="StartEvent_1", indent=0)
         self.assertNav(nav_list[1], description="Enter Task 1", indent=0)
         self.assertNav(nav_list[2], description="Skip to Task 3?", indent=0)
@@ -50,7 +48,7 @@ class NavListParallelGatewayTest(BpmnWorkflowTestCase):
         self.assertNav(nav_list[9], description="Enter Task 2c", indent=3)
         self.assertNav(nav_list[10], spec_type="ParallelGateway", indent=2)
         self.assertNav(nav_list[11], description="Enter Task 3", indent=0)
-        self.assertNav(nav_list[12], spec_type="TestEndEvent", indent=0)
+        self.assertNav(nav_list[12], spec_type="EndEvent", indent=0)
 
         x = self.workflow.get_ready_user_tasks()
         x[0].data['skip_to_task_3'] = False

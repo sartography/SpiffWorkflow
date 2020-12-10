@@ -30,7 +30,7 @@ class NavListExclusiveGatewayTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         nav_list = self.workflow.get_flat_nav_list()
-        self.assertEquals(10, len(nav_list))
+        self.assertEquals(11, len(nav_list))
 
         self.assertNav(nav_list[1], description="Enter Task 1", indent=0)
         self.assertNav(nav_list[2], description="Decide Which Branch?",

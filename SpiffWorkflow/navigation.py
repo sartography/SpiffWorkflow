@@ -1,5 +1,16 @@
 import copy
 
+from . import WorkflowException
+from .bpmn.specs.EndEvent import EndEvent
+from .bpmn.specs.ExclusiveGateway import ExclusiveGateway
+from .bpmn.specs.ManualTask import ManualTask
+from .bpmn.specs.NoneTask import NoneTask
+from .bpmn.specs.ParallelGateway import ParallelGateway
+from .bpmn.specs.ScriptTask import ScriptTask
+from .bpmn.specs.StartEvent import StartEvent
+from .bpmn.specs.UserTask import UserTask
+from .dmn.specs.BusinessRuleTask import BusinessRuleTask
+from .specs import CancelTask, StartTask
 from .task import Task
 from .bpmn.specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
 from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
@@ -23,11 +34,11 @@ class NavItem(object):
            state            -   State of the task
     """
 
-    def __init__(self, spec_id, name, spec_type, description,
+    def __init__(self, spec_id, name, description,
                  lane=None, backtrack_to=None, indent=0):
         self.spec_id = spec_id
         self.name = name
-        self.spec_type = spec_type
+        self.spec_type = "None"
         self.description = description
         self.lane = lane
         self.backtrack_to = backtrack_to
@@ -36,32 +47,51 @@ class NavItem(object):
         self.state = None
         self.children = []
 
+    def set_spec_type(self, spec):
+        types = [UserTask, ManualTask, BusinessRuleTask, CancelTask,
+                 ScriptTask, StartTask, EndEvent, StartEvent,
+                 MultiInstanceTask, StartEvent, SequenceFlow,
+                 ExclusiveGateway, ParallelGateway, CallActivity,
+                 UnstructuredJoin, NoneTask]
+        spec_type = None
+        for t in types:
+            if isinstance(spec, t):
+                spec_type = t.__name__
+                break
+
+        if spec_type:
+            self.spec_type = spec_type
+        else:
+            raise WorkflowException(spec, "Unknown spec: " +
+                                    spec.__class__.__name__)
+
     @classmethod
     def from_spec(cls, spec: BpmnSpecMixin, backtrack_to=None, indent=None):
         instance = cls(
             spec_id=spec.id,
             name=spec.name,
-            spec_type=spec.__class__.__name__,
             description=spec.description,
             lane=spec.lane,
             backtrack_to=backtrack_to,
             indent=indent
         )
+        instance.set_spec_type(spec)
         return instance
 
     @classmethod
     def from_flow(cls, flow: SequenceFlow, lane, backtrack_to, indent):
         """We include flows in the navigation if we hit a conditional gateway,
         as in do this if x, do this if y...."""
-        return cls(
+        instance = cls(
             spec_id=flow.id,
             name=flow.name,
-            spec_type=flow.__class__.__name__,
             description=flow.name,
             lane=lane,
             backtrack_to=backtrack_to,
             indent=indent
         )
+        instance.set_spec_type(flow)
+        return instance
 
     def __eq__(self, other):
         if isinstance(other, NavItem):

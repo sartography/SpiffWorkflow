@@ -30,7 +30,7 @@ class LoopBackNavTest(BpmnWorkflowTestCase):
         task = ready_tasks[0]
         #
         nav = self.workflow.get_flat_nav_list()
-        self.assertEqual(8, len(nav), "Navigation should include 6 elements, "
+        self.assertEqual(9, len(nav), "Navigation should include 6 elements, "
                                        "start, the task, gateway, and true,"
                                        " false, and end paths.")
 
