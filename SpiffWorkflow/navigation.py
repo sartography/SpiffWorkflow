@@ -16,7 +16,7 @@ from .bpmn.specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
 from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
 from .bpmn.specs.MultiInstanceTask import MultiInstanceTask
 from .bpmn.specs.CallActivity import CallActivity
-from .bpmn.specs.BoundaryEvent import _BoundaryEventParent
+from .bpmn.specs.BoundaryEvent import _BoundaryEventParent, BoundaryEvent
 
 
 class NavItem(object):
@@ -52,15 +52,17 @@ class NavItem(object):
                  ScriptTask, StartTask, EndEvent, StartEvent,
                  MultiInstanceTask, StartEvent, SequenceFlow,
                  ExclusiveGateway, ParallelGateway, CallActivity,
-                 UnstructuredJoin, NoneTask]
+                 UnstructuredJoin, NoneTask, BoundaryEvent]
         spec_type = None
         for t in types:
             if isinstance(spec, t):
                 spec_type = t.__name__
                 break
-
         if spec_type:
             self.spec_type = spec_type
+        elif spec.__class__.__name__.startswith('_'):
+            # These should be removed at some point in the process.
+            self.spec_type = spec.__class__.__name__
         else:
             raise WorkflowException(spec, "Unknown spec: " +
                                     spec.__class__.__name__)
