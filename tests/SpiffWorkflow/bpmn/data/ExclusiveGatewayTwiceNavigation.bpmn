@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1oogn9j" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1oogn9j" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
   <bpmn:process id="ExclusiveGatewayTwiceNavigation" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_05ja25w</bpmn:outgoing>
@@ -20,7 +20,8 @@ Your response to these questions will determine if you do or do not provide addi
     <bpmn:sequenceFlow id="Flow_1e2qi9s" sourceRef="Activity_0rv3far" targetRef="EndEvent_09wp7av" />
     <bpmn:manualTask id="Activity_0rv3far" name="Examine your life">
       <bpmn:documentation>Review plan, make changes if needed, continue of ready to submit.</bpmn:documentation>
-      <bpmn:incoming>Flow_1b6vbkk</bpmn:incoming>
+      <bpmn:incoming>Flow_S2</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1b4non2</bpmn:incoming>
       <bpmn:outgoing>Flow_1e2qi9s</bpmn:outgoing>
     </bpmn:manualTask>
     <bpmn:exclusiveGateway id="Gateway_191l7i1" name="Are you a viking?">
@@ -40,16 +41,6 @@ Your response to these questions will determine if you do or do not provide addi
     <bpmn:sequenceFlow id="Flow_S1" name="Yes" sourceRef="Gateway_06s8ygl" targetRef="UserTask_1cx8349">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">eatSpam == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="Gateway_01p9hbs">
-      <bpmn:incoming>SequenceFlow_1b4non2</bpmn:incoming>
-      <bpmn:incoming>Flow_S2</bpmn:incoming>
-      <bpmn:outgoing>Flow_1b6vbkk</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1b6vbkk" sourceRef="Gateway_01p9hbs" targetRef="Activity_0rv3far" />
-    <bpmn:sequenceFlow id="SequenceFlow_1b4non2" sourceRef="UserTask_1cx8349" targetRef="Gateway_01p9hbs" />
-    <bpmn:sequenceFlow id="Flow_S2" name="No" sourceRef="Gateway_06s8ygl" targetRef="Gateway_01p9hbs">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">eatSpam == False</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0scfmzc" sourceRef="MakeChoice" targetRef="Gateway_191l7i1" />
     <bpmn:sequenceFlow id="Flow_V2" name="No" sourceRef="Gateway_191l7i1" targetRef="Gateway_06s8ygl">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">isViking == False</bpmn:conditionExpression>
@@ -63,21 +54,13 @@ Your response to these questions will determine if you do or do not provide addi
       <bpmn:incoming>Flow_V1</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1yi9lig</bpmn:outgoing>
     </bpmn:manualTask>
+    <bpmn:sequenceFlow id="Flow_S2" name="No" sourceRef="Gateway_06s8ygl" targetRef="Activity_0rv3far">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">eatSpam == False</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1b4non2" sourceRef="UserTask_1cx8349" targetRef="Activity_0rv3far" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ExclusiveGatewayTwiceNavigation">
-      <bpmndi:BPMNEdge id="SequenceFlow_05ja25w_di" bpmnElement="SequenceFlow_05ja25w">
-        <di:waypoint x="188" y="137" />
-        <di:waypoint x="270" y="137" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1b6vbkk_di" bpmnElement="Flow_1b6vbkk">
-        <di:waypoint x="1075" y="137" />
-        <di:waypoint x="1150" y="137" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1e2qi9s_di" bpmnElement="Flow_1e2qi9s">
-        <di:waypoint x="1250" y="137" />
-        <di:waypoint x="1342" y="137" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1yi9lig_di" bpmnElement="SequenceFlow_1yi9lig">
         <di:waypoint x="680" y="137" />
         <di:waypoint x="765" y="137" />
@@ -91,12 +74,22 @@ Your response to these questions will determine if you do or do not provide addi
           <dc:Bounds x="626" y="213" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0so3402_di" bpmnElement="Flow_V1">
-        <di:waypoint x="515" y="137" />
-        <di:waypoint x="580" y="137" />
+      <bpmndi:BPMNEdge id="Flow_0scfmzc_di" bpmnElement="Flow_0scfmzc">
+        <di:waypoint x="370" y="137" />
+        <di:waypoint x="465" y="137" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1wp5zmg_di" bpmnElement="Flow_S2">
+        <di:waypoint x="790" y="162" />
+        <di:waypoint x="790" y="230" />
+        <di:waypoint x="1200" y="230" />
+        <di:waypoint x="1200" y="177" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="539" y="119" width="19" height="14" />
+          <dc:Bounds x="939" y="212" width="15" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1b4non2_di" bpmnElement="SequenceFlow_1b4non2">
+        <di:waypoint x="980" y="137" />
+        <di:waypoint x="1150" y="137" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1121pfu_di" bpmnElement="Flow_S1">
         <di:waypoint x="815" y="137" />
@@ -105,25 +98,32 @@ Your response to these questions will determine if you do or do not provide addi
           <dc:Bounds x="839" y="119" width="19" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1b4non2_di" bpmnElement="SequenceFlow_1b4non2">
-        <di:waypoint x="980" y="137" />
-        <di:waypoint x="1025" y="137" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1wp5zmg_di" bpmnElement="Flow_S2">
-        <di:waypoint x="790" y="162" />
-        <di:waypoint x="790" y="230" />
-        <di:waypoint x="1050" y="230" />
-        <di:waypoint x="1050" y="162" />
+      <bpmndi:BPMNEdge id="Flow_0so3402_di" bpmnElement="Flow_V1">
+        <di:waypoint x="515" y="137" />
+        <di:waypoint x="580" y="137" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="882" y="212" width="15" height="14" />
+          <dc:Bounds x="539" y="119" width="19" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0scfmzc_di" bpmnElement="Flow_0scfmzc">
-        <di:waypoint x="370" y="137" />
-        <di:waypoint x="465" y="137" />
+      <bpmndi:BPMNEdge id="Flow_1e2qi9s_di" bpmnElement="Flow_1e2qi9s">
+        <di:waypoint x="1250" y="137" />
+        <di:waypoint x="1342" y="137" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_05ja25w_di" bpmnElement="SequenceFlow_05ja25w">
+        <di:waypoint x="188" y="137" />
+        <di:waypoint x="270" y="137" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="119" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="UserTask_0nu5cww_di" bpmnElement="MakeChoice">
         <dc:Bounds x="270" y="97" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_09wp7av_di" bpmnElement="EndEvent_09wp7av">
+        <dc:Bounds x="1342" y="119" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1mg5lp9_di" bpmnElement="Activity_0rv3far">
+        <dc:Bounds x="1150" y="97" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_191l7i1_di" bpmnElement="Gateway_191l7i1" isMarkerVisible="true">
         <dc:Bounds x="465" y="112" width="50" height="50" />
@@ -136,18 +136,6 @@ Your response to these questions will determine if you do or do not provide addi
         <bpmndi:BPMNLabel>
           <dc:Bounds x="763" y="83" width="54" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1mg5lp9_di" bpmnElement="Activity_0rv3far">
-        <dc:Bounds x="1150" y="97" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_01p9hbs_di" bpmnElement="Gateway_01p9hbs" isMarkerVisible="true">
-        <dc:Bounds x="1025" y="112" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="152" y="119" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_09wp7av_di" bpmnElement="EndEvent_09wp7av">
-        <dc:Bounds x="1342" y="119" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_000t2qc_di" bpmnElement="UserTask_1cx8349">
         <dc:Bounds x="880" y="97" width="100" height="80" />

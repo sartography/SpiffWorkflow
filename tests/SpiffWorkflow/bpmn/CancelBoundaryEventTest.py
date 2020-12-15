@@ -18,6 +18,24 @@ class CancelBoundaryTest(BpmnWorkflowTestCase):
     def load_spec(self):
         return self.load_workflow_spec('message_event.bpmn', 'Process_1dagb7t')
 
+    def testBoundaryNavigation(self):
+        # get the workflow
+        self.workflow = BpmnWorkflow(self.spec)
+        # do engine steps
+        self.workflow.do_engine_steps()
+        nav = self.workflow.get_flat_nav_list()
+        self.assertEquals(5, len(nav))
+        self.assertNav(nav_item=nav[3], state="MAYBE", description="TokenReset")
+
+        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks[0].update_data(data={'formdata': 'asdf'})
+        self.workflow.complete_task_from_id(ready_tasks[0].id)
+        self.workflow.do_engine_steps()
+        nav = self.workflow.get_flat_nav_list()
+        print(nav)
+        self.assertEquals(5, len(nav))
+        self.assertNav(nav_item=nav[3], state="WAITING", description="TokenReset")
+
     def testCancelEvent(self):
         # get the workflow
         self.workflow = BpmnWorkflow(self.spec)
@@ -58,6 +76,7 @@ class CancelBoundaryTest(BpmnWorkflowTestCase):
         # and Activity_HowMany should be Completed
         self.assertEqual(self.workflow.last_task.get_name(), 'Activity_HowMany.BoundaryEventParent')
         self.assertEqual(self.workflow.last_task.get_state(), 32)
+
 
 
 def suite():

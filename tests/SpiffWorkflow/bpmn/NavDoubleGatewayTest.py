@@ -28,22 +28,36 @@ class NavDoubleGateway(BpmnWorkflowTestCase):
 
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
-        nav_list = self.workflow.get_nav_list()
-        self.assertEqual(11, len(nav_list))
+        nav_list = self.workflow.get_flat_nav_list()
+        self.assertEqual(14, len(nav_list))
 
-        self.assertEqual("Task 1", nav_list[0]["description"])
-        self.assertEqual("Decide Which Branch?", nav_list[1]["description"])
-        self.assertEqual("a", nav_list[2]["description"])
-        self.assertEqual("Enter Task 2a", nav_list[3]["description"])
-        self.assertEqual("flow b or c", nav_list[4]["description"])
-        self.assertEqual(None, nav_list[5]["description"])
-        self.assertEqual("flow b", nav_list[6]["description"])
-        self.assertEqual("Enter Task 2b", nav_list[7]["description"])
-        self.assertEqual(None, nav_list[8]["description"])
-        self.assertEqual("Enter Task 2c", nav_list[9]["description"])
-        self.assertEqual("Enter Task 3", nav_list[10]["description"])
+        self.assertEqual("StartEvent", nav_list[0].spec_type)
+        self.assertEqual("Task 1", nav_list[1].description)
+        self.assertEqual("Decide Which Branch?", nav_list[2].description)
+        self.assertEqual("a", nav_list[3].description)
+        self.assertEqual("Enter Task 2a", nav_list[4].description)
+        self.assertEqual("flow b or c", nav_list[5].description)
+        self.assertEqual(None, nav_list[6].description)
+        self.assertEqual("flow b", nav_list[7].description)
+        self.assertEqual("Enter Task 2b", nav_list[8].description)
+        self.assertEqual("flow_c", nav_list[9].description)
+        self.assertEqual("Enter Task 2c", nav_list[10].description)
+        self.assertEqual("Enter Task 3", nav_list[11].description)
 
-        self.assertEqual(0, nav_list[0]["indent"])
+        for nav_item in nav_list:
+            if nav_item.spec_type[-4:] == "Task":
+                self.assertIsNotNone(nav_item.task_id)
+
+
+        # Sanity check on deep nav.
+        nav_list = self.workflow.get_deep_nav_list()
+        self.assertNav(nav_list[0], spec_type="StartEvent", state="COMPLETED")
+        self.assertNav(nav_list[1], description="Task 1", state="READY")
+        self.assertNav(nav_list[2], description="Decide Which Branch?")
+        self.assertNav(nav_list[2].children[0], description="a")
+        self.assertNav(nav_list[2].children[0].children[0], description="Enter Task 2a")
+        self.assertNav(nav_list[2].children[1], description="flow b or c")
+        self.assertNav(nav_list[3], description="Enter Task 3")
 
 
 def suite():
