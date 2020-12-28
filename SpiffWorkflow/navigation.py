@@ -183,11 +183,6 @@ def get_flat_nav_list(workflow):
                                      found=set(), workflow=workflow))
     task_list = workflow.get_tasks()
 
-    # Remove any ignorable navigation items, these are classes that begin
-    # with an _
-    nav_items = list(
-        filter(lambda ni: not (ni.spec_type.startswith("_")), nav_items))
-
     # look up task status for each item in the list
     used_tasks = set()  # set of tasks already used to get state.
     for nav_item in nav_items:

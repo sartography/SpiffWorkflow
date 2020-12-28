@@ -24,8 +24,9 @@ class CancelBoundaryTest(BpmnWorkflowTestCase):
         # do engine steps
         self.workflow.do_engine_steps()
         nav = self.workflow.get_flat_nav_list()
-        self.assertEquals(5, len(nav))
-        self.assertNav(nav_item=nav[3], state="MAYBE", description="TokenReset")
+        nav_deep = self.workflow.get_deep_nav_list()
+        self.assertEquals(7, len(nav))
+        self.assertNav(nav_item=nav[4], state="MAYBE", description="TokenReset")
 
         ready_tasks = self.workflow.get_tasks(Task.READY)
         ready_tasks[0].update_data(data={'formdata': 'asdf'})
@@ -33,8 +34,8 @@ class CancelBoundaryTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         nav = self.workflow.get_flat_nav_list()
         print(nav)
-        self.assertEquals(5, len(nav))
-        self.assertNav(nav_item=nav[3], state="WAITING", description="TokenReset")
+        self.assertEquals(7, len(nav))
+        self.assertNav(nav_item=nav[4], state="WAITING", description="TokenReset")
 
     def testCancelEvent(self):
         # get the workflow
