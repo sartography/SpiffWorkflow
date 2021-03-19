@@ -9,6 +9,8 @@ from builtins import range
 from uuid import uuid4
 import re
 from .ParallelGateway import ParallelGateway
+from .ScriptTask import ScriptTask
+from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...exceptions import WorkflowException, WorkflowTaskExecException
 from ...operators import valueof, is_number
 from ...specs.base import TaskSpec
@@ -449,8 +451,16 @@ class MultiInstanceTask(TaskSpec):
         else:
             my_task._sync_children(outputs, Task.LIKELY)
 
+    def _build_class_names(self):
+        classes = [BusinessRuleTask,ScriptTask]
+        return {x.__module__ + "."+x.__name__:x for x in classes}
 
     def _on_complete_hook(self, my_task):
+        classes = self._build_class_names()
+        if my_task.task_spec.prevtaskclass in classes.keys():
+            super()._on_complete_hook(my_task)
+
+
         self._check_inputs(my_task)
         runcount = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes', 1))
@@ -459,7 +469,6 @@ class MultiInstanceTask(TaskSpec):
             colvarname = self.collection.name
         else:
             colvarname = my_task.task_spec.name
-
 
         collect = valueof(my_task, self.collection, {})
 
@@ -551,6 +560,6 @@ class MultiInstanceTask(TaskSpec):
         return serializer.deserialize_multi_instance(wf_spec, s_state, spec)
 
 def getDynamicMIClass(id,prevclass):
-    id = re.sub('(.+)_[0-9]','\\1',id)
+    id = re.sub('(.+)_[0-9]$','\\1',id)
     return type(id + '_class', (
         MultiInstanceTask, prevclass), {})

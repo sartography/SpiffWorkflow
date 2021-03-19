@@ -90,6 +90,16 @@ class PythonScriptEngine(object):
         exp,valid = self.validateExpression(expression)
         return self._eval(exp, **kwargs,externalMethods=externalMethods)
 
+    def convertToBox(self,data):
+        for x in data.keys():
+            if isinstance(data[x],dict):
+                data[x] = Box(data[x])
+
+    def convertFromBox(self,data):
+        for x in data.keys():
+            if isinstance(data[x],Box):
+                data[x] = data[x].to_dict()
+
     def execute(self, task, script, data,externalMethods={}):
         """
         Execute the script, within the context of the specified task
@@ -98,15 +108,14 @@ class PythonScriptEngine(object):
 
         globals = self.globals
 
-        for x in data.keys():
-            if isinstance(data[x],dict):
-                data[x] = Box(data[x])
+        self.convertToBox(data)
         #data.update({'task':task}) # one of our legacy tests is looking at task.
                                    # this may cause a problem down the road if we
                                    # actually have a variable named 'task'
         globals.update(data)   # dict comprehensions cause problems when the variables are not viable.
         globals.update(externalMethods)
         exec(script,globals,data)
+        self.convertFromBox(data)
 
 
     def _eval(self, expression,externalMethods={}, **kwargs):
