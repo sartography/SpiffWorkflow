@@ -57,6 +57,13 @@ class Box(dict):
     def __setitem__(self, key, value):
         super(Box, self).__setitem__(key, value)
         self.__dict__.update({key: value})
+    def __getstate__(self):
+        return self.__dict__
+
+    def __setstate__(self, state):
+        self.__init__(state)
+
+
 
     def __delattr__(self, item):
         self.__delitem__(item)
@@ -136,12 +143,16 @@ class PythonScriptEngine(object):
             if isinstance(data[x],dict):
                 data[x] = Box(data[x])
 
-
-    def convertFromBox(self,data):
+    def convertFromBoxSub(self,data):
         if isinstance(data,(dict,Box)):
-            return {k:self.convertFromBox(v) for k,v in data.items()}
+            return {k:self.convertFromBoxSub(v) for k,v in data.items()}
         else:
             return data
+
+
+    def convertFromBox(self,data):
+        for k in data.keys():
+            data[k] = self.convertFromBoxSub(data[k])
 
 
     def execute(self, task, script, data,externalMethods={}):
