@@ -49,6 +49,7 @@ class DMNEngine:
                 else:
                     inputVal = None
                 try:
+                    #PythonScriptEngine.convertToBox(DMNPythonScriptEngine(),local_data)
                     if not input.scriptEngine.eval_dmn_expression(inputVal, lhs, **local_data):
                         return False
                 except NameError as e:
