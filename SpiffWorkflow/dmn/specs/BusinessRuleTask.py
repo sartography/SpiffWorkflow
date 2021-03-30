@@ -3,8 +3,11 @@ from SpiffWorkflow.exceptions import WorkflowTaskExecException
 from SpiffWorkflow.specs import Simple
 
 from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-from box import Box
+
+
+from ...bpmn.PythonScriptEngine import PythonScriptEngine
 from ...util.deep_merge import DeepMerge
+
 
 class BusinessRuleTask(Simple, BpmnSpecMixin):
     """
@@ -23,6 +26,8 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
 
     def _on_complete_hook(self, my_task):
         try:
+            convert = PythonScriptEngine()
+            convert.convertToBox(my_task.data)
             self.res = self.dmnEngine.decide(**my_task.data)
             if self.res is not None:  # it is conceivable that no rules fire.
                 self.resDict = self.res.outputAsDict(my_task.data)
