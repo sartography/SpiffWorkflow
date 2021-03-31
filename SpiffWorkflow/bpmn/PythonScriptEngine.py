@@ -47,9 +47,15 @@ class Box(dict):
                     self[k] = v
 
 
+    def __deepcopy__(self, memodict={}):
+        pass
 
     def __getattr__(self, attr):
-        return self.get(attr)
+        try:
+            output = self[attr]
+        except:
+            raise AttributeError
+        return output
 
     def __setattr__(self, key, value):
         self.__setitem__(key, value)
