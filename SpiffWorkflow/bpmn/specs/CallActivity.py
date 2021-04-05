@@ -55,7 +55,7 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
 
         sub_workflow.completed_event.connect(
             self._on_subworkflow_completed, my_task)
-
+        sub_workflow.data = my_task.workflow.data
         return sub_workflow
 
     def get_workflow_class(self):
