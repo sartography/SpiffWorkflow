@@ -155,28 +155,15 @@ class PythonScriptEngine(object):
         else:
             return data
 
-
     def convertFromBox(self,data):
         for k in data.keys():
             data[k] = self.convertFromBoxSub(data[k])
 
 
-    def convertToBox(self,data):
-        for x in data.keys():
-            if isinstance(data[x],dict):
-                data[x] = Box(data[x])
-
-    def convertFromBox(self,data):
-        for x in data.keys():
-            if isinstance(data[x],Box):
-                data[x] = data[x].to_dict()
-
     def execute(self, task, script, data,externalMethods={}):
         """
         Execute the script, within the context of the specified task
         """
-
-
         globals = self.globals
 
         self.convertToBox(data)
