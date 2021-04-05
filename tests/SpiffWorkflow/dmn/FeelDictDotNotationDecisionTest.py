@@ -1,5 +1,6 @@
 import unittest
 
+from SpiffWorkflow.bpmn.PythonScriptEngine import Box
 from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
 
 
@@ -13,7 +14,7 @@ class FeelDictDotNotationDecisionTestClass(unittest.TestCase):
         data = {"foods": {
             "spam": {"delicious": False}
         }}
-        res = self.runner.decide(data)
+        res = self.runner.decide(Box(data))
         self.assertEqual(res.description, 'This person has a tongue, brain '
                                           'or sense of smell.')
 
@@ -24,7 +25,7 @@ class FeelDictDotNotationDecisionTestClass(unittest.TestCase):
         data = {"foods": {
             "spam": {"delicious": True}
         }}
-        res = self.runner.decide(data)
+        res = self.runner.decide(Box(data))
         self.assertEqual(res.description, 'This person is lacking many '
                                           'critical decision making skills, '
                                           'or is a viking.')
@@ -33,7 +34,7 @@ class FeelDictDotNotationDecisionTestClass(unittest.TestCase):
         data = {"foods": {
             "spam": {"delicious": False}
         }}
-        res = self.runner.decide({}, **data)
+        res = self.runner.decide({}, **Box(data))
         self.assertEqual(res.description, 'This person has a tongue, brain '
                                           'or sense of smell.')
 

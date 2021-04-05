@@ -8,7 +8,7 @@ from datetime import timedelta
 from decimal import Decimal
 from SpiffWorkflow.workflow import WorkflowException
 from .PythonScriptEngine import PythonScriptEngine
-from box import Box
+
 # Copyright (C) 2020 Kelly McDonald
 #
 # This library is free software; you can redistribute it and/or

@@ -1,5 +1,4 @@
 celery
 python-Levenshtein
 lxml
-python-box
 .

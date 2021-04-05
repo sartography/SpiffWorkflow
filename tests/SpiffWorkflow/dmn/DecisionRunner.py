@@ -1,6 +1,8 @@
 import os
 
 from lxml import etree
+
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
 from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
 

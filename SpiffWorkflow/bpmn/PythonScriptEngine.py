@@ -7,7 +7,7 @@ import operator
 from datetime import timedelta
 from decimal import Decimal
 from SpiffWorkflow.workflow import WorkflowException
-from box import Box
+
 # Copyright (C) 2020 Kelly McDonald
 #
 # This library is free software; you can redistribute it and/or
@@ -24,6 +24,59 @@ from box import Box
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+class Box(dict):
+    """
+    Example:
+    m = Box({'first_name': 'Eduardo'}, last_name='Pool', age=24, sports=['Soccer'])
+    """
+    def __init__(self, *args, **kwargs):
+        super(Box, self).__init__(*args, **kwargs)
+        for arg in args:
+            if isinstance(arg, dict):
+                for k, v in arg.items():
+                    if isinstance(v,dict):
+                        self[k] = Box(v)
+                    else:
+                        self[k] = v
+
+        if kwargs:
+            for k, v in kwargs.items():
+                if isinstance(v, dict):
+                    self[k] = Box(v)
+                else:
+                    self[k] = v
+
+
+    def __deepcopy__(self, memodict={}):
+        pass
+
+    def __getattr__(self, attr):
+        try:
+            output = self[attr]
+        except:
+            raise AttributeError
+        return output
+
+    def __setattr__(self, key, value):
+        self.__setitem__(key, value)
+
+    def __setitem__(self, key, value):
+        super(Box, self).__setitem__(key, value)
+        self.__dict__.update({key: value})
+    def __getstate__(self):
+        return self.__dict__
+
+    def __setstate__(self, state):
+        self.__init__(state)
+
+
+
+    def __delattr__(self, item):
+        self.__delitem__(item)
+
+    def __delitem__(self, key):
+        super(Box, self).__delitem__(key)
+        del self.__dict__[key]
 
 
 default_header = """
@@ -80,15 +133,33 @@ class PythonScriptEngine(object):
            expression = lhs + ' == ' + rhs
         else:
             expression = lhs + rhs
-        return self.evaluate(default_header + expression, **kwargs)
 
-    def evaluate(self, expression,externalMethods={}, **kwargs):
+        return self.evaluate(default_header + expression, do_convert=False, **kwargs)
+
+    def evaluate(self, expression,externalMethods={}, do_convert=True, **kwargs):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
         """
         exp,valid = self.validateExpression(expression)
-        return self._eval(exp, **kwargs,externalMethods=externalMethods)
+        return self._eval(exp, **kwargs,do_convert=do_convert, externalMethods=externalMethods)
+
+    def convertToBox(self,data):
+        for x in data.keys():
+            if isinstance(data[x],dict):
+                data[x] = Box(data[x])
+
+    def convertFromBoxSub(self,data):
+        if isinstance(data,(dict,Box)):
+            return {k:self.convertFromBoxSub(v) for k,v in data.items()}
+        else:
+            return data
+
+
+    def convertFromBox(self,data):
+        for k in data.keys():
+            data[k] = self.convertFromBoxSub(data[k])
+
 
     def execute(self, task, script, data,externalMethods={}):
         """
@@ -98,9 +169,7 @@ class PythonScriptEngine(object):
 
         globals = self.globals
 
-        for x in data.keys():
-            if isinstance(data[x],dict):
-                data[x] = Box(data[x])
+        self.convertToBox(data)
         #data.update({'task':task}) # one of our legacy tests is looking at task.
                                    # this may cause a problem down the road if we
                                    # actually have a variable named 'task'

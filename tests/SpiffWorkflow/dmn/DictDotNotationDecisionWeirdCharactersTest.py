@@ -1,5 +1,6 @@
 import unittest
 
+from SpiffWorkflow.bpmn.PythonScriptEngine import Box
 from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
 
 
@@ -13,7 +14,7 @@ class DictDotNotationDecisionWeirdCharactersTestClass(unittest.TestCase):
         data = {"odd_foods": {
             "SPAM_LIKE": {"delicious": False}
         }}
-        res = self.runner.decide(data)
+        res = self.runner.decide(Box(data))
         self.assertEqual(res.description, 'This person has a tongue, brain '
                                           'or sense of smell.')
 
