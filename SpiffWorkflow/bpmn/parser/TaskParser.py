@@ -22,9 +22,11 @@ import logging
 import sys
 import traceback
 from .ValidationException import ValidationException
+from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
 from ..specs.MultiInstanceTask import getDynamicMIClass
+from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...operators import Attrib, PathAttrib
 from .util import xpath_eval, one
 
@@ -121,7 +123,7 @@ class TaskParser(object):
             # that we do not expect. This list can be exapanded at a later
             # date To handle other use cases - don't forget the overridden
             # test classes!
-        if multiinstance and isinstance(self.task, UserTask):
+        if multiinstance and isinstance(self.task, (UserTask,BusinessRuleTask,ScriptTask)):
             loopcount = loopcount.replace('.',
                                           '/')  # make dot notation compatible
             # with bmpmn path notation.
