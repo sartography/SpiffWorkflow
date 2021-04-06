@@ -507,6 +507,9 @@ class DictionarySerializer(Serializer):
             s_state['loopTask'] = self.serialize_arg(spec.loopTask)
             if (hasattr(spec,'expanded')):
                 s_state['expanded'] = self.serialize_arg(spec.expanded)
+        if isinstance(spec,BusinessRuleTask):
+            brState = self.serialize_business_rule_task(spec)
+            s_state['dmn'] = brState['dmn']
         s_state['times'] = self.serialize_arg(spec.times)
         s_state['prevtaskclass'] = spec.prevtaskclass
         return s_state
@@ -526,6 +529,11 @@ class DictionarySerializer(Serializer):
             cls.collection = self.deserialize_arg(s_state['collection'])
             if s_state.get('expanded',None):
                 cls.expanded = self.deserialize_arg(s_state['expanded'])
+        if isinstance(cls,BusinessRuleTask):
+            dt = DecisionTable(None,None)
+            dt.deserialize(s_state['dmn'])
+            dmnEngine = DMNEngine(dt)
+            cls.dmnEngine=dmnEngine
         if s_state.get('form',None):
             cls.form = s_state['form']
 
