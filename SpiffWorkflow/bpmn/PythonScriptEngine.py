@@ -96,7 +96,9 @@ class PythonScriptEngine(object):
     """
     def __init__(self,scriptingAdditions = {}):
         self.globals = {'timedelta':timedelta,
-                         'datetime':datetime}
+                         'datetime':datetime,
+                        'Box':Box,
+                        }
         self.globals.update(scriptingAdditions)
 
     def validateExpression (self,text):
@@ -179,8 +181,7 @@ class PythonScriptEngine(object):
     def _eval(self, expression,externalMethods={}, **kwargs):
         lcls = {}
         lcls.update(kwargs)
-        globals = {'timedelta':timedelta,
-                   'datetime':datetime}
+        globals = self.globals
         for x in lcls.keys():
             if isinstance(lcls[x], dict):
                 lcls[x] = Box(lcls[x])
