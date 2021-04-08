@@ -278,7 +278,7 @@ class FeelLikeScriptEngine(PythonScriptEngine):
     expressions in a mini-language of your own.
     """
     def __init__(self):
-        pass
+        super().__init__()
 
     def patch_expression(self,invalid_python,lhs=''):
         if invalid_python is None:

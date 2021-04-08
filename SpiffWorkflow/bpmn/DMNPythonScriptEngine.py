@@ -33,7 +33,7 @@ class DMNPythonScriptEngine(PythonScriptEngine):
     will play nice with the existing FeelLikeScriptEngine
     """
     def __init__(self):
-        pass
+        super().__init__()
 
     def eval_dmn_expression(self, inputExpr, matchExpr, **kwargs):
         """
