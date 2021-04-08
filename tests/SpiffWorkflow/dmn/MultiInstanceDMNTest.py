@@ -30,11 +30,21 @@ class MultiInstanceDMNTest(BpmnWorkflowTestCase):
     def testDmnHappy(self):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
+        self.workflow.complete_next()
+        self.workflow.do_engine_steps()
+        self.workflow.complete_next()
+        self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.data['stuff']['E']['y'], 'D')
 
 
     def testDmnSaveRestore(self):
         self.workflow = BpmnWorkflow(self.spec)
+        self.save_restore()
+        self.workflow.do_engine_steps()
+        self.workflow.complete_next()
+        self.save_restore()
+        self.workflow.do_engine_steps()
+        self.workflow.complete_next()
         self.save_restore()
         self.workflow.do_engine_steps()
         self.save_restore()
