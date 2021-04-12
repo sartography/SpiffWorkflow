@@ -146,16 +146,29 @@ class PythonScriptEngine(object):
         exp,valid = self.validateExpression(expression)
         return self._eval(exp, **kwargs,do_convert=do_convert, externalMethods=externalMethods)
 
+    def convertToBoxSub(self,data):
+        if isinstance(data,list):
+            for x in range(len(data)):
+                data[x] = self.convertToBoxSub(data[x])
+            return data
+        if isinstance(data,dict):
+            for x in data.keys():
+                if isinstance(data[x],dict):
+                    data[x] = self.convertToBoxSub(data[x])
+            return Box(data)
+        return data
+
+
     def convertToBox(self,data):
-        for x in data.keys():
-            if isinstance(data[x],dict):
-                data[x] = Box(data[x])
+        for key in data.keys():
+            data[key] = self.convertToBoxSub(data[key])
 
     def convertFromBoxSub(self,data):
+        if isinstance(data,list):
+            return [self.convertFromBoxSub(x) for x in data]
         if isinstance(data,(dict,Box)):
             return {k:self.convertFromBoxSub(v) for k,v in data.items()}
-        else:
-            return data
+        return data
 
     def convertFromBox(self,data):
         for k in data.keys():
