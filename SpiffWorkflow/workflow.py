@@ -188,7 +188,7 @@ class Workflow(object):
         :rtype: Task
         :return: The task that relates to the spec with the given name.
         """
-        return [task for task in self.get_tasks()
+        return [task for task in self.get_tasks_iterator()
                 if task.task_spec.name == name]
 
     def empty(self,str):
@@ -300,8 +300,16 @@ class Workflow(object):
         msg = 'A task with the given task_id (%s) was not found' % task_id
         raise WorkflowException(self.spec, msg)
 
+    def get_tasks_iterator(self, state=Task.ANY_MASK):
+        """
+        Returns a iterator of Task objects with the given state.
 
-
+        :type  state: integer
+        :param state: A bitmask of states.
+        :rtype:  Task.Iterator
+        :returns: A list of tasks.
+        """
+        return Task.Iterator(self.task_tree, state)
 
     def complete_task_from_id(self, task_id):
         """

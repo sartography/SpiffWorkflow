@@ -89,7 +89,7 @@ class Celery(TaskSpec):
                  any_param=Attrib('result'))
 
         For serialization, the celery task_id is stored in internal_data,
-        but the celery async call is only storred as an attr of the task (since
+        but the celery async call is only stored as an attr of the task (since
         it is not always serializable). When deserialized, the async_call attr
         is reset in the _start call.
 
