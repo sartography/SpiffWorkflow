@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+import copy
 from builtins import object
 import ast
-import re
 import datetime
-import operator
 from datetime import timedelta
-from decimal import Decimal
 from SpiffWorkflow.workflow import WorkflowException
 
 # Copyright (C) 2020 Kelly McDonald
@@ -46,9 +44,11 @@ class Box(dict):
                 else:
                     self[k] = v
 
-
     def __deepcopy__(self, memodict={}):
-        pass
+        my_copy = Box()
+        for k,v in self.items():
+            my_copy[k] = copy.deepcopy(v)
+        return my_copy
 
     def __getattr__(self, attr):
         try:
