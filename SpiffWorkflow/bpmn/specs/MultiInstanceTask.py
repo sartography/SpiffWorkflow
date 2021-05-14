@@ -472,7 +472,10 @@ class MultiInstanceTask(TaskSpec):
 
     def _on_complete_hook(self, my_task):
         classes = self._build_class_names()
-        if my_task.task_spec.prevtaskclass in classes.keys():
+        terminate = self._get_loop_completion(my_task)
+        if my_task.task_spec.prevtaskclass in classes.keys() \
+            and not terminate:
+
             super()._on_complete_hook(my_task)
 
 

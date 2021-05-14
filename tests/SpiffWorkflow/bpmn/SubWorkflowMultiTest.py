@@ -18,19 +18,20 @@ class SubWorkflowMultiTest(BpmnWorkflowTestCase):
         self.spec = self.load_spec()
 
     def load_spec(self):
+        # for now we are testing the completion condition
+        # There is also a test bpmn sub_workflow_multi.bpmn that tests the exact same
+        # thing, except for the script is in a call activity. This is currently not working the way
+        # we want it to, but it should
         return self.load_workflow_spec('sub_workflow_multi1.bpmn', 'ScriptTest')
 
     def testRunThroughHappy(self):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
-
-        print(self.workflow.is_completed())
         data = self.workflow.last_task.data
 
-        print(data)
-        self.assertEqual(data['c1'], 'HELLO')
-        self.assertEqual(data['c2'], 'GOODBYE')
+        self.assertEqual(data['coll'], {1: {'a': 1}, 2: {'a': 2}, 3: {'a': 3}})
+
 
 
 
