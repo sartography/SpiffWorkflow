@@ -422,6 +422,8 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
             indent_correction = merge_list[0].indent - level
             for child in merge_list:
                 child.indent -= indent_correction
+                if child.indent < 0:
+                    child.indent=0
                 output.append(child)
 
     found.add(tree.id)
