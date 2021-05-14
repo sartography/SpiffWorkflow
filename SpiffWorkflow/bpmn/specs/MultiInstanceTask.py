@@ -8,11 +8,14 @@ import string
 from builtins import range
 from uuid import uuid4
 import re
+
+from .CallActivity import CallActivity
 from .ParallelGateway import ParallelGateway
 from .ScriptTask import ScriptTask
 from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...exceptions import WorkflowException, WorkflowTaskExecException
 from ...operators import valueof, is_number
+from ...specs import SubWorkflow
 from ...specs.base import TaskSpec
 from ...util.impl import get_class
 # Copyright (C) 2020 Sartography
@@ -113,6 +116,14 @@ class MultiInstanceTask(TaskSpec):
             []):
             raise WorkflowTaskExecException(my_task,
                                     'If we are updating a collection, then the collection must be a dictionary.')
+
+    def _get_loop_completion(self,my_task):
+        if not self.completioncondition == None:
+            terminate = my_task.workflow.script_engine.evaluate(my_task,self.completioncondition)
+            if terminate:
+                my_task.terminate_current_loop = True
+            return terminate
+        return False
 
     def _get_count(self, my_task):
         """
@@ -446,18 +457,25 @@ class MultiInstanceTask(TaskSpec):
                         current_task_spec = new_task_spec
 
         outputs += self.outputs
-        if my_task._is_definite():
-            my_task._sync_children(outputs, Task.FUTURE)
+        if isinstance(my_task.task_spec,CallActivity):
+            super(MultiInstanceTask,self)._predict_hook(my_task)
+            #CallActivity()._predict_hook(my_task)
         else:
-            my_task._sync_children(outputs, Task.LIKELY)
+            if my_task._is_definite():
+                my_task._sync_children(outputs, Task.FUTURE)
+            else:
+                my_task._sync_children(outputs, Task.LIKELY)
 
     def _build_class_names(self):
-        classes = [BusinessRuleTask,ScriptTask]
+        classes = [BusinessRuleTask,ScriptTask,CallActivity,SubWorkflow]
         return {x.__module__ + "."+x.__name__:x for x in classes}
 
     def _on_complete_hook(self, my_task):
         classes = self._build_class_names()
-        if my_task.task_spec.prevtaskclass in classes.keys():
+        terminate = self._get_loop_completion(my_task)
+        if my_task.task_spec.prevtaskclass in classes.keys() \
+            and not terminate:
+
             super()._on_complete_hook(my_task)
 
 
@@ -479,7 +497,7 @@ class MultiInstanceTask(TaskSpec):
         if self.collection is not None and \
             self.times.name == self.collection.name:
             keys = list(collect.keys())
-            if len(keys)<runtimes:
+            if len(keys) < runtimes:
                 msg = f"There is a mismatch between runtimes and the number " \
                       f"items in the collection, please check for empty " \
                       f"collection {self.collection.name}."
@@ -496,7 +514,7 @@ class MultiInstanceTask(TaskSpec):
         LOG.debug(my_task.task_spec.name + 'complete hook')
         my_task.data = DeepMerge.merge(my_task.data,
                                        gendict(colvarname.split('/'), collect))
-
+        #self._get_loop_completion(my_task)
         if (runtimes < runcount) and not \
             my_task.terminate_current_loop and \
             self.loopTask:
@@ -538,7 +556,8 @@ class MultiInstanceTask(TaskSpec):
         outputs = []
         outputs += self.outputs
 
-        my_task._sync_children(outputs, Task.FUTURE)
+        if not isinstance(my_task.task_spec,CallActivity):
+            my_task._sync_children(outputs, Task.FUTURE)
 
         for child in my_task.children:
             child.task_spec._update(child)

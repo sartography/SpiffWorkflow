@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_015ooho" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <bpmn:process id="Process_1l85e0n" name="ScriptTest" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0dsbqk4</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0dsbqk4" sourceRef="StartEvent_1" targetRef="Activity_16giml8" />
+    <bpmn:endEvent id="Event_12boxg0">
+      <bpmn:incoming>Flow_1lbqsop</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="Activity_1kkxlz7" name="Second Script">
+      <bpmn:incoming>Flow_0n1o8w6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1lbqsop</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="coll" camunda:elementVariable="a">
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">5</bpmn:loopCardinality>
+        <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">done==True</bpmn:completionCondition>
+      </bpmn:multiInstanceLoopCharacteristics>
+      <bpmn:script>x = {'a':a}
+if a==3:
+   done=True
+a=x</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_1lbqsop" sourceRef="Activity_1kkxlz7" targetRef="Event_12boxg0" />
+    <bpmn:sequenceFlow id="Flow_0n1o8w6" sourceRef="Activity_16giml8" targetRef="Activity_1kkxlz7" />
+    <bpmn:scriptTask id="Activity_16giml8" name="init">
+      <bpmn:incoming>Flow_0dsbqk4</bpmn:incoming>
+      <bpmn:outgoing>Flow_0n1o8w6</bpmn:outgoing>
+      <bpmn:script>done=False</bpmn:script>
+    </bpmn:scriptTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1l85e0n">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="109" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0dsbqk4_di" bpmnElement="Flow_0dsbqk4">
+        <di:waypoint x="188" y="127" />
+        <di:waypoint x="250" y="127" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_12boxg0_di" bpmnElement="Event_12boxg0">
+        <dc:Bounds x="632" y="109" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1v1rg9x_di" bpmnElement="Activity_1kkxlz7">
+        <dc:Bounds x="440" y="87" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1lbqsop_di" bpmnElement="Flow_1lbqsop">
+        <di:waypoint x="540" y="127" />
+        <di:waypoint x="632" y="127" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0n1o8w6_di" bpmnElement="Flow_0n1o8w6">
+        <di:waypoint x="350" y="127" />
+        <di:waypoint x="440" y="127" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0fx0yfe_di" bpmnElement="Activity_16giml8">
+        <dc:Bounds x="250" y="87" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

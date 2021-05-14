@@ -32,9 +32,10 @@ from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
                      ExclusiveChoice, Execute, Gate, Join, MultiChoice,
                      MultiInstance, ReleaseMutex, Simple, WorkflowSpec,
                      TaskSpec, SubWorkflow, StartTask, ThreadMerge,
-                     ThreadSplit, ThreadStart, Merge, Trigger, )
+                     ThreadSplit, ThreadStart, Merge, Trigger)
 from .base import Serializer
 from ..bpmn.specs.MultiInstanceTask import MultiInstanceTask
+from ..bpmn.specs.CallActivity import CallActivity
 from ..camunda.specs.UserTask import UserTask
 from ..bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from ..bpmn.specs.ScriptTask import ScriptTask
@@ -503,6 +504,7 @@ class DictionarySerializer(Serializer):
         if isinstance(spec,MultiInstanceTask):
             s_state['collection'] = self.serialize_arg(spec.collection)
             s_state['elementVar'] = self.serialize_arg(spec.elementVar)
+            s_state['completioncondition'] = self.serialize_arg(spec.completioncondition)
             s_state['isSequential'] = self.serialize_arg(spec.isSequential)
             s_state['loopTask'] = self.serialize_arg(spec.loopTask)
             if (hasattr(spec,'expanded')):
@@ -510,6 +512,17 @@ class DictionarySerializer(Serializer):
         if isinstance(spec,BusinessRuleTask):
             brState = self.serialize_business_rule_task(spec)
             s_state['dmn'] = brState['dmn']
+        if isinstance(spec, SubWorkflow):
+            brState = self.serialize_sub_workflow(spec)
+            #s_state['file'] = brState['file']
+            s_state['in_assign'] = brState['in_assign']
+            s_state['out_assign'] = brState['out_assign']
+        if isinstance(spec, CallActivity):
+            brState = self.serialize_call_activity(spec)
+            s_state['wf_class'] = brState['wf_class']
+            s_state['spec'] = brState['spec']
+
+
         s_state['times'] = self.serialize_arg(spec.times)
         s_state['prevtaskclass'] = spec.prevtaskclass
         return s_state
@@ -526,6 +539,7 @@ class DictionarySerializer(Serializer):
             cls.isSequential = self.deserialize_arg(s_state['isSequential'])
             cls.loopTask = self.deserialize_arg(s_state['loopTask'])
             cls.elementVar = self.deserialize_arg(s_state['elementVar'])
+            cls.completioncondition = self.deserialize_arg(s_state['completioncondition'])
             cls.collection = self.deserialize_arg(s_state['collection'])
             if s_state.get('expanded',None):
                 cls.expanded = self.deserialize_arg(s_state['expanded'])
@@ -534,6 +548,13 @@ class DictionarySerializer(Serializer):
             dt.deserialize(s_state['dmn'])
             dmnEngine = DMNEngine(dt)
             cls.dmnEngine=dmnEngine
+        if isinstance(cls, SubWorkflow):
+            cls.in_assign = self.deserialize_list(s_state['in_assign'])
+            cls.out_assign = self.deserialize_list(s_state['out_assign'])
+        if isinstance(cls,CallActivity):
+            cls.wf_class = get_class(s_state['wf_class'])
+            cls.spec = self.deserialize_workflow_spec(s_state['spec'])
+
         if s_state.get('form',None):
             cls.form = s_state['form']
 
