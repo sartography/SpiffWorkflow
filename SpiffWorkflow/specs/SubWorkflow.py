@@ -128,7 +128,8 @@ class SubWorkflow(TaskSpec):
         # Assign variables, if so requested.
         for child in my_task.children:
             if subworkflow.last_task is not None:
-                child.data.update(subworkflow.last_task.data)
+                my_task.data.update(subworkflow.data)
+                #child.data.update(subworkflow.last_task.data)
             if child.task_spec in self.outputs:
                 for assignment in self.out_assign:
                     assignment.assign(subworkflow, child)

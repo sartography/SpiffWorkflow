@@ -3,6 +3,7 @@ import copy
 from . import WorkflowException
 from .bpmn.specs.EndEvent import EndEvent
 from .bpmn.specs.ExclusiveGateway import ExclusiveGateway
+from .bpmn.specs.IntermediateThrowEvent import IntermediateThrowEvent
 from .bpmn.specs.ManualTask import ManualTask
 from .bpmn.specs.NoneTask import NoneTask
 from .bpmn.specs.ParallelGateway import ParallelGateway
@@ -52,7 +53,7 @@ class NavItem(object):
                  ScriptTask, StartTask, EndEvent, StartEvent,
                  MultiInstanceTask, StartEvent, SequenceFlow,
                  ExclusiveGateway, ParallelGateway, CallActivity,
-                 UnstructuredJoin, NoneTask, BoundaryEvent]
+                 UnstructuredJoin, NoneTask, BoundaryEvent, IntermediateThrowEvent]
         spec_type = None
         for t in types:
             if isinstance(spec, t):

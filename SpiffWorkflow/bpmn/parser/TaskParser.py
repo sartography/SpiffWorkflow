@@ -26,9 +26,11 @@ from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
 from ..specs.MultiInstanceTask import getDynamicMIClass
+from ..specs.CallActivity import CallActivity
 from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...operators import Attrib, PathAttrib
 from .util import xpath_eval, one
+from ...specs.SubWorkflow import SubWorkflow
 
 LOG = logging.getLogger(__name__)
 
@@ -123,7 +125,7 @@ class TaskParser(object):
             # that we do not expect. This list can be exapanded at a later
             # date To handle other use cases - don't forget the overridden
             # test classes!
-        if multiinstance and isinstance(self.task, (UserTask,BusinessRuleTask,ScriptTask)):
+        if multiinstance and isinstance(self.task, (UserTask,BusinessRuleTask,ScriptTask,CallActivity,SubWorkflow)):
             loopcount = loopcount.replace('.',
                                           '/')  # make dot notation compatible
             # with bmpmn path notation.
@@ -158,6 +160,7 @@ class TaskParser(object):
             #       MultiInstanceTask,self.task.__class__ ), {})
             self.task.multiInstance = multiinstance
             self.task.isSequential = isSequential
+
             if isLoop:
                 self.task.expanded = 25
             else:

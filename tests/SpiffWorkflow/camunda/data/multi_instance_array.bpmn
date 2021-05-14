@@ -40,7 +40,6 @@
       <bpmn:outgoing>Flow_0659lqh</bpmn:outgoing>
       <bpmn:multiInstanceLoopCharacteristics isSequential="true" camunda:collection="Family.Members" camunda:elementVariable="FamilyMember">
         <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">Family.Size</bpmn:loopCardinality>
-        <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">test completion</bpmn:completionCondition>
       </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0bplvtg" sourceRef="StartEvent_1" targetRef="Activity_FamSize" />
