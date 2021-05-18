@@ -512,9 +512,12 @@ class DictionarySerializer(Serializer):
         if isinstance(spec,BusinessRuleTask):
             brState = self.serialize_business_rule_task(spec)
             s_state['dmn'] = brState['dmn']
+        if isinstance(spec, ScriptTask):
+            brState = self.serialize_script_task(spec)
+            s_state['script'] = brState['script']
         if isinstance(spec, SubWorkflow):
             brState = self.serialize_sub_workflow(spec)
-            #s_state['file'] = brState['file']
+            s_state['file'] = brState['file']
             s_state['in_assign'] = brState['in_assign']
             s_state['out_assign'] = brState['out_assign']
         if isinstance(spec, CallActivity):
@@ -548,7 +551,13 @@ class DictionarySerializer(Serializer):
             dt.deserialize(s_state['dmn'])
             dmnEngine = DMNEngine(dt)
             cls.dmnEngine=dmnEngine
+        if isinstance(cls, ScriptTask):
+            cls.script = s_state['script']
         if isinstance(cls, SubWorkflow):
+            if s_state.get('file'):
+                cls.file = self.deserialize_arg(s_state['file'])
+            else:
+                cls.file = None
             cls.in_assign = self.deserialize_list(s_state['in_assign'])
             cls.out_assign = self.deserialize_list(s_state['out_assign'])
         if isinstance(cls,CallActivity):
