@@ -279,6 +279,37 @@ class MultiInstanceTask(TaskSpec):
                 'is_parallel_mi': parallel,
                 'mi_count': split_n,
                 'mi_index': runtimes}
+
+
+    def _make_new_child_task(self,my_task,x):
+        # here we generate a distinct copy of our original task and spec for each
+        # parallel instance, and hook them up into the task tree
+        LOG.debug("MI creating new child & task spec")
+        new_child = copy.copy(my_task)
+        new_child.id = uuid4()
+        # I think we will need to update both every variables
+        # internal data and the copy of the public data to get the
+        # variables correct
+        new_child.internal_data = copy.copy(my_task.internal_data)
+
+        new_child.internal_data[
+            'runtimes'] = x + 2  # working with base 1 and we already have one done
+
+        new_child.data = copy.copy(my_task.data)
+        new_child.data[self.elementVar] = self._get_current_var(my_task,
+                                                                x + 2)
+
+        new_child.children = []  # make sure we have a distinct list of children for
+        # each child. The copy is not a deep copy, and
+        # I was having problems with tasks sharing
+        # their child list.
+
+        # NB - at this point, many of the tasks have a null children, but
+        # Spiff will actually generate the child when it rolls through and
+        # does a sync children - it is enough at this point to
+        # have the task spec in the right place.
+        return new_child
+
     def _expand_sequential(self,my_task,split_n):
         # this should be only for SMI and not looping tasks -
         # we need to patch up the children and make sure they chain correctly
@@ -301,23 +332,7 @@ class MultiInstanceTask(TaskSpec):
                 # expand the tree
 
                 for x in range(split_n - expanded):
-                    # here we generate a distinct copy of our original task and spec for each
-                    # parallel instance, and hook them up into the task tree
-                    LOG.debug("MI creating new child & task spec")
-                    new_child = copy.copy(my_task_copy)
-                    new_child.id = uuid4()
-                    # I think we will need to update both every variables
-                    # internal data and the copy of the public data to get the
-                    # variables correct
-                    new_child.internal_data = copy.copy(my_task_copy.internal_data)
-
-                    new_child.internal_data[
-                        'runtimes'] = x + 2  # working with base 1 and we already have one done
-
-                    new_child.data = copy.copy(my_task_copy.data)
-                    new_child.data[self.elementVar] = self._get_current_var(my_task_copy,
-                                                                            x + 2)
-
+                    new_child = self._make_new_child_task(my_task,x)
                     new_child.children = copy.copy(my_task_copy.children)  # make sure we have a distinct list of
                     # children
                     for child in new_child.children:
@@ -346,32 +361,7 @@ class MultiInstanceTask(TaskSpec):
         if len(my_task.parent.children) < split_n:
             # expand the tree
             for x in range(split_n - len(my_task.parent.children)):
-                # here we generate a distinct copy of our original task and spec for each
-                # parallel instance, and hook them up into the task tree
-                LOG.debug("MI creating new child & task spec")
-                new_child = copy.copy(my_task)
-                new_child.id = uuid4()
-                # I think we will need to update both every variables
-                # internal data and the copy of the public data to get the
-                # variables correct
-                new_child.internal_data = copy.copy(my_task.internal_data)
-
-                new_child.internal_data[
-                    'runtimes'] = x + 2  # working with base 1 and we already have one done
-
-                new_child.data = copy.copy(my_task.data)
-                new_child.data[self.elementVar] = self._get_current_var(my_task,
-                                                                        x + 2)
-
-                new_child.children = []  # make sure we have a distinct list of children for
-                # each child. The copy is not a deep copy, and
-                # I was having problems with tasks sharing
-                # their child list.
-
-                # NB - at this point, many of the tasks have a null children, but
-                # Spiff will actually generate the child when it rolls through and
-                # does a sync children - it is enough at this point to
-                # have the task spec in the right place.
+                new_child = self._make_new_child_task(my_task,x)
                 new_task_spec = self._make_new_task_spec(my_task.task_spec, my_task, x)
 
                 new_child.task_spec = new_task_spec
