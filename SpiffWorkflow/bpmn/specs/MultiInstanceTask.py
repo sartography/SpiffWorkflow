@@ -326,17 +326,6 @@ class MultiInstanceTask(TaskSpec):
             # happen once
             self._add_gateway(my_task)
 
-
-            for tasknum in range(len(my_task.parent.children)):
-                task = my_task.parent.children[tasknum]
-                # we had an error on save/restore that was causing a problem down the line
-                # basically every task that we have expanded out needs its own task_spec.
-                # the save restore gets the right thing in the child, but not on each of the
-                # intermediate tasks.
-                if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
-                    LOG.debug("fix up save/restore in predict")
-                    task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
-
             if len(my_task.parent.children) < split_n:
                 # expand the tree
                 for x in range(split_n - len(my_task.parent.children)):
