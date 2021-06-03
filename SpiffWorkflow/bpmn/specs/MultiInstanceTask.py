@@ -282,7 +282,7 @@ class MultiInstanceTask(TaskSpec):
 
 
     def _make_new_child_task(self,my_task,x):
-        # here we generate a distinct copy of our original task and spec for each
+        # here we generate a distinct copy of our original task each
         # parallel instance, and hook them up into the task tree
         LOG.debug("MI creating new child & task spec")
         new_child = copy.copy(my_task)
@@ -316,6 +316,10 @@ class MultiInstanceTask(TaskSpec):
         # this is different from PMI because the children all link together, not to
         # the gateways on both ends.
         # first let's check for a task in the task spec tree
+
+        # we have to jump through some hoops to determine if we have already
+        # expanded this properly as we may have a cardinality that may change
+        # and this code gets run a bunch of times.
         expanded = getattr(self, 'expanded', 1)
         if split_n >= expanded:
             setattr(self, 'expanded', split_n)
@@ -323,55 +327,49 @@ class MultiInstanceTask(TaskSpec):
         if not (expanded == split_n):
 
             my_task_copy = copy.copy(my_task)
-            #                my_task_children = my_task.children
             current_task = my_task
             current_task_spec = self
             proto_task_spec = copy.copy(self)
 
-            if expanded < split_n:
-                # expand the tree
+            for x in range(split_n - expanded):
+                new_child = self._make_new_child_task(my_task,x)
+                new_child.children = copy.copy(my_task_copy.children)  # make sure we have a distinct list of
+                # children
+                for child in new_child.children:
+                    child.parent = new_child
 
-                for x in range(split_n - expanded):
-                    new_child = self._make_new_child_task(my_task,x)
-                    new_child.children = copy.copy(my_task_copy.children)  # make sure we have a distinct list of
-                    # children
-                    for child in new_child.children:
-                        child.parent = new_child
+                # NB - at this point, many of the tasks have a null children, but
+                # Spiff will actually generate the child when it rolls through and
+                # does a sync children - it is enough at this point to
+                # have the task spec in the right place.
+                new_task_spec = self._make_new_task_spec(proto_task_spec, my_task, x)
+                new_child.task_spec = new_task_spec
+                new_child._set_state(Task.MAYBE)
 
-                    # NB - at this point, many of the tasks have a null children, but
-                    # Spiff will actually generate the child when it rolls through and
-                    # does a sync children - it is enough at this point to
-                    # have the task spec in the right place.
-                    new_task_spec = self._make_new_task_spec(proto_task_spec, my_task, x)
-                    new_child.task_spec = new_task_spec
-                    new_child._set_state(Task.MAYBE)
+                current_task_spec.outputs = [new_task_spec]
+                new_task_spec.inputs = [current_task_spec]
+                current_task.children = [new_child]
+                new_child.parent = current_task
 
-                    current_task_spec.outputs = [new_task_spec]
-                    new_task_spec.inputs = [current_task_spec]
-                    current_task.children = [new_child]
-                    new_child.parent = current_task
-
-                    current_task = new_child
-                    current_task_spec = new_task_spec
+                current_task = new_child
+                current_task_spec = new_task_spec
 
     def _expand_parallel(self,my_task,split_n):
-
+        # add a parallel gateway on either side of this task
         self._add_gateway(my_task)
+        # we use the child count of the parallel gateway to determine
+        # if we have expanded this or not. Children of the gateway we just created
+        # should match the split level provided by the multiinstance
 
-        if len(my_task.parent.children) < split_n:
-            # expand the tree
-            for x in range(split_n - len(my_task.parent.children)):
-                new_child = self._make_new_child_task(my_task,x)
-                new_task_spec = self._make_new_task_spec(my_task.task_spec, my_task, x)
-
-                new_child.task_spec = new_task_spec
-
-                self.outputs[0].inputs.append(new_task_spec)
-                my_task.parent.children.append(new_child)
-                my_task.parent.task_spec.outputs.append(new_task_spec)
-            else:
-                LOG.debug("parent child length:" + str(
-                    len(my_task.task_spec.outputs)))
+        for x in range(split_n - len(my_task.parent.children)):
+            new_child = self._make_new_child_task(my_task,x)
+            new_task_spec = self._make_new_task_spec(my_task.task_spec, my_task, x)
+            new_child.task_spec = new_task_spec
+            # patch up the right hand side gateway
+            self.outputs[0].inputs.append(new_task_spec)
+            # patch up the left hand side gateway task and task_spec
+            my_task.parent.children.append(new_child)
+            my_task.parent.task_spec.outputs.append(new_task_spec)
 
     def _make_new_task_spec(self,proto_task_spec,my_task,suffix):
 
