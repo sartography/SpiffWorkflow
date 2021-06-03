@@ -558,9 +558,8 @@ class MultiInstanceTask(TaskSpec):
 
         if not isinstance(my_task.task_spec,CallActivity):
             my_task._sync_children(outputs, Task.FUTURE)
-
-        for child in my_task.children:
-            child.task_spec._update(child)
+            for child in my_task.children:
+                child.task_spec._update(child)
 
         # If removed, add the element_var_data back onto this task.
         if(element_var_data):
