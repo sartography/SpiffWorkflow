@@ -299,15 +299,8 @@ class MultiInstanceTask(TaskSpec):
         new_child.data[self.elementVar] = self._get_current_var(my_task,
                                                                 x + 2)
 
-        new_child.children = []  # make sure we have a distinct list of children for
-        # each child. The copy is not a deep copy, and
-        # I was having problems with tasks sharing
-        # their child list.
-
-        # NB - at this point, many of the tasks have a null children, but
-        # Spiff will actually generate the child when it rolls through and
-        # does a sync children - it is enough at this point to
-        # have the task spec in the right place.
+        new_child.children = []  # these will be updated later
+        # in the case of parallel, the children list will get updated during the predict loop
         return new_child
 
     def _expand_sequential(self,my_task,split_n):
@@ -326,31 +319,40 @@ class MultiInstanceTask(TaskSpec):
 
         if not (expanded == split_n):
 
+            # Initialize based on current task
             my_task_copy = copy.copy(my_task)
             current_task = my_task
             current_task_spec = self
             proto_task_spec = copy.copy(self)
 
+            # for each new child we add,
+            # Essentially we are expanding like this:
+            # A -> B0 -> C
+            # A -> B0 -> B1 -> B2 -> C
+            # each new child has the last child as its parent
+            # and the outputs of what we previously had.
+            # this has to be done for both the task and the task spec.
+
             for x in range(split_n - expanded):
+                # create Bx from Bx-1
                 new_child = self._make_new_child_task(my_task,x)
-                new_child.children = copy.copy(my_task_copy.children)  # make sure we have a distinct list of
-                # children
+                # set children of Bx = children of B0
+                new_child.children = copy.copy(my_task_copy.children)
+                # all of C's parents should be Bx
                 for child in new_child.children:
                     child.parent = new_child
-
-                # NB - at this point, many of the tasks have a null children, but
-                # Spiff will actually generate the child when it rolls through and
-                # does a sync children - it is enough at this point to
-                # have the task spec in the right place.
+                # create a new task spec for this new task and update it
                 new_task_spec = self._make_new_task_spec(proto_task_spec, my_task, x)
                 new_child.task_spec = new_task_spec
                 new_child._set_state(Task.MAYBE)
 
+                # update task spec inputs and outputs like we did for the task
                 current_task_spec.outputs = [new_task_spec]
                 new_task_spec.inputs = [current_task_spec]
                 current_task.children = [new_child]
+                # update the parent of the new task
                 new_child.parent = current_task
-
+                # set up variables for next pass.
                 current_task = new_child
                 current_task_spec = new_task_spec
 
