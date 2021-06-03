@@ -280,14 +280,6 @@ class MultiInstanceTask(TaskSpec):
                 'mi_count': split_n,
                 'mi_index': runtimes}
 
-    def _fix_task_spec_tree(self,my_task):
-        """
-        Make sure the task spec tree aligns with our children.
-        """
-        for x in range(len(my_task.parent.children)-1):
-            new_task_spec = self._make_new_task_spec(my_task.task_spec,my_task,x)
-            #new_task_spec = copy.copy(my_task.task_spec)
-            self.outputs[0].inputs.append(new_task_spec)
 
     def _make_new_task_spec(self,proto_task_spec,my_task,suffix):
 
@@ -378,27 +370,11 @@ class MultiInstanceTask(TaskSpec):
 
             if not (expanded == split_n):
 
-
-                # # this next part is only critical for when we are re-loading the task_tree
-                # # but not the task_spec tree - it gets hooked up incorrectly. It would be great
-                # # if I can make them both work the same
-                # # as it is, it will need to be re-factored so that it works correctly with SMI
-                # for tasknum in range(len(my_task.parent.children)):
-                #     task = my_task.parent.children[tasknum]
-                #     # we had an error on save/restore that was causing a problem down the line
-                #     # basically every task that we have expanded out needs its own task_spec.
-                #     # the save restore gets the right thing in the child, but not on each of the
-                #     # intermediate tasks.
-                #     if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
-                #         LOG.debug("fix up save/restore in predict")
-                #         task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
                 my_task_copy = copy.copy(my_task)
 #                my_task_children = my_task.children
                 current_task = my_task
                 current_task_spec = self
                 proto_task_spec = copy.copy(self)
-
-
 
                 if expanded < split_n:
                     # expand the tree
@@ -422,9 +398,10 @@ class MultiInstanceTask(TaskSpec):
                                                                                 x + 2)
 
                         new_child.children = copy.copy(my_task_copy.children)  # make sure we have a distinct list of
+                        # children
                         for child in new_child.children:
                             child.parent=new_child
-                        # children for
+
 
                         # NB - at this point, many of the tasks have a null children, but
                         # Spiff will actually generate the child when it rolls through and
@@ -435,8 +412,6 @@ class MultiInstanceTask(TaskSpec):
                         new_child._set_state(Task.MAYBE)
 
 
-                        #for nextitem in current_task_spec.outputs:
-                        #    nextitem.inputs = [new_task_spec]
                         current_task_spec.outputs = [new_task_spec]
                         new_task_spec.inputs = [current_task_spec]
                         current_task.children = [new_child]
@@ -447,8 +422,7 @@ class MultiInstanceTask(TaskSpec):
 
         outputs += self.outputs
         if isinstance(my_task.task_spec,CallActivity):
-            super(MultiInstanceTask,self)._predict_hook(my_task)
-            #CallActivity()._predict_hook(my_task)
+            super(CallActivity,self)._predict_hook(my_task)
         else:
             if my_task._is_definite():
                 my_task._sync_children(outputs, Task.FUTURE)
@@ -520,12 +494,6 @@ class MultiInstanceTask(TaskSpec):
         # if this is a parallel mi - then update all siblings with the
         # current data
         if not self.isSequential:
-            if len(my_task.task_spec.outputs[0].inputs) < len(my_task.parent.children):
-                # if we landed here, we have the children all correct, but the
-                # task spec tree is not correct. This can happen when we have
-                # predicted the right amount of children, and then to a restore
-                # on the spec.
-                self._fix_task_spec_tree(my_task)
 
             for tasknum in range(len(my_task.parent.children)):
                 task = my_task.parent.children[tasknum]
