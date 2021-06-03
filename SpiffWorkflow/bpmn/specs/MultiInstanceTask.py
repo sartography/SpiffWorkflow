@@ -412,30 +412,15 @@ class MultiInstanceTask(TaskSpec):
             else:
                 my_task._sync_children(outputs, Task.LIKELY)
 
-    def _build_class_names(self):
+    def _handle_special_cases(self,my_task):
         classes = [BusinessRuleTask,ScriptTask,CallActivity,SubWorkflow]
-        return {x.__module__ + "."+x.__name__:x for x in classes}
-
-    def _on_complete_hook(self, my_task):
-        classes = self._build_class_names()
+        classes = {x.__module__ + "."+x.__name__:x for x in classes}
         terminate = self._get_loop_completion(my_task)
         if my_task.task_spec.prevtaskclass in classes.keys() \
             and not terminate:
-
             super()._on_complete_hook(my_task)
 
-
-        self._check_inputs(my_task)
-        runcount = self._get_count(my_task)
-        runtimes = int(my_task._get_internal_data('runtimes', 1))
-
-        if self.collection is not None:
-            colvarname = self.collection.name
-        else:
-            colvarname = my_task.task_spec.name
-
-        collect = valueof(my_task, self.collection, {})
-
+    def _merge_element_variable(self,my_task,collect,runtimes,colvarname):
         # if we are updating the same collection as was our loopcardinality
         # then all the keys should be there and we can use the sorted keylist
         # if not, we use an integer - we should be guaranteed that the
@@ -460,6 +445,29 @@ class MultiInstanceTask(TaskSpec):
         LOG.debug(my_task.task_spec.name + 'complete hook')
         my_task.data = DeepMerge.merge(my_task.data,
                                        gendict(colvarname.split('/'), collect))
+
+
+    def _on_complete_hook(self, my_task):
+        # do special stuff for non-user tasks
+        self._handle_special_cases(my_task)
+
+        # this is all about updating the collection for a MI
+
+        self._check_inputs(my_task)
+
+        # initialize
+
+        runcount = self._get_count(my_task)
+        runtimes = int(my_task._get_internal_data('runtimes', 1))
+
+        if self.collection is not None:
+            colvarname = self.collection.name
+        else:
+            colvarname = my_task.task_spec.name
+
+        collect = valueof(my_task, self.collection, {})
+
+        self._merge_element_variable(my_task,collect,runtimes,colvarname)
 
         if (runtimes < runcount) and not \
             my_task.terminate_current_loop and \
