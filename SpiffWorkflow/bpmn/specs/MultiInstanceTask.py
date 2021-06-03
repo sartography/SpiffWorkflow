@@ -447,28 +447,7 @@ class MultiInstanceTask(TaskSpec):
                                        gendict(colvarname.split('/'), collect))
 
 
-    def _on_complete_hook(self, my_task):
-        # do special stuff for non-user tasks
-        self._handle_special_cases(my_task)
-
-        # this is all about updating the collection for a MI
-
-        self._check_inputs(my_task)
-
-        # initialize
-
-        runcount = self._get_count(my_task)
-        runtimes = int(my_task._get_internal_data('runtimes', 1))
-
-        if self.collection is not None:
-            colvarname = self.collection.name
-        else:
-            colvarname = my_task.task_spec.name
-
-        collect = valueof(my_task, self.collection, {})
-
-        self._merge_element_variable(my_task,collect,runtimes,colvarname)
-
+    def _update_sibling_data(self,my_task,runtimes,runcount,colvarname,collect):
         if (runtimes < runcount) and not \
             my_task.terminate_current_loop and \
             self.loopTask:
@@ -492,6 +471,32 @@ class MultiInstanceTask(TaskSpec):
                                             gendict(colvarname.split('/'),
                                                     collect))
 
+        return element_var_data
+
+    def _on_complete_hook(self, my_task):
+        # do special stuff for non-user tasks
+        self._handle_special_cases(my_task)
+
+        # this is all about updating the collection for a MI
+
+        self._check_inputs(my_task)
+
+        # initialize
+
+        runcount = self._get_count(my_task)
+        runtimes = int(my_task._get_internal_data('runtimes', 1))
+
+        if self.collection is not None:
+            colvarname = self.collection.name
+        else:
+            colvarname = my_task.task_spec.name
+
+        collect = valueof(my_task, self.collection, {})
+
+        self._merge_element_variable(my_task,collect,runtimes,colvarname)
+
+        element_var_data = self._update_sibling_data(my_task,runtimes,runcount,colvarname,collect)
+
         # please see MultiInstance code for previous version
         outputs = []
         outputs += self.outputs
@@ -500,10 +505,10 @@ class MultiInstanceTask(TaskSpec):
             my_task._sync_children(outputs, Task.FUTURE)
             for child in my_task.children:
                 child.task_spec._update(child)
-
         # If removed, add the element_var_data back onto this task.
         if(element_var_data):
             my_task.data[self.elementVar] = element_var_data
+
 
     def serialize(self, serializer):
 
