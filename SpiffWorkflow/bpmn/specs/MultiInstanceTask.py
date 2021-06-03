@@ -178,6 +178,14 @@ class MultiInstanceTask(TaskSpec):
         LOG.debug("MI New Gateway " + base )
         return base
 
+    def _make_new_gateway(self,my_task,suffix,descr):
+        gw_spec = ParallelGateway(self._wf_spec,
+                                  self._build_gateway_name(suffix),
+                                        triggered=False,
+                                        description=descr)
+        gw = Task(my_task.workflow, task_spec=gw_spec)
+        return gw_spec,gw
+
     def _add_gateway(self, my_task):
         """ Generate parallel gateway tasks on either side of the current task.
             This emulates a standard BPMN pattern of having parallel tasks between
@@ -185,46 +193,31 @@ class MultiInstanceTask(TaskSpec):
             Once we have set up the gateways, we write a note into our internal data so that
             we don't do it again.
         """
+        #  Expand this
+        #  A-> ME -> C
+        #  into this
+        # A -> GW_start -> ME -> GW_end -> C
+        # where GW is a parallel gateway
 
+
+        # check to see if we have already done this, this code gets called multiple times
+        # as we build the tree
         if my_task.parent.task_spec.name[:11] == 'Gateway_for':
             LOG.debug("MI Recovering from save/restore")
             return
-        split_n = self._get_count(my_task)
-        expanded = getattr(self, 'expanded', 1)
-        if split_n >= expanded:
-            setattr(self, 'expanded', split_n)
 
         LOG.debug("MI being augmented")
         # build the gateway specs and the tasks.
         # Spiff wants a distinct spec for each task
         # that it has in the workflow or it will throw an error
-
-
-        # I've encountered a case where the task_spec tree has already been expanded
-        # such as a workflow that has multiple exclusive gateways -
-        # in this case I try to detect it and use the task_spec tree as it already
-        # is without fixing things up.
-
-        startgatewayname = self._build_gateway_name('start')
-        start_gw_spec = my_task.workflow.get_task_spec_from_name(startgatewayname)
-        if start_gw_spec is not None:
-            return
-        start_gw_spec = ParallelGateway(self._wf_spec,
-                                        self._build_gateway_name('start'),
-                                        triggered=False,
-                                        description="Begin Gateway")
-        start_gw = Task(my_task.workflow, task_spec=start_gw_spec)
-
-        endgatewayname = self._build_gateway_name('end')
-
-
-        gw_spec = ParallelGateway(self._wf_spec, endgatewayname,
-                                      triggered=False, description="End Gateway")
-        end_gw = Task(my_task.workflow, task_spec=gw_spec)
+        start_gw_spec, start_gw = self._make_new_gateway(my_task,'start','Begin Gateway')
+        end_gw_spec, end_gw = self._make_new_gateway(my_task,'end','End Gateway')
 
         # Set up the parent task and insert it into the workflow
 
+        # remove the current task spec from the parent, it will be replaced with the new construct.
         my_task.parent.task_spec.outputs = [x for x in my_task.parent.task_spec.outputs if x != my_task.task_spec]
+
         # in the case that our parent is a gateway with a default route,
         # we need to ensure that the default route is empty
         # so that connect can set it up properly
@@ -235,9 +228,9 @@ class MultiInstanceTask(TaskSpec):
         else:
             my_task.parent.task_spec.outputs.append(start_gw_spec)
             start_gw_spec.inputs.append(my_task.parent.task_spec)
-        # here we had assumed that the only child of the parent was us -
-        # this is an error - we need to find any child of the parent that is us
-        # and replace it with the start gateway.
+
+        # get a list of all siblings and replace myself with the new gateway task
+        # in the parent task
         newchildren = []
         for child in my_task.parent.children:
             if child == my_task:
@@ -245,16 +238,19 @@ class MultiInstanceTask(TaskSpec):
             else:
                 newchildren.append(child)
         my_task.parent.children = newchildren
+
+        # update the gatways parent to be my parent
         start_gw.parent = my_task.parent
+        # update my parent to be the gateway
         my_task.parent = start_gw
         start_gw_spec.connect(self)
         start_gw.children = [my_task]
 
         # transfer my outputs to the ending gateway and set up the
         # child parent links
-        gw_spec.outputs = self.outputs.copy()
-        self.connect(gw_spec)
-        self.outputs = [gw_spec]
+        end_gw_spec.outputs = self.outputs.copy()
+        self.connect(end_gw_spec)
+        self.outputs = [end_gw_spec]
         end_gw.parent = my_task
         my_task.children = [end_gw]
 
@@ -325,12 +321,11 @@ class MultiInstanceTask(TaskSpec):
             current_task_spec = self
             proto_task_spec = copy.copy(self)
 
-            # for each new child we add,
             # Essentially we are expanding like this:
             # A -> B0 -> C
             # A -> B0 -> B1 -> B2 -> C
-            # each new child has the last child as its parent
-            # and the outputs of what we previously had.
+            # each new child has the last child we created as its parent
+            # and the outputs of what B0 had previously.
             # this has to be done for both the task and the task spec.
 
             for x in range(split_n - expanded):
