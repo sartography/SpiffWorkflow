@@ -268,18 +268,19 @@ class Task(object):
         The task will loop, repeatedly asking for input until terminate_loop
         is called on the task
         """
-
-        def raiseError():
+        if self.is_looping():
+            self.terminate_current_loop = True
+        else:
             raise WorkflowException(self.task_spec,
                                     'The method terminate_loop should only be called in the case of a BPMN Loop Task')
 
+    def is_looping(self):
+        """Returns true if this is a looping task."""
         islooping = getattr(self.task_spec, "is_loop_task", None)
         if callable(islooping):
-            if not (self.task_spec.is_loop_task()):
-                raiseError()
+            return self.task_spec.is_loop_task()
         else:
-            raiseError()
-        self.terminate_current_loop = True
+            return False
 
     def set_children_future(self):
         """
