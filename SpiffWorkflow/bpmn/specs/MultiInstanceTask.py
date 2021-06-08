@@ -178,6 +178,14 @@ class MultiInstanceTask(TaskSpec):
         LOG.debug("MI New Gateway " + base )
         return base
 
+    def _make_new_gateway(self,my_task,suffix,descr):
+        gw_spec = ParallelGateway(self._wf_spec,
+                                  self._build_gateway_name(suffix),
+                                        triggered=False,
+                                        description=descr)
+        gw = Task(my_task.workflow, task_spec=gw_spec)
+        return gw_spec,gw
+
     def _add_gateway(self, my_task):
         """ Generate parallel gateway tasks on either side of the current task.
             This emulates a standard BPMN pattern of having parallel tasks between
@@ -185,46 +193,31 @@ class MultiInstanceTask(TaskSpec):
             Once we have set up the gateways, we write a note into our internal data so that
             we don't do it again.
         """
+        #  Expand this
+        #  A-> ME -> C
+        #  into this
+        # A -> GW_start -> ME -> GW_end -> C
+        # where GW is a parallel gateway
 
+
+        # check to see if we have already done this, this code gets called multiple times
+        # as we build the tree
         if my_task.parent.task_spec.name[:11] == 'Gateway_for':
             LOG.debug("MI Recovering from save/restore")
             return
-        split_n = self._get_count(my_task)
-        expanded = getattr(self, 'expanded', 1)
-        if split_n >= expanded:
-            setattr(self, 'expanded', split_n)
 
         LOG.debug("MI being augmented")
         # build the gateway specs and the tasks.
         # Spiff wants a distinct spec for each task
         # that it has in the workflow or it will throw an error
-
-
-        # I've encountered a case where the task_spec tree has already been expanded
-        # such as a workflow that has multiple exclusive gateways -
-        # in this case I try to detect it and use the task_spec tree as it already
-        # is without fixing things up.
-
-        startgatewayname = self._build_gateway_name('start')
-        start_gw_spec = my_task.workflow.get_task_spec_from_name(startgatewayname)
-        if start_gw_spec is not None:
-            return
-        start_gw_spec = ParallelGateway(self._wf_spec,
-                                        self._build_gateway_name('start'),
-                                        triggered=False,
-                                        description="Begin Gateway")
-        start_gw = Task(my_task.workflow, task_spec=start_gw_spec)
-
-        endgatewayname = self._build_gateway_name('end')
-
-
-        gw_spec = ParallelGateway(self._wf_spec, endgatewayname,
-                                      triggered=False, description="End Gateway")
-        end_gw = Task(my_task.workflow, task_spec=gw_spec)
+        start_gw_spec, start_gw = self._make_new_gateway(my_task,'start','Begin Gateway')
+        end_gw_spec, end_gw = self._make_new_gateway(my_task,'end','End Gateway')
 
         # Set up the parent task and insert it into the workflow
 
+        # remove the current task spec from the parent, it will be replaced with the new construct.
         my_task.parent.task_spec.outputs = [x for x in my_task.parent.task_spec.outputs if x != my_task.task_spec]
+
         # in the case that our parent is a gateway with a default route,
         # we need to ensure that the default route is empty
         # so that connect can set it up properly
@@ -235,9 +228,9 @@ class MultiInstanceTask(TaskSpec):
         else:
             my_task.parent.task_spec.outputs.append(start_gw_spec)
             start_gw_spec.inputs.append(my_task.parent.task_spec)
-        # here we had assumed that the only child of the parent was us -
-        # this is an error - we need to find any child of the parent that is us
-        # and replace it with the start gateway.
+
+        # get a list of all siblings and replace myself with the new gateway task
+        # in the parent task
         newchildren = []
         for child in my_task.parent.children:
             if child == my_task:
@@ -245,16 +238,19 @@ class MultiInstanceTask(TaskSpec):
             else:
                 newchildren.append(child)
         my_task.parent.children = newchildren
+
+        # update the gatways parent to be my parent
         start_gw.parent = my_task.parent
+        # update my parent to be the gateway
         my_task.parent = start_gw
         start_gw_spec.connect(self)
         start_gw.children = [my_task]
 
         # transfer my outputs to the ending gateway and set up the
         # child parent links
-        gw_spec.outputs = self.outputs.copy()
-        self.connect(gw_spec)
-        self.outputs = [gw_spec]
+        end_gw_spec.outputs = self.outputs.copy()
+        self.connect(end_gw_spec)
+        self.outputs = [end_gw_spec]
         end_gw.parent = my_task
         my_task.children = [end_gw]
 
@@ -280,14 +276,97 @@ class MultiInstanceTask(TaskSpec):
                 'mi_count': split_n,
                 'mi_index': runtimes}
 
-    def _fix_task_spec_tree(self,my_task):
-        """
-        Make sure the task spec tree aligns with our children.
-        """
-        for x in range(len(my_task.parent.children)-1):
-            new_task_spec = self._make_new_task_spec(my_task.task_spec,my_task,x)
-            #new_task_spec = copy.copy(my_task.task_spec)
+
+    def _make_new_child_task(self,my_task,x):
+        # here we generate a distinct copy of our original task each
+        # parallel instance, and hook them up into the task tree
+        LOG.debug("MI creating new child & task spec")
+        new_child = copy.copy(my_task)
+        new_child.id = uuid4()
+        # I think we will need to update both every variables
+        # internal data and the copy of the public data to get the
+        # variables correct
+        new_child.internal_data = copy.copy(my_task.internal_data)
+
+        new_child.internal_data[
+            'runtimes'] = x + 2  # working with base 1 and we already have one done
+
+        new_child.data = copy.copy(my_task.data)
+        new_child.data[self.elementVar] = self._get_current_var(my_task,
+                                                                x + 2)
+
+        new_child.children = []  # these will be updated later
+        # in the case of parallel, the children list will get updated during the predict loop
+        return new_child
+
+    def _expand_sequential(self,my_task,split_n):
+        # this should be only for SMI and not looping tasks -
+        # we need to patch up the children and make sure they chain correctly
+        # this is different from PMI because the children all link together, not to
+        # the gateways on both ends.
+        # first let's check for a task in the task spec tree
+
+        # we have to jump through some hoops to determine if we have already
+        # expanded this properly as we may have a cardinality that may change
+        # and this code gets run a bunch of times.
+        expanded = getattr(self, 'expanded', 1)
+        if split_n >= expanded:
+            setattr(self, 'expanded', split_n)
+
+        if not (expanded == split_n):
+
+            # Initialize based on current task
+            my_task_copy = copy.copy(my_task)
+            current_task = my_task
+            current_task_spec = self
+            proto_task_spec = copy.copy(self)
+
+            # Essentially we are expanding like this:
+            # A -> B0 -> C
+            # A -> B0 -> B1 -> B2 -> C
+            # each new child has the last child we created as its parent
+            # and the outputs of what B0 had previously.
+            # this has to be done for both the task and the task spec.
+
+            for x in range(split_n - expanded):
+                # create Bx from Bx-1
+                new_child = self._make_new_child_task(my_task,x)
+                # set children of Bx = children of B0
+                new_child.children = copy.copy(my_task_copy.children)
+                # all of C's parents should be Bx
+                for child in new_child.children:
+                    child.parent = new_child
+                # create a new task spec for this new task and update it
+                new_task_spec = self._make_new_task_spec(proto_task_spec, my_task, x)
+                new_child.task_spec = new_task_spec
+                new_child._set_state(Task.MAYBE)
+
+                # update task spec inputs and outputs like we did for the task
+                current_task_spec.outputs = [new_task_spec]
+                new_task_spec.inputs = [current_task_spec]
+                current_task.children = [new_child]
+                # update the parent of the new task
+                new_child.parent = current_task
+                # set up variables for next pass.
+                current_task = new_child
+                current_task_spec = new_task_spec
+
+    def _expand_parallel(self,my_task,split_n):
+        # add a parallel gateway on either side of this task
+        self._add_gateway(my_task)
+        # we use the child count of the parallel gateway to determine
+        # if we have expanded this or not. Children of the gateway we just created
+        # should match the split level provided by the multiinstance
+
+        for x in range(split_n - len(my_task.parent.children)):
+            new_child = self._make_new_child_task(my_task,x)
+            new_task_spec = self._make_new_task_spec(my_task.task_spec, my_task, x)
+            new_child.task_spec = new_task_spec
+            # patch up the right hand side gateway
             self.outputs[0].inputs.append(new_task_spec)
+            # patch up the left hand side gateway task and task_spec
+            my_task.parent.children.append(new_child)
+            my_task.parent.task_spec.outputs.append(new_task_spec)
 
     def _make_new_task_spec(self,proto_task_spec,my_task,suffix):
 
@@ -314,182 +393,34 @@ class MultiInstanceTask(TaskSpec):
 
         # Create the outgoing tasks.
         outputs = []
-        # The MultiInstance class that this was based on actually
-        # duplicates the outputs - this caused our use case problems
-
         # In the special case that this is a Parallel multiInstance, we need
         # to expand the children in the middle. This method gets called
         # during every pass through the tree, so we need to wait until our
         # real cardinality gets updated to expand the tree.
         if (not self.isSequential):
-            # Each time we call _add_gateway - the contents should only
-            # happen once
-            self._add_gateway(my_task)
+            self._expand_parallel(my_task,split_n)
 
-
-            for tasknum in range(len(my_task.parent.children)):
-                task = my_task.parent.children[tasknum]
-                # we had an error on save/restore that was causing a problem down the line
-                # basically every task that we have expanded out needs its own task_spec.
-                # the save restore gets the right thing in the child, but not on each of the
-                # intermediate tasks.
-                if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
-                    LOG.debug("fix up save/restore in predict")
-                    task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
-
-            if len(my_task.parent.children) < split_n:
-                # expand the tree
-                for x in range(split_n - len(my_task.parent.children)):
-                    # here we generate a distinct copy of our original task and spec for each
-                    # parallel instance, and hook them up into the task tree
-                    LOG.debug("MI creating new child & task spec")
-                    new_child = copy.copy(my_task)
-                    new_child.id = uuid4()
-                    # I think we will need to update both every variables
-                    # internal data and the copy of the public data to get the
-                    # variables correct
-                    new_child.internal_data = copy.copy(my_task.internal_data)
-
-                    new_child.internal_data[
-                        'runtimes'] = x + 2  # working with base 1 and we already have one done
-
-                    new_child.data = copy.copy(my_task.data)
-                    new_child.data[self.elementVar] = self._get_current_var(my_task,
-                                                                    x + 2)
-
-                    new_child.children = []  # make sure we have a distinct list of children for
-                    # each child. The copy is not a deep copy, and
-                    # I was having problems with tasks sharing
-                    # their child list.
-
-                    # NB - at this point, many of the tasks have a null children, but
-                    # Spiff will actually generate the child when it rolls through and
-                    # does a sync children - it is enough at this point to
-                    # have the task spec in the right place.
-                    new_task_spec = self._make_new_task_spec(my_task.task_spec,my_task,x)
-
-                    new_child.task_spec = new_task_spec
-
-                    self.outputs[0].inputs.append(new_task_spec)
-                    my_task.parent.children.append(new_child)
-                    my_task.parent.task_spec.outputs.append(new_task_spec)
-                else:
-                    LOG.debug("parent child length:" + str(
-                        len(my_task.task_spec.outputs)))
         elif not self.loopTask:
-            # this should be only for SMI and not looping tasks -
-            # we need to patch up the children and make sure they chain correctly
-            # this is different from PMI because the children all link together, not to
-            # the gateways on both ends.
-            # first let's check for a task in the task spec tree
-            expanded = getattr(self, 'expanded', 1)
-            if split_n >= expanded:
-                setattr(self, 'expanded', split_n)
-
-
-            if not (expanded == split_n):
-
-
-                # # this next part is only critical for when we are re-loading the task_tree
-                # # but not the task_spec tree - it gets hooked up incorrectly. It would be great
-                # # if I can make them both work the same
-                # # as it is, it will need to be re-factored so that it works correctly with SMI
-                # for tasknum in range(len(my_task.parent.children)):
-                #     task = my_task.parent.children[tasknum]
-                #     # we had an error on save/restore that was causing a problem down the line
-                #     # basically every task that we have expanded out needs its own task_spec.
-                #     # the save restore gets the right thing in the child, but not on each of the
-                #     # intermediate tasks.
-                #     if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
-                #         LOG.debug("fix up save/restore in predict")
-                #         task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
-                my_task_copy = copy.copy(my_task)
-#                my_task_children = my_task.children
-                current_task = my_task
-                current_task_spec = self
-                proto_task_spec = copy.copy(self)
-
-
-
-                if expanded < split_n:
-                    # expand the tree
-
-                    for x in range(split_n - expanded):
-                        # here we generate a distinct copy of our original task and spec for each
-                        # parallel instance, and hook them up into the task tree
-                        LOG.debug("MI creating new child & task spec")
-                        new_child = copy.copy(my_task_copy)
-                        new_child.id = uuid4()
-                        # I think we will need to update both every variables
-                        # internal data and the copy of the public data to get the
-                        # variables correct
-                        new_child.internal_data = copy.copy(my_task_copy.internal_data)
-
-                        new_child.internal_data[
-                            'runtimes'] = x + 2  # working with base 1 and we already have one done
-
-                        new_child.data = copy.copy(my_task_copy.data)
-                        new_child.data[self.elementVar] = self._get_current_var(my_task_copy,
-                                                                                x + 2)
-
-                        new_child.children = copy.copy(my_task_copy.children)  # make sure we have a distinct list of
-                        for child in new_child.children:
-                            child.parent=new_child
-                        # children for
-
-                        # NB - at this point, many of the tasks have a null children, but
-                        # Spiff will actually generate the child when it rolls through and
-                        # does a sync children - it is enough at this point to
-                        # have the task spec in the right place.
-                        new_task_spec = self._make_new_task_spec(proto_task_spec,my_task,x)
-                        new_child.task_spec = new_task_spec
-                        new_child._set_state(Task.MAYBE)
-
-
-                        #for nextitem in current_task_spec.outputs:
-                        #    nextitem.inputs = [new_task_spec]
-                        current_task_spec.outputs = [new_task_spec]
-                        new_task_spec.inputs = [current_task_spec]
-                        current_task.children = [new_child]
-                        new_child.parent = current_task
-
-                        current_task = new_child
-                        current_task_spec = new_task_spec
+            self._expand_sequential(my_task,split_n)
 
         outputs += self.outputs
         if isinstance(my_task.task_spec,CallActivity):
-            super(MultiInstanceTask,self)._predict_hook(my_task)
-            #CallActivity()._predict_hook(my_task)
+            super(CallActivity,self)._predict_hook(my_task)
         else:
             if my_task._is_definite():
                 my_task._sync_children(outputs, Task.FUTURE)
             else:
                 my_task._sync_children(outputs, Task.LIKELY)
 
-    def _build_class_names(self):
+    def _handle_special_cases(self,my_task):
         classes = [BusinessRuleTask,ScriptTask,CallActivity,SubWorkflow]
-        return {x.__module__ + "."+x.__name__:x for x in classes}
-
-    def _on_complete_hook(self, my_task):
-        classes = self._build_class_names()
+        classes = {x.__module__ + "."+x.__name__:x for x in classes}
         terminate = self._get_loop_completion(my_task)
         if my_task.task_spec.prevtaskclass in classes.keys() \
             and not terminate:
-
             super()._on_complete_hook(my_task)
 
-
-        self._check_inputs(my_task)
-        runcount = self._get_count(my_task)
-        runtimes = int(my_task._get_internal_data('runtimes', 1))
-
-        if self.collection is not None:
-            colvarname = self.collection.name
-        else:
-            colvarname = my_task.task_spec.name
-
-        collect = valueof(my_task, self.collection, {})
-
+    def _merge_element_variable(self,my_task,collect,runtimes,colvarname):
         # if we are updating the same collection as was our loopcardinality
         # then all the keys should be there and we can use the sorted keylist
         # if not, we use an integer - we should be guaranteed that the
@@ -514,7 +445,9 @@ class MultiInstanceTask(TaskSpec):
         LOG.debug(my_task.task_spec.name + 'complete hook')
         my_task.data = DeepMerge.merge(my_task.data,
                                        gendict(colvarname.split('/'), collect))
-        #self._get_loop_completion(my_task)
+
+
+    def _update_sibling_data(self,my_task,runtimes,runcount,colvarname,collect):
         if (runtimes < runcount) and not \
             my_task.terminate_current_loop and \
             self.loopTask:
@@ -531,26 +464,38 @@ class MultiInstanceTask(TaskSpec):
         # if this is a parallel mi - then update all siblings with the
         # current data
         if not self.isSequential:
-            if len(my_task.task_spec.outputs[0].inputs) < len(my_task.parent.children):
-                # if we landed here, we have the children all correct, but the
-                # task spec tree is not correct. This can happen when we have
-                # predicted the right amount of children, and then to a restore
-                # on the spec.
-                self._fix_task_spec_tree(my_task)
 
             for tasknum in range(len(my_task.parent.children)):
                 task = my_task.parent.children[tasknum]
-                # we had an error on save/restore that was causing a problem
-                # down the line basically every task that we have expanded
-                # out needs its own task_spec. the save restore gets the
-                # right thing in the child, but not on each of the
-                # intermediate tasks.
-                if task.task_spec != task.task_spec.outputs[0].inputs[tasknum]:
-                    LOG.debug("fix up save/restore")
-                    task.task_spec = task.task_spec.outputs[0].inputs[tasknum]
                 task.data = DeepMerge.merge(task.data,
                                             gendict(colvarname.split('/'),
                                                     collect))
+
+        return element_var_data
+
+    def _on_complete_hook(self, my_task):
+        # do special stuff for non-user tasks
+        self._handle_special_cases(my_task)
+
+        # this is all about updating the collection for a MI
+
+        self._check_inputs(my_task)
+
+        # initialize
+
+        runcount = self._get_count(my_task)
+        runtimes = int(my_task._get_internal_data('runtimes', 1))
+
+        if self.collection is not None:
+            colvarname = self.collection.name
+        else:
+            colvarname = my_task.task_spec.name
+
+        collect = valueof(my_task, self.collection, {})
+
+        self._merge_element_variable(my_task,collect,runtimes,colvarname)
+
+        element_var_data = self._update_sibling_data(my_task,runtimes,runcount,colvarname,collect)
 
         # please see MultiInstance code for previous version
         outputs = []
@@ -558,13 +503,12 @@ class MultiInstanceTask(TaskSpec):
 
         if not isinstance(my_task.task_spec,CallActivity):
             my_task._sync_children(outputs, Task.FUTURE)
-
-        for child in my_task.children:
-            child.task_spec._update(child)
-
+            for child in my_task.children:
+                child.task_spec._update(child)
         # If removed, add the element_var_data back onto this task.
         if(element_var_data):
             my_task.data[self.elementVar] = element_var_data
+
 
     def serialize(self, serializer):
 
