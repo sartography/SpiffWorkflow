@@ -5,10 +5,13 @@ class DeepMerge(object):
     # I know in my heart, that this isn't completely correct.
     # But I don't want to create a dependency, and this is passing
     # all the failure points I've found so far.  So I'll just
-    # keep plugging away at ti.
+    # keep plugging away at it.
+    # This will merge all updates from b into a, but it does not
+    # remove items from a that are not in b.  Passing a prune of
+    # true, and it WILL remove items in a that are not in b.
 
     @staticmethod
-    def merge(a, b, path=None, update=True):
+    def merge(a, b, path=None):
         "merges b into a"
         if path is None: path = []
         for key in b:
@@ -39,3 +42,5 @@ class DeepMerge(object):
             else: # Just merge whatever it is back in.
                 a.extend(x for x in b if x not in a)
 
+        # Trim a back to the length of b.  In the end, the two arrays should match
+        del a[len(b):]

@@ -60,7 +60,14 @@ class DeepMergeTest(TaskSpecTest):
         self.assertEqual({"foods": [{"fruit": {"apples": "tasty", "oranges": "also tasty"}},
                        {"canned_meats":["spam", "more spam", "wonderful spam"]}]}, c)
 
+    def testRemovingItemsFromArrays(self):
+        a = {"foods": [{"fruit": {"apples": "tasty", "oranges": "also tasty"}},
+                       {"canned_meats":["spam", "more spam"]}]}
+        b = {"foods": [{"fruit": {"apples": "tasty", "oranges": "also tasty"}}]}
 
+        c = DeepMerge.merge(a, b)
+
+        self.assertEqual({"foods": [{"fruit": {"apples": "tasty", "oranges": "also tasty"}}]}, c)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(DeepMergeTest)
