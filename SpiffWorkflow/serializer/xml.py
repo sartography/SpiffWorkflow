@@ -315,7 +315,7 @@ class XmlSerializer(Serializer):
         name = elem.findtext('name')
         spec = spec_cls(wf_spec, name, **kwargs)
         theid = elem.findtext('id')
-        spec.id = int(theid) if theid is not None else None
+        spec.id = theid if theid is not None else None
         spec.description = elem.findtext('description', spec.description)
         spec.manual = elem.findtext('manual', spec.manual)
         spec.internal = elem.find('internal') is not None
