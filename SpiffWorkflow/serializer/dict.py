@@ -42,7 +42,7 @@ from ..bpmn.specs.ScriptTask import ScriptTask
 from .exceptions import TaskNotSupportedError, MissingSpecError
 import warnings
 import copy
-
+import types
 
 
 class DictionarySerializer(Serializer):
@@ -812,6 +812,20 @@ class DictionarySerializer(Serializer):
 
         return workflow
 
+    def clean_data_for_serialize(self, task):
+        # Since we allow Python in scripts
+        # we need to make sure everything we pass to the serializer
+        # can be serialized.
+        # In particular, remove functions.
+        if len(task.data) > 0:
+            bad_keys = []
+            for k in task.data:
+                print(task.data[k])
+                if isinstance(task.data[k], types.FunctionType):
+                    bad_keys.append(k)
+            for key in bad_keys:
+                del task.data[key]
+        return task
 
     def serialize_task(self, task, skip_children=False, allow_subs=False):
         """
@@ -826,6 +840,7 @@ class DictionarySerializer(Serializer):
                 "Subworkflow tasks cannot be serialized (due to their use of" +
                 " internal_data to store the subworkflow).")
 
+        task = self.clean_data_for_serialize(task)
         s_state = dict()
 
         # id
@@ -840,7 +855,7 @@ class DictionarySerializer(Serializer):
         # children
         if not skip_children:
             s_state['children'] = [
-                self.serialize_task(child) for child in task.children]
+                self.serialize_task(self.clean_data_for_serialize(child)) for child in task.children]
 
         # state
         s_state['state'] = task.state
