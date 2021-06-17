@@ -10,8 +10,12 @@ sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 import uuid
 from SpiffWorkflow.serializer.dict import DictionarySerializer
-from .baseTest import SerializerTest
+from tests.SpiffWorkflow.serializer.baseTest import SerializerTest
 from SpiffWorkflow import Workflow
+from SpiffWorkflow.task import Task
+from SpiffWorkflow.specs import WorkflowSpec
+data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 
 
 class DictionarySerializerTest(SerializerTest):
@@ -66,6 +70,25 @@ class DictionarySerializerTest(SerializerTest):
                 str(item2), type(item1), type(item2))
             self.assertEqual(type(item1), type(item2), msg)
             self.assertEqual(item1, item2)
+
+    def test_function_in_script(self):
+        """data includes a function
+           after serialization, the function should be removed from the data"""
+
+        data = {'current_user': {'display_name': 'Daniel Harold Funk', 'eppn': None, 'email_address': 'dhf8r@virginia.edu', 'is_admin': True, 'title': '', 'uid': 'dhf8r', 'id': 161, 'first_name': None, 'affiliation': '', 'last_name': None}, 'add_two': lambda x: x + 2, 'value': 5}
+
+        xml_file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
+        with open(xml_file) as fp:
+            xml = fp.read()
+        wf_spec = WorkflowSpec.deserialize(XmlSerializer(), xml)
+        workflow = Workflow(wf_spec)
+        tasks = workflow.get_tasks(Task.READY)
+        task = tasks[0]
+        task.data = data
+        self.assertIn('add_two',  task.data)
+
+        result = DictionarySerializer().serialize_task(task)
+        self.assertNotIn('add_two', result['data'])
 
 
 def suite():
