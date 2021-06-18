@@ -21,23 +21,13 @@ class DMNEngine:
 
     def decide(self, *inputArgs, **inputKwargs):
         for rule in self.decisionTable.rules:
-            self.logger.debug('Checking rule %s (%s)...' % (rule.id, rule.description))
-
             res = self.__checkRule(rule, *inputArgs, **inputKwargs)
-            self.logger.debug(' Match? %s' % (res))
             if res:
-                self.logger.debug(' Return %s (%s)' % (rule.id, rule.description))
                 return rule
 
     def __checkRule(self, rule, *inputData, **inputKwargs):
         for idx, inputEntry in enumerate(rule.inputEntries):
             input = self.decisionTable.inputs[idx]
-
-            self.logger.debug(' Checking input entry %s (%s: %s)...' % (inputEntry.id, input.label, inputEntry.lhs))
-            # if inputData:
-            #     self.logger.debug('inputData:', inputData)
-            # if inputKwargs:
-            #     self.logger.debug('inputKwargs:', inputKwargs)
             local_data = {}
             local_data.update(inputKwargs)
             if inputData and isinstance(inputData[idx], dict):
@@ -70,10 +60,7 @@ class DMNEngine:
                                         inputVal, lhs, rule.description, str(e)))
                 else:
                     # Empty means ignore decision value
-                    self.logger.debug(' Value not defined')
                     continue  # Check the other operators/columns
-
-        self.logger.debug(' All inputs checked')
         return True
 
     @staticmethod

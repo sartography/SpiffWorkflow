@@ -25,7 +25,7 @@ class CancelBoundaryTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         nav = self.workflow.get_flat_nav_list()
         nav_deep = self.workflow.get_deep_nav_list()
-        self.assertEquals(7, len(nav))
+        self.assertEqual(7, len(nav))
         self.assertNav(nav_item=nav[4], state="MAYBE", description="TokenReset")
 
         ready_tasks = self.workflow.get_tasks(Task.READY)

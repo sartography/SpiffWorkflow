@@ -18,7 +18,7 @@ class BoxDeepCopyTest(unittest.TestCase):
         data.foods.spam.delicious = True
         data.hamsters = ['your', 'father']
         self.assertFalse(data2.foods.spam.delicious)
-        self.assertEquals(['your', 'mother'], data2.hamsters)
+        self.assertEqual(['your', 'mother'], data2.hamsters)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(BoxDeepCopyTest)
