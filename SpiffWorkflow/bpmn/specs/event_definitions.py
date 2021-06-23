@@ -224,8 +224,8 @@ class TimerEventDefinition(CatchingEventDefinition):
         :param label: The label of the event. Used for the description.
 
         :param dateTime: The dateTime expression for the expiry time. This is
-        passed to the Script Engine and must evaluate to a datetime.datetime
-        instance.
+        passed to the Script Engine and must evaluate to a tuple in the form of
+        (repeatcount,timedeltaobject)
         """
         self.label = label
         self.dateTime = dateTime
@@ -258,6 +258,54 @@ class TimerEventDefinition(CatchingEventDefinition):
     @classmethod
     def deserialize(self, dct):
         return TimerEventDefinition(dct['label'],dct['dateTime'])
+
+    def serialize(self):
+        retdict = {}
+        module_name = self.__class__.__module__
+        retdict['classname'] = module_name + '.' + self.__class__.__name__
+        retdict['label'] = self.label
+        retdict['dateTime'] = self.dateTime
+        return retdict
+
+
+
+class CycleTimerEventDefinition(TimerEventDefinition):
+    """
+    The TimerEventDefinition is the implementation of event definition used for
+    Catching Timer Events (Timer events aren't thrown).
+    """
+
+
+    def has_fired(self, my_task):
+        """
+        The Timer is considered to have fired if the evaluated dateTime
+        expression is before datetime.datetime.now()
+        """
+        repeat,dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
+
+        repeat_count = my_task._get_internal_data('repeat_count',0)
+
+        if my_task._get_internal_data('start_time',None) is not None:
+            start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time',None),'%Y-%m-%d '
+                                                                                                  '%H:%M:%S.%f')
+            elapsed = datetime.datetime.now() - start_time
+            fire = elapsed > dt
+            if fire and repeat_count < repeat:
+                my_task.internal_data['repeat'] = repeat
+                my_task.internal_data['repeat_count'] = repeat_count + 1
+                my_task.internal_data['start_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+                return True
+            else:
+                return False
+        else:
+            my_task.internal_data['repeat'] = repeat
+            my_task.internal_data['repeat_count'] = repeat_count
+            my_task.internal_data['start_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+            return False
+
+    @classmethod
+    def deserialize(self, dct):
+        return CycleTimerEventDefinition(dct['label'],dct['dateTime'])
 
     def serialize(self):
         retdict = {}
