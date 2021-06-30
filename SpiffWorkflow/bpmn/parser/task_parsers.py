@@ -181,6 +181,7 @@ class CallActivityParser(TaskParser):
         return self.spec_class(
             self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
             bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            position=self.process_parser.get_coord(self.get_id()),
             description=self.node.get('name', None))
 
     def get_subprocess_parser(self):
@@ -204,6 +205,7 @@ class SubWorkflowParser(CallActivityParser):
         return self.spec_class(
             self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
             bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            position=self.process_parser.get_coord(self.get_id()),
             description=self.node.get('name', None))
 
 
