@@ -24,7 +24,7 @@ from .util import first, one
 from ..specs.event_definitions import (TimerEventDefinition,
                                        MessageEventDefinition,
                                        SignalEventDefinition,
-                                       CancelEventDefinition)
+                                       CancelEventDefinition, CycleTimerEventDefinition)
 from lxml import etree
 import copy
 from SpiffWorkflow.exceptions import WorkflowException
@@ -42,9 +42,13 @@ class StartEventParser(TaskParser):
         isMessageCatchingEvent = self.xpath('.//bpmn:messageEventDefinition')
         isSignalCatchingEvent = self.xpath('.//bpmn:signalEventDefinition')
         isCancelCatchingEvent = self.xpath('.//bpmn:cancelEventDefinition')
+        isTimerCatchingEvent = self.xpath('.//bpmn:timerEventDefinition')
+
         if (len(isMessageCatchingEvent) > 0)\
-                or (len(isSignalCatchingEvent) > 0)\
-                or (len(isCancelCatchingEvent) > 0):
+                or (len(isSignalCatchingEvent) > 0) \
+                or (len(isCancelCatchingEvent) > 0) \
+                or (len(isTimerCatchingEvent) > 0)\
+                :
             # we need to fix this up to wait on an event
 
             self.__class__ = type(self.get_id() + '_class', (
@@ -410,8 +414,7 @@ class IntermediateCatchEventParser(TaskParser):
         # in the case that it is a cycle - for now, it is an error
         timeCycle = first(self.xpath('.//bpmn:timeCycle'))
         if timeCycle is not None:
-            raise NotImplementedError('Cycle Time Definition is not currently supported.')
-            return TimerEventDefinition(
+            return CycleTimerEventDefinition(
             self.node.get('name'),timeCycle.text)
 #            self.parser.parse_condition(
 #                   timeCycle.text, None, None, None, None, self))

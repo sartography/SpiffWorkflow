@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ilr8m3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <bpmn:collaboration id="Collaboration_0bcl3k5">
+    <bpmn:participant id="Participant_10cebxh" processRef="timer" />
+  </bpmn:collaboration>
+  <bpmn:process id="timer" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_19op0am">
+      <bpmn:lane id="Lane_13pry5y">
+        <bpmn:flowNodeRef>StartEvent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>wait_timer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndItAll</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1qb9sc3">
+        <bpmn:flowNodeRef>CycleStart</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Refill_Coffee</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>CycleEnd</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent">
+      <bpmn:outgoing>Flow_1pahvlr</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:startEvent id="CycleStart">
+      <bpmn:outgoing>Flow_0jtfzsk</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_0za5f2h">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">(2,timedelta(seconds=.25))</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="Refill_Coffee" name="Refill Coffee">
+      <bpmn:incoming>Flow_0jtfzsk</bpmn:incoming>
+      <bpmn:outgoing>Flow_07sglzn</bpmn:outgoing>
+      <bpmn:script>print('refill count = %d'%custom_function())</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="CycleEnd">
+      <bpmn:incoming>Flow_07sglzn</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:intermediateCatchEvent id="wait_timer">
+      <bpmn:incoming>Flow_1pahvlr</bpmn:incoming>
+      <bpmn:outgoing>Flow_05ejbm4</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_0o35ug0">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=1)</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="EndItAll">
+      <bpmn:incoming>Flow_05ejbm4</bpmn:incoming>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_02us6b3" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1pahvlr" sourceRef="StartEvent" targetRef="wait_timer" />
+    <bpmn:sequenceFlow id="Flow_07sglzn" sourceRef="Refill_Coffee" targetRef="CycleEnd" />
+    <bpmn:sequenceFlow id="Flow_0jtfzsk" sourceRef="CycleStart" targetRef="Refill_Coffee" />
+    <bpmn:sequenceFlow id="Flow_05ejbm4" sourceRef="wait_timer" targetRef="EndItAll" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0bcl3k5">
+      <bpmndi:BPMNShape id="Participant_10cebxh_di" bpmnElement="Participant_10cebxh" isHorizontal="true">
+        <dc:Bounds x="158" y="84" width="600" height="380" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent">
+        <dc:Bounds x="222" y="249" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xk1ts7_di" bpmnElement="Refill_Coffee">
+        <dc:Bounds x="300" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1pahvlr_di" bpmnElement="Flow_1pahvlr">
+        <di:waypoint x="258" y="267" />
+        <di:waypoint x="352" y="267" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Lane_13pry5y_di" bpmnElement="Lane_13pry5y" isHorizontal="true">
+        <dc:Bounds x="188" y="204" width="570" height="260" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1qb9sc3_di" bpmnElement="Lane_1qb9sc3" isHorizontal="true">
+        <dc:Bounds x="188" y="84" width="570" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_051yw6f_di" bpmnElement="CycleStart">
+        <dc:Bounds x="212" y="132" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19emh1x_di" bpmnElement="CycleEnd">
+        <dc:Bounds x="452" y="132" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_07sglzn_di" bpmnElement="Flow_07sglzn">
+        <di:waypoint x="400" y="150" />
+        <di:waypoint x="452" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jtfzsk_di" bpmnElement="Flow_0jtfzsk">
+        <di:waypoint x="248" y="150" />
+        <di:waypoint x="300" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05ejbm4_di" bpmnElement="Flow_05ejbm4">
+        <di:waypoint x="388" y="267" />
+        <di:waypoint x="492" y="267" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_19crrpp_di" bpmnElement="wait_timer">
+        <dc:Bounds x="352" y="249" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_10njezb_di" bpmnElement="EndItAll">
+        <dc:Bounds x="492" y="249" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

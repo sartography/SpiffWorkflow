@@ -51,6 +51,18 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
             my_task.children = []
             my_task._sync_children(my_task.task_spec.outputs)
             super(IntermediateCatchEvent, self)._update_hook(my_task)
+        elif (my_task.internal_data.get('repeat', 0) > 0) :
+            fired = self.event_definition.has_fired(my_task)
+            repeat = my_task.internal_data.get('repeat', 0)
+            repeat_count = my_task.internal_data.get('repeat_count', 0)
+            if (repeat >= repeat_count) and fired:
+                my_task.children = []
+                my_task._sync_children(my_task.task_spec.outputs)
+                super(IntermediateCatchEvent, self)._update_hook(my_task)
+                my_task.workflow.do_engine_steps()
+                my_task._set_state(Task.WAITING)
+                if not my_task.workflow._is_busy_with_restore():
+                    self.entering_waiting_state(my_task)
         elif target_state == Task.READY or (
                 not my_task.workflow._is_busy_with_restore() and
                 self.event_definition.has_fired(my_task)):

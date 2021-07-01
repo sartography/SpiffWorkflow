@@ -250,7 +250,7 @@ class Celery(TaskSpec):
         if not self._start(my_task):
             if not my_task._has_state(Task.WAITING):
                 LOG.debug("'%s' going to WAITING state" % my_task.get_name())
-                my_task.state = Task.WAITING
+                my_task._set_state(Task.WAITING)
             return
         super(Celery, self)._update_hook(my_task)
 

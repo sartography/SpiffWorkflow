@@ -278,7 +278,7 @@ class Join(TaskSpec):
                 self.entered_event.emit(my_task.workflow, my_task)
                 task._ready()
             else:
-                task.state = Task.COMPLETED
+                task._set_state(Task.COMPLETED)
                 task._drop_children()
 
 
