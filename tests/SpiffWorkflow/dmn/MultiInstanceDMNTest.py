@@ -1,10 +1,6 @@
 import os
 import unittest
 
-from box import Box
-
-from SpiffWorkflow import Task
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
