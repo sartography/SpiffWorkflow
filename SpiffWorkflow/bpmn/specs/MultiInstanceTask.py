@@ -110,12 +110,14 @@ class MultiInstanceTask(TaskSpec):
     def _check_inputs(self, my_task):
         if self.collection is None:
             return
-        variable = valueof(my_task, self.times,
-                           1)  # look for variable in context, if we don't find it, default to 1
+        # look for variable in context, if we don't find it, default to 1
+        variable = valueof(my_task, self.times, 1)
         if self.times.name == self.collection.name and type(variable) == type(
             []):
             raise WorkflowTaskExecException(my_task,
-                                    'If we are updating a collection, then the collection must be a dictionary.')
+                                            'If we are updating a collection,'
+                                            ' then the collection must be a '
+                                            'dictionary.')
 
     def _get_loop_completion(self,my_task):
         if not self.completioncondition == None:
@@ -426,7 +428,7 @@ class MultiInstanceTask(TaskSpec):
         # if not, we use an integer - we should be guaranteed that the
         # collection is a dictionary
         if self.collection is not None and \
-            self.times.name == self.collection.name:
+           self.times.name == self.collection.name:
             keys = list(collect.keys())
             if len(keys) < runtimes:
                 msg = f"There is a mismatch between runtimes and the number " \

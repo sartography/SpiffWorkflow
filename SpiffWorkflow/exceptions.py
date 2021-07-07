@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
+
+
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -19,7 +21,6 @@ from __future__ import division
 
 
 class WorkflowException(Exception):
-
     """
     Base class for all SpiffWorkflow-generated exceptions.
     """
@@ -46,17 +47,22 @@ class WorkflowTaskExecException(WorkflowException):
     * ServiceTask during external service call.
     """
 
-    def __init__(self, task, error):
+    def __init__(self, task, error_msg, exception=None, line_number=0):
         """
         Exception initialization.
 
-        :param sender: the task that threw the exception
-        :type sender: Task
-        :param error: a human readable error message
-        :type error: string
+        :param task: the task that threw the exception
+        :type task: Task
+        :param exception: a human readable error message
+        :type exception: Exception
+        :param line_number: If executing a script, the line number of the error.
+        :type line_number: number
+
         """
-        WorkflowException.__init__(self, task.task_spec, error)
+        WorkflowException.__init__(self, task.task_spec, error_msg)
         self.task = task
+        self.exception = exception
+        self.line_number = line_number
 
 
 class StorageException(Exception):
