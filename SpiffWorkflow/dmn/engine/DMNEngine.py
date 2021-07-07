@@ -1,6 +1,7 @@
 import logging
-import Levenshtein
 import re
+from difflib import ndiff
+
 from SpiffWorkflow.bpmn.DMNPythonScriptEngine import DMNPythonScriptEngine
 
 
@@ -8,7 +9,6 @@ class DMNEngine:
     """
     Handles the processing of a decision table.
     """
-
 
     def __init__(self, decisionTable, debug=None):
         self.decisionTable = decisionTable
@@ -25,6 +25,18 @@ class DMNEngine:
             if res:
                 return rule
 
+    def levenshtein_distance(self, str1, str2):
+        counter = {"+": 0, "-": 0}
+        distance = 0
+        for edit_code, *_ in ndiff(str1, str2):
+            if edit_code == " ":
+                distance += max(counter.values())
+                counter = {"+": 0, "-": 0}
+            else:
+                counter[edit_code] += 1
+        distance += max(counter.values())
+        return distance
+
     def __checkRule(self, rule, *inputData, **inputKwargs):
         for idx, inputEntry in enumerate(rule.inputEntries):
             input = self.decisionTable.inputs[idx]
@@ -39,13 +51,12 @@ class DMNEngine:
                 else:
                     inputVal = None
                 try:
-                    #PythonScriptEngine.convertToBox(DMNPythonScriptEngine(),local_data)
                     if not input.scriptEngine.eval_dmn_expression(inputVal, lhs, **local_data):
                         return False
                 except NameError as e:
                     x = re.match("name '(.+)' is not defined",str(e))
                     name = x.group(1)
-                    distances = [(key,Levenshtein.distance(name,key)) for key in local_data.keys()]
+                    distances = [(key, self.levenshtein_distance(name,key)) for key in local_data.keys()]
                     distances.sort(key=lambda x: x[1])
 
                     raise NameError("Failed to execute "
