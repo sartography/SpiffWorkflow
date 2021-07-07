@@ -64,18 +64,18 @@ class DMNPythonScriptEngine(PythonScriptEngine):
         if not lhsNeedsEquals:
             raise WorkflowException("Input Expression '%s' is malformed"%inputExpr)
         if nolhs:
-            dmninputexpr = self.evaluate(lhs, externalMethods= extra, **kwargs)
+            dmninputexpr = self.evaluate(lhs, external_methods= extra, **kwargs)
             extra = {'dmninputexpr':dmninputexpr,
                      'datetime':datetime,
                      'timedelta':timedelta,
                      'Decimal':Decimal,
                      'Box':Box
             }
-            return self.evaluate(rhs,externalMethods=extra, **kwargs)
+            return self.evaluate(rhs,external_methods=extra, **kwargs)
         if needsEquals:
            expression = lhs + ' == ' + rhs
         else:
             expression = lhs + rhs
 
-        return self.evaluate(expression, externalMethods=extra, **kwargs)
+        return self.evaluate(expression, external_methods=extra, **kwargs)
 

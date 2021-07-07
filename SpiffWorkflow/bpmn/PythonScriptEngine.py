@@ -199,10 +199,6 @@ class PythonScriptEngine(object):
         globals.update(external_methods)
         try:
             exec(script,globals,data)
-        except SyntaxError as err:
-            detail = err.args[0]
-            line_number = err.lineno
-            raise WorkflowTaskExecException(task, detail, err, line_number)
         except Exception as err:
             detail = err.args[0]
             cl, exc, tb = sys.exc_info()
@@ -210,7 +206,7 @@ class PythonScriptEngine(object):
             raise WorkflowTaskExecException(task, detail, err, line_number)
         self.convertFromBox(data)
 
-    def _eval(self, expression, externalMethods={}, **kwargs):
+    def _eval(self, expression, external_methods={}, **kwargs):
         lcls = {}
         lcls.update(kwargs)
         globals = self.globals
@@ -218,5 +214,5 @@ class PythonScriptEngine(object):
             if isinstance(lcls[x], dict):
                 lcls[x] = Box(lcls[x])
         globals.update(lcls)
-        globals.update(externalMethods)
+        globals.update(external_methods)
         return eval(expression,globals,lcls)

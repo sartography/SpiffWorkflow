@@ -55,14 +55,19 @@ class WorkflowTaskExecException(WorkflowException):
         :type task: Task
         :param exception: a human readable error message
         :type exception: Exception
-        :param line_number: If executing a script, the line number of the error.
-        :type line_number: number
 
         """
+        if isinstance(exception, SyntaxError):
+            self.line_number = exception.lineno
+            self.offset = exception.offset
+        else:
+            self.line_number = line_number
+            self.offset = 0
+
         WorkflowException.__init__(self, task.task_spec, error_msg)
         self.task = task
         self.exception = exception
-        self.line_number = line_number
+
 
 
 class StorageException(Exception):
