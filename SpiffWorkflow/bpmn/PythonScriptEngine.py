@@ -208,12 +208,9 @@ class PythonScriptEngine(object):
             cl, exc, tb = sys.exc_info()
             line_number = traceback.extract_tb(tb)[-1][1]
             raise WorkflowTaskExecException(task, detail, err, line_number)
-
-
         self.convertFromBox(data)
 
-
-    def _eval(self, expression,externalMethods={}, **kwargs):
+    def _eval(self, expression, externalMethods={}, **kwargs):
         lcls = {}
         lcls.update(kwargs)
         globals = self.globals
