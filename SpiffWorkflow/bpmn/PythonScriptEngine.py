@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import copy
+import sys
+import traceback
 from builtins import object
 import ast
 import datetime
 from datetime import timedelta
+
+from SpiffWorkflow.exceptions import WorkflowTaskExecException
 from SpiffWorkflow.workflow import WorkflowException
 
 # Copyright (C) 2020 Kelly McDonald
@@ -138,13 +142,18 @@ class PythonScriptEngine(object):
 
         return self.evaluate(default_header + expression, do_convert=False, **kwargs)
 
-    def evaluate(self, expression,externalMethods={}, do_convert=True, **kwargs):
+    def evaluate(self, expression, external_methods=None, do_convert=True, **kwargs):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
         """
+        if external_methods is None:
+            external_methods = {}
+
         exp,valid = self.validateExpression(expression)
-        return self._eval(exp, **kwargs,do_convert=do_convert, externalMethods=externalMethods)
+        return self._eval(exp, **kwargs,
+                          do_convert=do_convert,
+                          external_methods=external_methods)
 
     def convertToBoxSub(self,data):
         if isinstance(data,list):
@@ -174,11 +183,12 @@ class PythonScriptEngine(object):
         for k in data.keys():
             data[k] = self.convertFromBoxSub(data[k])
 
-
-    def execute(self, task, script, data,externalMethods={}):
+    def execute(self, task, script, data, external_methods=None):
         """
         Execute the script, within the context of the specified task
         """
+        if external_methods is None:
+            external_methods = {}
         globals = self.globals
 
         self.convertToBox(data)
@@ -186,12 +196,21 @@ class PythonScriptEngine(object):
                                    # this may cause a problem down the road if we
                                    # actually have a variable named 'task'
         globals.update(data)   # dict comprehensions cause problems when the variables are not viable.
-        globals.update(externalMethods)
-        exec(script,globals,data)
+        globals.update(external_methods)
+        try:
+            exec(script,globals,data)
+        except SyntaxError as err:
+            detail = err.args[0]
+            line_number = err.lineno
+            raise WorkflowTaskExecException(task, detail, err, line_number)
+        except Exception as err:
+            detail = err.args[0]
+            cl, exc, tb = sys.exc_info()
+            line_number = traceback.extract_tb(tb)[-1][1]
+            raise WorkflowTaskExecException(task, detail, err, line_number)
         self.convertFromBox(data)
 
-
-    def _eval(self, expression,externalMethods={}, **kwargs):
+    def _eval(self, expression, externalMethods={}, **kwargs):
         lcls = {}
         lcls.update(kwargs)
         globals = self.globals
