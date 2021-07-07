@@ -200,10 +200,22 @@ class PythonScriptEngine(object):
         try:
             exec(script,globals,data)
         except Exception as err:
-            detail = err.args[0]
+            if len(err.args) > 0:
+                detail = err.args[0]
+            else:
+                detail = err.__class__.__name__
+            line_number = 0
+            error_line = ''
             cl, exc, tb = sys.exc_info()
-            line_number = traceback.extract_tb(tb)[-1][1]
-            raise WorkflowTaskExecException(task, detail, err, line_number)
+            # Loop back through the stack trace to find the file called
+            # 'string' - which is the script we are executing, then use that
+            # to parse and pull out the offending line.
+            for frameSummary in traceback.extract_tb(tb):
+                if frameSummary.filename == '<string>':
+                    line_number = frameSummary.lineno
+                    error_line = script.splitlines()[line_number - 1]
+            raise WorkflowTaskExecException(task, detail, err, line_number,
+                                            error_line)
         self.convertFromBox(data)
 
     def _eval(self, expression, external_methods={}, **kwargs):

@@ -47,7 +47,7 @@ class WorkflowTaskExecException(WorkflowException):
     * ServiceTask during external service call.
     """
 
-    def __init__(self, task, error_msg, exception=None, line_number=0):
+    def __init__(self, task, error_msg, exception=None, line_number=0, error_line=""):
         """
         Exception initialization.
 
@@ -63,6 +63,7 @@ class WorkflowTaskExecException(WorkflowException):
         else:
             self.line_number = line_number
             self.offset = 0
+        self.error_line = error_line
 
         WorkflowException.__init__(self, task.task_spec, error_msg)
         self.task = task
