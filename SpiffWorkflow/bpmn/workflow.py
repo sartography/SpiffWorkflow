@@ -60,12 +60,14 @@ class BpmnWorkflow(Workflow):
         for my_task in Task.Iterator(self.task_tree, Task.WAITING):
             my_task.task_spec.accept_message(my_task, message)
 
-    def do_engine_steps(self):
+    def do_engine_steps(self, exit_at = None):
         """
         Execute any READY tasks that are engine specific (for example, gateways
         or script tasks). This is done in a loop, so it will keep completing
         those tasks until there are only READY User tasks, or WAITING tasks
         left.
+
+        :param exit_at: After executing a task with a name matching this param return the task object
         """
         assert not self.read_only
         engine_steps = list(
@@ -74,10 +76,12 @@ class BpmnWorkflow(Workflow):
         while engine_steps:
             for task in engine_steps:
                 task.complete()
+                if task.task_spec.name == exit_at:
+                    return task
+            
             engine_steps = list(
                 [t for t in self.get_tasks(Task.READY)
                  if self._is_engine_task(t.task_spec)])
-
     def refresh_waiting_tasks(self):
         """
         Refresh the state of all WAITING tasks. This will, for example, update

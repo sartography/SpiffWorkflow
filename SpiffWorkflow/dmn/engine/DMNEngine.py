@@ -1,14 +1,16 @@
 import logging
-import Levenshtein
 import re
+from difflib import ndiff
+
 from SpiffWorkflow.bpmn.DMNPythonScriptEngine import DMNPythonScriptEngine
+from SpiffWorkflow.util import levenshtein
+from SpiffWorkflow.util.levenshtein import distance
 
 
 class DMNEngine:
     """
     Handles the processing of a decision table.
     """
-
 
     def __init__(self, decisionTable, debug=None):
         self.decisionTable = decisionTable
@@ -39,20 +41,19 @@ class DMNEngine:
                 else:
                     inputVal = None
                 try:
-                    #PythonScriptEngine.convertToBox(DMNPythonScriptEngine(),local_data)
                     if not input.scriptEngine.eval_dmn_expression(inputVal, lhs, **local_data):
                         return False
                 except NameError as e:
-                    x = re.match("name '(.+)' is not defined",str(e))
-                    name = x.group(1)
-                    distances = [(key,Levenshtein.distance(name,key)) for key in local_data.keys()]
-                    distances.sort(key=lambda x: x[1])
-
+                    bad_variable = re.match("name '(.+)' is not defined",
+                                            str(e)).group(1)
+                    most_similar = levenshtein.most_similar(bad_variable,
+                                                            local_data.keys(),
+                                                            3)
                     raise NameError("Failed to execute "
                                     "expression: '%s' is '%s' in the "
                                     "Row with annotation '%s'.  The following "
                                     "value does not exist: %s - did you mean one of %s?" % (
-                                        inputVal, lhs, rule.description, str(e),str([x[0] for x in distances[:3]])))
+                                        inputVal, lhs, rule.description, str(e),str(most_similar)))
                 except Exception as e:
                     raise Exception("Failed to execute "
                                     "expression: '%s' is '%s' in the "

@@ -22,7 +22,7 @@ class CustomBpmnScriptEngine(BpmnScriptEngine):
 
     def execute(self, task, script, data):
         augmentMethods = {'custom_function': my_custom_function}
-        super().execute(task, script, data, externalMethods=augmentMethods)
+        super().execute(task, script, data, external_methods=augmentMethods)
     def eval(self, exp, data):
         return super()._eval(exp, {}, **data)
 
