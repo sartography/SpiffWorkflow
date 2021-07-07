@@ -58,7 +58,7 @@ class Box(dict):
         try:
             output = self[attr]
         except:
-            raise AttributeError("Dictionary has no attribute %s " % str(attr))
+            raise AttributeError("Dictionary has no attribute '%s' " % str(attr))
         return output
 
     def __setattr__(self, key, value):
