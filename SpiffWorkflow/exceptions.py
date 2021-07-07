@@ -18,6 +18,9 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+import re
+
+from SpiffWorkflow.util import levenshtein
 
 
 class WorkflowException(Exception):
@@ -57,18 +60,26 @@ class WorkflowTaskExecException(WorkflowException):
         :type exception: Exception
 
         """
-        if isinstance(exception, SyntaxError):
-            self.line_number = exception.lineno
-            self.offset = exception.offset
-        else:
-            self.line_number = line_number
-            self.offset = 0
-        self.error_line = error_line
 
-        WorkflowException.__init__(self, task.task_spec, error_msg)
+        self.offset = 0
+        self.line_number = line_number
         self.task = task
         self.exception = exception
+        self.error_line = error_line
 
+        if isinstance(exception, SyntaxError):
+            # Prefer line number from syntax error if available.
+            self.line_number = exception.lineno
+            self.offset = exception.offset
+        elif isinstance(exception, NameError):
+            # Use Levenshitein to find most simiar items.
+            bad_variable = re.match("name '(.+)' is not defined", str(exception)).group(1)
+            most_similar = levenshtein.most_similar(bad_variable, task.data.keys(), 3)
+            error_msg = f'something you are referencing does not exist: ' \
+                            f'"{exception}".'
+            error_msg += f' Did you mean \'{most_similar}\'?'
+
+        WorkflowException.__init__(self, task.task_spec, error_msg)
 
 
 class StorageException(Exception):
