@@ -18,6 +18,8 @@ from __future__ import division
 # 02110-1301  USA
 import logging
 
+from SpiffWorkflow import WorkflowException
+
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...task import Task
 from ...specs.Simple import Simple
@@ -54,8 +56,11 @@ class ScriptTask(Simple, BpmnSpecMixin):
             # and raise WorkflowException pointing to this task because
             # maybe upstream someone will be able to handle this situation
             task._setstate(Task.WAITING, force=True)
-            raise WorkflowTaskExecException(
-                task, 'Error during script execution:' + str(e))
+            if isinstance(e, WorkflowTaskExecException):
+                raise e
+            else:
+                raise WorkflowTaskExecException(
+                    task, 'Error during script execution:' + str(e), e)
         super(ScriptTask, self)._on_complete_hook(task)
 
     def serialize(self, serializer):
