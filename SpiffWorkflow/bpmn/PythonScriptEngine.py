@@ -58,7 +58,7 @@ class Box(dict):
         try:
             output = self[attr]
         except:
-            raise AttributeError
+            raise AttributeError("Dictionary has no attribute %s " % str(attr))
         return output
 
     def __setattr__(self, key, value):
@@ -67,13 +67,12 @@ class Box(dict):
     def __setitem__(self, key, value):
         super(Box, self).__setitem__(key, value)
         self.__dict__.update({key: value})
+
     def __getstate__(self):
         return self.__dict__
 
     def __setstate__(self, state):
         self.__init__(state)
-
-
 
     def __delattr__(self, item):
         self.__delitem__(item)
