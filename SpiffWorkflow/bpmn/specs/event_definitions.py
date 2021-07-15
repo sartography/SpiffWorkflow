@@ -248,11 +248,14 @@ class TimerEventDefinition(CatchingEventDefinition):
 
         if dt is None:
             return False
-        if dt.tzinfo:
-            tz = dt.tzinfo
-            now = tz.fromutc(datetime.datetime.utcnow().replace(tzinfo=tz))
+        if isinstance(dt, datetime.datetime):
+            if dt.tzinfo:
+                tz = dt.tzinfo
+                now = tz.fromutc(datetime.datetime.utcnow().replace(tzinfo=tz))
+            else:
+                now = datetime.datetime.now()
         else:
-            now = datetime.datetime.now()
+            now = datetime.date.today()
         return now > dt
 
     @classmethod
