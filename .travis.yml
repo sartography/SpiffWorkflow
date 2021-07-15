@@ -7,6 +7,9 @@ install:
   - "pip install -r requirements.txt"
   - "pip install celery"
   - "pip install coveralls"
-script: cd tests/SpiffWorkflow; coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
+script:
+  - cd tests/SpiffWorkflow; coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
+  - coverage xml -i
 after_success:
-  coveralls
+  - coveralls
+  - sonar-scanner
