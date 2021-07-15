@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_19xs1zx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <bpmn:process id="Process_1iggtmi" name="ExternalMessage" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1a0tyih</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_147sm5j" name="Meaningless User Task" camunda:formKey="Continue">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Continue" label="Continue Process?" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_081mykh</bpmn:incoming>
+      <bpmn:outgoing>Flow_08pe1c9</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1a0tyih" sourceRef="StartEvent_1" targetRef="Activity_1n8ighs" />
+    <bpmn:boundaryEvent id="Event_1jmy075" cancelActivity="false" attachedToRef="Activity_147sm5j">
+      <bpmn:outgoing>Flow_18jn2xj</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0ekr8yh" messageRef="Message_0yaysrr" />
+    </bpmn:boundaryEvent>
+    <bpmn:scriptTask id="Activity_0rw0pe3" name="Set Caught Interrupt">
+      <bpmn:incoming>Flow_18jn2xj</bpmn:incoming>
+      <bpmn:outgoing>Flow_0q62iou</bpmn:outgoing>
+      <bpmn:script>caughtinterrupt = True</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_18jn2xj" sourceRef="Event_1jmy075" targetRef="Activity_0rw0pe3" />
+    <bpmn:boundaryEvent id="Event_19detfv" attachedToRef="Activity_147sm5j">
+      <bpmn:outgoing>Flow_1pv9l9r</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1cuy5kq" messageRef="Message_14kq78i" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_081mykh" sourceRef="Activity_1n8ighs" targetRef="Activity_147sm5j" />
+    <bpmn:scriptTask id="Activity_1n8ighs" name="ResetVars" scriptFormat="reset">
+      <bpmn:incoming>Flow_1a0tyih</bpmn:incoming>
+      <bpmn:incoming>Flow_1pv9l9r</bpmn:incoming>
+      <bpmn:outgoing>Flow_081mykh</bpmn:outgoing>
+      <bpmn:script>caughtinterrupt = False</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_1pv9l9r" sourceRef="Event_19detfv" targetRef="Activity_1n8ighs" />
+    <bpmn:userTask id="Activity_0sywrc6" name="Pause" camunda:formKey="Pause">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="PauseForTest" label="none" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0q62iou</bpmn:incoming>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0q62iou" sourceRef="Activity_0rw0pe3" targetRef="Activity_0sywrc6" />
+    <bpmn:endEvent id="Event_0uqy8w1">
+      <bpmn:incoming>Flow_08pe1c9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_08pe1c9" sourceRef="Activity_147sm5j" targetRef="Event_0uqy8w1" />
+  </bpmn:process>
+  <bpmn:message id="Message_0yaysrr" name="Interrupt" />
+  <bpmn:message id="Message_14kq78i" name="reset" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1iggtmi">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03txas5_di" bpmnElement="Activity_147sm5j">
+        <dc:Bounds x="350" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1a0tyih_di" bpmnElement="Flow_1a0tyih">
+        <di:waypoint x="188" y="117" />
+        <di:waypoint x="210" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0vzlhlg_di" bpmnElement="Event_1jmy075">
+        <dc:Bounds x="362" y="139" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0txec84_di" bpmnElement="Activity_0rw0pe3">
+        <dc:Bounds x="330" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_18jn2xj_di" bpmnElement="Flow_18jn2xj">
+        <di:waypoint x="380" y="175" />
+        <di:waypoint x="380" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_11tccmy_di" bpmnElement="Event_19detfv">
+        <dc:Bounds x="432" y="139" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_081mykh_di" bpmnElement="Flow_081mykh">
+        <di:waypoint x="310" y="117" />
+        <di:waypoint x="350" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_12nidri_di" bpmnElement="Activity_1n8ighs">
+        <dc:Bounds x="210" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1pv9l9r_di" bpmnElement="Flow_1pv9l9r">
+        <di:waypoint x="450" y="175" />
+        <di:waypoint x="450" y="610" />
+        <di:waypoint x="260" y="610" />
+        <di:waypoint x="260" y="157" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0h1syzs_di" bpmnElement="Activity_0sywrc6">
+        <dc:Bounds x="330" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0q62iou_di" bpmnElement="Flow_0q62iou">
+        <di:waypoint x="380" y="270" />
+        <di:waypoint x="380" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0uqy8w1_di" bpmnElement="Event_0uqy8w1">
+        <dc:Bounds x="492" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_08pe1c9_di" bpmnElement="Flow_08pe1c9">
+        <di:waypoint x="450" y="117" />
+        <di:waypoint x="492" y="117" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

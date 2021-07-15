@@ -17,6 +17,9 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 import logging
+
+from ... import WorkflowException
+
 from ...task import Task
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.Join import Join
@@ -54,9 +57,10 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
             if task.parent._has_state(Task.COMPLETED) and (
                     task._has_state(Task.WAITING) or task == my_task):
                 if task.parent.task_spec in completed_inputs:
-                    raise NotImplementedError(
-                        "Unsupported looping behaviour: two threads waiting "
-                        "on the same sequence flow.")
+                    raise(WorkflowException
+                          (task.task_spec,
+                           "Unsupported looping behaviour: two threads waiting"
+                           " on the same sequence flow."))
                 completed_inputs.add(task.parent.task_spec)
             else:
                 waiting_tasks.append(task.parent)
@@ -122,6 +126,11 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
                     or changed > last_changed.parent.last_state_change:
                 last_changed = task
 
+        # Update data from all the same thread tasks.
+        thread_tasks.sort(key=lambda t: t.parent.last_state_change)
+        for task in thread_tasks:
+            self.data.update(task.data)
+
         # Mark the identified task instances as COMPLETED. The exception
         # is the most recently changed task, for which we assume READY.
         # By setting the state to READY only, we allow for calling
@@ -129,11 +138,13 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
         # (re)built underneath the node.
         for task in thread_tasks:
             if task == last_changed:
+                task.data.update(self.data)
                 self.entered_event.emit(my_task.workflow, my_task)
                 task._ready()
             else:
-                task.state = Task.COMPLETED
+                task._set_state(Task.COMPLETED)
                 task._drop_children()
+
 
     def _update_hook(self, my_task):
 

@@ -315,7 +315,7 @@ class XmlSerializer(Serializer):
         name = elem.findtext('name')
         spec = spec_cls(wf_spec, name, **kwargs)
         theid = elem.findtext('id')
-        spec.id = int(theid) if theid is not None else None
+        spec.id = theid if theid is not None else None
         spec.description = elem.findtext('description', spec.description)
         spec.manual = elem.findtext('manual', spec.manual)
         spec.internal = elem.find('internal') is not None
@@ -522,8 +522,11 @@ class XmlSerializer(Serializer):
         self.serialize_value(SubElement(elem, 'times'), spec.times)
         return self.serialize_task_spec(spec, elem)
 
-    def deserialize_multi_instance(self, wf_spec, elem, cls=MultiInstance,
+    def deserialize_multi_instance(self, wf_spec, elem, cls=None,
                                    **kwargs):
+        if cls == None:
+            cls = MultiInstance
+            #cls = MultiInstance(wf_spec,elem.find('name'),elem.find('times'))
         times = self.deserialize_value(elem.find('times'))
         return self.deserialize_task_spec(wf_spec, elem, cls, times=times,
                                           **kwargs)

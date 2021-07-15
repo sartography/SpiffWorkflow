@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
+  <bpmn:process id="Process_1" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_0b7whlk</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent_0ofyivj">
+      <bpmn:incoming>SequenceFlow_15emspo</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1gdg120" default="SequenceFlow_14jk7cm">
+      <bpmn:incoming>SequenceFlow_0b7whlk</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_15emspo</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_030p6mf</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_14jk7cm</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EndEvent_01jecqa">
+      <bpmn:incoming>SequenceFlow_030p6mf</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0b7whlk" sourceRef="StartEvent_1" targetRef="ExclusiveGateway_1gdg120" />
+    <bpmn:sequenceFlow id="SequenceFlow_15emspo" name="x is 1" sourceRef="ExclusiveGateway_1gdg120" targetRef="EndEvent_0ofyivj">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">x==1</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_030p6mf" name="x is 2" sourceRef="ExclusiveGateway_1gdg120" targetRef="EndEvent_01jecqa">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">x==2</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="EndEvent_0n32cxd">
+      <bpmn:incoming>SequenceFlow_06fnqj2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_14jk7cm" name="else" sourceRef="ExclusiveGateway_1gdg120" targetRef="Task_067fajl" />
+    <bpmn:sequenceFlow id="SequenceFlow_06fnqj2" sourceRef="Task_067fajl" targetRef="EndEvent_0n32cxd" />
+    <bpmn:businessRuleTask id="Task_067fajl" name="Else Decision Table" camunda:decisionRef="IntegerDecisionStringOutputTable">
+      <bpmn:incoming>SequenceFlow_14jk7cm</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_06fnqj2</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="191" y="286" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="164" y="322" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0ofyivj_di" bpmnElement="EndEvent_0ofyivj">
+        <dc:Bounds x="915" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="933" y="142" width="0" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1gdg120_di" bpmnElement="ExclusiveGateway_1gdg120" isMarkerVisible="true">
+        <dc:Bounds x="510" y="279" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="490" y="333" width="90" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_01jecqa_di" bpmnElement="EndEvent_01jecqa">
+        <dc:Bounds x="915" y="286" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="933" y="326" width="0" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0b7whlk_di" bpmnElement="SequenceFlow_0b7whlk">
+        <di:waypoint x="227" y="304" />
+        <di:waypoint x="510" y="304" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="323.5" y="283" width="90" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_15emspo_di" bpmnElement="SequenceFlow_15emspo">
+        <di:waypoint x="535" y="279" />
+        <di:waypoint x="535" y="120" />
+        <di:waypoint x="915" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="506.5" y="193.5" width="27" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_030p6mf_di" bpmnElement="SequenceFlow_030p6mf">
+        <di:waypoint x="560" y="304" />
+        <di:waypoint x="680" y="304" />
+        <di:waypoint x="680" y="304" />
+        <di:waypoint x="915" y="304" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="606.877358490566" y="282.5" width="27" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0n32cxd_di" bpmnElement="EndEvent_0n32cxd">
+        <dc:Bounds x="915" y="465" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="933" y="505" width="0" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_14jk7cm_di" bpmnElement="SequenceFlow_14jk7cm">
+        <di:waypoint x="535" y="329" />
+        <di:waypoint x="535" y="483" />
+        <di:waypoint x="685" y="483" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="540" y="400" width="20" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_06fnqj2_di" bpmnElement="SequenceFlow_06fnqj2">
+        <di:waypoint x="785" y="483" />
+        <di:waypoint x="915" y="483" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="850" y="462" width="0" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="BusinessRuleTask_1ipm12w_di" bpmnElement="Task_067fajl">
+        <dc:Bounds x="685" y="443" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

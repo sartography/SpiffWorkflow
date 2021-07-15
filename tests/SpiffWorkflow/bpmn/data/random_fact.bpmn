@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1gjhqt9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <bpmn:process id="random_fact" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_0ik56h0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0ik56h0" sourceRef="StartEvent_1" targetRef="Task_User_Select_Type" />
+    <bpmn:userTask id="Task_User_Select_Type" name="Set Type" camunda:formKey="Get A Random Fun Fact">
+      <bpmn:documentation>Here's some documentation</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="type" label="Type" type="enum" defaultValue="cat">
+            <camunda:value id="norris" name="Chuck Norris" />
+            <camunda:value id="cat" name="Cat Fact" />
+            <camunda:value id="buzzword" name="Business Buzzword" />
+          </camunda:formField>
+          <camunda:formField id="is_anonymous" label="Do you enjoy fried chicken with pickles?" type="boolean">
+            <camunda:properties>
+              <camunda:property id="description" value="Choose &#34;yes&#34; if you don&#39;t want us to use your name" />
+              <camunda:property id="help" value="# Heading 1\n\nOh hey, it&#39;s Markdown text." />
+            </camunda:properties>
+            <camunda:validation>
+              <camunda:constraint name="required" config="true" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="name" label="Your full name" type="string">
+            <camunda:properties>
+              <camunda:property id="description" value="Please enter your first and last name." />
+              <camunda:property id="help" value="# Heading 1\n\nLook, it&#39;s some Markdown!" />
+              <camunda:property id="hide_expression" value="model.is_anonymous" />
+            </camunda:properties>
+            <camunda:validation>
+              <camunda:constraint name="required" config="true" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="should_send_greeting" label="Is Alex a lovely person?" type="enum" defaultValue="yes">
+            <camunda:properties>
+              <camunda:property id="label_expression" value="model.name ? &#39;Say hi to &#39; + model.name + &#39;?&#39; : &#39;Say hi?&#39;" />
+              <camunda:property id="hide_expression" value="model.is_anonymous" />
+            </camunda:properties>
+            <camunda:value id="no" name="No!" />
+            <camunda:value id="yes" name="Yes!" />
+            <camunda:value id="maybe" name="Meh." />
+          </camunda:formField>
+          <camunda:formField id="random_num" label="Pick a number, any number." type="enum">
+            <camunda:properties>
+              <camunda:property id="enum_type" value="checkbox" />
+            </camunda:properties>
+            <camunda:value id="Value_190fel2" name="42" />
+            <camunda:value id="Value_2mknvfh" name="21" />
+            <camunda:value id="Value_1atqgco" name="7" />
+          </camunda:formField>
+        </camunda:formData>
+        <camunda:properties>
+          <camunda:property name="type" value="string" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0ik56h0</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1291h6i</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:scriptTask id="Task_Get_Fact_From_API" name="Display Fact">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="Fact.type" />
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1291h6i</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0am07in</bpmn:outgoing>
+      <bpmn:script>#! scripts.FactService</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="EndEvent_0u1cgrf">
+      <bpmn:incoming>SequenceFlow_0am07in</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0am07in" sourceRef="Task_Get_Fact_From_API" targetRef="EndEvent_0u1cgrf" />
+    <bpmn:sequenceFlow id="SequenceFlow_1291h6i" sourceRef="Task_User_Select_Type" targetRef="Task_Get_Fact_From_API" />
+    <bpmn:textAnnotation id="TextAnnotation_09fq7kh">
+      <bpmn:text>User sets the Fact.type to cat, norris, or buzzword</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_1cfasjp" sourceRef="Task_User_Select_Type" targetRef="TextAnnotation_09fq7kh" />
+    <bpmn:textAnnotation id="TextAnnotation_1234e5n">
+      <bpmn:text>Makes an API  call to get a fact of the required type.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_1qirnyy" sourceRef="Task_Get_Fact_From_API" targetRef="TextAnnotation_1234e5n" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="random_fact">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="232" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0ik56h0_di" bpmnElement="SequenceFlow_0ik56h0">
+        <di:waypoint x="188" y="250" />
+        <di:waypoint x="270" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_186s7tw_di" bpmnElement="Task_User_Select_Type">
+        <dc:Bounds x="270" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScriptTask_10keafb_di" bpmnElement="Task_Get_Fact_From_API">
+        <dc:Bounds x="470" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_09fq7kh_di" bpmnElement="TextAnnotation_09fq7kh">
+        <dc:Bounds x="330" y="116" width="99.99202297383536" height="68.28334396936822" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_1cfasjp_di" bpmnElement="Association_1cfasjp">
+        <di:waypoint x="344" y="210" />
+        <di:waypoint x="359" y="184" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_1234e5n_di" bpmnElement="TextAnnotation_1234e5n">
+        <dc:Bounds x="570" y="120" width="100" height="68" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_1qirnyy_di" bpmnElement="Association_1qirnyy">
+        <di:waypoint x="561" y="210" />
+        <di:waypoint x="584" y="188" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0u1cgrf_di" bpmnElement="EndEvent_0u1cgrf">
+        <dc:Bounds x="692" y="232" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0am07in_di" bpmnElement="SequenceFlow_0am07in">
+        <di:waypoint x="570" y="250" />
+        <di:waypoint x="692" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1291h6i_di" bpmnElement="SequenceFlow_1291h6i">
+        <di:waypoint x="370" y="250" />
+        <di:waypoint x="470" y="250" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

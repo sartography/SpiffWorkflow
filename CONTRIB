@@ -8,7 +8,7 @@ Coding style:
 Testing:
 
   Non-public classes and methods MUST be prefixed by _. This is also important
-  because the test and API documentation machinery makes assumtions based on
+  because the test and API documentation machinery makes assumptions based on
   this convention.
 
   Every added public class MUST have a corresponding unit test. The tests are

@@ -20,7 +20,7 @@ from builtins import object
 
 from .ValidationException import ValidationException
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
-from .util import xpath_eval
+from .util import xpath_eval, DIAG_COMMON_NS
 
 
 class ProcessParser(object):
@@ -53,6 +53,10 @@ class ProcessParser(object):
         self.filename = filename
         self.id_to_lane_lookup = None
         self._init_lane_lookup()
+        self.id_to_coords_lookup = None  # Dictionary of positional arguments for each node.
+        self._init_coord_lookup()
+        self.message_lookup = {}  # Dictionary of positional arguments for each node.
+        self._init_message_lookup()
 
     def get_id(self):
         """
@@ -102,17 +106,49 @@ class ProcessParser(object):
                     if id:
                         self.id_to_lane_lookup[id] = name
 
+
+    def get_coord(self, id):
+        """
+        Return the x,y coordinates of the given task, if available.
+        """
+        return self.id_to_coords_lookup.get(id, {'x':0, 'y':0})
+
+    def _init_message_lookup(self):
+        """Creates a lookup table for the name/id of all messages in the workflow
+        """
+        self.message_lookup = {}
+        for message in self.doc_xpath('.//bpmn:message'):
+            self.message_lookup[message.attrib['id']] = message.attrib['name']
+        for message in self.doc_xpath('.//bpmn:signal'):
+            self.message_lookup[message.attrib['id']] = message.attrib['name']
+
+    def _init_coord_lookup(self):
+        """Creates a lookup table with the x/y coordinates of each shape.
+        Only tested with the output from the Camunda modeler, which provides
+        these details in the bpmndi / and dc namespaces."""
+        self.id_to_coords_lookup = {}
+        for position in self.doc_xpath('.//bpmndi:BPMNShape'):
+            bounds = xpath_eval(position)("dc:Bounds")
+            if len(bounds) > 0 and 'bpmnElement' in position.attrib:
+                bound = bounds[0]
+                self.id_to_coords_lookup[position.attrib['bpmnElement']] = \
+                    {'x': float(bound.attrib['x']), 'y': float(bound.attrib['y'])}
+
     def _parse(self):
-        start_node_list = self.xpath('.//bpmn:startEvent')
+        # here we only look in the top level, We will have another
+        # bpmn:startEvent if we have a subworkflow task
+        start_node_list = self.xpath('./bpmn:startEvent')
+
         if not start_node_list:
             raise ValidationException(
                 "No start event found", node=self.node, filename=self.filename)
-        elif len(start_node_list) != 1:
-            raise ValidationException(
-                "Only one Start Event is supported in each process",
-                node=self.node, filename=self.filename)
+        # elif len(start_node_list) != 1:
+        #     raise ValidationException(
+        #         "Only one Start Event is supported in each process",
+        #         node=self.node, filename=self.filename)
         self.parsing_started = True
-        self.parse_node(start_node_list[0])
+        for node in start_node_list:
+            self.parse_node(node)
         self.is_parsed = True
 
     def get_spec(self):

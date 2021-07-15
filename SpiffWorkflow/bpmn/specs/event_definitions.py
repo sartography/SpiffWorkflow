@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from builtins import object
+import datetime
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -34,6 +36,9 @@ class CatchingEventDefinition(object):
         """
         return my_task._get_internal_data('event_fired', False)
 
+    def _message_ready(self, my_task):
+        return False
+
     def _accept_message(self, my_task, message):
         return False
 
@@ -46,7 +51,8 @@ class ThrowingEventDefinition(object):
     This class is for future functionality. It will define the methods needed
     on an event definition that can be Thrown.
     """
-
+    def _send_message(self, my_task, message):
+        return False
 
 class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
     """
@@ -54,13 +60,16 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
     for Message Events.
     """
 
-    def __init__(self, message):
+    def __init__(self, message,payload="",name="",resultVar=None):
         """
         Constructor.
 
         :param message: The message to wait for.
         """
         self.message = message
+        self.payload = payload
+        self.resultVar = resultVar
+        self.name = name
 
     def has_fired(self, my_task):
         """
@@ -69,11 +78,137 @@ class MessageEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
         """
         return my_task._get_internal_data('event_fired', False)
 
+    def _message_ready(self, my_task):
+        waiting_messages = my_task.workflow.task_tree.internal_data.get('messages',{})
+        if (self.message in waiting_messages.keys()):
+            evaledpayload = waiting_messages[self.message]
+            del(waiting_messages[self.message])
+            return evaledpayload
+        return False
+
+    def _send_message(self, my_task,resultVar):
+        payload = PythonScriptEngine().evaluate(self.payload, **my_task.data)
+        my_task.workflow.message(self.message,payload,resultVar=resultVar)
+        return True
+
     def _accept_message(self, my_task, message):
         if message != self.message:
             return False
         self._fire(my_task)
         return True
+
+    @classmethod
+    def deserialize(self, dct):
+        return MessageEventDefinition(dct['message'],dct['payload'],dct['name'],dct['resultVar'])
+
+    def serialize(self):
+        retdict = {}
+        module_name = self.__class__.__module__
+        retdict['classname'] = module_name + '.' + self.__class__.__name__
+        retdict['message'] = self.message
+        retdict['payload'] = self.payload
+        retdict['resultVar'] = self.resultVar
+        retdict['name'] = self.name
+        return retdict
+
+class SignalEventDefinition(CatchingEventDefinition, ThrowingEventDefinition):
+    """
+    The MessageEventDefinition is the implementation of event definition used
+    for Message Events.
+    """
+
+    def __init__(self, message,name=''):
+        """
+        Constructor.
+
+        :param message: The message to wait for.
+        """
+        # breakpoint()
+        self.message = message
+        self.name = name
+
+
+    def has_fired(self, my_task):
+        """
+        Returns true if the message was received while the task was in a
+        WAITING state.
+        """
+        return my_task._get_internal_data('event_fired', False)
+
+    def _message_ready(self, my_task):
+        waiting_messages = my_task.workflow.task_tree.internal_data.get('signals',{})
+        if (self.message in waiting_messages.keys()) :
+            return (self.message,None)
+        return False
+
+    def _send_message(self, my_task):
+        my_task.workflow.signal(self.message)
+        return True
+
+    def _accept_message(self, my_task, message):
+        if message != self.message:
+            return False
+        self._fire(my_task)
+        return True
+
+    @classmethod
+    def deserialize(self, dct):
+        return SignalEventDefinition(dct['message'],dct['name'])
+
+    def serialize(self):
+        retdict = {}
+        module_name = self.__class__.__module__
+        retdict['classname'] = module_name + '.' + self.__class__.__name__
+        retdict['message'] = self.message
+        retdict['name'] = self.name
+        return retdict
+
+
+class CancelEventDefinition(CatchingEventDefinition):
+    """
+    The CancelEventDefinition is the implementation of event definition used
+    for Cancel Events.
+    """
+
+    def __init__(self, message, name=''):
+        """
+        Constructor.
+
+        :param message: The message to wait for.
+        """
+        self.message = message
+        self.name = name
+
+    def has_fired(self, my_task):
+        """
+        Returns true if the message was received while the task was in a
+        WAITING state.
+        """
+        return my_task._get_internal_data('event_fired', False)
+
+    def _message_ready(self, my_task):
+        waiting_messages = my_task.workflow.task_tree.internal_data.get('cancels',{})
+        if ('TokenReset' in waiting_messages.keys()) :
+            return ('TokenReset', None)
+        return False
+
+    def _accept_message(self, my_task, message):
+        if message != self.message:
+            return False
+        self._fire(my_task)
+        return True
+
+    @classmethod
+    def deserialize(self, dct):
+        return CancelEventDefinition(dct['message'],dct['name'])
+
+    def serialize(self):
+        retdict = {}
+        module_name = self.__class__.__module__
+        retdict['classname'] = module_name + '.' + self.__class__.__name__
+        retdict['message'] = self.message
+        retdict['name'] = self.name
+        return retdict
 
 
 class TimerEventDefinition(CatchingEventDefinition):
@@ -89,8 +224,8 @@ class TimerEventDefinition(CatchingEventDefinition):
         :param label: The label of the event. Used for the description.
 
         :param dateTime: The dateTime expression for the expiry time. This is
-        passed to the Script Engine and must evaluate to a datetime.datetime
-        instance.
+        passed to the Script Engine and must evaluate to a tuple in the form of
+        (repeatcount,timedeltaobject)
         """
         self.label = label
         self.dateTime = dateTime
@@ -101,6 +236,16 @@ class TimerEventDefinition(CatchingEventDefinition):
         expression is before datetime.datetime.now()
         """
         dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
+        if isinstance(dt,datetime.timedelta):
+            if my_task._get_internal_data('start_time',None) is not None:
+                start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time',None),'%Y-%m-%d '
+                                                                                                   '%H:%M:%S.%f')
+                elapsed = datetime.datetime.now() - start_time
+                return elapsed > dt
+            else:
+                my_task.internal_data['start_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+                return False
+
         if dt is None:
             return False
         if dt.tzinfo:
@@ -109,3 +254,64 @@ class TimerEventDefinition(CatchingEventDefinition):
         else:
             now = datetime.datetime.now()
         return now > dt
+
+    @classmethod
+    def deserialize(self, dct):
+        return TimerEventDefinition(dct['label'],dct['dateTime'])
+
+    def serialize(self):
+        retdict = {}
+        module_name = self.__class__.__module__
+        retdict['classname'] = module_name + '.' + self.__class__.__name__
+        retdict['label'] = self.label
+        retdict['dateTime'] = self.dateTime
+        return retdict
+
+
+
+class CycleTimerEventDefinition(TimerEventDefinition):
+    """
+    The TimerEventDefinition is the implementation of event definition used for
+    Catching Timer Events (Timer events aren't thrown).
+    """
+
+
+    def has_fired(self, my_task):
+        """
+        The Timer is considered to have fired if the evaluated dateTime
+        expression is before datetime.datetime.now()
+        """
+        repeat,dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
+
+        repeat_count = my_task._get_internal_data('repeat_count',0)
+
+        if my_task._get_internal_data('start_time',None) is not None:
+            start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time',None),'%Y-%m-%d '
+                                                                                                  '%H:%M:%S.%f')
+            elapsed = datetime.datetime.now() - start_time
+            fire = elapsed > dt
+            if fire and repeat_count < repeat:
+                my_task.internal_data['repeat'] = repeat
+                my_task.internal_data['repeat_count'] = repeat_count + 1
+                my_task.internal_data['start_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+                return True
+            else:
+                return False
+        else:
+            my_task.internal_data['repeat'] = repeat
+            my_task.internal_data['repeat_count'] = repeat_count
+            my_task.internal_data['start_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+            return False
+
+    @classmethod
+    def deserialize(self, dct):
+        return CycleTimerEventDefinition(dct['label'],dct['dateTime'])
+
+    def serialize(self):
+        retdict = {}
+        module_name = self.__class__.__module__
+        retdict['classname'] = module_name + '.' + self.__class__.__name__
+        retdict['label'] = self.label
+        retdict['dateTime'] = self.dateTime
+        return retdict
+

@@ -56,7 +56,7 @@ class TaskSpec(object):
         (cancelled may happen at any time)
 
     The only events where implementing something other than state tracking
-    may be useful are the following:
+    may be useful are the following:_
       - Reached: You could mess with the pre-assign variables here, for
         example. Other then that, there is probably no need in a real
         application.
@@ -95,6 +95,10 @@ class TaskSpec(object):
         :param pre_assign: a list of name/value pairs
         :type  post_assign: list((str, object))
         :param post_assign: a list of name/value pairs
+        :type  position: dict((str, object))
+        :param position: a dict containing an 'x' and 'y' with coordinates
+                            that describe where the element occured in the
+                            diagram.
         """
         assert wf_spec is not None
         assert name is not None
@@ -111,6 +115,7 @@ class TaskSpec(object):
         self.pre_assign = kwargs.get('pre_assign',  [])
         self.post_assign = kwargs.get('post_assign', [])
         self.locks = kwargs.get('lock',        [])
+        self.position = kwargs.get('position', {'x': 0, 'y': 0})
         self.lookahead = 2  # Maximum number of MAYBE predictions.
 
         # Events.
@@ -438,6 +443,26 @@ class TaskSpec(object):
         :rtype:  object
         :returns: The serialized object.
         """
+        module = self.__class__.__module__
+        class_name = module + '.' + self.__class__.__name__
+
+        return {
+                  'id':self.id,
+                  'class': class_name,
+                  'name':self.name,
+                  'description':self.description,
+                  'inputs':[x.id for x in self.inputs],
+                  'outputs':[x.id for x in self.outputs],
+                  'manual':self.manual,
+                  'internal':self.internal,
+                  'data':self.data,
+                  'defines':self.defines,
+                  'pre_assign':self.pre_assign,
+                  'post_assign':self.post_assign,
+                  'locks':self.locks,
+                  'position':self.position,
+                  'lookahead':self.lookahead,
+                  }
         raise NotImplementedError
 
     @classmethod
@@ -462,4 +487,22 @@ class TaskSpec(object):
         :rtype:  TaskSpec
         :returns: The task specification instance.
         """
-        raise NotImplementedError
+        print(s_state)
+        print(wf_spec)
+        out = cls(wf_spec,s_state.get('name'))
+        out.id = s_state.get('id')
+        out.name = s_state.get('name')
+        out.description = s_state.get('description')
+        out.inputs = s_state.get('inputs')
+        out.outputs = s_state.get('outputs')
+        out.manual = s_state.get('manual')
+        out.internal = s_state.get('internal')
+        out.data = s_state.get('data')
+        out.defines = s_state.get('defines')
+        out.pre_assign = s_state.get('pre_assign')
+        out.post_assign = s_state.get('post_assign')
+        out.locks = s_state.get('locks')
+        out.position = s_state.get('position')
+        out.lookahead = s_state.get('lookahead')
+        return out
+        #raise NotImplementedError

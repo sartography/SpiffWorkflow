@@ -51,7 +51,7 @@ class WorkflowSpec(object):
         if task_spec.name in self.task_specs:
             raise KeyError('Duplicate task spec name: ' + task_spec.name)
         self.task_specs[task_spec.name] = task_spec
-        task_spec.id = len(self.task_specs)
+        task_spec.id = self.name + '_' + str(len(self.task_specs))
 
     def get_task_spec_from_name(self, name):
         """
@@ -62,7 +62,23 @@ class WorkflowSpec(object):
         :rtype:  TaskSpec
         :returns: The task spec with the given name.
         """
-        return self.task_specs[name]
+        return self.task_specs.get(name)
+
+    def get_task_spec_from_id(self, id):
+        """
+        Returns the task with the given name.
+
+        :type  name: str
+        :param name: The name of the task spec.
+        :rtype:  TaskSpec
+        :returns: The task spec with the given name.
+        """
+        ret_spec = None
+        for x in self.task_specs:
+            if self.task_specs[x].id == id:
+                ret_spec = self.task_specs[x]
+        return ret_spec
+
 
     def validate(self):
         """Checks integrity of workflow and reports any problems with it.
@@ -133,6 +149,7 @@ class WorkflowSpec(object):
         :rtype:  WorkflowSpec
         :returns: The resulting instance.
         """
+
         return serializer.deserialize_workflow_spec(s_state, **kwargs)
 
     def get_dump(self, verbose=False):

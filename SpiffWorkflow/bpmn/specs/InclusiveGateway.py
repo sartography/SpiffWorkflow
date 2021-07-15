@@ -116,3 +116,7 @@ class InclusiveGateway(UnstructuredJoin):
                     done.add(child)
                     q.append(child)
         return False
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic(wf_spec, s_state, InclusiveGateway)

@@ -21,8 +21,7 @@ from ...task import Task
 from .UnstructuredJoin import UnstructuredJoin
 from ...specs.Simple import Simple
 from ...specs.WorkflowSpec import WorkflowSpec
-import xml.etree.ElementTree as ET
-
+import lxml.etree as ET
 
 LOG = logging.getLogger(__name__)
 
@@ -61,6 +60,13 @@ class _EndJoin(UnstructuredJoin):
     def _on_complete_hook(self, my_task):
         super(_EndJoin, self)._on_complete_hook(my_task)
         my_task.workflow.data.update(my_task.data)
+
+    def serialize(self, serializer):
+        return serializer.serialize_join(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_join(wf_spec, s_state, _EndJoin)
 
 
 class BpmnProcessSpec(WorkflowSpec):

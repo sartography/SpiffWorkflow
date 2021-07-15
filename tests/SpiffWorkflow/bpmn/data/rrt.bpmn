@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1oogn9j" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
+  <bpmn:process id="rrt" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_05ja25w</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:manualTask id="ManualTask_1ofy9yz" name="Read RRP Instructions">
+      <bpmn:documentation>### UNIVERSITY OF VIRGINIA RESEARCH
+#### Research Ramp-up Plan
+
+
+As we plan for the resumption of on-grounds research, PIs are required to develop a Research Ramp-up Plan. Please use the ramp-up guidance provided to lay out your plan(s) to manage operations while prioritizing physical distancing, staggered work shifts to reduce group size, remote work, and other exposure-reducing measures. 
+
+
+Plans must be submitted to the Office of Research by Monday, May ?? for consideration in the first round of approvals. Plans will then be reviewed on a rolling basis going forward. 
+
+
+Instructions for Submitting:
+
+
+1.	Add a Request for each lab space you manage in a building.  If your lab spans multiple rooms or floors in a single building, one request will be required for that lab.  If your lab spans multipe buildings, one request for each building will be required for that lab.  The primary reason for this differentiation is that in addition to obtaining approval to restart operations, this information will also be used after start up to assist with any contact tracing that may be needed.
+
+
+2.	Select each Request added and step through each form presented, responding to all required and applicable fields.  You may be presented with different questions if activities in each lab differ.
+
+
+3.	After all forms have been completed, you will be presented with the option to create your Research Recovery Plan in Word format.  Download the document and review it.  If you see any corrections that need to be made, return to the coresponding form and make the correction. 
+
+
+4.	Once the generated Research Recovery Plan is finalize, use the web site to submit it to the Office of the Vice President for Research for review.    
+
+
+Please submit questions on the Research Support website.</bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_05ja25w</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0h50bp3</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:userTask id="AddInfo" name="Enter Submission Info" camunda:formKey="Submission Info">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="ComputingID" label="UVA Computing ID of Primary Investigator" type="string">
+            <camunda:properties>
+              <camunda:property id="placeholder" value="cdr9c" />
+            </camunda:properties>
+            <camunda:validation>
+              <camunda:constraint name="required" config="true" />
+              <camunda:constraint name="description" config="You may search by entering Compuingr ID or Last Name." />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="LabName" label="Lab Name" type="string">
+            <camunda:properties>
+              <camunda:property id="description" value="Enter the name of the lab." />
+            </camunda:properties>
+            <camunda:validation>
+              <camunda:constraint name="required" config="true" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="Building" type="autocomplete">
+            <camunda:properties>
+              <camunda:property id="description" value="Select the building in which the lab is located." />
+              <camunda:property id="enum.options.file" value="BuildingList.xls" />
+              <camunda:property id="enum.options.value.column" value="Value" />
+              <camunda:property id="enum.options.label.column" value="Building Name" />
+              <camunda:property id="enum.options.lookup" value="True" />
+            </camunda:properties>
+            <camunda:validation>
+              <camunda:constraint name="Required" config="true" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0h50bp3</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0bqu7pp</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0h50bp3" sourceRef="ManualTask_1ofy9yz" targetRef="AddInfo" />
+    <bpmn:sequenceFlow id="SequenceFlow_05ja25w" sourceRef="StartEvent_1" targetRef="ManualTask_1ofy9yz" />
+    <bpmn:sequenceFlow id="SequenceFlow_0bqu7pp" sourceRef="AddInfo" targetRef="LabInfo" />
+    <bpmn:userTask id="LabInfo" name="Enter Lab Details" camunda:formKey="Lab Details">
+      <bpmn:documentation>### {{ LabName }}
+#### Lab details
+
+
+Your response to these questions will determine if you do or do not provide additional information regarding each topic later.</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="isHumanResearch" label="Human Research" type="boolean">
+            <camunda:properties>
+              <camunda:property id="description" value="Does this lab&#39;s research involve human subjects?" />
+              <camunda:property id="required" value="true" />
+            </camunda:properties>
+            <camunda:validation>
+              <camunda:constraint name="required" config="true" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="isAnimalUse" label="Animal Use" type="boolean">
+            <camunda:properties>
+              <camunda:property id="description" value="Do you use animals in your work?" />
+              <camunda:property id="required" value="true" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="isSharedLab" label="Shared Lab" type="boolean">
+            <camunda:properties>
+              <camunda:property id="description" value="Is your lab shared with another researcher?" />
+              <camunda:property id="required" value="true" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="isSharedSpace" label="Shared Space" type="boolean">
+            <camunda:properties>
+              <camunda:property id="description" value="Do you use any shared spaces with other labs?" />
+              <camunda:property id="required" value="true" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="isGrantSupport" label="Grant Support" type="boolean">
+            <camunda:properties>
+              <camunda:property id="required" value="true" />
+              <camunda:property id="description" value="Are any of the studies in your lab that will be restarted supported by grants?" />
+            </camunda:properties>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0bqu7pp</bpmn:incoming>
+      <bpmn:outgoing>Flow_0scfmzc</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_09wp7av">
+      <bpmn:incoming>SequenceFlow_1qtrgbv</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1e2qi9s" sourceRef="Activity_0rv3far" targetRef="Task_1cw2y6r" />
+    <bpmn:manualTask id="Activity_0rv3far" name="Review Plan">
+      <bpmn:documentation>Review plan, make changes if needed, continue of ready to submit.</bpmn:documentation>
+      <bpmn:incoming>Flow_1b6vbkk</bpmn:incoming>
+      <bpmn:outgoing>Flow_1e2qi9s</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1qtrgbv" sourceRef="Task_1cw2y6r" targetRef="EndEvent_09wp7av" />
+    <bpmn:scriptTask id="Task_1cw2y6r" name="Generate RRP">
+      <bpmn:incoming>Flow_1e2qi9s</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1qtrgbv</bpmn:outgoing>
+      <bpmn:script>CompleteTemplate ResearchRecoveryPlan.docx RESEARCH_RECOVERY</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="UserTask_0ww2o4i" name="Enter Animal Research Info" camunda:formKey="Animal Research">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="AnimalTimeline" label="Animal Timeline" type="textarea">
+            <camunda:properties>
+              <camunda:property id="description" value="Please describe the timeline for animal colony regeneration and what needs you will have for services from the ASC, including routine and specialty services." />
+              <camunda:property id="rows" value="10" />
+              <camunda:property id="help" value="[EHS Lab Ramp up Checklist for Laboratories](https://research.virginia.edu/sites/vpr/files/2020-05/EHS.LabRampUpChecklistForLaboratories_0_0.pdf)\n#### Animal Care\n- Communicate with your vivarium manager prior to restarting animal research.\n- Confirm inventory of controlled substances and proper documentation." />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="AnimalOrder" label="Animal Order" type="enum">
+            <camunda:properties>
+              <camunda:property id="description" value="When will you need to order animals again? Give time frame relative to the date of completion of this form." />
+            </camunda:properties>
+            <camunda:value id="immediately" name="Immediately" />
+            <camunda:value id="weeks_1to2" name="1 to 2 weeks" />
+            <camunda:value id="weeks_3to4" name="3 to 4 weeks" />
+            <camunda:value id="weeks_5to8" name="5 to 8 weeks" />
+            <camunda:value id="weeks_more_than_8" name="More than 8 weeks" />
+          </camunda:formField>
+          <camunda:formField id="Animal Housing Access" label="Animal Housing Access" type="enum">
+            <camunda:properties>
+              <camunda:property id="description" value="When do you anticipate entering the animal housing facility? Give an estimated time frame based on the date of resumption of research activity." />
+              <camunda:property id="Property_1km3ge3" />
+            </camunda:properties>
+            <camunda:value id="ASAP" name="As soon as possible" />
+            <camunda:value id="weeks_1to2" name="1 to 2 weeks" />
+            <camunda:value id="weeks_3to4" name="3 to 4 weeks" />
+            <camunda:value id="weeks_5to8" name="5 to 8 weeks" />
+            <camunda:value id="weeks_more_than_8" name="More than 8 weeks" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0so3402</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1yi9lig</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_191l7i1" name="Are Animals Used?">
+      <bpmn:incoming>Flow_0scfmzc</bpmn:incoming>
+      <bpmn:outgoing>Flow_0so3402</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0141rp3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0so3402" name="Yes" sourceRef="Gateway_191l7i1" targetRef="UserTask_0ww2o4i">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">isAnimalUse == True</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="UserTask_1cx8349" name="Enter Grant Support" camunda:formKey="GrantSupport">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="Grants" label="Grants" type="textarea">
+            <camunda:properties>
+              <camunda:property id="rows" value="10" />
+              <camunda:property id="description" value="What is the status of your grant support and timelines associated with each grant?" />
+              <camunda:property id="help" value="Example: NIH Award R01xxxxx; project period through mm/dd/yy: Brief notes on grant status if applicable" />
+            </camunda:properties>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1121pfu</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1b4non2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_06s8ygl" name="Grant support?">
+      <bpmn:incoming>Flow_0141rp3</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1yi9lig</bpmn:incoming>
+      <bpmn:outgoing>Flow_1121pfu</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1wp5zmg</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1121pfu" name="Yes" sourceRef="Gateway_06s8ygl" targetRef="UserTask_1cx8349">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">isGrantSupport == True</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_01p9hbs">
+      <bpmn:incoming>SequenceFlow_1b4non2</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1wp5zmg</bpmn:incoming>
+      <bpmn:outgoing>Flow_1b6vbkk</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1b6vbkk" sourceRef="Gateway_01p9hbs" targetRef="Activity_0rv3far" />
+    <bpmn:sequenceFlow id="SequenceFlow_1b4non2" sourceRef="UserTask_1cx8349" targetRef="Gateway_01p9hbs" />
+    <bpmn:sequenceFlow id="SequenceFlow_1wp5zmg" name="No" sourceRef="Gateway_06s8ygl" targetRef="Gateway_01p9hbs">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">isGrantSupport == False</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0scfmzc" sourceRef="LabInfo" targetRef="Gateway_191l7i1" />
+    <bpmn:sequenceFlow id="Flow_0141rp3" name="No" sourceRef="Gateway_191l7i1" targetRef="Gateway_06s8ygl">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">isAnimalUse == False</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1yi9lig" sourceRef="UserTask_0ww2o4i" targetRef="Gateway_06s8ygl" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="rrt">
+      <bpmndi:BPMNEdge id="SequenceFlow_0bqu7pp_di" bpmnElement="SequenceFlow_0bqu7pp">
+        <di:waypoint x="520" y="187" />
+        <di:waypoint x="580" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_05ja25w_di" bpmnElement="SequenceFlow_05ja25w">
+        <di:waypoint x="188" y="187" />
+        <di:waypoint x="260" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0h50bp3_di" bpmnElement="SequenceFlow_0h50bp3">
+        <di:waypoint x="360" y="187" />
+        <di:waypoint x="420" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1qtrgbv_di" bpmnElement="SequenceFlow_1qtrgbv">
+        <di:waypoint x="1710" y="187" />
+        <di:waypoint x="1762" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1b6vbkk_di" bpmnElement="Flow_1b6vbkk">
+        <di:waypoint x="1385" y="187" />
+        <di:waypoint x="1460" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1e2qi9s_di" bpmnElement="Flow_1e2qi9s">
+        <di:waypoint x="1560" y="187" />
+        <di:waypoint x="1610" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1yi9lig_di" bpmnElement="SequenceFlow_1yi9lig">
+        <di:waypoint x="990" y="187" />
+        <di:waypoint x="1075" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0141rp3_di" bpmnElement="Flow_0141rp3">
+        <di:waypoint x="800" y="212" />
+        <di:waypoint x="800" y="280" />
+        <di:waypoint x="1100" y="280" />
+        <di:waypoint x="1100" y="212" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="936" y="263" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0so3402_di" bpmnElement="Flow_0so3402">
+        <di:waypoint x="825" y="187" />
+        <di:waypoint x="890" y="187" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="849" y="169" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1121pfu_di" bpmnElement="Flow_1121pfu">
+        <di:waypoint x="1125" y="187" />
+        <di:waypoint x="1190" y="187" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1149" y="169" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1b4non2_di" bpmnElement="SequenceFlow_1b4non2">
+        <di:waypoint x="1290" y="187" />
+        <di:waypoint x="1335" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1wp5zmg_di" bpmnElement="SequenceFlow_1wp5zmg">
+        <di:waypoint x="1100" y="212" />
+        <di:waypoint x="1100" y="280" />
+        <di:waypoint x="1360" y="280" />
+        <di:waypoint x="1360" y="212" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1192" y="262" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0scfmzc_di" bpmnElement="Flow_0scfmzc">
+        <di:waypoint x="680" y="187" />
+        <di:waypoint x="775" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="169" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ManualTask_1ofy9yz_di" bpmnElement="ManualTask_1ofy9yz">
+        <dc:Bounds x="260" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0xdpoxl_di" bpmnElement="AddInfo">
+        <dc:Bounds x="420" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0nu5cww_di" bpmnElement="LabInfo">
+        <dc:Bounds x="580" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_191l7i1_di" bpmnElement="Gateway_191l7i1" isMarkerVisible="true">
+        <dc:Bounds x="775" y="162" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="770" y="125" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0ww2o4i_di" bpmnElement="UserTask_0ww2o4i">
+        <dc:Bounds x="890" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_06s8ygl_di" bpmnElement="Gateway_06s8ygl" isMarkerVisible="true">
+        <dc:Bounds x="1075" y="162" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1063" y="133" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_1cx8349_di" bpmnElement="UserTask_1cx8349">
+        <dc:Bounds x="1190" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1mg5lp9_di" bpmnElement="Activity_0rv3far">
+        <dc:Bounds x="1460" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_09wp7av_di" bpmnElement="EndEvent_09wp7av">
+        <dc:Bounds x="1762" y="169" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_01p9hbs_di" bpmnElement="Gateway_01p9hbs" isMarkerVisible="true">
+        <dc:Bounds x="1335" y="162" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScriptTask_0gacq8q_di" bpmnElement="Task_1cw2y6r">
+        <dc:Bounds x="1610" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -31,6 +31,15 @@ class Term(object):
     """
     pass
 
+class DotDict(dict):
+    """dot.notation access to dictionary attributes"""
+    def __getattr__(*args):
+        val = dict.get(*args)
+        return DotDict(val) if type(val) is dict else val
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
+
 
 class Attrib(Term):
 
@@ -75,6 +84,7 @@ class PathAttrib(Term):
 
     def __init__(self, path):
         self.path = path
+        self.name = path
 
     def serialize(self, serializer):
         """
@@ -190,6 +200,13 @@ def valueof(scope, op, default=None):
         return data
     else:
         return op
+
+def is_number(text):
+    try:
+        x = int(text)
+    except:
+        return False
+    return True
 
 
 class Operator(Term):

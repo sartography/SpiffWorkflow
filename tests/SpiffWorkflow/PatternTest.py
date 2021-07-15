@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from SpiffWorkflow.specs import *
 from SpiffWorkflow import Task
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
-from util import run_workflow
+from tests.SpiffWorkflow.util import run_workflow
 
 
 class WorkflowTestData(object):

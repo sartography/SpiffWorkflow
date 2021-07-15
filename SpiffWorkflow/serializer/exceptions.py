@@ -4,3 +4,7 @@ class TaskSpecNotSupportedError(ValueError):
 
 class TaskNotSupportedError(ValueError):
     pass
+
+
+class MissingSpecError(ValueError):
+    pass
