@@ -6,7 +6,7 @@ dist
 unit_test.cfg
 nosetests.xml
 .coverage
-tests/coverage.xml
+coverage.xml
 .c9revisions
 .idea
 /venv
