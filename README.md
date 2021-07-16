@@ -10,10 +10,14 @@
 Spiff Workflow is a workflow engine implemented in pure Python. It is based
 on the excellent work of the
 [Workflow Patterns initiative](http://www.workflowpatterns.com/).
+In 2020 and 2021, extensive support was added for BPMN / DMN processing.
 
 ## Do you need commercial support?
 
-Spiff Workflow is supported by [Procedure 8](https://procedure8.com). Get in touch if you need anything!
+Spiff Workflow is now supported by [Sartography](https://sartography.com).
+We are working to build out a collection of open source projects, including
+a REST based API and frontend Javascript libraries that make building applications
+with SpiffWorkflow easier than ever.
 
 ## Main design goals
 
@@ -58,7 +62,7 @@ wf = Workflow(spec)
 wf.complete_task_from_id(...)
 
 # Of course, you can also persist the workflow instance:
-xml = Workflow.serialize(XmlSerializer, 'workflow_state.xml')
+xml = wf.serialize(XmlSerializer, 'workflow_state.xml')
 ```
 
 ## Documentation

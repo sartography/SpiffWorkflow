@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
-# Copyright (C) 2012 Matthew Hampton
+# Copyright (C) 2020 Matthew Hampton, Dan Funk
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -19,15 +19,19 @@ from __future__ import division, absolute_import
 
 import configparser
 from io import BytesIO, TextIOWrapper
-import xml.etree.ElementTree as ET
+from lxml import etree
 import zipfile
 import os
-from ...serializer.base import Serializer
+from json import loads
+
+from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.serializer import json as spiff_json
 from ..parser.BpmnParser import BpmnParser
 from .Packager import Packager
 
 
-class BpmnSerializer(Serializer):
+class BpmnSerializer(spiff_json.JSONSerializer):
     """
     The BpmnSerializer class provides support for deserializing a Bpmn Workflow
     Spec from a BPMN package. The BPMN package must have been created using the
@@ -35,22 +39,68 @@ class BpmnSerializer(Serializer):
 
     It will also use the appropriate subclass of BpmnParser, if one is included
     in the metadata.ini file.
+
+    It can further serialize and deserialize a running workflow into a json
+    data structure.  The json structure will not include the Spec, this must
+    be passed as an argument when deserializing.
     """
 
-    def serialize_workflow_spec(self, wf_spec, **kwargs):
-        raise NotImplementedError(
-            "The BpmnSerializer class cannot be used to serialize. "
-            "BPMN authoring should be done using a supported editor.")
 
     def serialize_workflow(self, workflow, **kwargs):
-        raise NotImplementedError(
-            "The BPMN standard does not provide a specification for "
-            "serializing a running workflow.")
+        """
+        Serializes the workflow data and task tree, but not the specification
+        That must be passed in when deserializing the data structure.
+        """
+        assert isinstance(workflow, BpmnWorkflow)
+        include_spec = kwargs.get('include_spec',True)
+        return super().serialize_workflow(workflow, include_spec=include_spec)
 
-    def deserialize_workflow(self, s_state, **kwargs):
-        raise NotImplementedError(
-            "The BPMN standard does not provide a specification for "
-            "serializing a running workflow.")
+    def serialize_task(self, task, skip_children=False, **kwargs):
+        return super().serialize_task(task,
+                                      skip_children=skip_children,
+                                      allow_subs=True)
+
+    def deserialize_workflow(self, s_state,  workflow_spec=None,
+                             read_only=False, **kwargs):
+
+        return super().deserialize_workflow(s_state,
+                                            wf_class=BpmnWorkflow,
+                                            wf_spec=workflow_spec,
+                                            read_only=read_only,
+                                            **kwargs)
+
+    def _deserialize_task_children(self, task, s_state):
+        """Reverses the internal process that will merge children from a
+        sub-workflow in the top level workflow.  This copies the states
+        back into the sub-workflow after generating it from the base spec"""
+        if not isinstance(task.task_spec, CallActivity):
+            return super()._deserialize_task_children(task, s_state)
+        else:
+
+            sub_workflow = task.task_spec.create_sub_workflow(task)
+            children = []
+            for c in s_state['children']:
+                if sub_workflow.get_tasks_from_spec_name(c['task_spec']):
+                    start_task = self.deserialize_task(sub_workflow, c)
+                    children.append(start_task)
+                    start_task.parent = task.id
+                    sub_workflow.task_tree = start_task
+                    # get a list of tasks in reverse order of change
+                    # our last task should be on the top.
+                    tasks = sub_workflow.get_tasks(task.COMPLETED)
+                    tasks.sort(key=lambda x: x.last_state_change,reverse=True)
+                    if len(tasks)>0:
+                        last_task = tasks[0]
+                        sub_workflow.last_task = last_task
+                else:
+                    resume_task = self.deserialize_task(task.workflow, c)
+                    resume_task.parent = task.id
+                    children.append(resume_task)
+            return children
+
+    def deserialize_task(self, workflow, s_state):
+        assert isinstance(workflow, BpmnWorkflow)
+        return super().deserialize_task(workflow, s_state)
 
     def deserialize_workflow_spec(self, s_state, filename=None):
         """
@@ -59,7 +109,11 @@ class BpmnSerializer(Serializer):
 
         :param filename: the name of the package file.
         """
-        if isinstance(s_state, (str, bytes)):
+        if isinstance(s_state,dict):
+            return super().deserialize_workflow_spec(s_state)
+        if isinstance(s_state,str):
+            return super().deserialize_workflow_spec(s_state)
+        if isinstance(s_state, bytes):
             s_state = BytesIO(s_state)
 
         package_zip = zipfile.ZipFile(
@@ -73,14 +127,8 @@ class BpmnSerializer(Serializer):
             ini_fp.close()
 
         parser_class = BpmnParser
-
-        try:
-            parser_class_module = config.get(
-                'MetaData', 'parser_class_module', fallback=None)
-        except TypeError:
-            # unfortunately the fallback= does not exist on python 2
-            parser_class_module = config.get(
-                'MetaData', 'parser_class_module', None)
+        parser_class_module = config.get(
+            'MetaData', 'parser_class_module', fallback=None)
 
         if parser_class_module:
             mod = __import__(parser_class_module, fromlist=[
@@ -101,12 +149,12 @@ class BpmnSerializer(Serializer):
 
                 bpmn_fp = package_zip.open(info)
                 try:
-                    bpmn = ET.parse(bpmn_fp)
+                    bpmn = etree.parse(bpmn_fp)
                 finally:
                     bpmn_fp.close()
 
                 parser.add_bpmn_xml(
                     bpmn, svg=svg,
                     filename='%s:%s' % (filename, info.filename))
-
-        return parser.get_spec(config.get('MetaData', 'entry_point_process'))
+        spec_name = config.get('MetaData', 'entry_point_process')
+        return parser.get_spec(spec_name)

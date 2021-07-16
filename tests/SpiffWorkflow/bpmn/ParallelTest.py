@@ -81,6 +81,66 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
             0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
 
 
+class ParallelFromCamunda(BpmnWorkflowTestCase):
+
+    def setUp(self):
+        self.spec = self.load_spec()
+
+    def load_spec(self):
+        return self.load_workflow_spec('Test-Workflows/Parallel.camunda.bpmn20.xml', 'Process_1hb021r')
+
+    def testRunThroughParallelTaskFirst(self):
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+
+        # 1 first task
+        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
+        self.do_next_named_step('First Task')
+        self.save_restore()
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+
+        # 3 parallel tasks
+        self.assertEqual(3, len(self.workflow.get_tasks(Task.READY)))
+        self.do_next_named_step('Parallel Task A')
+        self.save_restore()
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Parallel Task B')
+        self.save_restore()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Parallel Task C')
+        self.save_restore()
+        self.workflow.do_engine_steps()
+        self.save_restore()
+
+        # 1 last task
+        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
+        self.do_next_named_step('Last Task')
+        self.save_restore()
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+
+    def testAllParallelDataMakesItIntoGatewayTask(self):
+        """It should be true that data collected across parallel tasks
+        is all available in the join task."""
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('First Task')
+        self.do_next_named_step('Parallel Task A',
+                                set_attribs={"taskA": "taskA"})
+        self.do_next_named_step('Parallel Task B',
+                                set_attribs={"taskB": "taskB"})
+        self.do_next_named_step('Parallel Task C',
+                                set_attribs={"taskC": "taskC"})
+        self.workflow.do_engine_steps()
+        self.do_next_named_step('Last Task')
+        self.assertEquals("taskA", self.workflow.last_task.data["taskA"])
+        self.assertEquals("taskB", self.workflow.last_task.data["taskB"])
+        self.assertEquals("taskC", self.workflow.last_task.data["taskC"])
+
+
+
 class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
 
     def load_spec(self):

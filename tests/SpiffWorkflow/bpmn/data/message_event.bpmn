@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0a9entn" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.2.0">
+  <bpmn:process id="Process_1dagb7t" name="TestMessage" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Start">
+      <bpmn:outgoing>Flow_0xym55y</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_16q1uec" name="TestMessageFlow" sourceRef="Event_TokenReset" targetRef="Activity_TestMessage" />
+    <bpmn:scriptTask id="Activity_TestMessage" name="Test Message" camunda:resultVariable="test_message=&#39;Test Message&#39;">
+      <bpmn:incoming>Flow_16q1uec</bpmn:incoming>
+      <bpmn:script>print('New Title') 
+title = 'New Title'</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="Activity_GetData" name="GetData" camunda:formKey="FirstTaskForm">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="formdata" label="Gimme some data" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1rvh899</bpmn:incoming>
+      <bpmn:outgoing>Flow_1n1fs6z</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:scriptTask id="Activity_PrintData" name="PrintData">
+      <bpmn:incoming>Flow_07i0gvv</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c2tudh</bpmn:outgoing>
+      <bpmn:script>[print(formdata) for _ in range(how_many)]
+printdata = formdata</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="Event_1b8jy9y" name="EndEvent">
+      <bpmn:incoming>Flow_1c2tudh</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1c2tudh" sourceRef="Activity_PrintData" targetRef="Event_1b8jy9y" />
+    <bpmn:sequenceFlow id="Flow_0xym55y" sourceRef="StartEvent_1" targetRef="Activity_Hello" />
+    <bpmn:sequenceFlow id="Flow_1rvh899" sourceRef="Activity_Hello" targetRef="Activity_GetData" />
+    <bpmn:scriptTask id="Activity_Hello" name="Hello">
+      <bpmn:incoming>Flow_0xym55y</bpmn:incoming>
+      <bpmn:outgoing>Flow_1rvh899</bpmn:outgoing>
+      <bpmn:script>print('Hello'); printdata=''; test_message=''</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_1n1fs6z" sourceRef="Activity_GetData" targetRef="Activity_HowMany" />
+    <bpmn:userTask id="Activity_HowMany" name="HowMany" camunda:formKey="HowMany">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="how_many" label="How many?" type="long" defaultValue="1" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1n1fs6z</bpmn:incoming>
+      <bpmn:outgoing>Flow_07i0gvv</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_07i0gvv" sourceRef="Activity_HowMany" targetRef="Activity_PrintData" />
+    <bpmn:boundaryEvent id="Event_TokenReset" name="TokenReset" attachedToRef="Activity_HowMany">
+      <bpmn:outgoing>Flow_16q1uec</bpmn:outgoing>
+      <bpmn:cancelEventDefinition id="CancelEventDefinition_03yokaz" />
+    </bpmn:boundaryEvent>
+  </bpmn:process>
+  <bpmn:message id="Message_0iyvlbz" name="token_reset" />
+  <bpmn:message id="Message_1ow6ruy" name="Message_00ldv4i" />
+  <bpmn:signal id="Signal_1fbgshz" name="token_reset" />
+  <bpmn:message id="Message_1czi5ye" name="token_reset" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1dagb7t">
+      <bpmndi:BPMNEdge id="Flow_07i0gvv_di" bpmnElement="Flow_07i0gvv">
+        <di:waypoint x="650" y="117" />
+        <di:waypoint x="720" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n1fs6z_di" bpmnElement="Flow_1n1fs6z">
+        <di:waypoint x="490" y="117" />
+        <di:waypoint x="550" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1rvh899_di" bpmnElement="Flow_1rvh899">
+        <di:waypoint x="330" y="117" />
+        <di:waypoint x="390" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xym55y_di" bpmnElement="Flow_0xym55y">
+        <di:waypoint x="188" y="117" />
+        <di:waypoint x="230" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1c2tudh_di" bpmnElement="Flow_1c2tudh">
+        <di:waypoint x="820" y="117" />
+        <di:waypoint x="862" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16q1uec_di" bpmnElement="Flow_16q1uec">
+        <di:waypoint x="600" y="175" />
+        <di:waypoint x="600" y="269" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="605" y="222" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="158" y="142" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0bieozg_di" bpmnElement="Activity_TestMessage">
+        <dc:Bounds x="550" y="269" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_04w71at_di" bpmnElement="Activity_GetData">
+        <dc:Bounds x="390" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xlnpzi_di" bpmnElement="Activity_PrintData">
+        <dc:Bounds x="720" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1b8jy9y_di" bpmnElement="Event_1b8jy9y">
+        <dc:Bounds x="862" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="857" y="142" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jj0s1n_di" bpmnElement="Activity_Hello">
+        <dc:Bounds x="230" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0hkt70o_di" bpmnElement="Activity_HowMany">
+        <dc:Bounds x="550" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1wuom59_di" bpmnElement="Event_TokenReset">
+        <dc:Bounds x="582" y="139" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="610" y="173" width="59" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -23,14 +23,13 @@ import configparser
 import glob
 import hashlib
 import inspect
-import xml.etree.ElementTree as ET
 import zipfile
 from io import StringIO
 from optparse import OptionParser, OptionGroup
 from ..parser.BpmnParser import BpmnParser
 from ..parser.ValidationException import ValidationException
 from ..parser.util import xpath_eval, one
-
+from lxml import etree
 SIGNAVIO_NS = 'http://www.signavio.com'
 CONFIG_SECTION_NAME = "Packager Options"
 
@@ -139,7 +138,7 @@ class Packager(object):
         # Parse all of the XML:
         self.bpmn = {}
         for filename in self.input_files:
-            bpmn = ET.parse(filename)
+            bpmn = etree.parse(filename)
             self.bpmn[os.path.abspath(filename)] = bpmn
 
         # Now run through pre-parsing and validation:
@@ -150,7 +149,9 @@ class Packager(object):
         # Now check that we can parse it fine:
         for filename, bpmn in list(self.bpmn.items()):
             self.parser.add_bpmn_xml(bpmn, filename=filename)
-
+        # at this point, we have a item in self.wf_spec.get_specs_depth_first()
+        # that has a filename of None and a bpmn that needs to be added to the
+        # list below in for spec.
         self.wf_spec = self.parser.get_spec(self.entry_point_process)
 
         # Now package everything:
@@ -158,16 +159,23 @@ class Packager(object):
             self.package_file, "w", compression=zipfile.ZIP_DEFLATED)
 
         done_files = set()
+
         for spec in self.wf_spec.get_specs_depth_first():
             filename = spec.file
+            if filename is None:
+                # This is for when we are doing a subworkflow, and it
+                # creates something in the bpmn spec list, but it really has
+                # no file. In this case, it is safe to skip the add to the
+                # zip file.
+                continue
             if filename not in done_files:
                 done_files.add(filename)
 
                 bpmn = self.bpmn[os.path.abspath(filename)]
                 self.write_to_package_zip(
-                    "%s.bpmn" % spec.name, ET.tostring(bpmn.getroot()))
+                    "%s.bpmn" % spec.name, etree.tostring(bpmn.getroot()))
 
-                self.write_file_to_package_zip(
+                self.write_to_package_zip(
                     "src/" + self._get_zip_path(filename), filename)
 
                 self._call_editor_hook('package_for_editor', spec, filename)
@@ -298,7 +306,7 @@ class Packager(object):
                 for b in list(self.bpmn.values()):
                     for p in xpath_eval(b)(".//bpmn:process"):
                         if (p.get('name', p.get('id', None)) ==
-                                subprocess_reference):
+                            subprocess_reference):
                             matches.append(p)
                 if not matches:
                     raise ValidationException(
@@ -330,7 +338,7 @@ class Packager(object):
 
             f = open(signavio_file, 'r')
             try:
-                signavio_tree = ET.parse(f)
+                signavio_tree = etree.parse(f)
             finally:
                 f.close()
             svg_node = one(signavio_tree.findall('.//svg-representation'))

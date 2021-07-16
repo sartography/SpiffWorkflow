@@ -60,12 +60,14 @@ class BpmnWorkflow(Workflow):
         for my_task in Task.Iterator(self.task_tree, Task.WAITING):
             my_task.task_spec.accept_message(my_task, message)
 
-    def do_engine_steps(self):
+    def do_engine_steps(self, exit_at = None):
         """
         Execute any READY tasks that are engine specific (for example, gateways
         or script tasks). This is done in a loop, so it will keep completing
         those tasks until there are only READY User tasks, or WAITING tasks
         left.
+
+        :param exit_at: After executing a task with a name matching this param return the task object
         """
         assert not self.read_only
         engine_steps = list(
@@ -74,10 +76,12 @@ class BpmnWorkflow(Workflow):
         while engine_steps:
             for task in engine_steps:
                 task.complete()
+                if task.task_spec.name == exit_at:
+                    return task
+            
             engine_steps = list(
                 [t for t in self.get_tasks(Task.READY)
                  if self._is_engine_task(t.task_spec)])
-
     def refresh_waiting_tasks(self):
         """
         Refresh the state of all WAITING tasks. This will, for example, update
@@ -87,12 +91,17 @@ class BpmnWorkflow(Workflow):
         for my_task in self.get_tasks(Task.WAITING):
             my_task.task_spec._update(my_task)
 
-    def get_ready_user_tasks(self):
+    def get_ready_user_tasks(self,lane=None):
         """
         Returns a list of User Tasks that are READY for user action
         """
-        return [t for t in self.get_tasks(Task.READY)
-                if not self._is_engine_task(t.task_spec)]
+        if lane is not None:
+            return [t for t in self.get_tasks(Task.READY)
+                       if (not self._is_engine_task(t.task_spec))
+                           and (t.task_spec.lane == lane)]
+        else:
+            return [t for t in self.get_tasks(Task.READY)
+                       if not self._is_engine_task(t.task_spec)]
 
     def get_waiting_tasks(self):
         """
@@ -111,6 +120,7 @@ class BpmnWorkflow(Workflow):
 
     def _task_completed_notify(self, task):
         assert (not self.read_only) or self._is_busy_with_restore()
+        self.last_task = task
         super(BpmnWorkflow, self)._task_completed_notify(task)
 
     def _task_cancelled_notify(self, task):

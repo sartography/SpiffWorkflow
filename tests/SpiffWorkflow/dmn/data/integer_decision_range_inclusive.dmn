@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
+    <decisionTable id="decisionTable">
+      <input id="InputClause_1tm0ceq" label="Age">
+        <inputExpression id="LiteralExpression_04o7chw" typeRef="integer" />
+      </input>
+      <output id="output1" label="Result" name="" typeRef="string" />
+      <rule id="row-650602887-2">
+        <description>100-110 Inclusive Annotation</description>
+        <inputEntry id="UnaryTests_0b406cl">
+          <text>100 &lt;= ? &lt;= 110</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_07uniir">
+          <text>"100-110 Inclusive"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row-484867957-7">
+        <description>ELSE Row Annotation</description>
+        <inputEntry id="UnaryTests_0u4hmbg">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_19qgvg3">
+          <text>"ELSE"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

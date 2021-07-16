@@ -49,6 +49,12 @@ class SequenceFlow(object):
         self.documentation = documentation
         self.target_task_spec = target_task_spec
 
+    def serialize(self):
+        return {'id':self.id,
+                'name':self.name,
+                'documentation':self.documentation,
+                'target_task_spec':self.target_task_spec.id}
+
 
 class BpmnSpecMixin(TaskSpec):
     """
@@ -66,8 +72,15 @@ class BpmnSpecMixin(TaskSpec):
         super(BpmnSpecMixin, self).__init__(wf_spec, name, **kwargs)
         self.outgoing_sequence_flows = {}
         self.outgoing_sequence_flows_by_id = {}
+        self.loopTask = False
         self.lane = lane
         self.documentation = None
+
+    def is_loop_task(self):
+        """
+        Returns true if this task is a BPMN looping task
+        """
+        return self.loopTask
 
     def connect_outgoing(self, taskspec, sequence_flow_id, sequence_flow_name,
                          documentation):
@@ -177,8 +190,6 @@ class BpmnSpecMixin(TaskSpec):
         A subclass may override this method to do work when this happens.
         """
         pass
-
-    #
 
     def _on_complete_hook(self, my_task):
         super(BpmnSpecMixin, self)._on_complete_hook(my_task)

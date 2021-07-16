@@ -45,7 +45,6 @@ class SerializerTest(PatternTest):
         except TaskNotSupportedError as e:
             warnings.warn('unsupported task spec: ' + str(e))
             return
-
         self.assertIsInstance(serialized1, self.return_type)
         self.assertIsInstance(serialized2, self.return_type)
         serialized1 = self._prepare_result(serialized1)

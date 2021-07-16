@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_06pyjz2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
+  <bpmn:process id="ComplexNavigation" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0kcrx5l</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0kcrx5l" sourceRef="StartEvent_1" targetRef="Step1" />
+    <bpmn:userTask id="Step1" name="Step 1">
+      <bpmn:incoming>Flow_0kcrx5l</bpmn:incoming>
+      <bpmn:outgoing>Flow_1seuuie</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_0obertf" name="Select RO Education Department" camunda:formKey="RO_EducationDept">
+      <bpmn:documentation>The Study's Responsible Organization is needed in order to confirm the Department Chair.  If it is the same as the Primary Investigator's Primary Department show below, we have all the information needed to determine the Department Chair.
+
+
+**Primary Investigator's Primary Appointment** 
+***School:*** {{ pi.E0.schoolName }}
+***Department:*** {{ pi.E0.deptName }}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="RO_StudyDeptEducation" label="PI&#39;s Study Responsible Organization Department" type="enum">
+            <camunda:properties>
+              <camunda:property id="spreadsheet.name" value="DepartmentList-Education.xlsx" />
+              <camunda:property id="spreadsheet.value.column" value="Value" />
+              <camunda:property id="spreadsheet.label.column" value="Label" />
+              <camunda:property id="description" value="Type key words to find Education Department" />
+            </camunda:properties>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_12obxbo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1y4gjsg</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:scriptTask id="Activity_0vmy33u" name="Update RO Data">
+      <bpmn:incoming>Flow_02614fd</bpmn:incoming>
+      <bpmn:outgoing>Flow_0c4tt8e</bpmn:outgoing>
+      <bpmn:script>ro.chair = {}
+ro.chair.uid = RO_Chair_CID
+ro.chair.name_degree = RO_Chair_Name_Degree
+ro.chair.title = RO_Chair_Title
+ro.chair.sig_block = RO_Chair_Sig_Block</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="Gateway_0ubqopr" name="PI&#39;s Primary School / Department same as study&#39;s Responsible Organization?" default="Flow_1ni06mz">
+      <bpmn:incoming>Flow_1seuuie</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ni06mz</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1y9edqt</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_13vtxns" default="Flow_1oriwwz">
+      <bpmn:incoming>Flow_1y9edqt</bpmn:incoming>
+      <bpmn:outgoing>Flow_1oriwwz</bpmn:outgoing>
+      <bpmn:outgoing>Flow_185jvp3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="Activity_08ldcxm" name="Build School List">
+      <bpmn:incoming>Flow_185jvp3</bpmn:incoming>
+      <bpmn:outgoing>Flow_1dh8c45</bpmn:outgoing>
+      <bpmn:script>sch_enum = []
+if pi.E0.schoolAbbrv != "MD":
+	sch_enum_md = [
+		{
+		"value": "MD",
+		"label": "Medicine"
+		},
+	]
+else:
+	sch_enum_md = []
+if pi.E0.schoolAbbrv != "AS":
+	sch_enum_as = [	
+		{
+		"value": "AS",
+		"label": "Arts &amp; Science"
+		},
+	]
+else:
+	sch_enum_as = []
+if pi.E0.schoolAbbrv != "CU":
+	sch_enum_cu = [	
+		{
+		"value": "CU",
+		"label": "Education"
+		},
+	]
+else:
+	sch_enum_cu = []
+if pi.E0.schoolAbbrv != "NR":
+	sch_enum_nr = [
+		{
+		"value": "NR",
+		"label": "Nursing"
+		},
+	]
+else:
+	sch_enum_nr = []
+sch_enum = sch_enum_md + sch_enum_as + sch_enum_cu + sch_enum_nr	
+del(sch_enum_md)
+del(sch_enum_as)
+del(sch_enum_cu)
+del(sch_enum_nr)</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="Activity_08pywzy" name="Select RO School" camunda:formKey="RO_School">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="RO_StudySchool" label="Select the Responsible Organization&#39;s School" type="enum">
+            <camunda:properties>
+              <camunda:property id="data.name" value="sch_enum" />
+              <camunda:property id="data.value.column" value="value" />
+              <camunda:property id="data.label.column" value="label" />
+            </camunda:properties>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1dh8c45</bpmn:incoming>
+      <bpmn:outgoing>Flow_0mf9npl</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_12qlux1" name="School Have Departments?" default="Flow_0nzochy">
+      <bpmn:incoming>Flow_1oriwwz</bpmn:incoming>
+      <bpmn:incoming>Flow_0nmpxmc</bpmn:incoming>
+      <bpmn:outgoing>Flow_12obxbo</bpmn:outgoing>
+      <bpmn:outgoing>Flow_03s8gvx</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0nzochy</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0h955ao</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_02h27h5">
+      <bpmn:incoming>Flow_1y4gjsg</bpmn:incoming>
+      <bpmn:incoming>Flow_0lnb8jw</bpmn:incoming>
+      <bpmn:incoming>Flow_1fqtd41</bpmn:incoming>
+      <bpmn:outgoing>Flow_0a626ba</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="Activity_0nkgcfg" name="Reset RO Department">
+      <bpmn:incoming>Flow_0a626ba</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ssrpqx</bpmn:outgoing>
+      <bpmn:script>if PIsPrimaryDepartmentSameAsRO.value == "diffSchool":
+	ro.schoolName = RO_StudySchool.label
+	ro.schoolAbbrv = RO_StudySchool.value
+	
+if PIsPrimaryDepartmentSameAsRO.value != "yes":
+	if ro.schoolAbbrv == "MD":
+		ro.deptName = RO_StudyDeptMedicine.label
+		ro.deptAbbrv = RO_StudyDeptMedicine.value
+	elif ro.schoolAbbrv == "AS":
+		ro.deptName = RO_StudyDeptArtsSciences.label
+		ro.deptAbbrv = RO_StudyDeptArtsSciences.value
+	elif ro.schoolAbbrv == "CU":
+		ro.deptName = RO_StudyDeptEducation.label
+		ro.deptAbbrv = RO_StudyDeptEducation.value
+	else:
+		ro.deptName = ""
+		ro.deptAbbrv = ""</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="Activity_16q24p2" name="Select RO Medicine Department" camunda:formKey="RO_MedicineDept">
+      <bpmn:documentation>The Study's Responsible Organization is needed in order to confirm the Department Chair.  If it is the same as the Primary Investigator's Primary Department show below, we have all the information needed to determine the Department Chair.
+
+
+**Primary Investigator's Primary Appointment** 
+***School:*** {{ pi.E0.schoolName }}
+***Department:*** {{ pi.E0.deptName }}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="RO_StudyDeptMedicine" label="PI&#39;s Study Responsible Organization Department" type="enum">
+            <camunda:properties>
+              <camunda:property id="spreadsheet.name" value="DepartmentList-Medicine.xlsx" />
+              <camunda:property id="spreadsheet.value.column" value="Value" />
+              <camunda:property id="spreadsheet.label.column" value="Label" />
+              <camunda:property id="description" value="Type key words to find Medicine Department" />
+            </camunda:properties>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0nzochy</bpmn:incoming>
+      <bpmn:outgoing>Flow_0lnb8jw</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_0nv1s23" name="Select RO A&#38;S Department" camunda:formKey="RO_AandS_Dept">
+      <bpmn:documentation>The Study's Responsible Organization is needed in order to confirm the Department Chair.  If it is the same as the Primary Investigator's Primary Department show below, we have all the information needed to determine the Department Chair.
+
+
+**Primary Investigator's Primary Appointment** 
+***School:*** {{ pi.E0.schoolName }}
+***Department:*** {{ pi.E0.deptName }}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="RO_StudyDeptArtsSciences" label="PI&#39;s Study Responsible Organization Department" type="enum">
+            <camunda:properties>
+              <camunda:property id="spreadsheet.name" value="DepartmentList-ArtsSciences.xlsx" />
+              <camunda:property id="spreadsheet.value.column" value="Value" />
+              <camunda:property id="spreadsheet.label.column" value="Label" />
+              <camunda:property id="description" value="Type key words to find A&#38;S Department" />
+            </camunda:properties>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0h955ao</bpmn:incoming>
+      <bpmn:outgoing>Flow_1fqtd41</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:scriptTask id="Activity_0xa6vms" name="Reset RO School ">
+      <bpmn:incoming>Flow_0mf9npl</bpmn:incoming>
+      <bpmn:outgoing>Flow_0nmpxmc</bpmn:outgoing>
+      <bpmn:script>ro.schoolName = RO_StudySchool.label
+ro.schoolAbbrv = RO_StudySchool.value</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="Gateway_12sb0pk">
+      <bpmn:incoming>Flow_03s8gvx</bpmn:incoming>
+      <bpmn:incoming>Flow_0ssrpqx</bpmn:incoming>
+      <bpmn:outgoing>Flow_0tnnt3b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_12obxbo" name="Education" sourceRef="Gateway_12qlux1" targetRef="Activity_0obertf">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">ro.schoolAbbrv == "CU"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1y4gjsg" sourceRef="Activity_0obertf" targetRef="Gateway_02h27h5" />
+    <bpmn:sequenceFlow id="Flow_1ni06mz" sourceRef="Gateway_0ubqopr" targetRef="Activity_0whcncc" />
+    <bpmn:sequenceFlow id="Flow_0tnnt3b" sourceRef="Gateway_12sb0pk" targetRef="Activity_0whcncc" />
+    <bpmn:sequenceFlow id="Flow_02614fd" sourceRef="Activity_0whcncc" targetRef="Activity_0vmy33u" />
+    <bpmn:sequenceFlow id="Flow_1y9edqt" name="No" sourceRef="Gateway_0ubqopr" targetRef="Gateway_13vtxns">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">PIsPrimaryDepartmentSameAsRO.value != "yes"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1oriwwz" name="Yes" sourceRef="Gateway_13vtxns" targetRef="Gateway_12qlux1" />
+    <bpmn:sequenceFlow id="Flow_185jvp3" name="No" sourceRef="Gateway_13vtxns" targetRef="Activity_08ldcxm">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">PIsPrimaryDepartmentSameAsRO.value == 'diffSchool'</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1dh8c45" sourceRef="Activity_08ldcxm" targetRef="Activity_08pywzy" />
+    <bpmn:sequenceFlow id="Flow_0mf9npl" sourceRef="Activity_08pywzy" targetRef="Activity_0xa6vms" />
+    <bpmn:sequenceFlow id="Flow_0nmpxmc" sourceRef="Activity_0xa6vms" targetRef="Gateway_12qlux1" />
+    <bpmn:sequenceFlow id="Flow_03s8gvx" name="No" sourceRef="Gateway_12qlux1" targetRef="Gateway_12sb0pk">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">ro.schoolAbbrv not in ["MD", "AS", "CU"]</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0nzochy" name="Medicine" sourceRef="Gateway_12qlux1" targetRef="Activity_16q24p2" />
+    <bpmn:sequenceFlow id="Flow_0h955ao" name="A&#38;S" sourceRef="Gateway_12qlux1" targetRef="Activity_0nv1s23">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">ro.schoolAbbrv == "AS"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0lnb8jw" sourceRef="Activity_16q24p2" targetRef="Gateway_02h27h5" />
+    <bpmn:sequenceFlow id="Flow_1fqtd41" sourceRef="Activity_0nv1s23" targetRef="Gateway_02h27h5" />
+    <bpmn:sequenceFlow id="Flow_0a626ba" sourceRef="Gateway_02h27h5" targetRef="Activity_0nkgcfg" />
+    <bpmn:sequenceFlow id="Flow_0ssrpqx" sourceRef="Activity_0nkgcfg" targetRef="Gateway_12sb0pk" />
+    <bpmn:sequenceFlow id="Flow_1seuuie" sourceRef="Step1" targetRef="Gateway_0ubqopr" />
+    <bpmn:userTask id="Activity_0whcncc" name="Determine RO Chair">
+      <bpmn:incoming>Flow_1ni06mz</bpmn:incoming>
+      <bpmn:incoming>Flow_0tnnt3b</bpmn:incoming>
+      <bpmn:outgoing>Flow_02614fd</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_0l7thbn" name="End">
+      <bpmn:documentation>temp</bpmn:documentation>
+      <bpmn:incoming>Flow_15xpsq8</bpmn:incoming>
+      <bpmn:incoming>Flow_1g7q28p</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gateway_0ym1uow" name="How many Primary Coordinators?" default="Flow_0ygr7cu">
+      <bpmn:incoming>Flow_0cqbu1f</bpmn:incoming>
+      <bpmn:incoming>Flow_1d4sb3d</bpmn:incoming>
+      <bpmn:outgoing>Flow_12oux1f</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ygr7cu</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_0l7vq1i" name="Update Primary Coordinator Info" camunda:formKey="SC_AccessEmails">
+      <bpmn:documentation>The following Primary Coordinators were entered in Protocol Builder:
+{%+ for key, value in pcs.items() %}{{value.display_name}} ({{key}}){% if loop.index is lt cnt_pcs %}, {% endif %}{% endfor %}
+To Save the current settings for all Primary Coordinators, select Save All.
+
+
+Otherwise, edit each Coordinator as necessary and select the Save button for each.
+
+### Please provide supplemental information for:
+ #### {{ pc.display_name }} 
+ ##### Title: {{ pc.title }}
+
+ ##### Department: {{ pc.department }}
+ ##### Affiliation: {{ pc.affiliation }}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="pc.access" label="Should this Coordinator have full editing access in the system?" type="boolean" defaultValue="true" />
+          <camunda:formField id="pc.emails" label="Should this Coordinator receive automated email notifications?" type="boolean" defaultValue="true" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_12oux1f</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ik148z</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="pcs" camunda:elementVariable="pc" />
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1fhu0gj" name="PI is Dept Chair?" default="Flow_05g7d16">
+      <bpmn:incoming>Flow_0c4tt8e</bpmn:incoming>
+      <bpmn:outgoing>Flow_05g7d16</bpmn:outgoing>
+      <bpmn:outgoing>Flow_13zasb1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:manualTask id="Activity_17ikhsk" name="Show PI is Dept Chair">
+      <bpmn:documentation>The PI is also the RO Chair</bpmn:documentation>
+      <bpmn:incoming>Flow_13zasb1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0cqbu1f</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:exclusiveGateway id="Gateway_1ykz8u2" name="How many Sub-Investigators?" default="Flow_0pdoc38">
+      <bpmn:incoming>Flow_0efu6u1</bpmn:incoming>
+      <bpmn:incoming>Flow_0a3fjzp</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ljn2v6</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0pdoc38</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_0rcrs1i" name="Update Sub-Investigator Info" camunda:formKey="SI_AccessEmails">
+      <bpmn:documentation>The following Sub-Investigators were entered in Protocol Builder:
+{%+ for key, value in subs.items() %}{{value.display_name}} ({{key}}){% if loop.index is lt cnt_subs %}, {% endif %}{% endfor %}
+To Save the current settings for all Sub-Investigators, select Save All.
+
+
+Otherwise, edit each Sub-Investigator as necessary and select the Save button for each.
+
+
+### Please provide supplemental information for:
+ #### {{ sub.display_name }} 
+ ##### Title: {{ sub.title }}
+
+ ##### Department: {{ sub.department }}
+ ##### Affiliation: {{ sub.affiliation }}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="sub.access" label="Should this Sub-Investigator have full editing access in the system?" type="boolean" defaultValue="false" />
+          <camunda:formField id="sub.emails" label="Should this Sub-Investigator receive automated email notifications?" type="boolean" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ljn2v6</bpmn:incoming>
+      <bpmn:outgoing>Flow_07vu2b0</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="subs" camunda:elementVariable="sub" />
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1h4d4n5" name="How many Additional Coordinators?" default="Flow_0a3fjzp">
+      <bpmn:incoming>Flow_1ik148z</bpmn:incoming>
+      <bpmn:incoming>Flow_0ygr7cu</bpmn:incoming>
+      <bpmn:outgoing>Flow_0a3fjzp</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0rstqv5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_0tbvw9o" name="Update Additional Coordinator Info">
+      <bpmn:documentation>The following Additional Coordinators were entered in Protocol Builder:
+{%+ for key, value in acs.items() %}{{value.display_name}} ({{key}}){% if loop.index is lt cnt_acs %}, {% endif %}{% endfor %}
+To Save the current settings for all Additional Coordinators, select Save All.
+
+
+
+
+Otherwise, edit each Coordinator as necessary and select the Save button for each.
+
+
+### Please provide supplemental information for:
+ #### {{ acs.display_name }} 
+ ##### Title: {{ acs.title }}
+
+
+ ##### Department: {{ acs.department }}
+ ##### Affiliation: {{ acs.affiliation }}</bpmn:documentation>
+      <bpmn:incoming>Flow_0rstqv5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0efu6u1</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="acs" camunda:elementVariable="ac" />
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_0gjk91e" name="How many Additional Personnel? " default="Flow_1g7q28p">
+      <bpmn:incoming>Flow_0pdoc38</bpmn:incoming>
+      <bpmn:incoming>Flow_07vu2b0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1g7q28p</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0qti1ms</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_1uzsp1r" name="Update Additional Personnel Info" camunda:formKey="AP_AccessEmails">
+      <bpmn:documentation>The following Additional Personnel were entered in Protocol Builder:
+{%+ for key, value in aps.items() %}{{value.display_name}} ({{key}}){% if loop.index is lt cnt_aps %}, {% endif %}{% endfor %}
+To Save the current settings for all Additional Personnel, select Save All.
+
+
+
+
+Otherwise, edit each Additional Personnel as necessary and select the Save button for each.
+
+
+
+
+### Please provide supplemental information for:
+ #### {{ ap.display_name }} 
+ ##### Title: {{ ap.title }}
+
+
+ ##### Department: {{ ap.department }}
+ ##### Affiliation: {{ ap.affiliation }}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="ap.access" label="Should this Additional Personnel have full editing access in the system?" type="boolean" />
+          <camunda:formField id="FormField_27dit3u" label="Should this Additional Personnel receive automated email notifications?" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0qti1ms</bpmn:incoming>
+      <bpmn:outgoing>Flow_15xpsq8</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="aps" camunda:elementVariable="ap" />
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_0otiy71" name="Update Chair Info" camunda:formKey="RO_Chair_Info">
+      <bpmn:documentation>***Name &amp; Degree:*** {{ RO_Chair_Name_Degree }}
+***School:*** {{ RO_School }}
+***Department:*** {{ RO_Department }}
+***Title:*** {{ RO_Chair_Title }}
+***Email:*** {{ RO_Chair_CID }}
+
+
+{% if RO_Chair_CID != dc.uid %}
+  *Does not match the Department Chair specified in Protocol Builder, {{ dc.display_name }}*
+{% endif %}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="RO_ChairAccess" label="Should the Department Chair have full editing access in the system?" type="boolean" defaultValue="false" />
+          <camunda:formField id="RO_ChairEmails" label="Should the Department Chair receive automated email notifications?" type="boolean" defaultValue="false" />
+        </camunda:formData>
+        <camunda:properties>
+          <camunda:property name="display_name" value="&#34;Responsible Organization&#39;s Chair Info&#34;" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05g7d16</bpmn:incoming>
+      <bpmn:outgoing>Flow_1d4sb3d</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_15xpsq8" sourceRef="Activity_1uzsp1r" targetRef="Event_0l7thbn" />
+    <bpmn:sequenceFlow id="Flow_1g7q28p" sourceRef="Gateway_0gjk91e" targetRef="Event_0l7thbn" />
+    <bpmn:sequenceFlow id="Flow_0cqbu1f" sourceRef="Activity_17ikhsk" targetRef="Gateway_0ym1uow" />
+    <bpmn:sequenceFlow id="Flow_1d4sb3d" sourceRef="Activity_0otiy71" targetRef="Gateway_0ym1uow" />
+    <bpmn:sequenceFlow id="Flow_12oux1f" name="1 or more" sourceRef="Gateway_0ym1uow" targetRef="Activity_0l7vq1i" />
+    <bpmn:sequenceFlow id="Flow_0ygr7cu" name="None" sourceRef="Gateway_0ym1uow" targetRef="Gateway_1h4d4n5" />
+    <bpmn:sequenceFlow id="Flow_1ik148z" sourceRef="Activity_0l7vq1i" targetRef="Gateway_1h4d4n5" />
+    <bpmn:sequenceFlow id="Flow_05g7d16" name="No" sourceRef="Gateway_1fhu0gj" targetRef="Activity_0otiy71" />
+    <bpmn:sequenceFlow id="Flow_13zasb1" name="Yes" sourceRef="Gateway_1fhu0gj" targetRef="Activity_17ikhsk">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">RO_Chair_CID == pi.uid</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0efu6u1" sourceRef="Activity_0tbvw9o" targetRef="Gateway_1ykz8u2" />
+    <bpmn:sequenceFlow id="Flow_0a3fjzp" name="None" sourceRef="Gateway_1h4d4n5" targetRef="Gateway_1ykz8u2" />
+    <bpmn:sequenceFlow id="Flow_0ljn2v6" name="1 or more" sourceRef="Gateway_1ykz8u2" targetRef="Activity_0rcrs1i" />
+    <bpmn:sequenceFlow id="Flow_0pdoc38" name="None" sourceRef="Gateway_1ykz8u2" targetRef="Gateway_0gjk91e" />
+    <bpmn:sequenceFlow id="Flow_07vu2b0" sourceRef="Activity_0rcrs1i" targetRef="Gateway_0gjk91e" />
+    <bpmn:sequenceFlow id="Flow_0rstqv5" name="1 or more" sourceRef="Gateway_1h4d4n5" targetRef="Activity_0tbvw9o" />
+    <bpmn:sequenceFlow id="Flow_0qti1ms" sourceRef="Gateway_0gjk91e" targetRef="Activity_1uzsp1r" />
+    <bpmn:sequenceFlow id="Flow_0c4tt8e" sourceRef="Activity_0vmy33u" targetRef="Gateway_1fhu0gj" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ComplexNavigation">
+      <bpmndi:BPMNEdge id="Flow_0c4tt8e_di" bpmnElement="Flow_0c4tt8e">
+        <di:waypoint x="1070" y="300" />
+        <di:waypoint x="1118" y="300" />
+        <di:waypoint x="1118" y="290" />
+        <di:waypoint x="1165" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qti1ms_di" bpmnElement="Flow_0qti1ms">
+        <di:waypoint x="2625" y="290" />
+        <di:waypoint x="2730" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rstqv5_di" bpmnElement="Flow_0rstqv5">
+        <di:waypoint x="1925" y="290" />
+        <di:waypoint x="2040" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1959" y="272" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07vu2b0_di" bpmnElement="Flow_07vu2b0">
+        <di:waypoint x="2510" y="290" />
+        <di:waypoint x="2575" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pdoc38_di" bpmnElement="Flow_0pdoc38">
+        <di:waypoint x="2280" y="315" />
+        <di:waypoint x="2280" y="390" />
+        <di:waypoint x="2600" y="390" />
+        <di:waypoint x="2600" y="315" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2427" y="372" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ljn2v6_di" bpmnElement="Flow_0ljn2v6">
+        <di:waypoint x="2305" y="290" />
+        <di:waypoint x="2410" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2334" y="272" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0a3fjzp_di" bpmnElement="Flow_0a3fjzp">
+        <di:waypoint x="1900" y="265" />
+        <di:waypoint x="1900" y="180" />
+        <di:waypoint x="2280" y="180" />
+        <di:waypoint x="2280" y="265" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2077" y="162" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0efu6u1_di" bpmnElement="Flow_0efu6u1">
+        <di:waypoint x="2140" y="290" />
+        <di:waypoint x="2255" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13zasb1_di" bpmnElement="Flow_13zasb1">
+        <di:waypoint x="1190" y="265" />
+        <di:waypoint x="1190" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1201" y="178" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05g7d16_di" bpmnElement="Flow_05g7d16">
+        <di:waypoint x="1215" y="290" />
+        <di:waypoint x="1350" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1260" y="272" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ik148z_di" bpmnElement="Flow_1ik148z">
+        <di:waypoint x="1780" y="290" />
+        <di:waypoint x="1875" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ygr7cu_di" bpmnElement="Flow_0ygr7cu">
+        <di:waypoint x="1540" y="315" />
+        <di:waypoint x="1540" y="400" />
+        <di:waypoint x="1900" y="400" />
+        <di:waypoint x="1900" y="315" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1716" y="383" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12oux1f_di" bpmnElement="Flow_12oux1f">
+        <di:waypoint x="1565" y="290" />
+        <di:waypoint x="1680" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1593" y="273" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1d4sb3d_di" bpmnElement="Flow_1d4sb3d">
+        <di:waypoint x="1450" y="290" />
+        <di:waypoint x="1515" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0cqbu1f_di" bpmnElement="Flow_0cqbu1f">
+        <di:waypoint x="1240" y="120" />
+        <di:waypoint x="1540" y="120" />
+        <di:waypoint x="1540" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1g7q28p_di" bpmnElement="Flow_1g7q28p">
+        <di:waypoint x="2600" y="265" />
+        <di:waypoint x="2600" y="200" />
+        <di:waypoint x="2950" y="200" />
+        <di:waypoint x="2950" y="272" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15xpsq8_di" bpmnElement="Flow_15xpsq8">
+        <di:waypoint x="2830" y="290" />
+        <di:waypoint x="2932" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1seuuie_di" bpmnElement="Flow_1seuuie">
+        <di:waypoint x="420" y="300" />
+        <di:waypoint x="525" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ssrpqx_di" bpmnElement="Flow_0ssrpqx">
+        <di:waypoint x="840" y="470" />
+        <di:waypoint x="840" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0a626ba_di" bpmnElement="Flow_0a626ba">
+        <di:waypoint x="840" y="605" />
+        <di:waypoint x="840" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1fqtd41_di" bpmnElement="Flow_1fqtd41">
+        <di:waypoint x="980" y="690" />
+        <di:waypoint x="980" y="630" />
+        <di:waypoint x="865" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lnb8jw_di" bpmnElement="Flow_0lnb8jw">
+        <di:waypoint x="840" y="690" />
+        <di:waypoint x="840" y="655" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h955ao_di" bpmnElement="Flow_0h955ao">
+        <di:waypoint x="865" y="840" />
+        <di:waypoint x="980" y="840" />
+        <di:waypoint x="980" y="770" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="989" y="793" width="23" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nzochy_di" bpmnElement="Flow_0nzochy">
+        <di:waypoint x="840" y="815" />
+        <di:waypoint x="840" y="770" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="847" y="793" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03s8gvx_di" bpmnElement="Flow_03s8gvx">
+        <di:waypoint x="865" y="840" />
+        <di:waypoint x="1070" y="840" />
+        <di:waypoint x="1070" y="410" />
+        <di:waypoint x="865" y="410" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1078" y="613" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nmpxmc_di" bpmnElement="Flow_0nmpxmc">
+        <di:waypoint x="840" y="910" />
+        <di:waypoint x="840" y="865" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mf9npl_di" bpmnElement="Flow_0mf9npl">
+        <di:waypoint x="840" y="1060" />
+        <di:waypoint x="840" y="990" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1dh8c45_di" bpmnElement="Flow_1dh8c45">
+        <di:waypoint x="600" y="1100" />
+        <di:waypoint x="790" y="1100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_185jvp3_di" bpmnElement="Flow_185jvp3">
+        <di:waypoint x="550" y="865" />
+        <di:waypoint x="550" y="1060" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="522" y="943" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1oriwwz_di" bpmnElement="Flow_1oriwwz">
+        <di:waypoint x="575" y="840" />
+        <di:waypoint x="815" y="840" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="611" y="823" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1y9edqt_di" bpmnElement="Flow_1y9edqt">
+        <di:waypoint x="550" y="325" />
+        <di:waypoint x="550" y="815" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="522" y="701" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02614fd_di" bpmnElement="Flow_02614fd">
+        <di:waypoint x="890" y="300" />
+        <di:waypoint x="970" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tnnt3b_di" bpmnElement="Flow_0tnnt3b">
+        <di:waypoint x="840" y="385" />
+        <di:waypoint x="840" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ni06mz_di" bpmnElement="Flow_1ni06mz">
+        <di:waypoint x="575" y="300" />
+        <di:waypoint x="790" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1y4gjsg_di" bpmnElement="Flow_1y4gjsg">
+        <di:waypoint x="700" y="690" />
+        <di:waypoint x="700" y="630" />
+        <di:waypoint x="815" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12obxbo_di" bpmnElement="Flow_12obxbo">
+        <di:waypoint x="815" y="840" />
+        <di:waypoint x="700" y="840" />
+        <di:waypoint x="700" y="770" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="705" y="793" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0kcrx5l_di" bpmnElement="Flow_0kcrx5l">
+        <di:waypoint x="188" y="300" />
+        <di:waypoint x="320" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1j808ka_di" bpmnElement="Step1">
+        <dc:Bounds x="320" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0obertf_di" bpmnElement="Activity_0obertf">
+        <dc:Bounds x="650" y="690" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vmy33u_di" bpmnElement="Activity_0vmy33u">
+        <dc:Bounds x="970" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ubqopr_di" bpmnElement="Gateway_0ubqopr" isMarkerVisible="true">
+        <dc:Bounds x="525" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="506" y="180" width="88" height="80" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_13vtxns_di" bpmnElement="Gateway_13vtxns" isMarkerVisible="true">
+        <dc:Bounds x="525" y="815" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1014" y="423" width="72" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08ldcxm_di" bpmnElement="Activity_08ldcxm">
+        <dc:Bounds x="500" y="1060" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08pywzy_di" bpmnElement="Activity_08pywzy">
+        <dc:Bounds x="790" y="1060" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_12qlux1_di" bpmnElement="Gateway_12qlux1" isMarkerVisible="true">
+        <dc:Bounds x="815" y="815" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="855" y="856" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_02h27h5_di" bpmnElement="Gateway_02h27h5" isMarkerVisible="true">
+        <dc:Bounds x="815" y="605" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0nkgcfg_di" bpmnElement="Activity_0nkgcfg">
+        <dc:Bounds x="790" y="470" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16q24p2_di" bpmnElement="Activity_16q24p2">
+        <dc:Bounds x="790" y="690" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0nv1s23_di" bpmnElement="Activity_0nv1s23">
+        <dc:Bounds x="930" y="690" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xa6vms_di" bpmnElement="Activity_0xa6vms">
+        <dc:Bounds x="790" y="910" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_12sb0pk_di" bpmnElement="Gateway_12sb0pk" isMarkerVisible="true">
+        <dc:Bounds x="815" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rtabpz_di" bpmnElement="Activity_0whcncc">
+        <dc:Bounds x="790" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0l7thbn_di" bpmnElement="Event_0l7thbn">
+        <dc:Bounds x="2932" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2940" y="318" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ym1uow_di" bpmnElement="Gateway_0ym1uow" isMarkerVisible="true">
+        <dc:Bounds x="1515" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1545" y="309" width="70" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l7vq1i_di" bpmnElement="Activity_0l7vq1i">
+        <dc:Bounds x="1680" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1fhu0gj_di" bpmnElement="Gateway_1fhu0gj" isMarkerVisible="true">
+        <dc:Bounds x="1165" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1148" y="322" width="84" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17ikhsk_di" bpmnElement="Activity_17ikhsk">
+        <dc:Bounds x="1140" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1ykz8u2_di" bpmnElement="Gateway_1ykz8u2" isMarkerVisible="true">
+        <dc:Bounds x="2255" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2300" y="315" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0rcrs1i_di" bpmnElement="Activity_0rcrs1i">
+        <dc:Bounds x="2410" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1h4d4n5_di" bpmnElement="Gateway_1h4d4n5" isMarkerVisible="true">
+        <dc:Bounds x="1875" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1915" y="309" width="70" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0tbvw9o_di" bpmnElement="Activity_0tbvw9o">
+        <dc:Bounds x="2040" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0gjk91e_di" bpmnElement="Gateway_0gjk91e" isMarkerVisible="true">
+        <dc:Bounds x="2575" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2622" y="309" width="56" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1uzsp1r_di" bpmnElement="Activity_1uzsp1r">
+        <dc:Bounds x="2730" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0otiy71_di" bpmnElement="Activity_0otiy71">
+        <dc:Bounds x="1350" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

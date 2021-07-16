@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_06pyjz2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
+  <bpmn:process id="ExclusiveGatewayMultipleEndNavigation" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0kcrx5l</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Jabberwocky" name="Step 2" camunda:formKey="PI_Info">
+      <bpmn:documentation>##### Please confirm Primary Investigator entered in Protocol Builder is correct and if so, provide additional information:
+### **{{ pi.display_name }}** 
+***Email:*** {{ pi.email_address }}
+
+**Primary Appointment**
+***School:*** {{ pi.E0.schoolName }}
+***Department:*** {{ pi.E0.deptName }}
+
+
+{% if is_me_pi %}
+Since you are the person entering this information, you already have access and will receive all emails.
+{% endif %}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="pi.experience" label="Investigator&#39;s Experience" type="textarea">
+            <camunda:properties>
+              <camunda:property id="rows" value="5" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="pi.access" label="Should the Principal Investigator have full editing access in the system?" type="boolean" defaultValue="True">
+            <camunda:properties>
+              <camunda:property id="hide_expression" value="is_cu_pi" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="pi.emails" label="Should the Principal Investigator receive automated email notifications?" type="boolean" defaultValue="True">
+            <camunda:properties>
+              <camunda:property id="hide_expression" value="is_cu_pi" />
+            </camunda:properties>
+          </camunda:formField>
+          <camunda:formField id="PIsPrimaryDepartmentSameAsRO" label="Is the PI&#39;s Primary Department the same as the study&#39;s Responsible Organization?" type="enum" defaultValue="yes">
+            <camunda:properties>
+              <camunda:property id="enum_type" value="radio" />
+            </camunda:properties>
+            <camunda:value id="yes" name="Yes" />
+            <camunda:value id="diffDept" name="No, it is a different Department within the same School" />
+            <camunda:value id="diffSchool" name="No, it is a different School" />
+          </camunda:formField>
+        </camunda:formData>
+        <camunda:properties>
+          <camunda:property name="display_name" value="pi.label" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_147b9li</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xnj2rp</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0kcrx5l" sourceRef="StartEvent_1" targetRef="Step1" />
+    <bpmn:sequenceFlow id="Flow_1dcsioh" sourceRef="Step1" targetRef="Gateway" />
+    <bpmn:exclusiveGateway id="Gateway" name="GatewayToEnd">
+      <bpmn:incoming>Flow_1dcsioh</bpmn:incoming>
+      <bpmn:outgoing>Flow_147b9li</bpmn:outgoing>
+      <bpmn:outgoing>Flow_00prawo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_147b9li" name="True" sourceRef="Gateway" targetRef="Jabberwocky">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">tru</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_00prawo" name="False" sourceRef="Gateway" targetRef="StepEnd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_0npjf2p">
+      <bpmn:incoming>Flow_16qr5jf</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_16qr5jf" sourceRef="StepEnd" targetRef="Event_0npjf2p" />
+    <bpmn:userTask id="Step1" name="Step 1">
+      <bpmn:incoming>Flow_0kcrx5l</bpmn:incoming>
+      <bpmn:outgoing>Flow_1dcsioh</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="StepEnd" name="Step End">
+      <bpmn:documentation>No PI entered in PB</bpmn:documentation>
+      <bpmn:incoming>Flow_00prawo</bpmn:incoming>
+      <bpmn:outgoing>Flow_16qr5jf</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_1d1c7ov">
+      <bpmn:incoming>Flow_0xnj2rp</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0xnj2rp" sourceRef="Jabberwocky" targetRef="Event_1d1c7ov" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ExclusiveGatewayMultipleEndNavigation">
+      <bpmndi:BPMNEdge id="Flow_16qr5jf_di" bpmnElement="Flow_16qr5jf">
+        <di:waypoint x="740" y="150" />
+        <di:waypoint x="822" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00prawo_di" bpmnElement="Flow_00prawo">
+        <di:waypoint x="510" y="265" />
+        <di:waypoint x="510" y="150" />
+        <di:waypoint x="640" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="477" y="204" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_147b9li_di" bpmnElement="Flow_147b9li">
+        <di:waypoint x="535" y="290" />
+        <di:waypoint x="640" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="537" y="273" width="23" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1dcsioh_di" bpmnElement="Flow_1dcsioh">
+        <di:waypoint x="410" y="290" />
+        <di:waypoint x="485" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0kcrx5l_di" bpmnElement="Flow_0kcrx5l">
+        <di:waypoint x="188" y="290" />
+        <di:waypoint x="310" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xnj2rp_di" bpmnElement="Flow_0xnj2rp">
+        <di:waypoint x="740" y="290" />
+        <di:waypoint x="822" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="272" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0qzf1r3_di" bpmnElement="Gateway" isMarkerVisible="true">
+        <dc:Bounds x="485" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="475" y="322" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0npjf2p_di" bpmnElement="Event_0npjf2p">
+        <dc:Bounds x="822" y="132" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0d622qi_di" bpmnElement="Jabberwocky">
+        <dc:Bounds x="640" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1j808ka_di" bpmnElement="Step1">
+        <dc:Bounds x="310" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0efoaut_di" bpmnElement="StepEnd">
+        <dc:Bounds x="640" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1d1c7ov_di" bpmnElement="Event_1d1c7ov">
+        <dc:Bounds x="822" y="272" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

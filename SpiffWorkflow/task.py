@@ -20,16 +20,29 @@ from builtins import object
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+from SpiffWorkflow.exceptions import WorkflowException
 import logging
 import time
 from uuid import uuid4
-from .exceptions import WorkflowException
+import random
+
+from .util.deep_merge import DeepMerge
 
 LOG = logging.getLogger(__name__)
 
+def updateDotDict(dict,id,value):
+    x = id.split('.')
+    print(x)
+    if len(x) == 1:
+        dict[x[0]]=value
+    elif dict.get(x[0]):
+        dict[x[0]][x[1]] = value
+    else:
+        dict[x[0]] = {x[1]:value}
+
+
 
 class Task(object):
-
     """
     Used internally for composing a tree that represents the path that
     is taken (or predicted) within the workflow.
@@ -95,15 +108,17 @@ class Task(object):
     NOT_FINISHED_MASK = PREDICTED_MASK | WAITING | READY
     ANY_MASK = FINISHED_MASK | NOT_FINISHED_MASK
 
-    state_names = {FUTURE:    'FUTURE',
-                   WAITING:   'WAITING',
-                   READY:     'READY',
+    state_names = {FUTURE: 'FUTURE',
+                   WAITING: 'WAITING',
+                   READY: 'READY',
                    CANCELLED: 'CANCELLED',
                    COMPLETED: 'COMPLETED',
-                   LIKELY:    'LIKELY',
-                   MAYBE:     'MAYBE'}
+                   LIKELY: 'LIKELY',
+                   MAYBE: 'MAYBE'}
 
     class Iterator(object):
+
+        MAX_ITERATIONS = 10000
 
         """
         This is a tree iterator that supports filtering such that a client
@@ -116,20 +131,31 @@ class Task(object):
             """
             self.filter = filter
             self.path = [current]
+            self.count = 1
+
 
         def __iter__(self):
             return self
 
         def _next(self):
+
             # Make sure that the end is not yet reached.
             if len(self.path) == 0:
                 raise StopIteration()
+
+            current = self.path[-1]
+
+            # Assure we don't recurse forever.
+            self.count += 1
+            if self.count > self.MAX_ITERATIONS:
+                raise WorkflowException(current,
+                "Task Iterator entered infinite recursion loop" )
+
 
             # If the current task has children, the first child is the next
             # item. If the current task is LIKELY, and predicted tasks are not
             # specificly searched, we can ignore the children, because
             # predicted tasks should only have predicted children.
-            current = self.path[-1]
             ignore_task = False
             if self.filter is not None:
                 search_predicted = self.filter & Task.LIKELY != 0
@@ -187,11 +213,13 @@ class Task(object):
         self.state_history = [state]
         self.log = []
         self.task_spec = task_spec
-        self.id = uuid4()
+        self.id = uuid4() #UUID(int=random.getrandbits(128),version=4)
         self.thread_id = self.__class__.thread_id_pool
         self.last_state_change = time.time()
         self.data = {}
+        self.terminate_current_loop = False
         self.internal_data = {}
+        self.mi_collect_data = {}
         if parent is not None:
             self.parent._child_added_notify(self)
 
@@ -200,6 +228,118 @@ class Task(object):
             self.task_spec.name,
             self.get_state_name(),
             hex(id(self)))
+
+    def update_data_var(self, fieldid, value):
+        model = {}
+        updateDotDict(model,fieldid, value)
+        self.update_data(model)
+
+    def update_data(self, data):
+        """
+        If the task.data needs to be updated from a UserTask form or
+        a Script task then use this function rather than updating task.data
+        directly.  It will handle deeper merges of data,
+        and MultiInstance tasks will be updated correctly.
+        """
+        self.data = DeepMerge.merge(self.data, data)
+
+    def task_info(self):
+        """
+        Returns a dictionary of information about the current task, so that
+        we can give hints to the user about what kind of task we are working
+        with such as a looping task or a Parallel MultiInstance task
+        :returns: dictionary
+        """
+        default = {'is_looping': False,
+                   'is_sequential_mi': False,
+                   'is_parallel_mi': False,
+                   'mi_count': 0,
+                   'mi_index': 0}
+
+        miInfo = getattr(self.task_spec, "multiinstance_info", None)
+        if callable(miInfo):
+            return miInfo(self)
+        else:
+            return default
+
+    def terminate_loop(self):
+        """
+        Used in the case that we are working with a BPMN 'loop' task.
+        The task will loop, repeatedly asking for input until terminate_loop
+        is called on the task
+        """
+        if self.is_looping():
+            self.terminate_current_loop = True
+        else:
+            raise WorkflowException(self.task_spec,
+                                    'The method terminate_loop should only be called in the case of a BPMN Loop Task')
+
+    def is_looping(self):
+        """Returns true if this is a looping task."""
+        islooping = getattr(self.task_spec, "is_loop_task", None)
+        if callable(islooping):
+            return self.task_spec.is_loop_task()
+        else:
+            return False
+
+    def set_children_future(self):
+        """
+        for a parallel gateway, we need to set up our
+        children so that the gateway figures out that it needs to join up
+        the inputs - otherwise our child process never gets marked as
+        'READY'
+        """
+        from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
+
+        if (self.state != self.COMPLETED and self.state != self.READY) and \
+                not (isinstance(self.task_spec,UnstructuredJoin)):
+            return
+
+        if isinstance(self.task_spec, UnstructuredJoin):
+            # go find all of the gateways with the same name as this one,
+            # drop children and set state to WAITING
+            for t in list(self.workflow.task_tree):
+                if t.task_spec.name == self.task_spec.name and \
+                        t.state == self.COMPLETED:
+                    t._set_state(self.WAITING)
+        # now we set this one to execute
+
+        self._set_state(self.MAYBE)
+        self._sync_children(self.task_spec.outputs)
+        for child in self.children:
+            child.set_children_future()
+
+
+    def find_children_by_name(self,name):
+        """
+        for debugging
+        """
+        return [x for x in self.workflow.task_tree if x.task_spec.name == name]
+
+    def reset_token(self, reset_data=False):
+        """
+        Resets the token to this task. This should allow a trip 'back in time'
+        as it were to items that have already been completed.
+        :type  reset_data: bool
+        :param reset_data: Do we want to have the data be where we left of in
+                           this task or not
+        """
+        from .bpmn.specs.CallActivity import CallActivity
+        taskinfo = self.task_info()
+        if not reset_data:
+            self.data = self.workflow.last_task.data
+        if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
+            # if looping or sequential, we want to start from the beginning
+            self.internal_data['runtimes'] = 1
+        for child in self.children:
+            if isinstance(child.task_spec,CallActivity):
+                self.children = [] # if we have a call activity,
+                                   # force reset of children.
+        self.workflow.last_task = self.parent
+        self.set_children_future()  # this method actually fixes the problem
+        self._set_state(self.READY)
+        self.task_spec._predict(self)
+        self._sync_children(self.task_spec.outputs)
 
     def _getstate(self):
         return self._state
@@ -267,10 +407,10 @@ class Task(object):
         assert child is not None
         self.children.append(child)
 
-    def _drop_children(self):
+    def _drop_children(self, force=False):
         drop = []
         for child in self.children:
-            if not child._is_finished():
+            if force or (not child._is_finished()):
                 drop.append(child)
             else:
                 child._drop_children()
@@ -282,8 +422,10 @@ class Task(object):
         Setting force to True allows for changing a state after it
         COMPLETED. This would otherwise be invalid.
         """
+        orig_state = self.state
         self._setstate(state, True)
-        self.last_state_change = time.time()
+        if state != orig_state:
+            self.last_state_change = time.time()
 
     def _has_state(self, state):
         """

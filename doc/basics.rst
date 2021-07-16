@@ -31,7 +31,7 @@ the difference between a :class:`SpiffWorkflow.specs.TaskSpec` and :class:`Spiff
 In order to understand how to handle a running workflow consider the following process::
 
     Choose product -> Choose amount -> Produce product A
-                                  `--> Product product B
+                                  `--> Produce product B
 
 As you can see, in this case the process resembles a simple tree. *Choose product*,
 *Choose amount*, *Produce product A*, and *Produce product B* are all specific kinds

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1x8kqzj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
+  <bpmn:process id="Process_0xa1l01" name="Multi Instance" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_1svgzrn</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Personnel_Info" name="Personnel Details" camunda:formKey="personnel_details">
+      <bpmn:documentation># {{person.id}}
+Please answer a few questions about this person.
+loo</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="person.dog_friendly" label="Does this person like dogs?" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_066wkms</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1qz7vsd</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics>
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">3</bpmn:loopCardinality>
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_0k0aq6d">
+      <bpmn:documentation># Thank you for completeing the user information.
+
+{% for person in personnel %}
+  * Person {{person.uid}} does {% if not person.dog_friendly %} NOT {% endif %} likes dogs.
+{% endfor %}</bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_1qz7vsd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1qz7vsd" sourceRef="Personnel_Info" targetRef="EndEvent_0k0aq6d" />
+    <bpmn:task id="TaskLoadPersonnel" name="Load Personnel">
+      <bpmn:incoming>SequenceFlow_1svgzrn</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_066wkms</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_066wkms" sourceRef="TaskLoadPersonnel" targetRef="Personnel_Info" />
+    <bpmn:sequenceFlow id="SequenceFlow_1svgzrn" sourceRef="StartEvent_1" targetRef="TaskLoadPersonnel" />
+    <bpmn:textAnnotation id="TextAnnotation_1kk6n1b">
+      <bpmn:text>Loops through each person and asks if they like dogs.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0hmu4ot" sourceRef="Personnel_Info" targetRef="TextAnnotation_1kk6n1b" />
+    <bpmn:textAnnotation id="TextAnnotation_05qhc2y">
+      <bpmn:text>Collects the set of personnel from the Protocol Builder</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0fkpfvy" sourceRef="TaskLoadPersonnel" targetRef="TextAnnotation_05qhc2y" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0xa1l01">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="239" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_1su5xyd_di" bpmnElement="Personnel_Info">
+        <dc:Bounds x="430" y="217" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0k0aq6d_di" bpmnElement="EndEvent_0k0aq6d">
+        <dc:Bounds x="592" y="239" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1qz7vsd_di" bpmnElement="SequenceFlow_1qz7vsd">
+        <di:waypoint x="530" y="257" />
+        <di:waypoint x="592" y="257" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_1kk6n1b_di" bpmnElement="TextAnnotation_1kk6n1b">
+        <dc:Bounds x="540" y="80" width="100" height="68" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0hmu4ot_di" bpmnElement="Association_0hmu4ot">
+        <di:waypoint x="511" y="217" />
+        <di:waypoint x="564" y="148" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_05qhc2y_di" bpmnElement="TextAnnotation_05qhc2y">
+        <dc:Bounds x="370" y="80" width="100" height="68" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_0nzrh7j_di" bpmnElement="TaskLoadPersonnel">
+        <dc:Bounds x="270" y="217" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0fkpfvy_di" bpmnElement="Association_0fkpfvy">
+        <di:waypoint x="348" y="217" />
+        <di:waypoint x="396" y="148" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_066wkms_di" bpmnElement="SequenceFlow_066wkms">
+        <di:waypoint x="370" y="257" />
+        <di:waypoint x="430" y="257" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1svgzrn_di" bpmnElement="SequenceFlow_1svgzrn">
+        <di:waypoint x="215" y="257" />
+        <di:waypoint x="270" y="257" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

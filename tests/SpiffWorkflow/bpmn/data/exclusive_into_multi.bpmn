@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_19d41bq" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <bpmn:process id="ExclusiveToMulti" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_163toj3</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="Script_Set_x_to_0" name="x = 0">
+      <bpmn:incoming>Flow_163toj3</bpmn:incoming>
+      <bpmn:outgoing>Flow_1rakb4c</bpmn:outgoing>
+      <bpmn:script>x = 0</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_163toj3" sourceRef="StartEvent_1" targetRef="Script_Set_x_to_0" />
+    <bpmn:exclusiveGateway id="Gateway_0zdq5of" default="Flow_0340se7">
+      <bpmn:incoming>Flow_1rakb4c</bpmn:incoming>
+      <bpmn:outgoing>Flow_04bjhw6</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0340se7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1rakb4c" sourceRef="Script_Set_x_to_0" targetRef="Gateway_0zdq5of" />
+    <bpmn:sequenceFlow id="Flow_04bjhw6" name="x is not 0" sourceRef="Gateway_0zdq5of" targetRef="Activity_1j43xon">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">x != 0</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_073oado" sourceRef="Activity_1j43xon" targetRef="Event_1n4p05n" />
+    <bpmn:sequenceFlow id="Flow_0340se7" name="x is 0" sourceRef="Gateway_0zdq5of" targetRef="Event_1n4p05n" />
+    <bpmn:userTask id="Activity_1j43xon" name="Some Multiinstance">
+      <bpmn:incoming>Flow_04bjhw6</bpmn:incoming>
+      <bpmn:outgoing>Flow_073oado</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics>
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">1</bpmn:loopCardinality>
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_1n4p05n">
+      <bpmn:incoming>Flow_073oado</bpmn:incoming>
+      <bpmn:incoming>Flow_0340se7</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ExclusiveToMulti">
+      <bpmndi:BPMNEdge id="Flow_163toj3_di" bpmnElement="Flow_163toj3">
+        <di:waypoint x="215" y="207" />
+        <di:waypoint x="260" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1rakb4c_di" bpmnElement="Flow_1rakb4c">
+        <di:waypoint x="360" y="207" />
+        <di:waypoint x="405" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04bjhw6_di" bpmnElement="Flow_04bjhw6">
+        <di:waypoint x="455" y="207" />
+        <di:waypoint x="520" y="207" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="457" y="189" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_073oado_di" bpmnElement="Flow_073oado">
+        <di:waypoint x="620" y="207" />
+        <di:waypoint x="702" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0340se7_di" bpmnElement="Flow_0340se7">
+        <di:waypoint x="430" y="182" />
+        <di:waypoint x="430" y="100" />
+        <di:waypoint x="720" y="100" />
+        <di:waypoint x="720" y="189" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="563" y="82" width="26" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="189" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1cmafjf_di" bpmnElement="Script_Set_x_to_0">
+        <dc:Bounds x="260" y="167" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0zdq5of_di" bpmnElement="Gateway_0zdq5of" isMarkerVisible="true">
+        <dc:Bounds x="405" y="182" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_05dssc6_di" bpmnElement="Activity_1j43xon">
+        <dc:Bounds x="520" y="167" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0if1cvv_di" bpmnElement="Event_1n4p05n">
+        <dc:Bounds x="702" y="189" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

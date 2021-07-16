@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="Definitions_06veek1" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+  <decision id="Decision_ExclusiveAMCheck" name="Exclusive AM Check">
+    <decisionTable id="decisionTable_1">
+      <input id="input_1" label="Number of Exclusive Spaces Without Area Monitor">
+        <inputExpression id="inputExpression_1" typeRef="integer" expressionLanguage="feel">
+          <text>sum([1 for x in exclusive if x.ExclusiveSpaceAMComputingID is None])</text>
+        </inputExpression>
+      </input>
+      <output id="output_1" label="All Exclusive Area Monitors Entered" name="all_exclusive_area_monitor" typeRef="boolean" />
+      <rule id="DecisionRule_07162mr">
+        <description>No exclusive spaces without Area Monitor</description>
+        <inputEntry id="UnaryTests_1jqxc3u">
+          <text>0</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_16l50ps">
+          <text>true</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0ifa4wu">
+        <description>More than one exclusive space without an Area Monitor</description>
+        <inputEntry id="UnaryTests_0szbwxc">
+          <text>&gt; 0</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0td8sa6">
+          <text>false</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

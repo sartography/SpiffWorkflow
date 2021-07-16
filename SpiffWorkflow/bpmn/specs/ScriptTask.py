@@ -18,6 +18,8 @@ from __future__ import division
 # 02110-1301  USA
 import logging
 
+from SpiffWorkflow import WorkflowException
+
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...task import Task
 from ...specs.Simple import Simple
@@ -46,14 +48,25 @@ class ScriptTask(Simple, BpmnSpecMixin):
             return
         assert not task.workflow.read_only
         try:
-            task.workflow.script_engine.execute(task, self.script, **task.data)
-        except Exception:
+            task.workflow.script_engine.execute(task, self.script, task.data)
+        except Exception as e:
             LOG.error('Error executing ScriptTask; task=%r',
                       task, exc_info=True)
             # set state to WAITING (because it is definitely not COMPLETED)
             # and raise WorkflowException pointing to this task because
             # maybe upstream someone will be able to handle this situation
             task._setstate(Task.WAITING, force=True)
-            raise WorkflowTaskExecException(
-                task, 'Error during script execution')
+            if isinstance(e, WorkflowTaskExecException):
+                raise e
+            else:
+                raise WorkflowTaskExecException(
+                    task, 'Error during script execution:' + str(e), e)
         super(ScriptTask, self)._on_complete_hook(task)
+
+    def serialize(self, serializer):
+        return serializer.serialize_script_task(self)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_script_task(wf_spec, s_state)
+

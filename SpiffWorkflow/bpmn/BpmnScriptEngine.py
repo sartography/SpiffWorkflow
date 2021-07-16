@@ -17,11 +17,13 @@ from builtins import object
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+from SpiffWorkflow.exceptions import WorkflowTaskExecException
 
+from .PythonScriptEngine import PythonScriptEngine
 from ..operators import Operator
 
 
-class BpmnScriptEngine(object):
+class BpmnScriptEngine(PythonScriptEngine):
     """
     Used during execution of a BPMN workflow to evaluate condition / value
     expressions. These are used by Gateways, and by Catching Events
@@ -39,18 +41,15 @@ class BpmnScriptEngine(object):
         Evaluate the given expression, within the context of the given task and
         return the result.
         """
-        if isinstance(expression, Operator):
-            return expression._matches(task)
-        else:
-            return self._eval(task, expression, **task.data)
+        try:
+            if isinstance(expression, Operator):
+                # I am assuming that this takes care of some kind of XML
+                # expression judging from the contents of operators.py
+                return expression._matches(task)
+            else:
+                return super().evaluate(expression, **task.data)
+        except Exception as e:
+            raise WorkflowTaskExecException(task,
+                                            "Error evaluating expression "
+                                            "'%s', %s" % (expression, str(e)))
 
-    def execute(self, task, script, **kwargs):
-        """
-        Execute the script, within the context of the specified task
-        """
-        locals().update(kwargs)
-        exec(script)
-
-    def _eval(self, task, expression, **kwargs):
-        locals().update(kwargs)
-        return eval(expression)

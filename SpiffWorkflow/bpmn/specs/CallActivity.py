@@ -16,6 +16,7 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+from SpiffWorkflow import Task
 
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.SubWorkflow import SubWorkflow
@@ -39,16 +40,23 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
         super(CallActivity, self).__init__(wf_spec, name, None, **kwargs)
         self.spec = bpmn_wf_spec
         self.wf_class = bpmn_wf_class
+        self.sub_workflow = None
 
     def test(self):
         TaskSpec.test(self)
 
-    def _create_subworkflow(self, my_task):
-        return self.get_workflow_class()(
+    def create_sub_workflow(self, my_task):
+
+        sub_workflow = self.get_workflow_class()(
             self.spec, name=self.name,
             read_only=my_task.workflow.read_only,
             script_engine=my_task.workflow.outer_workflow.script_engine,
             parent=my_task.workflow)
+
+        sub_workflow.completed_event.connect(
+            self._on_subworkflow_completed, my_task)
+        sub_workflow.data = my_task.workflow.data
+        return sub_workflow
 
     def get_workflow_class(self):
         """
@@ -61,3 +69,26 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
             subworkflow, my_task)
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
             my_task.parent.task_spec._child_complete_hook(my_task)
+
+    def _on_ready_before_hook(self, my_task):
+        self.sub_workflow = self.create_sub_workflow(my_task)
+        self._integrate_subworkflow_tree(my_task, self.sub_workflow)
+
+    def _on_ready_hook(self, my_task):
+        # Assign variables, if so requested.
+        for child in self.sub_workflow.task_tree.children:
+            for assignment in self.in_assign:
+                assignment.assign(my_task, child)
+
+        self._predict(my_task)
+        for child in self.sub_workflow.task_tree.children:
+            child.task_spec._update(child)
+
+    def serialize(self, serializer):
+        return serializer.serialize_call_activity(self)
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_call_activity(wf_spec, s_state, CallActivity)
+
+
+

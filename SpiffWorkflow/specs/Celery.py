@@ -89,7 +89,7 @@ class Celery(TaskSpec):
                  any_param=Attrib('result'))
 
         For serialization, the celery task_id is stored in internal_data,
-        but the celery async call is only storred as an attr of the task (since
+        but the celery async call is only stored as an attr of the task (since
         it is not always serializable). When deserialized, the async_call attr
         is reset in the _start call.
 
@@ -250,7 +250,7 @@ class Celery(TaskSpec):
         if not self._start(my_task):
             if not my_task._has_state(Task.WAITING):
                 LOG.debug("'%s' going to WAITING state" % my_task.get_name())
-                my_task.state = Task.WAITING
+                my_task._set_state(Task.WAITING)
             return
         super(Celery, self)._update_hook(my_task)
 
