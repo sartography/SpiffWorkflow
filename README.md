@@ -1,8 +1,8 @@
 # Spiff Workflow
 
-[![Build Status](https://travis-ci.org/knipknap/SpiffWorkflow.svg?branch=master)](https://travis-ci.org/knipknap/SpiffWorkflow)
-[![Coverage Status](https://coveralls.io/repos/github/knipknap/SpiffWorkflow/badge.svg?branch=master)](https://coveralls.io/github/knipknap/SpiffWorkflow?branch=master)
-[![Code Climate](https://lima.codeclimate.com/github/knipknap/SpiffWorkflow/badges/gpa.svg)](https://lima.codeclimate.com/github/knipknap/SpiffWorkflow)
+[![Build Status](https://travis-ci.com/sartography/SpiffWorkflow.svg?branch=master)](https://travis-ci.org/sartography/SpiffWorkflow)
+[![Coverage Status](https://coveralls.io/repos/github/sartography/SpiffWorkflow/badge.svg?branch=master)](https://coveralls.io/github/sartography/SpiffWorkflow?branch=master)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=alert_status)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
 [![Documentation Status](https://readthedocs.org/projects/spiffworkflow/badge/?version=latest)](http://spiffworkflow.readthedocs.io/en/latest/?badge=latest)
 
 ## Summary
