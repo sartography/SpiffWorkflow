@@ -1,72 +1,111 @@
-# Spiff Workflow
+## SpiffWorkflow
+Spiff Workflow is a workflow engine implemented in pure Python. It is based on
+the excellent work of the Workflow Patterns initiative. In 2020 and 2021,
+extensive support was added for BPMN / DMN processing.
 
+## Motivation
+We created SpiffWorkflow to support the development of low-code business
+applications in Python.  Using BPMN will allow non-developers to describe
+complex workflow processes in a visual diagram, coupled with a powerful python
+script engine that works seamlessly within the diagrams.  SpiffWorkflow can parse
+these diagrams and execute them.  The ability for businesses to create
+clear, coherent diagrams that drive an application has far reaching potential.
+While multiple tools exist for doing this in Java, we believe that wide
+adoption of the Python Language, and it's ease of use, create a winning
+strategy for building Low-Code applications.
+
+
+## Build status
 [![Build Status](https://travis-ci.com/sartography/SpiffWorkflow.svg?branch=master)](https://travis-ci.org/sartography/SpiffWorkflow)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=coverage)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=alert_status)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=coverage)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
 [![Documentation Status](https://readthedocs.org/projects/spiffworkflow/badge/?version=latest)](http://spiffworkflow.readthedocs.io/en/latest/?badge=latest)
+[![Issues](https://img.shields.io/github/issues/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/pulls)
 
-## Summary
+## Code style
 
-Spiff Workflow is a workflow engine implemented in pure Python. It is based
-on the excellent work of the
-[Workflow Patterns initiative](http://www.workflowpatterns.com/).
-In 2020 and 2021, extensive support was added for BPMN / DMN processing.
+[![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
 
-## Do you need commercial support?
+## Screenshots
 
-Spiff Workflow is now supported by [Sartography](https://sartography.com).
-We are working to build out a collection of open source projects, including
-a REST based API and frontend Javascript libraries that make building applications
-with SpiffWorkflow easier than ever.
 
-## Main design goals
 
-- Spiff Workflow aims to directly support as many of the patterns of
-  workflowpatterns.com as possible.
-- Spiff Workflow uses unit testing as much as possible.
-- Spiff Workflow provides a **clean Python API**.
-- Spiff Workflow allows for mapping patterns into workflow elements that
-  are **easy to understand for non-technical users** in a workflow GUI editor.
-- Spiff Workflow implements the best possible **path prediction** for
-  workflows.
+## Dependencies
+We've worked to minimize external dependencies.  We rely on lxml for parsing
+XML Documents, and there is some legacy support for Celery, but it is not
+core to the implementation, it is just a way to interconnect these systems.
+<b>Built with</b>
+- [lxml](https://lxml.de/)
+- [celery](https://docs.celeryproject.org/en/stable/)
 
-Spiff Workflow also provides a parser and workflow emulation
-layer that can be used to create executable Spiff Workflow specifications
-from Business Process Model and Notation (BPMN) documents.
+## Features
+* __BPMN__ - support for parsing BPMN diagrams, including the more complex
+components, like pools and lanes, multi-instance tasks, sub-workflows, timer
+events, signals, messages, boudary events and looping.
+* __DMN__ - We have a baseline implementation of DMN that is well integrated
+with our Python Execution Engine.
+* __Forms__ - forms, including text fields, selection lists, and most every other
+thing you can be extracted from the Camunda xml extension, and returned as
+json data that can be used to generate forms on the command line, or in web
+applications (we've used Formly to good success)
+* __Python Workflows__ - We've retained support for building workflows directly
+in code, or running workflows based on a internal json data structure.
 
-## Quick Intro
+_A complete list of the latest features is available with our [release notes](https://github.com/sartography/SpiffWorkflow/releases/tag/1.0) for
+version 1.0._
 
-The process of using Spiff Workflow involves the following steps:
+## Code Examples and Documentation
+Detailed documentation is available on [ReadTheDocs](https://spiffworkflow.readthedocs.io/en/latest/)
+Also, checkout our [example application](https://github.com/sartography/SpiffExample), which we
+reference extensively from the Documentation.
 
-1. Write a workflow specification. A specification may be written using
-   XML ([example](https://github.com/knipknap/SpiffWorkflow/blob/master/tests/SpiffWorkflow/data/spiff/workflow1.xml)),
-   JSON, or
-   Python ([example](https://github.com/knipknap/SpiffWorkflow/blob/master/tests/SpiffWorkflow/data/spiff/workflow1.py)).
-2. Run the workflow using the Python API. Example code for running the workflow:
-
-```python
-from SpiffWorkflow.specs import WorkflowSpec
-from SpiffWorkflow.serializer.prettyxml import XmlSerializer
-from SpiffWorkflow import Workflow
-
-# Load the workflow specification:
-with open('my_workflow.xml') as fp:
-    serializer = XmlSerializer()
-    spec = WorkflowSpec.deserialize(serializer, fp.read())
-
-# Create an instance of the workflow, according to the specification.
-wf = Workflow(spec)
-
-# Complete tasks as desired. It is the job of the workflow engine to
-# guarantee a consistent state of the workflow.
-wf.complete_task_from_id(...)
-
-# Of course, you can also persist the workflow instance:
-xml = wf.serialize(XmlSerializer, 'workflow_state.xml')
+## Installation
+```
+pip install spiffworkflow
 ```
 
-## Documentation
+## Tests
+```
+cd tests
+./run_suite.sh
+```
 
-Full documentation is here:
+## Contribute
+Pull Requests are and always will be welcome!
 
-  http://spiffworkflow.readthedocs.io/en/latest/
+Please check your formatting, assure that all tests are passing, and include
+any additional tests that can demonstrate the new code you created is working
+as expected.  If applicable, please reference the issue number in your pull
+request.
+
+## Credits and Thanks
+Special Thanks:
+Sartography (Sartography.com) undertook these efforts to support the development
+of a custom web application for the University of Virginia. We would like to
+thank UVA for their support and trust in allowing us to take on the mammoth
+task of building a general-purpose workflows system, and contributing something
+back to the open source community.
+
+Bruce Silver, the author of BPMN Quick and Easy Using Method and Style, whose
+work we referenced extensively as we made implementation decisions and
+educated ourselves on the BPMN and DMN standards.
+
+Samuel Abels (@knipknap) for keeping SpiffWorkflow alive for the past few years,
+and offering us commit access to make these contributions, and Matthew Hampton
+for kicking this project off and giving us sound footing on which to build.
+
+The BPMN.js library, without which we would not have the tools to effectively
+build out our models, embed an editor in our application, and pull this mad
+mess together.
+
+Kelly McDonald (@w4kpm) who dove deeper into the core of SpiffWorkflow than
+anyone else, and was instrumental in helping us get some of these major
+enhancements working correctly.
+
+We would like to thank Denny Weinberg for his early contributions to DMN
+support, which we used as a baseline and then extended.
+
+## License
+GNU LESSER GENERAL PUBLIC LICENSE

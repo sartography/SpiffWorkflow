@@ -1,37 +1,37 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
+
+import pathlib
 import sys
+
 sys.path.insert(0, '.')
 sys.path.insert(0, 'SpiffWorkflow')
-from version import __version__
 from setuptools import setup, find_packages
-from os.path import dirname, join
 
-setup(name             = 'SpiffWorkflow',
-      version          = __version__,
-      description      = 'A workflow framework based on www.workflowpatterns.com',
-      long_description = \
-"""
-Spiff Workflow is a library implementing workflows in pure Python.
-It was designed to provide a clean API, and tries to be very easy to use.
+# The directory containing this file
+HERE = pathlib.Path(__file__).parent
 
-You can find a list of supported workflow patterns in the `README file`_
-included with the package.
-.. _README file: https://github.com/knipknap/SpiffWorkflow/blob/master/README.md
-""",
-      author           = 'Samuel Abels',
-      author_email     = 'cheeseshop.python.org@debain.org',
-      license          = 'lGPLv2',
-      packages         = find_packages(exclude=['tests', 'tests.*']),
-      install_requires = ['future', 'configparser', 'lxml', 'celery'],
-      keywords         = 'spiff workflow bpmn engine',
-      url              = 'https://github.com/knipknap/SpiffWorkflow',
-      classifiers      = [
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-        'Programming Language :: Python',
-        'Topic :: Other/Nonlisted Topic',
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Software Development :: Libraries :: Python Modules'
+# The text of the README file
+README = (HERE / "README.md").read_text()
+
+setup(name='SpiffWorkflow',
+      version='1.0.0',
+      description='A workflow framework and BPMN/DMN Processor',
+      long_description=README,
+      long_description_content_type="text/markdown",
+      author='Sartography',
+      author_email='dan@sartography.com',
+      license='lGPLv2',
+      packages=find_packages(exclude=['tests', 'tests.*']),
+      install_requires=['future', 'configparser', 'lxml', 'celery'],
+      keywords='spiff workflow bpmn engine',
+      url='https://github.com/sartography/SpiffWorkflow',
+      classifiers=[
+          'Development Status :: 4 - Beta',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+          'Programming Language :: Python',
+          'Topic :: Other/Nonlisted Topic',
+          'Topic :: Software Development :: Libraries',
+          'Topic :: Software Development :: Libraries :: Python Modules'
       ])

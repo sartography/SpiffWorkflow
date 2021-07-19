@@ -1,23 +1,22 @@
-Basics
-======
+The Basics
+==========
 
 Introduction
 ------------
 
 The process of using Spiff Workflow involves the following steps:
 
-#. Write a workflow specification. A specification may be written using XML
-   (`example <https://github.com/knipknap/SpiffWorkflow/blob/master/tests/SpiffWorkflow/data/spiff/workflow1.xml>`_),
+#. Create a workflow specification. A specification may be written using BPMN,
    JSON, or Python
    (`example <https://github.com/knipknap/SpiffWorkflow/blob/master/tests/SpiffWorkflow/data/spiff/workflow1.py>`_).
 #. Run the workflow using the Python API. Example code for running the workflow::
 
     from SpiffWorkflow.specs import *
     from SpiffWorkflow import Workflow
-    
+
     spec = WorkflowSpec()
-    # (Add tasks to the spec here.)
-    
+    # (Add tasks to the spec here, or create one directly from an existing file)
+
     wf = Workflow(spec)
     wf.complete_task_from_id(...)
 
@@ -95,9 +94,9 @@ Running a workflow
 To run the workflow, create an instance of the *Workflow* class as follows::
 
     from SpiffWorkflow import Workflow
-    
+
     spec = ... # see above
-    
+
     wf = Workflow(spec)
     ...
 
@@ -133,7 +132,7 @@ The order of these state transitions is violated only in one case: A *Trigger* t
 - **READY** means "the preconditions for marking this task as complete are met".
 
 - **COMPLETED** means that the task is done.
- 
+
 - **CANCELLED** means that the task was explicitly cancelled, for example by a CancelTask operation.
 
 Associating data with a workflow
