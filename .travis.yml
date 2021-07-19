@@ -20,12 +20,12 @@ script:
   - coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
   - coverage xml -i
   - cd ../..
+  - if [ $RUN_QUALITY_GATES == "true" ]; then coveralls && sonar-scanner; fi
 
 jobs:
   include:
-    - stage: coveralls
-      script: coveralls
-      python: 3.9
-    - stage: sonar
-      script: sonar-scanner
-      python: 3.9
+  - python: 3.6
+  - python: 3.7
+  - python: 3.8
+  - python: 3.9
+    env: RUN_QUALITY_GATES=true
