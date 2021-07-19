@@ -1,12 +1,31 @@
 language: python
+
 python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
+  - 3.6
+  - 3.7
+  - 3.8
+  - 3.9
+
+addons:
+  sonarcloud:
+    organization: sartography
+
 install:
-  - "pip install -r requirements.txt"
-  - "pip install celery"
-  - "pip install coveralls"
-script: cd tests/SpiffWorkflow; coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
-after_success:
-  coveralls
+  - pip install -r requirements.txt
+  - pip install celery
+  - pip install coveralls
+
+script:
+  - cd tests/SpiffWorkflow
+  - coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
+  - coverage xml -i
+  - cd ../..
+  - if [ $RUN_QUALITY_GATES == "true" ]; then coveralls && sonar-scanner; fi
+
+jobs:
+  include:
+  - python: 3.6
+  - python: 3.7
+  - python: 3.8
+  - python: 3.9
+    env: RUN_QUALITY_GATES=true
