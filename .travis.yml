@@ -13,14 +13,13 @@ addons:
 install:
   - pip install -r requirements.txt
   - pip install celery
-  - pip install coveralls
 
 script:
   - cd tests/SpiffWorkflow
   - coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
   - coverage xml -i
   - cd ../..
-  - if [ $RUN_QUALITY_GATES == "true" ]; then coveralls && sonar-scanner; fi
+  - if [ $RUN_QUALITY_GATES == "true" ]; then sonar-scanner; fi
 
 jobs:
   include:

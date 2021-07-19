@@ -1,7 +1,7 @@
 # Spiff Workflow
 
 [![Build Status](https://travis-ci.com/sartography/SpiffWorkflow.svg?branch=master)](https://travis-ci.org/sartography/SpiffWorkflow)
-[![Coverage Status](https://coveralls.io/repos/github/sartography/SpiffWorkflow/badge.svg?branch=master)](https://coveralls.io/github/sartography/SpiffWorkflow?branch=master)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=coverage)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=alert_status)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
 [![Documentation Status](https://readthedocs.org/projects/spiffworkflow/badge/?version=latest)](http://spiffworkflow.readthedocs.io/en/latest/?badge=latest)
 
