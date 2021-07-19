@@ -158,6 +158,6 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
             my_task._set_state(Task.WAITING)
             return
 
-        logging.debug('UnstructuredJoin._update_hook: %s (%s) - Children: %s',
+        LOG.debug('UnstructuredJoin._update_hook: %s (%s) - Children: %s',
                       self.name, self.description, len(my_task.children))
         super(UnstructuredJoin, self)._update_hook(my_task)

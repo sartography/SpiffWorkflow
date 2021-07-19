@@ -120,6 +120,12 @@ class Workflow(object):
             self.locks[name] = mutex()
         return self.locks[name]
 
+    def set_data(self, **kwargs):
+        """
+        Defines the given attribute/value pairs.
+        """
+        self.data.update(kwargs)
+
     def get_data(self, name, default=None):
         """
         Returns the value of the data field with the given name, or the given
@@ -185,8 +191,8 @@ class Workflow(object):
 
         :type name: str
         :param name: The name of a task spec.
-        :rtype: Task
-        :return: The task that relates to the spec with the given name.
+        :rtype: list[Task]
+        :returns: A list of tasks that relate to the spec with the given name.
         """
         return [task for task in self.get_tasks_iterator()
                 if task.task_spec.name == name]

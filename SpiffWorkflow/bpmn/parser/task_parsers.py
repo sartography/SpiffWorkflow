@@ -23,6 +23,7 @@ from ..workflow import BpmnWorkflow
 from .util import first, one
 from ..specs.event_definitions import (TimerEventDefinition,
                                        MessageEventDefinition,
+                                       EscalationEventDefinition,
                                        SignalEventDefinition,
                                        CancelEventDefinition, CycleTimerEventDefinition)
 from lxml import etree
@@ -68,20 +69,31 @@ class StartEventParser(TaskParser):
 class EndEventParser(TaskParser):
     """
     Parses and End Event. This also checks whether it should be a terminating
-    end event.
+    or escalation end event.
     """
 
     def create_task(self):
 
-        terminateEventDefinition = self.xpath(
+        terminate_event_definition = self.xpath(
             './/bpmn:terminateEventDefinition')
-        if terminateEventDefinition:
-            terminateEventDefinition = True  # here it is just assigning the lxml object, I couldn't see where it was
+        escalation_code = None
+        escalation_event_definition = first(self.xpath(
+            './/bpmn:escalationEventDefinition'))
+        if escalation_event_definition is not None:
+            escalation_ref = escalation_event_definition.get('escalationRef')
+            if escalation_ref:
+                escalation = one(self.process_parser.doc_xpath(
+                    './/bpmn:escalation[@id="%s"]' % escalation_ref))
+                escalation_code = escalation.get('escalationCode')
+        if terminate_event_definition:
+            terminate_event_definition = True  # here it is just assigning the lxml object, I couldn't see where it was
             # ever using this other than just a boolean
         else:
-            terminateEventDefinition = False
+            terminate_event_definition = False
         task = self.spec_class(self.spec, self.get_task_spec_name(),
-                               is_terminate_event=terminateEventDefinition,
+                               is_terminate_event=terminate_event_definition,
+                               is_escalation_event=escalation_event_definition is not None,
+                               escalation_code=escalation_code,
                                description=self.node.get('name', None))
         task.connect_outgoing(self.spec.end, '%s.ToEndJoin' %
                               self.node.get('id'), None, None)
@@ -316,8 +328,27 @@ class IntermediateCatchEventParser(TaskParser):
         if timerEventDefinition is not None:
             return self.get_timer_event_definition(timerEventDefinition)
 
-            raise NotImplementedError(
+        escalationEventDefinition = first(
+            self.xpath('.//bpmn:escalationEventDefinition'))
+        if escalationEventDefinition is not None:
+            return self.get_escalation_event_definition(
+                escalationEventDefinition)
+
+        raise NotImplementedError(
             'Unsupported Intermediate Catch Event: %r', etree.tostring(self.node))
+
+    def get_escalation_event_definition(self, escalationEventDefinition):
+        """
+        Parse the escalationEventDefinition node and return an instance of
+        EscalationEventDefinition
+        """
+        escalationRef = escalationEventDefinition.get('escalationRef')
+        if escalationRef:
+            escalation = one(self.process_parser.doc_xpath('.//bpmn:escalation[@id="%s"]' % escalationRef))
+            escalation_code = escalation.get('escalationCode')
+        else:
+            escalation_code = None
+        return EscalationEventDefinition(escalation_code)
 
     def get_message_event_definition(self, messageEventDefinition):
         """
@@ -496,7 +527,6 @@ class IntermediateThrowEventParser(TaskParser):
         # camunda doesn't have payload for cancels evidently
         #payload = cancelEventDefinition.attrib.get('{'+ CAMUNDA_MODEL_NS +'}expression')
         return CancelEventDefinition(message)
-
 
 
 
