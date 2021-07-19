@@ -1,5 +1,5 @@
-Tutorial
-========
+Tutorial - Non-BPMN
+===================
 
 Introduction
 ------------
