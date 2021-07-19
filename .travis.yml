@@ -26,6 +26,6 @@ jobs:
     - stage: coveralls
       script: coveralls
       python: 3.9
-#    - stage: sonar
-#      script: sonar-scanner
-#      python: 3.9
+    - stage: sonar
+      script: sonar-scanner
+      python: 3.9
