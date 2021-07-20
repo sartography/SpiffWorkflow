@@ -28,9 +28,6 @@ strategy for building Low-Code applications.
 
 [![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
 
-## Screenshots
-
-
 
 ## Dependencies
 We've worked to minimize external dependencies.  We rely on lxml for parsing
@@ -81,20 +78,20 @@ as expected.  If applicable, please reference the issue number in your pull
 request.
 
 ## Credits and Thanks
-Special Thanks:
-Sartography (Sartography.com) undertook these efforts to support the development
-of a custom web application for the University of Virginia. We would like to
-thank UVA for their support and trust in allowing us to take on the mammoth
-task of building a general-purpose workflows system, and contributing something
-back to the open source community.
+
+Matthew Hampton (@matthewhampton) for building a great general purpose workflow
+engine in Python and founding SpiffWorkflow.
+
+Samuel Abels (@knipknap) for keeping SpiffWorkflow alive for the past few years,
+and offering us commit access to make these contributions
+
+The University of Virginia for their support and trust in allowing us to take
+on the mammoth task of building a general-purpose workflow system for BPMN,
+and allowing us to contribute that back to the open source community.
 
 Bruce Silver, the author of BPMN Quick and Easy Using Method and Style, whose
 work we referenced extensively as we made implementation decisions and
 educated ourselves on the BPMN and DMN standards.
-
-Samuel Abels (@knipknap) for keeping SpiffWorkflow alive for the past few years,
-and offering us commit access to make these contributions, and Matthew Hampton
-for kicking this project off and giving us sound footing on which to build.
 
 The BPMN.js library, without which we would not have the tools to effectively
 build out our models, embed an editor in our application, and pull this mad
@@ -104,8 +101,12 @@ Kelly McDonald (@w4kpm) who dove deeper into the core of SpiffWorkflow than
 anyone else, and was instrumental in helping us get some of these major
 enhancements working correctly.
 
-We would like to thank Denny Weinberg for his early contributions to DMN
-support, which we used as a baseline and then extended.
+We would like to thank Denny Weinberg (@DennyWeinberg) for his early
+contributions to DMN support, which we used as a baseline and then extended.
+
+## Support
+Commercial support for SpiffWorkflow is available from
+[Sartography](https://sartography.com)
 
 ## License
 GNU LESSER GENERAL PUBLIC LICENSE
