@@ -21,6 +21,9 @@ script:
   - cd ../..
   - if [ $RUN_QUALITY_GATES == "true" ]; then sonar-scanner; fi
 
+git:
+  depth: false
+
 jobs:
   include:
   - python: 3.6
