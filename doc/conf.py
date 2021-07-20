@@ -52,7 +52,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'SpiffWorkflow'
-copyright = u'2017, Samuel Abels'
+copyright = u'2021, Sartography'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
