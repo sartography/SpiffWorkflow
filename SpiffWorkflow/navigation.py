@@ -302,7 +302,11 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
     # Call Activity - follow subtree
     # ---------------------
     if isinstance(tree, CallActivity):
-        tsk = workflow.get_tasks_from_spec_name(tree.name)[0]
+        tasks = workflow.get_tasks_from_spec_name(tree.name)
+        if len(tasks) == 0:
+            # The call activity may not exist yet in some circumstances.
+            return output
+        tsk = tasks[0]
         x = tree.create_sub_workflow(tsk)
 
         output.append( NavItem.from_spec(tree, indent=level))
