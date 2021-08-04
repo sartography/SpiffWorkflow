@@ -79,11 +79,11 @@ request.
 
 ## Credits and Thanks
 
-Matthew Hampton (@matthewhampton) for building a great general purpose workflow
-engine in Python and founding SpiffWorkflow.
+Samuel Abels (@knipknap) for creating SpiffWorkflow and maintaining it for over
+a decade.
 
-Samuel Abels (@knipknap) for keeping SpiffWorkflow alive for the past few years,
-and offering us commit access to make these contributions
+Matthew Hampton (@matthewhampton) for his initial contributions around BPMN
+parsing and execution.
 
 The University of Virginia for their support and trust in allowing us to take
 on the mammoth task of building a general-purpose workflow system for BPMN,
