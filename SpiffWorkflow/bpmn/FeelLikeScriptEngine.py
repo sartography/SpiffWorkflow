@@ -317,19 +317,23 @@ class FeelLikeScriptEngine(PythonScriptEngine):
 
 
 
-    def evaluate(self, expression,external_methods={}, **kwargs):
+    def evaluate(self, expression, external_methods=None, **kwargs):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
         """
+        if external_methods is None:
+            external_methods = {}
         external_methods.update(externalFuncs)
         return super().evaluate(expression,external_methods,**kwargs)
 
 
-    def execute(self, task, script, data,external_methods={}):
+    def execute(self, task, script, data, external_methods=None):
         """
         Execute the script, within the context of the specified task
         """
+        if external_methods is None:
+            external_methods = {}
         external_methods.update(externalFuncs)
         super(PythonScriptEngine).execute(task,script,external_methods)
 
