@@ -220,7 +220,7 @@ class PythonScriptEngine(object):
     def _eval(self, expression, external_methods={}, **kwargs):
         lcls = {}
         lcls.update(kwargs)
-        globals = self.globals
+        globals = copy.copy(self.globals)  # else we pollute all later evals.
         for x in lcls.keys():
             if isinstance(lcls[x], dict):
                 lcls[x] = Box(lcls[x])
