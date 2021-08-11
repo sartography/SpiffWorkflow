@@ -48,7 +48,9 @@ class Box(dict):
                 else:
                     self[k] = v
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
         my_copy = Box()
         for k,v in self.items():
             my_copy[k] = copy.deepcopy(v)
@@ -97,7 +99,9 @@ class PythonScriptEngine(object):
     provide a specialised subclass that parses and executes the scripts /
     expressions in a mini-language of your own.
     """
-    def __init__(self,scriptingAdditions = {}):
+    def __init__(self, scriptingAdditions=None):
+        if scriptingAdditions is None:
+            scriptingAdditions = {}
         self.globals = {'timedelta':timedelta,
                          'datetime':datetime,
                         'Box':Box,
@@ -217,7 +221,9 @@ class PythonScriptEngine(object):
                                             error_line)
         self.convertFromBox(data)
 
-    def _eval(self, expression, external_methods={}, **kwargs):
+    def _eval(self, expression, external_methods=None, **kwargs):
+        if external_methods is None:
+            external_methods = {}
         lcls = {}
         lcls.update(kwargs)
         globals = copy.copy(self.globals)  # else we pollute all later evals.

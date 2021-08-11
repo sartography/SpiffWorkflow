@@ -271,7 +271,7 @@ def conditional_task_add(output, task_spec, indent, backtrack_to=None):
                                     indent=indent))
 
 
-def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
+def follow_tree(tree, output=None, found=None, level=0, workflow=None):
     """RECURSIVE - follows the tree returning a list of NavItem objects"""
 
     # I had an issue with a test being nondeterministic the yes/no
@@ -283,6 +283,10 @@ def follow_tree(tree, output=[], found=set(), level=0, workflow=None):
     # After I'm done, you should be able to manage the order of the sequence flows by
     # naming the Flow_xxxxx names in the order you want them to appear.
 
+    if found is None:
+        found = set()
+    if output is None:
+        output = []
     outputs = list(tree.outgoing_sequence_flows.keys())
     idlinks = [(x, tree.outgoing_sequence_flows[x]) for x in outputs]
     idlinks.sort(key=lambda x: x[1].target_task_spec.position['y'])

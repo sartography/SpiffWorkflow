@@ -37,8 +37,10 @@ class ResetTokenTest(BaseTestCase):
 
 
 
-    def actual_test(self, save_restore=False,reset_data=False,expected={'do_step':False,'A':'a','B':'b','C':'c'}):
+    def actual_test(self, save_restore=False, reset_data=False, expected=None):
 
+        if expected is None:
+            expected = {'do_step': False, 'A': 'a', 'B': 'b', 'C': 'c'}
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         firsttaskid = None
