@@ -8,36 +8,44 @@ class DictDotNotationDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('dict_dot_notation_decision.dmn', debug='DEBUG')
+        dmn_files =[
+            'dict_dot_notation_decision.dmn',
+            'dict_dot_notation_decision_v1_3.dmn',
+        ]
+        cls.runners = [DecisionRunner(d, debug='DEBUG') for d in dmn_files]
 
     def test_string_decision_string_output1(self):
-        data = {"foods": {
-            "spam": {"delicious": False}
-        }}
-        data = Box(data)
-        res = self.runner.decide(data)
-        self.assertEqual(res.description, 'This person has a tongue, brain '
-                                          'or sense of smell.')
+        for runner in self.runners:
+            data = {"foods": {
+                "spam": {"delicious": False}
+            }}
+            data = Box(data)
+            res = runner.decide(data)
+            self.assertEqual(res.description, 'This person has a tongue, brain '
+                                              'or sense of smell.')
 
     data = Box({"foods": {
         "spam": {"delicious": False}
     }})
+
     def test_string_decision_string_output2(self):
-        data = {"foods": {
-            "spam": {"delicious": True}
-        }}
-        res = self.runner.decide(Box(data))
-        self.assertEqual(res.description, 'This person is lacking many '
-                                          'critical decision making skills, '
-                                          'or is a viking.')
+        for runner in self.runners:
+            data = {"foods": {
+                "spam": {"delicious": True}
+            }}
+            res = runner.decide(Box(data))
+            self.assertEqual(res.description, 'This person is lacking many '
+                                              'critical decision making skills, '
+                                              'or is a viking.')
 
     def test_string_decision_with_kwargs(self):
-        data = {"foods": {
-            "spam": {"delicious": False}
-        }}
-        res = self.runner.decide({}, **Box(data))
-        self.assertEqual(res.description, 'This person has a tongue, brain '
-                                          'or sense of smell.')
+        for runner in self.runners:
+            data = {"foods": {
+                "spam": {"delicious": False}
+            }}
+            res = runner.decide({}, **Box(data))
+            self.assertEqual(res.description, 'This person has a tongue, brain '
+                                              'or sense of smell.')
 
 
 def suite():

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.trisotech.com/dmn/definitions/_5e8e877a-af87-434b-9c36-ed51c8d6b514" id="_5e8e877a-af87-434b-9c36-ed51c8d6b514" namespace="http://www.trisotech.com/dmn/definitions/_5e8e877a-af87-434b-9c36-ed51c8d6b514" exporter="DMN Modeler" exporterVersion="6.0.7" name="Financial">
+    <semantic:extensionElements/>
+    <semantic:businessKnowledgeModel id="_a30c75ec-7d81-4606-802c-b31ea308392d" name="PMT">
+		<semantic:variable name="PMT" id="_702e93e8-7d03-4400-aae4-a21543a4d631"/>
+        <semantic:encapsulatedLogic id="_7fafdbd9-083f-43f5-bc0a-57c9ea0cf943" kind="FEEL">
+            <semantic:formalParameter name="Rate" typeRef="number" id="_1787cf94-5e76-4926-ac24-5b4096b28dca"/>
+            <semantic:formalParameter name="Term" typeRef="number" id="_0d037df5-8942-473f-9feb-2e16d6d7d631"/>
+            <semantic:formalParameter name="Amount" typeRef="number" id="_deb10bf3-97f0-4f6b-8ae4-5cbfd44debac"/>
+            <semantic:literalExpression id="_4d149dbb-89da-498e-853f-2c33f4e9b834">
+                <semantic:text>(Amount *Rate/12) / (1 - (1 + Rate/12)**-Term)</semantic:text>
+            </semantic:literalExpression>
+        </semantic:encapsulatedLogic>
+    </semantic:businessKnowledgeModel>
+    <dmndi:DMNDI>
+        <dmndi:DMNDiagram id="_78d4b1b3-d780-407d-b8ba-b7c28c334551" name="Page 1">
+            <dmndi:Size height="1050" width="1485"/>
+            <dmndi:DMNShape id="_f3441ebe-15cd-435b-9451-206c147a6985" dmnElementRef="_a30c75ec-7d81-4606-802c-b31ea308392d">
+                <dc:Bounds x="274.5" y="213.5" width="152" height="59"/>
+                <dmndi:DMNLabel sharedStyle="LS_5e8e877a-af87-434b-9c36-ed51c8d6b514_0"/>
+            </dmndi:DMNShape>
+        </dmndi:DMNDiagram>
+        <dmndi:DMNStyle id="LS_5e8e877a-af87-434b-9c36-ed51c8d6b514_0" fontFamily="arial,helvetica,sans-serif" fontSize="11" fontBold="false" fontItalic="false" fontUnderline="false" fontStrikeThrough="false"/>
+    </dmndi:DMNDI>
+</semantic:definitions>

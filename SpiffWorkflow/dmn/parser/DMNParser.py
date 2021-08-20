@@ -56,19 +56,19 @@ class DMNParser(object):
         self.scriptEngine = DMNPythonScriptEngine()
 
     def parse(self):
-        self.decision = self._parse_decision(self.node)
+        self.decision = self._parse_decision(self.node.findall('{*}decision'))
 
     def get_id(self):
         """
         Returns the process ID
         """
-        return self.xpath('dmn:decision[1]')[0].get('id')
+        return self.xpath('{*}decision[1]')[0].get('id')
 
     def get_name(self):
         """
         Returns the process name (or ID, if no name is included in the file)
         """
-        return self.xpath('dmn:decision[1]')[0].get('name')
+        return self.xpath('{*}decision[1]')[0].get('name')
 
     def _parse_decision(self, root):
         decisionElements = list(root)
@@ -96,7 +96,7 @@ class DMNParser(object):
 
     def _parseDecisionTables(self, decision, decisionElement):
         xpath = xpath_eval(decisionElement, {'dmn': self.dmn_ns})
-        for decisionTableElement in xpath('dmn:decisionTable'):
+        for decisionTableElement in xpath('{*}decisionTable'):
             decisionTable = DecisionTable(decisionTableElement.attrib['id'],
                                           decisionTableElement.attrib.get(
                                               'name', ''))
@@ -124,7 +124,7 @@ class DMNParser(object):
     def _parseInput(self, inputElement):
         typeRef = None
         xpath = xpath_eval(inputElement, {'dmn': self.dmn_ns})
-        for inputExpression in xpath('dmn:inputExpression'):
+        for inputExpression in xpath('{*}inputExpression'):
 
             typeRef = inputExpression.attrib.get('typeRef', '')
             scriptEngine = self.scriptEngine
