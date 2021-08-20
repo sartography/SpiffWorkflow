@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+  id="definitions_0v8cooh"
+  name="Decision"
+  namespace="http://www.omg.org/spec/DMN/20180521/diagram-interchange-shape-with-label-text/"
+  xmlns="http://www.omg.org/spec/DMN/20180521/MODEL/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/"
+  xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+  xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/">
+  <decision id="Decision_1" name="Decision 1"/>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DRD1">
+      <dmndi:DMNShape id="_DMNShape_Decision_1" dmnElementRef="Decision_1">
+        <dc:Bounds x="200" y="200" width="180" height="80"/>
+        <dmndi:DMNLabel>
+          <dmndi:Text><![CDATA[Deci-
+sion
+1]]></dmndi:Text>
+        </dmndi:DMNLabel>
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

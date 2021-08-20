@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+  id="Definitions_DecisionService"
+  name="Decision Service"
+  namespace="http://www.omg.org/spec/DMN/20180521/diagram-interchange-decision-service/"
+  xmlns="http://www.omg.org/spec/DMN/20180521/MODEL/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/"
+  xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+  xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/">
+  <decisionService id="DecisionService_1" name="Decision Service 1">
+  </decisionService>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DRD1">
+      <dmndi:DMNShape id="_DMNShape_DecisionService_1" dmnElementRef="DecisionService_1">
+        <dc:Bounds x="0" y="0" width="907" height="421"/>
+        <dmndi:DMNLabel>
+          <dc:Bounds x="354" y="96" width="197" height="18"/>
+        </dmndi:DMNLabel>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint xsi:type="dc:Point" x="0" y="210" />
+          <di:waypoint xsi:type="dc:Point" x="906" y="210" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>
