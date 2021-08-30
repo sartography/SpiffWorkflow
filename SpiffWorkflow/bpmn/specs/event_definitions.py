@@ -260,6 +260,7 @@ class TimerEventDefinition(CatchingEventDefinition):
             else:
                 now = datetime.datetime.now()
         else:
+            # assume type is a date, not datetime
             now = datetime.date.today()
         return now > dt
 

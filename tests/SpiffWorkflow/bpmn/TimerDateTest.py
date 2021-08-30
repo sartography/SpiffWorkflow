@@ -5,6 +5,7 @@ from __future__ import division, absolute_import
 import unittest
 import datetime
 import time
+import pytz
 
 from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
 from SpiffWorkflow.task import Task
@@ -50,13 +51,15 @@ class TimerDateTest(BpmnWorkflowTestCase):
 
 
             waiting_tasks = self.workflow.get_tasks(Task.WAITING)
-            #self.assertEqual(1, len(waiting_tasks))
+            #self.assertEqual(1, len(waiting_tasks))z
             time.sleep(0.1)
             self.workflow.refresh_waiting_tasks()
             loopcount = loopcount +1
         endtime = datetime.datetime.now()
         self.workflow.do_engine_steps()
-        print(self.workflow.last_task.data)
+        tz = pytz.timezone('US/Eastern')
+        testdate = tz.localize(datetime.datetime.strptime('2021-09-01 10:00','%Y-%m-%d %H:%M'))
+        self.assertEqual(self.workflow.last_task.data['futuredate2'],testdate)
         self.assertTrue('completed' in self.workflow.last_task.data)
         self.assertTrue(self.workflow.last_task.data['completed'])
         self.assertTrue((endtime-starttime) > datetime.timedelta(seconds=.25))
