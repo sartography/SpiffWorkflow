@@ -48,7 +48,10 @@ class ScriptTask(Simple, BpmnSpecMixin):
             return
         assert not task.workflow.read_only
         try:
-            task.workflow.script_engine.execute(task, self.script, task.data)
+            if task.workflow.outer_workflow:
+                task.workflow.outer_workflow.script_engine.execute(task, self.script, task.data)
+            else:
+                task.workflow.script_engine.execute(task, self.script, task.data)
         except Exception as e:
             LOG.error('Error executing ScriptTask; task=%r',
                       task, exc_info=True)
