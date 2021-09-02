@@ -84,7 +84,7 @@ TaskSpec works, look at `the workflow patterns <http://www.workflowpatterns.com>
 especially the flash animations showing how each type of task works.
 
 .. note::
-   The TaskSpec classes named "ThreadXXXX" **not** create any Python threads, but logical
+   The TaskSpec classes named "ThreadXXXX" do **not** create any Python threads, but logical
    threads based on the model in http://www.workflowpatterns.com. There is no Python
    threading implemented.
 
