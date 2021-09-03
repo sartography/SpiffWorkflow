@@ -6,6 +6,7 @@ from builtins import object
 import ast
 import datetime
 from datetime import timedelta
+import dateparser
 
 from SpiffWorkflow.exceptions import WorkflowTaskExecException
 from SpiffWorkflow.workflow import WorkflowException
@@ -104,7 +105,8 @@ class PythonScriptEngine(object):
             scriptingAdditions = {}
         self.globals = {'timedelta':timedelta,
                          'datetime':datetime,
-                        'Box':Box,
+                         'dateparser':dateparser,
+                         'Box':Box,
                         }
         self.globals.update(scriptingAdditions)
 

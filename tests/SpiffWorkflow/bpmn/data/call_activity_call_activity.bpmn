@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_34b94b6" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.0.0-dev">
+  <bpmn:process id="Call_Activity_Get_Data" name="Call Activity Get Data" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_07uhaa7</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_07uhaa7" sourceRef="StartEvent_1" targetRef="Activity_1mb2mnf" />
+    <bpmn:endEvent id="Event_1rokcus">
+      <bpmn:documentation># Call Event
+&lt;div&gt;&lt;span&gt;Hello {{my_var}}&lt;/span&gt;&lt;/div&gt;</bpmn:documentation>
+      <bpmn:incoming>Flow_0apfnjq</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0apfnjq" sourceRef="Activity_1mb2mnf" targetRef="Event_1rokcus" />
+    <bpmn:scriptTask id="Activity_1mb2mnf" name="Create Data">
+      <bpmn:incoming>Flow_07uhaa7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0apfnjq</bpmn:outgoing>
+      <bpmn:script>my_var = 'World'
+my_other_var = 'Mike'</bpmn:script>
+    </bpmn:scriptTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Call_Activity_Get_Data">
+      <bpmndi:BPMNEdge id="Flow_07uhaa7_di" bpmnElement="Flow_07uhaa7">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="270" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0apfnjq_di" bpmnElement="Flow_0apfnjq">
+        <di:waypoint x="370" y="177" />
+        <di:waypoint x="432" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1rokcus_di" bpmnElement="Event_1rokcus">
+        <dc:Bounds x="432" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0esr09m_di" bpmnElement="Activity_1mb2mnf">
+        <dc:Bounds x="270" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
