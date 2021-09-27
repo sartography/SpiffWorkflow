@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1i4qfho" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.10.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="CallActivityProcess" isExecutable="true">
+    <bpmn:startEvent id="Event_05n155t">
+      <bpmn:outgoing>Flow_1edpn8x</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="Activity_0jv4dsc" name="Third Script">
+      <bpmn:incoming>Flow_1edpn8x</bpmn:incoming>
+      <bpmn:outgoing>Flow_17mgpnz</bpmn:outgoing>
+      <bpmn:script>c3 = custom_function('arrivederci')</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="Event_19jp0u1">
+      <bpmn:incoming>Flow_17mgpnz</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1edpn8x" sourceRef="Event_05n155t" targetRef="Activity_0jv4dsc" />
+    <bpmn:sequenceFlow id="Flow_17mgpnz" sourceRef="Activity_0jv4dsc" targetRef="Event_19jp0u1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="CallActivityProcess">
+      <bpmndi:BPMNEdge id="Flow_1edpn8x_di" bpmnElement="Flow_1edpn8x">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="242" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17mgpnz_di" bpmnElement="Flow_17mgpnz">
+        <di:waypoint x="342" y="120" />
+        <di:waypoint x="404" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_05n155t_di" bpmnElement="Event_05n155t">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jv4dsc_di" bpmnElement="Activity_0jv4dsc">
+        <dc:Bounds x="242" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19jp0u1_di" bpmnElement="Event_19jp0u1">
+        <dc:Bounds x="404" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

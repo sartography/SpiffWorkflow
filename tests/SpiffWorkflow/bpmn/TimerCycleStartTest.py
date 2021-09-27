@@ -6,7 +6,7 @@ import unittest
 import datetime
 import time
 
-from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -19,7 +19,7 @@ def my_custom_function():
     counter = counter+1
     return counter
 
-class CustomBpmnScriptEngine(BpmnScriptEngine):
+class CustomScriptEngine(PythonScriptEngine):
     """This is a custom script processor that can be easily injected into Spiff Workflow.
     It will execute python code read in from the bpmn.  It will also make any scripts in the
      scripts directory available for execution. """
@@ -49,7 +49,7 @@ class TimerCycleStartTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         global counter
-        self.workflow = BpmnWorkflow(self.spec,script_engine=CustomBpmnScriptEngine())
+        self.workflow = BpmnWorkflow(self.spec,script_engine=CustomScriptEngine())
         ready_tasks = self.workflow.get_tasks(Task.READY)
         self.assertEqual(1, len(ready_tasks)) # Start Event
         self.workflow.complete_task_from_id(ready_tasks[0].id)
@@ -70,7 +70,7 @@ class TimerCycleStartTest(BpmnWorkflowTestCase):
                 break
             if save_restore:
                 self.save_restore()
-                self.workflow.script_engine = CustomBpmnScriptEngine()
+                self.workflow.script_engine = CustomScriptEngine()
             waiting_tasks = self.workflow.get_tasks(Task.WAITING)
             #self.assertEqual(1, len(waiting_tasks))
             time.sleep(0.1)

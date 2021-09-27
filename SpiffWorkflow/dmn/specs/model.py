@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-from SpiffWorkflow.bpmn.DMNPythonScriptEngine import DMNPythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.util.deep_merge import DeepMerge
 
@@ -43,12 +42,11 @@ class DecisionTable:
 
 
 class Input:
-    def __init__(self, id, label, name, expression, scriptEngine, typeRef):
+    def __init__(self, id, label, name, expression, typeRef):
         self.id = id
         self.label = label
         self.name = name
         self.expression = expression
-        self.scriptEngine = scriptEngine
         self.typeRef = typeRef
 
     def serialize(self):
@@ -57,17 +55,11 @@ class Input:
         out['label'] = self.label
         out['name'] = self.name
         out['expression'] = self.expression
-        out['scriptEngine'] = self.scriptEngine.__class__.__name__
         out['typeRef'] = self.typeRef
         return out
 
     def deserialize(self,indict):
-        #for key in indict.keys():
-        #    setattr(self,key,indict[key])
-        self.scriptEngine = DMNPythonScriptEngine() # this is the only one we deal with now,
-                                                    # later we will want to look at the classname
-                                                    # that is in indct['scriptEngine'] and instantiate
-                                                    # the right class
+        pass
 
 
 
@@ -79,7 +71,7 @@ class InputEntry:
 
         self.description = ''
         self.lhs = []
-    
+
     def serialize(self):
         out = {}
         out['id'] = self.id
@@ -101,7 +93,7 @@ class Output:
         self.label = label
         self.name = name
         self.typeRef = typeRef
-        
+
     def serialize(self):
         out = {}
         out['id'] = self.id
@@ -146,7 +138,7 @@ class Rule:
         self.description = ''
         self.inputEntries = []
         self.outputEntries = []
-        
+
     def serialize(self):
         out = {}
         out['id'] = self.id
@@ -163,16 +155,14 @@ class Rule:
         self.outputEntries = [OutputEntry(None, None) for x in indict['outputEntries']]
         list(map(lambda x, y: x.deserialize(y), self.outputEntries, indict['outputEntries']))
 
-
-
-
-    def outputAsDict(self, data):
+    def output_as_dict(self, task):
+        script_engine = task.workflow.script_engine
         out = OrderedDict()
         for outputEntry in self.outputEntries:
             # try to use the id, but fall back to label if no name is provided.
             key = outputEntry.output.name or outputEntry.output.label
             if hasattr(outputEntry, "parsedRef"):
-                outvalue = PythonScriptEngine().evaluate(outputEntry.parsedRef,**data)
+                outvalue = script_engine.evaluate(task, outputEntry.parsedRef)
             else:
                 outvalue = ""
             if '.' in key:         # we need to allow for dot notation in the DMN -

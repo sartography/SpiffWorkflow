@@ -1,5 +1,6 @@
 import unittest
 
+from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
 from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
 
 
@@ -10,7 +11,9 @@ class FeelBoolDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('bool_decision_feel.dmn', debug='DEBUG')
+        cls.runner = DecisionRunner('bool_decision_feel.dmn',
+                                    script_engine=FeelLikeScriptEngine(),
+                                    debug='DEBUG')
 
     def test_bool_decision_string_output1(self):
         res = self.runner.decide(True)

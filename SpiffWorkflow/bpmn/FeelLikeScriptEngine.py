@@ -25,6 +25,9 @@ from .PythonScriptEngine import PythonScriptEngine
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+from ..exceptions import WorkflowTaskExecException
+from ..operators import Operator
+
 
 def feelConvertTime(datestr,parsestr):
     return datetime.datetime.strptime(datestr,parsestr)
@@ -295,7 +298,7 @@ class FeelLikeScriptEngine(PythonScriptEngine):
             proposed_python = lhs + proposed_python
         return proposed_python
 
-    def validateExpression (self,text):
+    def validate_expression (self, text):
         if text is None:
             return
         try:
@@ -314,10 +317,7 @@ class FeelLikeScriptEngine(PythonScriptEngine):
                 raise Exception("error parsing expression "+text + " " +
                                 str(e))
 
-
-
-
-    def evaluate(self, expression, external_methods=None, **kwargs):
+    def _evaluate(self, expression, external_methods=None, **kwargs):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
@@ -325,8 +325,7 @@ class FeelLikeScriptEngine(PythonScriptEngine):
         if external_methods is None:
             external_methods = {}
         external_methods.update(externalFuncs)
-        return super().evaluate(expression,external_methods,**kwargs)
-
+        return super()._evaluate(expression,external_methods,**kwargs)
 
     def execute(self, task, script, data, external_methods=None):
         """

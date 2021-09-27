@@ -1,3 +1,4 @@
+import ast
 import re
 from decimal import Decimal
 from ast import literal_eval
@@ -7,9 +8,6 @@ from SpiffWorkflow.bpmn.parser.util import xpath_eval
 
 from SpiffWorkflow.dmn.specs.model import Decision, DecisionTable, InputEntry, \
     OutputEntry, Input, Output, Rule
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
-from SpiffWorkflow.bpmn.DMNPythonScriptEngine import DMNPythonScriptEngine
 
 def get_dmn_ns(node):
     """
@@ -53,7 +51,6 @@ class DMNParser(object):
         self.doc_xpath = doc_xpath
         self.dmn_ns = get_dmn_ns(self.node)
         self.xpath = xpath_eval(self.node, {'dmn': self.dmn_ns})
-        self.scriptEngine = DMNPythonScriptEngine()
 
     def parse(self):
         self.decision = self._parse_decision(self.node.findall('{*}decision'))
@@ -127,11 +124,6 @@ class DMNParser(object):
         for inputExpression in xpath('{*}inputExpression'):
 
             typeRef = inputExpression.attrib.get('typeRef', '')
-            scriptEngine = self.scriptEngine
-            engine = inputExpression.attrib.get('expressionLanguage')
-            if engine == 'feel':
-                scriptEngine = FeelLikeScriptEngine()
-
             expressionNode = inputExpression.find('{' + self.dmn_ns + '}text')
             if expressionNode is not None:
                 expression = expressionNode.text
@@ -142,7 +134,6 @@ class DMNParser(object):
                       inputElement.attrib.get('label', ''),
                       inputElement.attrib.get('name', ''),
                       expression,
-                      scriptEngine,
                       typeRef)
         return input
 
@@ -197,9 +188,9 @@ class DMNParser(object):
             entry.lhs.append(entry.text)
         elif cls == OutputEntry:
             if entry.text and entry.text != '':
-                py, needsEquals = self.scriptEngine.validateExpression(entry.text)
-                if not needsEquals:
+                try:
+                    ast.parse(entry.text)
+                    entry.parsedRef = entry.text
+                except:
                     raise Exception("Malformed Output Expression '%s' " % entry.text)
-                else:
-                    entry.parsedRef = py
         return entry

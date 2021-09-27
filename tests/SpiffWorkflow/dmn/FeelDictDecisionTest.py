@@ -1,5 +1,6 @@
 import unittest
 
+from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
 
@@ -11,7 +12,9 @@ class FeelDictDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('dict_decision_feel.dmn', debug='DEBUG')
+        cls.runner = DecisionRunner('dict_decision_feel.dmn',
+                                    script_engine=FeelLikeScriptEngine(),
+                                    debug='DEBUG')
 
     def test_string_decision_string_output1(self):
         data = {"allergies": {

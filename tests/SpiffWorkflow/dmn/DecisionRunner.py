@@ -8,7 +8,8 @@ from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
 
 
 class DecisionRunner:
-    def __init__(self, path, debug=None):
+    def __init__(self, path, script_engine=None, debug=None):
+        self.script_engine = script_engine or PythonScriptEngine()
         self.path = os.path.join(os.path.dirname(__file__),
                             'data',
                             path)
@@ -29,4 +30,4 @@ class DecisionRunner:
         self.dmnEngine = DMNEngine(decision.decisionTables[0], debug=debug)
 
     def decide(self, *inputArgs, **inputKwargs):
-        return self.dmnEngine.decide(*inputArgs, **inputKwargs)
+        return self.dmnEngine.decide(self.script_engine, *inputArgs, **inputKwargs)

@@ -3,9 +3,6 @@ from SpiffWorkflow.exceptions import WorkflowTaskExecException
 from SpiffWorkflow.specs import Simple
 
 from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-
-
-from ...bpmn.PythonScriptEngine import PythonScriptEngine
 from ...util.deep_merge import DeepMerge
 from ...util.metrics import timeit
 
@@ -18,7 +15,7 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
     def _on_trigger(self, my_task):
         pass
 
-    def __init__(self, wf_spec, name, dmnEngine=None, **kwargs):
+    def __init__(self, wf_spec, name, dmnEngine, **kwargs):
         super().__init__(wf_spec, name, **kwargs)
 
         self.dmnEngine = dmnEngine
@@ -28,13 +25,11 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
     @timeit
     def _on_complete_hook(self, my_task):
         try:
-            convert = PythonScriptEngine()
-            #convert.convertToBox(my_task.data)
-            self.res = self.dmnEngine.decide(**my_task.data)
+            self.res = self.dmnEngine.decide(my_task.workflow.script_engine,
+                                             **my_task.data)
             if self.res is not None:  # it is conceivable that no rules fire.
-                self.resDict = self.res.outputAsDict(my_task.data)
+                self.resDict = self.res.output_as_dict(my_task)
                 my_task.data = DeepMerge.merge(my_task.data,self.resDict)
-            #convert.convertFromBox(my_task.data)
             super(BusinessRuleTask, self)._on_complete_hook(my_task)
         except Exception as e:
             raise WorkflowTaskExecException(my_task, str(e))

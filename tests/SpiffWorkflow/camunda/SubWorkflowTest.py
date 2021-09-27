@@ -61,7 +61,6 @@ class SubWorkflowTest(BaseTestCase):
         self.assertNav(nav[2], spec_type="UserTask", description="FormB", state="FUTURE")
         self.assertNav(nav[3], spec_type="EndEvent", state="FUTURE")
 
-
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(SubWorkflowTest)
 
