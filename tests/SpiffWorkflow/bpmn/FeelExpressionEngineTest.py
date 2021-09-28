@@ -54,7 +54,7 @@ class FeelExpressionTest(BpmnWorkflowTestCase):
                  ]
         for test in tests:
             print(test[0])
-            self.assertEqual(self.expressionEngine.evaluate(test[0], **test[2]),
+            self.assertEqual(self.expressionEngine._evaluate(test[0], **test[2]),
                              test[1], "test --> %s <-- with variables ==> %s <==Fail!" % (test[0], str(test[2])))
 
     def testRunThroughDMNExpression(self):

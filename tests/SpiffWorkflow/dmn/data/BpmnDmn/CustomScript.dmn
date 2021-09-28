@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="Definitions_0yjq2a6" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="4.10.0">
+  <decision id="DMNCustomScript" name="DMN Custom Script">
+    <decisionTable id="decisionTable_1">
+      <input id="input_1">
+        <inputExpression id="inputExpression_1" typeRef="string" expressionLanguage="python">
+          <text>my_custom_function('bill')</text>
+        </inputExpression>
+      </input>
+      <output id="output_1" label="Result" name="dmn_result" typeRef="string" />
+      <rule id="DecisionRule_1ai0obb">
+        <inputEntry id="UnaryTests_0q21xde">
+          <text>'BILL'</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_176nuh6">
+          <text>my_custom_function('bill')</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_196hvi1">
+        <inputEntry id="UnaryTests_0cdk9qt">
+          <text>my_custom_function('jane')</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0sfxtys">
+          <text>my_custom_function('jane')</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0e6bx10">
+        <inputEntry id="UnaryTests_172x2jc">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1ckh2r5">
+          <text></text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1c1a9gj">
+      <dmndi:DMNShape id="DMNShape_0dzg7mi" dmnElementRef="DMNCustomScript">
+        <dc:Bounds height="80" width="180" x="150" y="80" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

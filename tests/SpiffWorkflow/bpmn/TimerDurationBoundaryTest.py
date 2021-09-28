@@ -5,10 +5,11 @@ from __future__ import division, absolute_import
 import unittest
 import datetime
 import time
+
+from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-from SpiffWorkflow.bpmn.BpmnFeelScriptEngine import BpmnFeelScriptEngine
 __author__ = 'kellym'
 
 
@@ -29,7 +30,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.script_engine = BpmnFeelScriptEngine()
+        self.workflow.script_engine = FeelLikeScriptEngine()
         ready_tasks = self.workflow.get_tasks(Task.READY)
         self.assertEqual(1, len(ready_tasks))
         self.workflow.complete_task_from_id(ready_tasks[0].id)
@@ -50,7 +51,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
                 break
             if save_restore:
                 self.save_restore()
-                self.workflow.script_engine = BpmnFeelScriptEngine()
+                self.workflow.script_engine = FeelLikeScriptEngine()
             #self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
             time.sleep(0.1)
             self.workflow.complete_task_from_id(ready_tasks[0].id)

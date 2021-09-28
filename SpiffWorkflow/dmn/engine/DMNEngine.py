@@ -1,10 +1,6 @@
 import logging
 import re
-from difflib import ndiff
-
-from SpiffWorkflow.bpmn.DMNPythonScriptEngine import DMNPythonScriptEngine
 from SpiffWorkflow.util import levenshtein
-from SpiffWorkflow.util.levenshtein import distance
 
 
 class DMNEngine:
@@ -15,19 +11,18 @@ class DMNEngine:
     def __init__(self, decisionTable, debug=None):
         self.decisionTable = decisionTable
         self.debug = debug
-        self.scriptEngine = DMNPythonScriptEngine()
         self.logger = logging.getLogger('DMNEngine')
         if not self.logger.handlers:
             self.logger.addHandler(logging.StreamHandler())
         self.logger.setLevel(getattr(logging, 'DEBUG' if debug else 'INFO'))
 
-    def decide(self, *inputArgs, **inputKwargs):
+    def decide(self, script_engine, *inputArgs, **inputKwargs):
         for rule in self.decisionTable.rules:
-            res = self.__checkRule(rule, *inputArgs, **inputKwargs)
+            res = self.__checkRule(rule, script_engine, *inputArgs, **inputKwargs)
             if res:
                 return rule
 
-    def __checkRule(self, rule, *inputData, **inputKwargs):
+    def __checkRule(self, rule, script_engine, *inputData, **inputKwargs):
         for idx, inputEntry in enumerate(rule.inputEntries):
             input = self.decisionTable.inputs[idx]
             local_data = {}
@@ -41,7 +36,7 @@ class DMNEngine:
                 else:
                     inputVal = None
                 try:
-                    if not input.scriptEngine.eval_dmn_expression(inputVal, lhs, **local_data):
+                    if not script_engine.eval_dmn_expression(inputVal, lhs, **local_data):
                         return False
                 except NameError as e:
                     bad_variable = re.match("name '(.+)' is not defined",

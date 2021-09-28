@@ -41,7 +41,10 @@ class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
         self.assertDictEqual(self.workflow.data, {'x': 3, 'y': 'A'})
         self.assertDictEqual(self.workflow.last_task.data, {'x': 3, 'y': 'A'})
 
-
+    def testDmnUsesSameScriptEngineAsBPMN(self):
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.get_tasks(Task.READY)[0].set_data(x=3)
+        self.workflow.do_engine_steps()
 
 
 def suite():

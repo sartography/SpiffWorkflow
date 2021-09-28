@@ -6,10 +6,13 @@ from builtins import object
 import ast
 import datetime
 from datetime import timedelta
+from decimal import Decimal
+
 import dateparser
 import pytz
 
 from SpiffWorkflow.exceptions import WorkflowTaskExecException
+from SpiffWorkflow.operators import Operator
 from SpiffWorkflow.workflow import WorkflowException
 
 
@@ -118,7 +121,7 @@ class PythonScriptEngine(object):
                         }
         self.globals.update(scriptingAdditions)
 
-    def validateExpression(self, text):
+    def validate_expression(self, text):
         if text is None:
             return
         try:
@@ -128,9 +131,9 @@ class PythonScriptEngine(object):
         except:
             try:
                 revised_text = 's ' + text  # if we have problems parsing,
-                # then we introduce a
-                # variable on the left hand side and try that and see if that parses. If so, then we know that
-                # we do not need to introduce an equality operator later in the dmn
+                # then we introduce a variable on the left hand side and try
+                # that and see if that parses. If so, then we know that we do
+                # not need to introduce an equality operator later in the dmn
                 ast.parse(revised_text)
                 return revised_text[2:], False
             except Exception as e:
@@ -144,21 +147,63 @@ class PythonScriptEngine(object):
         """
         if matchExpr is None:
             return True
-        rhs, needsEquals = self.validateExpression(matchExpr)
-        lhs, lhsNeedsEquals = self.validateExpression(inputExpr)
+
+        nolhs = False
+        # NB - the question mark allows us to do a double ended test - for example - our input expr is 5
+        # and the match expr is 4 < ? < 6  - this should evaluate as 4  < 5 < 6  and it should evaluate as 'True'
+        if '?' in matchExpr:
+            nolhs = True
+            matchExpr = matchExpr.replace('?', 'dmninputexpr')
+
+        rhs, needsEquals = self.validate_expression(matchExpr)
+
+        extra = {
+            'datetime': datetime,
+            'timedelta': timedelta,
+            'Decimal': Decimal,
+            'Box': Box
+        }
+
+        lhs, lhsNeedsEquals = self.validate_expression(inputExpr)
         if not lhsNeedsEquals:
             raise WorkflowException(
                 "Input Expression '%s' is malformed" % inputExpr)
+        if nolhs:
+            dmninputexpr = self._evaluate(lhs, external_methods=extra, **kwargs)
+            extra = {'dmninputexpr': dmninputexpr,
+                     'datetime': datetime,
+                     'timedelta': timedelta,
+                     'Decimal': Decimal,
+                     'Box': Box
+                     }
+            return self._evaluate(rhs, external_methods=extra, **kwargs)
         if needsEquals:
             expression = lhs + ' == ' + rhs
         else:
             expression = lhs + rhs
 
-        return self.evaluate(default_header + expression, do_convert=False,
-                             **kwargs)
+        return self._evaluate(expression, external_methods=extra,
+                             do_convert=True, **kwargs)
 
-    def evaluate(self, expression, external_methods=None, do_convert=True,
-                 **kwargs):
+    def evaluate(self, task, expression):
+        """
+        Evaluate the given expression, within the context of the given task and
+        return the result.
+        """
+        try:
+            if isinstance(expression, Operator):
+                # I am assuming that this takes care of some kind of XML
+                # expression judging from the contents of operators.py
+                return expression._matches(task)
+            else:
+                return self._evaluate(expression, **task.data)
+        except Exception as e:
+            raise WorkflowTaskExecException(task,
+                                            "Error evaluating expression "
+                                            "'%s', %s" % (expression, str(e)))
+
+    def _evaluate(self, expression, external_methods=None, do_convert=True,
+                     **kwargs):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
@@ -166,7 +211,7 @@ class PythonScriptEngine(object):
         if external_methods is None:
             external_methods = {}
 
-        exp, valid = self.validateExpression(expression)
+        exp, valid = self.validate_expression(expression)
         return self._eval(exp, **kwargs,
                           do_convert=do_convert,
                           external_methods=external_methods)

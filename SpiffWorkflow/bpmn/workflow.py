@@ -16,10 +16,9 @@ from __future__ import division
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-
+from .PythonScriptEngine import PythonScriptEngine
 from ..task import Task
 from ..workflow import Workflow
-from .BpmnScriptEngine import BpmnScriptEngine
 
 
 class BpmnWorkflow(Workflow):
@@ -44,7 +43,7 @@ class BpmnWorkflow(Workflow):
         """
         super(BpmnWorkflow, self).__init__(workflow_spec, **kwargs)
         self.name = name or workflow_spec.name
-        self.script_engine = script_engine or BpmnScriptEngine()
+        self.script_engine = script_engine or PythonScriptEngine()
         self._busy_with_restore = False
         self.read_only = read_only
 
@@ -78,7 +77,7 @@ class BpmnWorkflow(Workflow):
                 task.complete()
                 if task.task_spec.name == exit_at:
                     return task
-            
+
             engine_steps = list(
                 [t for t in self.get_tasks(Task.READY)
                  if self._is_engine_task(t.task_spec)])
