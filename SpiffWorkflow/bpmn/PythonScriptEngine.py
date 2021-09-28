@@ -149,6 +149,8 @@ class PythonScriptEngine(object):
             return True
 
         nolhs = False
+        # NB - the question mark allows us to do a double ended test - for example - our input expr is 5
+        # and the match expr is 4 < ? < 6  - this should evaluate as 4  < 5 < 6  and it should evaluate as 'True'
         if '?' in matchExpr:
             nolhs = True
             matchExpr = matchExpr.replace('?', 'dmninputexpr')
