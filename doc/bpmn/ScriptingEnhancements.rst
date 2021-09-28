@@ -25,7 +25,7 @@ We have added the following:
 .. code:: python
    :number-lines: 2
 
-    from SpiffWorkflow.bpmn.BpmnScriptEngine import BpmnScriptEngine
+    from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 
 this imports the default script engine so that we can make changes to it, and then we define our custom function.
 Note that the name is not my_custom_function, we control that when we update the scripting engine
@@ -48,7 +48,7 @@ like to have in our script, and passing this into the workflow as we create it.
     x.add_bpmn_file('custom_script.bpmn')
     spec = x.get_spec('custom_script')
 
-    script_engine = BpmnScriptEngine(scriptingAdditions={'my_custom_function':testScript})
+    script_engine = PythonScriptEngine(scriptingAdditions={'my_custom_function':testScript})
     workflow = BpmnWorkflow(spec,script_engine=script_engine)
 
 When we run the workflow we get a very simple output

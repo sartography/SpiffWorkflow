@@ -1,5 +1,7 @@
 import os
 import unittest
+
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
@@ -56,6 +58,24 @@ class BpmnSerializerTest(unittest.TestCase):
         json = self.serializer.serialize_workflow(self.workflow)
         wf2 = self.serializer.deserialize_workflow(json, workflow_spec=self.spec)
         self.assertEqual('my_test', wf2.get_data("test"))
+
+    def testDeserializeWithDefaultScriptEngineClass(self):
+        json = self.serializer.serialize_workflow(self.workflow)
+        wf2 = self.serializer.deserialize_workflow(json, workflow_spec=self.spec)
+        self.assertIsNotNone(self.workflow.script_engine)
+        self.assertIsNotNone(wf2.script_engine)
+        self.assertEqual(self.workflow.script_engine.__class__,
+                         wf2.script_engine.__class__)
+
+    def testDeserializeWithCustomScriptEngine(self):
+        class CustomScriptEngine(PythonScriptEngine):
+            pass
+
+        self.workflow.script_engine = CustomScriptEngine()
+        json = self.serializer.serialize_workflow(self.workflow)
+        wf2 = self.serializer.deserialize_workflow(json, workflow_spec=self.spec)
+        self.assertEqual(self.workflow.script_engine.__class__,
+                         wf2.script_engine.__class__)
 
     def testDeserializeWithDataOnTask(self):
         self.workflow.do_engine_steps()
