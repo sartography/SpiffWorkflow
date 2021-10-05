@@ -211,10 +211,17 @@ class PythonScriptEngine(object):
         if external_methods is None:
             external_methods = {}
 
-        exp, valid = self.validate_expression(expression)
-        return self._eval(exp, **kwargs,
-                          do_convert=do_convert,
-                          external_methods=external_methods)
+        expression, valid = self.validate_expression(expression)
+        lcls = {}
+        lcls.update(kwargs)
+        globals = copy.copy(self.globals)  # else we pollute all later evals.
+        for x in lcls.keys():
+            if isinstance(lcls[x], dict):
+                lcls[x] = Box(lcls[x])
+        globals.update(lcls)
+        globals.update(external_methods)
+        return eval(expression, globals, lcls)
+
 
     def convertToBoxSub(self, data):
         if isinstance(data, list):
@@ -279,15 +286,3 @@ class PythonScriptEngine(object):
                                             error_line)
         self.convertFromBox(data)
 
-    def _eval(self, expression, external_methods=None, **kwargs):
-        if external_methods is None:
-            external_methods = {}
-        lcls = {}
-        lcls.update(kwargs)
-        globals = copy.copy(self.globals)  # else we pollute all later evals.
-        for x in lcls.keys():
-            if isinstance(lcls[x], dict):
-                lcls[x] = Box(lcls[x])
-        globals.update(lcls)
-        globals.update(external_methods)
-        return eval(expression, globals, lcls)

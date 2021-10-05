@@ -23,13 +23,10 @@ class CustomScriptEngine(PythonScriptEngine):
     """This is a custom script processor that can be easily injected into Spiff Workflow.
     It will execute python code read in from the bpmn.  It will also make any scripts in the
      scripts directory available for execution. """
+    def __init__(self):
+        augment_methods = {'custom_function': my_custom_function}
+        super().__init__(scriptingAdditions=augment_methods)
 
-
-    def execute(self, task, script, data):
-        augmentMethods = {'custom_function': my_custom_function}
-        super().execute(task, script, data, external_methods=augmentMethods)
-    def eval(self, exp, data):
-        return super()._eval(exp, {}, **data)
 
 
 class TimerDurationTest(BpmnWorkflowTestCase):

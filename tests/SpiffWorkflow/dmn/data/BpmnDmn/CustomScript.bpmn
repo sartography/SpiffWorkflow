@@ -11,20 +11,25 @@
       <bpmn:script>a = my_custom_function("bill")</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:businessRuleTask id="Activity_0zug9f0" name="Call DMN Script" camunda:decisionRef="DMNCustomScript">
-      <bpmn:incoming>Flow_03rcoxc</bpmn:incoming>
+      <bpmn:incoming>Flow_02v0zk5</bpmn:incoming>
       <bpmn:outgoing>Flow_0pvahf7</bpmn:outgoing>
     </bpmn:businessRuleTask>
-    <bpmn:sequenceFlow id="Flow_03rcoxc" sourceRef="Activity_1wejtm3" targetRef="Activity_0zug9f0" />
+    <bpmn:sequenceFlow id="Flow_03rcoxc" sourceRef="Activity_1wejtm3" targetRef="manual_task" />
     <bpmn:endEvent id="Event_0w8dkiu">
       <bpmn:incoming>Flow_0pvahf7</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0pvahf7" sourceRef="Activity_0zug9f0" targetRef="Event_0w8dkiu" />
+    <bpmn:sequenceFlow id="Flow_02v0zk5" sourceRef="manual_task" targetRef="Activity_0zug9f0" />
+    <bpmn:manualTask id="manual_task" name="Manual Task&#10;">
+      <bpmn:incoming>Flow_03rcoxc</bpmn:incoming>
+      <bpmn:outgoing>Flow_02v0zk5</bpmn:outgoing>
+    </bpmn:manualTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0k7ga4b">
       <bpmndi:BPMNEdge id="Flow_0pvahf7_di" bpmnElement="Flow_0pvahf7">
-        <di:waypoint x="520" y="117" />
-        <di:waypoint x="562" y="117" />
+        <di:waypoint x="660" y="117" />
+        <di:waypoint x="722" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_03rcoxc_di" bpmnElement="Flow_03rcoxc">
         <di:waypoint x="380" y="117" />
@@ -34,17 +39,24 @@
         <di:waypoint x="188" y="117" />
         <di:waypoint x="280" y="117" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02v0zk5_di" bpmnElement="Flow_02v0zk5">
+        <di:waypoint x="520" y="117" />
+        <di:waypoint x="560" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_172h5vr_di" bpmnElement="Activity_1wejtm3">
         <dc:Bounds x="280" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1cb776x_di" bpmnElement="Activity_0zug9f0">
-        <dc:Bounds x="420" y="77" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0w8dkiu_di" bpmnElement="Event_0w8dkiu">
-        <dc:Bounds x="562" y="99" width="36" height="36" />
+        <dc:Bounds x="722" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="152" y="99" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_1cb776x_di" bpmnElement="Activity_0zug9f0">
+        <dc:Bounds x="560" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08zgy4m_di" bpmnElement="manual_task">
+        <dc:Bounds x="420" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

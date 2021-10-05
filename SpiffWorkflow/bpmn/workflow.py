@@ -32,9 +32,9 @@ class BpmnWorkflow(Workflow):
         """
         Constructor.
 
-        :param script_engine: set to an instance of BpmnScriptEngine if you
-        need a specialised version. Defaults to a new BpmnScriptEngine
-        instance.
+        :param script_engine: set to an extension of PythonScriptEngine if you
+        need a specialised version. Defaults to the script engine of the top
+        most workflow, or to the PythonScriptEngine if none is provided.
 
         :param read_only: If this parameter is set then the workflow state
         cannot change. It can only be queried to find out about the current
@@ -43,9 +43,29 @@ class BpmnWorkflow(Workflow):
         """
         super(BpmnWorkflow, self).__init__(workflow_spec, **kwargs)
         self.name = name or workflow_spec.name
-        self.script_engine = script_engine or PythonScriptEngine()
+        self.__script_engine = script_engine or PythonScriptEngine()
         self._busy_with_restore = False
         self.read_only = read_only
+
+    @property
+    def script_engine(self):
+        # The outermost script engine always takes precedence.
+        # All call activities, sub-workflows and DMNs should use the
+        # workflow engine of the outermost workflow.
+        outer_workflow = self.outer_workflow
+        script_engine = self.__script_engine
+
+        while outer_workflow:
+            script_engine = outer_workflow.__script_engine
+            outer_workflow = outer_workflow.outer_workflow
+            if outer_workflow == outer_workflow.outer_workflow:
+                break
+        return script_engine
+
+    @script_engine.setter
+    def script_engine(self, engine):
+        self.__script_engine = engine
+
 
     def accept_message(self, message):
         """

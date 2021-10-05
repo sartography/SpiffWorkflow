@@ -11,12 +11,10 @@ def my_custom_function(txt):
 
 
 class CustomScriptEngine(PythonScriptEngine):
-    def execute(self, task, script, data, **kwargs):
-        augment_methods = {'my_custom_function': my_custom_function}
-        super().execute(task, script, data, external_methods=augment_methods)
 
-    def eval(self, exp, data):
-        return super()._eval(exp, {}, **data)
+    def __init__(self):
+        augment_methods = {'my_custom_function': my_custom_function}
+        super().__init__(scriptingAdditions=augment_methods)
 
 
 class DMNCustomScriptTest(BpmnWorkflowTestCase):
@@ -37,15 +35,23 @@ class DMNCustomScriptTest(BpmnWorkflowTestCase):
     def testConstructor(self):
         pass  # this is accomplished through setup.
 
+    def complete_manual_task(self):
+        manual_task = self.workflow.get_tasks_from_spec_name('manual_task')[0]
+        self.workflow.complete_task_from_id(manual_task.id)
+        self.workflow.do_engine_steps()
+
     def testDmnHappy(self):
+        self.workflow.do_engine_steps()
+        self.complete_manual_task()
         self.workflow.do_engine_steps()
         self.assertDictEqual(self.workflow.last_task.data,
                              {'a': 'BILL', 'dmn_result': 'BILL'})
 
     def testDmnSaveRestore(self):
-        self.workflow = BpmnWorkflow(self.spec,
-                                     script_engine=CustomScriptEngine())
         self.save_restore()
+        self.workflow.script_engine = CustomScriptEngine()
+        self.workflow.do_engine_steps()
+        self.complete_manual_task()
         self.workflow.do_engine_steps()
         self.assertDictEqual(self.workflow.last_task.data,
                              {'a': 'BILL', 'dmn_result': 'BILL'})
