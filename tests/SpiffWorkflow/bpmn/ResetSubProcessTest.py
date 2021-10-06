@@ -13,11 +13,8 @@ __author__ = 'matth'
 
 
 class ResetSubProcessTest(BpmnWorkflowTestCase):
-    """The example bpmn diagram has a single task set to be a parallel
-    multi-instance with a loop cardinality of 5.
-    It should repeat 5 times before termination, and it should
-    have a navigation list with 7 items in it - one for start, one for end,
-    and five items for the repeating section. """
+    """Assure we can reset a token to a previous task when we have
+        a sub-workflow."""
 
     def setUp(self):
         self.filename = 'resetworkflowA-*.bpmn'
@@ -37,6 +34,20 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
     def testSaveRestore(self):
         self.actualTest(True)
 
+    def testResetToOuterWorkflowWhileInSubWorkflow(self):
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+        top_level_task = self.workflow.get_ready_user_tasks()[0]
+        self.workflow.complete_task_from_id(top_level_task.id)
+        self.workflow.do_engine_steps()
+        task = self.workflow.get_ready_user_tasks()[0]
+        self.save_restore()
+        top_level_task = self.workflow.get_tasks_from_spec_name('Task1')[0]
+        top_level_task.reset_token(reset_data=True)
+        task = self.workflow.get_ready_user_tasks()[0]
+        self.assertEqual(task.get_name(), 'Task1')
+
+
     def actualTest(self, save_restore=False):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
@@ -45,8 +56,8 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
         navlist = self.workflow.get_flat_nav_list()
-        self.assertEqual(len(navlist),10)
-        self.assertNav(navlist[4], name="SubTask2", state="READY")
+        self.assertEqual(len(navlist),11)
+        self.assertNav(navlist[5], name="SubTask2", state="READY")
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'SubTask2')
         self.workflow.complete_task_from_id(task.id)
@@ -57,8 +68,8 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.reload_save_restore()
         task = self.workflow.get_ready_user_tasks()[0]
         navlist = self.workflow.get_flat_nav_list()
-        self.assertEqual(len(navlist), 11)
-        self.assertNav(navlist[4], name="Subtask2", state=None)
+        self.assertEqual(len(navlist), 12)
+        self.assertNav(navlist[5], name="Subtask2", state=None)
 
         self.assertEqual(task.get_name(),'Task1')
         self.workflow.complete_task_from_id(task.id)
@@ -66,7 +77,7 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'Subtask2')
         navlist = self.workflow.get_flat_nav_list()
-        self.assertNav(navlist[4], name="Subtask2", state="READY")
+        self.assertNav(navlist[5], name="Subtask2", state="READY")
 
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()

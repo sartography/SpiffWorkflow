@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ourc7y" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ourc7y" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.10.0">
   <bpmn:process id="TopLevel" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_1mskfwg</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:callActivity id="SubProcess" name="Subrpocess" calledElement="SubProcessA">
-      <bpmn:incoming>Flow_083r7tz</bpmn:incoming>
+      <bpmn:incoming>Flow_0qafdqt</bpmn:incoming>
       <bpmn:outgoing>Flow_07sx36q</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1mskfwg" sourceRef="StartEvent_1" targetRef="Task1" />
-    <bpmn:sequenceFlow id="Flow_083r7tz" sourceRef="Task1" targetRef="SubProcess" />
+    <bpmn:sequenceFlow id="Flow_083r7tz" sourceRef="Task1" targetRef="Activity_08owj6n" />
     <bpmn:sequenceFlow id="Flow_07sx36q" sourceRef="SubProcess" targetRef="Task2" />
     <bpmn:endEvent id="Event_0mblyau">
       <bpmn:incoming>Flow_1ydceye</bpmn:incoming>
@@ -23,41 +23,53 @@
       <bpmn:incoming>Flow_07sx36q</bpmn:incoming>
       <bpmn:outgoing>Flow_1ydceye</bpmn:outgoing>
     </bpmn:manualTask>
+    <bpmn:sequenceFlow id="Flow_0qafdqt" sourceRef="Activity_08owj6n" targetRef="SubProcess" />
+    <bpmn:scriptTask id="Activity_08owj6n" name="Task 2">
+      <bpmn:incoming>Flow_083r7tz</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qafdqt</bpmn:outgoing>
+      <bpmn:script># Just need another task in here, to handle deep nesting.
+x=1</bpmn:script>
+    </bpmn:scriptTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TopLevel">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="179" y="99" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_01u9wd9_di" bpmnElement="SubProcess">
-        <dc:Bounds x="420" y="77" width="100" height="80" />
-      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1ydceye_di" bpmnElement="Flow_1ydceye">
+        <di:waypoint x="850" y="117" />
+        <di:waypoint x="1002" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07sx36q_di" bpmnElement="Flow_07sx36q">
+        <di:waypoint x="640" y="117" />
+        <di:waypoint x="750" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_083r7tz_di" bpmnElement="Flow_083r7tz">
+        <di:waypoint x="350" y="117" />
+        <di:waypoint x="390" y="117" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1mskfwg_di" bpmnElement="Flow_1mskfwg">
         <di:waypoint x="215" y="117" />
         <di:waypoint x="250" y="117" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_083r7tz_di" bpmnElement="Flow_083r7tz">
-        <di:waypoint x="350" y="117" />
-        <di:waypoint x="385" y="117" />
-        <di:waypoint x="385" y="110" />
-        <di:waypoint x="420" y="110" />
+      <bpmndi:BPMNEdge id="Flow_0qafdqt_di" bpmnElement="Flow_0qafdqt">
+        <di:waypoint x="490" y="117" />
+        <di:waypoint x="540" y="117" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_07sx36q_di" bpmnElement="Flow_07sx36q">
-        <di:waypoint x="520" y="117" />
-        <di:waypoint x="600" y="117" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_0mblyau_di" bpmnElement="Event_0mblyau">
-        <dc:Bounds x="782" y="99" width="36" height="36" />
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1ydceye_di" bpmnElement="Flow_1ydceye">
-        <di:waypoint x="700" y="117" />
-        <di:waypoint x="782" y="117" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1wbh717_di" bpmnElement="Task1">
         <dc:Bounds x="250" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0mblyau_di" bpmnElement="Event_0mblyau">
+        <dc:Bounds x="1002" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1e0rjbx_di" bpmnElement="Task2">
-        <dc:Bounds x="600" y="77" width="100" height="80" />
+        <dc:Bounds x="750" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_01u9wd9_di" bpmnElement="SubProcess">
+        <dc:Bounds x="540" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0wto2mn_di" bpmnElement="Activity_08owj6n">
+        <dc:Bounds x="390" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

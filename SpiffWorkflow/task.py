@@ -290,10 +290,15 @@ class Task(object):
         'READY'
         """
         from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
+        from .bpmn.specs.CallActivity import CallActivity
 
         if (self.state != self.COMPLETED and self.state != self.READY) and \
                 not (isinstance(self.task_spec,UnstructuredJoin)):
             return
+
+        if isinstance(self.task_spec,CallActivity):
+            self.children = [] # if we have a call activity,
+                               # force reset of children.
 
         if isinstance(self.task_spec, UnstructuredJoin):
             # go find all of the gateways with the same name as this one,
@@ -331,10 +336,6 @@ class Task(object):
         if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
             # if looping or sequential, we want to start from the beginning
             self.internal_data['runtimes'] = 1
-        for child in self.children:
-            if isinstance(child.task_spec,CallActivity):
-                self.children = [] # if we have a call activity,
-                                   # force reset of children.
         self.workflow.last_task = self.parent
         self.set_children_future()  # this method actually fixes the problem
         self._set_state(self.READY)
