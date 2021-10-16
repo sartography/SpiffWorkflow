@@ -810,6 +810,9 @@ class DictionarySerializer(Serializer):
         # last_task
         workflow.last_task = workflow.get_task(s_state['last_task'],tasklist)
 
+        # task_mapping
+        workflow.update_task_mapping()
+
         return workflow
 
 

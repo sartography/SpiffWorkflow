@@ -80,6 +80,8 @@ class Workflow(object):
         self.spec.start._predict(start)
         if 'parent' not in kwargs:
             start.task_spec._update(start)
+
+        self.task_mapping = self._get_task_mapping()
         # start.dump()
 
     def is_completed(self):
@@ -119,6 +121,23 @@ class Workflow(object):
         if name not in self.locks:
             self.locks[name] = mutex()
         return self.locks[name]
+
+    def _get_task_mapping(self):
+        task_mapping = {}
+        for task in self.task_tree:
+            thread_task_mapping = task_mapping.get(task.thread_id, {})
+            tasks = thread_task_mapping.get(task.task_spec, set())
+            tasks.add(task)
+            thread_task_mapping[task.task_spec] = tasks
+            task_mapping[task.thread_id] = thread_task_mapping
+        return task_mapping
+
+    def update_task_mapping(self):
+        """
+        Update the task_mapping of workflow, make sure the method is called
+        every time you reconstruct task instance.
+        """
+        self.task_mapping = self._get_task_mapping()
 
     def set_data(self, **kwargs):
         """
