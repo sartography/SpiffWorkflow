@@ -27,12 +27,10 @@ class ExclusiveGatewayNoDefaultTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         first = self.workflow.get_tasks_from_spec_name('StartEvent_1')[0]
         first.data = { 'x': 1 }
-        self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
-        self.assertEqual(len(ready_tasks), 0)
+        self.assertRaises(WorkflowException, self.workflow.do_engine_steps)
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ExclusiveGatewayNoDefaultTest())
+    return unittest.TestLoader().loadTestsFromTestCase(ExclusiveGatewayNoDefaultTest)
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

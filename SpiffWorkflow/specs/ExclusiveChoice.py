@@ -83,6 +83,10 @@ class ExclusiveChoice(MultiChoice):
                 output = self._wf_spec.get_task_spec_from_name(spec_name)
                 break
 
+        if output is None:
+            raise WorkflowException(self, 
+                f'No conditions satisfied for {my_task.task_spec.name}')
+
         my_task._sync_children([output], Task.FUTURE)
         for child in my_task.children:
             child.task_spec._update(child)
