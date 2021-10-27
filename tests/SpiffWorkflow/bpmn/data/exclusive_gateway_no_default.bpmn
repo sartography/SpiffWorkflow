@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1ow68rq" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="NoDefaultGateway" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1i4a088</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="Gateway_CheckValue" name="CheckValue">
+      <bpmn:incoming>Flow_1i4a088</bpmn:incoming>
+      <bpmn:outgoing>Flow_Greater1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Less1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_Greater1" name="Greater" sourceRef="Gateway_CheckValue" targetRef="Activity_Greater">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">x &gt; 1</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Less1" name="Less" sourceRef="Gateway_CheckValue" targetRef="Activity_Less">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">x &lt; 1</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1i4a088" sourceRef="StartEvent_1" targetRef="Gateway_CheckValue" />
+    <bpmn:sequenceFlow id="Flow_Greater2" name="Greater" sourceRef="Activity_Greater" targetRef="Event_End" />
+    <bpmn:sequenceFlow id="Flow_Less2" name="Less" sourceRef="Activity_Less" targetRef="Event_End" />
+    <bpmn:endEvent id="Event_End">
+      <bpmn:incoming>Flow_Greater2</bpmn:incoming>
+      <bpmn:incoming>Flow_Less2</bpmn:incoming>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_1b7p515" />
+    </bpmn:endEvent>
+    <bpmn:task id="Activity_Greater" name="ValueGreaterThanOne">
+      <bpmn:incoming>Flow_Greater1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Greater2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_Less" name="ValueLessThanOne">
+      <bpmn:incoming>Flow_Less1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Less2</bpmn:outgoing>
+    </bpmn:task>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="NoDefaultGateway">
+      <bpmndi:BPMNEdge id="Flow_138psw5_di" bpmnElement="Flow_Less2">
+        <di:waypoint x="550" y="260" />
+        <di:waypoint x="616" y="260" />
+        <di:waypoint x="616" y="117" />
+        <di:waypoint x="712" y="117" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="619" y="186" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04fxwh4_di" bpmnElement="Flow_Greater2">
+        <di:waypoint x="550" y="117" />
+        <di:waypoint x="712" y="117" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="612" y="99" width="38" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1i4a088_di" bpmnElement="Flow_1i4a088">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="295" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0t4oicm_di" bpmnElement="Flow_Less1">
+        <di:waypoint x="320" y="142" />
+        <di:waypoint x="320" y="260" />
+        <di:waypoint x="450" y="260" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="323" y="198" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nz1gkl_di" bpmnElement="Flow_Greater1">
+        <di:waypoint x="345" y="117" />
+        <di:waypoint x="450" y="117" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="379" y="99" width="38" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_03qi7li_di" bpmnElement="Gateway_CheckValue" isMarkerVisible="true">
+        <dc:Bounds x="295" y="92" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="292" y="62" width="59" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0zlbc5a_di" bpmnElement="Event_End">
+        <dc:Bounds x="712" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0s5fsvr_di" bpmnElement="Activity_Greater">
+        <dc:Bounds x="450" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0e8wcct_di" bpmnElement="Activity_Less">
+        <dc:Bounds x="450" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

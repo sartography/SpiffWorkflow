@@ -9,28 +9,27 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 from SpiffWorkflow.exceptions import WorkflowException
-__author__ = 'matth'
+from SpiffWorkflow.task import Task
 
-from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
+__author__ = 'essweine'
 
-
-class ExclusiveGatewayNoDefaultTest(BaseTestCase):
+class ExclusiveGatewayNoDefaultTest(BpmnWorkflowTestCase):
     """The example bpmn diagram tests both a set cardinality from user input
     as well as looping over an existing array."""
 
     def setUp(self):
         self.spec = self.load_workflow_spec(
-            'data/exclusive_gateway_default.bpmn',
+            'exclusive_gateway_no_default.bpmn',
             'NoDefaultGateway')
 
     def testRunThroughHappy(self):
+
         self.workflow = BpmnWorkflow(self.spec)
-        first = self.workflow.get_tasks_from_spec_name('StartEvent_1')
+        first = self.workflow.get_tasks_from_spec_name('StartEvent_1')[0]
         first.data = { 'x': 1 }
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
-
-
+        ready_tasks = self.workflow.get_tasks(Task.READY)
+        self.assertEqual(len(ready_tasks), 0)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ExclusiveGatewayNoDefaultTest())
