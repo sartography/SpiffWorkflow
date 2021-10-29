@@ -64,7 +64,7 @@ class LoopBackNavTest(BpmnWorkflowTestCase):
         nav = self.workflow.get_deep_nav_list()
         print(nav)
         self.assertNav(nav[1], description="Loop Again?", state="READY")
-        self.assertNav(nav[2], spec_type="ExclusiveGateway", state="LIKELY")
+        self.assertNav(nav[2], spec_type="ExclusiveGateway", state="MAYBE")
         self.assertNav(nav[2].children[1].children[1], description="Loop Again?",
                        backtrack_to=nav[1].name)
         pass

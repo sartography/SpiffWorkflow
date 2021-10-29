@@ -236,9 +236,10 @@ class TaskParser(object):
                 children = sorted(children, key=lambda tup: float(tup[0]["y"]))
 
                 default_outgoing = self.node.get('default')
-                if not default_outgoing and not isinstance(self.task, ExclusiveGateway):
-                    (position, c, target_node, sequence_flow) = children[0]
-                    default_outgoing = sequence_flow.get('id')
+                if not default_outgoing:
+                    if len(children) == 1 or not isinstance(self.task, ExclusiveGateway):
+                        (position, c, target_node, sequence_flow) = children[0]
+                        default_outgoing = sequence_flow.get('id')
 
                 for (position, c, target_node, sequence_flow) in children:
                     self.connect_outgoing(
