@@ -27,6 +27,7 @@ from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
 from ..specs.MultiInstanceTask import getDynamicMIClass
 from ..specs.CallActivity import CallActivity
+from ..specs.ExclusiveGateway import ExclusiveGateway
 from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...operators import Attrib, PathAttrib
 from .util import xpath_eval, one
@@ -236,8 +237,9 @@ class TaskParser(object):
 
                 default_outgoing = self.node.get('default')
                 if not default_outgoing:
-                    (position, c, target_node, sequence_flow) = children[0]
-                    default_outgoing = sequence_flow.get('id')
+                    if len(children) == 1 or not isinstance(self.task, ExclusiveGateway):
+                        (position, c, target_node, sequence_flow) = children[0]
+                        default_outgoing = sequence_flow.get('id')
 
                 for (position, c, target_node, sequence_flow) in children:
                     self.connect_outgoing(
