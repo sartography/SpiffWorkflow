@@ -137,7 +137,7 @@ class PythonScriptEngine(object):
                 ast.parse(revised_text)
                 return revised_text[2:], False
             except Exception as e:
-                raise Exception("error parsing expression " + text + " " +
+                raise Exception("error parsing expression " + str(text) + " " +
                                 str(e))
 
     def eval_dmn_expression(self, inputExpr, matchExpr, **kwargs):
