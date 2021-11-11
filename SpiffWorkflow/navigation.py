@@ -146,7 +146,10 @@ def get_deep_nav_list(workflow):
             nav_items.append(nav_item)
             parents = [nav_item]
         else:
-            parents[nav_item.indent - 1].children.append(nav_item)
+            if len(parents) >= nav_item.indent:
+                parents[nav_item.indent - 1].children.append(nav_item)
+            else:
+                parents[-1].children.append(nav_item)
             if len(parents) > nav_item.indent:
                 parents = parents[:nav_item.indent] # Trim back to branch point.
             parents.append(nav_item)
