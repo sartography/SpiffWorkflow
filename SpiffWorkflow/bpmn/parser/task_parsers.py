@@ -290,8 +290,12 @@ class ScriptTaskParser(TaskParser):
         method, if the script needs to be pre-parsed. The result of this call
         will be passed to the Script Engine for execution.
         """
-        return one(self.xpath('.//bpmn:script')).text
-
+        try:
+            return one(self.xpath('.//bpmn:script')).text
+        except AssertionError as ae:
+            raise ValidationException(
+                f"Invalid Script Task.  No Script Provided. ",
+                node=self.node, filename=self.process_parser.filename)
 
 class IntermediateCatchEventParser(TaskParser):
     """
