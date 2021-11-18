@@ -125,10 +125,10 @@ class Form:
     def from_dict(self,formdict):
         self.key = formdict['key']
         for field in formdict['fields']:
-            if field.get('options',None):
+            if field['type'] == 'enum':
                 newfield = EnumFormField()
                 for option in field['options']:
-                    newfield.add_option(option['id'],option['name'])
+                    newfield.add_option(option['id'], option['name'])
             else:
                 newfield = FormField()
             newfield.id = field['id']
