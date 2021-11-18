@@ -268,10 +268,9 @@ class PythonScriptEngine(object):
         try:
             exec(script, globals, data)
         except Exception as err:
+            detail = err.__class__.__name__
             if len(err.args) > 0:
-                detail = err.args[0]
-            else:
-                detail = err.__class__.__name__
+                detail += ":" + err.args[0]
             line_number = 0
             error_line = ''
             cl, exc, tb = sys.exc_info()
