@@ -12,6 +12,7 @@ import re
 from .CallActivity import CallActivity
 from .ParallelGateway import ParallelGateway
 from .ScriptTask import ScriptTask
+from .ExclusiveGateway import ExclusiveGateway
 from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...exceptions import WorkflowException, WorkflowTaskExecException
 from ...operators import valueof, is_number
@@ -227,6 +228,12 @@ class MultiInstanceTask(TaskSpec):
                  my_task.parent.task_spec.default_task_spec == my_task.task_spec.name:
             my_task.parent.task_spec.default_task_spec = None
             my_task.parent.task_spec.connect(start_gw_spec)
+        elif isinstance(my_task.parent.task_spec, ExclusiveGateway):
+            for cond, name in  [ (cond, name) for cond, name in my_task.parent.task_spec.cond_task_specs\
+                 if name == my_task.task_spec.name]:
+                my_task.parent.task_spec.cond_task_specs.remove((cond, name))
+                my_task.parent.task_spec.cond_task_specs.append((cond, start_gw_spec.name))
+                start_gw_spec.inputs.append(my_task.parent.task_spec)
         else:
             my_task.parent.task_spec.outputs.append(start_gw_spec)
             start_gw_spec.inputs.append(my_task.parent.task_spec)
