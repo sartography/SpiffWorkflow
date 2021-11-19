@@ -106,8 +106,12 @@ class BpmnParser(object):
         """
         if process_id_or_name in self.process_parsers_by_name:
             return self.process_parsers_by_name[process_id_or_name]
-        else:
+        elif process_id_or_name in self.process_parsers:
             return self.process_parsers[process_id_or_name]
+
+    def get_process_ids(self):
+        """Returns a list of process IDs"""
+        return  self.process_parsers.keys()
 
     def add_bpmn_file(self, filename):
         """
@@ -222,4 +226,10 @@ class BpmnParser(object):
         instance of BpmnProcessSpec (i.e. WorkflowSpec)
         for the given process ID or name. The Name is matched first.
         """
-        return self.get_process_parser(process_id_or_name).get_spec()
+        parser = self.get_process_parser(process_id_or_name)
+        if parser is None:
+            raise Exception(
+                f"The process '{process_id_or_name}' was not found. "
+                f"Did you mean one of the following: "
+                f"{', '.join(self.get_process_ids())}?")
+        return parser.get_spec()

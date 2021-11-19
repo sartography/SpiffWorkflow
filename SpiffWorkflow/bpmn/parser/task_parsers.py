@@ -207,8 +207,14 @@ class CallActivityParser(TaskParser):
                 'No "calledElement" attribute for Call Activity.',
                 node=self.node,
                 filename=self.process_parser.filename)
-        return self.parser.get_process_parser(calledElement)
-
+        process = self.parser.get_process_parser(calledElement)
+        if process is None:
+            raise ValidationException(
+                f"The process '{calledElement}' was not found. Did you mean one of the following: "
+                f"{', '.join(self.parser.get_process_ids())}?",
+                node=self.node,
+                filename=self.process_parser.filename)
+        return process
 
 class SubWorkflowParser(CallActivityParser):
 
