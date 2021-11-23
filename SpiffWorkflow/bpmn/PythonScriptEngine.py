@@ -267,6 +267,8 @@ class PythonScriptEngine(object):
         globals.update(external_methods)
         try:
             exec(script, globals, data)
+        except WorkflowTaskExecException as wte:
+            raise wte  # Something lower down is already raising a detailed error
         except Exception as err:
             detail = err.__class__.__name__
             if len(err.args) > 0:
