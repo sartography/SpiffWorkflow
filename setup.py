@@ -15,7 +15,7 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 setup(name='SpiffWorkflow',
-      version='1.0.0',
+      version='1.1.0',
       description='A workflow framework and BPMN/DMN Processor',
       long_description=README,
       long_description_content_type="text/markdown",

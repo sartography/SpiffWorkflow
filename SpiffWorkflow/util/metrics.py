@@ -1,16 +1,17 @@
 import logging
 import time
 
-from SpiffWorkflow import Task
-
 LOG = logging.getLogger(__name__)
+threshold = 0.01
+
 
 def firsttime():
     return time.time()
 
 def sincetime(txt,lasttime):
     thistime=firsttime()
-    LOG.info('%2.4f | %s' % (thistime-lasttime, txt))
+    if thistime - lasttime > threshold:
+        LOG.info('%2.4f | %s' % (thistime-lasttime, txt))
     return thistime
 
 
@@ -25,7 +26,8 @@ def timeit(f):
         task = ""
         task_type = ""
         for arg in args:
-            if isinstance(arg, Task):
+
+            if arg.__class__.__name__ == 'Task':
                 task = arg.get_description()
                 task_type = arg.task_spec.__class__.__name__
             if isinstance(arg, str):
@@ -33,8 +35,8 @@ def timeit(f):
                 arguments.append(argument.replace("\n", " "))
             else:
                 arguments.append(arg.__class__.__name__)
-
-        LOG.info('| %2.4f | % s | %s | %r  | %s ' % (te-ts, task, task_type, f.__name__, " | ".join(arguments)))
+        if te-ts > threshold:
+            LOG.info('| %2.4f | % s | %s | %r  | %s  ' % (te-ts, f.__qualname__, task, task_type, " | ".join(arguments)))
         return result
 
     return timed

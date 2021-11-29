@@ -216,7 +216,9 @@ class PythonScriptEngine(object):
         lcls.update(kwargs)
         globals = copy.copy(self.globals)  # else we pollute all later evals.
         for x in lcls.keys():
-            if isinstance(lcls[x], dict):
+            if isinstance(lcls[x], Box):
+                pass # Stunning performance improvement with this line.
+            elif isinstance(lcls[x], dict):
                 lcls[x] = Box(lcls[x])
         globals.update(lcls)
         globals.update(external_methods)
@@ -239,17 +241,6 @@ class PythonScriptEngine(object):
         for key in data.keys():
             data[key] = self.convertToBoxSub(data[key])
 
-    def convertFromBoxSub(self, data):
-        if isinstance(data, list):
-            return [self.convertFromBoxSub(x) for x in data]
-        if isinstance(data, (dict, Box)):
-            return {k: self.convertFromBoxSub(v) for k, v in data.items()}
-        return data
-
-    def convertFromBox(self, data):
-        for k in data.keys():
-            data[k] = self.convertFromBoxSub(data[k])
-
     def execute(self, task, script, data, external_methods=None):
         """
         Execute the script, within the context of the specified task
@@ -259,11 +250,7 @@ class PythonScriptEngine(object):
         globals = self.globals
 
         self.convertToBox(data)
-        # data.update({'task':task}) # one of our legacy tests is looking at task.
-        # this may cause a problem down the road if we
-        # actually have a variable named 'task'
-        globals.update(
-            data)  # dict comprehensions cause problems when the variables are not viable.
+        globals.update(data)
         globals.update(external_methods)
         try:
             exec(script, globals, data)
@@ -285,5 +272,4 @@ class PythonScriptEngine(object):
                     error_line = script.splitlines()[line_number - 1]
             raise WorkflowTaskExecException(task, detail, err, line_number,
                                             error_line)
-        self.convertFromBox(data)
 
