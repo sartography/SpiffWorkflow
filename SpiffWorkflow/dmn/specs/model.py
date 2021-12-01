@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.util.deep_merge import DeepMerge
 
 

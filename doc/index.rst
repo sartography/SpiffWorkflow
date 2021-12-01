@@ -17,8 +17,17 @@
 What is SpiffWorkflow?
 ======================
 
-Spiff Workflow is a workflow engine implemented in pure Python.
-It is based on the excellent work of the
+
+SpiffWorkflow allows your python application to process BPMN diagrams (think
+of them as very powerful flow charts,  See :doc:`/bpmn/intro`.) to accomplish
+what would otherwise require writing a lot of complex business logic in your
+code. You can use these diagrams to accomplish a number of tasks, such as:
+
+ - Creating a questionnaire with multiple complex paths
+ - Implement an approval process that requires input from multiple users
+ - Allow non-programmers to modify the flow and behavior of your application.
+
+SpiffWorkflow is based on the excellent work of the
 `Workflow Patterns initiative <http://www.workflowpatterns.com/>`_.
 Its main design goals are the following:
 
@@ -28,9 +37,6 @@ Its main design goals are the following:
 
 You can find a list of supported workflow patterns in :ref:`features`.
 
-In addition, Spiff Workflow provides a parser and workflow emulation
-layer that can be used to create executable Spiff Workflow specifications
-from Business Process Model and Notation (BPMN) documents. See :doc:`/bpmn/intro`.
 
 License
 -------
