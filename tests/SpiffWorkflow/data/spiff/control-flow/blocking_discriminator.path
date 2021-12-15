@@ -3,13 +3,12 @@ Start
     task_f1
       struct_discriminator_1
         excl_choice_1
-          first
-            task_f1
-              struct_discriminator_1
-                excl_choice_1
-                  last
-                    End
-            task_f2
-            task_f3
+          return_to_first
+  first
+    task_f1
+      struct_discriminator_1
+        excl_choice_1
+          last
+            End
     task_f2
     task_f3

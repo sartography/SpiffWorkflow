@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
 
-import codecs
 from builtins import str
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,6 +20,7 @@ import pickle
 from base64 import b64encode, b64decode
 from .. import Workflow
 from ..bpmn.specs.BpmnSpecMixin import SequenceFlow
+from SpiffWorkflow.specs.LoopResetTask import LoopResetTask
 from ..dmn.engine.DMNEngine import DMNEngine
 from ..dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ..dmn.specs.model import DecisionTable
@@ -41,8 +41,6 @@ from ..bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from ..bpmn.specs.ScriptTask import ScriptTask
 from .exceptions import TaskNotSupportedError, MissingSpecError
 import warnings
-import copy
-
 
 
 class DictionarySerializer(Serializer):
@@ -333,6 +331,17 @@ class DictionarySerializer(Serializer):
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
+    def serialize_loop_reset_task(self, spec):
+        s_state = self.serialize_task_spec(spec)
+        s_state['destination_id'] = spec.destination_id
+        s_state['destination_spec_name'] = spec.destination_spec_name
+        return s_state
+
+    def deserialize_loop_reset_task(self, wf_spec, s_state):
+        spec = LoopResetTask(wf_spec, s_state['name'], s_state['destination_id'],
+                             s_state['destination_spec_name'])
+        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
+        return spec
 
     def serialize_call_activity(self, spec):
         s_state = self.serialize_task_spec(spec)

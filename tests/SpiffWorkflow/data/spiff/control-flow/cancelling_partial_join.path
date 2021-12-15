@@ -4,10 +4,10 @@ Start
     task_e3
       struct_synch_merge_1
         excl_choice_1
-          multi_choice_1
-            task_e1
-            task_e3
-              struct_synch_merge_1
-                excl_choice_1
-                  last
-                    End
+          return_to_multi_choice_1
+  multi_choice_1
+    task_e1
+      struct_synch_merge_1
+        excl_choice_1
+          last
+            End

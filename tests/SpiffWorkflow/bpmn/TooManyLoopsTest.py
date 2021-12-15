@@ -1,0 +1,49 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import, division
+
+from __future__ import division, absolute_import
+import unittest
+
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+
+__author__ = 'sartography'
+
+
+class TooManyLoopsTest(BpmnWorkflowTestCase):
+
+    """Looping back around many times would cause the tree of tasks to grow
+    for each loop, doing this a 100 or 1000 times would cause the system to
+    run fail in various ways.  This assures that is no longer the case."""
+
+    def setUp(self):
+        self.spec = self.load_spec()
+
+    def load_spec(self):
+        return self.load_workflow_spec('too_many_loops.bpmn', 'loops')
+
+    def testRunThroughHappy(self):
+        self.actual_test(save_restore=False)
+
+    def testThroughSaveRestore(self):
+        self.actual_test(save_restore=True)
+
+
+    def actual_test(self,save_restore = False):
+        counter = 0
+        self.workflow = BpmnWorkflow(self.spec,script_engine=PythonScriptEngine())
+        while not self.workflow.is_completed():
+            self.workflow.do_engine_steps()
+            self.workflow.refresh_waiting_tasks()
+            counter += 1
+            if save_restore:
+                self.save_restore()
+        self.assertEqual(100, self.workflow.last_task.data['counter'])
+
+
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(TooManyLoopsTest)
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity=2).run(suite())
