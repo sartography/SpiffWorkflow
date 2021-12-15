@@ -52,7 +52,7 @@ class ExclusiveGatewayNonDefaultPathIntoMultiTest(BpmnWorkflowTestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ExclusiveGatewayIntoMultiInstanceTest)
+    return unittest.TestLoader().loadTestsFromTestCase(ExclusiveGatewayNonDefaultPathIntoMultiTest)
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

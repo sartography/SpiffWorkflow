@@ -28,8 +28,8 @@ from ..specs.event_definitions import (TimerEventDefinition,
                                        CancelEventDefinition, CycleTimerEventDefinition)
 from lxml import etree
 import copy
-from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.bpmn.specs.IntermediateCatchEvent import IntermediateCatchEvent
+from ...exceptions import WorkflowException
+from ...bpmn.specs.IntermediateCatchEvent import IntermediateCatchEvent
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class StartEventParser(TaskParser):

@@ -18,7 +18,7 @@ import json
 import uuid
 from .dict import DictionarySerializer
 from ..operators import Attrib
-from SpiffWorkflow.camunda.specs.UserTask import Form
+from ..camunda.specs.UserTask import Form
 from ..util.impl import get_class
 
 def object_hook(dct):

@@ -11,9 +11,9 @@ from decimal import Decimal
 import dateparser
 import pytz
 
-from SpiffWorkflow.exceptions import WorkflowTaskExecException
-from SpiffWorkflow.operators import Operator
-from SpiffWorkflow.workflow import WorkflowException
+from ..exceptions import WorkflowTaskExecException
+from ..operators import Operator
+from ..workflow import WorkflowException
 
 
 # Copyright (C) 2020 Kelly McDonald
