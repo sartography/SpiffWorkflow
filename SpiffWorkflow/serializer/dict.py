@@ -20,7 +20,6 @@ import pickle
 from base64 import b64encode, b64decode
 from .. import Workflow
 from ..bpmn.specs.BpmnSpecMixin import SequenceFlow
-from SpiffWorkflow.specs.LoopResetTask import LoopResetTask
 from ..dmn.engine.DMNEngine import DMNEngine
 from ..dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ..dmn.specs.model import DecisionTable
@@ -32,7 +31,7 @@ from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
                      ExclusiveChoice, Execute, Gate, Join, MultiChoice,
                      MultiInstance, ReleaseMutex, Simple, WorkflowSpec,
                      TaskSpec, SubWorkflow, StartTask, ThreadMerge,
-                     ThreadSplit, ThreadStart, Merge, Trigger)
+                     ThreadSplit, ThreadStart, Merge, Trigger, LoopResetTask)
 from .base import Serializer
 from ..bpmn.specs.MultiInstanceTask import MultiInstanceTask
 from ..bpmn.specs.CallActivity import CallActivity

@@ -22,7 +22,7 @@ from builtins import object
 # 02110-1301  USA
 import logging
 from . import specs
-from SpiffWorkflow.specs.LoopResetTask import LoopResetTask
+from .specs.LoopResetTask import LoopResetTask
 from .task import Task
 from .util.compat import mutex
 from .util.event import Event
