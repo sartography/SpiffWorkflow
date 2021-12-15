@@ -1,6 +1,6 @@
 import logging
 import re
-from SpiffWorkflow.util import levenshtein
+from ...util import levenshtein
 
 
 class DMNEngine:

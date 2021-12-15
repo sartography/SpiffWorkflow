@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 
-from SpiffWorkflow.bpmn.specs.UserTask import UserTask
-from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-from SpiffWorkflow.specs import Simple
+from ...bpmn.specs.UserTask import UserTask
+from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
+from ...specs import Simple
 
 
 class UserTask(UserTask, BpmnSpecMixin):

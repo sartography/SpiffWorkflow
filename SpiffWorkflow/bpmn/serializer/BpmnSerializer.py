@@ -24,9 +24,9 @@ import zipfile
 import os
 from json import loads
 
-from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.serializer import json as spiff_json
+from ...bpmn.specs.CallActivity import CallActivity
+from ...bpmn.workflow import BpmnWorkflow
+from ...serializer import json as spiff_json
 from ..parser.BpmnParser import BpmnParser
 from .Packager import Packager
 

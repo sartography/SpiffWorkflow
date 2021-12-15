@@ -18,7 +18,7 @@ from __future__ import division
 # 02110-1301  USA
 import logging
 
-from SpiffWorkflow import WorkflowException
+from ... import WorkflowException
 
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...task import Task

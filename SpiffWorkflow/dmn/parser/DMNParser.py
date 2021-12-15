@@ -4,9 +4,9 @@ from decimal import Decimal
 from ast import literal_eval
 from datetime import datetime
 
-from SpiffWorkflow.bpmn.parser.util import xpath_eval
+from ...bpmn.parser.util import xpath_eval
 
-from SpiffWorkflow.dmn.specs.model import Decision, DecisionTable, InputEntry, \
+from ...dmn.specs.model import Decision, DecisionTable, InputEntry, \
     OutputEntry, Input, Output, Rule
 
 def get_dmn_ns(node):

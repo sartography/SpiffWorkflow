@@ -20,8 +20,8 @@ from __future__ import division
 from ...task import Task
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.Simple import Simple
-from SpiffWorkflow.bpmn.specs.StartEvent import StartEvent
-from SpiffWorkflow.specs.StartTask import StartTask
+from ...bpmn.specs.StartEvent import StartEvent
+from ...specs.StartTask import StartTask
 
 class IntermediateCatchEvent(Simple, BpmnSpecMixin):
 

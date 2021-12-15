@@ -20,7 +20,7 @@ from __future__ import division
 # 02110-1301  USA
 import re
 
-from SpiffWorkflow.util import levenshtein
+from .util import levenshtein
 
 
 class WorkflowException(Exception):

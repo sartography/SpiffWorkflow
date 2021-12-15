@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from SpiffWorkflow.util.deep_merge import DeepMerge
+from ...util.deep_merge import DeepMerge
 
 
 class Decision:
