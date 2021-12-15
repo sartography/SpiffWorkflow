@@ -24,6 +24,7 @@ from .ThreadSplit import ThreadSplit
 from .Transform import Transform
 from .Trigger import Trigger
 from .WorkflowSpec import WorkflowSpec
+from .LoopResetTask import LoopResetTask
 
 import inspect
 __all__ = [name for name, obj in list(locals().items())

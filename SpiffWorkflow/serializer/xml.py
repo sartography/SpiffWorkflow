@@ -27,7 +27,7 @@ from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
                      ExclusiveChoice, Execute, Gate, Join, MultiChoice,
                      MultiInstance, ReleaseMutex, Simple, WorkflowSpec,
                      SubWorkflow, StartTask, ThreadMerge,
-                     ThreadSplit, ThreadStart, Merge, Trigger)
+                     ThreadSplit, ThreadStart, Merge, Trigger, LoopResetTask)
 from .base import Serializer
 from .exceptions import TaskNotSupportedError
 
@@ -728,6 +728,21 @@ class XmlSerializer(Serializer):
             workflow.last_task = workflow.get_task(last_task)
 
         return workflow
+
+    def serialize_loop_reset_task(self, spec):
+        elem = etree.Element('loop-reset-task')
+        SubElement(elem, 'destination_id').text = str(spec.destination_id)
+        SubElement(elem, 'destination_spec_name').text = str(spec.destination_spec_name)
+        return self.serialize_task_spec(spec, elem)
+
+    def deserialize_loop_reset_task(self, wf_spec, elem, cls=LoopResetTask, **kwargs):
+        destination_id = elem.findtext('destination_id')
+        destination_spec_name = elem.findtext('destination_spec_name')
+
+        task = self.deserialize_task_spec(wf_spec, elem, cls,
+                                          destination_id=destination_id,
+                                          destination_spec_name=destination_spec_name)
+        return task
 
     def serialize_task(self, task, skip_children=False):
         assert isinstance(task, Task)

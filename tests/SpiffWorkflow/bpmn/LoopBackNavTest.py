@@ -44,6 +44,7 @@ class LoopBackNavTest(BpmnWorkflowTestCase):
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual("Why?", task.task_spec.description)
         self.workflow.complete_task_from_id(task.id)
+        self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual("Loop Again?", task.task_spec.description)
 

@@ -331,11 +331,13 @@ class Task(object):
         """
         from .bpmn.specs.CallActivity import CallActivity
         taskinfo = self.task_info()
-        if not reset_data:
+        if not reset_data and self.workflow.last_task and \
+            hasattr(self.workflow.last_task, 'data'):
             self.data = self.workflow.last_task.data
-        if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
+        self.internal_data = {}
+#        if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
             # if looping or sequential, we want to start from the beginning
-            self.internal_data['runtimes'] = 1
+#            self.internal_data['runtimes'] = 1
         self.workflow.last_task = self.parent
         self.set_children_future()  # this method actually fixes the problem
         self._set_state(self.READY)
@@ -491,7 +493,8 @@ class Task(object):
               exists.
             - Remove all children for which there is no spec in the given list,
               unless it is a "triggered" task.
-
+            - Handle looping back to previous tasks, so we don't end up with
+              an infinitely large tree.
         .. note::
 
            It is an error if the task has a non-predicted child that is
@@ -506,6 +509,18 @@ class Task(object):
         if task_specs is None:
             raise ValueError('"task_specs" argument is None')
         add = task_specs[:]
+
+        # If a child task_spec is also an ancestor, we are looping back,
+        # replace those specs with a loopReset task.
+        root_task = self._get_root()
+        for index, task_spec in enumerate(add):
+            ancestor_task = self._find_ancestor(task_spec)
+            if ancestor_task and ancestor_task != root_task:
+                destination = ancestor_task
+                new_spec = self.workflow.get_reset_task_spec(destination)
+                new_spec.outputs = []
+                new_spec.inputs = task_spec.inputs
+                add[index] = new_spec
 
         # Create a list of all children that are no longer needed.
         remove = []
@@ -526,6 +541,8 @@ class Task(object):
                                         'removal of non-predicted child %s' %
                                         repr(child))
             remove.append(child)
+
+
 
         # Remove and add the children accordingly.
         for child in remove:
