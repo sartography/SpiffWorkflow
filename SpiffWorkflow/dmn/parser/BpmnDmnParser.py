@@ -1,11 +1,11 @@
 import glob
 
-from SpiffWorkflow.bpmn.parser.util import xpath_eval
+from ...bpmn.parser.util import xpath_eval
 
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser, full_tag
-from SpiffWorkflow.dmn.parser.BusinessRuleTaskParser import BusinessRuleTaskParser
-from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
-from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
+from ...bpmn.parser.BpmnParser import BpmnParser, full_tag
+from ...dmn.parser.BusinessRuleTaskParser import BusinessRuleTaskParser
+from ...dmn.parser.DMNParser import DMNParser
+from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from lxml import etree
 
 class BpmnDmnParser(BpmnParser):

@@ -1,8 +1,8 @@
-from SpiffWorkflow.exceptions import WorkflowTaskExecException
+from ...exceptions import WorkflowTaskExecException
 
-from SpiffWorkflow.specs import Simple
+from ...specs import Simple
 
-from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
+from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 from ...util.deep_merge import DeepMerge
 from ...util.metrics import timeit
 

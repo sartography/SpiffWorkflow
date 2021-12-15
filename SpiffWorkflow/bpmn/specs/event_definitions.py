@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from ...bpmn.PythonScriptEngine import PythonScriptEngine
 from builtins import object
 import datetime
 # Copyright (C) 2012 Matthew Hampton

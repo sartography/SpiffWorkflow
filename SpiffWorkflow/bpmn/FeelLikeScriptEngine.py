@@ -6,7 +6,7 @@ import datetime
 import operator
 from datetime import timedelta
 from decimal import Decimal
-from SpiffWorkflow.workflow import WorkflowException
+from ..workflow import WorkflowException
 from .PythonScriptEngine import PythonScriptEngine
 
 # Copyright (C) 2020 Kelly McDonald

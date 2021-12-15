@@ -1,5 +1,5 @@
-from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser, xpath_eval
-from SpiffWorkflow.camunda.specs.UserTask import Form, FormField, EnumFormField
+from ...bpmn.parser.TaskParser import TaskParser, xpath_eval
+from ...camunda.specs.UserTask import Form, FormField, EnumFormField
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
