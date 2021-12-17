@@ -5,6 +5,9 @@ from __future__ import division, absolute_import
 import sys
 import os
 import unittest
+
+from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -25,8 +28,13 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
     def reload_save_restore(self):
         self.filename = 'resetworkflowB-*.bpmn'
         self.spec = self.load_workflow1_spec()
+
+        # Save and restore the workflow, without including the spec.
+        # When loading the spec, use a slightly different spec.
         self.workflow.do_engine_steps()
-        self.save_restore(spec_from_state=False)
+        state = BpmnSerializer().serialize_workflow(self.workflow, include_spec=False)
+        self.workflow = BpmnSerializer().deserialize_workflow(state, workflow_spec=self.spec)
+
 
     def load_workflow1_spec(self):
         return self.load_workflow_spec(self.filename, self.process_name)
