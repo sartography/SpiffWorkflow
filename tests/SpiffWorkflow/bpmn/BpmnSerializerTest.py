@@ -27,9 +27,11 @@ class BpmnSerializerTest(unittest.TestCase):
     def testDeserializeWorkflowSpec(self):
         self.assertIsNotNone(self.spec)
 
- #   def testSerializeWorkflowSpec(self):
- #       with self.assertRaises(NotImplementedError):
- #           self.serializer.serialize_workflow_spec(self.spec)
+    def testSerializeWorkflowSpec(self):
+        spec_serialized = self.serializer.serialize_workflow_spec(self.spec)
+        result = self.serializer.deserialize_workflow_spec(spec_serialized)
+        spec_serialized2 = self.serializer.serialize_workflow_spec(result)
+        self.assertEqual(spec_serialized, spec_serialized2)
 
     def testSerializeWorkflow(self):
         json = self.serializer.serialize_workflow(self.workflow)

@@ -40,16 +40,12 @@ class BpmnSerializer(spiff_json.JSONSerializer):
     It will also use the appropriate subclass of BpmnParser, if one is included
     in the metadata.ini file.
 
-    It can further serialize and deserialize a running workflow into a json
-    data structure.  The json structure will not include the Spec, this must
-    be passed as an argument when deserializing.
     """
-
 
     def serialize_workflow(self, workflow, **kwargs):
         """
-        Serializes the workflow data and task tree, but not the specification
-        That must be passed in when deserializing the data structure.
+        Serializes the workflow data and task tree.  Will also serialize
+        the Spec if 'include_spec' kwarg is not set to false.
         """
         assert isinstance(workflow, BpmnWorkflow)
         include_spec = kwargs.get('include_spec',True)
