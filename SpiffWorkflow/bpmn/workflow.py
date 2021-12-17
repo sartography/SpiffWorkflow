@@ -57,9 +57,10 @@ class BpmnWorkflow(Workflow):
 
         while outer_workflow:
             script_engine = outer_workflow.__script_engine
-            outer_workflow = outer_workflow.outer_workflow
             if outer_workflow == outer_workflow.outer_workflow:
                 break
+            else:
+                outer_workflow = outer_workflow.outer_workflow
         return script_engine
 
     @script_engine.setter
