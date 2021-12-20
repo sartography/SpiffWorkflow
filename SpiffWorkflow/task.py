@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
 from __future__ import print_function
+
+import copy
 from builtins import str
 from builtins import hex
 from builtins import object
@@ -329,20 +331,19 @@ class Task(object):
         :param reset_data: Do we want to have the data be where we left of in
                            this task or not
         """
-        from .bpmn.specs.CallActivity import CallActivity
-        taskinfo = self.task_info()
-        if not reset_data and self.workflow.last_task and \
-            hasattr(self.workflow.last_task, 'data'):
-            self.data = self.workflow.last_task.data
         self.internal_data = {}
-#        if taskinfo['is_looping'] or taskinfo['is_sequential_mi']:
-            # if looping or sequential, we want to start from the beginning
-#            self.internal_data['runtimes'] = 1
+        if not reset_data and self.workflow.last_task and self.workflow.last_task.data:
+            # This is a little sly, the data that will get inherited should
+            # be from the last completed task, but we don't want to alter
+            # the tree, so we just set the parent's data to the data of the
+            # last completed task.
+            last_data = copy.deepcopy(self.workflow.last_task.data)
+            self.parent.data = last_data
         self.workflow.last_task = self.parent
         self.set_children_future()  # this method actually fixes the problem
-        self._set_state(self.READY)
-        self.task_spec._predict(self)
-        self._sync_children(self.task_spec.outputs)
+        self._set_state(self.FUTURE)
+        self.task_spec._update(self)
+
 
     def _getstate(self):
         return self._state

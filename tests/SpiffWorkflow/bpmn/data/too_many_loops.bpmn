@@ -10,7 +10,7 @@
       <bpmn:outgoing>Flow_1d2usdq</bpmn:outgoing>
       <bpmn:script>counter = counter + 1</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:sequenceFlow id="Flow_1d2usdq" sourceRef="increment_counter" targetRef="Gateway_over_100" />
+    <bpmn:sequenceFlow id="Flow_1d2usdq" sourceRef="increment_counter" targetRef="Gateway_over_20" />
     <bpmn:endEvent id="end_event5">
       <bpmn:documentation>### Results
 Submission for Pre-Review was sent to the HSR-IRB on {{ sent_local_date_str }} at {{ sent_local_time_str }}.
@@ -29,19 +29,19 @@ Days elapsed: {{days_delta }}</bpmn:documentation>
       <bpmn:incoming>Flow_0op1a19</bpmn:incoming>
       <bpmn:outgoing>Flow_1gb8wca</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0x6divu">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(milliseconds=100)</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(milliseconds=10)</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
-    <bpmn:exclusiveGateway id="Gateway_over_100" name="is &#62; 100">
+    <bpmn:exclusiveGateway id="Gateway_over_20" name="is &#62; 20">
       <bpmn:incoming>Flow_1d2usdq</bpmn:incoming>
       <bpmn:outgoing>Flow_1tj9oz1</bpmn:outgoing>
       <bpmn:outgoing>Flow_0op1a19</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1tj9oz1" name="Yes" sourceRef="Gateway_over_100" targetRef="end_event5">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">counter &gt;= 100</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_1tj9oz1" name="Yes" sourceRef="Gateway_over_20" targetRef="end_event5">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">counter &gt;= 20</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0op1a19" name="No" sourceRef="Gateway_over_100" targetRef="TIMER_EVENT">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">counter &lt; 100</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0op1a19" name="No" sourceRef="Gateway_over_20" targetRef="TIMER_EVENT">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">counter &lt; 20</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_15jw6a4" sourceRef="initialize" targetRef="TIMER_EVENT" />
     <bpmn:scriptTask id="initialize" name="initialize">
@@ -99,10 +99,10 @@ Days elapsed: {{days_delta }}</bpmn:documentation>
           <dc:Bounds x="419" y="202" width="22" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0gr4bqq_di" bpmnElement="Gateway_over_100" isMarkerVisible="true">
+      <bpmndi:BPMNShape id="Gateway_0gr4bqq_di" bpmnElement="Gateway_over_20" isMarkerVisible="true">
         <dc:Bounds x="755" y="152" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="765" y="209" width="39" height="14" />
+          <dc:Bounds x="768" y="209" width="33" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0whalo9_di" bpmnElement="initialize">

@@ -98,7 +98,6 @@ class BpmnWorkflow(Workflow):
                 task.complete()
                 if task.task_spec.name == exit_at:
                     return task
-
             engine_steps = list(
                 [t for t in self.get_tasks(Task.READY)
                  if self._is_engine_task(t.task_spec)])

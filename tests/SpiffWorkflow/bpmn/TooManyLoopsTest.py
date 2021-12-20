@@ -33,13 +33,16 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
     def actual_test(self,save_restore = False):
         counter = 0
         self.workflow = BpmnWorkflow(self.spec,script_engine=PythonScriptEngine())
+        data = {}
         while not self.workflow.is_completed():
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
-            counter += 1
+            if (self.workflow.last_task.data != data):
+                data = self.workflow.last_task.data
+            counter += 1  # There is a 10 millisecond wait task.
             if save_restore:
                 self.save_restore()
-        self.assertEqual(100, self.workflow.last_task.data['counter'])
+        self.assertEqual(20, self.workflow.last_task.data['counter'])
 
 
 

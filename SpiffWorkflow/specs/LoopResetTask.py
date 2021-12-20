@@ -18,7 +18,7 @@ from __future__ import division, absolute_import
 # 02110-1301  USA
 
 
-from .base import TaskSpec
+from .base import TaskSpec, LOG
 from ..task import Task
 from ..exceptions import WorkflowTaskExecException
 
