@@ -50,7 +50,7 @@ class LoopResetTask(TaskSpec):
                 destination = task.workflow.get_tasks_from_spec_name(
                     self.destination_spec_name)[-1]
 
-            destination.reset_token(reset_data=False)
+            destination.reset_token(task.data, reset_data=False)
         except Exception as e:
             LOG.error('Error Looping back to previous task; task=%r',
                       self.destination_id, exc_info=True)

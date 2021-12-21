@@ -50,7 +50,7 @@ class ResetTokenParallelTaskCountTest(BaseTestCase):
         # Reset the token to the first user task.
         # We should still have the same number of tasks.
         self.workflow.task_tree.dump()
-        task.reset_token(reset_data=True)
+        task.reset_token({}, reset_data=True)
         print('=-----')
         self.workflow.task_tree.dump()
         self.assertEquals(total, len(self.workflow.get_tasks()))

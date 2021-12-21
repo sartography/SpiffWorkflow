@@ -51,7 +51,7 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         task = self.workflow.get_ready_user_tasks()[0]
         self.save_restore()
         top_level_task = self.workflow.get_tasks_from_spec_name('Task1')[0]
-        top_level_task.reset_token(reset_data=True)
+        top_level_task.reset_token({}, reset_data=True)
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(), 'Task1')
 
@@ -71,7 +71,7 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
         task = self.workflow.get_tasks_from_spec_name('Task1')[0]
-        task.reset_token()
+        task.reset_token(self.workflow.last_task.data)
         self.workflow.do_engine_steps()
         self.reload_save_restore()
         task = self.workflow.get_ready_user_tasks()[0]

@@ -44,6 +44,24 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
                 self.save_restore()
         self.assertEqual(20, self.workflow.last_task.data['counter'])
 
+    def test_with_sub_process(self):
+        # Found an issue where looping back would fail when it happens
+        # right after a sub-process.  So assuring this is fixed.
+        counter = 0
+        spec = self.load_workflow_spec('too_many_loops_sub_process.bpmn', 'loops')
+        self.workflow = BpmnWorkflow(spec,script_engine=PythonScriptEngine())
+        data = {}
+        while not self.workflow.is_completed():
+            self.workflow.do_engine_steps()
+            self.workflow.refresh_waiting_tasks()
+            if (self.workflow.last_task.data != data):
+                data = self.workflow.last_task.data
+            counter += 1  # There is a 10 millisecond wait task.
+#            self.save_restore()
+        self.assertEqual(20, self.workflow.last_task.data['counter'])
+        # One less, because we don't go back through once the first counter
+        # hits 20.
+        self.assertEqual(19, self.workflow.last_task.data['counter2'])
 
 
 def suite():

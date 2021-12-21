@@ -319,9 +319,12 @@ class Workflow(object):
         """
         if task_id is None:
             raise WorkflowException(self.spec, 'task_id is None')
+        data = {}
+        if self.last_task and self.last_task.data:
+            data = self.last_task.data
         for task in self.task_tree:
             if task.id == task_id:
-                return task.reset_token()
+                return task.reset_token(data)
         msg = 'A task with the given task_id (%s) was not found' % task_id
         raise WorkflowException(self.spec, msg)
 

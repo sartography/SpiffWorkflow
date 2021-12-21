@@ -17,6 +17,8 @@ from __future__ import division, absolute_import
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 import os
+
+from . import StartTask
 from .base import TaskSpec
 from ..task import Task
 from ..exceptions import WorkflowException
@@ -129,7 +131,7 @@ class SubWorkflow(TaskSpec):
         for child in my_task.children:
             if subworkflow.last_task is not None:
                 child.data.update(subworkflow.last_task.data)
-            if child.task_spec in self.outputs:
+            if not isinstance(child.task_spec, StartTask):
                 for assignment in self.out_assign:
                     assignment.assign(subworkflow, child)
 
@@ -138,9 +140,8 @@ class SubWorkflow(TaskSpec):
 
     def _on_complete_hook(self, my_task):
         for child in my_task.children:
-            if child.task_spec in self.outputs:
-                continue
-            child.task_spec._update(child)
+            if isinstance(child.task_spec, StartTask):
+                child.task_spec._update(child)
 
     def serialize(self, serializer):
         return serializer.serialize_sub_workflow(self)

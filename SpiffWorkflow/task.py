@@ -323,7 +323,7 @@ class Task(object):
         """
         return [x for x in self.workflow.task_tree if x.task_spec.name == name]
 
-    def reset_token(self, reset_data=False):
+    def reset_token(self, data, reset_data=False):
         """
         Resets the token to this task. This should allow a trip 'back in time'
         as it were to items that have already been completed.
@@ -335,10 +335,8 @@ class Task(object):
         if not reset_data and self.workflow.last_task and self.workflow.last_task.data:
             # This is a little sly, the data that will get inherited should
             # be from the last completed task, but we don't want to alter
-            # the tree, so we just set the parent's data to the data of the
-            # last completed task.
-            last_data = copy.deepcopy(self.workflow.last_task.data)
-            self.parent.data = last_data
+            # the tree, so we just set the parent's data to the given data.
+            self.parent.data = copy.deepcopy(data)
         self.workflow.last_task = self.parent
         self.set_children_future()  # this method actually fixes the problem
         self._set_state(self.FUTURE)
