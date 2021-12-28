@@ -26,7 +26,7 @@ from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
 from ..specs.MultiInstanceTask import getDynamicMIClass
-from ..specs.CallActivity import CallActivity
+from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...operators import Attrib, PathAttrib

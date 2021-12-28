@@ -126,9 +126,6 @@ class NoneTaskParser(UserTaskParser):
     pass
 
 
-
-
-
 class ExclusiveGatewayParser(TaskParser):
     """
     Parses an Exclusive Gateway, setting up the outgoing conditions
@@ -186,37 +183,7 @@ class InclusiveGatewayParser(TaskParser):
         return False
 
 
-class CallActivityParser(TaskParser):
-    """
-    Parses a CallActivity node. This also supports the not-quite-correct BPMN
-    that Signavio produces (which does not have a calledElement attribute).
-    """
-
-    def create_task(self):
-        wf_spec = self.get_subprocess_parser().get_spec()
-        return self.spec_class(
-            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
-            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
-            position=self.process_parser.get_coord(self.get_id()),
-            description=self.node.get('name', None))
-
-    def get_subprocess_parser(self):
-        calledElement = self.node.get('calledElement', None)
-        if not calledElement:
-            raise ValidationException(
-                'No "calledElement" attribute for Call Activity.',
-                node=self.node,
-                filename=self.process_parser.filename)
-        process = self.parser.get_process_parser(calledElement)
-        if process is None:
-            raise ValidationException(
-                f"The process '{calledElement}' was not found. Did you mean one of the following: "
-                f"{', '.join(self.parser.get_process_ids())}?",
-                node=self.node,
-                filename=self.process_parser.filename)
-        return process
-
-class SubWorkflowParser(CallActivityParser):
+class SubWorkflowParser(TaskParser):
 
     """
     Base class for parsing unspecified Tasks. Currently assumes that such Tasks
@@ -275,6 +242,48 @@ class SubWorkflowParser(CallActivityParser):
         wf_spec.file = self.process_parser.filename
         return wf_spec
 
+
+class CallActivityParser(SubWorkflowParser):
+    """
+    Parses a CallActivity node. This also supports the not-quite-correct BPMN
+    that Signavio produces (which does not have a calledElement attribute).
+    """
+
+    def create_task(self):
+        wf_spec = self.get_subprocess_parser().get_spec()
+        return self.spec_class(
+            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
+            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            position=self.process_parser.get_coord(self.get_id()),
+            description=self.node.get('name', None))
+
+    def get_subprocess_parser(self):
+        calledElement = self.node.get('calledElement', None)
+        if not calledElement:
+            raise ValidationException(
+                'No "calledElement" attribute for Call Activity.',
+                node=self.node,
+                filename=self.process_parser.filename)
+        process = self.parser.get_process_parser(calledElement)
+        if process is None:
+            raise ValidationException(
+                f"The process '{calledElement}' was not found. Did you mean one of the following: "
+                f"{', '.join(self.parser.get_process_ids())}?",
+                node=self.node,
+                filename=self.process_parser.filename)
+        return process
+
+
+class TransactionSubprocessParser(SubWorkflowParser):
+    """Parses a transaction node"""
+    
+    def create_task(self):
+        wf_spec = self.get_subprocess_parser()
+        return self.spec_class(
+            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
+            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            position=self.process_parser.get_coord(self.get_id()),
+            description=self.node.get('name', None))
 
 
 class ScriptTaskParser(TaskParser):

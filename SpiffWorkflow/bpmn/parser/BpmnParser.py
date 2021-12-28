@@ -22,7 +22,7 @@ import glob
 from ..workflow import BpmnWorkflow
 from .ValidationException import ValidationException
 from ..specs.BoundaryEvent import BoundaryEvent
-from ..specs.CallActivity import CallActivity
+from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
 from ..specs.IntermediateCatchEvent import IntermediateCatchEvent
@@ -39,7 +39,7 @@ from .util import full_tag, xpath_eval, first
 from .task_parsers import (StartEventParser, EndEventParser, UserTaskParser,
                            NoneTaskParser, ManualTaskParser,
                            ExclusiveGatewayParser, ParallelGatewayParser,
-                           InclusiveGatewayParser, CallActivityParser,
+                           InclusiveGatewayParser, CallActivityParser, TransactionSubprocessParser,
                            ScriptTaskParser, IntermediateCatchEventParser,
                            IntermediateThrowEventParser,
                            BoundaryEventParser,SubWorkflowParser)
@@ -64,7 +64,6 @@ class BpmnParser(object):
         full_tag('userTask'): (UserTaskParser, UserTask),
         full_tag('task'): (NoneTaskParser, NoneTask),
         full_tag('subProcess'): (SubWorkflowParser, CallActivity),
-        
         full_tag('manualTask'): (ManualTaskParser, ManualTask),
         full_tag('exclusiveGateway'): (ExclusiveGatewayParser,
                                        ExclusiveGateway),
@@ -72,6 +71,7 @@ class BpmnParser(object):
         full_tag('inclusiveGateway'): (InclusiveGatewayParser,
                                        InclusiveGateway),
         full_tag('callActivity'): (CallActivityParser, CallActivity),
+        full_tag('transaction'): (TransactionSubprocessParser, TransactionSubprocess),
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
         full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser,
                                              IntermediateCatchEvent),

@@ -292,13 +292,13 @@ class Task(object):
         'READY'
         """
         from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
-        from .bpmn.specs.CallActivity import CallActivity
+        from .bpmn.specs.SubWorkflowTask import SubWorkflowTask
 
         if (self.state != self.COMPLETED and self.state != self.READY) and \
                 not (isinstance(self.task_spec,UnstructuredJoin)):
             return
 
-        if isinstance(self.task_spec,CallActivity):
+        if isinstance(self.task_spec,SubWorkflowTask):
             self.children = [] # if we have a call activity,
                                # force reset of children.
 

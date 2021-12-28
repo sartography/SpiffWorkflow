@@ -1,21 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
-# Copyright (C) 2012 Matthew Hampton
-#
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301  USA
+
 from ... import Task
 
 from .BpmnSpecMixin import BpmnSpecMixin
@@ -23,13 +8,13 @@ from ...specs.SubWorkflow import SubWorkflow
 from ...specs import TaskSpec
 
 
-class CallActivity(SubWorkflow, BpmnSpecMixin):
+class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
 
     """
-    Task Spec for a bpmn:callActivity node.
+    Task Spec for a bpmn node containing a subworkflow.
     """
 
-    def __init__(self, wf_spec, name, bpmn_wf_spec=None, bpmn_wf_class=None,
+    def __init__(self, wf_spec, name, bpmn_wf_spec=None, bpmn_wf_class=None, transaction=False,
                  **kwargs):
         """
         Constructor.
@@ -37,9 +22,10 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
         :param bpmn_wf_spec: the BpmnProcessSpec for the sub process.
         :param bpmn_wf_class: the BpmnWorkflow class to instantiate
         """
-        super(CallActivity, self).__init__(wf_spec, name, None, **kwargs)
+        super(SubWorkflowTask, self).__init__(wf_spec, name, None, **kwargs)
         self.spec = bpmn_wf_spec
         self.wf_class = bpmn_wf_class
+        self.transaction = transaction
         self.sub_workflow = None
 
     def test(self):
@@ -65,7 +51,7 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
         return self.wf_class
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
-        super(CallActivity, self)._on_subworkflow_completed(
+        super(SubWorkflowTask, self)._on_subworkflow_completed(
             subworkflow, my_task)
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
             my_task.parent.task_spec._child_complete_hook(my_task)
@@ -85,10 +71,27 @@ class CallActivity(SubWorkflow, BpmnSpecMixin):
             child.task_spec._update(child)
 
     def serialize(self, serializer):
-        return serializer.serialize_call_activity(self)
+        return serializer.serialize_subworkflow_task(self)
+
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_call_activity(wf_spec, s_state, CallActivity)
+        return serializer.deserialize_subworkflow_task(wf_spec, s_state, SubWorkflowTask)
 
 
+class CallActivity(SubWorkflowTask):
 
+    def __init__(self, wf_spec, name, bpmn_wf_spec=None, bpmn_wf_class=None, **kwargs):
+        super(CallActivity, self).__init__(wf_spec, name, bpmn_wf_spec, bpmn_wf_class, False, **kwargs)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_subworkflow_task(wf_spec, s_state, CallActivity)
+
+class TransactionSubprocess(SubWorkflowTask):
+
+    def __init__(self, wf_spec, name, bpmn_wf_spec=None, bpmn_wf_class=None, **kwargs):
+        super(TransactionSubprocess, self).__init__(wf_spec, name, bpmn_wf_spec, bpmn_wf_class, True, **kwargs)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_subworkflow_task(wf_spec, s_state, TransactionSubprocess)

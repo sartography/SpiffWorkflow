@@ -17,7 +17,7 @@ from .task import Task
 from .bpmn.specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
 from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
 from .bpmn.specs.MultiInstanceTask import MultiInstanceTask
-from .bpmn.specs.CallActivity import CallActivity
+from .bpmn.specs.SubWorkflowTask import SubWorkflowTask, CallActivity, TransactionSubprocess
 from .bpmn.specs.BoundaryEvent import _BoundaryEventParent, BoundaryEvent
 
 
@@ -53,7 +53,7 @@ class NavItem(object):
         types = [UserTask, ManualTask, BusinessRuleTask, CancelTask,
                  ScriptTask, StartTask, EndEvent, StartEvent,
                  MultiInstanceTask, StartEvent, SequenceFlow,
-                 ExclusiveGateway, ParallelGateway, CallActivity,
+                 ExclusiveGateway, ParallelGateway, CallActivity, TransactionSubprocess,
                  UnstructuredJoin, NoneTask, BoundaryEvent, IntermediateThrowEvent,IntermediateCatchEvent]
         spec_type = None
         for t in types:
@@ -308,7 +308,7 @@ def follow_tree(tree, output=None, found=None, level=0, workflow=None):
     # ---------------------
     # Call Activity - follow subtree
     # ---------------------
-    if isinstance(tree, CallActivity):
+    if isinstance(tree, SubWorkflowTask):
         tasks = workflow.get_tasks_from_spec_name(tree.name)
         if len(tasks) == 0:
             # The call activity may not exist yet in some circumstances.
