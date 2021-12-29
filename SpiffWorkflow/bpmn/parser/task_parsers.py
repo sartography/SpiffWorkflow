@@ -74,26 +74,22 @@ class EndEventParser(TaskParser):
 
     def create_task(self):
 
-        terminate_event_definition = self.xpath(
-            './/bpmn:terminateEventDefinition')
+        terminate_event_definition = first(self.xpath('.//bpmn:terminateEventDefinition'))
         escalation_code = None
-        escalation_event_definition = first(self.xpath(
-            './/bpmn:escalationEventDefinition'))
+        escalation_event_definition = first(self.xpath('.//bpmn:escalationEventDefinition'))
         if escalation_event_definition is not None:
             escalation_ref = escalation_event_definition.get('escalationRef')
             if escalation_ref:
                 escalation = one(self.process_parser.doc_xpath(
                     './/bpmn:escalation[@id="%s"]' % escalation_ref))
                 escalation_code = escalation.get('escalationCode')
-        if terminate_event_definition:
-            terminate_event_definition = True  # here it is just assigning the lxml object, I couldn't see where it was
-            # ever using this other than just a boolean
-        else:
-            terminate_event_definition = False
+        cancel_event_definition = first(self.xpath('.//bpmn:cancelEventDefinition'))
+
         task = self.spec_class(self.spec, self.get_task_spec_name(),
-                               is_terminate_event=terminate_event_definition,
+                               is_terminate_event=terminate_event_definition is not None,
                                is_escalation_event=escalation_event_definition is not None,
                                escalation_code=escalation_code,
+                               is_cancel_event=cancel_event_definition is not None,
                                description=self.node.get('name', None))
         task.connect_outgoing(self.spec.end, '%s.ToEndJoin' %
                               self.node.get('id'), None, None)
@@ -207,9 +203,9 @@ class SubWorkflowParser(TaskParser):
                 'Multiple Start points are not allowed in SubWorkflow Task',
                 node=self.node,
                 filename=self.process_parser.filename)
-        if len(workflowEndEvent) != 1:
+        if len(workflowEndEvent) == 0:
             raise ValidationException(
-                'Multiple End points are not allowed in SubWorkflow Task',
+                'A SubWorkflow Must contain an End event',
                 node=self.node,
                 filename=self.process_parser.filename)
         thisTaskCopy = copy.deepcopy(thisTask)

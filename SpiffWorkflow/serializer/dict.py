@@ -355,7 +355,6 @@ class DictionarySerializer(Serializer):
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
-
     def serialize_generic_event(self, spec):
         s_state = self.serialize_task_spec(spec)
         if spec.event_definition:

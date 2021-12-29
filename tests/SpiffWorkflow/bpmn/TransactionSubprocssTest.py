@@ -22,7 +22,7 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         nav = self.workflow.get_flat_nav_list()
-        self.assertEqual(13, len(nav))
+        self.assertEqual(17, len(nav))
         self.assertNav(nav_item=nav[2], state="WAITING", description="Cancel Event")
 
         ready_tasks = self.workflow.get_tasks(Task.READY)
@@ -30,7 +30,7 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
         nav = self.workflow.get_flat_nav_list()
-        self.assertEquals(13, len(nav))
+        self.assertEquals(17, len(nav))
         self.assertNav(nav_item=nav[2], state="WAITING", description="Cancel Event")
 
     def testCancelEvent(self):
@@ -73,6 +73,22 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         subprocess = self.workflow.get_tasks_from_spec_name('Subprocess')[0]
         self.assertEqual(subprocess.get_state(), 32)
 
+    def testSubworkflowCancelEvent(self):
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks[0].update_data({'value': 'asdf'})
+        self.workflow.complete_task_from_id(ready_tasks[0].id)
+        self.workflow.do_engine_steps()
+        ready_tasks = self.workflow.get_tasks(Task.READY)
+        # Subprocess cancelled if quantity < 0
+        ready_tasks[0].update_data({'quantity': -1})
+        self.workflow.complete_task_from_id(ready_tasks[0].id)
+        self.workflow.do_engine_steps()
+        self.assertNotIn('value', self.workflow.last_task.data)
+        self.assertIn('test_cancel', self.workflow.last_task.data)
+        self.assertEqual(self.workflow.last_task.get_name(), 'Cancelled_Event_Action')
+        self.assertEqual(self.workflow.last_task.get_state(), 32)      
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TransactionSubprocessTest)

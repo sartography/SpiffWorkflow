@@ -43,7 +43,8 @@ class EndEvent(Simple, BpmnSpecMixin):
     """
 
     def __init__(self, wf_spec, name, is_terminate_event=False,
-                 is_escalation_event=False, escalation_code=None, **kwargs):
+                 is_escalation_event=False, escalation_code=None,
+                 is_cancel_event=False, **kwargs):
         """
         Constructor.
 
@@ -56,8 +57,10 @@ class EndEvent(Simple, BpmnSpecMixin):
         self.is_terminate_event = is_terminate_event
         self.is_escalation_event = is_escalation_event
         self.escalation_code = escalation_code
+        self.is_cancel_event = is_cancel_event
 
     def _on_complete_hook(self, my_task):
+        
         if self.is_terminate_event:
             # Cancel other branches in this workflow:
             for active_task in my_task.workflow.get_tasks(
@@ -75,6 +78,7 @@ class EndEvent(Simple, BpmnSpecMixin):
                             start_sibling.cancel()
 
             my_task.workflow.refresh_waiting_tasks()
+        
         elif self.is_escalation_event:
             # send escalation as message to outer workflow
             wf = my_task.workflow
@@ -83,6 +87,9 @@ class EndEvent(Simple, BpmnSpecMixin):
                 self.escalation_code or '*',
             )
             wf.outer_workflow.accept_message(message)
+        
+        elif self.is_cancel_event:
+            my_task.workflow.cancel()
 
         super(EndEvent, self)._on_complete_hook(my_task)
 
