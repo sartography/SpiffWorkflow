@@ -25,6 +25,7 @@ from .ValidationException import ValidationException
 from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
 from ..specs.BoundaryEvent import _BoundaryEventParent
+from ..specs.event_definitions import CancelEventDefinition
 from ..specs.MultiInstanceTask import getDynamicMIClass
 from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway
@@ -171,7 +172,6 @@ class TaskParser(object):
         """
         Parse this node, and all children, returning the connected task spec.
         """
-
         try:
             self.task = self.create_task()
 
@@ -196,6 +196,12 @@ class TaskParser(object):
                     None, None)
                 for boundary_event in boundary_event_nodes:
                     b = self.process_parser.parse_node(boundary_event)
+                    if isinstance(b.event_definition, CancelEventDefinition) \
+                      and not isinstance(self.task, TransactionSubprocess):
+                        raise ValidationException(
+                            'Cancel Events may only be used with transactions',
+                            node=self.node,
+                            filename=self.process_parser.filename)
                     parent_task.connect_outgoing(
                         b,
                         '%s.FromBoundaryEventParent' % boundary_event.get(

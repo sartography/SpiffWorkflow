@@ -88,7 +88,7 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         self.assertNotIn('value', self.workflow.last_task.data)
         self.assertIn('test_cancel', self.workflow.last_task.data)
         self.assertEqual(self.workflow.last_task.get_name(), 'Cancelled_Event_Action')
-        self.assertEqual(self.workflow.last_task.get_state(), 32)      
+        self.assertEqual(self.workflow.last_task.get_state(), 32)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TransactionSubprocessTest)
