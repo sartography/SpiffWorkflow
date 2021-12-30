@@ -66,6 +66,8 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         print(duration)
 
 
+
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TimerDurationTest)
 if __name__ == '__main__':
