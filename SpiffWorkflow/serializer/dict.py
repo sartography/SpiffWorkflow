@@ -34,7 +34,7 @@ from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
                      ThreadSplit, ThreadStart, Merge, Trigger, LoopResetTask)
 from .base import Serializer
 from ..bpmn.specs.MultiInstanceTask import MultiInstanceTask
-from ..bpmn.specs.CallActivity import CallActivity
+from ..bpmn.specs.SubWorkflowTask import SubWorkflowTask
 from ..camunda.specs.UserTask import UserTask
 from ..bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from ..bpmn.specs.ScriptTask import ScriptTask
@@ -342,19 +342,18 @@ class DictionarySerializer(Serializer):
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
-    def serialize_call_activity(self, spec):
+    def serialize_subworkflow_task(self, spec):
         s_state = self.serialize_task_spec(spec)
         s_state['wf_class'] = spec.wf_class.__module__ + "." + spec.wf_class.__name__
         s_state['spec'] = self.serialize_workflow_spec(spec.spec)
         return s_state
 
-    def deserialize_call_activity(self, wf_spec, s_state, cls):
+    def deserialize_subworkflow_task(self, wf_spec, s_state, cls):
         spec = cls(wf_spec, s_state['name'])
         spec.wf_class = get_class(s_state['wf_class'])
         spec.spec = self.deserialize_workflow_spec(s_state['spec'])
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
-
 
     def serialize_generic_event(self, spec):
         s_state = self.serialize_task_spec(spec)
@@ -528,8 +527,8 @@ class DictionarySerializer(Serializer):
             s_state['file'] = brState['file']
             s_state['in_assign'] = brState['in_assign']
             s_state['out_assign'] = brState['out_assign']
-        if isinstance(spec, CallActivity):
-            brState = self.serialize_call_activity(spec)
+        if isinstance(spec, SubWorkflowTask):
+            brState = self.serialize_subworkflow(spec)
             s_state['wf_class'] = brState['wf_class']
             s_state['spec'] = brState['spec']
 
@@ -568,7 +567,7 @@ class DictionarySerializer(Serializer):
                 cls.file = None
             cls.in_assign = self.deserialize_list(s_state['in_assign'])
             cls.out_assign = self.deserialize_list(s_state['out_assign'])
-        if isinstance(cls,CallActivity):
+        if isinstance(cls, SubWorkflowTask):
             cls.wf_class = get_class(s_state['wf_class'])
             cls.spec = self.deserialize_workflow_spec(s_state['spec'])
 

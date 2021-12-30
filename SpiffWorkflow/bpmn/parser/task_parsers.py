@@ -74,26 +74,22 @@ class EndEventParser(TaskParser):
 
     def create_task(self):
 
-        terminate_event_definition = self.xpath(
-            './/bpmn:terminateEventDefinition')
+        terminate_event_definition = first(self.xpath('.//bpmn:terminateEventDefinition'))
         escalation_code = None
-        escalation_event_definition = first(self.xpath(
-            './/bpmn:escalationEventDefinition'))
+        escalation_event_definition = first(self.xpath('.//bpmn:escalationEventDefinition'))
         if escalation_event_definition is not None:
             escalation_ref = escalation_event_definition.get('escalationRef')
             if escalation_ref:
                 escalation = one(self.process_parser.doc_xpath(
                     './/bpmn:escalation[@id="%s"]' % escalation_ref))
                 escalation_code = escalation.get('escalationCode')
-        if terminate_event_definition:
-            terminate_event_definition = True  # here it is just assigning the lxml object, I couldn't see where it was
-            # ever using this other than just a boolean
-        else:
-            terminate_event_definition = False
+        cancel_event_definition = first(self.xpath('.//bpmn:cancelEventDefinition'))
+
         task = self.spec_class(self.spec, self.get_task_spec_name(),
-                               is_terminate_event=terminate_event_definition,
+                               is_terminate_event=terminate_event_definition is not None,
                                is_escalation_event=escalation_event_definition is not None,
                                escalation_code=escalation_code,
+                               is_cancel_event=cancel_event_definition is not None,
                                description=self.node.get('name', None))
         task.connect_outgoing(self.spec.end, '%s.ToEndJoin' %
                               self.node.get('id'), None, None)
@@ -124,9 +120,6 @@ class NoneTaskParser(UserTaskParser):
     should be treated the same way as User Tasks.
     """
     pass
-
-
-
 
 
 class ExclusiveGatewayParser(TaskParser):
@@ -186,37 +179,7 @@ class InclusiveGatewayParser(TaskParser):
         return False
 
 
-class CallActivityParser(TaskParser):
-    """
-    Parses a CallActivity node. This also supports the not-quite-correct BPMN
-    that Signavio produces (which does not have a calledElement attribute).
-    """
-
-    def create_task(self):
-        wf_spec = self.get_subprocess_parser().get_spec()
-        return self.spec_class(
-            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
-            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
-            position=self.process_parser.get_coord(self.get_id()),
-            description=self.node.get('name', None))
-
-    def get_subprocess_parser(self):
-        calledElement = self.node.get('calledElement', None)
-        if not calledElement:
-            raise ValidationException(
-                'No "calledElement" attribute for Call Activity.',
-                node=self.node,
-                filename=self.process_parser.filename)
-        process = self.parser.get_process_parser(calledElement)
-        if process is None:
-            raise ValidationException(
-                f"The process '{calledElement}' was not found. Did you mean one of the following: "
-                f"{', '.join(self.parser.get_process_ids())}?",
-                node=self.node,
-                filename=self.process_parser.filename)
-        return process
-
-class SubWorkflowParser(CallActivityParser):
+class SubWorkflowParser(TaskParser):
 
     """
     Base class for parsing unspecified Tasks. Currently assumes that such Tasks
@@ -240,9 +203,9 @@ class SubWorkflowParser(CallActivityParser):
                 'Multiple Start points are not allowed in SubWorkflow Task',
                 node=self.node,
                 filename=self.process_parser.filename)
-        if len(workflowEndEvent) != 1:
+        if len(workflowEndEvent) == 0:
             raise ValidationException(
-                'Multiple End points are not allowed in SubWorkflow Task',
+                'A SubWorkflow Must contain an End event',
                 node=self.node,
                 filename=self.process_parser.filename)
         thisTaskCopy = copy.deepcopy(thisTask)
@@ -275,6 +238,48 @@ class SubWorkflowParser(CallActivityParser):
         wf_spec.file = self.process_parser.filename
         return wf_spec
 
+
+class CallActivityParser(SubWorkflowParser):
+    """
+    Parses a CallActivity node. This also supports the not-quite-correct BPMN
+    that Signavio produces (which does not have a calledElement attribute).
+    """
+
+    def create_task(self):
+        wf_spec = self.get_subprocess_parser().get_spec()
+        return self.spec_class(
+            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
+            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            position=self.process_parser.get_coord(self.get_id()),
+            description=self.node.get('name', None))
+
+    def get_subprocess_parser(self):
+        calledElement = self.node.get('calledElement', None)
+        if not calledElement:
+            raise ValidationException(
+                'No "calledElement" attribute for Call Activity.',
+                node=self.node,
+                filename=self.process_parser.filename)
+        process = self.parser.get_process_parser(calledElement)
+        if process is None:
+            raise ValidationException(
+                f"The process '{calledElement}' was not found. Did you mean one of the following: "
+                f"{', '.join(self.parser.get_process_ids())}?",
+                node=self.node,
+                filename=self.process_parser.filename)
+        return process
+
+
+class TransactionSubprocessParser(SubWorkflowParser):
+    """Parses a transaction node"""
+    
+    def create_task(self):
+        wf_spec = self.get_subprocess_parser()
+        return self.spec_class(
+            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
+            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            position=self.process_parser.get_coord(self.get_id()),
+            description=self.node.get('name', None))
 
 
 class ScriptTaskParser(TaskParser):

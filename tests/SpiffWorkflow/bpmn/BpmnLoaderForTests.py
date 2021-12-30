@@ -2,12 +2,12 @@
 from __future__ import print_function, absolute_import, division
 
 from __future__ import division, absolute_import
-from SpiffWorkflow.bpmn.specs.CallActivity import CallActivity
+from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity, TransactionSubprocess
 from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.parser.task_parsers import UserTaskParser, EndEventParser, CallActivityParser
+from SpiffWorkflow.bpmn.parser.task_parsers import UserTaskParser, EndEventParser, CallActivityParser, TransactionSubprocessParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 from SpiffWorkflow.operators import Assign
 
@@ -53,10 +53,6 @@ class TestEndEvent(EndEvent):
         return serializer.deserialize_end_event(wf_spec, s_state, TestEndEvent)
 
 
-
-
-
-
 class TestCallActivity(CallActivity):
 
     def __init__(self, parent, name, **kwargs):
@@ -65,7 +61,18 @@ class TestCallActivity(CallActivity):
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_call_activity(wf_spec, s_state, TestCallActivity)
+        return serializer.deserialize_subworkflow_task(wf_spec, s_state, TestCallActivity)
+
+
+class TestTransactionSubprocess(TransactionSubprocess):
+
+    def __init__(self, parent, name, **kwargs):
+        super(TestTransactionSubprocess, self).__init__(parent, name,
+                                               out_assign=[Assign('choice', 'end_event')], **kwargs)
+
+    @classmethod
+    def deserialize(self, serializer, wf_spec, s_state):
+        return serializer.deserialize_subworkflow_task(wf_spec, s_state, TestTransactionSubprocess)
 
 
 class TestBpmnParser(BpmnParser):
@@ -73,6 +80,7 @@ class TestBpmnParser(BpmnParser):
         full_tag('userTask'): (UserTaskParser, TestUserTask),
         full_tag('endEvent'): (EndEventParser, TestEndEvent),
         full_tag('callActivity'): (CallActivityParser, TestCallActivity),
+        full_tag('transaction'): (TransactionSubprocessParser, TestTransactionSubprocess),
     }
 
     def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node, task_parser):

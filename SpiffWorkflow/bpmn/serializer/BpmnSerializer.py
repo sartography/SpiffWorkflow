@@ -24,7 +24,7 @@ import zipfile
 import os
 from json import loads
 
-from ...bpmn.specs.CallActivity import CallActivity
+from ...bpmn.specs.SubWorkflowTask import SubWorkflowTask
 from ...bpmn.workflow import BpmnWorkflow
 from ...serializer import json as spiff_json
 from ..parser.BpmnParser import BpmnParser
@@ -69,7 +69,7 @@ class BpmnSerializer(spiff_json.JSONSerializer):
         """Reverses the internal process that will merge children from a
         sub-workflow in the top level workflow.  This copies the states
         back into the sub-workflow after generating it from the base spec"""
-        if not isinstance(task.task_spec, CallActivity):
+        if not isinstance(task.task_spec, SubWorkflowTask):
             return super()._deserialize_task_children(task, s_state)
         else:
 

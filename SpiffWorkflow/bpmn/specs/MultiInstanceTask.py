@@ -9,7 +9,7 @@ from builtins import range
 from uuid import uuid4
 import re
 
-from .CallActivity import CallActivity
+from .SubWorkflowTask import SubWorkflowTask
 from .ParallelGateway import ParallelGateway
 from .ScriptTask import ScriptTask
 from .ExclusiveGateway import ExclusiveGateway
@@ -413,8 +413,8 @@ class MultiInstanceTask(TaskSpec):
             self._expand_sequential(my_task,split_n)
 
         outputs += self.outputs
-        if isinstance(my_task.task_spec,CallActivity):
-            super(CallActivity,self)._predict_hook(my_task)
+        if isinstance(my_task.task_spec,SubWorkflowTask):
+            super()._predict_hook(my_task)
         else:
             if my_task._is_definite():
                 my_task._sync_children(outputs, Task.FUTURE)
@@ -422,7 +422,7 @@ class MultiInstanceTask(TaskSpec):
                 my_task._sync_children(outputs, Task.LIKELY)
 
     def _handle_special_cases(self,my_task):
-        classes = [BusinessRuleTask,ScriptTask,CallActivity,SubWorkflow]
+        classes = [BusinessRuleTask,ScriptTask,SubWorkflowTask,SubWorkflow]
         classes = {x.__module__ + "."+x.__name__:x for x in classes}
         terminate = self._get_loop_completion(my_task)
         if my_task.task_spec.prevtaskclass in classes.keys() \
@@ -510,7 +510,7 @@ class MultiInstanceTask(TaskSpec):
         outputs = []
         outputs += self.outputs
 
-        if not isinstance(my_task.task_spec,CallActivity):
+        if not isinstance(my_task.task_spec,SubWorkflowTask):
             my_task._sync_children(outputs, Task.FUTURE)
             for child in my_task.children:
                 child.task_spec._update(child)
