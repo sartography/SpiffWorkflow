@@ -241,9 +241,12 @@ class Workflow(object):
             if isinstance(parent.task_spec,_BoundaryEventParent):
                 for sibling in parent.children:
                     if hasattr(sibling.task_spec,'event_definition') \
-                       and sibling.task_spec.event_definition is not None:
+                       and sibling.task_spec.event_definition is not None \
+                        and hasattr(sibling.task_spec.event_definition,
+                                    'message'):
                         message_name_xlate[sibling.task_spec.event_definition.name] = \
                             sibling.task_spec.event_definition.message
+                        # Fixme: This is a gnarly side effect for a function called get_message_name
                         # doing this for the case that we have triggered the event and it is now completed
                         # but the task is still active, so we would like to be able to re-trigger the event
                         if sibling.state == Task.COMPLETED and task.state == Task.READY:
