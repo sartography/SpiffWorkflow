@@ -85,9 +85,11 @@ a decade.
 Matthew Hampton (@matthewhampton) for his initial contributions around BPMN
 parsing and execution.
 
-The University of Virginia for their support and trust in allowing us to take
-on the mammoth task of building a general-purpose workflow system for BPMN,
-and allowing us to contribute that back to the open source community.
+The University of Virginia for allowing us to take on the mammoth task of
+building a general-purpose workflow system for BPMN, and allowing us to
+contribute that back to the open source community. In particular, we would like
+to thank [Ron Hutchins](https://www.linkedin.com/in/ron-hutchins-b19603123/),
+for his trust and support.  Without him our efforts would not be possible.
 
 Bruce Silver, the author of BPMN Quick and Easy Using Method and Style, whose
 work we referenced extensively as we made implementation decisions and
@@ -101,8 +103,11 @@ Kelly McDonald (@w4kpm) who dove deeper into the core of SpiffWorkflow than
 anyone else, and was instrumental in helping us get some of these major
 enhancements working correctly.
 
-We would like to thank Denny Weinberg (@DennyWeinberg) for his early
-contributions to DMN support, which we used as a baseline and then extended.
+Thanks also to the many contributions from our community.  Large and small.
+From Ziad (@ziadsawalha) in the early days to Elizabeth (@essweine) more
+recently.  It is good to be a part of this long lived and strong
+community.
+
 
 ## Support
 Commercial support for SpiffWorkflow is available from
