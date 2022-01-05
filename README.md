@@ -69,6 +69,12 @@ cd tests
 ./run_suite.sh
 ```
 
+## Releases
+New versions of SpiffWorkflow are automatically published to PyPi whenever
+a maintainer of our GitHub repository creates a new release on  GitHub.  This
+is managed through GitHub's actions.  The configuration of which can be
+found in .github/workflows/....
+
 ## Contribute
 Pull Requests are and always will be welcome!
 
