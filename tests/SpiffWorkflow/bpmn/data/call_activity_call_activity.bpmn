@@ -15,7 +15,8 @@
       <bpmn:incoming>Flow_07uhaa7</bpmn:incoming>
       <bpmn:outgoing>Flow_0apfnjq</bpmn:outgoing>
       <bpmn:script>my_var = 'World'
-my_other_var = 'Mike'</bpmn:script>
+my_other_var = 'Mike'
+del(remove_this_var)</bpmn:script>
     </bpmn:scriptTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">

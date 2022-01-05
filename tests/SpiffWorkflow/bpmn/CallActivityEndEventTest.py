@@ -56,6 +56,14 @@ class CallActivityTest(BpmnWorkflowTestCase):
         self.assertIsInstance(self.workflow.script_engine, CustomScriptEngine)
         self.assertEqual(sub_workflow.script_engine, self.workflow.script_engine)
 
+    def test_call_activity_allows_removal_of_data(self):
+        # If a call activity alters the data - removing existing keys, that
+        # data should be removed in the final output as well.
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.is_completed())
+        self.assertNotIn('remove_this_var', self.workflow.last_task.data.keys())
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(CallActivityTest)
