@@ -17,17 +17,21 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...task import Task
-from .BpmnSpecMixin import BpmnSpecMixin
-from .IntermediateCatchEvent import IntermediateCatchEvent
+from .event_types import ThrowingEvent, CatchingEvent
+from ..BpmnSpecMixin import BpmnSpecMixin
+from ....specs.Simple import Simple
+from ....task import Task
 
+class IntermediateCatchEvent(CatchingEvent):
+    pass
+
+class IntermediateThrowEvent(ThrowingEvent):
+    pass
 
 class _BoundaryEventParent(BpmnSpecMixin):
 
-    def __init__(self, wf_spec, name, main_child_task_spec, lane=None,
-                 **kwargs):
-        super(_BoundaryEventParent, self).__init__(
-            wf_spec, name, lane=lane, **kwargs)
+    def __init__(self, wf_spec, name, main_child_task_spec, lane=None, **kwargs):
+        super(_BoundaryEventParent, self).__init__(wf_spec, name, lane=lane, **kwargs)
         self.main_child_task_spec = main_child_task_spec
 
     def _child_complete_hook(self, child_task):
@@ -63,25 +67,24 @@ class _BoundaryEventParent(BpmnSpecMixin):
 
     def serialize(self, serializer):
         return serializer.serialize_boundary_event_parent(self)
+        
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_boundary_event_parent(wf_spec, s_state, _BoundaryEventParent)
+    def deserialize(cls, serializer, wf_spec, s_state):
+        return serializer.deserialize_boundary_event_parent(wf_spec, s_state, cls)
 
 
-class BoundaryEvent(IntermediateCatchEvent):
+class BoundaryEvent(CatchingEvent):
     """
     Task Spec for a bpmn:boundaryEvent node.
     """
 
-    def __init__(self, wf_spec, name, cancel_activity=None,
-                 event_definition=None, **kwargs):
+    def __init__(self, wf_spec, name, event_definition, cancel_activity, **kwargs):
         """
         Constructor.
 
         :param cancel_activity: True if this is a Cancelling boundary event.
         """
-        super(BoundaryEvent, self).__init__(
-            wf_spec, name, event_definition=event_definition, **kwargs)
+        super(BoundaryEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
         self._cancel_activity = cancel_activity
 
     def accept_message(self, my_task, message):
@@ -99,6 +102,7 @@ class BoundaryEvent(IntermediateCatchEvent):
 
     def serialize(self, serializer):
         return serializer.serialize_boundary_event(self)
+
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_boundary_event(wf_spec, s_state, BoundaryEvent)
+    def deserialize(cls, serializer, wf_spec, s_state):
+        return serializer.deserialize_boundary_event(wf_spec, s_state, cls)

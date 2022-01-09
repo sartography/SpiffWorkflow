@@ -17,24 +17,19 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .BpmnSpecMixin import BpmnSpecMixin
-from ...specs.Simple import Simple
+from .event_types import CatchingEvent
 
 
-class StartEvent(Simple, BpmnSpecMixin):
+class StartEvent(CatchingEvent):
+    """Task Spec for a bpmn:startEvent node with an optional event definition."""
 
-    """
-    Task Spec for a bpmn:startEvent node.
-    """
-
-    def __init__(self, wf_spec, name, event_definition=None, **kwargs):
-        super(StartEvent, self).__init__(wf_spec, name, **kwargs)
-        self.event_definition = event_definition
+    def __init__(self, wf_spec, name, event_definition, **kwargs):
+        super(StartEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
 
     def serialize(self, serializer):
         return serializer.serialize_generic_event(self)
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_generic_event(wf_spec, s_state,StartEvent)
+    def deserialize(cls, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic_event(wf_spec, s_state, StartEvent)
 

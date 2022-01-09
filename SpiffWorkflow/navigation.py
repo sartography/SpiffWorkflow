@@ -1,15 +1,12 @@
 import copy
 
 from . import WorkflowException
-from .bpmn.specs.EndEvent import EndEvent
+from .bpmn.specs.events import StartEvent, EndEvent, IntermediateCatchEvent, IntermediateThrowEvent, BoundaryEvent, _BoundaryEventParent
 from .bpmn.specs.ExclusiveGateway import ExclusiveGateway
-from .bpmn.specs.IntermediateThrowEvent import IntermediateThrowEvent
-from .bpmn.specs.IntermediateCatchEvent import IntermediateCatchEvent
 from .bpmn.specs.ManualTask import ManualTask
 from .bpmn.specs.NoneTask import NoneTask
 from .bpmn.specs.ParallelGateway import ParallelGateway
 from .bpmn.specs.ScriptTask import ScriptTask
-from .bpmn.specs.StartEvent import StartEvent
 from .bpmn.specs.UserTask import UserTask
 from .dmn.specs.BusinessRuleTask import BusinessRuleTask
 from .specs import CancelTask, StartTask
@@ -18,7 +15,6 @@ from .bpmn.specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
 from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
 from .bpmn.specs.MultiInstanceTask import MultiInstanceTask
 from .bpmn.specs.SubWorkflowTask import SubWorkflowTask, CallActivity, TransactionSubprocess
-from .bpmn.specs.BoundaryEvent import _BoundaryEventParent, BoundaryEvent
 
 
 class NavItem(object):

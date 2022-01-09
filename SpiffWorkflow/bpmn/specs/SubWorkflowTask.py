@@ -4,7 +4,7 @@ from __future__ import division
 from ... import Task
 
 from .BpmnSpecMixin import BpmnSpecMixin
-from .BoundaryEvent import _BoundaryEventParent
+from .events import _BoundaryEventParent
 from ...specs.SubWorkflow import SubWorkflow
 from ...specs import TaskSpec
 

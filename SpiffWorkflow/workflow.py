@@ -27,7 +27,7 @@ from .task import Task
 from .util.compat import mutex
 from .util.event import Event
 from .exceptions import WorkflowException
-from .bpmn.specs.BoundaryEvent import _BoundaryEventParent
+from .bpmn.specs.events import _BoundaryEventParent
 LOG = logging.getLogger(__name__)
 
 
@@ -225,67 +225,8 @@ class Workflow(object):
             return True
         return False
 
-    def get_message_name_xlate(self):
-        message_name_xlate = {}
-
-        alltasks = self.get_tasks()
-        tasks = [x for x in alltasks if (x.state == x.READY or x.state== x.WAITING or x.state==x.COMPLETED)
-                 and hasattr(x.parent,'task_spec')]
-        #tasks = self.get_tasks(state=Task.READY)
-
-        for task in tasks:
-            parent = task.parent
-            if hasattr(task.task_spec,'event_definition') \
-                and hasattr(task.task_spec.event_definition,'message'):
-                message_name_xlate[task.task_spec.event_definition.name] = task.task_spec.event_definition.message
-            if isinstance(parent.task_spec,_BoundaryEventParent):
-                for sibling in parent.children:
-                    if hasattr(sibling.task_spec,'event_definition') \
-                       and sibling.task_spec.event_definition is not None \
-                        and hasattr(sibling.task_spec.event_definition,
-                                    'message'):
-                        message_name_xlate[sibling.task_spec.event_definition.name] = \
-                            sibling.task_spec.event_definition.message
-                        # Fixme: This is a gnarly side effect for a function called get_message_name
-                        # doing this for the case that we have triggered the event and it is now completed
-                        # but the task is still active, so we would like to be able to re-trigger the event
-                        if sibling.state == Task.COMPLETED and task.state == Task.READY:
-                            sibling._setstate(Task.WAITING, force=True)
-        return message_name_xlate
-
-    def message(self,message_name,payload,resultVar):
-
-        message_name_xlate = self.get_message_name_xlate()
-
-        if message_name in message_name_xlate.keys() or \
-            message_name in message_name_xlate.values():
-            if message_name in message_name_xlate.keys():
-                message_name = message_name_xlate[message_name]
-            self.task_tree.internal_data['messages'] = self.task_tree.internal_data.get('messages',{}) # ensure
-            self.task_tree.internal_data['messages'][message_name] = (payload,resultVar)
-        self.refresh_waiting_tasks()
-        self.do_engine_steps()
-        self.task_tree.internal_data['messages'] = {}
-
-    def signal(self, message_name):
-        # breakpoint()
-        message_name_xlate = self.get_message_name_xlate()
-
-        if message_name in message_name_xlate.keys() or \
-            message_name in message_name_xlate.values():
-            if message_name in message_name_xlate.keys():
-                message_name = message_name_xlate[message_name]
-            self.task_tree.internal_data['signals'] = self.task_tree.internal_data.get('signals',{}) # ensure
-            self.task_tree.internal_data['signals'][message_name] = True
-        LOG.debug("signal Workflow instance: %s" % self.task_tree.internal_data)
-        self.refresh_waiting_tasks()
-        LOG.debug("signal Workflow instance: %s" % self.task_tree.internal_data)
-        self.do_engine_steps()
-        self.task_tree.internal_data['signals'] = {}
-
     def cancel_notify(self):
-        self.task_tree.internal_data['cancels'] = \
-                self.task_tree.internal_data.get('cancels', {})  # ensure
+        self.task_tree.internal_data['cancels'] = self.task_tree.internal_data.get('cancels', {})
         self.task_tree.internal_data['cancels']['TokenReset'] = True
         self.refresh_waiting_tasks()
         self.do_engine_steps()
@@ -302,7 +243,6 @@ class Workflow(object):
         applied to recreate a deep structure."""
         from . import navigation
         return navigation.get_deep_nav_list(self)
-
 
     def get_tasks(self, state=Task.ANY_MASK):
         """

@@ -373,7 +373,6 @@ class DictionarySerializer(Serializer):
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
-
     def serialize_boundary_event_parent(self, spec):
         s_state = self.serialize_task_spec(spec)
         s_state['main_child_task_spec'] = spec.main_child_task_spec.id
@@ -385,8 +384,6 @@ class DictionarySerializer(Serializer):
         spec = cls(wf_spec, s_state['name'], main_child_task_spec)
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
-
-
 
     def serialize_boundary_event(self, spec):
         s_state = self.serialize_task_spec(spec)
@@ -410,20 +407,6 @@ class DictionarySerializer(Serializer):
         spec = cls(wf_spec, s_state['name'], cancel_activity=cancel_activity,event_definition=event)
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
-
-
-
-    def serialize_end_event(self, spec):
-        s_state = self.serialize_task_spec(spec)
-        s_state['is_terminate_event'] = spec.is_terminate_event
-        return s_state
-
-    def deserialize_end_event(self, wf_spec, s_state, cls):
-        terminateEvent = s_state.get('is_terminate_event',None)
-        spec = cls(wf_spec, s_state['name'],terminateEvent)
-        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
-        return spec
-
 
     def serialize_user_task(self, spec):
         s_state = self.serialize_task_spec(spec)
@@ -697,9 +680,7 @@ class DictionarySerializer(Serializer):
             root = Simple(spec, 'Root')
             spec.task_specs['Root'] = root
 
-        mylista = [v for k, v in list(spec.task_specs.items())]
-        mylist = [(k, v.serialize(self))
-                                     for k, v in list(spec.task_specs.items())]
+        mylist = [(k, v.serialize(self)) for k, v in list(spec.task_specs.items())]
         if hasattr(spec,'end'):
             s_state['end']=spec.end.id
         s_state['task_specs'] = dict(mylist)

@@ -19,31 +19,29 @@ from builtins import object
 # 02110-1301  USA
 
 import glob
+
+from lxml import etree
+
 from ..workflow import BpmnWorkflow
 from .ValidationException import ValidationException
-from ..specs.BoundaryEvent import BoundaryEvent
+from ..specs.events import StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
 from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
-from ..specs.IntermediateCatchEvent import IntermediateCatchEvent
-from ..specs.IntermediateThrowEvent import IntermediateThrowEvent
 from ..specs.ManualTask import ManualTask
 from ..specs.NoneTask import NoneTask
 from ..specs.ParallelGateway import ParallelGateway
 from ..specs.ScriptTask import ScriptTask
-from ..specs.StartEvent import StartEvent
 from ..specs.UserTask import UserTask
-from ..specs.EndEvent import EndEvent
 from .ProcessParser import ProcessParser
 from .util import full_tag, xpath_eval, first
-from .task_parsers import (StartEventParser, EndEventParser, UserTaskParser,
-                           NoneTaskParser, ManualTaskParser,
-                           ExclusiveGatewayParser, ParallelGatewayParser,
-                           InclusiveGatewayParser, CallActivityParser, TransactionSubprocessParser,
-                           ScriptTaskParser, IntermediateCatchEventParser,
-                           IntermediateThrowEventParser,
-                           BoundaryEventParser,SubWorkflowParser)
-from lxml import etree
+from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
+                           ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser, 
+                           CallActivityParser, TransactionSubprocessParser,
+                           ScriptTaskParser, SubWorkflowParser)
+from .event_parsers import (StartEventParser, EndEventParser, BoundaryEventParser,
+                           IntermediateCatchEventParser, IntermediateThrowEventParser)
+
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class BpmnParser(object):

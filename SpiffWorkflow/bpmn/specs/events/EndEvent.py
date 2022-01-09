@@ -17,12 +17,12 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .BpmnSpecMixin import BpmnSpecMixin
-from ...specs.Simple import Simple
-from ...task import Task
+from .event_types import ThrowingEvent
+from .event_definitions import TerminateEventDefinition, EscalationEventDefinition, CancelEventDefinition
+from ....task import Task
 
 
-class EndEvent(Simple, BpmnSpecMixin):
+class EndEvent(ThrowingEvent):
     """
     Task Spec for a bpmn:endEvent node.
 
@@ -42,26 +42,13 @@ class EndEvent(Simple, BpmnSpecMixin):
      * There is no token remaining within the Process instance.
     """
 
-    def __init__(self, wf_spec, name, is_terminate_event=False,
-                 is_escalation_event=False, escalation_code=None,
-                 is_cancel_event=False, **kwargs):
-        """
-        Constructor.
+    def __init__(self, wf_spec, name, event_definition, **kwargs):
 
-        :param is_terminate_event: True if this is a terminating end event
-        :param is_escalation_event: True if this is a escalation end event
-        :param escalation_code: optional string with escalation code
-        for escalation end events
-        """
-        super(EndEvent, self).__init__(wf_spec, name, **kwargs)
-        self.is_terminate_event = is_terminate_event
-        self.is_escalation_event = is_escalation_event
-        self.escalation_code = escalation_code
-        self.is_cancel_event = is_cancel_event
+        super(EndEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
 
     def _on_complete_hook(self, my_task):
-        
-        if self.is_terminate_event:
+
+        if isinstance(self.event_definition, TerminateEventDefinition):
             # Cancel other branches in this workflow:
             for active_task in my_task.workflow.get_tasks(
                     Task.READY | Task.WAITING):
@@ -76,27 +63,25 @@ class EndEvent(Simple, BpmnSpecMixin):
                     for start_sibling in siblings:
                         if not start_sibling._is_finished():
                             start_sibling.cancel()
-
             my_task.workflow.refresh_waiting_tasks()
         
-        elif self.is_escalation_event:
+        elif isinstance(self.event_definition, EscalationEventDefinition):
             # send escalation as message to outer workflow
             wf = my_task.workflow
             message = 'x_escalation:%s:%s' % (
                 wf.name, # this is a copy of CallActivity task spec name
-                self.escalation_code or '*',
+                self.event_definition.escalation_code or '*',
             )
             wf.outer_workflow.accept_message(message)
         
-        elif self.is_cancel_event:
+        elif isinstance(self.event_definition, CancelEventDefinition):
             my_task.workflow.cancel()
 
         super(EndEvent, self)._on_complete_hook(my_task)
 
-
     def serialize(self, serializer):
-        return serializer.serialize_end_event(self)
+        return serializer.serialize_generic_event(self)
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_end_event(wf_spec, s_state, EndEvent)
+    def deserialize(cls, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic_event(wf_spec, s_state, EndEvent)

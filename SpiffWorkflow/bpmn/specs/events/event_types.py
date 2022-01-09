@@ -17,25 +17,22 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...task import Task
-from .BpmnSpecMixin import BpmnSpecMixin
-from ...specs.Simple import Simple
-from ...bpmn.specs.StartEvent import StartEvent
-from ...specs.StartTask import StartTask
+from .event_definitions import NoneEventDefinition
+from ..BpmnSpecMixin import BpmnSpecMixin
+from ....specs.Simple import Simple
+from ....specs.StartTask import StartTask
+from ....task import Task
 
-class IntermediateCatchEvent(Simple, BpmnSpecMixin):
+class CatchingEvent(Simple, BpmnSpecMixin):
+    """Base Task Spec for Catching Event nodes."""
 
-    """
-    Task Spec for a bpmn:intermediateCatchEvent node.
-    """
-
-    def __init__(self, wf_spec, name, event_definition=None, **kwargs):
+    def __init__(self, wf_spec, name, event_definition, **kwargs):
         """
         Constructor.
 
         :param event_definition: the EventDefinition that we must wait for.
         """
-        super(IntermediateCatchEvent, self).__init__(wf_spec, name, **kwargs)
+        super(CatchingEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
 
     def _update_hook(self, my_task):
@@ -50,7 +47,7 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
             # this next line actually matters for some start events.
             my_task.children = []
             my_task._sync_children(my_task.task_spec.outputs)
-            super(IntermediateCatchEvent, self)._update_hook(my_task)
+            super(CatchingEvent, self)._update_hook(my_task)
         elif (my_task.internal_data.get('repeat', 0) > 0) :
             fired = self.event_definition.has_fired(my_task)
             repeat = my_task.internal_data.get('repeat', 0)
@@ -58,7 +55,7 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
             if (repeat >= repeat_count) and fired:
                 my_task.children = []
                 my_task._sync_children(my_task.task_spec.outputs)
-                super(IntermediateCatchEvent, self)._update_hook(my_task)
+                super(CatchingEvent, self)._update_hook(my_task)
                 my_task.workflow.do_engine_steps()
                 my_task._set_state(Task.WAITING)
                 if not my_task.workflow._is_busy_with_restore():
@@ -66,7 +63,7 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
         elif target_state == Task.READY or (
                 not my_task.workflow._is_busy_with_restore() and
                 self.event_definition.has_fired(my_task)):
-            super(IntermediateCatchEvent, self)._update_hook(my_task)
+            super(CatchingEvent, self)._update_hook(my_task)
         else:
             if not my_task.parent._is_finished():
                 return
@@ -78,24 +75,58 @@ class IntermediateCatchEvent(Simple, BpmnSpecMixin):
     def _on_ready_hook(self, my_task):
         self._predict(my_task)
 
-    def _on_complete_hook(self, my_task):
-        super(IntermediateCatchEvent, self)._on_complete_hook(my_task)
-        if  isinstance(my_task.parent.task_spec, StartTask):
-            my_task._set_state(Task.WAITING)
-
-
     def accept_message(self, my_task, message):
-        if (my_task.state == Task.WAITING and
-                self.event_definition._accept_message(my_task, message)):
+        if my_task.state == Task.WAITING and self.event_definition._accept_message(my_task, message):
             self._update(my_task)
             return True
         return False
+
+    def entering_waiting_state(self, my_task):
+        if isinstance(self.event_definition, NoneEventDefinition):
+            self.event_definition._fire(my_task)
+            super(CatchingEvent, self)._update_hook(my_task)
 
     def serialize(self, serializer):
         return serializer.serialize_generic_event(self)
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_generic_event(wf_spec, s_state,IntermediateCatchEvent)
+    def deserialize(cls, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic_event(wf_spec, s_state, cls)
 
 
+class ThrowingEvent(Simple, BpmnSpecMixin):
+    """Base Task Spec for Throwing Event nodes."""
+
+    def __init__(self, wf_spec, name, event_definition, **kwargs):
+        """
+        Constructor.
+
+        :param event_definition: the EventDefinition to be thrown.
+        """
+        super(ThrowingEvent, self).__init__(wf_spec, name, **kwargs)
+        self.event_definition = event_definition
+
+    def _update_hook(self, my_task):
+        target_state = getattr(my_task, '_bpmn_load_target_state', None)
+        if target_state == Task.READY or (
+                not my_task.workflow._is_busy_with_restore() and
+                self.event_definition.has_fired(my_task)):
+            super(ThrowingEvent, self)._update_hook(my_task)
+        else:
+            if not my_task.parent._is_finished():
+                return
+            # here we diverge from the previous and we just send the message
+            self.event_definition._send_message(my_task)
+            # if we throw the message, then we need to be completed.
+            if not my_task.state == Task.READY:
+                my_task._set_state(Task.READY)
+
+    def _on_ready_hook(self, my_task):
+        self._predict(my_task)
+
+    def serialize(self, serializer):
+        return serializer.serialize_generic_event(self)
+
+    @classmethod
+    def deserialize(cls, serializer, wf_spec, s_state):
+        return serializer.deserialize_generic_event(wf_spec, s_state, cls)

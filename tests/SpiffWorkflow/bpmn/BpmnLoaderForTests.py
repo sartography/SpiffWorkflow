@@ -3,11 +3,12 @@ from __future__ import print_function, absolute_import, division
 
 from __future__ import division, absolute_import
 from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity, TransactionSubprocess
-from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
+from SpiffWorkflow.bpmn.specs.events import EndEvent
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.parser.task_parsers import UserTaskParser, EndEventParser, CallActivityParser, TransactionSubprocessParser
+from SpiffWorkflow.bpmn.parser.task_parsers import UserTaskParser, CallActivityParser, TransactionSubprocessParser
+from SpiffWorkflow.bpmn.parser.event_parsers import EndEventParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 from SpiffWorkflow.operators import Assign
 
