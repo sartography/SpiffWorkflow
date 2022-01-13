@@ -9,7 +9,7 @@ from builtins import range
 from uuid import uuid4
 import re
 
-from .SubWorkflowTask import SubWorkflowTask
+from .SubWorkflowTask import SubWorkflowTask, CallActivity
 from .ParallelGateway import ParallelGateway
 from .ScriptTask import ScriptTask
 from .ExclusiveGateway import ExclusiveGateway
@@ -46,8 +46,6 @@ def gendict(path, d):
         return d
     else:
         return gendict(path[:-1], {path[-1]: d})
-
-
 
 class MultiInstanceTask(TaskSpec):
     """
@@ -88,6 +86,7 @@ class MultiInstanceTask(TaskSpec):
             if thetask.task_spec == self:
                 return thetask
         return None
+
 
     def _on_trigger(self, task_spec):
         """
@@ -421,9 +420,10 @@ class MultiInstanceTask(TaskSpec):
             else:
                 my_task._sync_children(outputs, Task.LIKELY)
 
-    def _handle_special_cases(self,my_task):
-        classes = [BusinessRuleTask,ScriptTask,SubWorkflowTask,SubWorkflow]
-        classes = {x.__module__ + "."+x.__name__:x for x in classes}
+    def _handle_special_cases(self, my_task):
+        classes = [BusinessRuleTask, ScriptTask, SubWorkflowTask, SubWorkflow,
+                   CallActivity]
+        classes = {x.__module__ + "." + x.__name__: x for x in classes}
         terminate = self._get_loop_completion(my_task)
         if my_task.task_spec.prevtaskclass in classes.keys() \
             and not terminate:
@@ -486,12 +486,23 @@ class MultiInstanceTask(TaskSpec):
         # do special stuff for non-user tasks
         self._handle_special_cases(my_task)
 
-        # this is all about updating the collection for a MI
+        if isinstance(my_task.task_spec,SubWorkflowTask):
+            # See method below, we will complete the iteration at the end of
+            # the subworkflow, rather than on the completion of this task.
+            pass
+        else:
+            self.__iteration_complete(my_task)
 
+    def _on_subworkflow_completed(self, subworkflow, my_task):
+        my_task.data = subworkflow.last_task.data
+        self.__iteration_complete(my_task)
+        super()._on_subworkflow_completed(subworkflow, my_task)
+
+    def __iteration_complete(self, my_task):
+        # this is all about updating the collection for a MI
         self._check_inputs(my_task)
 
         # initialize
-
         runcount = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes', 1))
 
@@ -514,10 +525,10 @@ class MultiInstanceTask(TaskSpec):
             my_task._sync_children(outputs, Task.FUTURE)
             for child in my_task.children:
                 child.task_spec._update(child)
+
         # If removed, add the element_var_data back onto this task.
         if(element_var_data):
             my_task.data[self.elementVar] = element_var_data
-
 
     def serialize(self, serializer):
 
