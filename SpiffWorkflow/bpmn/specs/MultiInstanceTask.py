@@ -494,6 +494,7 @@ class MultiInstanceTask(TaskSpec):
             self.__iteration_complete(my_task)
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
+        DeepMerge.merge(subworkflow.last_task.data, my_task.data)
         my_task.data = subworkflow.last_task.data
         self.__iteration_complete(my_task)
         super()._on_subworkflow_completed(subworkflow, my_task)
