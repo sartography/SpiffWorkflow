@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="4.10.0">
   <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="InputClause_1tm0ceq" label="Age">
         <inputExpression id="LiteralExpression_04o7chw" typeRef="integer" />
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
+      <rule id="DecisionRule_0tvq7gi">
+        <description>Assure that ? is not incorrectly interpreted when quoted.</description>
+        <inputEntry id="UnaryTests_07f3kq0">
+          <text>"RedHarring?"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0wwymm9">
+          <text>"Possible Bug"</text>
+        </outputEntry>
+      </rule>
       <rule id="table-341529265-2">
         <description>100-110 ExclInclusive Annotation</description>
         <inputEntry id="UnaryTests_1x7wp9y">
