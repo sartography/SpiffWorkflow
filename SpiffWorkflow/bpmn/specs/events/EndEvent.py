@@ -18,7 +18,7 @@ from __future__ import division
 # 02110-1301  USA
 
 from .event_types import ThrowingEvent
-from .event_definitions import TerminateEventDefinition, EscalationEventDefinition, CancelEventDefinition
+from .event_definitions import TerminateEventDefinition, CancelEventDefinition
 from ....task import Task
 
 
@@ -43,41 +43,25 @@ class EndEvent(ThrowingEvent):
     """
 
     def __init__(self, wf_spec, name, event_definition, **kwargs):
-
         super(EndEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
 
     def _on_complete_hook(self, my_task):
 
+        super(EndEvent, self)._on_complete_hook(my_task)
+
+        if self.event_definition.external:
+            target = my_task.workflow.outer_workflow
+            target.catch(self.event_definition)
+
         if isinstance(self.event_definition, TerminateEventDefinition):
-            # Cancel other branches in this workflow:
-            for active_task in my_task.workflow.get_tasks(
-                    Task.READY | Task.WAITING):
-                if active_task.task_spec == my_task.workflow.spec.end:
-                    continue
-                elif active_task.workflow == my_task.workflow:
-                    active_task.cancel()
-                else:
-                    active_task.workflow.cancel()
-                    child = active_task.workflow.task_tree.children[0]
-                    siblings = child.parent.children
-                    for start_sibling in siblings:
-                        if not start_sibling._is_finished():
-                            start_sibling.cancel()
-            my_task.workflow.refresh_waiting_tasks()
-        
-        elif isinstance(self.event_definition, EscalationEventDefinition):
-            # send escalation as message to outer workflow
-            wf = my_task.workflow
-            message = 'x_escalation:%s:%s' % (
-                wf.name, # this is a copy of CallActivity task spec name
-                self.event_definition.escalation_code or '*',
-            )
-            wf.outer_workflow.accept_message(message)
-        
+
+            # We are finished.  Set the workflow data and cancel all tasks
+            my_task.workflow.set_data(**my_task.data)
+            for task in my_task.workflow.get_tasks(Task.NOT_FINISHED_MASK):
+                task.cancel()
+
         elif isinstance(self.event_definition, CancelEventDefinition):
             my_task.workflow.cancel()
-
-        super(EndEvent, self)._on_complete_hook(my_task)
 
     def serialize(self, serializer):
         return serializer.serialize_generic_event(self)

@@ -18,6 +18,7 @@ from __future__ import division
 # 02110-1301  USA
 
 from .event_types import CatchingEvent
+from ....task import Task
 
 
 class StartEvent(CatchingEvent):
@@ -25,6 +26,12 @@ class StartEvent(CatchingEvent):
 
     def __init__(self, wf_spec, name, event_definition, **kwargs):
         super(StartEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
+        
+    def catch(self, my_task, source_task):
+        if my_task.state == Task.COMPLETED or my_task.state == Task.CANCELLED:
+            my_task.set_children_future()
+            my_task._set_state(Task.WAITING)
+        super(StartEvent, self).catch(my_task, source_task)
 
     def serialize(self, serializer):
         return serializer.serialize_generic_event(self)

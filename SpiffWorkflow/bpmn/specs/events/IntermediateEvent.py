@@ -19,6 +19,7 @@ from __future__ import division
 
 from .event_types import ThrowingEvent, CatchingEvent
 from ..BpmnSpecMixin import BpmnSpecMixin
+from ..SubWorkflowTask import SubWorkflowTask
 from ....specs.Simple import Simple
 from ....task import Task
 
@@ -28,55 +29,59 @@ class IntermediateCatchEvent(CatchingEvent):
 class IntermediateThrowEvent(ThrowingEvent):
     pass
 
-class _BoundaryEventParent(BpmnSpecMixin):
+class _BoundaryEventParent(Simple, BpmnSpecMixin):
+    """This task is inserted before a task with boundary events."""
 
-    def __init__(self, wf_spec, name, main_child_task_spec, lane=None, **kwargs):
-        super(_BoundaryEventParent, self).__init__(wf_spec, name, lane=lane, **kwargs)
+    # This would be better modelled as some type of join.
+    # It would make more sense to have the boundary events and the task
+    # they're attached to be inputs rather than outputs.
+
+    def __init__(self, wf_spec, name, main_child_task_spec, **kwargs):
+
+        super(_BoundaryEventParent, self).__init__(wf_spec, name)
         self.main_child_task_spec = main_child_task_spec
 
+    def _on_ready_hook(self, my_task):
+
+        # Clear any events that our children might have received and
+        # wait for new events
+        for child in my_task.children:
+            if isinstance(child.task_spec, BoundaryEvent):
+                child.task_spec.event_definition.reset(my_task)
+                child._set_state(Task.WAITING)
+
     def _child_complete_hook(self, child_task):
-        if (child_task.task_spec == self.main_child_task_spec or
-                self._should_cancel(child_task.task_spec)):
+        
+        if child_task.task_spec == self.main_child_task_spec or child_task.task_spec.cancel_activity:
             for sibling in child_task.parent.children:
-                if sibling != child_task:
-                    if (sibling.task_spec == self.main_child_task_spec or
-                        (isinstance(sibling.task_spec, BoundaryEvent)
-                         and not sibling._is_finished())):
-                        sibling.cancel()
+                if sibling == child_task:
+                    continue
+                if sibling.task_spec == self.main_child_task_spec:
+                    sibling.cancel() 
+                elif not sibling._is_finished():
+                    sibling.cancel()
             for t in child_task.workflow._get_waiting_tasks():
                 t.task_spec._update(t)
 
     def _predict_hook(self, my_task):
-        # We default to MAYBE
-        # for all it's outputs except the main child, which is
-        # FUTURE, if my task is definite, otherwise, my own state.
+
+        # Events attached to the main task ight occur
         my_task._sync_children(self.outputs, state=Task.MAYBE)
-
-        if my_task._is_definite():
-            state = Task.FUTURE
-        else:
-            state = my_task.state
-
+        # The main child's state is based on this task's state
+        state = Task.FUTURE if my_task._is_definite() else my_task.state
         for child in my_task.children:
             if child.task_spec == self.main_child_task_spec:
                 child._set_state(state)
-
-    def _should_cancel(self, task_spec):
-        return (issubclass(task_spec.__class__, BoundaryEvent) and
-                task_spec._cancel_activity)
-
+    
     def serialize(self, serializer):
         return serializer.serialize_boundary_event_parent(self)
-        
+
     @classmethod
     def deserialize(cls, serializer, wf_spec, s_state):
         return serializer.deserialize_boundary_event_parent(wf_spec, s_state, cls)
 
-
 class BoundaryEvent(CatchingEvent):
-    """
-    Task Spec for a bpmn:boundaryEvent node.
-    """
+    """Task Spec for a bpmn:boundaryEvent node."""
 
     def __init__(self, wf_spec, name, event_definition, cancel_activity, **kwargs):
         """
@@ -85,20 +90,15 @@ class BoundaryEvent(CatchingEvent):
         :param cancel_activity: True if this is a Cancelling boundary event.
         """
         super(BoundaryEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
-        self._cancel_activity = cancel_activity
+        self.cancel_activity = cancel_activity
 
-    def accept_message(self, my_task, message):
-        ret = super(BoundaryEvent, self).accept_message(my_task, message)
-        # after accepting message this node will be in READY state but
-        # if for some reason the task we are attached to gets to COMPLETE
-        # state before us then our _BoundaryEventParent will cancel()
-        # this node along with all the other siblings
-        #
-        # to prevent this we complete() this task because _BoundaryEventParent
-        # only cancels unfinished children
-        if ret and my_task._has_state(Task.READY):
-            my_task.complete()
-        return ret
+    def catch(self, my_task, event_definition):
+        super(BoundaryEvent, self).catch(my_task, event_definition)
+        my_task.complete()
+
+    def _on_complete_hook(self, my_task):
+        super(BoundaryEvent, self)._on_complete_hook(my_task)
+        my_task.parent.task_spec._child_complete_hook(my_task)
 
     def serialize(self, serializer):
         return serializer.serialize_boundary_event(self)

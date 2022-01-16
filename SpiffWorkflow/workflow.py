@@ -72,7 +72,6 @@ class Workflow(object):
 
         # Events.
         self.completed_event = Event()
-        self.cancelled_event = Event()
 
         # Prevent the root task from being executed.
         self.task_tree.state = Task.COMPLETED
@@ -175,7 +174,6 @@ class Workflow(object):
             cancel.append(task)
         for task in cancel:
             task.cancel()
-        self.cancelled_event(self)
 
     def get_task_spec_from_name(self, name):
         """

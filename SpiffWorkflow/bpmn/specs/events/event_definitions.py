@@ -28,126 +28,193 @@ from builtins import object
 
 LOG = logging.getLogger(__name__)
 
+
 class EventDefinition(object):
+    """
+    This is the base class for Event Definitions.  It implements the default throw/catch
+    behavior for events.
+
+    If internal is true, this event should be thrown to the current workflow
+    If external is true, this event should be thrown to the outer workflow
+
+    Default throw behavior is to send the event to the current workflow
+    Default catch behavior is to set the event to fired
+    """
+
+    def __init__(self):
+        # Ideally I'd mke these parameters, but I don't want to them to be parameters
+        # for any subclasses (as they are based on event type, not user choice) and
+        # I don't want to write a separate deserializer for every every type.
+        self.internal, self.external = True, True
 
     def has_fired(self, my_task):
         return my_task._get_internal_data('event_fired', False)
 
-    def _message_ready(self, my_task):
-        return False
+    def catch(self, my_task, event_definition=None):
+        my_task._set_internal_data(event_fired=True) 
 
-    def _accept_message(self, my_task, message):
-        return False
+    def throw(self, event_definition, workflow):
+        workflow.catch(event_definition)
 
-    def _fire(self, my_task):
-        my_task._set_internal_data(event_fired=True)
+    def reset(self, my_task):
+        my_task._set_internal_data(event_fired=False)
 
-    def _send_message(self, my_task):
-        return False
+    def __eq__(self, other):
+        return self.__class__.__name__ == other.__class__.__name__
 
     def serialize(self):
-        return { 'classname': self.__class__.__module__ + '.' + self.__class__.__name__ }
+        return { 
+            'classname': self.__class__.__module__ + '.' + self.__class__.__name__,
+            'internal': self.internal,
+            'external': self.external,
+        }
 
     @classmethod
     def deserialize(cls, dct):
         cls_name = dct.pop('classname')
-        return cls(**dct)
+        internal, external = dct.pop('internal'), dct.pop('external')
+        obj = cls(**dct)
+        obj.internal, obj.external = internal, external
+        return obj
 
-
-class NoneEventDefinition(EventDefinition):
-    pass
-
-
-class TerminateEventDefinition(EventDefinition):
-    pass
-
-
-class MessageEventDefinition(EventDefinition):
+class NamedEventDefinition(EventDefinition):
     """
-    The MessageEventDefinition is the implementation of event definition used
-    for Message Events.
-    """
+    Extend the base event class to provide a name for the event.  Most throw/catch events
+    have names that names that will be used to identify the event.
 
-    def __init__(self, name, payload=None, result_var=None):
-
-        self.name = name
-        self.payload = payload
-        self.result_var = result_var if result_var is not None else f'{name}_result'
-
-    def _message_ready(self, my_task):
-        waiting_messages = my_task.workflow.task_tree.internal_data.get('messages',{})
-        if (self.message in waiting_messages.keys()):
-            evaledpayload = waiting_messages[self.message]
-            del(waiting_messages[self.message])
-            return evaledpayload
-        return False
-
-    def _send_message(self, my_task):
-        payload = my_task.workflow.script_engine.evaluate(my_task, self.payload)
-        my_task.workflow.message(self.message, payload, resultVar=self.resultVar)
-        return True
-
-    def _accept_message(self, my_task, message):
-        if message != self.message:
-            return False
-        self._fire(my_task)
-        return True
-
-    @classmethod
-    def deserialize(cls, dct):
-        return MessageEventDefinition(dct['message'],dct['payload'],dct['name'],dct['resultVar'])
-
-    def serialize(self):
-        retdict = super(MessageEventDefinition, self).serialize()
-        retdict['name'] = self.name
-        retdict['payload'] = self.payload
-        retdict['result_var'] = self.result_var
-        return retdict
-
-
-class SignalEventDefinition(EventDefinition):
-    """
-    The SignalEventDefinition is the implementation of event definition used for Signal Events.
+    :param name: the name of this event
     """
 
     def __init__(self, name):
+        super(NamedEventDefinition, self).__init__()
         self.name = name
 
-    def _message_ready(self, my_task):
-        waiting_signals = my_task.workflow.task_tree.internal_data.get('signals',{})
-        if (self.name in waiting_signals.keys()) :
-            return (self.name, None)
-        return False
+    def reset(self, my_task):
+        super(NamedEventDefinition, self).reset(my_task)
 
-    def _send_message(self, my_task):
-        my_task.workflow.signal(self.name)
-        return True
-
-    def _accept_message(self, my_task, message):
-        if message != self.name:
-            return False
-        self._fire(my_task)
-        return True
-
-    @classmethod
-    def deserialize(cls, dct):
-        return SignalEventDefinition(dct['name'])
+    def __eq__(self, other):
+        return self.__class__.__name__ == other.__class__.__name__ and self.name == other.name
 
     def serialize(self):
-        retdict = super(SignalEventDefinition, self).serialize()
+        retdict = super(NamedEventDefinition, self).serialize()
         retdict['name'] = self.name
         return retdict
 
 
 class CancelEventDefinition(EventDefinition):
-    """The CancelEventDefinition is the implementation of event definition used for Cancel Events."""
+    """
+    Cancel events are only handled by the outerworkflow, as they can only be used inside
+    of transaction subprocesses.
+    """
+    def __init__(self):
+        super(CancelEventDefinition, self).__init__()
+        self.internal = False
 
-    def _message_ready(self, my_task):
-        waiting_messages = my_task.workflow.task_tree.internal_data.get('cancels',{})
-        if ('TokenReset' in waiting_messages.keys()) :
-            return ('TokenReset', None)
-        return False
 
+class EscalationEventDefinition(NamedEventDefinition):
+    """
+    Escalation events have names, though they don't seem to be used for anything.  Instead
+    the spec says that the escaltion code should be matched.
+    """
+
+    def __init__(self, name, escalation_code=None):
+        """
+        Constructor.
+
+        :param escalation_code: The escalation code this event should
+        react to. If None then all escalations will activate this event.
+        """
+        super(EscalationEventDefinition, self).__init__(name)
+        self.escalation_code = escalation_code
+
+    def __eq__(self, other):
+        return self.__class__.__name__ == other.__class__.__name__ and self.escalation_code in [ None, other.escalation_code ]
+
+    def serialize(self):
+        retdict = super(EscalationEventDefinition, self).serialize()
+        retdict['escalation_code'] = self.escalation_code
+        return retdict
+
+
+class MessageEventDefinition(NamedEventDefinition):
+    """
+    Message Events have both a name and a payload.
+
+    It is not entirely clear how the payload is supposed to be handled, so I have 
+    deviated from what the earlier code did as little as possible, but I believe
+    this should be revisited: for one thing, we're relying on some Camunda-sepcific
+    properties.
+    """
+
+    def __init__(self, name, payload=None, result_var=None):
+
+        # Internal should be false according to the BPMN spec, and we use it incorrectly
+        super(MessageEventDefinition, self).__init__(name)
+        self.payload = payload
+        self.result_var = result_var if result_var is not None else f'{name}_result'
+
+        # The BPMN spec says that Messages should not be used within a process; however
+        # we're doing this wrong so I am putting this here as a reminder, but commenting
+        # it out.
+
+        #self.internal = False
+
+    def catch(self, my_task, event_definition):
+
+        my_task.internal_data[event_definition.name] = event_definition.result_var, event_definition.payload
+        super(MessageEventDefinition, self).catch(my_task, event_definition)
+
+    def throw(self, my_task, workflow):
+        # We need to evaluate the message payload in the context of this task
+        result = my_task.workflow.script_engine.evaluate(my_task, self.payload)
+        # We can't update our own payload, because if this task is reached again
+        # we have to evaluate it again.
+        # I don't like this, but I also don't want to write a separate class just
+        # for this special case (where the thrown/caught event are identical)
+        # especially as we're doing this all wrong anyway.
+        event = MessageEventDefinition(self.name, payload=result, result_var=self.result_var)
+        super(MessageEventDefinition, self).throw(event, workflow)
+
+    def reset(self, my_task):
+        my_task.internal_data.pop(self.name, None)
+        super(MessageEventDefinition, self).reset(my_task)
+
+    def serialize(self):
+        retdict = super(MessageEventDefinition, self).serialize()
+        retdict['payload'] = self.payload
+        retdict['result_var'] = self.result_var
+        return retdict
+
+
+class NoneEventDefinition(EventDefinition):
+    """
+    This class defines behavior for NoneEvents.  We override throw to do nothing.
+    """
+
+    def __init__(self):
+        self.internal = False
+        self.external = False
+
+    def throw(self, my_task, workflow):
+        pass
+
+    def reset(self, my_task):
+        pass
+
+
+class SignalEventDefinition(NamedEventDefinition):
+    """The SignalEventDefinition is the implementation of event definition used for Signal Events."""
+    
+    def __init__(self, name):
+        super(SignalEventDefinition, self).__init__(name)
+
+
+class TerminateEventDefinition(EventDefinition):
+    """The TerminateEventDefinition is the implementation of event definition used for Termination Events."""
+    
+    def __init__(self):
+        super(TerminateEventDefinition, self).__init__()
+        self.external = False
 
 class TimerEventDefinition(EventDefinition):
     """
@@ -165,6 +232,7 @@ class TimerEventDefinition(EventDefinition):
         passed to the Script Engine and must evaluate to a tuple in the form of
         (repeatcount,timedeltaobject)
         """
+        super(TimerEventDefinition, self).__init__()
         self.label = label
         self.dateTime = dateTime
 
@@ -205,47 +273,6 @@ class TimerEventDefinition(EventDefinition):
         retdict = super(TimerEventDefinition, self).serialize()
         retdict['label'] = self.label
         retdict['dateTime'] = self.dateTime
-        return retdict
-
-
-class EscalationEventDefinition(EventDefinition):
-    """
-    The EscalationEventDefinition is the implementation of event definition used for
-    Escalation Events.
-    """
-
-    def __init__(self, escalation_code):
-        """
-        Constructor.
-
-        :param escalation_code: The escalation code this event should
-        react to. If None then all escalations will activate this event.
-        """
-        self.escalation_code = escalation_code
-
-    def _accept_message(self, my_task, message):
-        if sys.version_info[0] == 3:
-            string_types = str,
-        else:
-            string_types = basestring,
-        if isinstance(message, string_types) and message.startswith('x_escalation:'):
-            parts = message.split(':')
-            if len(parts) == 3:
-                _, source_task_name, recv_escalation_code = parts
-                if not self.escalation_code or self.escalation_code == recv_escalation_code:
-                    main_child_task_spec = my_task.parent.task_spec.main_child_task_spec
-                    if source_task_name == main_child_task_spec.name:
-                        self._fire(my_task)
-                        return True
-        return False
-
-    @classmethod
-    def deserialize(cls, dct):
-        return EscalationEventDefinition(dct['escalation_code'])
-
-    def serialize(self):
-        retdict = super(EscalationEventDefinition, self).serialize()
-        retdict['escalation_code'] = self.escalation_code
         return retdict
 
 

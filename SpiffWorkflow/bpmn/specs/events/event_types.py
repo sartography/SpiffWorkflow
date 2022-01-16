@@ -17,7 +17,7 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .event_definitions import NoneEventDefinition
+from .event_definitions import NoneEventDefinition, MessageEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
 from ....specs.StartTask import StartTask
@@ -35,56 +35,35 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         super(CatchingEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
 
+    def catch(self, my_task, source_task=None):
+        
+        self.event_definition.catch(my_task, source_task)
+
     def _update_hook(self, my_task):
-        target_state = getattr(my_task, '_bpmn_load_target_state', None)
-        message = self.event_definition._message_ready(my_task)
-        if message:
-            if message[1] != None:
-                resultVar = message[1]
-            else:
-                resultVar = my_task.task_spec.name + '_Response'
-            my_task.data[resultVar] = message[0]
-            # this next line actually matters for some start events.
-            my_task.children = []
-            my_task._sync_children(my_task.task_spec.outputs)
-            super(CatchingEvent, self)._update_hook(my_task)
-        elif (my_task.internal_data.get('repeat', 0) > 0) :
-            fired = self.event_definition.has_fired(my_task)
-            repeat = my_task.internal_data.get('repeat', 0)
-            repeat_count = my_task.internal_data.get('repeat_count', 0)
-            if (repeat >= repeat_count) and fired:
-                my_task.children = []
-                my_task._sync_children(my_task.task_spec.outputs)
-                super(CatchingEvent, self)._update_hook(my_task)
-                my_task.workflow.do_engine_steps()
-                my_task._set_state(Task.WAITING)
-                if not my_task.workflow._is_busy_with_restore():
-                    self.entering_waiting_state(my_task)
-        elif target_state == Task.READY or (
-                not my_task.workflow._is_busy_with_restore() and
-                self.event_definition.has_fired(my_task)):
-            super(CatchingEvent, self)._update_hook(my_task)
-        else:
-            if not my_task.parent._is_finished():
-                return
-            if not my_task.state == Task.WAITING:
-                my_task._set_state(Task.WAITING)
-                if not my_task.workflow._is_busy_with_restore():
-                    self.entering_waiting_state(my_task)
 
-    def _on_ready_hook(self, my_task):
-        self._predict(my_task)
+        if my_task.state == Task.WAITING and self.event_definition.has_fired(my_task):
+            my_task._set_state(Task.READY)
+        super(CatchingEvent, self)._update_hook(my_task)
 
-    def accept_message(self, my_task, message):
-        if my_task.state == Task.WAITING and self.event_definition._accept_message(my_task, message):
-            self._update(my_task)
-            return True
-        return False
+    def _on_ready(self, my_task):
 
-    def entering_waiting_state(self, my_task):
+        # None events don't propogate, so as soon as we're ready, we fire our event
         if isinstance(self.event_definition, NoneEventDefinition):
-            self.event_definition._fire(my_task)
-            super(CatchingEvent, self)._update_hook(my_task)
+            my_task._set_internal_data(event_fired=True)
+
+        # If we have not seen the event we're waiting for, enter the waiting state
+        if not self.event_definition.has_fired(my_task):
+            my_task._set_state(Task.WAITING)
+        super(CatchingEvent, self)._on_ready(my_task)
+
+    def _on_complete_hook(self, my_task):
+        # If we are a message event, then we need to copy the event data out of
+        # our internal data and into the task data
+        if isinstance(self.event_definition, MessageEventDefinition):
+            result_var, result = my_task.internal_data[self.event_definition.name]
+            my_task.data[result_var] = result
+        self.event_definition.reset(my_task)
+        super(CatchingEvent, self)._on_complete_hook(my_task)
 
     def serialize(self, serializer):
         return serializer.serialize_generic_event(self)
@@ -106,23 +85,10 @@ class ThrowingEvent(Simple, BpmnSpecMixin):
         super(ThrowingEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
 
-    def _update_hook(self, my_task):
-        target_state = getattr(my_task, '_bpmn_load_target_state', None)
-        if target_state == Task.READY or (
-                not my_task.workflow._is_busy_with_restore() and
-                self.event_definition.has_fired(my_task)):
-            super(ThrowingEvent, self)._update_hook(my_task)
-        else:
-            if not my_task.parent._is_finished():
-                return
-            # here we diverge from the previous and we just send the message
-            self.event_definition._send_message(my_task)
-            # if we throw the message, then we need to be completed.
-            if not my_task.state == Task.READY:
-                my_task._set_state(Task.READY)
-
-    def _on_ready_hook(self, my_task):
-        self._predict(my_task)
+    def _on_complete_hook(self, my_task):
+        super(ThrowingEvent, self)._on_complete_hook(my_task)
+        if self.event_definition.internal:
+            self.event_definition.throw(my_task, my_task.workflow)
 
     def serialize(self, serializer):
         return serializer.serialize_generic_event(self)

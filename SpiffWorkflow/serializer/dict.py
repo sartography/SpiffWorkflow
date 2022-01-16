@@ -387,8 +387,8 @@ class DictionarySerializer(Serializer):
 
     def serialize_boundary_event(self, spec):
         s_state = self.serialize_task_spec(spec)
-        if spec._cancel_activity:
-            s_state['cancel_activity'] = spec._cancel_activity
+        if spec.cancel_activity:
+            s_state['cancel_activity'] = spec.cancel_activity
         else:
             s_state['cancel_activity'] = None
         if spec.event_definition:

@@ -25,9 +25,10 @@ class EventDefinitionParser(TaskParser):
         if escalationRef:
             escalation = one(self.process_parser.doc_xpath('.//bpmn:escalation[@id="%s"]' % escalationRef))
             escalation_code = escalation.get('escalationCode')
+            name = escalation.get('name')
         else:
-            escalation_code = None
-        return EscalationEventDefinition(escalation_code)
+            name, escalation_code = 'None Escalation Event', None
+        return EscalationEventDefinition(name, escalation_code)
 
     def parse_message_event(self, messageEvent):
         """Parse the messageEventDefinition node and return an instance of MessageEventDefinition."""     
@@ -37,11 +38,10 @@ class EventDefinitionParser(TaskParser):
             message = one(self.process_parser.doc_xpath('.//bpmn:message[@id="%s"]' % messageRef))
             name = message.get('name')
         else:
-            name = messageRef
+            name = messageEvent.getparent().get('name')
         payload = messageEvent.attrib.get('{' + CAMUNDA_MODEL_NS + '}expression')
         resultVar = messageEvent.attrib.get('{' + CAMUNDA_MODEL_NS + '}resultVariable')
         return MessageEventDefinition(name, payload, resultVar)
-
 
     def parse_signal_event(self, signalEvent):
         """Parse the signalEventDefinition node and return an instance of SignalEventDefinition."""
@@ -51,7 +51,7 @@ class EventDefinitionParser(TaskParser):
             signal = one(self.process_parser.doc_xpath('.//bpmn:signal[@id="%s"]' % signalRef))
             name = signal.get('name')
         else:
-            name = signalRef
+            name = signalEvent.getparent().get('name')
         return SignalEventDefinition(name)
 
     def parse_terminate_event(self, terminateEvent):
