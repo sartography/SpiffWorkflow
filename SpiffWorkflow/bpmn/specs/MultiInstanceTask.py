@@ -494,12 +494,12 @@ class MultiInstanceTask(TaskSpec):
             self.__iteration_complete(my_task)
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
-        DeepMerge.merge(subworkflow.last_task.data, my_task.data)
-        my_task.data = subworkflow.last_task.data
+        """Override standard behavior for on_subworkflow_completed"""
+        my_task.data[self.elementVar] = subworkflow.last_task.data[self.elementVar]
         self.__iteration_complete(my_task)
-        super()._on_subworkflow_completed(subworkflow, my_task)
 
     def __iteration_complete(self, my_task):
+
         # this is all about updating the collection for a MI
         self._check_inputs(my_task)
 
@@ -524,10 +524,12 @@ class MultiInstanceTask(TaskSpec):
 
         if not isinstance(my_task.task_spec,SubWorkflowTask):
             my_task._sync_children(outputs, Task.FUTURE)
-            for child in my_task.children:
-                child.task_spec._update(child)
 
-        # If removed, add the element_var_data back onto this task.
+        for child in my_task.children:
+            child.task_spec._update(child)
+
+        # If removed, add the element_var_data back onto this task, after
+        # updating the children.
         if(element_var_data):
             my_task.data[self.elementVar] = element_var_data
 
