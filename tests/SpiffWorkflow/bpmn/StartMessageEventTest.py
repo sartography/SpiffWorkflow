@@ -40,15 +40,15 @@ class StartMessageTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps() # get around start task
         ready_tasks = self.workflow.get_tasks(Task.READY)
-        self.assertEqual(1, len(ready_tasks),'Expected to have one ready task')
         waiting_tasks = self.workflow.get_tasks(Task.WAITING)
+        self.assertEqual(1, len(ready_tasks),'Expected to have one ready task')
         self.assertEqual(1, len(waiting_tasks), 'Expected to have one waiting task')
 
         for step in steps:
             current_task = ready_tasks[0]
             self.assertEqual(current_task.task_spec.name,step[0])
             current_task.update_data(step[1])
-            self.workflow.complete_task_from_id(current_task.id)
+            current_task.complete()
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
             if save_restore: self.save_restore()
@@ -56,8 +56,7 @@ class StartMessageTest(BpmnWorkflowTestCase):
         self.assertEqual(self.workflow.is_completed(),True,'Expected the workflow to be complete at this point')
         self.assertEqual(self.workflow.last_task.data,{'plan_details': 'Best',
                                                        'ApprovalResult': 'Yes',
-                                                       'Done': 'OK!',
-                                                       'end_event': None})
+                                                       'Done': 'OK!'})
 
 
 def suite():

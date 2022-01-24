@@ -27,7 +27,7 @@ class InlineScriptTest(BpmnWorkflowTestCase):
                                'testvar2': [{'x': 1, 'y': 'a'},
                                             {'x': 2, 'y': 'b'},
                                             {'x': 3, 'y': 'c'}],
-                               'sample': ['b', 'c'], 'end_event': None})
+                               'sample': ['b', 'c']})
 
 
 

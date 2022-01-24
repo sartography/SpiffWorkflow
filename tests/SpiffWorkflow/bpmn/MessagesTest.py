@@ -25,9 +25,9 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.assertEqual([], self.workflow.get_tasks(Task.READY))
         self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
-        self.workflow.accept_message('Wrong Message')
+        self.workflow.message('Wrong Message')
         self.assertEqual([], self.workflow.get_tasks(Task.READY))
-        self.workflow.accept_message('Test Message')
+        self.workflow.message('Test Message')
         self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
 
         self.assertEqual(
@@ -47,9 +47,9 @@ class MessagesTest(BpmnWorkflowTestCase):
 
         self.assertEqual([], self.workflow.get_tasks(Task.READY))
         self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
-        self.workflow.accept_message('Wrong Message')
+        self.workflow.message('Wrong Message')
         self.assertEqual([], self.workflow.get_tasks(Task.READY))
-        self.workflow.accept_message('Test Message')
+        self.workflow.message('Test Message')
 
         self.save_restore()
 

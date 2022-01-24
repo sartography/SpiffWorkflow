@@ -38,22 +38,6 @@ class TestUserTask(UserTask):
         return serializer.deserialize_generic(wf_spec, s_state, TestUserTask)
 
 
-class TestEndEvent(EndEvent):
-
-    def _on_complete_hook(self, my_task):
-        my_task.set_data(end_event=self.description)
-        super(TestEndEvent, self)._on_complete_hook(my_task)
-
-
-    def serialize(self, serializer):
-        return serializer.serialize_end_event(self)
-
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_end_event(wf_spec, s_state, TestEndEvent)
-
-
 class TestCallActivity(CallActivity):
 
     def __init__(self, parent, name, **kwargs):
@@ -79,7 +63,6 @@ class TestTransactionSubprocess(TransactionSubprocess):
 class TestBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
         full_tag('userTask'): (UserTaskParser, TestUserTask),
-        full_tag('endEvent'): (EndEventParser, TestEndEvent),
         full_tag('callActivity'): (CallActivityParser, TestCallActivity),
         full_tag('transaction'): (TransactionSubprocessParser, TestTransactionSubprocess),
     }

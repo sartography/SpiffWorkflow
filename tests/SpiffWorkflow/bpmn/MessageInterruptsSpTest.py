@@ -54,7 +54,7 @@ class MessageInterruptsSpTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
         self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
 
-        self.workflow.accept_message('Test Message')
+        self.workflow.message('Test Message')
         self.workflow.do_engine_steps()
         self.save_restore()
 

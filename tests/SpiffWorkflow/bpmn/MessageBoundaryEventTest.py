@@ -44,7 +44,7 @@ class MessageBoundaryTest(BpmnWorkflowTestCase):
 
                 self.workflow.complete_task_from_id(task.id)
                 self.workflow.do_engine_steps()
-                time.sleep(.05)
+                time.sleep(.1)
                 self.workflow.refresh_waiting_tasks()
                 if save_restore: self.save_restore()
             ready_tasks = self.workflow.get_tasks(Task.READY)
