@@ -648,7 +648,7 @@ class Task(object):
         """
         Marks the task as ready for execution.
         """
-        if self._has_state(self.COMPLETED) or self._has_state(self.CANCELLED) or self._has_state(self.WAITING):
+        if self._has_state(self.COMPLETED) or self._has_state(self.CANCELLED):
             return
         self._set_state(self.READY)
         self.task_spec._on_ready(self)
