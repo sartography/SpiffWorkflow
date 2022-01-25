@@ -49,10 +49,6 @@ class EndEvent(ThrowingEvent):
 
         super(EndEvent, self)._on_complete_hook(my_task)
 
-        if self.event_definition.external:
-            target = my_task.workflow.outer_workflow
-            target.catch(self.event_definition)
-
         if isinstance(self.event_definition, TerminateEventDefinition):
 
             # We are finished.  Set the workflow data and cancel all tasks

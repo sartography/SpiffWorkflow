@@ -87,9 +87,9 @@ class NavLeapfrogTest(BpmnWorkflowTestCase):
         self.assertNav(nav_list[4].children[1], description="no chickens", indent=1)
 
         # Pigs
-        self.assertNav(nav_list[5].children[0], description="no pigs", state=None)
-        self.assertNav(nav_list[5].children[1], description="1 or more pigs", state=None)
-        self.assertNav(nav_list[5].children[1].children[0], description="Tell me boud dem Pigs", state=None)
+        self.assertNav(nav_list[5].children[1], description="no pigs", state=None)
+        self.assertNav(nav_list[5].children[0], description="1 or more pigs", state=None)
+        self.assertNav(nav_list[5].children[0].children[0], description="Tell me boud dem Pigs", state=None)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(NavLeapfrogTest)

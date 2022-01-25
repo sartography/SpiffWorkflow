@@ -18,6 +18,7 @@ from __future__ import division
 # 02110-1301  USA
 
 from .event_types import ThrowingEvent, CatchingEvent
+from .event_definitions import CycleTimerEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ..SubWorkflowTask import SubWorkflowTask
 from ....specs.Simple import Simple
@@ -32,7 +33,7 @@ class IntermediateThrowEvent(ThrowingEvent):
 class _BoundaryEventParent(Simple, BpmnSpecMixin):
     """This task is inserted before a task with boundary events."""
 
-    # This would be better modelled as some type of join.
+    # I wonder if this would be better modelled as some type of join.
     # It would make more sense to have the boundary events and the task
     # they're attached to be inputs rather than outputs.
 
@@ -47,11 +48,13 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
         # wait for new events
         for child in my_task.children:
             if isinstance(child.task_spec, BoundaryEvent):
-                child.task_spec.event_definition.reset(my_task)
+                child.task_spec.event_definition.reset(child)
                 child._set_state(Task.WAITING)
 
     def _child_complete_hook(self, child_task):
         
+        # If the main child completes, or a cancelling event occurs, cancel any
+        # unfinished children
         if child_task.task_spec == self.main_child_task_spec or child_task.task_spec.cancel_activity:
             for sibling in child_task.parent.children:
                 if sibling == child_task:
@@ -63,9 +66,15 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
             for t in child_task.workflow._get_waiting_tasks():
                 t.task_spec._update(t)
 
+        # If our event is a cycle timer, we need to set it back to waiting so it
+        # can fire avain
+        elif isinstance(child_task.task_spec.event_definition, CycleTimerEventDefinition):
+            child_task._set_state(Task.WAITING)
+            child_task.task_spec._update_hook(child_task)
+
     def _predict_hook(self, my_task):
 
-        # Events attached to the main task ight occur
+        # Events attached to the main task might occur
         my_task._sync_children(self.outputs, state=Task.MAYBE)
         # The main child's state is based on this task's state
         state = Task.FUTURE if my_task._is_definite() else my_task.state
@@ -94,10 +103,14 @@ class BoundaryEvent(CatchingEvent):
 
     def catch(self, my_task, event_definition):
         super(BoundaryEvent, self).catch(my_task, event_definition)
+        # Boundary events can be completed as soon as they're received, as they are
+        # activated by the boundary event parent when it is reached and cancelled
+        # after the main task (or another cancelling event) occurs.
         my_task.complete()
 
     def _on_complete_hook(self, my_task):
         super(BoundaryEvent, self)._on_complete_hook(my_task)
+        # Notify the boundary event parent as well.
         my_task.parent.task_spec._child_complete_hook(my_task)
 
     def serialize(self, serializer):

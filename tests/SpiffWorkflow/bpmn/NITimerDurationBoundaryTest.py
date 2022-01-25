@@ -77,7 +77,7 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.is_completed(),True)
-        self.assertEqual(self.workflow.last_task.data,{'work_done': 'Yes', 'end_event': None, 'experience': 'Great!'})
+        self.assertEqual(self.workflow.last_task.data,{'work_done': 'Yes', 'experience': 'Great!'})
         print (self.workflow.last_task.data)
         print(duration)
 

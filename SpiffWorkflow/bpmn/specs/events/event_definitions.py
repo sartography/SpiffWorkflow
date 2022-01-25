@@ -53,11 +53,26 @@ class EventDefinition(object):
     def catch(self, my_task, event_definition=None):
         my_task._set_internal_data(event_fired=True) 
 
-    def throw(self, event_definition, workflow):
-        workflow.catch(event_definition)
+    def throw(self, my_task):
+        self._throw(
+            event=my_task.task_spec.event_definition, 
+            workflow=my_task.workflow, 
+            outer_workflow=my_task.workflow.outer_workflow
+        )
 
     def reset(self, my_task):
         my_task._set_internal_data(event_fired=False)
+
+    def _throw(self, event, workflow, outer_workflow):
+        # This method exists because usually we just want to send the event in our
+        # own task spec, but we can't do that for message events.
+        # We also don't have a more sophisticated method for addressing events to
+        # a particular process, but this at least provides a mechanism for distinguishing
+        # between processes and subprocesses.
+        if self.internal:
+            workflow.catch(event)
+        if self.external and workflow != outer_workflow:
+            outer_workflow.catch(event)
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__
@@ -139,41 +154,45 @@ class EscalationEventDefinition(NamedEventDefinition):
 class MessageEventDefinition(NamedEventDefinition):
     """
     Message Events have both a name and a payload.
-
-    It is not entirely clear how the payload is supposed to be handled, so I have 
-    deviated from what the earlier code did as little as possible, but I believe
-    this should be revisited: for one thing, we're relying on some Camunda-sepcific
-    properties.
     """
+
+    # It is not entirely clear how the payload is supposed to be handled, so I have 
+    # deviated from what the earlier code did as little as possible, but I believe
+    # this should be revisited: for one thing, we're relying on some Camunda-sepcific
+    # properties.
 
     def __init__(self, name, payload=None, result_var=None):
 
-        # Internal should be false according to the BPMN spec, and we use it incorrectly
         super(MessageEventDefinition, self).__init__(name)
         self.payload = payload
-        self.result_var = result_var if result_var is not None else f'{name}_result'
+        self.result_var = result_var
 
         # The BPMN spec says that Messages should not be used within a process; however
-        # we're doing this wrong so I am putting this here as a reminder, but commenting
-        # it out.
+        # we're doing this wrong so I am putting this here as a reminder that it should be
+        # fixed, but commenting it out.
 
         #self.internal = False
 
     def catch(self, my_task, event_definition):
-
-        my_task.internal_data[event_definition.name] = event_definition.result_var, event_definition.payload
+        
+        # It seems very stupid to me that the sender of the message should define the
+        # name of the variable the payload is saved in (the receiver ought to decide
+        # what to do with it); however, Camunda puts the field on the sender, not the
+        # receiver.
+        if event_definition.result_var is None:
+            result_var = f'{my_task.task_spec.name}_Response' 
+        else:
+            result_var = event_definition.result_var
+        my_task.internal_data[event_definition.name] = result_var, event_definition.payload
         super(MessageEventDefinition, self).catch(my_task, event_definition)
 
-    def throw(self, my_task, workflow):
+    def throw(self, my_task):
         # We need to evaluate the message payload in the context of this task
         result = my_task.workflow.script_engine.evaluate(my_task, self.payload)
         # We can't update our own payload, because if this task is reached again
-        # we have to evaluate it again.
-        # I don't like this, but I also don't want to write a separate class just
-        # for this special case (where the thrown/caught event are identical)
-        # especially as we're doing this all wrong anyway.
+        # we have to evaluate it again so we have to create a new event
         event = MessageEventDefinition(self.name, payload=result, result_var=self.result_var)
-        super(MessageEventDefinition, self).throw(event, workflow)
+        self._throw(event, my_task.workflow, my_task.workflow.outer_workflow)
 
     def reset(self, my_task):
         my_task.internal_data.pop(self.name, None)
@@ -190,12 +209,10 @@ class NoneEventDefinition(EventDefinition):
     """
     This class defines behavior for NoneEvents.  We override throw to do nothing.
     """
-
     def __init__(self):
-        self.internal = False
-        self.external = False
+        self.internal, self.external = False, False
 
-    def throw(self, my_task, workflow):
+    def throw(self, my_task):
         pass
 
     def reset(self, my_task):
@@ -204,10 +221,7 @@ class NoneEventDefinition(EventDefinition):
 
 class SignalEventDefinition(NamedEventDefinition):
     """The SignalEventDefinition is the implementation of event definition used for Signal Events."""
-    
-    def __init__(self, name):
-        super(SignalEventDefinition, self).__init__(name)
-
+    pass
 
 class TerminateEventDefinition(EventDefinition):
     """The TerminateEventDefinition is the implementation of event definition used for Termination Events."""
@@ -229,8 +243,8 @@ class TimerEventDefinition(EventDefinition):
         :param label: The label of the event. Used for the description.
 
         :param dateTime: The dateTime expression for the expiry time. This is
-        passed to the Script Engine and must evaluate to a tuple in the form of
-        (repeatcount,timedeltaobject)
+        passed to the Script Engine and must evaluate to a datetime (in the case of
+        a time-date event) or a timedelta (in the case of a duration event).
         """
         super(TimerEventDefinition, self).__init__()
         self.label = label
@@ -265,10 +279,6 @@ class TimerEventDefinition(EventDefinition):
             now = datetime.date.today()
         return now > dt
 
-    @classmethod
-    def deserialize(cls, dct):
-        return TimerEventDefinition(dct['label'],dct['dateTime'])
-
     def serialize(self):
         retdict = super(TimerEventDefinition, self).serialize()
         retdict['label'] = self.label
@@ -276,39 +286,66 @@ class TimerEventDefinition(EventDefinition):
         return retdict
 
 
-class CycleTimerEventDefinition(TimerEventDefinition):
+class CycleTimerEventDefinition(EventDefinition):
     """
     The TimerEventDefinition is the implementation of event definition used for
     Catching Timer Events (Timer events aren't thrown).
+
+    The cycle definition should evaluate to a tuple of
+    (n repetitions, repetition duration)
     """
+    def __init__(self, label, cycle_definition):
+
+        super(CycleTimerEventDefinition, self).__init__()
+        self.label = label
+        # The way we're using cycle timers doesn't really align with how the BPMN spec
+        # describes is (the example of "every monday at 9am")
+        # I am not sure why this isn't a subprocess with a repeat count that starts
+        # with a duration timer
+        self.cycle_definition = cycle_definition
 
     def has_fired(self, my_task):
-        """
-        The Timer is considered to have fired if the evaluated dateTime
-        expression is before datetime.datetime.now()
-        """
-        repeat,dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
+        # We will fire this timer whenever a cycle completes
+        # The task itself will manage counting how many times it fires
 
-        repeat_count = my_task._get_internal_data('repeat_count',0)
+        repeat, delta = my_task.workflow.script_engine.evaluate(my_task, self.cycle_definition)
 
-        if my_task._get_internal_data('start_time',None) is not None:
-            start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time',None),'%Y-%m-%d '
-                                                                                                  '%H:%M:%S.%f')
-            elapsed = datetime.datetime.now() - start_time
-            fire = elapsed > dt
-            if fire and repeat_count < repeat:
-                my_task.internal_data['repeat'] = repeat
-                my_task.internal_data['repeat_count'] = repeat_count + 1
-                my_task.internal_data['start_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-                return True
-            else:
-                return False
-        else:
+        # This is the first time we've entered this event
+        if my_task.internal_data.get('repeat') is None:
             my_task.internal_data['repeat'] = repeat
-            my_task.internal_data['repeat_count'] = repeat_count
-            my_task.internal_data['start_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-            return False
+        if my_task.get_data('repeat_count') is None:
+            # This is now a looping task, and if we use internal data, the repeat count won't persist
+            my_task.set_data(repeat_count=0)
 
-    @classmethod
-    def deserialize(cls, dct):
-        return CycleTimerEventDefinition(dct['label'],dct['dateTime'])
+        now = datetime.datetime.now()
+        if my_task._get_internal_data('start_time') is None:
+            start_time = now
+            my_task.internal_data['start_time'] = now.strftime('%Y-%m-%d %H:%M:%S.%f')
+        else:
+            start_time = datetime.datetime.strptime(
+                my_task._get_internal_data('start_time'),
+                '%Y-%m-%d %H:%M:%S.%f'
+            )
+        
+        if my_task.get_data('repeat_count') >= repeat:
+            return False
+        elif (now - start_time) < delta:
+            return False
+        return True
+
+    def reset(self, my_task):
+        repeat_count = my_task.get_data('repeat_count')
+        if repeat_count is None:
+            # If this is a boundary event, then repeat count will not have been set
+            my_task.set_data(repeat_count=0)
+        else:
+            my_task.set_data(repeat_count=repeat_count + 1)
+        my_task.internal_data['start_time'] = None
+        super(CycleTimerEventDefinition, self).reset(my_task)
+
+    def serialize(self):
+        retdict = super(CycleTimerEventDefinition, self).serialize()
+        retdict['label'] = self.label
+        retdict['cycle_definition'] = self.cycle_definition
+        return retdict
+

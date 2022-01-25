@@ -104,6 +104,10 @@ class StartEventParser(EventDefinitionParser):
         }
         task = StartEvent(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
         self.spec.start.connect(task)
+        if isinstance(event_definition, CycleTimerEventDefinition):
+            # We are misusing cycle timers, so this is a hack whereboy we will
+            # revisit ourself if we fire.
+            task.connect(task)
         return task
 
     def handles_multiple_outgoing(self):

@@ -17,7 +17,7 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .event_definitions import NoneEventDefinition, MessageEventDefinition
+from .event_definitions import NoneEventDefinition, MessageEventDefinition, CycleTimerEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
 from ....specs.StartTask import StartTask
@@ -35,14 +35,18 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         super(CatchingEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
 
-    def catch(self, my_task, source_task=None):
-        
-        self.event_definition.catch(my_task, source_task)
+    def catch(self, my_task, event_definition):
+        """
+        Catch is called by the workflow when the task has matched an event
+        definition, at which point we can update our task's state.
+        """
+        self.event_definition.catch(my_task, event_definition)
+        self._update_hook(my_task)
 
     def _update_hook(self, my_task):
 
         if my_task.state == Task.WAITING and self.event_definition.has_fired(my_task):
-            my_task._set_state(Task.READY)
+            my_task._ready()
         super(CatchingEvent, self)._update_hook(my_task)
 
     def _on_ready(self, my_task):
@@ -57,9 +61,10 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         super(CatchingEvent, self)._on_ready(my_task)
 
     def _on_complete_hook(self, my_task):
-        # If we are a message event, then we need to copy the event data out of
-        # our internal data and into the task data
+
         if isinstance(self.event_definition, MessageEventDefinition):
+            # If we are a message event, then we need to copy the event data out of
+            # our internal data and into the task data
             result_var, result = my_task.internal_data[self.event_definition.name]
             my_task.data[result_var] = result
         self.event_definition.reset(my_task)
@@ -87,8 +92,7 @@ class ThrowingEvent(Simple, BpmnSpecMixin):
 
     def _on_complete_hook(self, my_task):
         super(ThrowingEvent, self)._on_complete_hook(my_task)
-        if self.event_definition.internal:
-            self.event_definition.throw(my_task, my_task.workflow)
+        self.event_definition.throw(my_task)
 
     def serialize(self, serializer):
         return serializer.serialize_generic_event(self)

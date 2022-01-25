@@ -18,6 +18,7 @@ from __future__ import division
 # 02110-1301  USA
 
 from .event_types import CatchingEvent
+from .event_definitions import CycleTimerEventDefinition
 from ....task import Task
 
 
@@ -28,9 +29,13 @@ class StartEvent(CatchingEvent):
         super(StartEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
         
     def catch(self, my_task, source_task):
+
+        # We might need to revisit an intermediate event after it completes or
+        # if it got cancelled so we'll still catch messages even if we're finished
         if my_task.state == Task.COMPLETED or my_task.state == Task.CANCELLED:
             my_task.set_children_future()
             my_task._set_state(Task.WAITING)
+
         super(StartEvent, self).catch(my_task, source_task)
 
     def serialize(self, serializer):

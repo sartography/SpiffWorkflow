@@ -92,12 +92,7 @@ class NIMessageBoundaryTest(BpmnWorkflowTestCase):
                                                        'flag_task': 'Yes',
                                                        'work_done': 'Yes',
                                                        'work_completed': 'Lots of Stuff',
-                                                       'work_late_reason': 'covid-19',
-                                                       'end_event': None}) # end event gets appended
-                                                                           # by the test framework
-
-
-
+                                                       'work_late_reason': 'covid-19'})
 
 
 def suite():
