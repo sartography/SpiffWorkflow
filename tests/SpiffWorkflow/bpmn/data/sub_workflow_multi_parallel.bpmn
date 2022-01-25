@@ -15,7 +15,8 @@
       <bpmn:scriptTask id="SubProcessScript" name="SubProcessScript">
         <bpmn:incoming>Flow_14l2ton</bpmn:incoming>
         <bpmn:outgoing>Flow_06gypww</bpmn:outgoing>
-        <bpmn:script>my_var['new_info'] = "Adding this!"</bpmn:script>
+        <bpmn:script>my_var['new_info'] = "Adding this!"
+my_var['name'] = my_var['name'] + "_edit"</bpmn:script>
       </bpmn:scriptTask>
       <bpmn:endEvent id="MySubProcessEnd" name="MySubProcessEnd">
         <bpmn:incoming>Flow_06gypww</bpmn:incoming>
