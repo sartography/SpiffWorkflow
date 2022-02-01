@@ -77,7 +77,7 @@ def load_suite(files):
     modules = [os.path.splitext(f)[0] for f in files]
     all_suites = []
     for name in modules:
-        name = name.lstrip('.').lstrip('/').replace('/', '.')
+        name = name.lstrip('.').lstrip('/').replace('/', '.').lstrip('\\').replace('\\', '.')
         module = __import__(name, globals(), locals(), [''])
         all_suites.append(module.suite())
         correlate_module(module)
