@@ -61,8 +61,8 @@ class FunctionScriptEngine(PythonScriptEngine):
 
     def execute(self, task: Task, script: str, data, external_methods=None):
         """
-        The routine receives the name of the script as entered in Camunda looks for the function executes it
-        and optionally executes some pre- and postprocessing.
+        The routine receives the name of the script as entered in Camunda. It looks for the function
+        and executes it and optionally executes some pre- and postprocessing.
 
         This routine only executes importable routines. This means that the module needs to be present in the
         Pythonpath. Within the sourcetree it is possible to specify the location of modules by defining
@@ -79,26 +79,20 @@ class FunctionScriptEngine(PythonScriptEngine):
         :param external_methods:
         :return:
         """
-        if '\n' in script:
-            raise PermissionError('script should not contain a linebreak')
-        split_import = script.split('.')
-        if len(split_import) == 1:
-            modulename = script
-            functionname = script
-        else:
-            modulename = '.'.join(split_import[:-1])
-            functionname = split_import[-1].replace('\n', '').\
-                replace('\r','').replace('\t', '').strip()
-        mod_function = self.get_module(modulename, functionname)
+        modulename, functionname = self.get_module_function(script)
+        mod_function = self.get_module(modulename, functionname,
+                                       self.pythonpackage)
 
-        config_parameters = self.bld_config_parms(task)
+        extensions_parameters = self.bld_extensions_parms(task)
 
         if self.before_execute and callable(self.before_execute):
-            parms = self.before_execute(task, script, config_parameters)
+            parms = self.before_execute(task, script, extensions_parameters,
+                                        self.pythonpackage)
         else:
-            taskdata = {'taskdata':deepcopy(task.data)}
+            taskdata = {'taskdata': deepcopy(task.data)}
             workflowdata = {'workflowdata': deepcopy(task.workflow.data)}
-            parms = {**taskdata, **workflowdata, **config_parameters}  # I do not want to pollute the originals
+            parms = {**taskdata, **workflowdata,
+                     **extensions_parameters}  # I do not want to pollute the originals
         result = None
         # noinspection PyBroadException
         try:
@@ -110,9 +104,10 @@ class FunctionScriptEngine(PythonScriptEngine):
         if self.after_execute and callable(self.after_execute):
             self.after_execute(result, task, script, self.err)
         elif self.err:
-            raise(self.err)
+            raise self.err
 
-    def auto_update(self, parms, task):
+    @staticmethod
+    def auto_update(parms, task):
         """
         Updates scalar params in task.data and task.workflow.data
 
@@ -131,11 +126,12 @@ class FunctionScriptEngine(PythonScriptEngine):
             elif k in task.workflow.data and task.workflow.data[k] != v:
                 task.workflow.data[k] = v
             elif k in task.data and task.data[k] != v:
-                task.update_data({k:v})
+                task.update_data({k: v})
             else:
-                task.update_data({k:v})
+                task.update_data({k: v})
 
-    def bld_config_parms(self, task) -> dict:
+    @staticmethod
+    def bld_extensions_parms(task) -> dict:
         """
         Routine builds a copy of the config parameters read from Camunda and prepares them for passing to the module
         Note that these parameters are read-only (therefor they are copied from the task_spec)
@@ -149,7 +145,29 @@ class FunctionScriptEngine(PythonScriptEngine):
         else:
             return {}
 
-    def get_module(self, modulename, functionname):
+    @staticmethod
+    def get_module_function(script):
+        """
+        Retrieve module and function from entered script. If the script is
+        a single term the modulename is the functionname.
+
+        :param script:
+        :return:
+        """
+        if '\n' in script:
+            raise PermissionError('script should not contain a linebreak')
+        script = script.replace('\r', '').replace('\t', '').strip()
+        split_import = script.split('.')
+        if len(split_import) == 1:
+            modulename = script
+            functionname = script
+        else:
+            modulename = '.'.join(split_import[:-1])
+            functionname = split_import[-1]
+        return modulename, functionname
+
+    @staticmethod
+    def get_module(modulename, functionname, pythonpackage):
         """
         Returns the function as imported if found either directly from the entered modulename or by prefixing the
         pythonpackage.
@@ -160,10 +178,11 @@ class FunctionScriptEngine(PythonScriptEngine):
 
         :param modulename:  Python module containing the function
         :param functionname: Name of the function to be executed
+        :param pythonpackage: Name of the pythonpackage where the module can be found if not specified in Camunda
         :return:
         """
-        possiblemodulenames = [modulename, self.pythonpackage,
-                               self.pythonpackage + '.' + modulename]
+        possiblemodulenames = [modulename, pythonpackage,
+                               pythonpackage + '.' + modulename]
         for module in possiblemodulenames:
             try:
                 imported = importlib.import_module(module)
