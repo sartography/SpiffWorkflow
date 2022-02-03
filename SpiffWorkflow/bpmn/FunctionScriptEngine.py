@@ -87,21 +87,19 @@ class FunctionScriptEngine(PythonScriptEngine):
             functionname = script
         else:
             modulename = '.'.join(split_import[:-1])
-            functionname = split_import[-1].replace('\n', '').replace('\r',
-                                                                      '').replace(
-                '\t', '').strip()
+            functionname = split_import[-1].replace('\n', '').\
+                replace('\r','').replace('\t', '').strip()
         mod_function = self.get_module(modulename, functionname)
 
         config_parameters = self.bld_config_parms(task)
 
         if self.before_execute and callable(self.before_execute):
-            taskdata = self.before_execute(task, script, config_parameters)
-            workflowdata = {}
+            parms = self.before_execute(task, script, config_parameters)
         else:
             taskdata = {'taskdata':deepcopy(task.data)}
             workflowdata = {'workflowdata': deepcopy(task.workflow.data)}
+            parms = {**taskdata, **workflowdata, **config_parameters}  # I do not want to pollute the originals
         result = None
-        parms = {**taskdata, **workflowdata, **config_parameters}  # I do not want to pollute the originals
         # noinspection PyBroadException
         try:
             result = mod_function(**parms)  # All parameters are passed to the function
