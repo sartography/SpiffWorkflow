@@ -24,7 +24,7 @@ from lxml import etree
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
 from ..workflow import BpmnWorkflow
-from .util import first, one
+from .util import first, one, DEFAULT_NSMAP
 from ..specs.events import (TimerEventDefinition, MessageEventDefinition,
                             EscalationEventDefinition,SignalEventDefinition,
                             CancelEventDefinition, CycleTimerEventDefinition)
@@ -133,6 +133,7 @@ class SubWorkflowParser(TaskParser):
 
 
     def get_subprocess_parser(self):
+
         thisTask = self.process_xpath('.//*[@id="%s"]'% self.get_id())[0]
         workflowStartEvent = self.process_xpath('.//*[@id="%s"]/bpmn:startEvent' % self.get_id())
         workflowEndEvent =  self.process_xpath('.//*[@id="%s"]/bpmn:endEvent' % self.get_id())
@@ -147,32 +148,21 @@ class SubWorkflowParser(TaskParser):
                 node=self.node,
                 filename=self.process_parser.filename)
         thisTaskCopy = copy.deepcopy(thisTask)
-        definitions = {'bpmn':"http://www.omg.org/spec/BPMN/20100524/MODEL",
-                       'bpmndi':"http://www.omg.org/spec/BPMN/20100524/DI",
-                       'dc':"http://www.omg.org/spec/DD/20100524/DC",
-                       'camunda':"http://camunda.org/schema/1.0/bpmn",
-                       'di':"http://www.omg.org/spec/DD/20100524/DI"}
+
+        nsmap = DEFAULT_NSMAP.copy()
+        nsmap['camunda'] = "http://camunda.org/schema/1.0/bpmn"
+        nsmap['di'] = "http://www.omg.org/spec/DD/20100524/DI"
+
         # Create wrapper xml for the subworkflow
-        for ns in definitions.keys():
-            etree.register_namespace(ns,definitions[ns])
-        #root = etree.Element('bpmn:definitions')
-        root = etree.Element('{'+definitions['bpmn']+'}definitions')
+        for ns, val in nsmap.items():
+            etree.register_namespace(ns, val)
 
-        # Change the subProcess into a new bpmn:process & change the ID
-        thisTaskCopy.tag='{'+definitions['bpmn']+'}process'
-        thisTaskCopy.set('id',thisTaskCopy.get('id')+"_process")
-        thisTaskCopy.set('isExecutable','true')
-        #inject the subWorkflow process into the header
-        root.append(thisTaskCopy)
-        # we have to put xml into our taskspec because
-        # the actual workflow spec will not serialize to
-        # json, but the XML is just a string
-
-        xml = etree.tostring(root).decode('ascii')
-        workflow_name = thisTaskCopy.get('id')
-
-        self.parser.add_bpmn_xml(etree.fromstring(xml))
-        wf_spec = self.parser.get_spec(workflow_name)
+        self.parser.add_process(
+            thisTask,
+            doc_xpath=self.process_parser.doc_xpath, 
+            filename=self.process_parser.filename
+        )
+        wf_spec = self.parser.get_spec(thisTask.get('id'))
         wf_spec.file = self.process_parser.filename
         return wf_spec
 

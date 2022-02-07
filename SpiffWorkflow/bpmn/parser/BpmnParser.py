@@ -161,17 +161,16 @@ class BpmnParser(object):
 
         processes = xpath('.//bpmn:process')
         for process in processes:
-            process_parser = self.PROCESS_PARSER_CLASS(
-                self, process, svg, filename=filename, doc_xpath=xpath)
-            if process_parser.get_id() in self.process_parsers:
-                raise ValidationException(
-                    'Duplicate process ID', node=process, filename=filename)
-            if process_parser.get_name() in self.process_parsers_by_name:
-                raise ValidationException(
-                    'Duplicate process name', node=process, filename=filename)
-            self.process_parsers[process_parser.get_id()] = process_parser
-            self.process_parsers_by_name[
-                process_parser.get_name()] = process_parser
+            self.add_process(process, xpath, svg, filename)
+
+    def add_process(self, process, doc_xpath, svg=None, filename=None):
+        process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename, doc_xpath=doc_xpath)
+        if process_parser.get_id() in self.process_parsers:
+            raise ValidationException('Duplicate process ID', node=process, filename=filename)
+        if process_parser.get_name() in self.process_parsers_by_name:
+            raise ValidationException('Duplicate process name', node=process, filename=filename)
+        self.process_parsers[process_parser.get_id()] = process_parser
+        self.process_parsers_by_name[process_parser.get_name()] = process_parser
 
     def _parse_condition(self, outgoing_task, outgoing_task_node,
                          sequence_flow_node, task_parser=None):

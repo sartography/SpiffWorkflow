@@ -4,7 +4,7 @@ from .ValidationException import ValidationException
 from .TaskParser import TaskParser
 from .util import first, one
 from ..specs.events import (TimerEventDefinition, MessageEventDefinition,
-                            EscalationEventDefinition,SignalEventDefinition,
+                            ErrorEventDefinition, EscalationEventDefinition,SignalEventDefinition,
                             CancelEventDefinition, CycleTimerEventDefinition,
                             TerminateEventDefinition, NoneEventDefinition,
                             StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent)
@@ -17,6 +17,18 @@ class EventDefinitionParser(TaskParser):
 
     def parse_cancel_event(self, cancelEvent):
         return CancelEventDefinition()
+
+    def parse_error_event(self, errorEvent):
+        """Parse the errorEventDefinition node and return an instance of ErrorEventDefinition."""
+
+        errorRef = errorEvent.get('errorRef')
+        if errorRef:
+            error = one(self.process_parser.doc_xpath('.//bpmn:error[@id="%s"]' % errorRef))
+            error_code = error.get('errorCode')
+            name = error.get('name')
+        else:
+            name, error_code = 'None Error Event', None
+        return ErrorEventDefinition(name, error_code)
 
     def parse_escalation_event(self, escalationEvent):
         """Parse the escalationEventDefinition node and return an instance of EscalationEventDefinition."""
@@ -120,11 +132,14 @@ class EndEventParser(EventDefinitionParser):
     def create_task(self):
 
         cancelEvent = first(self.xpath('.//bpmn:cancelEventDefinition'))
+        errorEvent = first(self.xpath('.//bpmn:errorEventDefinition'))
         escalationEvent = first(self.xpath('.//bpmn:escalationEventDefinition'))
         terminateEvent = first(self.xpath('.//bpmn:terminateEventDefinition'))
 
         if cancelEvent is not None:
             event_definition = self.parse_cancel_event(cancelEvent)
+        elif errorEvent is not None:
+            event_definition = self.parse_error_event(errorEvent)
         elif escalationEvent is not None:
             event_definition = self.parse_escalation_event(escalationEvent)
         elif terminateEvent is not None:
@@ -203,6 +218,7 @@ class BoundaryEventParser(EventDefinitionParser):
         cancel_activity = self.node.get('cancelActivity', default='true').lower() == 'true'
 
         cancelEvent = first(self.xpath('.//bpmn:cancelEventDefinition'))
+        errorEvent = first(self.xpath('.//bpmn:errorEventDefinition'))
         escalationEvent = first(self.xpath('.//bpmn:escalationEventDefinition'))
         messageEvent = first(self.xpath('.//bpmn:messageEventDefinition'))
         signalEvent = first(self.xpath('.//bpmn:signalEventDefinition'))
@@ -210,6 +226,8 @@ class BoundaryEventParser(EventDefinitionParser):
 
         if cancelEvent is not None:
             event_definition = self.parse_cancel_event(cancelEvent)
+        elif errorEvent is not None:
+            event_definition = self.parse_error_event(errorEvent)
         elif escalationEvent is not None:
             event_definition = self.parse_escalation_event(escalationEvent)
         elif messageEvent is not None:

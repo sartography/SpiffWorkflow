@@ -23,6 +23,11 @@ BPMN_MODEL_NS = 'http://www.omg.org/spec/BPMN/20100524/MODEL'
 DIAG_INTERCHANGE_NS = "http://www.omg.org/spec/BPMN/20100524/DI"
 DIAG_COMMON_NS = "http://www.omg.org/spec/DD/20100524/DC"
 
+DEFAULT_NSMAP = {
+    'bpmn': BPMN_MODEL_NS,
+    'dc': DIAG_COMMON_NS,
+    'bpmndi': DIAG_INTERCHANGE_NS,
+}
 
 def one(nodes, or_none=False):
     """
@@ -50,9 +55,7 @@ def xpath_eval(node, extra_ns=None):
     Returns an XPathEvaluator, with namespace prefixes 'bpmn' for
     http://www.omg.org/spec/BPMN/20100524/MODEL, and additional specified ones
     """
-    namespaces = {'bpmn': BPMN_MODEL_NS,
-                  'dc': DIAG_COMMON_NS,
-                  'bpmndi': DIAG_INTERCHANGE_NS}
+    namespaces = DEFAULT_NSMAP.copy()
     if extra_ns:
         namespaces.update(extra_ns)
     return lambda path: node.findall(path, namespaces)

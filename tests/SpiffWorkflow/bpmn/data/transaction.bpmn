@@ -25,27 +25,48 @@
             <camunda:formField id="quantity" label="Get Quantity" type="long" />
           </camunda:formData>
         </bpmn:extensionElements>
-        <bpmn:incoming>Flow_0cfipfp</bpmn:incoming>
+        <bpmn:incoming>Data_Default</bpmn:incoming>
         <bpmn:outgoing>Flow_0oab4hv</bpmn:outgoing>
       </bpmn:userTask>
       <bpmn:endEvent id="End_Subprocess" name="End Subprocess">
-        <bpmn:incoming>Default_Flow</bpmn:incoming>
+        <bpmn:incoming>Quantity_Default</bpmn:incoming>
       </bpmn:endEvent>
       <bpmn:sequenceFlow id="Flow_0oab4hv" sourceRef="Activity_Get_Quantity" targetRef="Check_Quantity" />
-      <bpmn:sequenceFlow id="Flow_0cfipfp" sourceRef="Activity_Get_Data" targetRef="Activity_Get_Quantity" />
+      <bpmn:sequenceFlow id="Flow_0cfipfp" sourceRef="Activity_Get_Data" targetRef="Check_Data" />
       <bpmn:sequenceFlow id="Flow_039gvks" sourceRef="Start_Subprocess" targetRef="Activity_Get_Data" />
-      <bpmn:endEvent id="Cancel_Subprocess" name="Cancel Subprocess">
-        <bpmn:incoming>Quantity_LT_Zero</bpmn:incoming>
-        <bpmn:cancelEventDefinition id="CancelEventDefinition_056xzs2" />
-      </bpmn:endEvent>
-      <bpmn:exclusiveGateway id="Check_Quantity" name="Check Quantity" default="Default_Flow">
+      <bpmn:exclusiveGateway id="Check_Quantity" name="Check Quantity" default="Quantity_Default">
         <bpmn:incoming>Flow_0oab4hv</bpmn:incoming>
-        <bpmn:outgoing>Default_Flow</bpmn:outgoing>
+        <bpmn:outgoing>Quantity_Default</bpmn:outgoing>
         <bpmn:outgoing>Quantity_LT_Zero</bpmn:outgoing>
+        <bpmn:outgoing>Flow_1k10r1p</bpmn:outgoing>
       </bpmn:exclusiveGateway>
-      <bpmn:sequenceFlow id="Default_Flow" name="Default Flow" sourceRef="Check_Quantity" targetRef="End_Subprocess" />
-      <bpmn:sequenceFlow id="Quantity_LT_Zero" name="Quantity &#60; Zero" sourceRef="Check_Quantity" targetRef="Cancel_Subprocess">
+      <bpmn:sequenceFlow id="Quantity_Default" name="Default Flow" sourceRef="Check_Quantity" targetRef="End_Subprocess" />
+      <bpmn:sequenceFlow id="Quantity_LT_Zero" name="Quantity &#60; Zero" sourceRef="Check_Quantity" targetRef="Error_1">
         <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">quantity &lt; 0</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:endEvent id="Error_1" name="Error 1">
+        <bpmn:incoming>Quantity_LT_Zero</bpmn:incoming>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_1ygfmb2" errorRef="Error_04iwzwk" />
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_1k10r1p" name="Quantity == Zero" sourceRef="Check_Quantity" targetRef="Error_None">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">quantity == 0</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:endEvent id="Error_None" name="Error_None">
+        <bpmn:incoming>Flow_1k10r1p</bpmn:incoming>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_108f6dp" />
+      </bpmn:endEvent>
+      <bpmn:endEvent id="Cancel_Event" name="Cancel Event">
+        <bpmn:incoming>Flow_1j0zczv</bpmn:incoming>
+        <bpmn:cancelEventDefinition id="CancelEventDefinition_17o9a91" />
+      </bpmn:endEvent>
+      <bpmn:exclusiveGateway id="Check_Data" name="Check Data" default="Data_Default">
+        <bpmn:incoming>Flow_0cfipfp</bpmn:incoming>
+        <bpmn:outgoing>Flow_1j0zczv</bpmn:outgoing>
+        <bpmn:outgoing>Data_Default</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:sequenceFlow id="Data_Default" name="Default Flow" sourceRef="Check_Data" targetRef="Activity_Get_Quantity" />
+      <bpmn:sequenceFlow id="Flow_1j0zczv" name="Empty Data" sourceRef="Check_Data" targetRef="Cancel_Event">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">value == ""</bpmn:conditionExpression>
       </bpmn:sequenceFlow>
     </bpmn:transaction>
     <bpmn:sequenceFlow id="Flow_0ppdvks" sourceRef="Start_Event" targetRef="Subprocess" />
@@ -59,116 +80,201 @@
       <bpmn:outgoing>Flow_1yafeny</bpmn:outgoing>
       <bpmn:script>print(f"Value: {value} / Quantity {quantity}")</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:boundaryEvent id="Cancel_Event" name="Cancel Event" attachedToRef="Subprocess">
-      <bpmn:outgoing>Flow_0qzlrzx</bpmn:outgoing>
-      <bpmn:cancelEventDefinition id="CancelEventDefinition_0v6o41j" />
-    </bpmn:boundaryEvent>
-    <bpmn:sequenceFlow id="Flow_0qzlrzx" sourceRef="Cancel_Event" targetRef="Cancelled_Event_Action" />
-    <bpmn:scriptTask id="Cancelled_Event_Action" name="Cancelled Event Action">
+    <bpmn:sequenceFlow id="Flow_0qzlrzx" sourceRef="Catch_Error_1" targetRef="Error_1_Action" />
+    <bpmn:scriptTask id="Error_1_Action" name="Error 1 Action">
       <bpmn:incoming>Flow_0qzlrzx</bpmn:incoming>
-      <bpmn:script>test_cancel=True</bpmn:script>
+      <bpmn:script>reason = "Error 1"</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:boundaryEvent id="Catch_Error_1" name="Catch Error 1" attachedToRef="Subprocess">
+      <bpmn:outgoing>Flow_0qzlrzx</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0ov08la" errorRef="Error_04iwzwk" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Catch_Error_None" name="Catch Error None" attachedToRef="Subprocess">
+      <bpmn:outgoing>Flow_189pa5w</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0jtlrgg" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_189pa5w" sourceRef="Catch_Error_None" targetRef="Error_None_Action" />
+    <bpmn:scriptTask id="Error_None_Action" name="Error None Action">
+      <bpmn:incoming>Flow_189pa5w</bpmn:incoming>
+      <bpmn:script>reason = "Error None"</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:boundaryEvent id="Catch_Cancel_Event" name="Catch Cancel Event" attachedToRef="Subprocess">
+      <bpmn:outgoing>Flow_12218kd</bpmn:outgoing>
+      <bpmn:cancelEventDefinition id="CancelEventDefinition_1vafyea" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_12218kd" sourceRef="Catch_Cancel_Event" targetRef="Cancel_Action" />
+    <bpmn:scriptTask id="Cancel_Action" name="Cancel Action">
+      <bpmn:incoming>Flow_12218kd</bpmn:incoming>
+      <bpmn:script>reason = "Cancel"</bpmn:script>
     </bpmn:scriptTask>
   </bpmn:process>
+  <bpmn:error id="Error_04iwzwk" name="TransactionError" errorCode="1" camunda:errorMessage="An Error Occurred" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Main_Process">
+      <bpmndi:BPMNEdge id="Flow_12218kd_di" bpmnElement="Flow_12218kd">
+        <di:waypoint x="670" y="618" />
+        <di:waypoint x="670" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_189pa5w_di" bpmnElement="Flow_189pa5w">
+        <di:waypoint x="1140" y="618" />
+        <di:waypoint x="1140" y="750" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0qzlrzx_di" bpmnElement="Flow_0qzlrzx">
-        <di:waypoint x="610" y="398" />
-        <di:waypoint x="610" y="530" />
+        <di:waypoint x="900" y="618" />
+        <di:waypoint x="900" y="750" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1yafeny_di" bpmnElement="Flow_1yafeny">
-        <di:waypoint x="1360" y="177" />
-        <di:waypoint x="1442" y="177" />
+        <di:waypoint x="1510" y="397" />
+        <di:waypoint x="1602" y="397" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0bnlh0h_di" bpmnElement="Flow_0bnlh0h">
-        <di:waypoint x="1110" y="177" />
-        <di:waypoint x="1260" y="177" />
+        <di:waypoint x="1300" y="397" />
+        <di:waypoint x="1410" y="397" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ppdvks_di" bpmnElement="Flow_0ppdvks">
-        <di:waypoint x="215" y="177" />
-        <di:waypoint x="330" y="177" />
+        <di:waypoint x="215" y="397" />
+        <di:waypoint x="330" y="397" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="Start_Event">
-        <dc:Bounds x="179" y="159" width="36" height="36" />
+        <dc:Bounds x="179" y="379" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="185" y="202" width="24" height="14" />
+          <dc:Bounds x="185" y="422" width="24" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_004mt8h_di" bpmnElement="End_Event">
-        <dc:Bounds x="1442" y="159" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1435" y="202" width="51" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_16m4rsd_di" bpmnElement="Activity_Print_Data">
-        <dc:Bounds x="1260" y="137" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1in6lbd_di" bpmnElement="Subprocess" isExpanded="true">
-        <dc:Bounds x="330" y="77" width="780" height="303" />
+        <dc:Bounds x="330" y="80" width="970" height="520" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_039gvks_di" bpmnElement="Flow_039gvks">
-        <di:waypoint x="406" y="177" />
-        <di:waypoint x="470" y="177" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0cfipfp_di" bpmnElement="Flow_0cfipfp">
-        <di:waypoint x="570" y="177" />
-        <di:waypoint x="660" y="177" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0oab4hv_di" bpmnElement="Flow_0oab4hv">
-        <di:waypoint x="760" y="177" />
-        <di:waypoint x="845" y="177" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0u70dse_di" bpmnElement="Default_Flow">
-        <di:waypoint x="895" y="177" />
-        <di:waypoint x="1002" y="177" />
+      <bpmndi:BPMNEdge id="Flow_1j0zczv_di" bpmnElement="Flow_1j0zczv">
+        <di:waypoint x="670" y="215" />
+        <di:waypoint x="670" y="392" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="918" y="159" width="62" height="14" />
+          <dc:Bounds x="670" y="263" width="59" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ihwemn_di" bpmnElement="Data_Default">
+        <di:waypoint x="695" y="190" />
+        <di:waypoint x="830" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="732" y="172" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1k10r1p_di" bpmnElement="Flow_1k10r1p">
+        <di:waypoint x="1040" y="215" />
+        <di:waypoint x="1040" y="410" />
+        <di:waypoint x="1172" y="410" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1058" y="390" width="83" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_16lf40r_di" bpmnElement="Quantity_LT_Zero">
-        <di:waypoint x="870" y="202" />
-        <di:waypoint x="870" y="280" />
-        <di:waypoint x="1002" y="280" />
+        <di:waypoint x="1040" y="215" />
+        <di:waypoint x="1040" y="293" />
+        <di:waypoint x="1172" y="293" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="849" y="238" width="77" height="14" />
+          <dc:Bounds x="1061" y="273" width="77" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_1uvzab9_di" bpmnElement="Start_Subprocess">
-        <dc:Bounds x="370" y="159" width="36" height="36" />
+      <bpmndi:BPMNEdge id="Flow_0u70dse_di" bpmnElement="Quantity_Default">
+        <di:waypoint x="1065" y="190" />
+        <di:waypoint x="1172" y="190" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="346" y="202" width="85" height="14" />
+          <dc:Bounds x="1088" y="172" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_039gvks_di" bpmnElement="Flow_039gvks">
+        <di:waypoint x="416" y="190" />
+        <di:waypoint x="480" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0cfipfp_di" bpmnElement="Flow_0cfipfp">
+        <di:waypoint x="580" y="190" />
+        <di:waypoint x="645" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0oab4hv_di" bpmnElement="Flow_0oab4hv">
+        <di:waypoint x="930" y="190" />
+        <di:waypoint x="1015" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1uvzab9_di" bpmnElement="Start_Subprocess">
+        <dc:Bounds x="380" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="356" y="215" width="85" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1r4oab1_di" bpmnElement="Activity_Get_Data">
-        <dc:Bounds x="470" y="137" width="100" height="80" />
+        <dc:Bounds x="480" y="150" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0isz7v9_di" bpmnElement="Activity_Get_Quantity">
-        <dc:Bounds x="660" y="137" width="100" height="80" />
+        <dc:Bounds x="830" y="150" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1plsw7h_di" bpmnElement="End_Subprocess">
-        <dc:Bounds x="1002" y="159" width="36" height="36" />
+        <dc:Bounds x="1172" y="172" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="979" y="202" width="82" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0zpewd8_di" bpmnElement="Cancel_Subprocess">
-        <dc:Bounds x="1002" y="262" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="991" y="305" width="59" height="27" />
+          <dc:Bounds x="1149" y="215" width="82" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_08gn74y_di" bpmnElement="Check_Quantity" isMarkerVisible="true">
-        <dc:Bounds x="845" y="152" width="50" height="50" />
+        <dc:Bounds x="1015" y="165" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="832" y="128" width="76" height="14" />
+          <dc:Bounds x="1002" y="141" width="76" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1j6t8qk_di" bpmnElement="Cancelled_Event_Action">
-        <dc:Bounds x="560" y="530" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1ahhidf_di" bpmnElement="Cancel_Event">
-        <dc:Bounds x="592" y="362" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_1q6c2bb_di" bpmnElement="Error_1">
+        <dc:Bounds x="1172" y="275" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="578" y="405" width="66" height="14" />
+          <dc:Bounds x="1174" y="318" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0iqyx6t_di" bpmnElement="Error_None">
+        <dc:Bounds x="1172" y="392" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1163" y="435" width="57" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0qw7qua_di" bpmnElement="Cancel_Event">
+        <dc:Bounds x="652" y="392" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="638" y="435" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1s5i1g9_di" bpmnElement="Check_Data" isMarkerVisible="true">
+        <dc:Bounds x="645" y="165" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="640" y="141" width="59" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_004mt8h_di" bpmnElement="End_Event">
+        <dc:Bounds x="1602" y="379" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1595" y="422" width="51" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16m4rsd_di" bpmnElement="Activity_Print_Data">
+        <dc:Bounds x="1410" y="357" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1j6t8qk_di" bpmnElement="Error_1_Action">
+        <dc:Bounds x="850" y="750" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vkl1jo_di" bpmnElement="Error_None_Action">
+        <dc:Bounds x="1090" y="750" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0c2u24o_di" bpmnElement="Cancel_Action">
+        <dc:Bounds x="620" y="750" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_179v19a_di" bpmnElement="Catch_Cancel_Event">
+        <dc:Bounds x="652" y="582" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="638" y="625" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0us158a_di" bpmnElement="Catch_Error_None">
+        <dc:Bounds x="1122" y="582" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1098" y="625" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0qca25c_di" bpmnElement="Catch_Error_1">
+        <dc:Bounds x="882" y="582" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="869" y="625" width="66" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

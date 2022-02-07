@@ -125,6 +125,24 @@ class CancelEventDefinition(EventDefinition):
         super(CancelEventDefinition, self).__init__()
         self.internal = False
 
+class ErrorEventDefinition(NamedEventDefinition):
+    """
+    Error events can occur only in subprocesses and as subprocess boundary events.  They're
+    matched by code rather than name.
+    """
+
+    def __init__(self, name, error_code=None):
+        super(ErrorEventDefinition, self).__init__(name)
+        self.error_code = error_code
+        self.internal = False
+
+    def __eq__(self, other):
+        return self.__class__.__name__ == other.__class__.__name__ and self.error_code in [ None, other.error_code ]
+
+    def serialize(self):
+        retdict = super(ErrorEventDefinition, self).serialize()
+        retdict['error_code'] = self.error_code
+        return retdict
 
 class EscalationEventDefinition(NamedEventDefinition):
     """
