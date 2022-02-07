@@ -30,7 +30,7 @@ class StartEvent(CatchingEvent):
         
     def catch(self, my_task, source_task):
 
-        # We might need to revisit an intermediate event after it completes or
+        # We might need to revisit a start event after it completes or
         # if it got cancelled so we'll still catch messages even if we're finished
         if my_task.state == Task.COMPLETED or my_task.state == Task.CANCELLED:
             my_task.set_children_future()

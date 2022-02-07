@@ -37,7 +37,8 @@ class EventDefinition(object):
     If internal is true, this event should be thrown to the current workflow
     If external is true, this event should be thrown to the outer workflow
 
-    Default throw behavior is to send the event to the current workflow
+    Default throw behavior is to send the event based on the values of the internal
+    and external flags.
     Default catch behavior is to set the event to fired
     """
 
@@ -147,7 +148,7 @@ class ErrorEventDefinition(NamedEventDefinition):
 class EscalationEventDefinition(NamedEventDefinition):
     """
     Escalation events have names, though they don't seem to be used for anything.  Instead
-    the spec says that the escaltion code should be matched.
+    the spec says that the escalation code should be matched.
     """
 
     def __init__(self, name, escalation_code=None):

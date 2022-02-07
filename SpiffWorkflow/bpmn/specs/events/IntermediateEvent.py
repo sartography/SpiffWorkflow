@@ -66,8 +66,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
             for t in child_task.workflow._get_waiting_tasks():
                 t.task_spec._update(t)
 
-        # If our event is a cycle timer, we need to set it back to waiting so it
-        # can fire avain
+        # If our event is a cycle timer, we need to set it back to waiting so it can fire again
         elif isinstance(child_task.task_spec.event_definition, CycleTimerEventDefinition):
             child_task._set_state(Task.WAITING)
             child_task.task_spec._update_hook(child_task)

@@ -70,7 +70,7 @@ class EventDefinitionParser(TaskParser):
         """Parse the terminateEventDefinition node and return an instance of TerminateEventDefinition."""
         return TerminateEventDefinition()
 
-    def parser_timer_event(self, timerEvent):
+    def parse_timer_event(self, timerEvent):
         """Parse the timerEventDefinition node and return an instance of TimerEventDefinition."""
 
         try:
@@ -94,8 +94,6 @@ class StartEventParser(EventDefinitionParser):
 
     def create_task(self):
 
-        # I am not sure why this is here; the spec forbids cancel start events
-        cancelEvent = first(self.xpath('.//bpmn:cancelEventDefinition'))
         messageEvent = first(self.xpath('.//bpmn:messageEventDefinition'))
         signalEvent = first(self.xpath('.//bpmn:signalEventDefinition'))
         timerEvent = first(self.xpath('.//bpmn:timerEventDefinition'))
@@ -105,7 +103,7 @@ class StartEventParser(EventDefinitionParser):
         elif signalEvent is not None:
             event_definition = self.parse_signal_event(signalEvent)
         elif timerEvent is not None:
-            event_definition = self.parser_timer_event(timerEvent)
+            event_definition = self.parse_timer_event(timerEvent)
         else:
             event_definition = NoneEventDefinition()
 
@@ -171,7 +169,7 @@ class IntermediateCatchEventParser(EventDefinitionParser):
         elif signalEvent is not None:
             event_definition = self.parse_signal_event(signalEvent)
         elif timerEvent is not None:
-            event_definition = self.parser_timer_event(timerEvent)
+            event_definition = self.parse_timer_event(timerEvent)
         else:
             raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node))
 
@@ -196,7 +194,7 @@ class IntermediateThrowEventParser(EventDefinitionParser):
         elif signalEvent is not None:
             event_definition = self.parse_signal_event(signalEvent)
         elif timerEvent is not None:
-            event_definition = self.parser_timer_event(timerEvent)
+            event_definition = self.parse_timer_event(timerEvent)
         else:
             raise NotImplementedError('Unsupported Throw Catch Event: %r', etree.tostring(self.node))
 
@@ -235,9 +233,9 @@ class BoundaryEventParser(EventDefinitionParser):
         elif signalEvent is not None:
             event_definition = self.parse_signal_event(signalEvent)
         elif timerEvent is not None:
-            event_definition = self.parser_timer_event(timerEvent)
+            event_definition = self.parse_timer_event(timerEvent)
         else:
-            raise NotImplementedError('Unsupported Throw Catch Event: %r', etree.tostring(self.node))
+            raise NotImplementedError('Unsupported Catch Event: %r', etree.tostring(self.node))
 
         kwargs = {
             'lane': self.get_lane(),

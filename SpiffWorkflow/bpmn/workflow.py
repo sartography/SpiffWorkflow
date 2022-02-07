@@ -71,7 +71,7 @@ class BpmnWorkflow(Workflow):
 
     def message(self, message, payload=None, result_var=None):
         """
-        This function generates a message event definition with the supplied
+        This method generates a message event definition with the supplied
         information, taking the same arguments as the message method it
         replaces.  It is included for backwards compatibility.
         """
@@ -79,7 +79,7 @@ class BpmnWorkflow(Workflow):
 
     def signal(self, name):
         """
-        This methos generates a signal event definition with the supplied
+        This method generates a signal event definition with the supplied
         information, taking the same arguments as the signal method it
         replaces.  It is included for backwards compatibility.
         """
