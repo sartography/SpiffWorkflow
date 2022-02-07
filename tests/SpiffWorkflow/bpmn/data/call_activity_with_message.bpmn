@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0k5w7xx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="Subprocess" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0za7l4k</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0za7l4k" sourceRef="StartEvent_1" targetRef="Activity_EnterPlan" />
+    <bpmn:userTask id="Activity_EnterPlan" name="Enter Plan" camunda:formKey="Enter Plan">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="plan_details" label="Enter Plan Details" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0za7l4k</bpmn:incoming>
+      <bpmn:incoming>Flow_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_1watnli</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1watnli" sourceRef="Activity_EnterPlan" targetRef="Event_Send_Approval_Request" />
+    <bpmn:intermediateCatchEvent id="Event_Get_Approval_Response" name="Get Approval Response">
+      <bpmn:incoming>Flow_17adrta</bpmn:incoming>
+      <bpmn:outgoing>Flow_00cg7b6</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1nuiqpr" messageRef="Message_05r8evp" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_17adrta" sourceRef="Event_Send_Approval_Request" targetRef="Event_Get_Approval_Response" />
+    <bpmn:exclusiveGateway id="Gateway_Approved" name="Approval Response" default="Flow_No">
+      <bpmn:incoming>Flow_00cg7b6</bpmn:incoming>
+      <bpmn:outgoing>Flow_No</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Yes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_00cg7b6" sourceRef="Event_Get_Approval_Response" targetRef="Gateway_Approved" />
+    <bpmn:sequenceFlow id="Flow_No" name="No Way" sourceRef="Gateway_Approved" targetRef="Activity_EnterPlan" />
+    <bpmn:sequenceFlow id="Flow_Yes" name="Sure" sourceRef="Gateway_Approved" targetRef="Event_03uwwnb">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Approved == "Yes"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_03uwwnb">
+      <bpmn:incoming>Flow_Yes</bpmn:incoming>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_15wxsx2" />
+    </bpmn:endEvent>
+    <bpmn:intermediateThrowEvent id="Event_Send_Approval_Request" name="Send Approval Request">
+      <bpmn:incoming>Flow_1watnli</bpmn:incoming>
+      <bpmn:outgoing>Flow_17adrta</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0ltykon" messageRef="Message_01cfgjd" camunda:expression="plan_details" />
+    </bpmn:intermediateThrowEvent>
+  </bpmn:process>
+  <bpmn:message id="Message_01cfgjd" name="ApprovalRequest" />
+  <bpmn:message id="Message_05r8evp" name="ApprovalResponse" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Subprocess">
+      <bpmndi:BPMNEdge id="Flow_0dzp3gb_di" bpmnElement="Flow_Yes">
+        <di:waypoint x="935" y="177" />
+        <di:waypoint x="1062" y="177" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="987" y="159" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13zg1au_di" bpmnElement="Flow_No">
+        <di:waypoint x="910" y="202" />
+        <di:waypoint x="910" y="400" />
+        <di:waypoint x="360" y="400" />
+        <di:waypoint x="360" y="217" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="615" y="382" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00cg7b6_di" bpmnElement="Flow_00cg7b6">
+        <di:waypoint x="728" y="177" />
+        <di:waypoint x="885" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17adrta_di" bpmnElement="Flow_17adrta">
+        <di:waypoint x="548" y="177" />
+        <di:waypoint x="692" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1watnli_di" bpmnElement="Flow_1watnli">
+        <di:waypoint x="410" y="177" />
+        <di:waypoint x="512" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0za7l4k_di" bpmnElement="Flow_0za7l4k">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="310" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0k14d9c_di" bpmnElement="Activity_EnterPlan">
+        <dc:Bounds x="310" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1rfjnkf_di" bpmnElement="Event_Get_Approval_Response">
+        <dc:Bounds x="692" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="678" y="202" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0vz8hxt_di" bpmnElement="Gateway_Approved" isMarkerVisible="true">
+        <dc:Bounds x="885" y="152" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="885" y="122" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_17uekjd_di" bpmnElement="Event_03uwwnb">
+        <dc:Bounds x="1062" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1o3j8fx_di" bpmnElement="Event_Send_Approval_Request">
+        <dc:Bounds x="512" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="494" y="202" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

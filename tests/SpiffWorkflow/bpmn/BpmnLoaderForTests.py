@@ -38,17 +38,6 @@ class TestUserTask(UserTask):
         return serializer.deserialize_generic(wf_spec, s_state, TestUserTask)
 
 
-class TestCallActivity(CallActivity):
-
-    def __init__(self, parent, name, **kwargs):
-        super(TestCallActivity, self).__init__(parent, name,
-                                               out_assign=[Assign('choice', 'end_event')], **kwargs)
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_subworkflow_task(wf_spec, s_state, TestCallActivity)
-
-
 class TestTransactionSubprocess(TransactionSubprocess):
 
     def __init__(self, parent, name, **kwargs):
@@ -63,7 +52,6 @@ class TestTransactionSubprocess(TransactionSubprocess):
 class TestBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
         full_tag('userTask'): (UserTaskParser, TestUserTask),
-        full_tag('callActivity'): (CallActivityParser, TestCallActivity),
         full_tag('transaction'): (TransactionSubprocessParser, TestTransactionSubprocess),
     }
 
