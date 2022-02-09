@@ -147,7 +147,6 @@ class SubWorkflowParser(TaskParser):
                 'A SubWorkflow Must contain an End event',
                 node=self.node,
                 filename=self.process_parser.filename)
-        thisTaskCopy = copy.deepcopy(thisTask)
 
         nsmap = DEFAULT_NSMAP.copy()
         nsmap['camunda'] = "http://camunda.org/schema/1.0/bpmn"

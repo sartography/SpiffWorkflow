@@ -87,7 +87,7 @@ class EventDefinition(object):
 
     @classmethod
     def deserialize(cls, dct):
-        cls_name = dct.pop('classname')
+        dct.pop('classname')
         internal, external = dct.pop('internal'), dct.pop('external')
         obj = cls(**dct)
         obj.internal, obj.external = internal, external
