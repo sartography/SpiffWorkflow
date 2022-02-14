@@ -17,6 +17,8 @@ from __future__ import division
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 from .PythonScriptEngine import PythonScriptEngine
+from .specs.events.event_types import CatchingEvent
+from .specs.events import CancelEventDefinition, MessageEventDefinition, SignalEventDefinition
 from ..task import Task
 from ..workflow import Workflow
 
@@ -41,10 +43,10 @@ class BpmnWorkflow(Workflow):
         state. This is used in conjunction with the CompactWorkflowSerializer
         to provide read only access to a previously saved workflow.
         """
+        self._busy_with_restore = False
         super(BpmnWorkflow, self).__init__(workflow_spec, **kwargs)
         self.name = name or workflow_spec.name
         self.__script_engine = script_engine or PythonScriptEngine()
-        self._busy_with_restore = False
         self.read_only = read_only
 
     @property
@@ -67,18 +69,39 @@ class BpmnWorkflow(Workflow):
     def script_engine(self, engine):
         self.__script_engine = engine
 
+    def message(self, message, payload=None, result_var=None):
+        """
+        This method generates a message event definition with the supplied
+        information, taking the same arguments as the message method it
+        replaces.  It is included for backwards compatibility.
+        """
+        self.catch(MessageEventDefinition(message, payload, result_var))
 
-    def accept_message(self, message):
+    def signal(self, name):
         """
-        Indicate to the workflow that a message has been received. The message
-        will be processed by any waiting Intermediate or Boundary Message
-        Events, that are waiting for the message.
+        This method generates a signal event definition with the supplied
+        information, taking the same arguments as the signal method it
+        replaces.  It is included for backwards compatibility.
         """
-        assert not self.read_only
-        self.refresh_waiting_tasks()
-        self.do_engine_steps()
-        for my_task in Task.Iterator(self.task_tree, Task.WAITING):
-            my_task.task_spec.accept_message(my_task, message)
+        self.catch(SignalEventDefinition(name))
+
+    def catch(self, event_definition):
+        """
+        Send an event definition to any tasks that catch it.
+
+        Tasks can always catch events, regardless of their state.  The
+        event information is stored in the tasks internal data and processed
+        when the task is reached in the workflow.  If a task should only
+        receive messages while it is running (eg a boundary event), the task
+        should call the event_definition's reset method before executing to
+        clear out a stale message.
+
+        :param event_definition: the thrown event
+        """
+        assert not self.read_only and not self._is_busy_with_restore()
+        for task in [ t for t in self.get_tasks() if self._is_catching_task(t.task_spec) ]:
+            if task.task_spec.event_definition == event_definition:
+                task.task_spec.catch(task, event_definition)
 
     def do_engine_steps(self, exit_at = None):
         """
@@ -101,6 +124,7 @@ class BpmnWorkflow(Workflow):
             engine_steps = list(
                 [t for t in self.get_tasks(Task.READY)
                  if self._is_engine_task(t.task_spec)])
+
     def refresh_waiting_tasks(self):
         """
         Refresh the state of all WAITING tasks. This will, for example, update
@@ -136,6 +160,9 @@ class BpmnWorkflow(Workflow):
     def _is_engine_task(self, task_spec):
         return (not hasattr(task_spec, 'is_engine_task') or
                 task_spec.is_engine_task())
+
+    def _is_catching_task(self, task_spec):
+        return isinstance(task_spec, CatchingEvent)
 
     def _task_completed_notify(self, task):
         assert (not self.read_only) or self._is_busy_with_restore()

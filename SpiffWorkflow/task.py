@@ -746,6 +746,10 @@ class Task(object):
         has changed (e.g. from FUTURE to COMPLETED.)
         """
         self._set_state(self.COMPLETED)
+        # WHY on earth do we mark the task completed and THEN attempt to execute it.
+        # A sane model would have success and failure states and instead we return
+        # a boolean, with no systematic way of dealing with failures.  This is just
+        # crazy!
         return self.task_spec._on_complete(self)
 
     def trigger(self, *args):

@@ -12,7 +12,7 @@ __author__ = 'michaelc'
 class CancelBoundaryTest(BpmnWorkflowTestCase):
 
     def testInvalidCancelEvent(self):
-        self.assertRaises(ValidationException, self.load_workflow_spec, 'message_event.bpmn', 'Process_1dagb7t')
+        self.assertRaises(ValidationException, self.load_workflow_spec, 'invalid_cancel.bpmn', 'Process_1dagb7t')
 
 
 def suite():

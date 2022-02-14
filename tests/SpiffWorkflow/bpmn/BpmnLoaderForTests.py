@@ -3,11 +3,12 @@ from __future__ import print_function, absolute_import, division
 
 from __future__ import division, absolute_import
 from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity, TransactionSubprocess
-from SpiffWorkflow.bpmn.specs.EndEvent import EndEvent
+from SpiffWorkflow.bpmn.specs.events import EndEvent
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.parser.task_parsers import UserTaskParser, EndEventParser, CallActivityParser, TransactionSubprocessParser
+from SpiffWorkflow.bpmn.parser.task_parsers import UserTaskParser, CallActivityParser, TransactionSubprocessParser
+from SpiffWorkflow.bpmn.parser.event_parsers import EndEventParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 from SpiffWorkflow.operators import Assign
 
@@ -37,33 +38,6 @@ class TestUserTask(UserTask):
         return serializer.deserialize_generic(wf_spec, s_state, TestUserTask)
 
 
-class TestEndEvent(EndEvent):
-
-    def _on_complete_hook(self, my_task):
-        my_task.set_data(end_event=self.description)
-        super(TestEndEvent, self)._on_complete_hook(my_task)
-
-
-    def serialize(self, serializer):
-        return serializer.serialize_end_event(self)
-
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_end_event(wf_spec, s_state, TestEndEvent)
-
-
-class TestCallActivity(CallActivity):
-
-    def __init__(self, parent, name, **kwargs):
-        super(TestCallActivity, self).__init__(parent, name,
-                                               out_assign=[Assign('choice', 'end_event')], **kwargs)
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_subworkflow_task(wf_spec, s_state, TestCallActivity)
-
-
 class TestTransactionSubprocess(TransactionSubprocess):
 
     def __init__(self, parent, name, **kwargs):
@@ -78,8 +52,6 @@ class TestTransactionSubprocess(TransactionSubprocess):
 class TestBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
         full_tag('userTask'): (UserTaskParser, TestUserTask),
-        full_tag('endEvent'): (EndEventParser, TestEndEvent),
-        full_tag('callActivity'): (CallActivityParser, TestCallActivity),
         full_tag('transaction'): (TransactionSubprocessParser, TestTransactionSubprocess),
     }
 

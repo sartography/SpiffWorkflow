@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 
-from ... import Task
-
 from .BpmnSpecMixin import BpmnSpecMixin
-from .BoundaryEvent import _BoundaryEventParent
 from ...specs.SubWorkflow import SubWorkflow
 from ...specs import TaskSpec
 
@@ -42,8 +39,6 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
 
         sub_workflow.completed_event.connect(
             self._on_subworkflow_completed, my_task)
-        sub_workflow.cancelled_event.connect(
-            self._on_subworkflow_cancelled, my_task)
         sub_workflow.data = my_task.workflow.data
         return sub_workflow
 
@@ -58,14 +53,6 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
             subworkflow, my_task)
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
             my_task.parent.task_spec._child_complete_hook(my_task)
-
-    def _on_subworkflow_cancelled(self, subworkflow, my_task):
-        my_task.cancel()
-        if isinstance(my_task.parent.task_spec, _BoundaryEventParent):
-            for ev in [ child for child in my_task.parent.children if \
-              hasattr(child.task_spec, '_cancel_activity') and child.task_spec._cancel_activity is True ]:
-                my_task.workflow.complete_task_from_id(ev.id)
-        pass
 
     def _on_ready_before_hook(self, my_task):
         self.sub_workflow = self.create_sub_workflow(my_task)

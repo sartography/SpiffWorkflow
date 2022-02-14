@@ -10,7 +10,7 @@ from .bpmn.specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
 from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
 from .bpmn.specs.MultiInstanceTask import MultiInstanceTask
 from .bpmn.specs.SubWorkflowTask import CallActivity, TransactionSubprocess
-from .bpmn.specs.BoundaryEvent import _BoundaryEventParent
+from .bpmn.specs.events import _BoundaryEventParent
 
 import inspect
 

@@ -24,8 +24,7 @@ import traceback
 from .ValidationException import ValidationException
 from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
-from ..specs.BoundaryEvent import _BoundaryEventParent
-from ..specs.event_definitions import CancelEventDefinition
+from ..specs.events import _BoundaryEventParent, CancelEventDefinition
 from ..specs.MultiInstanceTask import getDynamicMIClass
 from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway

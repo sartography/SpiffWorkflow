@@ -26,10 +26,12 @@ class SignalTest(BpmnWorkflowTestCase):
         task = self.workflow.get_tasks(Task.READY)[0]
         self.assertEqual('wait_here', task.get_name())
         self.workflow.signal('cancel')
+        self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
         self.assertTrue(self.workflow.last_task.data['signal_caught'])
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(SignalTest)
+    
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

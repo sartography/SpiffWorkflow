@@ -34,8 +34,10 @@ class ExternalMessageBoundaryTest(BpmnWorkflowTestCase):
         ready_tasks = self.workflow.get_tasks(Task.READY)
         self.assertEqual(1, len(ready_tasks),'Expected to have only one ready task')
         self.workflow.message('Interrupt','SomethingImportant','interrupt_var')
+        self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(Task.READY)
-        self.assertEqual(2,len(ready_tasks),'Expected to have only one ready task')
+        self.assertEqual(2,len(ready_tasks),'Expected to have two readys tasks')
+
         # here because the thread just dies and doesn't lead to a task, we expect the data
         # to die with it.
         # item 1 should be at 'Pause'

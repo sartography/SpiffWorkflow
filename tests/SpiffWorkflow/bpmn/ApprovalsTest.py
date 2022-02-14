@@ -136,7 +136,7 @@ class ApprovalsTest(BpmnWorkflowTestCase):
                           readonly.get_ready_user_tasks()[0].task_spec.name)
         self.assertRaises(AssertionError, readonly.do_engine_steps)
         self.assertRaises(AssertionError, readonly.refresh_waiting_tasks)
-        self.assertRaises(AssertionError, readonly.accept_message, 'Cheese')
+        self.assertRaises(AssertionError, readonly.message, 'Cheese')
         self.assertRaises(
             AssertionError, readonly.get_ready_user_tasks()[0].complete)
 

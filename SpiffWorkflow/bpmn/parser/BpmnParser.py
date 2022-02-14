@@ -19,31 +19,29 @@ from builtins import object
 # 02110-1301  USA
 
 import glob
+
+from lxml import etree
+
 from ..workflow import BpmnWorkflow
 from .ValidationException import ValidationException
-from ..specs.BoundaryEvent import BoundaryEvent
+from ..specs.events import StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
 from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
-from ..specs.IntermediateCatchEvent import IntermediateCatchEvent
-from ..specs.IntermediateThrowEvent import IntermediateThrowEvent
 from ..specs.ManualTask import ManualTask
 from ..specs.NoneTask import NoneTask
 from ..specs.ParallelGateway import ParallelGateway
 from ..specs.ScriptTask import ScriptTask
-from ..specs.StartEvent import StartEvent
 from ..specs.UserTask import UserTask
-from ..specs.EndEvent import EndEvent
 from .ProcessParser import ProcessParser
 from .util import full_tag, xpath_eval, first
-from .task_parsers import (StartEventParser, EndEventParser, UserTaskParser,
-                           NoneTaskParser, ManualTaskParser,
-                           ExclusiveGatewayParser, ParallelGatewayParser,
-                           InclusiveGatewayParser, CallActivityParser, TransactionSubprocessParser,
-                           ScriptTaskParser, IntermediateCatchEventParser,
-                           IntermediateThrowEventParser,
-                           BoundaryEventParser,SubWorkflowParser)
-from lxml import etree
+from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
+                           ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser, 
+                           CallActivityParser, TransactionSubprocessParser,
+                           ScriptTaskParser, SubWorkflowParser)
+from .event_parsers import (StartEventParser, EndEventParser, BoundaryEventParser,
+                           IntermediateCatchEventParser, IntermediateThrowEventParser)
+
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class BpmnParser(object):
@@ -163,17 +161,16 @@ class BpmnParser(object):
 
         processes = xpath('.//bpmn:process')
         for process in processes:
-            process_parser = self.PROCESS_PARSER_CLASS(
-                self, process, svg, filename=filename, doc_xpath=xpath)
-            if process_parser.get_id() in self.process_parsers:
-                raise ValidationException(
-                    'Duplicate process ID', node=process, filename=filename)
-            if process_parser.get_name() in self.process_parsers_by_name:
-                raise ValidationException(
-                    'Duplicate process name', node=process, filename=filename)
-            self.process_parsers[process_parser.get_id()] = process_parser
-            self.process_parsers_by_name[
-                process_parser.get_name()] = process_parser
+            self.add_process(process, xpath, svg, filename)
+
+    def add_process(self, process, doc_xpath, svg=None, filename=None):
+        process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename, doc_xpath=doc_xpath)
+        if process_parser.get_id() in self.process_parsers:
+            raise ValidationException('Duplicate process ID', node=process, filename=filename)
+        if process_parser.get_name() in self.process_parsers_by_name:
+            raise ValidationException('Duplicate process name', node=process, filename=filename)
+        self.process_parsers[process_parser.get_id()] = process_parser
+        self.process_parsers_by_name[process_parser.get_name()] = process_parser
 
     def _parse_condition(self, outgoing_task, outgoing_task_node,
                          sequence_flow_node, task_parser=None):

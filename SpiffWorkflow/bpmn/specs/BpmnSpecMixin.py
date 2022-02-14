@@ -148,15 +148,6 @@ class BpmnSpecMixin(TaskSpec):
         """
         return iter(list(self.outgoing_sequence_flows_by_id.values()))
 
-    def accept_message(self, my_task, message):
-        """
-        A subclass should override this method if they want to be notified of
-        the receipt of a message when in a WAITING state.
-
-        Returns True if the task did process the message.
-        """
-        return False
-
     # Hooks for Custom BPMN tasks ##########
 
     def entering_waiting_state(self, my_task):
@@ -192,6 +183,7 @@ class BpmnSpecMixin(TaskSpec):
         pass
 
     def _on_complete_hook(self, my_task):
+
         super(BpmnSpecMixin, self)._on_complete_hook(my_task)
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
             my_task.parent.task_spec._child_complete_hook(my_task)
