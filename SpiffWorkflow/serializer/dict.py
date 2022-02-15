@@ -812,6 +812,8 @@ class DictionarySerializer(Serializer):
 
         assert isinstance(task, Task)
 
+        # Please note, the BPMN Serializer DOES allow sub-workflows.  This is
+        # for backwards compatibility and support of the original parsers.
         if not allow_subs and isinstance(task.task_spec, SubWorkflow):
             raise TaskNotSupportedError(
                 "Subworkflow tasks cannot be serialized (due to their use of" +
@@ -823,7 +825,7 @@ class DictionarySerializer(Serializer):
         s_state['id'] = task.id
 
         # workflow
-        # s_state['workflow'] = task.workflow.id
+        s_state['workflow_name'] = task.workflow.name
 
         # parent
         s_state['parent'] = task.parent.id if task.parent is not None else None
@@ -851,100 +853,15 @@ class DictionarySerializer(Serializer):
 
         return s_state
 
-        # comments for the if statement below:
-        # --------------------------------------
-        # if s_state['internal_data'].get('runtimes',None) is not None \  # <-- if we are in a multiinstance
-        #     and s_state['internal_data']['runtimes'] > 1 and \ # <-- and the cardinality has gone above one,
-        #                                                     \ #     presumably because we are using a collection
-        #         len(task_spec.inputs) > 1 and \  #<- and we have previously patched up the task spec tree
-        #                                          #   which should happen as soon as we load the original task spec
-        #     len(task_spec.inputs[1].outputs)  < s_state['internal_data']['runtimes'] : # <-- and we haven't expanded
-        #                                                                                #      the tree yet (i.e. we are
-        #                                                                                #      re-loading the task spec)
-
-
 
     def deserialize_task(self, workflow, s_state):
         assert isinstance(workflow, Workflow)
         splits = s_state['task_spec'].split('_')
         oldtaskname = s_state['task_spec']
+
+        if s_state['workflow_name'] != workflow.name:
+            print("We have a problem Daniel.")
         task_spec = workflow.get_task_spec_from_name(oldtaskname)
-        # if task_spec is None and \
-        #     splits[-1].isdigit():
-        #     num = int(splits[-1])
-        #     if num == 0:
-        #         newtaskname = '_'.join(splits[:-1])
-        #     else:
-        #         newtaskname = '_'.join(splits[:-1]) + "_%d"%(num-1)
-        #     # in order to patch things up correctly, we need to append in the correct order
-        #     # I'm really hoping that things get added to save list in saved order
-        #     # otherwise I'll have some problems.
-        #     task_spec = workflow.get_task_spec_from_name(newtaskname)
-        #     new_task_spec = copy.copy(task_spec)
-        #     new_task_spec.name = oldtaskname
-        #     if isinstance(new_task_spec.id,int):
-        #         new_task_spec.id = "%d_%d"%(new_task_spec.id,num)
-        #     else:
-        #         new_task_spec.id = '_'.join(new_task_spec.id.split('_')[:-1])+"_%d"%num
-        #     workflow.spec.task_specs[oldtaskname] = new_task_spec
-        #     inter_out = task_spec.outputs
-        #     task_spec.outputs=[new_task_spec]
-        #     new_task_spec.outputs = inter_out
-        #     for item in inter_out:
-        #         item.inputs = [new_task_spec]
-        #     task_spec = new_task_spec
-        # if s_state['internal_data'].get('runtimes', None) is not None \
-        # and s_state['internal_data']['runtimes'] > 1 and \
-        # len(task_spec.inputs) > 1 and \
-        # len(task_spec.inputs[1].outputs) < s_state['internal_data']['runtimes']:
-        #     task_spec = copy.copy(task_spec)
-        #     task_spec.id = str(task_spec.id) + '_%d'%(s_state['internal_data']['runtimes']-1)
-        #     #FIXME: we should only have 1 input, not 2
-        #     task_spec.inputs[1].outputs.append(task_spec)
-        #     task_spec.outputs[0].inputs.append(task_spec)
-        # if task_spec is None and  \
-        #     splits[0] == 'Gateway' and \
-        #     splits[-1] == 'start':
-        #        # if we are here, then we have a task tree that has an expanded PMI - but the task
-        #        # spec tree that we are importing is not expanded - we are dealing with a lot of other
-        #        # parallel multi-instance stuff here, so I'm going to try to do this as well.
-        #     newtaskname = '_'.join(splits[2:-1])
-        #     endtaskname = '_'.join(splits[:-1])+"_end"
-        #     task_spec = workflow.get_task_spec_from_name(newtaskname)
-        #     #--------------------------------------------------------------
-        #     # it may be best to try and use the code from MultiInstanceTask._add_gateway
-        #     # instead of re-create it here, the problem is that
-        #     # it requires a task to be created for it and I don't actually have the
-        #     # task yet, because I've got a chicken/egg problem  - the code below outlines
-        #     # what I need to do but it doesn't accurately represent the way the
-        #     # PMI instances are getting set up.
-        #     #--------------------------------------------------------------
-        #     # create the beginning gateway
-        #     task_spec._wf_spec
-        #     newtaskspec = ParallelGateway(task_spec._wf_spec,
-        #                                        oldtaskname,
-        #                                        triggered=False,
-        #                                        description="Begin Gateway")
-        #
-        #     endtaskspec = ParallelGateway(task_spec._wf_spec, endtaskname,
-        #                                  triggered=False, description="End Gateway")
-        #
-        #
-        #     # patch middle task into begin gateway
-        #     newtaskspec.outputs = [task_spec]
-        #     task_spec.inputs.append(newtaskspec)
-        #     # patch middle into end gateway
-        #     endtaskspec.inputs = [task_spec]
-        #     endtaskspec.outputs = copy.copy(task_spec.outputs)
-        #     task_spec.outputs = [endtaskspec]
-        #     # inform registry about new task specs
-        #     workflow.spec.task_specs[oldtaskname] = newtaskspec
-        #     workflow.spec.task_specs[endtaskname] = endtaskspec
-        #
-        #     task_spec = newtaskspec # change to our beginning gateway
-        #
-
-
         if task_spec is None:
             raise MissingSpecError("Unknown task spec: " + oldtaskname)
         task = Task(workflow, task_spec)
