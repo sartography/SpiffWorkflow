@@ -14,13 +14,13 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 __author__ = 'kellym'
 
 
-class SignalAndCancelEventTest(BpmnWorkflowTestCase):
+class MultipleEventsTest(BpmnWorkflowTestCase):
 
     def setUp(self):
         self.spec = self.load_spec()
 
     def load_spec(self):
-        return self.load_workflow_spec('signalsAndCancelEvents.bpmn', 'SignalAndCancel')
+        return self.load_workflow_spec('multipleEvents.bpmn', 'SignalAndCancel')
 
     def get_to_first_task(self):
         self.workflow = BpmnWorkflow(self.spec)
@@ -83,6 +83,6 @@ class SignalAndCancelEventTest(BpmnWorkflowTestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(SignalAndCancelEventTest)
+    return unittest.TestLoader().loadTestsFromTestCase(MultipleEventsTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

@@ -35,6 +35,9 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         super(CatchingEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
 
+    def will_catch(self, my_task, event_definition):
+        return True  # some tasks may only catch if they are in a certain state.
+
     def catch(self, my_task, event_definition):
         """
         Catch is called by the workflow when the task has matched an event

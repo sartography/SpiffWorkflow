@@ -99,9 +99,14 @@ class BpmnWorkflow(Workflow):
         :param event_definition: the thrown event
         """
         assert not self.read_only and not self._is_busy_with_restore()
+        triggered_tasks = []
         for task in [ t for t in self.get_tasks() if self._is_catching_task(t.task_spec) ]:
-            if task.task_spec.event_definition == event_definition:
-                task.task_spec.catch(task, event_definition)
+            if task.task_spec.event_definition == event_definition and \
+                task.task_spec.will_catch(task, event_definition):
+                triggered_tasks.append(task)
+
+        for task in triggered_tasks:
+            task.task_spec.catch(task, event_definition)
 
     def do_engine_steps(self, exit_at = None):
         """

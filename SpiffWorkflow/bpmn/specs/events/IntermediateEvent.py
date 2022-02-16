@@ -52,7 +52,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
                 child._set_state(Task.WAITING)
 
     def _child_complete_hook(self, child_task):
-        
+
         # If the main child completes, or a cancelling event occurs, cancel any
         # unfinished children
         if child_task.task_spec == self.main_child_task_spec or child_task.task_spec.cancel_activity:
@@ -60,7 +60,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
                 if sibling == child_task:
                     continue
                 if sibling.task_spec == self.main_child_task_spec:
-                    sibling.cancel() 
+                    sibling.cancel()
                 elif not sibling._is_finished():
                     sibling.cancel()
             for t in child_task.workflow._get_waiting_tasks():
@@ -80,7 +80,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
         for child in my_task.children:
             if child.task_spec == self.main_child_task_spec:
                 child._set_state(state)
-    
+
     def serialize(self, serializer):
         return serializer.serialize_boundary_event_parent(self)
 
@@ -99,6 +99,9 @@ class BoundaryEvent(CatchingEvent):
         """
         super(BoundaryEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
         self.cancel_activity = cancel_activity
+
+    def will_catch(self, my_task, event_definition):
+        return my_task.state == Task.WAITING
 
     def catch(self, my_task, event_definition):
         super(BoundaryEvent, self).catch(my_task, event_definition)
