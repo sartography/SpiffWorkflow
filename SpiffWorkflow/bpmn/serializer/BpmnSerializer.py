@@ -72,11 +72,13 @@ class BpmnSerializer(spiff_json.JSONSerializer):
         if not isinstance(task.task_spec, SubWorkflowTask):
             return super()._deserialize_task_children(task, s_state)
         else:
-
             sub_workflow = task.task_spec.create_sub_workflow(task)
             children = []
             for c in s_state['children']:
-                if sub_workflow.get_tasks_from_spec_name(c['task_spec']):
+                # One child belongs to the parent workflow (The path back
+                # out of the subworkflow) the other children belong to the
+                # sub-workflow.
+                if c['workflow_name'] == sub_workflow.name:
                     start_task = self.deserialize_task(sub_workflow, c)
                     children.append(start_task)
                     start_task.parent = task.id

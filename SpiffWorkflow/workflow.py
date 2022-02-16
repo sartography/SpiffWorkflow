@@ -51,6 +51,7 @@ class Workflow(object):
           generating tasks twice (and associated problems with multiple
           hierarchies of tasks)
         """
+        self.name = None
         assert workflow_spec is not None
         LOG.debug("__init__ Workflow instance: %s" % self.__str__())
         self.spec = workflow_spec
