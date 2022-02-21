@@ -3,6 +3,8 @@ from __future__ import print_function, absolute_import, division
 
 from __future__ import division, absolute_import
 import unittest
+
+from SpiffWorkflow.exceptions import WorkflowTaskExecException
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -29,7 +31,22 @@ class InlineScriptTest(BpmnWorkflowTestCase):
                                             {'x': 3, 'y': 'c'}],
                                'sample': ['b', 'c']})
 
+    def testNoDataPollution(self):
+        """Ran into an issue where data from one run of a workflow could
+        bleed into a seperate execution.  It will think a variable is there
+        when it should not be there"""
+        self.workflow = BpmnWorkflow(self.spec)
+        startTask = self.workflow.get_tasks(Task.READY)[0]
+        self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue("testvar" in self.workflow.last_task.data)
+        self.assertFalse("testvar" in startTask.data)
 
+        # StartTask doesn't know about testvar, it happened earlier.
+        # calling an exec that references testvar, in the context of the
+        # start task should fail.
+        with self.assertRaises(WorkflowTaskExecException):
+            result = self.workflow.script_engine.evaluate(startTask, 'testvar == True')
 
 
 def suite():
