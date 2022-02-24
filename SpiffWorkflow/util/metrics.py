@@ -27,7 +27,7 @@ def timeit(f):
         task_type = ""
         for arg in args:
 
-            if arg.__class__.__name__ == 'Task':
+            if arg.__class__.__name__ == 'Task' and arg.__class__.__module__.startswith('SpiffWorkflow'):
                 task = arg.get_description()
                 task_type = arg.task_spec.__class__.__name__
             if isinstance(arg, str):
