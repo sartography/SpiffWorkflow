@@ -691,14 +691,15 @@ class DictionarySerializer(Serializer):
         # As we serialize back up, keep only one copy of any sub_workflow
         s_state['sub_workflows'] = {}
         for name, task in mylist:
-            if 'sub_workflows' in task:
-                s_state['sub_workflows'].update(task['sub_workflows'])
-                del task['sub_workflows']
             if 'spec' in task:
                 spec = json.loads(task['spec'])
-                s_state['sub_workflows'][spec['name']] = task['spec']
-                del task['spec']
+                if 'sub_workflows' in spec:
+                    s_state['sub_workflows'].update(spec['sub_workflows'])
+                    del spec['sub_workflows']
+                if spec['name'] not in s_state['sub_workflows']:
+                    s_state['sub_workflows'][spec['name']] = json.dumps(spec)
                 task['spec_name'] = spec['name']
+                del task['spec']
 
         if hasattr(spec,'end'):
             s_state['end']=spec.end.id
