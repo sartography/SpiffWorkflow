@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import
 
+import json
 from builtins import str
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -43,6 +44,12 @@ import warnings
 
 
 class DictionarySerializer(Serializer):
+
+    def __init__(self):
+        # When deserializing, this is a set of specs for sub-workflows.
+        # This prevents us from serializing a copy of the same spec many
+        # times, which can create very large files.
+        self.SPEC_STATES = {}
 
     def serialize_dict(self, thedict):
         return dict(
@@ -351,6 +358,8 @@ class DictionarySerializer(Serializer):
     def deserialize_subworkflow_task(self, wf_spec, s_state, cls):
         spec = cls(wf_spec, s_state['name'])
         spec.wf_class = get_class(s_state['wf_class'])
+        if 'spec_name' in s_state:
+            s_state['spec'] = self.SPEC_STATES[s_state['spec_name']]
         spec.spec = self.deserialize_workflow_spec(s_state['spec'])
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
@@ -433,9 +442,6 @@ class DictionarySerializer(Serializer):
         spec = BusinessRuleTask(wf_spec, s_state['name'], dmnEngine)
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
-
-
-
 
     def serialize_join(self, spec):
         s_state = self.serialize_task_spec(spec)
@@ -681,6 +687,19 @@ class DictionarySerializer(Serializer):
             spec.task_specs['Root'] = root
 
         mylist = [(k, v.serialize(self)) for k, v in list(spec.task_specs.items())]
+
+        # As we serialize back up, keep only one copy of any sub_workflow
+        s_state['sub_workflows'] = {}
+        for name, task in mylist:
+            if 'sub_workflows' in task:
+                s_state['sub_workflows'].update(task['sub_workflows'])
+                del task['sub_workflows']
+            if 'spec' in task:
+                spec = json.loads(task['spec'])
+                s_state['sub_workflows'][spec['name']] = task['spec']
+                del task['spec']
+                task['spec_name'] = spec['name']
+
         if hasattr(spec,'end'):
             s_state['end']=spec.end.id
         s_state['task_specs'] = dict(mylist)
@@ -691,6 +710,12 @@ class DictionarySerializer(Serializer):
         spec.description = s_state['description']
         # Handle Start Task
         spec.start = None
+
+        # Store all sub-workflows so they can be referenced.
+        if 'sub_workflows' in s_state:
+            # Hate the whole json dumps thing, why do we do this?
+            self.SPEC_STATES.update(s_state['sub_workflows'])
+
         del spec.task_specs['Start']
         start_task_spec_state = s_state['task_specs']['Start']
         start_task_spec = StartTask.deserialize(
