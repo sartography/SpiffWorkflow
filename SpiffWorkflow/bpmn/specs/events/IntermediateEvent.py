@@ -100,14 +100,12 @@ class BoundaryEvent(CatchingEvent):
         super(BoundaryEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
         self.cancel_activity = cancel_activity
 
-    def will_catch(self, my_task, event_definition):
-        return my_task.state == Task.WAITING
+    def catches(self, my_task, event_definition):
+        # Boundary events should only be caught while waiting
+        return super(BoundaryEvent, self).catches(my_task, event_definition) and my_task.state == Task.WAITING
 
     def catch(self, my_task, event_definition):
         super(BoundaryEvent, self).catch(my_task, event_definition)
-        # Boundary events can be completed as soon as they're received, as they are
-        # activated by the boundary event parent when it is reached and cancelled
-        # after the main task (or another cancelling event) occurs.
         my_task.complete()
 
     def _on_complete_hook(self, my_task):
