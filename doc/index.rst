@@ -35,7 +35,7 @@ Its main design goals are the following:
 - Map those patterns into workflow elements that are easy to understand by a user in a workflow GUI editor.
 - Provide a clean Python API.
 
-You can find a list of supported workflow patterns in :ref:`features`.
+You can find a list of supported workflow patterns in :ref:`patterns`.
 
 
 License
@@ -48,10 +48,8 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   basics
+   intro
    bpmn/index
-   tutorial/index
-   custom-tasks/index
-   internals
-   features
+   development
+   non-bpmn/index
 

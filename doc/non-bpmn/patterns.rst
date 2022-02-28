@@ -1,17 +1,14 @@
-.. _features:
-
-Features
-========
+.. _patterns:
 
 Supported Workflow Patterns
----------------------------
+===========================
 
 .. HINT::
    All examples are located
    `here <https://github.com/knipknap/SpiffWorkflow/blob/master/tests/SpiffWorkflow/data/spiff/>`_.
 
 Control-Flow Patterns
-^^^^^^^^^^^^^^^^^^^^^
+---------------------
 
 1. Sequence [control-flow/sequence.xml]
 2. Parallel Split [control-flow/parallel_split.xml]
@@ -58,7 +55,7 @@ Control-Flow Patterns
 43. Explicit Termination [control-flow/explicit_termination.xml]
 
 Workflow Data Patterns
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 1. Task Data [data/task_data.xml]
 2. Block Data [data/block_data.xml]
@@ -73,7 +70,7 @@ Workflow Data Patterns
 11. Sub-Workflow Decomposition to Block Task [data/subworkflow_to_block.xml]
 
 Specs that have no corresponding workflow pattern on workflowpatterns.com
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------------------------------
 
 - Execute - spawns a subprocess and waits for the results
 - Transform - executes commands that can be used for data transforms

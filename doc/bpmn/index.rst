@@ -20,7 +20,6 @@ it a great tool to learn and use.
 .. toctree::
    :maxdepth: 2
 
-   intro
    examples
    dmn
    jinja

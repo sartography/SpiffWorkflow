@@ -28,7 +28,7 @@ by a single thick border circle.
 The following example also has one task, represented by the rectangle with curved corners.
 
 
-.. figure:: images/simplestworkflow.png
+.. figure:: figures/simplestworkflow.png
    :scale: 25%
    :align: center
 
@@ -42,7 +42,7 @@ the tail of a sequence flow completes, the node  at the arrowhead is enabled to 
 More complicated Workflow
 -------------------------
 
-.. figure:: images/ExclusiveGateway.png
+.. figure:: figures/ExclusiveGateway.png
    :scale: 25%
    :align: center
 
@@ -65,5 +65,5 @@ workflow **without** creating an explicit branch in our Python code.
   For a more serious modeling, we recommend looking for more comprehensive resources. We have used the books by Bruce
   Silver as a guide for our BPMN modeling.
 
-  .. image:: images/bpmnbook.jpg
+  .. image:: figures/bpmnbook.jpg
      :align: center
