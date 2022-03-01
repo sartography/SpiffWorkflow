@@ -22,8 +22,6 @@ import datetime
 import logging
 import datetime
 
-from ....bpmn.PythonScriptEngine import PythonScriptEngine
-
 from builtins import object
 
 LOG = logging.getLogger(__name__)

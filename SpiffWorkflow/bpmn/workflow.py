@@ -99,13 +99,11 @@ class BpmnWorkflow(Workflow):
         :param event_definition: the thrown event
         """
         assert not self.read_only and not self._is_busy_with_restore()
-        triggered_tasks = []
-        for task in [ t for t in self.get_tasks() if self._is_catching_task(t.task_spec) ]:
-            if task.task_spec.event_definition == event_definition and \
-                task.task_spec.will_catch(task, event_definition):
-                triggered_tasks.append(task)
-
-        for task in triggered_tasks:
+        # We need to get all the tasks that catch an event before completing any of them
+        # in order to prevent the scenario where multiple boundary events catch the
+        # same event and the first executed cancels the rest
+        tasks = [ t for t in self.get_catching_tasks() if t.task_spec.catches(t, event_definition) ]
+        for task in tasks:
             task.task_spec.catch(task, event_definition)
 
     def do_engine_steps(self, exit_at = None):
@@ -157,6 +155,9 @@ class BpmnWorkflow(Workflow):
         """
         return self.get_tasks(Task.WAITING)
 
+    def get_catching_tasks(self):
+        return [ task for task in self.get_tasks() if isinstance(task.task_spec, CatchingEvent) ]
+
     def _is_busy_with_restore(self):
         if self.outer_workflow == self:
             return self._busy_with_restore
@@ -165,9 +166,6 @@ class BpmnWorkflow(Workflow):
     def _is_engine_task(self, task_spec):
         return (not hasattr(task_spec, 'is_engine_task') or
                 task_spec.is_engine_task())
-
-    def _is_catching_task(self, task_spec):
-        return isinstance(task_spec, CatchingEvent)
 
     def _task_completed_notify(self, task):
         assert (not self.read_only) or self._is_busy_with_restore()

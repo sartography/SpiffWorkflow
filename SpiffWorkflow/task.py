@@ -34,7 +34,6 @@ LOG = logging.getLogger(__name__)
 
 def updateDotDict(dict,id,value):
     x = id.split('.')
-    print(x)
     if len(x) == 1:
         dict[x[0]]=value
     elif dict.get(x[0]):

@@ -185,18 +185,21 @@ class IntermediateThrowEventParser(EventDefinitionParser):
 
     def create_task(self):
 
+        escalationEvent = first(self.xpath('.//bpmn:escalationEventDefinition'))
         messageEvent = first(self.xpath('.//bpmn:messageEventDefinition'))
         signalEvent = first(self.xpath('.//bpmn:signalEventDefinition'))
         timerEvent = first(self.xpath('.//bpmn:timerEventDefinition'))
 
-        if messageEvent is not None:
+        if escalationEvent is not None:
+            event_definition = self.parse_escalation_event(escalationEvent)
+        elif messageEvent is not None:
             event_definition = self.parse_message_event(messageEvent)
         elif signalEvent is not None:
             event_definition = self.parse_signal_event(signalEvent)
         elif timerEvent is not None:
             event_definition = self.parse_timer_event(timerEvent)
         else:
-            raise NotImplementedError('Unsupported Throw Catch Event: %r', etree.tostring(self.node))
+            raise NotImplementedError('Unsupported Throw Event: %r', etree.tostring(self.node))
 
         kwargs = {
             'lane': self.get_lane(),
