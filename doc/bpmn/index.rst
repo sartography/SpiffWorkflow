@@ -1,31 +1,76 @@
-Business Process Model and Notation (BPMN)
-==========================================
+BPMN Workflows
+==============
 
-Business Process Model and Notation (BPMN) is a diagramming language for
-business process flows. BPMN links the realms of business and IT, and creates
-a common process language that can be shared between the two.
+The basic idea of SpiffWorkflow is that you can use it to write an interpreter 
+in Python that creates business applications from BPMN models.  In this section,
+we'll develop a model of an example process and as well as a
+simple workflow runner.
 
-BPMN describes details of process behaviors efficiently in a diagram. The
-meaning is precise enough to describe the technical details that control
-process execution in an automation engine. SpiffWorkflow allows you to create
-code to get a BPMN up and running.
+We expect that readers will fall into two general categories:
 
-When using SpiffWorkflow, a client can manipulate the BPMN diagram and still
-have their product work without a need for you to edit the Python code,
-improving response and turnaround time.
+- People with a background in BPMN who might not be very familiar Python
+- Python developers who might not know much about BPMN
 
-Today, nearly every process modeling tool supports BPMN in some fashion making
-it a great tool to learn and use.
+This section of the documentation provides an example that (hopefully) serves 
+the needs of both groups.  We will introduce the BPMN elements that SpiffWorkflow 
+supports and show how to build a simple workflow runner around them.
+
+SpiffWorkflow does heavy-lifting such as keeping track of task dependencies and
+states and providing the ability to serialize or deserialize a workflow that
+has not been completed.  The developer will write code for displaying workflow
+state and presenting tasks to users of their application.
+
+All the Python code and BPMN models used here are available in an example
+project called `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+
+Quickstart
+----------
+
+Check out the code in `SpiffExample <https://github.com/sartography/SpiffExample>`_
+and follow the instructions to set up an environment to run it in.
+
+Run our sample workflows using our example application with the following command.
+
+.. code-block:: console
+
+   run.py -p order_product \
+        -d bpmn{product_prices,shipping_costs}.dmn \
+        -b bpmn{events,call_activity}.bpmn
+
+
+For a full description of options:
+
+.. code-block:: console
+
+   run.py --help
+
+The code in the workflow runner and the models in the bpmn directory of the
+repository will be discussed in the remainder of this tutorial.
+
+BPMN Elements
+-------------
+
+.. toctree::
+   :maxdepth: 3
+
+   tasks
+   gateways
+   organization
+   events
+   multiinstance
+
+Putting it All Together
+-----------------------
 
 .. toctree::
    :maxdepth: 2
 
-   examples
-   dmn
-   jinja
-   advanced_features
-   call_activity
-   nav_list
-   serialize
-   ScriptingEnhancements
+   synthesis
 
+Features in More Depth
+----------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   advanced

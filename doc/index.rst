@@ -19,7 +19,7 @@ What is SpiffWorkflow?
 
 
 SpiffWorkflow allows your python application to process BPMN diagrams (think
-of them as very powerful flow charts,  See :doc:`/bpmn/intro`.) to accomplish
+of them as very powerful flow charts,  See :doc:`intro`.) to accomplish
 what would otherwise require writing a lot of complex business logic in your
 code. You can use these diagrams to accomplish a number of tasks, such as:
 

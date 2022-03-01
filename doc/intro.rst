@@ -1,5 +1,34 @@
-Overview of BPMN
-============================
+Overview
+========
+
+BPMN and SpiffWorkflow
+----------------------
+
+.. sidebar:: BPMN Resources
+
+  This guide is a mere introduction to how to get started with BPMN allowing someone to get started with
+  SpiffWorkflow and start using it to write programs that perform a workflow and let SpiffWorkflow do the heavy lifting.
+  For a more serious modeling, we recommend looking for more comprehensive resources. We have used the `books by Bruce
+  Silver <https://www.amazon.com/Bruce-Silver/e/B0062AXUFY/ref=dp_byline_cont_pop_book_1>`_ as a guide for our BPMN modeling.
+
+  .. image:: figures/bpmnbook.jpg
+     :align: center
+
+Business Process Model and Notation (BPMN) is a diagramming language for
+business process flows. BPMN links the realms of business and IT, and creates
+a common process language that can be shared between the two.
+
+BPMN describes details of process behaviors efficiently in a diagram. The
+meaning is precise enough to describe the technical details that control
+process execution in an automation engine. SpiffWorkflow allows you to create
+code to get a BPMN up and running.
+
+When using SpiffWorkflow, a client can manipulate the BPMN diagram and still
+have their product work without a need for you to edit the Python code,
+improving response and turnaround time.
+
+Today, nearly every process modeling tool supports BPMN in some fashion making
+it a great tool to learn and use.
 
 To use SpiffWorkflow, you need at least a basic understanding of BPMN.
 This page offers a brief overview. There are many resources for additional
@@ -8,7 +37,6 @@ information about BPMN.
 In these examples and throughout the documentation we use the a Modeler for
 BPMN. `BPMN.js <https://bpmn.io/toolkit/bpmn-js/>`  To support web forms
 we use Camunda's free BPMN editor.
-
 
 .. sidebar:: BPMN Modelers
 
@@ -39,8 +67,8 @@ The sequence flow is represented with a solid line connector. When the node at
 the tail of a sequence flow completes, the node  at the arrowhead is enabled to start.
 
 
-More complicated Workflow
--------------------------
+A More Complicated Workflow
+---------------------------
 
 .. figure:: figures/ExclusiveGateway.png
    :scale: 25%
@@ -57,13 +85,42 @@ the other based on some data condition. BPMN has other gateway types.
 The important point is that we can use a gateway to add a branch in the
 workflow **without** creating an explicit branch in our Python code.
 
+Events
+------
 
-.. sidebar:: BPMN Resources
+In the above simple workflows, all of the transitions are deterministic and we 
+have direct connections between tasks.  We need to handle the cases where an event
+may or may not happen and link these events in different parts of the workflow.
 
-  This guide is a mere introduction to how to get started with BPMN allowing someone to get started with
-  SpiffWorkflow and start using it to write programs that perform a workflow and let SpiffWorkflow do the heavy lifting.
-  For a more serious modeling, we recommend looking for more comprehensive resources. We have used the books by Bruce
-  Silver as a guide for our BPMN modeling.
+BPMN has a comprehensive suite of event elements that can used for this purpose.
+SpiffWorkflow does not support every single BPMN event type, but it can handle 
+many of them.
 
-  .. image:: figures/bpmnbook.jpg
-     :align: center
+.. figure:: figures/events.png
+   :scale: 25%
+   :align: center
+
+   A workflow containing events
+
+
+We've already seen plain Start and End Events.  BPMN also include the concepts
+of Intermediate Events (standalone events that may be generated/"Thrown" or
+handled/"Caught") as well as Boundary Events (which can only be caught).
+
+All Start Events are inherently Catching Events (they can initiate a workflow if a 
+particular event occurs) and all End Events are Throwing Events (they can convey 
+the final state of a workflow or path through a workflow to other tasks or 
+workflows).
+
+If an Intermediate Throwing Event is added to a flow, the event it represents
+will be generated and the flow will continue immediately.  If an Intermediate 
+Catching Event is added to a flow, the workflow will wait to catch the event it 
+represents before advancing.
+
+A Boundary Event represents an event that may be caught while a particular task is
+being executed and comes in two types: Interrupting (in which case the task it is
+attached to will be cancelled if the event is received) or Non-Interrupting (in
+which case the task will continue).  In both cases, flows may emanate from the
+boundary event, which will trigger those paths if the events occur while the task
+is being executed.
+
