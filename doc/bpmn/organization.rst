@@ -4,14 +4,13 @@ Organizing More Complex Workflows
 BPMN Model
 ----------
 
-We'll be using the the `lanes 
-<https://github.com/sartography/SpiffExample/bpmn/lanes.bpmn>`_, `top_level 
-<https://github.com/sartography/SpiffExample/bpmn/top_level.bpmn>`_, and
-`call_activity <https://github.com/sartography/SpiffExample/bpmn/lanes.bpmn>`_
-workflows, as well as the `product_prices 
-<https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_
-and `shipping_costs <https://github.com/sartography/SpiffExample/bpmn/shipping_costs.dmn>`_
-DMN tables from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+
+- `lanes <https://github.com/sartography/SpiffExample/bpmn/lanes.bpmn>`_ workflow
+- `top_level <https://github.com/sartography/SpiffExample/bpmn/top_level.bpmn>`_ workflow
+- `call_activity <https://github.com/sartography/SpiffExample/bpmn/call_activity.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_ DMN table
+- `shipping_costs <https://github.com/sartography/SpiffExample/bpmn/shipping_costs.dmn>`_ DMN table
 
 Lanes
 ^^^^^
@@ -31,9 +30,15 @@ to an employee who will charge the customer and fulfill the order.
 
    Workflow with lanes
 
-Running the `lanes workflow`_.
+To run this workflow
 
-For a simple example of displaying a tasks lane, see `Handling Lanes`_
+.. code-block:: console
+
+   ./run.py -p order_product \
+        -d bpmn/product_prices.dmn bpmn/shipping_costs.dmn \
+        -b bpmn/lanes.bpmn
+
+For a simple code example of displaying a tasks lane, see `Handling Lanes`_
 
 Subprocesses
 ^^^^^^^^^^^^
@@ -42,14 +47,14 @@ In general, subprocesses are a way of grouping work into smaller units. This, in
 theory, will help us to re-use sections of business logic, but it will also allow 
 us to treat groups of work as a unit.
 
-Subprocesses come in two different flavors. In this workflow we see an 'expanded' 
-subprocess.  Unfortunately, we can't collapse an expanded subprocess within BPMN.js, 
+Subprocesses come in two different flavors. In this workflow we see an Expanded 
+Subprocess.  Unfortunately, we can't collapse an expanded subprocess within BPMN.js, 
 so expanded subprocesses are mainly useful for conceptualizing a group of tasks as
 a unit.  
 
 It also possible to refer to external subprocesses via a Call Activity Task. This 
 allows us to 'call' a separate workflow in a different file by referencing the ID of 
-the called workflow. This allows us to simplify and re-use business logic.
+the called workflow, which can simplify business logic and make it re-usable.
 
 We'll expand 'Fulfill Order' into sub tasks -- retrieving the product and shipping 
 the order -- and create an Expanded Subprocess.
@@ -63,13 +68,15 @@ to customize certain products by size and style in addition to color.
 
    Updated Product List
 
+.. note:: 
+
+   I've added what customizations are available for each product in the 'Annotations'
+   column of the DMN table.  This is not actually used by Spiff; it simply provides
+   the option of documenting the decisions contained in the table.
+
 Since adding gateways for navigating the new options will add a certain amount of 
 clutter to our diagram, we'll create a separate workflow around selecting and 
 customizing products and refer to that in our main workflow.
-
-When configuring the subworkflow, we need to make sure the 'CallActivity Type' of the
-parent workflow is 'BPMN' and the 'Called Element' matches the id we assigned in the
-subworkflow.
 
 .. figure:: figures/call_activity.png
    :scale: 30%
@@ -77,28 +84,18 @@ subworkflow.
 
    Subworkflow for product selection
 
+When configuring the subworkflow, we need to make sure the 'CallActivity Type' of the
+parent workflow is 'BPMN' and the 'Called Element' matches the ID we assigned in the
+subworkflow.
+
 .. figure:: figures/top_level.png
    :scale: 30%
    :align: center
 
    Parent workflow
 
-Running the `subprocesses workflow`_.
-
-Running The Models
-------------------
-
-Lanes Workflow
-^^^^^^^^^^^^^^
-
-.. code-block:: console
-
-   ./run.py -p order_product \
-        -d bpmn/product_prices.dmn bpmn/shipping_costs.dmn \
-        -b bpmn/lanes.bpmn
-
-Subprocesses Workflow
-^^^^^^^^^^^^^^^^^^^^^
+Running the Model
+^^^^^^^^^^^^^^^^^
 
 .. code-block:: console
 
@@ -114,7 +111,7 @@ Handling Lanes
 
 We are not required to handle lanes in our application, but most of the time we'll
 probably want a way of filtering on lanes and selectively displaying tasks.  In
-our sample application, we'll simple display which lane a task belongs to.
+our sample application, we'll simply display which lane a task belongs to.
 
 .. code:: python
 
@@ -127,5 +124,5 @@ The tasks lane can be obtained from :code:`task.task_spec.lane`.  Not all tasks
 will have a :code:`lane` attribute, so we need to check to make sure it exists
 before attempting to access it (this is true for many task attributes).
 
-See the Working With Lanes Section of Features in More Depth for more information
+See the Filtering Tasks Section of :doc:`advanced` more information
 about working with lanes in Spiff.

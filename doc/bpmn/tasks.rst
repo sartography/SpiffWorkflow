@@ -7,11 +7,10 @@ BPMN Model
 In this example, we'll model a customer selecting a product to illustrate
 the basic task types that can be used with SpiffWorkflow.
 
-We'll be using the the `task_types 
-<https://github.com/sartography/SpiffExample/bpmn/task_types.bpmn>`_
-workflow, as well as the `product_prices 
-<https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_
-DMN table from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+
+- `task_types <https://github.com/sartography/SpiffExample/bpmn/task_types.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_ DMN table
 
 User Tasks 
 ^^^^^^^^^^
@@ -77,7 +76,8 @@ Our Business Rule Task will make use of a DMN table.
 .. note::
    We add quote marks around the product names in the table.  Spiff will
    create an expression based on the exact contents of the table, so if
-   the quotes are omitted, the content will be interpreted as a variable.
+   the quotes are omitted, the content will be interpreted as a variable
+   rather than a string.
 
 Then we'll refer to this table in the task configuration.
 
@@ -91,7 +91,7 @@ Script Tasks
 ^^^^^^^^^^^^
 
 The total order cost will need to be calculated on the fly.  We can do this in
-a script task.  We'll configure the task with some simple python code.
+a script task.  We'll configure the task with some simple Python code.
 
 .. figure:: figures/script_task.png
    :scale: 30%
@@ -127,7 +127,7 @@ In this example, we'll present an order summary to our customer.
 See the `Handling Manual Tasks`_ section for a discussion of sample code.
 
 Running The Model
------------------
+^^^^^^^^^^^^^^^^^
 
 If you have set up our example repository, this model can be run with the
 following command:
@@ -162,8 +162,8 @@ responses.
 
 The list of form fields for a task is stored in :code:`task.task_spec.form_fields`.
 
-For Enumerated fields, we want to get the possible options and present them to
-the user.  The variable names the fields were stored in :code:`field.id`, but since
+For Enumerated fields, we want to get the possible options and present them to the 
+user.  The variable names of the fields were stored in :code:`field.id`, but since
 we set labels for each of the fields, we'd like to display those instead, and map
 the user's selection back to the variable name.
 
@@ -175,7 +175,8 @@ where they data type was specified to be a :code:`long`, we'll convert it to a
 number.
 
 Finally, we need to explicitly store the user-provided response in a variable
-with the expected name.
+with the expected name with :code:`task.update_data_var(field.id, response)`.
+
 
 Handling Business Rule Tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -186,9 +187,9 @@ tasks.  SpiffWorkflow does it all for us.
 Handling Script Tasks
 ^^^^^^^^^^^^^^^^^^^^^
 
-We do not need to do any special configuration to handle script tasks.  It is
-possible to implement a custom script engine.  We demonstrate that process in 
-Custom Script Engines section Advancd features.  However, the default script 
+We do not need to do any special configuration to handle script tasks, although it
+is possible to implement a custom script engine.  We demonstrate that process in 
+Custom Script Engines section :doc:`advanced` features.  However, the default script 
 engine will work in many cases.
 
 Handling Manual Tasks
@@ -203,13 +204,8 @@ completed.
         display_task(task)
         input("Press any key to mark task complete")
 
-This is the code for converting the Documentation property of the task into
-something that can be present to the user.
-
-The template string can be obtained from :code:`task.task_spec.documentation`.
-
-As noted above, our template class comes from Jinja.  We render the template
-using the task data, which is just a dictionary.
+:code:`display_task()` is the code for converting the Documentation property of the task 
+into something that can be present to the user.
 
 .. code:: python
 
@@ -218,4 +214,9 @@ using the task data, which is just a dictionary.
         if task.task_spec.documentation is not None:
             template = Template(task.task_spec.documentation)
             print(template.render(task.data))
+
+The template string can be obtained from :code:`task.task_spec.documentation`.
+
+As noted above, our template class comes from Jinja.  We render the template
+using the task data, which is just a dictionary.
 

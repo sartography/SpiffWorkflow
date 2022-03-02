@@ -29,26 +29,27 @@ Quickstart
 Check out the code in `SpiffExample <https://github.com/sartography/SpiffExample>`_
 and follow the instructions to set up an environment to run it in.
 
-Run our sample workflows using our example application with the following command.
+Run the sample workflow we built up using our example application with the following 
+command:
 
 .. code-block:: console
 
-   run.py -p order_product \
-        -d bpmn{product_prices,shipping_costs}.dmn \
-        -b bpmn{events,call_activity}.bpmn
+   ./run.py -p order_product \
+        -d bpmn/{product_prices,shipping_costs}.dmn \
+        -b bpmn/{multiinstance,call_activity_multi}.bpmn
 
 
-For a full description of options:
+For a full description of program options:
 
 .. code-block:: console
 
-   run.py --help
+   ./run.py --help
 
 The code in the workflow runner and the models in the bpmn directory of the
 repository will be discussed in the remainder of this tutorial.
 
-BPMN Elements
--------------
+Supported BPMN Elements
+-----------------------
 
 .. toctree::
    :maxdepth: 3

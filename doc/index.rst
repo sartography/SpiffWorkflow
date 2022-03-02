@@ -27,17 +27,6 @@ code. You can use these diagrams to accomplish a number of tasks, such as:
  - Implement an approval process that requires input from multiple users
  - Allow non-programmers to modify the flow and behavior of your application.
 
-SpiffWorkflow is based on the excellent work of the
-`Workflow Patterns initiative <http://www.workflowpatterns.com/>`_.
-Its main design goals are the following:
-
-- Directly support as many of the patterns of workflowpatterns.com as possible.
-- Map those patterns into workflow elements that are easy to understand by a user in a workflow GUI editor.
-- Provide a clean Python API.
-
-You can find a list of supported workflow patterns in :ref:`patterns`.
-
-
 License
 -------
 Spiff Workflow is published under the terms of the

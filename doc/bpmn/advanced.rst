@@ -1,8 +1,11 @@
 A More In-Depth Look at Some of SpiffWorkflow's Features
 ========================================================
 
-Working With Lanes
-------------------
+Displaying Workflow State
+-------------------------
+
+Filtering Tasks
+^^^^^^^^^^^^^^^
 
 In our earlier example, all we did was check the lane a task was in and display
 it along with the task name and state.
@@ -26,20 +29,26 @@ If there were no tasks ready for the 'Customer' lane, you would get an empty lis
 and of course if you had no lane that was labeled 'Customer' you would *always* get an 
 empty list.
 
+We can also get a list of tasks by state.
+
+We need to import the :code:`Task` object (unless you want to memorize which numbers
+correspond to which states).
+
+.. code:: python
+
+    from SpiffWorkflow.task import Task
+
+To get a list of completed tasks
+
+.. code:: python
+
+    tasks = workflow.get_tasks(Task.COMPLETED)
+
+The tasks themselves are not particularly intuitive to work with.  So SpiffWorkflow
+provides some facilities for obtaining a more user-friendly version of upcoming tasks.
+
 Nav(igation) List
------------------
-
-.. sidebar:: Warning!
-
-  At the time of writing, the nav list does have some issues. The main issue is that there are 'issues' with showing
-  the tasks for a subprocess. For most self-contained workflows, the nav-list does a good job of showing all of the
-  events that are coming up and where a user is at in the process. Another set of features that have not been tested
-  with the navigation list are any kind of boundary events which may cause a non-linear flow which would be hard to
-  render.
-
-It is usually the case that it will be necessary to present the user with an overview of
-the workflow state as a whole.  SpiffWorkflow provides a "Navigation List" with a more
-user-friendly presentation of upcoming tasks.
+^^^^^^^^^^^^^^^^^
 
 In order to get the navigation list, we can call the workflow.get_nav_list() function. This 
 will return a list of dictionaries with information about each task and decision point in the 
@@ -125,36 +134,36 @@ security reasons.
 
 .. warning::
 
-   The default script engine does little to no sanitization and uses eval
-   and exec!  If you have security concerns, you should definitely investigate
+   The default script engine does little to no sanitization and uses :code:`eval`
+   and :code:`exec`!  If you have security concerns, you should definitely investigate
    replacing the default with your own implementation.
 
 The default script engine imports the following objects:
 
-- timedelta
-- datetime
-- dateparser
-- pytz
+- :code:`timedelta`
+- :code:`datetime`
+- :code:`dateparser`
+- :code:`pytz`
 
-You could add other standard python modules or any code you've implemented
-yourself.
+You could add other functions or classes from the standard python modules or any code you've
+implemented yourself.
 
-In our example models so far, we've been using DMN tables to obtain product
-information.  DMN tables have a **lot** of uses so we wanted to feature them
-prominently, but in a simple way.
+In our example models so far, we've been using DMN tables to obtain product information.  DMN 
+tables have a **lot** of uses so we wanted to feature them prominently, but in a simple way.
 
-If a customer was selecting a product, we would surely have information about
-how the product could be customized in a database somewhere.  We would not hard
-code product information in our diagram (although it is much easier to modify the
-BPMN diagram than change the code itself!).
+If a customer was selecting a product, we would surely have information about how the product 
+could be customized in a database somewhere.  We would not hard code product information in 
+our diagram (although it is much easier to modify the BPMN diagram than to change the code 
+itself!).  Our shipping costs would not be static, but would depend on the size of the order and
+where it was being shipped -- maybe we'd query an API provided by our shipper.
 
-SpiffWorkflow is obviously **not** going to know how to make a call to **your**
-database.  However, you can implement the call yourself and make it available as
-a method that can be used within a script task.
+SpiffWorkflow is obviously **not** going to know how to make a call to **your** database or
+make API calls to **your** vendors.  However, you can implement the calls yourself and make them 
+available as a method that can be used within a script task.
 
-We are not going to actually include a database and write code for connecting to
-and querying it, but we can model the scenario with a simple dictionary lookup
-since we only have 7 products.
+We are not going to actually include a database or API and write code for connecting to and querying 
+it, but we can model our database with a simple dictionary lookup since we only have 7 products
+and just return the same static info for shipping for the purposes of the tutorial.
 
 .. code:: python
 
@@ -208,6 +217,12 @@ And we can simplify our 'Call Activity' flows:
    :align: center
 
    Workflow with lanes
+
+To run this workflow:
+
+.. code-block:: console
+
+    ./run.py -p order_product -b bpmn/call_activity_script.bpmn bpmn/top_level_script.bpmn
 
 We have also done some work using `Restricted Python <https://restrictedpython.readthedocs.io/en/latest/>`_
 to provide more secure alternatives to standard python functions.

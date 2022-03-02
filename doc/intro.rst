@@ -34,10 +34,6 @@ To use SpiffWorkflow, you need at least a basic understanding of BPMN.
 This page offers a brief overview. There are many resources for additional
 information about BPMN.
 
-In these examples and throughout the documentation we use the a Modeler for
-BPMN. `BPMN.js <https://bpmn.io/toolkit/bpmn-js/>`  To support web forms
-we use Camunda's free BPMN editor.
-
 .. sidebar:: BPMN Modelers
 
   There are a number of modelers in existence, and any BPMN compliant modeler should work.
@@ -45,6 +41,10 @@ we use Camunda's free BPMN editor.
   capabilities, but we intend to encapsulate this support in an extension module and remove
   it from the core library eventually.  It does help for making some examples and demonstrating
   how one might implement user tasks in an online environment.
+
+In these examples and throughout the documentation we use the
+`BPMN.js <https://bpmn.io/toolkit/bpmn-js/>`_ BPMN Modeler. 
+
 
 A Simple Workflow
 -----------------
@@ -104,23 +104,22 @@ many of them.
 
 
 We've already seen plain Start and End Events.  BPMN also include the concepts
-of Intermediate Events (standalone events that may be generated/"Thrown" or
-handled/"Caught") as well as Boundary Events (which can only be caught).
+of Intermediate Events (standalone events that may be Throwing or Catching) as well 
+as Boundary Events (which can only be Caught).
 
-All Start Events are inherently Catching Events (they can initiate a workflow if a 
+All Start Events are inherently Catching Events (a workflow can be initiated if a 
 particular event occurs) and all End Events are Throwing Events (they can convey 
-the final state of a workflow or path through a workflow to other tasks or 
-workflows).
+the final state of a workflow or path to other tasks and workflows).
 
 If an Intermediate Throwing Event is added to a flow, the event it represents
 will be generated and the flow will continue immediately.  If an Intermediate 
 Catching Event is added to a flow, the workflow will wait to catch the event it 
 represents before advancing.
 
-A Boundary Event represents an event that may be caught while a particular task is
-being executed and comes in two types: Interrupting (in which case the task it is
+A Boundary Event represents an event that may be caught only while a particular task 
+is being executed and comes in two types: Interrupting (in which case the task it is
 attached to will be cancelled if the event is received) or Non-Interrupting (in
 which case the task will continue).  In both cases, flows may emanate from the
-boundary event, which will trigger those paths if the events occur while the task
+Boundary Event, which will trigger those paths if the events occur while the task
 is being executed.
 

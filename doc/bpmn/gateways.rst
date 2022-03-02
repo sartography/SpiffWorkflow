@@ -5,18 +5,18 @@ BPMN Model
 ----------
 
 In this section, we'll expand our model by creating alternate paths through the
-workflow depending.
+workflow depending on the current workflow state, in this case, answers provided
+by the user through forms.
 
 We've also added a second DMN table to find the cost of the shipping method the
 user selects, as well as updated our order total calculations to incorporate
 that cost.
 
-We'll be using the the `gateway_types 
-<https://github.com/sartography/SpiffExample/bpmn/gateway_types.bpmn>`_
-workflow, as well as the `product_prices 
-<https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_
-and `shipping_costs <https://github.com/sartography/SpiffExample/bpmn/shipping_costs.dmn>`_
-DMN tables from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+
+- `gateway_types <https://github.com/sartography/SpiffExample/bpmn/gateway_types.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_ DMN table
+- `shipping_costs <https://github.com/sartography/SpiffExample/bpmn/shipping_costs.dmn>`_ DMN table
 
 Exclusive Gateway
 ^^^^^^^^^^^^^^^^^
@@ -33,7 +33,7 @@ expression.
    :scale: 30%
    :align: center
 
-   Default flow configuration
+   Flow configuration
 
 Parallel Gateway
 ^^^^^^^^^^^^^^^^
@@ -41,7 +41,7 @@ Parallel Gateway
 .. sidebar:: IDs vs Names
 
    We've assigned descriptive names to all our tasks so far.  Text added to
-   Camunda's Name field will appear in the diagram, so sometimes it's better to
+   the Name field will appear in the diagram, so sometimes it's better to
    leave it blank to avoid visual clutter.  I've put a description of the
    gateway into the ID field instead.
 
@@ -50,7 +50,7 @@ in any particular order.  The user can complete them in any sequence and the
 workflow will wait for all tasks to be finished before advancing.
 
 We do not care whether the user chooses a shipping method or enters their 
-address first, but they'll need to complete both tasks before contining.
+address first, but they'll need to complete both tasks before continuing.
 
 We don't need to do any particular configuration for this gateway type.
 
@@ -61,7 +61,7 @@ We don't need to do any particular configuration for this gateway type.
    Parallel Gateway example
 
 Running The Model
------------------
+^^^^^^^^^^^^^^^^^
 
 If you have set up our example repository, this model can be run with the
 following command:
