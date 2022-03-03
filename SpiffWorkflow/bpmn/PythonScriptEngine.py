@@ -253,7 +253,7 @@ class PythonScriptEngine(object):
         """
         if external_methods is None:
             external_methods = {}
-        globals = self.globals  # FIXME:  Don't pollute all subsequent calls.
+        globals = copy.copy(self.globals)
 
         self.convertToBox(data)
         globals.update(data)

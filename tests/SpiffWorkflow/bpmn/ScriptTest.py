@@ -32,10 +32,9 @@ class InlineScriptTest(BpmnWorkflowTestCase):
                                             {'x': 3, 'y': 'c'}],
                                'sample': ['b', 'c']})
 
-    @skip
     def testNoDataPollution(self):
         """Ran into an issue where data from one run of a workflow could
-        bleed into a seperate execution.  It will think a variable is there
+        bleed into a separate execution.  It will think a variable is there
         when it should not be there"""
         self.workflow = BpmnWorkflow(self.spec)
         startTask = self.workflow.get_tasks(Task.READY)[0]
