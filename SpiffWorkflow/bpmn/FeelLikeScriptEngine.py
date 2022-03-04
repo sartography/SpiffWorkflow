@@ -265,11 +265,7 @@ externalFuncs = {
     'feelGregorianDOW':feelGregorianDOW,
 }
 
-default_header = """
 
-
-
-"""
 class FeelLikeScriptEngine(PythonScriptEngine):
     """
     This should serve as a base for all scripting & expression evaluation
@@ -317,7 +313,7 @@ class FeelLikeScriptEngine(PythonScriptEngine):
                 raise Exception("error parsing expression "+text + " " +
                                 str(e))
 
-    def _evaluate(self, expression, external_methods=None, **kwargs):
+    def _evaluate(self, expression, context, task=None, external_methods=None):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
@@ -325,7 +321,8 @@ class FeelLikeScriptEngine(PythonScriptEngine):
         if external_methods is None:
             external_methods = {}
         external_methods.update(externalFuncs)
-        return super()._evaluate(expression,external_methods,**kwargs)
+        return super()._evaluate(expression, context,
+                                 external_methods=external_methods)
 
     def execute(self, task, script, data, external_methods=None):
         """
