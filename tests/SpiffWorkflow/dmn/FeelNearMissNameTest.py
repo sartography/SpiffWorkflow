@@ -43,7 +43,7 @@ class FeelNearMissTestClass(unittest.TestCase):
         self.assertRaisesRegex(NameError,
                                ".+\['Exclusive', 'eXclusive', 'EXCLUSIVE'\]\?",
                                self.runner.decide,
-                               **self.data)
+                               self.data)
 
 
 def suite():

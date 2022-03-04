@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="4.10.0">
   <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="InputClause_1tm0ceq" label="Age">
-        <inputExpression id="LiteralExpression_04o7chw" typeRef="integer" expressionLanguage="feel"/>
+        <inputExpression id="LiteralExpression_04o7chw" typeRef="integer" expressionLanguage="feel" />
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
       <rule id="table-341529265-2">

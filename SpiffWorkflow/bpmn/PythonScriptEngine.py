@@ -93,13 +93,6 @@ class Box(dict):
         del self.__dict__[key]
 
 
-default_header = """
-
-
-
-"""
-
-
 class PythonScriptEngine(object):
     """
     This should serve as a base for all scripting & expression evaluation
@@ -108,7 +101,7 @@ class PythonScriptEngine(object):
 
     If you are uncomfortable with the use of eval() and exec, then you should
     provide a specialised subclass that parses and executes the scripts /
-    expressions in a mini-language of your own.
+    expressions in a different way.
     """
 
     def __init__(self, scriptingAdditions=None):
@@ -141,10 +134,14 @@ class PythonScriptEngine(object):
                 raise Exception("error parsing expression " + str(text) + " " +
                                 str(e))
 
-    def eval_dmn_expression(self, inputExpr, matchExpr, **kwargs):
+    def eval_dmn_expression(self, inputExpr, matchExpr, context, task=None):
         """
         Here we need to handle a few things such as if it is an equality or if
-        the equality has already been taken care of. For now, we just assume it is equality.
+        the equality has already been taken care of. For now, we just assume
+         it is equality.
+
+         An optional task can be included if this is being executed in the
+         context of a BPMN task.
         """
         if matchExpr is None:
             return True
@@ -155,7 +152,7 @@ class PythonScriptEngine(object):
         # this should evaluate as 4  < 5 < 6 and it should evaluate as 'True'
         # NOTE:  It should only do this replacement outside of quotes.
         # for example, provided "This thing?"  in quotes, it should not
-        # do the replacemnt.
+        # do the replacement.
         matchExpr = re.sub('(\?)(?=(?:[^\'"]|[\'"][^\'"]*[\'"])*$)',
                            'dmninputexpr', matchExpr)
         if 'dmninputexpr' in matchExpr:
@@ -163,7 +160,7 @@ class PythonScriptEngine(object):
 
         rhs, needsEquals = self.validate_expression(matchExpr)
 
-        extra = {
+        external_methods = {
             'datetime': datetime,
             'timedelta': timedelta,
             'Decimal': Decimal,
@@ -175,21 +172,15 @@ class PythonScriptEngine(object):
             raise WorkflowException(
                 "Input Expression '%s' is malformed" % inputExpr)
         if nolhs:
-            dmninputexpr = self._evaluate(lhs, external_methods=extra, **kwargs)
-            extra = {'dmninputexpr': dmninputexpr,
-                     'datetime': datetime,
-                     'timedelta': timedelta,
-                     'Decimal': Decimal,
-                     'Box': Box
-                     }
-            return self._evaluate(rhs, external_methods=extra, **kwargs)
+            dmninputexpr = self._evaluate(lhs, context, task, external_methods)
+            external_methods['dmninputexpr'] = dmninputexpr
+            return self._evaluate(rhs, context, task, external_methods)
         if needsEquals:
             expression = lhs + ' == ' + rhs
         else:
             expression = lhs + rhs
 
-        return self._evaluate(expression, external_methods=extra,
-                             do_convert=True, **kwargs)
+        return self._evaluate(expression, context, task, external_methods)
 
     def evaluate(self, task, expression):
         """
@@ -202,14 +193,13 @@ class PythonScriptEngine(object):
                 # expression judging from the contents of operators.py
                 return expression._matches(task)
             else:
-                return self._evaluate(expression, **task.data)
+                return self._evaluate(expression, task.data, task=task)
         except Exception as e:
             raise WorkflowTaskExecException(task,
                                             "Error evaluating expression "
                                             "'%s', %s" % (expression, str(e)))
 
-    def _evaluate(self, expression, external_methods=None, do_convert=True,
-                     **kwargs):
+    def _evaluate(self, expression, context, task=None, external_methods=None):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
@@ -219,7 +209,9 @@ class PythonScriptEngine(object):
 
         expression, valid = self.validate_expression(expression)
         lcls = {}
-        lcls.update(kwargs)
+        if isinstance(context, dict):
+            lcls.update(context)
+
         globals = copy.copy(self.globals)  # else we pollute all later evals.
         for x in lcls.keys():
             if isinstance(lcls[x], Box):
@@ -229,7 +221,6 @@ class PythonScriptEngine(object):
         globals.update(lcls)
         globals.update(external_methods)
         return eval(expression, globals, lcls)
-
 
     def convertToBoxSub(self, data):
         if isinstance(data, list):

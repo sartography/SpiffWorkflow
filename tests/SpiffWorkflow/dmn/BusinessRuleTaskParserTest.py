@@ -1,12 +1,15 @@
 import os
 import unittest
+from unittest.mock import patch
 
 from SpiffWorkflow import Task
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+
 
 class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
     PARSER_CLASS = BpmnDmnParser
@@ -40,6 +43,19 @@ class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
         self.save_restore()
         self.assertDictEqual(self.workflow.data, {'x': 3, 'y': 'A'})
         self.assertDictEqual(self.workflow.last_task.data, {'x': 3, 'y': 'A'})
+
+    @patch('SpiffWorkflow.bpmn.PythonScriptEngine.PythonScriptEngine.eval_dmn_expression')
+    def testDmnExecHasAccessToTask(self, mock_engine):
+        """At one time, the Execute and Evaluate methods received a Task object
+        but the DMN evaluate method did not get a task object.  While this is
+        an optional argument, it should always exist if executed in the context
+        of a BPMNWorkflow"""
+        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow.get_tasks(Task.READY)[0].set_data(x=3)
+        self.workflow.do_engine_steps()
+        task = self.workflow.get_tasks_from_spec_name('TaskDecision')[0]
+        name, args, kwargs = mock_engine.mock_calls[0]
+        self.assertIn(task, args)
 
     def testDmnUsesSameScriptEngineAsBPMN(self):
         self.workflow = BpmnWorkflow(self.spec)

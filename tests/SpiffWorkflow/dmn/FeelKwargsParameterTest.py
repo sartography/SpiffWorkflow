@@ -13,7 +13,7 @@ class FeelStringDecisionTestClass(unittest.TestCase):
         cls.runner = DecisionRunner('kwargs_parameter_feel.dmn', debug='DEBUG')
 
     def test_string_decision_string_output1(self):
-        res = self.runner.decide(Gender='m')
+        res = self.runner.decide({"Gender":'m'})
         self.assertEqual(res.description, 'm Row Annotation')
 
 def suite():

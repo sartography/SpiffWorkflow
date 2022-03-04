@@ -16,27 +16,27 @@ class DMNEngine:
             self.logger.addHandler(logging.StreamHandler())
         self.logger.setLevel(getattr(logging, 'DEBUG' if debug else 'INFO'))
 
-    def decide(self, script_engine, *inputArgs, **inputKwargs):
+    def decide(self, script_engine, task, context):
         for rule in self.decisionTable.rules:
-            res = self.__checkRule(rule, script_engine, *inputArgs, **inputKwargs)
+            res = self.__checkRule(rule, script_engine, task, context)
             if res:
                 return rule
 
-    def __checkRule(self, rule, script_engine, *inputData, **inputKwargs):
+    def __checkRule(self, rule, script_engine, task, context):
         for idx, inputEntry in enumerate(rule.inputEntries):
             input = self.decisionTable.inputs[idx]
             local_data = {}
-            local_data.update(inputKwargs)
-            if inputData and isinstance(inputData[idx], dict):
-                local_data.update(inputData[idx])
+            if context and isinstance(context, dict):
+                local_data.update(context)
 
             for lhs in inputEntry.lhs:
                 if lhs is not None:
-                    inputVal = DMNEngine.__getInputVal(inputEntry, idx, *inputData, **inputKwargs)
+                    input_val = DMNEngine.__getInputVal(inputEntry, context)
                 else:
-                    inputVal = None
+                    input_val = None
                 try:
-                    if not script_engine.eval_dmn_expression(inputVal, lhs, **local_data):
+                    if not script_engine.eval_dmn_expression(input_val, lhs,
+                                                             context, task):
                         return False
                 except NameError as e:
                     bad_variable = re.match("name '(.+)' is not defined",
@@ -48,35 +48,29 @@ class DMNEngine:
                                     "expression: '%s' is '%s' in the "
                                     "Row with annotation '%s'.  The following "
                                     "value does not exist: %s - did you mean one of %s?" % (
-                                        inputVal, lhs, rule.description, str(e),str(most_similar)))
+                                        input_val, lhs, rule.description, str(e),str(most_similar)))
                 except Exception as e:
                     raise Exception("Failed to execute "
                                     "expression: '%s' is '%s' in the "
                                     "Row with annotation '%s', %s" % (
-                                        inputVal, lhs, rule.description, str(e)))
+                                        input_val, lhs, rule.description, str(e)))
                 else:
                     # Empty means ignore decision value
                     continue  # Check the other operators/columns
         return True
 
     @staticmethod
-    def __getInputVal(inputEntry, idx, *inputData, **inputKwargs):
+    def __getInputVal(inputEntry, context):
         """
-        The input of the decision method can be an expression, args or kwargs.
-        It prefers an input expression per the Specification, but will fallback
-        to using inputData if available.  Finally it will fall back to the
-        likely very bad idea of trying to use the label.
+        The input of the decision method should be an expression,  but will
+        fallback to the likely very bad idea of trying to use the label.
 
         :param inputEntry:
-        :param idx:
-        :param inputData:
-        :param inputKwargs:
+        :param context:  # A dictionary that provides some context/local vars.
         :return:
         """
         if inputEntry.input.expression:
             return inputEntry.input.expression
-        elif inputData:
-            return "%r" % inputData[idx]
         else:
             # Backwards compatibility
-            return "%r" % inputKwargs[inputEntry.input.label]
+            return "%r" % context[inputEntry.input.label]
