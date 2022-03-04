@@ -54,7 +54,8 @@ class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
         self.workflow.get_tasks(Task.READY)[0].set_data(x=3)
         self.workflow.do_engine_steps()
         task = self.workflow.get_tasks_from_spec_name('TaskDecision')[0]
-        self.assertIn(task, mock_engine.call_args_list[0].args)
+        name, args, kwargs = mock_engine.mock_calls[0]
+        self.assertIn(task, args)
 
     def testDmnUsesSameScriptEngineAsBPMN(self):
         self.workflow = BpmnWorkflow(self.spec)

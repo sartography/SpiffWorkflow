@@ -134,8 +134,7 @@ class PythonScriptEngine(object):
                 raise Exception("error parsing expression " + str(text) + " " +
                                 str(e))
 
-    def eval_dmn_expression(self, inputExpr, matchExpr, context, task=None,
-                            external_methods=None):
+    def eval_dmn_expression(self, inputExpr, matchExpr, context, task=None):
         """
         Here we need to handle a few things such as if it is an equality or if
         the equality has already been taken care of. For now, we just assume
