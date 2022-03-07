@@ -1,4 +1,4 @@
-Events 
+Events
 ======
 
 BPMN Model
@@ -7,7 +7,7 @@ BPMN Model
 We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
 
 - `transaction <https://github.com/sartography/SpiffExample/bpmn/transaction.bpmn>`_ workflow
-- `signal_event <https://github.com/sartography/SpiffExample/bpmn/signal_event.bpmn>`_ workflow 
+- `signal_event <https://github.com/sartography/SpiffExample/bpmn/signal_event.bpmn>`_ workflow
 - `events <https://github.com/sartography/SpiffExample/bpmn/events.bpmn>`_ workflow
 - `call activity <https://github.com/sartography/SpiffExample/bpmn/call_activity.bpmn>`_ workflow
 - `product_prices <https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_ DMN table
@@ -35,9 +35,9 @@ We also need to introduce the concept of a Transaction, bceause certain events
 can only be used in that context.  A Transaction is essentially a subprocess, but
 it must fully complete before it affects its outer workflow.
 
-We'll make our customer's ordering process through the point they review their order 
+We'll make our customer's ordering process through the point they review their order
 into a Transaction.  If they do not complete their order, then product selections and
-customizations will be discarded; if they place the order, the workflow will proceed 
+customizations will be discarded; if they place the order, the workflow will proceed
 as before.
 
 We'll also introduce our first event type, the Cancel Event.  Cancel Events can
@@ -60,7 +60,7 @@ payment information.
 However, if the user elects to cancel their order, we use a 'Cancel End Event'
 instead, which generates a Cancel Event.  We can then attach a 'Cancel Boundary
 Event' to the Transaction, and execute that path if the event occurs.  Instead of
-asking the customer for their payment info, we'll direct them to a form and ask 
+asking the customer for their payment info, we'll direct them to a form and ask
 them why they cancelled their order.
 
 If the order is placed, the workflow will contain the order data; if it is
@@ -87,7 +87,7 @@ Signal Events
 Suppose we also want to give our customer the ability to cancel their order at
 any time up until they are charged.  We need to throw an event after the charge
 is placed and catch this event before the user completes the 'Cancel Order' task.
-Once the charge is placed, the task that provides the option to cancel will 
+Once the charge is placed, the task that provides the option to cancel will
 itself be cancelled when the charge event is received.
 
 We'll also need to detect the case that the customer cancels their order and
@@ -115,7 +115,7 @@ We also added a Terminate Event to the Manager Workflow.  A regular End Event
 simply marks the end of a path.  A Terminate Event will indicate that the
 entire workflow is complete and any remaining tasks should be cancelled.  Our
 customer cannot cancel an order that has already been cancelled, and we won't ask
-them for feedback about it (we know it wasn't completed), so we do not want to 
+them for feedback about it (we know it wasn't completed), so we do not want to
 execute either of those tasks.
 
 We'll now modify our workflow to add an example of each of the other types of
@@ -132,7 +132,7 @@ To run this workflow
 Error Events
 ^^^^^^^^^^^^
 
-Let's turn to our order fulfillment subprocess.  Either of these steps could 
+Let's turn to our order fulfillment subprocess.  Either of these steps could
 potentially fail, and we may want to handle each case differently.
 
 .. figure:: figures/events.png
@@ -160,8 +160,8 @@ to use comes down to preference, with the caveat that if you want to use an Inte
 Event, you'll have to use Escalation, because BPMN does not allow Intermediate Error Events,
 and that Error Events cannot be Non-Interrupting.
 
-In our example, we'll assume that if we failed to ship the product, we can try again later, 
-so we will not end the Subprocess (Escalation events can be either Interrupting or 
+In our example, we'll assume that if we failed to ship the product, we can try again later,
+so we will not end the Subprocess (Escalation events can be either Interrupting or
 Non-Interrupting).
 
 However, we still want to notify our customer of a delay, so we use a Non-Interrupting
@@ -178,7 +178,7 @@ Throw Event for our `product_not_shipped` Escalation.
 
 Error Event configuration is similar.
 
-If no code is provided in a Catch event, any event of the corresponding type will catch 
+If no code is provided in a Catch event, any event of the corresponding type will catch
 the event.
 
 Timer Events
@@ -188,7 +188,7 @@ In the previous section, we mentioned that that we would try again later if we w
 to ship the order.  We can use a Duration Timer Event to force our workflow to wait a cetain
 amount of time before continuing.  We can use this as a regular Intermediate Event (in
 'Try Again Later') or a Boundary Event.  Timer Boundary Events can be Interrupting, but in
-this case, we simply want to notify the customer of the delay while continuing to process 
+this case, we simply want to notify the customer of the delay while continuing to process
 their order, so we use a Non-Interrupting Event.
 
 .. figure:: figures/timer_event.png
@@ -212,18 +212,18 @@ Message Events
 .. sidebar:: QA Lane
 
    Ideally, this lane would be a process independent from the ordering process (we don't want
-   it to be cancelled just because an order eventually completes).  However, limitations of how 
+   it to be cancelled just because an order eventually completes).  However, limitations of how
    SpiffWorkflow handles processes precludes multiple top-level processes.
 
-In BPMN, Messages are used to communicate across processes and cannot be used within a 
-workflow, but SpiffWorkflow allows message communication between laness well as between
+In BPMN, Messages are used to communicate across processes and cannot be used within a
+workflow, but SpiffWorkflow allows message communication between lanes as well as between
 parent and child workflows.  We'll use the first scenario in our example.
 
 We've added a QA lane to out ordering process, whose job is investigating order order delays
 and recommending improvements.  This portion of our process will only be started when an
 appropriate message is received.
 
-Messages are similar to signals, in that they are referenced by name, but they have the 
+Messages are similar to signals, in that they are referenced by name, but they have the
 additional property that they may contain a payload.
 
 .. note::
@@ -239,14 +239,14 @@ additional property that they may contain a payload.
 
 The Throw Message Event Implementation should be 'Expression' and the Expression should
 be a Python statement that can be evaluated.  In this example, we'll just send the contents
-of the :code:`reason_delayed` variable, which contains the response from the 'Investigate Delay' 
+of the :code:`reason_delayed` variable, which contains the response from the 'Investigate Delay'
 Task.
 
 We can provide a name for the result variable, but I have not done that here, as it does not
 make sense to me for the generator of the event to tell the handler what to call the value.
 If you *do* specify a result variable, the message payload (the expression evaluated in the
-context of the Throwing task) will be added to the handling task's data in a variable of that 
-name; if you leave it blank, SpiffWorkflow will create a variable of the form <Handling 
+context of the Throwing task) will be added to the handling task's data in a variable of that
+name; if you leave it blank, SpiffWorkflow will create a variable of the form <Handling
 Task Name>_Response.
 
 Running The Model

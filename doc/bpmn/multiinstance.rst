@@ -18,8 +18,8 @@ configure 'Select and Customize Product' as a Sequential MultiInstance Task.  We
 specify the name of the collection and each iteration of the task would add a new item
 to it.
 
-Since we can't know in advance how many products the order, we'll need to modify that 
-workflow to ask them whether they want to continue shopping and maintain their product 
+Since we can't know in advance how many products the order, we'll need to modify that
+workflow to ask them whether they want to continue shopping and maintain their product
 selections in a collection.
 
 .. figure:: figures/call_activity_multi.png
@@ -39,13 +39,13 @@ We'll also need to update our element docmentation to display all products.
 .. note::
 
    Note that we are using a dot instead of the typical python dictionary access to obtain
-   the values.  Spiff automatically generates such a representation, which simplifies creating the 
+   the values.  Spiff automatically generates such a representation, which simplifies creating the
    documentation strings; however regular Python syntax will work as well.
 
 Parallel MultiInstance
 ^^^^^^^^^^^^^^^^^^^^^^
 
-We'll also update our 'Retrieve Product' task and 'Product Not Available' flows to 
+We'll also update our 'Retrieve Product' task and 'Product Not Available' flows to
 accommodate multiple products.  We can use a Parallel MultiInstance for this, since
 it does not matter what order our Employee retrieves the products in.
 
@@ -70,7 +70,7 @@ the 'Element Variable' field, so you'll need to specify this as well.
 We'll also need to update the form field id so that the results will be added to the
 item of the collection rather than the top level of the task data.  This is where the
 'Element Variable' field comes in: we'll need to change `product_available` to
-`product.product_available`, because we set up `product` as our reference to the 
+`product.product_available`, because we set up `product` as our reference to the
 current item.
 
 .. figure:: figures/multiinstance_flow_configuration.png
@@ -96,7 +96,7 @@ SpiffWorkflow also supports Sequential MultiInstance Tasks for previously define
 collections, or if the loopCardinality is known in advance, although we have not added an
 example of this to our workflow.
 
-For more information about MultiInstance Tasks and SpiffWorkflow, see :doc:`advanced`_.
+For more information about MultiInstance Tasks and SpiffWorkflow, see :doc:`/bpmn/advanced`.
 
 Running The Model
 ^^^^^^^^^^^^^^^^^

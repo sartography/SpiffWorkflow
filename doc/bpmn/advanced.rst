@@ -18,15 +18,15 @@ Lets take a look at a sample workflow with lanes:
 
    Workflow with lanes
 
-To get all of the tasks that are ready for the 'Customer' workflow, we could 
+To get all of the tasks that are ready for the 'Customer' workflow, we could
 specify the lane when retrieving ready user tasks:
 
 .. code:: python
 
      ready_tasks = workflow.get_ready_user_tasks(lane='Customer')
 
-If there were no tasks ready for the 'Customer' lane, you would get an empty list, 
-and of course if you had no lane that was labeled 'Customer' you would *always* get an 
+If there were no tasks ready for the 'Customer' lane, you would get an empty list,
+and of course if you had no lane that was labeled 'Customer' you would *always* get an
 empty list.
 
 We can also get a list of tasks by state.
@@ -50,9 +50,9 @@ provides some facilities for obtaining a more user-friendly version of upcoming 
 Nav(igation) List
 ^^^^^^^^^^^^^^^^^
 
-In order to get the navigation list, we can call the workflow.get_nav_list() function. This 
-will return a list of dictionaries with information about each task and decision point in the 
-workflow. Each item in this list returns some information about the tasks that are in the workflow, 
+In order to get the navigation list, we can call the workflow.get_nav_list() function. This
+will return a list of dictionaries with information about each task and decision point in the
+workflow. Each item in this list returns some information about the tasks that are in the workflow,
 and how it relates to the other tasks.
 
 To give you an idea of what is in the list I'll include a segment from the documentation::
@@ -64,7 +64,7 @@ To give you an idea of what is in the list I'll include a segment from the docum
                backtracks       -   Boolean, if this backtracks back up the list or not
                level            -   Depth in the tree - probably not needed
                indent           -   A hint for indentation
-               child_count       -   The number of children that should be associated with
+               child_count      -   The number of children that should be associated with
                                     this item.
                lane             -   This is the swimlane for the task if indicated.
                state            -   Text based state (may be half baked in the case that we have
@@ -148,20 +148,20 @@ The default script engine imports the following objects:
 You could add other functions or classes from the standard python modules or any code you've
 implemented yourself.
 
-In our example models so far, we've been using DMN tables to obtain product information.  DMN 
+In our example models so far, we've been using DMN tables to obtain product information.  DMN
 tables have a **lot** of uses so we wanted to feature them prominently, but in a simple way.
 
-If a customer was selecting a product, we would surely have information about how the product 
-could be customized in a database somewhere.  We would not hard code product information in 
-our diagram (although it is much easier to modify the BPMN diagram than to change the code 
+If a customer was selecting a product, we would surely have information about how the product
+could be customized in a database somewhere.  We would not hard code product information in
+our diagram (although it is much easier to modify the BPMN diagram than to change the code
 itself!).  Our shipping costs would not be static, but would depend on the size of the order and
 where it was being shipped -- maybe we'd query an API provided by our shipper.
 
 SpiffWorkflow is obviously **not** going to know how to make a call to **your** database or
-make API calls to **your** vendors.  However, you can implement the calls yourself and make them 
+make API calls to **your** vendors.  However, you can implement the calls yourself and make them
 available as a method that can be used within a script task.
 
-We are not going to actually include a database or API and write code for connecting to and querying 
+We are not going to actually include a database or API and write code for connecting to and querying
 it, but we can model our database with a simple dictionary lookup since we only have 7 products
 and just return the same static info for shipping for the purposes of the tutorial.
 

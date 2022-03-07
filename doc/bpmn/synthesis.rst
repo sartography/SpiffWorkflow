@@ -15,6 +15,8 @@ We'll need the following imports:
     from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
     from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 
+    from custom_script_engine import CustomScriptEngine
+
 We need to create a parser.  We could have imported :code:`BpmnParser`, which
 these parsers inherit from, but we need some additional features that the base
 parser does not provide.
@@ -25,9 +27,9 @@ parser does not provide.
         OVERRIDE_PARSER_CLASSES = BpmnDmnParser.OVERRIDE_PARSER_CLASSES
         OVERRIDE_PARSER_CLASSES.update(CamundaParser.OVERRIDE_PARSER_CLASSES)
 
-We'll use :code:`BpmnDmnParser` as our base class, because we would like the ability 
-to use DMN tables in our application.  The :code:`BpmnDmnParser` provides a task 
-parser for Business Rule Tasks, which the underlying :code:`BpmnParser` it inherits from 
+We'll use :code:`BpmnDmnParser` as our base class, because we would like the ability
+to use DMN tables in our application.  The :code:`BpmnDmnParser` provides a task
+parser for Business Rule Tasks, which the underlying :code:`BpmnParser` it inherits from
 does not contain.
 
 We also imported the :code:`CamundaParser` so that we can parse some Camunda
@@ -63,7 +65,7 @@ Running a Workflow
 This is our application's :code:`run()` method.
 
 The :code:`step` argument is a boolean that indicates whether we want the option of seeing
-a more detailed representation of the state at each step, which we'll discuss in the 
+a more detailed representation of the state at each step, which we'll discuss in the
 section following this one.
 
 .. code:: python
@@ -110,32 +112,32 @@ section following this one.
         print('\nWorkflow Data')
         print(json.dumps(workflow.data, indent=2, separators=[ ', ', ': ' ]))
 
-The first line of this function is the one that does the bulk of the work in 
+The first line of this function is the one that does the bulk of the work in
 SpiffWorkflow.  Calling :code:`workflow.do_engine_steps()` causes Spiff to repeatedly
 look for and execute any engine tasks that are ready.
 
-An **engine task** is a task that requires no user interaction (e.g. Business Rule or
-Script Tasks) or the evaluation of a gateway and selection of a flow.  Execution will 
+An **engine task** does not require user interaction. For instance, it could be
+a Script task or selection of a flow from a gateway.  Execution will
 stop when only interactive tasks remain or the workflow is completed.
 
-A SpiffWorkflow application will call :code:`workflow.do_engine_steps()` to start the 
+A SpiffWorkflow application will call :code:`workflow.do_engine_steps()` to start the
 workflow and then enter a loop that will
 
 - check for ready user tasks
-- present the tasks to the user to complete 
+- present the tasks to the user to complete
 - complete the tasks
-- refresh any waiting tasks 
+- refresh any waiting tasks
 - complete any engine tasks that have been reached via user interactions
 
 until the workflow completes.
 
 When a workflow completes, the task data (just a dictionary passed from one task to the
-next, and optionally modified by each task) is copied into the workflow data.  We display 
+next, and optionally modified by each task) is copied into the workflow data.  We display
 the end state of the workflow on completion.
 
 The rest of the code is all about presenting the tasks to the user and dumping the
 workflow state.  We've covered former in the BPMN Elements section of :doc:`index`
-and will cover the latter in :doc:`advanced`.  
+and will cover the latter in :doc:`advanced`.
 
 Handling task presentation is what **you** will be developing when you use SpiffWorkflow.
 
@@ -147,16 +149,16 @@ to be able to examine the workflow and task states and associated data.  We'll c
 the basics of this in this section.
 
 The code below is a simple method for displaying information about a task.  We use
-this in two ways 
+this in two ways
 
-- presenting a list of tasks to a user (in this case the state will always be ready, so we won't include it) 
+- presenting a list of tasks to a user (in this case the state will always be ready, so we won't include it)
 - presenting the state of each task while stepping through the workflow (in this case you most likely do want to know the state).
 
 .. code:: python
 
     def format_task(task, include_state=True):
         if hasattr(task.task_spec, 'lane') and task.task_spec.lane is not None:
-            lane = f'[{task.task_spec.lane}]' 
+            lane = f'[{task.task_spec.lane}]'
         else:
             lane = ''
         state = f'[{task.get_state_name()}]' if include_state else ''
@@ -193,19 +195,19 @@ Here is the code we use for examining the workflow state.
             for idx, task in enumerate(all_tasks):
                 print(format_task(task))
 
-We can find out what the last task was with :code:`workflow.last_task`.  We'll print 
+We can find out what the last task was with :code:`workflow.last_task`.  We'll print
 its information as described above, as well as a dump of its data.
 
 We can get a list of all tasks regardless of type or state with :code:`workflow.get_tasks()`.
 
 The actual list of tasks will get quite long (some tasks are expanded internally by Spiff into
-multiple tasks, and all gateways and events are also treated as "tasks").  So we're filtering 
+multiple tasks, and all gateways and events are also treated as "tasks").  So we're filtering
 the tasks to only display the ones that would have salience to a user here.
 
 We'll further filter those tasks for :code:`READY` and :code:`WAITING` tasks for a more
 compact display, and only show all tasks when explicitly called for.
 
-This is a very simple application, so our interactions with tasks are very basic.  You will 
+This is a very simple application, so our interactions with tasks are very basic.  You will
 definitely want to see the 'Navigation List' section of :doc:`advanced` for more sophisticated
 ways of managing workflow state.
 
