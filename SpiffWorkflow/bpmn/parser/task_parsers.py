@@ -129,6 +129,7 @@ class SubWorkflowParser(TaskParser):
             self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
             bpmn_wf_class=self.parser.WORKFLOW_CLASS,
             position=self.process_parser.get_coord(self.get_id()),
+            lane=self.get_lane(),
             description=self.node.get('name', None))
 
 
@@ -158,8 +159,9 @@ class SubWorkflowParser(TaskParser):
 
         self.parser.add_process(
             thisTask,
-            doc_xpath=self.process_parser.doc_xpath, 
-            filename=self.process_parser.filename
+            doc_xpath=self.process_parser.doc_xpath,
+            filename=self.process_parser.filename,
+            current_lane=self.get_lane()
         )
         wf_spec = self.parser.get_spec(thisTask.get('id'))
         wf_spec.file = self.process_parser.filename
@@ -199,7 +201,7 @@ class CallActivityParser(SubWorkflowParser):
 
 class TransactionSubprocessParser(SubWorkflowParser):
     """Parses a transaction node"""
-    
+
     def create_task(self):
         wf_spec = self.get_subprocess_parser()
         return self.spec_class(
@@ -234,4 +236,3 @@ class ScriptTaskParser(TaskParser):
             raise ValidationException(
                 f"Invalid Script Task.  No Script Provided. ",
                 node=self.node, filename=self.process_parser.filename)
-   

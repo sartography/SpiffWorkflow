@@ -36,7 +36,7 @@ from ..specs.UserTask import UserTask
 from .ProcessParser import ProcessParser
 from .util import full_tag, xpath_eval, first
 from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
-                           ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser, 
+                           ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser,
                            CallActivityParser, TransactionSubprocessParser,
                            ScriptTaskParser, SubWorkflowParser)
 from .event_parsers import (StartEventParser, EndEventParser, BoundaryEventParser,
@@ -163,8 +163,9 @@ class BpmnParser(object):
         for process in processes:
             self.add_process(process, xpath, svg, filename)
 
-    def add_process(self, process, doc_xpath, svg=None, filename=None):
-        process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename, doc_xpath=doc_xpath)
+    def add_process(self, process, doc_xpath, svg=None, filename=None, current_lane=None):
+        process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename, doc_xpath=doc_xpath,
+                                                   current_lane=current_lane)
         if process_parser.get_id() in self.process_parsers:
             raise ValidationException('Duplicate process ID', node=process, filename=filename)
         if process_parser.get_name() in self.process_parsers_by_name:

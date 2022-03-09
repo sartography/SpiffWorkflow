@@ -32,6 +32,8 @@ class SwimLaneTest(BpmnWorkflowTestCase):
         self.assertNav(nav_list[2], description="Clarifying Questions?", lane="B")
         self.assertNav(nav_list[5], description="Clarify Request", lane="A")
         self.assertNav(nav_list[7], description="Implement Feature", lane="B")
+        self.assertNav(nav_list[8], description="Send to testing", lane="C")
+
         atasks = self.workflow.get_ready_user_tasks(lane="A")
         btasks = self.workflow.get_ready_user_tasks(lane="B")
         self.assertEqual(1, len(atasks))
@@ -45,6 +47,25 @@ class SwimLaneTest(BpmnWorkflowTestCase):
         self.assertEqual(0, len(atasks))
         self.assertEqual(1, len(btasks))
 
+        # Complete the gateway and the two tasks in B Lane
+        btasks[0].data = {'NeedClarification': False}
+        self.workflow.complete_task_from_id(btasks[0].id)
+        self.workflow.do_engine_steps()
+        btasks = self.workflow.get_ready_user_tasks(lane="B")
+        self.workflow.complete_task_from_id(btasks[0].id)
+        self.workflow.do_engine_steps()
+
+        # Assert we are in lane C
+        tasks = self.workflow.get_ready_user_tasks()
+        self.assertEqual(1, len(tasks))
+        self.assertEqual(tasks[0].task_spec.lane, "C")
+
+        # Step into the sub-process, assure that is also in lane C
+        self.workflow.complete_task_from_id(tasks[0].id)
+        self.workflow.do_engine_steps()
+        tasks = self.workflow.get_ready_user_tasks()
+        self.assertEqual("SubProcessTask", tasks[0].task_spec.description)
+        self.assertEqual(tasks[0].task_spec.lane, "C")
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(SwimLaneTest)

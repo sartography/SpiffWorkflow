@@ -22,6 +22,7 @@ import logging
 import sys
 import traceback
 from .ValidationException import ValidationException
+from ..specs.BpmnProcessSpec import BpmnProcessSpec
 from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
 from ..specs.events import _BoundaryEventParent, CancelEventDefinition

@@ -29,7 +29,8 @@ class ProcessParser(object):
     process.
     """
 
-    def __init__(self, p, node, svg=None, filename=None, doc_xpath=None):
+    def __init__(self, p, node, svg=None, filename=None, doc_xpath=None,
+                 current_lane=None):
         """
         Constructor.
 
@@ -57,6 +58,7 @@ class ProcessParser(object):
         self._init_coord_lookup()
         self.message_lookup = {}  # Dictionary of positional arguments for each node.
         self._init_message_lookup()
+        self.current_lane = current_lane
 
     def get_id(self):
         """
@@ -93,8 +95,15 @@ class ProcessParser(object):
     def get_lane(self, id):
         """
         Return the name of the lane that contains the specified task
+        As we may be in a sub_process, adopt the current_lane if we
+        have no lane ourselves.  In the future we might consider supporting
+        being in two lanes at once.
         """
-        return self.id_to_lane_lookup.get(id, None)
+        lane = self.id_to_lane_lookup.get(id, None)
+        if lane:
+            return lane
+        else:
+            return self.current_lane
 
     def _init_lane_lookup(self):
         self.id_to_lane_lookup = {}
