@@ -38,15 +38,6 @@ class DictDotNotationDecisionTestClass(unittest.TestCase):
                                               'critical decision making skills, '
                                               'or is a viking.')
 
-    def test_string_decision_with_kwargs(self):
-        for runner in self.runners:
-            data = {"foods": {
-                "spam": {"delicious": False}
-            }}
-            res = runner.decide({}, **Box(data))
-            self.assertEqual(res.description, 'This person has a tongue, brain '
-                                              'or sense of smell.')
-
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(DictDotNotationDecisionTestClass)

@@ -15,15 +15,15 @@ class FeelLongOrDoubleDecisionTestClass(unittest.TestCase):
         cls.runner = DecisionRunner('long_or_double_decision_comparison_feel.dmn', debug='DEBUG')
 
     def test_long_or_double_decision_string_output1(self):
-        res = self.runner.decide(Decimal('30.5'))
+        res = self.runner.decide({"Age":Decimal('30.5')})
         self.assertEqual(res.description, '30.5 Row Annotation')
 
     def test_long_or_double_decision_stringz_output2(self):
-        res = self.runner.decide(Decimal('25.3'))
+        res = self.runner.decide({"Age":Decimal('25.3')})
         self.assertEqual(res.description, 'L Row Annotation')
 
     def test_long_or_double_decision_string_output3(self):
-        res = self.runner.decide(Decimal('25.4'))
+        res = self.runner.decide({"Age":Decimal('25.4')})
         self.assertEqual(res.description, 'H Row Annotation')
 
 def suite():

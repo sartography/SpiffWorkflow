@@ -32,15 +32,18 @@ from .util.deep_merge import DeepMerge
 
 LOG = logging.getLogger(__name__)
 
-def updateDotDict(dict,id,value):
-    x = id.split('.')
-    if len(x) == 1:
-        dict[x[0]]=value
-    elif dict.get(x[0]):
-        dict[x[0]][x[1]] = value
-    else:
-        dict[x[0]] = {x[1]:value}
-
+def updateDotDict(dct,dotted_path,value):
+    parts = dotted_path.split(".")
+    path_len = len(parts)
+    root = dct
+    for i, key in enumerate(parts):
+        if (i + 1) < path_len:
+            if key not in dct:
+                dct[key] = {}
+            dct = dct[key]
+        else:
+            dct[key] = value
+    return root
 
 
 class Task(object):

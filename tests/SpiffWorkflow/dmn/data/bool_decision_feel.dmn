@@ -1,31 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="4.10.0">
   <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="InputClause_1tm0ceq" label="IsItTrue">
-        <inputExpression id="LiteralExpression_04o7chw" typeRef="boolean" expressionLanguage="feel"/>
+        <inputExpression id="LiteralExpression_04o7chw" typeRef="boolean">
+          <text>input</text>
+        </inputExpression>
       </input>
       <output id="output1" label="Result" name="" typeRef="string" />
       <rule id="row-484867957-7">
         <description>Y Row Annotation</description>
-        <inputEntry id="UnaryTests_0u4hmbg">        <text>true</text>
-</inputEntry>
-        <outputEntry id="LiteralExpression_19qgvg3">        <text><![CDATA["Yesss"]]></text>
-</outputEntry>
+        <inputEntry id="UnaryTests_0u4hmbg">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_19qgvg3">
+          <text>"Yesss"</text>
+        </outputEntry>
       </rule>
       <rule id="row-683871130-2">
         <description>N Row Annotation</description>
-        <inputEntry id="UnaryTests_0ojl8ov">        <text>false</text>
-</inputEntry>
-        <outputEntry id="LiteralExpression_0fifygd">        <text><![CDATA["Noooo"]]></text>
-</outputEntry>
+        <inputEntry id="UnaryTests_0ojl8ov">
+          <text>false</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0fifygd">
+          <text>"Noooo"</text>
+        </outputEntry>
       </rule>
       <rule id="row-683871130-3">
         <description>ELSE Row Annotation</description>
-        <inputEntry id="UnaryTests_0tl5hup">        <text></text>
-</inputEntry>
-        <outputEntry id="LiteralExpression_1kybqmh">        <text><![CDATA["ELSE"]]></text>
-</outputEntry>
+        <inputEntry id="UnaryTests_0tl5hup">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1kybqmh">
+          <text>"ELSE"</text>
+        </outputEntry>
       </rule>
     </decisionTable>
   </decision>
