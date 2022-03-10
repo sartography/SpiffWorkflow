@@ -51,7 +51,7 @@ class ScriptTask(Simple, BpmnSpecMixin):
             task.workflow.script_engine.execute(task, self.script, task.data)
         except Exception as e:
             LOG.error('Error executing ScriptTask; task=%r',
-                      task, exc_info=True)
+                      task)
             # set state to WAITING (because it is definitely not COMPLETED)
             # and raise WorkflowException pointing to this task because
             # maybe upstream someone will be able to handle this situation
