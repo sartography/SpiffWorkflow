@@ -70,19 +70,7 @@ class WorkflowTaskExecException(WorkflowException):
         # so we can tell how we got to this paticular task, no matter how
         # deeply nested in sub-workflows it is.  Takes the form of:
         # task-description (file-name)
-        self.task_trace = []
-
-        back_task = task
-        last_workflow = None
-        while True:
-            if back_task.workflow != last_workflow:
-                self.task_trace.append(f"{back_task.task_spec.description} "
-                                       f"({back_task.workflow.spec.file})")
-                last_workflow = back_task.workflow
-            if back_task.parent and back_task != back_task.parent:
-                back_task = back_task.parent
-            else:
-                break
+        self.task_trace = self.get_task_trace(task)
 
         if isinstance(exception, SyntaxError):
             # Prefer line number from syntax error if available.
@@ -97,6 +85,22 @@ class WorkflowTaskExecException(WorkflowException):
             error_msg += f' Did you mean \'{most_similar}\'?'
 
         WorkflowException.__init__(self, task.task_spec, error_msg)
+
+    @staticmethod
+    def get_task_trace(task):
+        task_trace = []
+        back_task = task
+        last_workflow = None
+        while True:
+            if back_task.workflow != last_workflow:
+                task_trace.append(f"{back_task.task_spec.description} "
+                                  f"({back_task.workflow.spec.file})")
+                last_workflow = back_task.workflow
+            if back_task.parent and back_task != back_task.parent:
+                back_task = back_task.parent
+            else:
+                break
+        return task_trace
 
 
 class StorageException(Exception):
