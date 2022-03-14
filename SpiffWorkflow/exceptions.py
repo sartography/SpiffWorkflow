@@ -66,6 +66,23 @@ class WorkflowTaskExecException(WorkflowException):
         self.task = task
         self.exception = exception
         self.error_line = error_line
+        # If encountered in a sub-workflow, this traces back up the stack
+        # so we can tell how we got to this paticular task, no matter how
+        # deeply nested in sub-workflows it is.  Takes the form of:
+        # task-description (file-name)
+        self.task_trace = []
+
+        back_task = task
+        last_workflow = None
+        while True:
+            if back_task.workflow != last_workflow:
+                self.task_trace.append(f"{back_task.task_spec.description} "
+                                       f"({back_task.workflow.spec.file})")
+                last_workflow = back_task.workflow
+            if back_task.parent and back_task != back_task.parent:
+                back_task = back_task.parent
+            else:
+                break
 
         if isinstance(exception, SyntaxError):
             # Prefer line number from syntax error if available.

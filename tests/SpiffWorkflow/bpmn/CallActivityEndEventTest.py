@@ -7,6 +7,7 @@ import os
 import unittest
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.exceptions import WorkflowTaskExecException
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -64,6 +65,14 @@ class CallActivityTest(BpmnWorkflowTestCase):
         self.assertTrue(self.workflow.is_completed())
         self.assertNotIn('remove_this_var', self.workflow.last_task.data.keys())
 
+    def test_call_acitivity_errors_include_task_trace(self):
+        error_spec = self.load_workflow_spec('call_activity_*.bpmn','ErroringBPMN')
+        with self.assertRaises(WorkflowTaskExecException) as context:
+            self.workflow = BpmnWorkflow(error_spec)
+            self.workflow.do_engine_steps()
+        self.assertEquals(2, len(context.exception.task_trace))
+        self.assertEqual('Create Data (None:Call_Activity_Get_Data.bpmn)', context.exception.task_trace[0])
+        self.assertEqual('Get Data Call Activity (None:ErroringBPMN.bpmn)', context.exception.task_trace[1])
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(CallActivityTest)
