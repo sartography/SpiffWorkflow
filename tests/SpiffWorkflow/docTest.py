@@ -17,7 +17,6 @@ class TutorialTest(object):
     tutorial_dir = None
 
     def setUp(self):
-        print(self.tutorial_dir)
         os.chdir(self.tutorial_dir)
         sys.path.insert(0, self.tutorial_dir)
 
@@ -31,11 +30,11 @@ class TutorialTest(object):
 
 
 class Tutorial1Test(TutorialTest, unittest.TestCase):
-    tutorial_dir = os.path.join(doc_dir, 'tutorial')
+    tutorial_dir = os.path.join(doc_dir, 'non-bpmn', 'tutorial')
 
 
 class Tutorial2Test(TutorialTest, unittest.TestCase):
-    tutorial_dir = os.path.join(doc_dir, 'custom-tasks')
+    tutorial_dir = os.path.join(doc_dir, 'non-bpmn', 'custom-tasks')
 
 
 def suite():

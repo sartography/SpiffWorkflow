@@ -19,24 +19,13 @@ What is SpiffWorkflow?
 
 
 SpiffWorkflow allows your python application to process BPMN diagrams (think
-of them as very powerful flow charts,  See :doc:`/bpmn/intro`.) to accomplish
+of them as very powerful flow charts,  See :doc:`intro`.) to accomplish
 what would otherwise require writing a lot of complex business logic in your
 code. You can use these diagrams to accomplish a number of tasks, such as:
 
  - Creating a questionnaire with multiple complex paths
  - Implement an approval process that requires input from multiple users
  - Allow non-programmers to modify the flow and behavior of your application.
-
-SpiffWorkflow is based on the excellent work of the
-`Workflow Patterns initiative <http://www.workflowpatterns.com/>`_.
-Its main design goals are the following:
-
-- Directly support as many of the patterns of workflowpatterns.com as possible.
-- Map those patterns into workflow elements that are easy to understand by a user in a workflow GUI editor.
-- Provide a clean Python API.
-
-You can find a list of supported workflow patterns in :ref:`features`.
-
 
 License
 -------
@@ -48,10 +37,8 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   basics
+   intro
    bpmn/index
-   tutorial/index
-   custom-tasks/index
-   internals
-   features
+   development
+   non-bpmn/index
 
