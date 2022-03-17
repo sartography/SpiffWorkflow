@@ -12,7 +12,7 @@ We'll be using the following files from `SpiffExample <https://github.com/sartog
 - `task_types <https://github.com/sartography/SpiffExample/bpmn/task_types.bpmn>`_ workflow
 - `product_prices <https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_ DMN table
 
-User Tasks 
+User Tasks
 ^^^^^^^^^^
 
 User tasks would typically be used in the case where the task would be
@@ -34,8 +34,8 @@ The following example shows how a form might be set up in Camumda.
 
 .. note::
 
-  SpiffWorkflow has some basic support for the free Camunda modeler, to use its 
-  form building capabilities, but we intend to encapsulate this support in an 
+  SpiffWorkflow has some basic support for the free Camunda modeler, to use its
+  form building capabilities, but we intend to encapsulate this support in an
   extension module and remove it from the core library eventually.
 
 See the `Handling User Tasks`_ section for a discussion of sample code.
@@ -43,26 +43,26 @@ See the `Handling User Tasks`_ section for a discussion of sample code.
 Business Rule Tasks
 ^^^^^^^^^^^^^^^^^^^
 
-In our business rule task, we'll use a DMN table to look up the price of the 
+In our business rule task, we'll use a DMN table to look up the price of the
 product the user chose.
 
-We'll need to create a DMN table.  
+We'll need to create a DMN table.
 
 What is DMN?
 ++++++++++++
 
-Decision Model and Notation (DMN) is a standard for business decision 
-modeling. DMN allows modelers to separate decision logic from process logic 
-and maintain it in a table format. DMN is linked into BPMN with a *decision 
+Decision Model and Notation (DMN) is a standard for business decision
+modeling. DMN allows modelers to separate decision logic from process logic
+and maintain it in a table format. DMN is linked into BPMN with a *decision
 task*.
 
-With DMN, business analysts can model the rules that lead to a decision 
+With DMN, business analysts can model the rules that lead to a decision
 in an easy to read table. Those tables can be executed directly by SpiffWorkflow.
 
-This minimizes the risk of misunderstandings between business analysts and 
+This minimizes the risk of misunderstandings between business analysts and
 developers, and allows rapid changes in production.
 
-BPMN includes a decision task that refers to the decision table. The outcome of 
+BPMN includes a decision task that refers to the decision table. The outcome of
 the decision lookup allows the next gateway or activity to route the flow.
 
 Our Business Rule Task will make use of a DMN table.
@@ -113,7 +113,7 @@ There is no special configuration for manual tasks.  However, this is a good
 place to note that we can use the BPMN element Documentation field to display
 more information about the context of the item.
 
-Spiff is set up in a way that you could use any templating library you want, but 
+Spiff is set up in a way that you could use any templating library you want, but
 we have used `Jinja <https://jinja.palletsprojects.com/en/3.0.x/>`_.
 
 In this example, we'll present an order summary to our customer.
@@ -162,7 +162,7 @@ responses.
 
 The list of form fields for a task is stored in :code:`task.task_spec.form_fields`.
 
-For Enumerated fields, we want to get the possible options and present them to the 
+For Enumerated fields, we want to get the possible options and present them to the
 user.  The variable names of the fields were stored in :code:`field.id`, but since
 we set labels for each of the fields, we'd like to display those instead, and map
 the user's selection back to the variable name.
@@ -188,8 +188,8 @@ Handling Script Tasks
 ^^^^^^^^^^^^^^^^^^^^^
 
 We do not need to do any special configuration to handle script tasks, although it
-is possible to implement a custom script engine.  We demonstrate that process in 
-Custom Script Engines section :doc:`advanced` features.  However, the default script 
+is possible to implement a custom script engine.  We demonstrate that process in
+Custom Script Engines section :doc:`advanced` features.  However, the default script
 engine will work in many cases.
 
 Handling Manual Tasks
@@ -204,8 +204,8 @@ completed.
         display_task(task)
         input("Press any key to mark task complete")
 
-:code:`display_task()` is the code for converting the Documentation property of the task 
-into something that can be present to the user.
+:code:`display_task()` is the code for converting the Documentation property of the task
+into something that can be presented to the user.
 
 .. code:: python
 
