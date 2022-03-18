@@ -72,6 +72,7 @@ cd tests
 ## Releases
 
 Be sure to edit the conf.py, and update the release tag: doc/conf.py
+And also edit setup.py and assure that has the same release tag.
 New versions of SpiffWorkflow are automatically published to PyPi whenever
 a maintainer of our GitHub repository creates a new release on  GitHub.  This
 is managed through GitHub's actions.  The configuration of which can be
