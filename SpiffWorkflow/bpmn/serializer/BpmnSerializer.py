@@ -78,7 +78,17 @@ class BpmnSerializer(spiff_json.JSONSerializer):
                 # One child belongs to the parent workflow (The path back
                 # out of the subworkflow) the other children belong to the
                 # sub-workflow.
-                if c['workflow_name'] == sub_workflow.name:
+
+                # We need to determine if we are still in the same workflow,
+                # Ideally we can just check:  if c['workflow_name'] == sub_workflow.name
+                # however, we need to support deserialization of workflows without this
+                # critical property, at least temporarily, so people can migrate.
+                if 'workflow_name' in c:
+                    same_workflow = c['workflow_name'] == sub_workflow.name
+                else:
+                    same_workflow = sub_workflow.get_tasks_from_spec_name(c['task_spec'])
+
+                if same_workflow:
                     start_task = self.deserialize_task(sub_workflow, c)
                     children.append(start_task)
                     start_task.parent = task.id
