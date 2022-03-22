@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, absolute_import, division
 
-from __future__ import division, absolute_import
+
+
 import unittest
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase

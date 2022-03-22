@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, absolute_import
+
 # Copyright (C) 2021 Sartography
 #
 # This library is free software; you can redistribute it and/or

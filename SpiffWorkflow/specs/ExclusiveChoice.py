@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, absolute_import
+
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -84,7 +84,7 @@ class ExclusiveChoice(MultiChoice):
                 break
 
         if output is None:
-            raise WorkflowException(self, 
+            raise WorkflowException(self,
                 f'No conditions satisfied for {my_task.task_spec.name}')
 
         my_task._sync_children([output], Task.FUTURE)
