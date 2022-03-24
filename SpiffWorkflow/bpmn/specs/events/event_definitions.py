@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -50,12 +50,12 @@ class EventDefinition(object):
         return my_task._get_internal_data('event_fired', False)
 
     def catch(self, my_task, event_definition=None):
-        my_task._set_internal_data(event_fired=True) 
+        my_task._set_internal_data(event_fired=True)
 
     def throw(self, my_task):
         self._throw(
-            event=my_task.task_spec.event_definition, 
-            workflow=my_task.workflow, 
+            event=my_task.task_spec.event_definition,
+            workflow=my_task.workflow,
             outer_workflow=my_task.workflow.outer_workflow
         )
 
@@ -77,7 +77,7 @@ class EventDefinition(object):
         return self.__class__.__name__ == other.__class__.__name__
 
     def serialize(self):
-        return { 
+        return {
             'classname': self.__class__.__module__ + '.' + self.__class__.__name__,
             'internal': self.internal,
             'external': self.external,
@@ -173,7 +173,7 @@ class MessageEventDefinition(NamedEventDefinition):
     Message Events have both a name and a payload.
     """
 
-    # It is not entirely clear how the payload is supposed to be handled, so I have 
+    # It is not entirely clear how the payload is supposed to be handled, so I have
     # deviated from what the earlier code did as little as possible, but I believe
     # this should be revisited: for one thing, we're relying on some Camunda-sepcific
     # properties.
@@ -191,13 +191,13 @@ class MessageEventDefinition(NamedEventDefinition):
         #self.internal = False
 
     def catch(self, my_task, event_definition):
-        
+
         # It seems very stupid to me that the sender of the message should define the
         # name of the variable the payload is saved in (the receiver ought to decide
         # what to do with it); however, Camunda puts the field on the sender, not the
         # receiver.
         if event_definition.result_var is None:
-            result_var = f'{my_task.task_spec.name}_Response' 
+            result_var = f'{my_task.task_spec.name}_Response'
         else:
             result_var = event_definition.result_var
         my_task.internal_data[event_definition.name] = result_var, event_definition.payload
@@ -242,7 +242,7 @@ class SignalEventDefinition(NamedEventDefinition):
 
 class TerminateEventDefinition(EventDefinition):
     """The TerminateEventDefinition is the implementation of event definition used for Termination Events."""
-    
+
     def __init__(self):
         super(TerminateEventDefinition, self).__init__()
         self.external = False
@@ -343,7 +343,7 @@ class CycleTimerEventDefinition(EventDefinition):
                 my_task._get_internal_data('start_time'),
                 '%Y-%m-%d %H:%M:%S.%f'
             )
-        
+
         if my_task.get_data('repeat_count') >= repeat:
             return False
         elif (now - start_time) < delta:

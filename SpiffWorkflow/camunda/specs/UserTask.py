@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+
 
 from ...bpmn.specs.UserTask import UserTask
 from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin

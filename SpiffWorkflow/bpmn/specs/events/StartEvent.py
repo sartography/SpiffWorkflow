@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ class StartEvent(CatchingEvent):
 
     def __init__(self, wf_spec, name, event_definition, **kwargs):
         super(StartEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
-        
+
     def catch(self, my_task, source_task):
 
         # We might need to revisit a start event after it completes or

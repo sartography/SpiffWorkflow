@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, absolute_import
-from __future__ import print_function
-
 import copy
 from builtins import str
 from builtins import hex

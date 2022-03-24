@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
-
 import pathlib
 import sys
 
@@ -23,7 +21,7 @@ setup(name='SpiffWorkflow',
       author_email='dan@sartography.com',
       license='lGPLv2',
       packages=find_packages(exclude=['tests', 'tests.*']),
-      install_requires=['future', 'configparser', 'lxml', 'celery', 'dateparser', 'pytz'],
+      install_requires=['configparser', 'lxml', 'celery', 'dateparser', 'pytz'],
       keywords='spiff workflow bpmn engine',
       url='https://github.com/sartography/SpiffWorkflow',
       classifiers=[

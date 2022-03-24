@@ -1,4 +1,3 @@
-from __future__ import print_function
 from SpiffWorkflow.specs import Simple
 
 class NuclearStrike(Simple):

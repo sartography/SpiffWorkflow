@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, absolute_import, division
+
 from io import BytesIO
 from SpiffWorkflow.bpmn.serializer.Packager import Packager, main
 from tests.SpiffWorkflow.bpmn.BpmnLoaderForTests import TestBpmnParser

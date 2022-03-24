@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, absolute_import, division
 
-from __future__ import division, absolute_import
+
+
 import sys
 import os
 import unittest
@@ -13,7 +13,7 @@ __author__ = 'matth'
 
 
 class ExclusiveGatewayNonDefaultPathIntoMultiTest(BpmnWorkflowTestCase):
-    """In the example BPMN Diagram we require that "Yes" or "No" be specified 
+    """In the example BPMN Diagram we require that "Yes" or "No" be specified
     in a user task and check that a multiinstance can follow a non-default
     path.
     """
