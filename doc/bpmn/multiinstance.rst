@@ -6,10 +6,10 @@ BPMN Model
 
 We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
 
-- `multiinstance <https://github.com/sartography/SpiffExample/bpmn/multiinstance.bpmn>`_ workflow
-- `call activity multi <https://github.com/sartography/SpiffExample/bpmn/call_activity_multi.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_ DMN table
-- `shipping_costs <https://github.com/sartography/SpiffExample/bpmn/shipping_costs.dmn>`_ DMN table
+- `multiinstance <https://github.com/sartography/SpiffExample/blob/master/bpmn/multiinstance.bpmn>`_ workflow
+- `call activity multi <https://github.com/sartography/SpiffExample/blob/master/bpmn/call_activity_multi.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/SpiffExample/blob/master/bpmn/product_prices.dmn>`_ DMN table
+- `shipping_costs <https://github.com/sartography/SpiffExample/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
 
 Suppose we want our customer to be able to select more than one product.
 

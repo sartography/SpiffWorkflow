@@ -10,6 +10,7 @@ BPMN and SpiffWorkflow
   For more serious modeling, we recommend looking for more comprehensive
   resources. We have used the `books by Bruce Silver <https://www.amazon.com/Bruce-Silver/e/B0062AXUFY/ref=dp_byline_cont_pop_book_1>`_
   as a guide for our BPMN modeling.
+
   .. image:: figures/bpmnbook.jpg
      :align: center
 

@@ -6,12 +6,12 @@ BPMN Model
 
 We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
 
-- `transaction <https://github.com/sartography/SpiffExample/bpmn/transaction.bpmn>`_ workflow
-- `signal_event <https://github.com/sartography/SpiffExample/bpmn/signal_event.bpmn>`_ workflow
-- `events <https://github.com/sartography/SpiffExample/bpmn/events.bpmn>`_ workflow
-- `call activity <https://github.com/sartography/SpiffExample/bpmn/call_activity.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_ DMN table
-- `shipping_costs <https://github.com/sartography/SpiffExample/bpmn/shipping_costs.dmn>`_ DMN table
+- `transaction <https://github.com/sartography/SpiffExample/blob/master/bpmn/transaction.bpmn>`_ workflow
+- `signal_event <https://github.com/sartography/SpiffExample/blob/master/bpmn/signal_event.bpmn>`_ workflow
+- `events <https://github.com/sartography/SpiffExample/blob/master/bpmn/events.bpmn>`_ workflow
+- `call activity <https://github.com/sartography/SpiffExample/blob/master/bpmn/call_activity.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/SpiffExample/blob/master/bpmn/product_prices.dmn>`_ DMN table
+- `shipping_costs <https://github.com/sartography/SpiffExample/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
 
 A general overview of events in BPMN can be found in the :doc:`/intro`
 section of the documentation.
