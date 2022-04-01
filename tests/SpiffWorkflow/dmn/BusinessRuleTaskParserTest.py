@@ -8,11 +8,10 @@ from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnDmnWorkflowTestCase import BpmnDmnWorkflowTestCase
 
 
-class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
-    PARSER_CLASS = BpmnDmnParser
+class BusinessRuleTaskParserTest(BpmnDmnWorkflowTestCase):
 
     def setUp(self):
         parser = BpmnDmnParser()

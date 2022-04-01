@@ -4,10 +4,9 @@ import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnDmnWorkflowTestCase import BpmnDmnWorkflowTestCase
 
-class MultiInstanceDMNTest(BpmnWorkflowTestCase):
-    PARSER_CLASS = BpmnDmnParser
+class MultiInstanceDMNTest(BpmnDmnWorkflowTestCase):
 
     def setUp(self):
         parser = BpmnDmnParser()

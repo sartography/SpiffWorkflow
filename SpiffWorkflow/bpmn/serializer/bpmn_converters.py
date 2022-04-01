@@ -62,7 +62,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             'description': spec.description,
             'manual': spec.manual,
             'internal': spec.internal,
-            'position': spec.internal,
+            'position': spec.position,
             'lookahead': spec.lookahead,
             'inputs': [task.name for task in spec.inputs],
             'outputs': [task.name for task in spec.outputs],
@@ -149,6 +149,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         spec.internal = internal
         spec.inputs = inputs
         spec.outputs = outputs
+        spec.id = dct['id']
 
         if self.data_converter is not None:
             spec.data = self.data_converter.restore(dct.get('data', {}))
@@ -160,6 +161,8 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             spec.documentation = dct.pop('documentation', None)
             spec.lane = dct.pop('lane', None)
             spec.loopTask = dct.pop('loopTask', False)
+            spec.outgoing_sequence_flows = dct.pop('outgoing_sequence_flows', {})
+            spec.outgoing_sequence_flows_by_id = dct.pop('outgoing_sequence_flows_by_id', {})
 
         return spec
 
@@ -196,6 +199,8 @@ class BpmnWorkflowSpecConverter(DictionaryConverter):
         registered = dict((f'{c.__module__}.{c.__name__}', c) for c in self.typenames)
         self.typenames[spec.__class__] = self.typenames[registered[classname]]
         dct = self.convert(spec)
+        # Delete this in case the serializer is reused.
+        del self.typenames[spec.__class__]
         # And we have to do this here, rather than in a converter, because
         dct.update({
             'times': self.convert(spec.times),
@@ -207,12 +212,23 @@ class BpmnWorkflowSpecConverter(DictionaryConverter):
             'isSequential': spec.isSequential,
         })
         # Also from the parser, but not always present.
-        if hasattr(spec, 'exapnded'):
+        if hasattr(spec, 'expanded'):
             dct['expanded'] = spec.expanded
         return dct
 
     def multiinstance_from_dict(self, dct):
 
+        # The restore function removes items from the dictionary.
+        # We need the original so that we can restore everything without enumerating all
+        # possibiliies in this function.
+        attrs = list(dct.keys())
+        attrs.remove('typename')
+        attrs.remove('wf_spec')
+        if 'decision_table' in attrs:
+            attrs.remove('decision_table')
+            attrs.append('dmnEngine')
+
+        # Terrible ugly hack
         registered = dict((name, c) for c, name in self.typenames.items())
         # First get the dynamic class
         cls = getDynamicMIClass(dct['name'], registered[dct['typename']])
@@ -223,18 +239,14 @@ class BpmnWorkflowSpecConverter(DictionaryConverter):
         del dct['wf_spec'].task_specs[original.name]
         # Create a new class using the dynamic class
         task_spec = cls(**dct)
-        # Set attributes that were added during initialization
-        task_spec.times = self.restore(task_spec.times)
-        task_spec.collection = self.restore(task_spec.collection)
-        task_spec.elementVar = dct['elementVar']
-        # Now copy values from the task dictionary that do not appear in the new task
-        for attr, val in dct.items():
-            if not hasattr(task_spec, attr):
-                # If the original task has the attr, use the converted value
-                if hasattr(original, attr):
-                    task_spec.__dict__[attr] = original.__dict__[attr]
-                else:
-                    task_spec.__dict__[attr] = self.restore(val)
+
+        # Now copy everything, from the temporary task spec if possible, otherwise the dict
+        for attr in attrs:
+            # If the original task has the attr, use the converted value
+            if hasattr(original, attr):
+                task_spec.__dict__[attr] = original.__dict__[attr]
+            else:
+                task_spec.__dict__[attr] = self.restore(dct[attr])
 
         return task_spec
 
@@ -280,7 +292,6 @@ class BpmnWorkflowSpecConverter(DictionaryConverter):
                 task_spec = self.multiinstance_from_dict(task_dict)
             else:
                 task_spec = self.restore(task_dict)
-            spec.task_specs[name] = task_spec
             if name == 'Start':
                 spec.start = task_spec
             if isinstance(task_spec, SubWorkflowTask):
@@ -293,6 +304,7 @@ class BpmnWorkflowSpecConverter(DictionaryConverter):
                     flow_dict['target_task_spec'] = spec.get_task_spec_from_name(name)
                     task_spec.outgoing_sequence_flows[name] = SequenceFlow(**flow_dict)
                 for flow_id, flow_dict in task_spec.outgoing_sequence_flows_by_id.items():
+                    name = flow_dict['target_task_spec']
                     flow_dict['target_task_spec'] = spec.get_task_spec_from_name(name)
                     task_spec.outgoing_sequence_flows_by_id[flow_id] = SequenceFlow(**flow_dict)         
             if isinstance(task_spec, _BoundaryEventParent):

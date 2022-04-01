@@ -3,7 +3,7 @@ import unittest
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnDmnWorkflowTestCase import BpmnDmnWorkflowTestCase
 
 
 def my_custom_function(txt):
@@ -17,8 +17,7 @@ class CustomScriptEngine(PythonScriptEngine):
         super().__init__(scriptingAdditions=augment_methods)
 
 
-class DMNCustomScriptTest(BpmnWorkflowTestCase):
-    PARSER_CLASS = BpmnDmnParser
+class DMNCustomScriptTest(BpmnDmnWorkflowTestCase):
 
     def setUp(self):
         parser = BpmnDmnParser()

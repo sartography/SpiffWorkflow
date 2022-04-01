@@ -63,17 +63,17 @@ class BpmnWorkflowSerializer:
         dct['serializer_version'] = self.VERSION
         return json.dumps(dct)
 
-    def deserialize_json(self, serialization):
+    def deserialize_json(self, serialization, read_only=False):
         dct = json.loads(serialization)
         version = dct.pop('serializer_version')
-        return self.workflow_from_dict(dct)
+        return self.workflow_from_dict(dct, read_only)
 
     def workflow_to_dict(self, workflow):
 
         return {
             'spec': self.spec_converter.convert(workflow.spec),
             'data': self.data_converter.convert(workflow.data),
-            'last_task': str(workflow.last_task.id),
+            'last_task': str(workflow.last_task.id) if workflow.last_task is not None else None,
             'success': workflow.success,
             'tasks': self.task_tree_to_dict(workflow.task_tree),
             'root': str(workflow.task_tree.id),
@@ -106,15 +106,15 @@ class BpmnWorkflowSerializer:
         add_task(root)
         return tasks
 
-    def workflow_from_dict(self, dct):
+    def workflow_from_dict(self, dct, read_only):
 
         spec = self.spec_converter.restore(dct.pop('spec'))
-        workflow = self.wf_class(spec)
+        workflow = self.wf_class(spec, read_only=read_only)
         workflow.data = self.data_converter.restore(dct.pop('data'))
         workflow.success = dct.pop('success')
 
         root = dct.pop('root')
-        workflow.task_tree = self.task_tree_from_dict(dct, root, None, workflow)
+        workflow.task_tree = self.task_tree_from_dict(dct, root, None, workflow, read_only)
         return workflow
 
     def task_from_dict(self, dct, workflow, task_spec, parent):
@@ -128,7 +128,7 @@ class BpmnWorkflowSerializer:
         task.data = self.data_converter.restore(dct['data'])
         return task
 
-    def task_tree_from_dict(self, dct, task_id, parent, workflow):
+    def task_tree_from_dict(self, dct, task_id, parent, workflow, read_only):
 
         task_dict = dct['tasks'][task_id]
         task_spec = workflow.spec.task_specs[task_dict['task_spec']]
@@ -137,10 +137,12 @@ class BpmnWorkflowSerializer:
             workflow.last_task = task
         children = [ dct['tasks'][child] for child in task_dict['children'] ]
         if isinstance(task_spec, SubWorkflowTask) and task_spec.sub_workflow is not None:
-            task_spec.sub_workflow = self.wf_class(task_spec.spec, name=task_spec.sub_workflow, parent=workflow)
+            task_spec.sub_workflow = self.wf_class(
+                task_spec.spec, name=task_spec.sub_workflow, parent=workflow, read_only=read_only)
             root = [ c for c in children if c['workflow_name'] == task_spec.sub_workflow.name ][0]
-            task_spec.sub_workflow.task_tree = self.task_tree_from_dict(dct, root['id'], task, task_spec.sub_workflow)
+            task_spec.sub_workflow.task_tree = self.task_tree_from_dict(
+                dct, root['id'], task, task_spec.sub_workflow, read_only)
             task_spec.sub_workflow.completed_event.connect(task_spec._on_subworkflow_completed, task)
         for child in [ c for c in children if c['workflow_name'] == workflow.name ]:
-            self.task_tree_from_dict(dct, child['id'], task, workflow)
+            self.task_tree_from_dict(dct, child['id'], task, workflow, read_only)
         return task
