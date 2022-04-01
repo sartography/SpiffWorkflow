@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, absolute_import
-from __future__ import print_function
+
+
 from builtins import str
 from builtins import object
 # Copyright (C) 2007 Samuel Abels

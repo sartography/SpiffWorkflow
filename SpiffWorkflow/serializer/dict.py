@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, absolute_import
+
 
 import json
 from builtins import str
@@ -884,9 +884,6 @@ class DictionarySerializer(Serializer):
         assert isinstance(workflow, Workflow)
         splits = s_state['task_spec'].split('_')
         oldtaskname = s_state['task_spec']
-
-        if s_state['workflow_name'] != workflow.name:
-            print("We have a problem Daniel.")
         task_spec = workflow.get_task_spec_from_name(oldtaskname)
         if task_spec is None:
             raise MissingSpecError("Unknown task spec: " + oldtaskname)

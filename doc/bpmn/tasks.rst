@@ -9,8 +9,8 @@ the basic task types that can be used with SpiffWorkflow.
 
 We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
 
-- `task_types <https://github.com/sartography/SpiffExample/bpmn/task_types.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/SpiffExample/bpmn/product_prices.dmn>`_ DMN table
+- `task_types <https://github.com/sartography/SpiffExample/blob/master/bpmn/task_types.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/SpiffExample/blob/master/bpmn/product_prices.dmn>`_ DMN table
 
 User Tasks
 ^^^^^^^^^^

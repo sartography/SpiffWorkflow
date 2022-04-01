@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+
 
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.SubWorkflow import SubWorkflow

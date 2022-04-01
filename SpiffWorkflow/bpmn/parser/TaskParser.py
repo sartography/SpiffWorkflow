@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
 from builtins import object
 # Copyright (C) 2012 Matthew Hampton
 #

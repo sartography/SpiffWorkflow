@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, absolute_import, division
 
-from __future__ import division, absolute_import
-from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser

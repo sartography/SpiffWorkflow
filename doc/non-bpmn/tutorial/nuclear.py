@@ -1,4 +1,3 @@
-from __future__ import print_function
 from SpiffWorkflow.specs import WorkflowSpec, ExclusiveChoice, Simple, Cancel
 from SpiffWorkflow.operators import Equal, Attrib
 

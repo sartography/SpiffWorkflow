@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, absolute_import
+
 from builtins import range
 # Copyright (C) 2007 Samuel Abels
 #
