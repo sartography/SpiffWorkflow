@@ -239,19 +239,38 @@ To accomplish this, we can import the serializer
 
 .. code:: python
 
-    from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
+    from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+
+This class contains a serializer for a workflow containing only standard BPMN Tasks.  Since we are using custom task 
+classes (the Camunda :code:`UserTask` and the DMN :code:`BusinessRuleTask`), we'll need to import serializers for those task s
+pecs as well.
+
+.. code:: python
+
+    from SpiffWorkflow.camunda.serializer import UserTaskConverter
+    from SpiffWorkflow.dmn.serializer import BusinessRuleTaskConverter
+
+Strictly speaking, these are not serializers per se: they actually convert the tasks into dictionaries of 
+JSON-serializable objects.  Conversion to JSON is done only as the last step and could easily be replaced with some
+other output format.
+
+We create a serializer that can handle our extended task specs:
+
+.. code:: python
+
+    serializer = BpmnWorkflowSerializer.add_task_spec_converter_classes(
+        [ UserTaskConverter, BusinessRuleTaskConverter ])
 
 We'll give the user the option of dumping the workflow at any time.
 
 .. code:: python
 
     filename = input('Enter filename: ')
-    state = BpmnSerializer().serialize_workflow(workflow, include_spec=True)
+    state = serializer.serialize_json(workflow)
     with open(filename, 'w') as dump:
         dump.write(state)
 
-We'll ask them for a filename and use the serializer to dump the state to
-that file.
+We'll ask them for a filename and use the serializer to dump the state to that file.
 
 To restore the workflow:
 
@@ -259,9 +278,67 @@ To restore the workflow:
 
     if args.restore is not None:
         with open(args.restore) as state:
-            wf = BpmnSerializer().deserialize_workflow(state.read(), workflow_spec=None)
+            wf = serializer.deserialize_json(state.read())
 
-This state is just a big JSON string, and in some cases SpiffWorkflow uses a Python construct known as a 'pickle' to
-save more complicated data. (go ahead, look at it.  It won't make much sense, but you can get an idea of what it is
-doing).
+The workflow serializer is designed to be flexible and modular and as such is a little complicated.
 
+To create a serializer for a workflow with no customizations:
+
+.. code:: python
+
+    serializer = BpmnWorkflowSerializer.default()
+
+The default may meet your needs, but you'll probably need to customize it in some way.
+
+The serializer actually consists two components
+
+- a workflow spec converter (which handles workflow and task specs)
+- a data converter (which handles workflow and task data).  
+
+The default workflow spec converter likely to meet your needs, either on its own, or with the inclusion of
+:code:`UserTask` and :code:`BusinessRuleTask` in the :code:`camnuda` and :code:`dmn` subpackages of this
+library, and all you'll need to do is add the existing converter as we did in the sample application.
+
+However, he default data converter is very simple, adding only JSON-serializable conversions of :code:`datetime`
+and :code:`timedelta` objects (we make these available in our default script engine) and UUIDs.  If your
+workflow or task data contains objects that are not JSON-serializable, you'll need to extend ours, or extend
+its base class to create one of your own.
+
+To do so:
+
+1.  Subclass the base data converter
+2.  Register classes along with functions for converting them to and from dictionaries
+
+.. code:: python
+
+    from SpiffWorkflow.bpmn.serializer.dictionary import DictionaryConverter
+
+    class MyDataConverter(DictionaryConverter):
+
+        def __init__(self):
+            super().__init__()
+            self.register(MyClass, self.my_class_to_dict, self.my_class_from_dict)
+
+        def my_class_to_dict(self, obj):
+            return obj.__dict__
+
+        def my_class_from_dict(self, dct):
+            return MyClass(**dct)
+
+More information can be found in the class documentation for the 
+`default converter <https://github.com/sartography/SpiffWorkflow/blob/enhancement/167-drop-the-pickles/SpiffWorkflow/bpmn/serializer/bpmn_converters.py>`_
+and its `base class <https://github.com/sartography/SpiffWorkflow/blob/enhancement/167-drop-the-pickles/SpiffWorkflow/bpmn/serializer/dictionary.py>`_
+for more information.
+
+You can provide your own data converter while using the standard task spec converters with the following:
+
+.. code: python
+
+    serializer = BpmnWorkflowSerializer.with_custom_data(MyDataConverter)
+
+You can also pass :code:`MyDataConverter` to :code:`BpmnWorkflowSerializer.add_task_spec_converter_classes` as the
+:code:`data_converter` argument.
+
+The methods describe above simply perform configuration or the underlying components.  You can do more
+fine-grained configuation by initializing the different classes separately and putting them together
+yourself if the above examples cannot accomplish what you need.
