@@ -8,6 +8,8 @@ from ..specs.MultiInstanceTask import MultiInstanceTask, getDynamicMIClass
 from ..specs.BpmnSpecMixin import BpmnSpecMixin
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
 
+from ...operators import Attrib, PathAttrib
+
 
 class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
 
@@ -24,11 +26,13 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
         dct = self.convert(spec)
         # Delete this in case the serializer is reused.
         del self.typenames[spec.__class__]
-        # And we have to do this here, rather than in a converter, because
+        # And we have to do this here, rather than in a converter
+        # We also have to manually apply the Attrib conversions
+        convert_attrib = lambda v: { 'name': v.name, 'typename': v.__class__.__name__ }
         dct.update({
-            'times': self.convert(spec.times),
+            'times': convert_attrib(spec.times) if spec.times is not None else None,
             'elementVar': spec.elementVar,
-            'collection': self.convert(spec.collection),
+            'collection': convert_attrib(spec.collection) if spec.collection is not None else None,
             # These are not defined in the constructor, but added by the parser, or somewhere else inappropriate
             'completioncondition': spec.completioncondition,
             'prevtaskclass': spec.prevtaskclass,
@@ -47,6 +51,9 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
         attrs = list(dct.keys())
         attrs.remove('typename')
         attrs.remove('wf_spec')
+        # These need to be restored here
+        attrs.remove('times')
+        attrs.remove('collection')
         # If only I'd done this right in the DMN converter I wouldn't have to pollute this on with
         # task specific cases.
         if 'decision_table' in attrs:
@@ -62,10 +69,14 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
         original = self.restore(dct.copy())
         # But this task has the wrong class, so delete it from the spec
         del dct['wf_spec'].task_specs[original.name]
+
         # Create a new class using the dynamic class
         task_spec = cls(**dct)
-
-        # Now copy everything, from the temporary task spec if possible, otherwise the dict
+        # Restore the attributes that weren't recognized by the original converter
+        restore_attrib = lambda v: Attrib(v['name']) if v['typename'] == 'Attrib' else PathAttrib(v['name'])
+        task_spec.times = restore_attrib(dct['times']) if dct['times'] is not None else None
+        task_spec.collection = restore_attrib(dct['collection']) if dct['collection'] is not None else None
+        # Now copy everything else, from the temporary task spec if possible, otherwise the dict
         for attr in attrs:
             # If the original task has the attr, use the converted value
             if hasattr(original, attr):

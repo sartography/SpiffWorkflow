@@ -93,11 +93,12 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def save_restore(self):
 
-        # The serializer modifies the dict, so we need to use a copy
-        state = self._get_workflow_state(do_steps=False)
         before_state = self._get_workflow_state(do_steps=False)
         before_dump = self.workflow.get_dump()
-        self.restore(state)
+        # Check that we can actully convert this to JSON
+        json.dumps(before_state)
+        self.restore(before_state)
+        # Check that serializing and deserializing results in the same workflow
         after_state = self._get_workflow_state(do_steps=False)
         after_dump = self.workflow.get_dump()
         self.maxDiff = None

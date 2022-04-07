@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 from uuid import UUID
 
 from .workflow_spec_converter import BpmnProcessSpecConverter
@@ -163,13 +164,14 @@ class BpmnWorkflowSerializer:
         Returns:
             a BPMN Workflow object
         """
-        spec = self.spec_converter.restore(dct.pop('spec'))
+        dct_copy = deepcopy(dct)
+        spec = self.spec_converter.restore(dct_copy.pop('spec'))
         workflow = self.wf_class(spec, read_only=read_only)
-        workflow.data = self.data_converter.restore(dct.pop('data'))
-        workflow.success = dct.pop('success')
+        workflow.data = self.data_converter.restore(dct_copy.pop('data'))
+        workflow.success = dct_copy.pop('success')
 
-        root = dct.pop('root')
-        workflow.task_tree = self.task_tree_from_dict(dct, root, None, workflow, read_only)
+        root = dct_copy.pop('root')
+        workflow.task_tree = self.task_tree_from_dict(dct_copy, root, None, workflow, read_only)
         return workflow
 
     def task_to_dict(self, task):
