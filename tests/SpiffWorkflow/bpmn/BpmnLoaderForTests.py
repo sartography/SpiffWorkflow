@@ -36,8 +36,8 @@ class TestUserTask(UserTask):
 
 class TestUserTaskConverter(BpmnTaskSpecConverter):
 
-    def __init__(self):
-        super().__init__(TestUserTask, None)
+    def __init__(self, data_converter=None):
+        super().__init__(TestUserTask, data_converter)
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)

@@ -2,8 +2,13 @@ import json
 from copy import deepcopy
 from uuid import UUID
 
-from .workflow_spec_converter import BpmnProcessSpecConverter
 from .bpmn_converters import BpmnDataConverter
+
+from ..workflow import BpmnWorkflow
+from ..specs.SubWorkflowTask import SubWorkflowTask
+from ...task import Task
+
+from .workflow_spec_converter import BpmnProcessSpecConverter
 
 from .task_spec_converters import SimpleTaskConverter, StartTaskConverter, EndJoinConverter, LoopResetTaskConverter
 from .task_spec_converters import NoneTaskConverter, UserTaskConverter, ManualTaskConverter, ScriptTaskConverter
@@ -12,10 +17,6 @@ from .task_spec_converters import StartEventConverter, EndEventConverter
 from .task_spec_converters import IntermediateCatchEventConverter, IntermediateThrowEventConverter
 from .task_spec_converters import BoundaryEventConverter, BoundaryEventParentConverter
 from .task_spec_converters import ParallelGatewayConverter, ExclusiveGatewayConverter, InclusiveGatewayConverter
-
-from ..workflow import BpmnWorkflow
-from ..specs.SubWorkflowTask import SubWorkflowTask
-from ...task import Task
 
 DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
     SimpleTaskConverter, StartTaskConverter, EndJoinConverter, LoopResetTaskConverter,
@@ -30,10 +31,22 @@ DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
 class BpmnWorkflowSerializer:
     """
     This class implements a customizable BPMN Workflow serializer, based on a Workflow Spec Converter 
-    class and a Data Converter class.  The Workflow Spec Converter is configured with Task Spec Converter
-    classes and an optional Data Converter class.  
-    
+    and a Data Converter.
+
     The goal is to provide modular serialization capabilities.
+    
+    You'll need to configure a Workflow Spec Converter with Task Spec Converters for any task types
+    present in your workflows.  Because the Task Spec Converters also require initialization, the process
+    of building a Workflow Spec Converter is a little tedious; therefore, this class provides a static
+    method `configure_workflow_spec_converter` that can extend and/or override the default Task Spec 
+    Converter list and return a Workflow Spec Converter that will recognize the overridden specs.
+
+    If you have implemented any custom task specs, you'll need to write a converter to handle them and
+    provide it to this method; if you using only the defaults, you can call this with no arguments.
+
+    If your workflow contains non-JSON-serializable objects, you'll need to extend or replace the
+    default data converter with one that will handle them.  This converter needs to implement
+    `convert` and `restore` methods.
 
     Serialization occurs in two phases: the first is to convert everything in the workflow to a
     dictionary containins only JSON-serializable objects and the second is dumping to JSON.
@@ -43,83 +56,47 @@ class BpmnWorkflowSerializer:
     parts of the workflow more conveniently.  You can of course call methods from the Workflow Spec and 
     Data Converters via the `spec_converter` and `data_converter` attributes as well to bypass the
     overhead of converting or restoring the entire thing.
-
-    The Workflow is at the top level and relies on different Converters for its Spec and Data.  
-    
-    Task Spec conversion is handled through Workflow Spec converter.
-
-    The Task Spec converters optionally rely on a Data Converter.  BPMN task specs would typically not
-    have data attached to them, but the base Spiff tasks allow for arbitrary data.  We recommend not
-    doing this, as we may disallow it in the future.
-    
-    This results in a certain amount of complexity, so several factory methods are provided for creating 
-    serializers based on common use cases.
     """
 
+    @staticmethod
+    def configure_workflow_spec_converter(task_spec_overrides=None, data_converter=None):
+        """
+        This method can be used to add additional task spec converters to the default BPMN Process 
+        converter.
+
+        The task specs may contain arbitrary data, though none of the default task specs use it.  We
+        may disallow that in the future, so we don't recommend using this capability.
+
+        The task spec converters also take an optional typename argument; this will be included in the
+        serialized dictionaries so that the original class can restored.  The unqualified classname is
+        used if none is provided.  If a class in `task_spec_overrides` conflicts with one of the
+        defaults, the default will be removed and the provided one will be used instead.  If you need
+        both for some reason, you'll have to instantiate the task spec converters and workflow spec
+        converter yourself.
+
+        :param task_spec_overrides: a list of task spec converter classes
+        :param data_converter: an optional data converter for task spec data
+        """
+        classnames = [c.__name__ for c in task_spec_overrides]
+        converters = [c(data_converter=data_converter) for c in task_spec_overrides]
+        for c in DEFAULT_TASK_SPEC_CONVERTER_CLASSES:
+            if c.__name__ not in classnames:
+                converters.append(c(data_converter=data_converter))
+        return BpmnProcessSpecConverter(converters)
+
     VERSION = 1.0
-
-    @classmethod
-    def default(cls):
-        """
-        Creates a Workflow Serializer using the default task spec converters (listed above and defined in 
-        `task_spec_converters`), the `BmpnProcessSpecConverter` (defined in `workflow_spec_converter`),
-        and the default data converter (`BpmnataConverter`, defined in `bpmn_converters`).
-
-        If you have not implemented any custom tasks and your workflow/task data contains only JSON-
-        serializable objects, you can call this method in lieu of configuring everything yourself.
-        """
-        data_converter = BpmnDataConverter()
-        task_spec_converters = map(lambda c: c(), DEFAULT_TASK_SPEC_CONVERTER_CLASSES)       
-        spec_converter = BpmnProcessSpecConverter(task_spec_converters)
-        return cls(BpmnWorkflow, spec_converter, data_converter)
-
-    @classmethod
-    def with_custom_data(cls, data_converter):
-        """
-        Creates a Workflow Serializer using the default BPMN Converters, but replaces the Data Converter
-        with a custom class.
-
-        If you have not implemented any custom tasks but your workflow/task data contains non-JSON-
-        serializable objects, you should extend or replace the Data Converter with one that can handle
-        your use case and use this method to create a serializer.
-
-        Note that the data converter will only be passed to the Workflow Serializer *not* the
-        Task Spec Converter.
-        """
-        task_spec_converters = map(lambda c: c(), DEFAULT_TASK_SPEC_CONVERTER_CLASSES)       
-        spec_converter = BpmnProcessSpecConverter(task_spec_converters)
-        return cls(BpmnWorkflow, spec_converter, data_converter)
-
-    @classmethod
-    def add_task_spec_converter_classes(cls, converter_classes, data_converter=None):
-        """Creates a Workflow Serializer with additional Task Spec Converters and an optional
-        custom Data Converter.
-
-        If you have implemented any custom task spec classes, then you can provide converters for
-        them to this method and they will be added along with the stanard Task Spec converters.
-
-        If no Data Converter is given, the default BpmnDataConverter will be used.
-
-        Note that the data converter will only be passed to the Workflow Serializer *not* the
-        Task Spec Converter.
-        """
-        if data_converter is None:
-            data_converter = BpmnDataConverter()
-        task_spec_converters = map(lambda c: c(), DEFAULT_TASK_SPEC_CONVERTER_CLASSES + converter_classes)
-        spec_converter = BpmnProcessSpecConverter(task_spec_converters)
-        return cls(BpmnWorkflow, spec_converter, data_converter)
-
-    def __init__(self, wf_class, spec_converter, data_converter):
+    
+    def __init__(self, spec_converter=None, data_converter=None, wf_class=None):
         """Intializes a Workflow Serializer with the given Workflow, Task and Data Converters.
 
-        :param wf_class: the workflow class
         :param spec_converter: the workflow spec converter
         :param data_converter: the data converter
+        :param wf_class: the workflow class
         """
         super().__init__()
-        self.wf_class = wf_class
-        self.spec_converter = spec_converter
-        self.data_converter = data_converter
+        self.spec_converter = spec_converter if spec_converter is not None else self.configure_workflow_spec_converter()
+        self.data_converter = data_converter if data_converter is not None else BpmnDataConverter()
+        self.wf_class = wf_class if wf_class is not None else BpmnWorkflow
 
     def serialize_json(self, workflow):
         """Serialize the dictionary representation of the workflow to JSON.

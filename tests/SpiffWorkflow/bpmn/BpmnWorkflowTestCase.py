@@ -17,9 +17,11 @@ from .BpmnLoaderForTests import TestUserTaskConverter
 __author__ = 'matth'
 
 
+wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([TestUserTaskConverter])
+
 class BpmnWorkflowTestCase(unittest.TestCase):
 
-    serializer = BpmnWorkflowSerializer.add_task_spec_converter_classes([TestUserTaskConverter])
+    serializer = BpmnWorkflowSerializer(wf_spec_converter)
 
     def load_workflow_spec(self, filename, process_name):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)

@@ -266,6 +266,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
     def attrib_from_dict(self, attrib_class, dct):
         return attrib_class(dct['name'])
 
+
 class BpmnWorkflowSpecConverter(DictionaryConverter):
     """
     This is the base converter for a BPMN workflow spec.  
@@ -275,9 +276,6 @@ class BpmnWorkflowSpecConverter(DictionaryConverter):
 
     This class can be extended if you implement a custom workflow spec type.  See the converter
     in `workflow_spec_converter` for an example.
-
-    It will generally not need to be called directly, as it would primarily be used by a
-    `BpmnWorkflowConverter`.  See the documentation for that class for more information.
     """
 
     def __init__(self, spec_class, task_spec_converters, data_converter=None):

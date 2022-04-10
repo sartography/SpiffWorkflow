@@ -254,12 +254,18 @@ Strictly speaking, these are not serializers per se: they actually convert the t
 JSON-serializable objects.  Conversion to JSON is done only as the last step and could easily be replaced with some
 other output format.
 
+We'll need to configure a Workflow Spec Converter with our custom classes:
+
+.. code:: python
+
+    wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter(
+        [ UserTaskConverter, BusinessRuleTaskConverter ])
+
 We create a serializer that can handle our extended task specs:
 
 .. code:: python
 
-    serializer = BpmnWorkflowSerializer.add_task_spec_converter_classes(
-        [ UserTaskConverter, BusinessRuleTaskConverter ])
+    serializer = BpmnWorkflowSerializer(wf_spec_converter)
 
 We'll give the user the option of dumping the workflow at any time.
 
@@ -280,31 +286,22 @@ To restore the workflow:
         with open(args.restore) as state:
             wf = serializer.deserialize_json(state.read())
 
-The workflow serializer is designed to be flexible and modular and as such is a little complicated.
-
-To create a serializer for a workflow with no customizations:
-
-.. code:: python
-
-    serializer = BpmnWorkflowSerializer.default()
-
-The default may meet your needs, but you'll probably need to customize it in some way.
-
-The serializer actually consists two components
+The workflow serializer is designed to be flexible and modular and as such is a little complicated.  It has
+two components:
 
 - a workflow spec converter (which handles workflow and task specs)
 - a data converter (which handles workflow and task data).  
 
 The default workflow spec converter likely to meet your needs, either on its own, or with the inclusion of
 :code:`UserTask` and :code:`BusinessRuleTask` in the :code:`camnuda` and :code:`dmn` subpackages of this
-library, and all you'll need to do is add the existing converter as we did in the sample application.
+library, and all you'll need to do is add them to the list of task converters, as we did above.
 
 However, he default data converter is very simple, adding only JSON-serializable conversions of :code:`datetime`
 and :code:`timedelta` objects (we make these available in our default script engine) and UUIDs.  If your
 workflow or task data contains objects that are not JSON-serializable, you'll need to extend ours, or extend
 its base class to create one of your own.
 
-To do so:
+To do extend ours:
 
 1.  Subclass the base data converter
 2.  Register classes along with functions for converting them to and from dictionaries
@@ -330,15 +327,6 @@ More information can be found in the class documentation for the
 and its `base class <https://github.com/sartography/SpiffWorkflow/blob/enhancement/167-drop-the-pickles/SpiffWorkflow/bpmn/serializer/dictionary.py>`_
 for more information.
 
-You can provide your own data converter while using the standard task spec converters with the following:
-
-.. code: python
-
-    serializer = BpmnWorkflowSerializer.with_custom_data(MyDataConverter)
-
-You can also pass :code:`MyDataConverter` to :code:`BpmnWorkflowSerializer.add_task_spec_converter_classes` as the
-:code:`data_converter` argument.
-
-The methods describe above simply perform configuration or the underlying components.  You can do more
-fine-grained configuation by initializing the different classes separately and putting them together
-yourself if the above examples cannot accomplish what you need.
+You can also replace ours entirely with one of your own.  If you do so, you'll need to implement `convert` and 
+`restore` methods.  The former should return a JSON-serializable representation of your workflow data; the
+latter should recreate your data from the serialization.
