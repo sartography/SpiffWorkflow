@@ -86,6 +86,16 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
 
         return task_spec
 
+    def convert_task_spec_extensions(self, task_spec, dct):
+        # Extensions will be moved out of the base parser, but since we currently add them to some
+        # indeterminate set of tasks, we'll just check all the tasks for them here.
+        if hasattr(task_spec, 'extensions'):
+            dct.update({'extensions': task_spec.extensions})
+
+    def restore_task_spec_extensions(self, dct, task_spec):
+        if 'extensions' in dct:
+            task_spec.extensions = dct.pop('extensions')
+
     def to_dict(self, spec):
 
         dct = {
@@ -102,6 +112,7 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
             if isinstance(task_spec, SubWorkflowTask):
                 task_dict['spec'] = self.convert(task_spec.spec)
                 task_dict['sub_workflow'] = task_spec.sub_workflow.name if task_spec.sub_workflow is not None else None
+            self.convert_task_spec_extensions(task_spec, task_dict)
             dct['task_specs'][name] = task_dict
 
         return dct
@@ -132,6 +143,7 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
                 spec.start = task_spec
             if isinstance(task_spec, SubWorkflowTask):
                 task_spec.spec = self.restore(task_spec.spec)
+            self.restore_task_spec_extensions(task_dict, task_spec)
 
         # Now we have to go back and fix all the circular references to everything
         for task_spec in spec.task_specs.values():
