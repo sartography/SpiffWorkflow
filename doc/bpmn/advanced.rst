@@ -230,6 +230,13 @@ to provide more secure alternatives to standard python functions.
 Serialization
 -------------
 
+.. warning::
+
+   Serialization Changed in Version 1.2
+   The old serialization method still works but it is deprecated.
+   To migrate your system to the new version, see "Migrating between
+   serialization versions" below.
+
 So far, we've only considered the context where we will run the workflow from beginning to end in one
 setting. This may not always be the case, we may be executing the workflow in the context of a web server where we
 may have a user request a web page where we open a specific workflow that we may be in the middle of, do one step of
@@ -241,7 +248,7 @@ To accomplish this, we can import the serializer
 
     from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 
-This class contains a serializer for a workflow containing only standard BPMN Tasks.  Since we are using custom task 
+This class contains a serializer for a workflow containing only standard BPMN Tasks.  Since we are using custom task
 classes (the Camunda :code:`UserTask` and the DMN :code:`BusinessRuleTask`), we'll need to import serializers for those task s
 pecs as well.
 
@@ -250,7 +257,7 @@ pecs as well.
     from SpiffWorkflow.camunda.serializer import UserTaskConverter
     from SpiffWorkflow.dmn.serializer import BusinessRuleTaskConverter
 
-Strictly speaking, these are not serializers per se: they actually convert the tasks into dictionaries of 
+Strictly speaking, these are not serializers per se: they actually convert the tasks into dictionaries of
 JSON-serializable objects.  Conversion to JSON is done only as the last step and could easily be replaced with some
 other output format.
 
@@ -290,7 +297,7 @@ The workflow serializer is designed to be flexible and modular and as such is a 
 two components:
 
 - a workflow spec converter (which handles workflow and task specs)
-- a data converter (which handles workflow and task data).  
+- a data converter (which handles workflow and task data).
 
 The default workflow spec converter likely to meet your needs, either on its own, or with the inclusion of
 :code:`UserTask` and :code:`BusinessRuleTask` in the :code:`camnuda` and :code:`dmn` subpackages of this
@@ -322,11 +329,39 @@ To do extend ours:
         def my_class_from_dict(self, dct):
             return MyClass(**dct)
 
-More information can be found in the class documentation for the 
+More information can be found in the class documentation for the
 `default converter <https://github.com/sartography/SpiffWorkflow/blob/enhancement/167-drop-the-pickles/SpiffWorkflow/bpmn/serializer/bpmn_converters.py>`_
 and its `base class <https://github.com/sartography/SpiffWorkflow/blob/enhancement/167-drop-the-pickles/SpiffWorkflow/bpmn/serializer/dictionary.py>`_
 for more information.
 
-You can also replace ours entirely with one of your own.  If you do so, you'll need to implement `convert` and 
+You can also replace ours entirely with one of your own.  If you do so, you'll need to implement `convert` and
 `restore` methods.  The former should return a JSON-serializable representation of your workflow data; the
 latter should recreate your data from the serialization.
+
+Migrating Between Serialization Versions
+----------------------------------------
+Because the serializer is highly customizable, you will need to manage your
+own versions of the serialization.  You can do this by passing a version number
+into the serializer, which will be embedded in the json of all workflows.
+
+.. code:: python
+    old_serializer = BpmnSerializer() # the deprecated serializer.
+    # new serializer, which can be customized as described above.
+    serializer = BpmnWorkflowSerializer(version="MY_APP_V_1.0")
+
+The new serializer has a "get_version" method that will read the version
+back out of the serialized json.  If the version isn't found, it will return
+None, and you can then assume it is using the old style serializer.
+
+.. code:: python
+   version = serializer.get_version(some_json)
+   if(version == "MY_APP_V_1.0"):
+        workflow = serializer.deserialize_json(some_json)
+   else:
+        workflow = old_serializer.deserialize_workflow(some_json, workflow_spec=spec)
+
+This should help you migrate your old workflows to the new serialization
+method.  It should also allow you to modify the serialization and customize
+it over time, and still manage the different forms as you make adjustments
+without leaving people behind.
+

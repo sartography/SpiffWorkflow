@@ -20,7 +20,7 @@ from .task_spec_converters import ParallelGatewayConverter, ExclusiveGatewayConv
 
 DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
     SimpleTaskConverter, StartTaskConverter, EndJoinConverter, LoopResetTaskConverter,
-    NoneTaskConverter, UserTaskConverter, ManualTaskConverter, ScriptTaskConverter, 
+    NoneTaskConverter, UserTaskConverter, ManualTaskConverter, ScriptTaskConverter,
     CallActivityTaskConverter, TransactionSubprocessTaskConverter,
     StartEventConverter, EndEventConverter,
     IntermediateCatchEventConverter, IntermediateThrowEventConverter,
@@ -30,15 +30,15 @@ DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
 
 class BpmnWorkflowSerializer:
     """
-    This class implements a customizable BPMN Workflow serializer, based on a Workflow Spec Converter 
+    This class implements a customizable BPMN Workflow serializer, based on a Workflow Spec Converter
     and a Data Converter.
 
     The goal is to provide modular serialization capabilities.
-    
+
     You'll need to configure a Workflow Spec Converter with Task Spec Converters for any task types
     present in your workflows.  Because the Task Spec Converters also require initialization, the process
     of building a Workflow Spec Converter is a little tedious; therefore, this class provides a static
-    method `configure_workflow_spec_converter` that can extend and/or override the default Task Spec 
+    method `configure_workflow_spec_converter` that can extend and/or override the default Task Spec
     Converter list and return a Workflow Spec Converter that will recognize the overridden specs.
 
     If you have implemented any custom task specs, you'll need to write a converter to handle them and
@@ -53,15 +53,20 @@ class BpmnWorkflowSerializer:
 
     This means that you can call the `workflow_to_dict` or `workflow_from_dict` methods separately from
     conversion to JSON for further manipulation of the state, or selective serialization of only certain
-    parts of the workflow more conveniently.  You can of course call methods from the Workflow Spec and 
+    parts of the workflow more conveniently.  You can of course call methods from the Workflow Spec and
     Data Converters via the `spec_converter` and `data_converter` attributes as well to bypass the
     overhead of converting or restoring the entire thing.
     """
 
+    # This is the default version set on the workflow, it can be overwritten
+    # using the configure_workflow_spec_converter.
+    VERSION = "1.0"
+
+
     @staticmethod
-    def configure_workflow_spec_converter(task_spec_overrides=None, data_converter=None):
+    def configure_workflow_spec_converter(task_spec_overrides=None, data_converter=None, version=VERSION):
         """
-        This method can be used to add additional task spec converters to the default BPMN Process 
+        This method can be used to add additional task spec converters to the default BPMN Process
         converter.
 
         The task specs may contain arbitrary data, though none of the default task specs use it.  We
@@ -77,16 +82,19 @@ class BpmnWorkflowSerializer:
         :param task_spec_overrides: a list of task spec converter classes
         :param data_converter: an optional data converter for task spec data
         """
+        if task_spec_overrides is None:
+            task_spec_overrides = []
+
+
         classnames = [c.__name__ for c in task_spec_overrides]
         converters = [c(data_converter=data_converter) for c in task_spec_overrides]
         for c in DEFAULT_TASK_SPEC_CONVERTER_CLASSES:
             if c.__name__ not in classnames:
                 converters.append(c(data_converter=data_converter))
-        return BpmnProcessSpecConverter(converters)
+        return BpmnProcessSpecConverter(converters, version)
 
-    VERSION = 1.0
-    
-    def __init__(self, spec_converter=None, data_converter=None, wf_class=None):
+
+    def __init__(self, spec_converter=None, data_converter=None, wf_class=None, version=VERSION):
         """Intializes a Workflow Serializer with the given Workflow, Task and Data Converters.
 
         :param spec_converter: the workflow spec converter
@@ -97,10 +105,11 @@ class BpmnWorkflowSerializer:
         self.spec_converter = spec_converter if spec_converter is not None else self.configure_workflow_spec_converter()
         self.data_converter = data_converter if data_converter is not None else BpmnDataConverter()
         self.wf_class = wf_class if wf_class is not None else BpmnWorkflow
+        self.VERSION = version
 
     def serialize_json(self, workflow):
         """Serialize the dictionary representation of the workflow to JSON.
-        
+
         :param workflow: the workflow to serialize
 
         Returns:
@@ -114,6 +123,15 @@ class BpmnWorkflowSerializer:
         dct = json.loads(serialization)
         version = dct.pop('serializer_version')
         return self.workflow_from_dict(dct, read_only)
+
+    def get_version(self, serialization):
+        try:
+            dct = json.loads(serialization)
+            if 'serializer_version' in dct:
+                return dct['serializer_version']
+        except:  # Don't bail out trying to get a version, just return none.
+            return None
+
 
     def workflow_to_dict(self, workflow):
         """Return a JSON-serializable dictionary representation of the workflow.

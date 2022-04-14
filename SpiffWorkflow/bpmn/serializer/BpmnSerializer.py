@@ -18,6 +18,8 @@
 
 import configparser
 from io import BytesIO, TextIOWrapper
+from warnings import warn
+
 from lxml import etree
 import zipfile
 import os
@@ -29,23 +31,40 @@ from ...serializer import json as spiff_json
 from ..parser.BpmnParser import BpmnParser
 from .Packager import Packager
 
-
 class BpmnSerializer(spiff_json.JSONSerializer):
     """
+    DEPRECATED --- This call remains available only so that folks can deserialize
+    existing workflows.
     The BpmnSerializer class provides support for deserializing a Bpmn Workflow
     Spec from a BPMN package. The BPMN package must have been created using the
     :class:`SpiffWorkflow.bpmn.serializer.Packager`.
 
     It will also use the appropriate subclass of BpmnParser, if one is included
     in the metadata.ini file.
-
     """
+
+    def __init_subclass__(cls, **kwargs):
+        """This throws a deprecation warning on subclassing."""
+        warn(f'{cls.__name__} is deprecated.  Please use '
+             f'bpmn.serializer.workflow.BpmnWorkflowSerializer',
+             DeprecationWarning, stacklevel=2)
+        super().__init_subclass__(**kwargs)
 
     def serialize_workflow(self, workflow, **kwargs):
         """
+        *** DEPRECATED *** DEPRECATED *** DEPRECATED *** DEPRECATED ***
         Serializes the workflow data and task tree.  Will also serialize
         the Spec if 'include_spec' kwarg is not set to false.
+        Please use bpmn.serializer.workflow.BpmnWorkflowSerializer for
+        Serialization.  This class remains available only to help transition
+        to the new Serialization scheme.
         """
+        """This throws a deprecation warning on initialization."""
+        warn(f'{self.__class__.__name__} is deprecated.  DO NOT continue to '
+             f'use it for serialization. Deserialize your old workflows, then'
+             f'move to the new serializer for storing. See '
+             f'bpmn.serializer.workflow.BpmnWorkflowSerializer',
+             DeprecationWarning, stacklevel=2)
         assert isinstance(workflow, BpmnWorkflow)
         include_spec = kwargs.get('include_spec',True)
         return super().serialize_workflow(workflow, include_spec=include_spec)
