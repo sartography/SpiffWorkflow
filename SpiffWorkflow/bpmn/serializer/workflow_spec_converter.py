@@ -9,12 +9,14 @@ from ..specs.BpmnSpecMixin import BpmnSpecMixin
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
 
 from ...operators import Attrib, PathAttrib
+from ...specs.WorkflowSpec import WorkflowSpec
 
 
 class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
 
     def __init__(self, task_spec_converters, data_converter=None):
         super().__init__(BpmnProcessSpec, task_spec_converters, data_converter)
+        self.register(WorkflowSpec, self.to_dict, self.from_dict)
 
     def multi_instance_to_dict(self, spec):
 
