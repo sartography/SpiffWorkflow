@@ -51,6 +51,14 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         version = self.serializer.get_version(spec_serialized)
         self.assertEqual(version, self.SERIALIZER_VERSION)
 
+    def testSerializeToOldSerializerThenNewSerializer(self):
+        old_serializer = BpmnSerializer()
+        old_json = old_serializer.serialize_workflow(self.workflow)
+        new_workflow = old_serializer.deserialize_workflow(old_json)
+        new_json = self.serializer.serialize_json(new_workflow)
+        new_workflow_2 = self.serializer.deserialize_json(new_json)
+
+
     def testSerializeWorkflow(self):
         json = self.serializer.serialize_json(self.workflow)
         print(json)
