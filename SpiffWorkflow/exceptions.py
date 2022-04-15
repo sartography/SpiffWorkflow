@@ -74,13 +74,15 @@ class WorkflowTaskExecException(WorkflowException):
             self.line_number = exception.lineno
             self.offset = exception.offset
         elif isinstance(exception, NameError):
-            # Use Levenshitein to find most simiar items.
-            bad_variable = re.match("name '(.+)' is not defined", str(exception)).group(1)
-            most_similar = levenshtein.most_similar(bad_variable, task.data.keys(), 3)
-            error_msg = f'something you are referencing does not exist: ' \
+            def_match = re.match("name '(.+)' is not defined", str(exception))
+            if def_match:
+                bad_variable = re.match("name '(.+)' is not defined", str(exception)).group(1)
+                most_similar = levenshtein.most_similar(bad_variable, task.data.keys(), 3)
+                error_msg = f'something you are referencing does not exist: ' \
                             f'"{exception}".'
-            error_msg += f' Did you mean \'{most_similar}\'?'
-
+                error_msg += f' Did you mean \'{most_similar}\'?'
+            else:
+                error_msg = str(exception)
         WorkflowException.__init__(self, task.task_spec, error_msg)
 
     @staticmethod
