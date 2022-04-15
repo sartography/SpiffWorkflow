@@ -73,7 +73,6 @@ class MultiInstanceArrayTest(BaseTestCase):
                                         'is_parallel_mi': False,
                                         'mi_count': 3,
                                         'mi_index': i+1})
-
             if i > 0:
                 self.assertEqual("FamilyMemberTask"+"_%d"%(i-1), task.task_spec.name)
             else:

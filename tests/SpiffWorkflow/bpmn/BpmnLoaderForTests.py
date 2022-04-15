@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 
-
-
-from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity, TransactionSubprocess
-from SpiffWorkflow.bpmn.specs.events import EndEvent
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.parser.task_parsers import UserTaskParser, CallActivityParser, TransactionSubprocessParser
-from SpiffWorkflow.bpmn.parser.event_parsers import EndEventParser
+from SpiffWorkflow.bpmn.parser.task_parsers import UserTaskParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
-from SpiffWorkflow.operators import Assign
+
+from SpiffWorkflow.bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
 
 __author__ = 'matth'
 
@@ -38,21 +34,23 @@ class TestUserTask(UserTask):
         return serializer.deserialize_generic(wf_spec, s_state, TestUserTask)
 
 
-class TestTransactionSubprocess(TransactionSubprocess):
+class TestUserTaskConverter(BpmnTaskSpecConverter):
 
-    def __init__(self, parent, name, **kwargs):
-        super(TestTransactionSubprocess, self).__init__(parent, name,
-                                               out_assign=[Assign('choice', 'end_event')], **kwargs)
+    def __init__(self, data_converter=None):
+        super().__init__(TestUserTask, data_converter)
 
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_subworkflow_task(wf_spec, s_state, TestTransactionSubprocess)
+    def to_dict(self, spec):
+        dct = self.get_default_attributes(spec)
+        dct.update(self.get_bpmn_attributes(spec))
+        return dct
+
+    def from_dict(self, dct):
+        return self.task_spec_from_dict(dct)
 
 
 class TestBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
         full_tag('userTask'): (UserTaskParser, TestUserTask),
-        full_tag('transaction'): (TransactionSubprocessParser, TestTransactionSubprocess),
     }
 
     def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node, task_parser):
@@ -62,3 +60,4 @@ class TestBpmnParser(BpmnParser):
         if cond is not None:
             return cond
         return "choice == '%s'" % sequence_flow_node.get('name', None)
+

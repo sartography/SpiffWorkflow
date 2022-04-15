@@ -11,10 +11,17 @@ from SpiffWorkflow.task import Task
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+from .BpmnLoaderForTests import TestUserTaskConverter
+
 __author__ = 'matth'
 
 
+wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([TestUserTaskConverter])
+
 class BpmnWorkflowTestCase(unittest.TestCase):
+
+    serializer = BpmnWorkflowSerializer(wf_spec_converter)
 
     def load_workflow_spec(self, filename, process_name):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
@@ -87,35 +94,31 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         tasks[0].complete()
 
     def save_restore(self):
-        state = self._get_workflow_state(do_steps=False, include_spec=True)
-        logging.debug('Saving state: %s', state)
-        before_dump = self.workflow.get_dump()
-        self.restore(state)
-        # We should still have the same state:
-        after_dump = self.workflow.get_dump()
-        after_state = self._get_workflow_state(do_steps=False,include_spec=True)
 
-        if state != after_state:
-            logging.debug("Before save:\n%s", before_dump)
-            logging.debug("After save:\n%s", after_dump)
+        before_state = self._get_workflow_state(do_steps=False)
+        before_dump = self.workflow.get_dump()
+        # Check that we can actully convert this to JSON
+        json.dumps(before_state)
+        self.restore(before_state)
+        # Check that serializing and deserializing results in the same workflow
+        after_state = self._get_workflow_state(do_steps=False)
+        after_dump = self.workflow.get_dump()
         self.maxDiff = None
         self.assertEqual(before_dump, after_dump)
-        self.assertEqual(state, after_state)
-
+        self.assertEqual(before_state, after_state)
 
     def restore(self, state):
-        self.workflow = BpmnSerializer().deserialize_workflow(
-            state, workflow_spec=None)
+        self.workflow = self.serializer.workflow_from_dict(state, read_only=False)
 
     def get_read_only_workflow(self):
         state = self._get_workflow_state()
-        return BpmnSerializer().deserialize_workflow(state, workflow_spec=self.spec, read_only=True)
+        return self.serializer.workflow_from_dict(state, read_only=True)
 
-    def _get_workflow_state(self,do_steps=True,include_spec=True):
+    def _get_workflow_state(self, do_steps=True):
         if do_steps:
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
-        return BpmnSerializer().serialize_workflow(self.workflow, include_spec=include_spec)
+        return self.serializer.workflow_to_dict(self.workflow)
 
     def assertNav(self, nav_item: NavItem, name=None, description=None,
                   spec_type=None, indent=None, state=None, lane=None,

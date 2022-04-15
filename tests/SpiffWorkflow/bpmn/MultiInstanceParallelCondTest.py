@@ -24,16 +24,6 @@ class MultiInstanceCondTest(BpmnWorkflowTestCase):
         self.process_name = 'MultiInstance'
         self.spec = self.load_workflow1_spec()
 
-
-    def reload_save_restore(self):
-        state = self._get_workflow_state()
-        self.restore(state)
-        after_state = self._get_workflow_state(do_steps=False)
-        self.maxDiff = None
-        self.assertEqual(state, after_state)
-
-
-
     def load_workflow1_spec(self):
         return self.load_workflow_spec(self.filename, self.process_name)
 
@@ -58,8 +48,8 @@ class MultiInstanceCondTest(BpmnWorkflowTestCase):
             self.workflow.complete_task_from_id(task.id)
             nav_list = self.workflow.get_flat_nav_list()
             self.assertNotEqual(None, nav_list[1].task_id)
-            if(save_restore):
-                self.reload_save_restore()
+            if save_restore:
+                self.save_restore()
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
 
