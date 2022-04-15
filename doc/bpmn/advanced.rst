@@ -345,6 +345,7 @@ own versions of the serialization.  You can do this by passing a version number
 into the serializer, which will be embedded in the json of all workflows.
 
 .. code:: python
+
     old_serializer = BpmnSerializer() # the deprecated serializer.
     # new serializer, which can be customized as described above.
     serializer = BpmnWorkflowSerializer(version="MY_APP_V_1.0")
@@ -354,6 +355,7 @@ back out of the serialized json.  If the version isn't found, it will return
 None, and you can then assume it is using the old style serializer.
 
 .. code:: python
+
    version = serializer.get_version(some_json)
    if(version == "MY_APP_V_1.0"):
         workflow = serializer.deserialize_json(some_json)
