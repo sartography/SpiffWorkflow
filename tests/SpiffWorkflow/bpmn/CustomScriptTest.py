@@ -6,12 +6,14 @@
 import os
 import unittest
 
+from SpiffWorkflow import Task
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.exceptions import WorkflowTaskExecException
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-__author__ = 'matth'
+__author__ = 'McDonald, danfunk'
 
 def my_custom_function(txt):
     return str(txt).upper()
@@ -52,6 +54,17 @@ class CustomInlineScriptTest(BpmnWorkflowTestCase):
         self.assertEqual(data['c1'], 'HELLO')
         self.assertEqual(data['c2'], 'GOODBYE')
         self.assertEqual(data['c3'], 'ARRIVEDERCI')
+
+    def test_overwrite_function_with_local_variable(self):
+        script_engine = CustomBpmnScriptEngine()
+        self.workflow = BpmnWorkflow(self.spec,script_engine=script_engine)
+        ready_task = self.workflow.get_tasks(Task.READY)[0]
+        ready_task.data = {'custom_function': "bill"}
+        with self.assertRaises(WorkflowTaskExecException) as e:
+            self.workflow.do_engine_steps()
+        self.assertTrue('' in str(e.exception))
+        self.assertTrue('custom_function' in str(e.exception))
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(CustomInlineScriptTest)

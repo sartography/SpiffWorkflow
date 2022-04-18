@@ -244,13 +244,13 @@ class PythonScriptEngine(object):
         """
         if external_methods is None:
             external_methods = {}
-        globals = copy.copy(self.globals)
-
+        my_globals = copy.copy(self.globals)
+        self.check_for_overwrite(task, my_globals, external_methods, data)
         self.convertToBox(data)
-        globals.update(data)
-        globals.update(external_methods)
+        my_globals.update(data)
+        my_globals.update(external_methods)
         try:
-            exec(script, globals, data)
+            exec(script, my_globals, data)
         except WorkflowTaskExecException as wte:
             raise wte  # Something lower down is already raising a detailed error
         except Exception as err:
@@ -270,3 +270,15 @@ class PythonScriptEngine(object):
             raise WorkflowTaskExecException(task, detail, err, line_number,
                                             error_line)
 
+    def check_for_overwrite(self, task, my_globals, more_methods, data):
+        """It's possible that someone will define a variable with the
+        same name as a pre-defined script, rending the script un-callable.
+        This results in a nearly indecipherable error.  Better to fail
+        fast with a sensible error message."""
+        func_overwrites = set(my_globals).intersection(data)
+        func_overwrites.update(set(more_methods).intersection(data))
+        if len(func_overwrites) > 0:
+            msg = f"You have task data that overwrites a predefined " \
+                  f"function(s). Please change the following variable or " \
+                  f"field name(s) to something else: {func_overwrites}"
+            raise WorkflowTaskExecException(task, msg)
