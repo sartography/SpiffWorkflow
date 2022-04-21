@@ -21,7 +21,7 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
         self.spec = self.load_spec()
 
     def load_spec(self):
-        return self.load_workflow_spec('too_many_loops.bpmn', 'loops')
+        return self.load_workflow_spec('too_many_loops*.bpmn', 'loops')
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -48,7 +48,7 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
         # Found an issue where looping back would fail when it happens
         # right after a sub-process.  So assuring this is fixed.
         counter = 0
-        spec = self.load_workflow_spec('too_many_loops_sub_process.bpmn', 'loops')
+        spec = self.load_workflow_spec('too_many_loops_sub_process.bpmn', 'loops_sub')
         self.workflow = BpmnWorkflow(spec,script_engine=PythonScriptEngine())
         data = {}
         while not self.workflow.is_completed():
