@@ -200,7 +200,10 @@ class MessageEventDefinition(NamedEventDefinition):
             result_var = f'{my_task.task_spec.name}_Response'
         else:
             result_var = event_definition.result_var
-        my_task.internal_data[event_definition.name] = result_var, event_definition.payload
+        my_task.internal_data[event_definition.name] = {
+            "result_var": result_var,
+            "payload": event_definition.payload
+        }
         super(MessageEventDefinition, self).catch(my_task, event_definition)
 
     def throw(self, my_task):

@@ -400,9 +400,10 @@ class TaskSpec(object):
                 my_task.task_spec.__class__.__name__,
                 my_task.get_name(), my_task.get_description()))
 
+        # We have to set the last task here, because the on_complete_hook
+        # of a loopback task may overwrite what the last_task will be.
+        my_task.workflow.last_task = my_task
         self._on_complete_hook(my_task)
-
-        # Notify the Workflow.
         my_task.workflow._task_completed_notify(my_task)
 
         if my_task.workflow.debug:

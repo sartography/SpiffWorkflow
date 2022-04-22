@@ -448,7 +448,7 @@ class MultiInstanceTask(TaskSpec):
             runtimesvar = runtimes
 
         if self.elementVar in my_task.data and isinstance(my_task.data[self.elementVar], dict):
-            collect[runtimesvar] = DeepMerge.merge(collect.get(runtimesvar, {}),
+            collect[str(runtimesvar)] = DeepMerge.merge(collect.get(runtimesvar, {}),
                                                    copy.copy(my_task.data[self.elementVar]))
 
         LOG.debug(my_task.task_spec.name + 'complete hook')

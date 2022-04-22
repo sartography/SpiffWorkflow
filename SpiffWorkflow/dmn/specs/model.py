@@ -116,16 +116,12 @@ class OutputEntry:
         out['output'] = self.output.serialize()
         out['description'] = self.description
         out['text'] = self.text
-        if hasattr(self,'parsedRef'):
-            out['parsedRef'] = self.parsedRef
         return out
 
     def deserialize(self, indict):
         self.id = indict['id']
         self.description = indict['description']
         self.text = indict['text']
-        if 'parsedRef' in indict:
-            self.parsedRef = indict['parsedRef']
         self.output = Output(**indict['output'])
 
 
@@ -160,8 +156,8 @@ class Rule:
         for outputEntry in self.outputEntries:
             # try to use the id, but fall back to label if no name is provided.
             key = outputEntry.output.name or outputEntry.output.label
-            if hasattr(outputEntry, "parsedRef"):
-                outvalue = script_engine.evaluate(task, outputEntry.parsedRef)
+            if hasattr(outputEntry, "text") and outputEntry.text:
+                outvalue = script_engine.evaluate(task, outputEntry.text)
             else:
                 outvalue = ""
             if '.' in key:         # we need to allow for dot notation in the DMN -

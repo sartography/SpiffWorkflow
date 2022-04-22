@@ -7,6 +7,7 @@ from ..specs.SubWorkflowTask import SubWorkflowTask
 from ..specs.MultiInstanceTask import MultiInstanceTask, getDynamicMIClass
 from ..specs.BpmnSpecMixin import BpmnSpecMixin
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
+from ..workflow import BpmnWorkflow
 
 from ...operators import Attrib, PathAttrib
 from ...specs.WorkflowSpec import WorkflowSpec
@@ -20,7 +21,7 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
 
     def multi_instance_to_dict(self, spec):
 
-        # This is a hot mess, but I don't know how else to deal with the dynamically 
+        # This is a hot mess, but I don't know how else to deal with the dynamically
         # generated classes.  Why do we use them?
         classname = spec.prevtaskclass
         registered = dict((f'{c.__module__}.{c.__name__}', c) for c in self.typenames)
@@ -113,6 +114,9 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
                 task_dict = self.convert(task_spec)
             if isinstance(task_spec, SubWorkflowTask):
                 task_dict['spec'] = self.convert(task_spec.spec)
+#                task_dict['sub_workflow'] = None
+#                if isinstance(task_spec.sub_workflow, BpmnWorkflow):
+#                    task_dict['sub_workflow'] = task_spec.sub_workflow.name
                 task_dict['sub_workflow'] = task_spec.sub_workflow.name if task_spec.sub_workflow is not None else None
             self.convert_task_spec_extensions(task_spec, task_dict)
             dct['task_specs'][name] = task_dict
@@ -126,7 +130,7 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
         # the BPMN process spec doesn't pass it in, so we have to delete the auto generated Start task.
         del spec.task_specs['Start']
         spec.start = None
-        
+
         # These are also automatically created with a workflow and should be replaced
         del spec.task_specs['End']
         del spec.task_specs[f'{spec.name}.EndJoin']
@@ -153,10 +157,10 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
                 for flow in task_spec.outgoing_sequence_flows.values():
                     flow.target_task_spec = spec.get_task_spec_from_name(flow.target_task_spec)
                 for flow in task_spec.outgoing_sequence_flows_by_id.values():
-                    flow.target_task_spec = spec.get_task_spec_from_name(flow.target_task_spec)       
+                    flow.target_task_spec = spec.get_task_spec_from_name(flow.target_task_spec)
             if isinstance(task_spec, _BoundaryEventParent):
                 task_spec.main_child_task_spec = spec.get_task_spec_from_name(task_spec.main_child_task_spec)
             task_spec.inputs = [ spec.get_task_spec_from_name(name) for name in task_spec.inputs ]
             task_spec.outputs = [ spec.get_task_spec_from_name(name) for name in task_spec.outputs ]
-        
+
         return spec
