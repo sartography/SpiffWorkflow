@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from tests.SpiffWorkflow.util import run_workflow
 from .TaskSpecTest import TaskSpecTest
-from SpiffWorkflow import Task
+from SpiffWorkflow import TaskState
 from SpiffWorkflow.specs import Execute
 
 
@@ -41,10 +41,10 @@ class ExecuteTest(TaskSpecTest):
         expected = 'Start\n  testtask\n'
         workflow = run_workflow(self, self.wf_spec, expected, '')
         task = workflow.get_tasks_from_spec_name('testtask')[0]
-        self.assertEqual(task.state_history, [Task.FUTURE,
-                                              Task.WAITING,
-                                              Task.READY,
-                                              Task.COMPLETED])
+        self.assertEqual(task.state_history, [TaskState.FUTURE,
+                                              TaskState.WAITING,
+                                              TaskState.READY,
+                                              TaskState.COMPLETED])
         self.assertIn(b'127.0.0.1', task.results[0])
 
 

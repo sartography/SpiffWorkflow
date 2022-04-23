@@ -5,7 +5,7 @@
 import unittest
 import datetime
 import time
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -30,20 +30,20 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.do_next_exclusive_step('Do Something That Takes A Long Time')
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.save_restore()
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageInterruptSaveAndRestore(self):
 
@@ -54,23 +54,23 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.message('Test Message')
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(Task.WAITING)))
-        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Acknowledge Non-Interrupt Message')
         self.workflow.do_engine_steps()
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Do Something That Takes A Long Time')
         self.workflow.do_engine_steps()
@@ -78,7 +78,7 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughHappy(self):
 
@@ -87,17 +87,17 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
             'Select Test', choice='Message Non Interrupt')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.do_next_exclusive_step('Do Something That Takes A Long Time')
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageInterrupt(self):
 
@@ -106,26 +106,26 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
             'Select Test', choice='Message Non Interrupt')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.message('Test Message')
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(Task.WAITING)))
-        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Acknowledge Non-Interrupt Message')
 
         self.workflow.do_engine_steps()
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.do_next_named_step('Do Something That Takes A Long Time')
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageInterruptOtherOrder(self):
 
@@ -134,25 +134,25 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
             'Select Test', choice='Message Non Interrupt')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.message('Test Message')
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(Task.WAITING)))
-        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Do Something That Takes A Long Time')
 
         self.workflow.do_engine_steps()
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Acknowledge Non-Interrupt Message')
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageInterruptOtherOrderSaveAndRestore(self):
 
@@ -163,29 +163,29 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.message('Test Message')
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(Task.WAITING)))
-        self.assertEqual(2, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Do Something That Takes A Long Time')
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Acknowledge Non-Interrupt Message')
         self.save_restore()
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
 def suite():

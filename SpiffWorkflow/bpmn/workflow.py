@@ -18,7 +18,7 @@
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
 from .specs.events import CancelEventDefinition, MessageEventDefinition, SignalEventDefinition
-from ..task import Task
+from ..task import TaskState
 from ..workflow import Workflow
 
 
@@ -116,7 +116,7 @@ class BpmnWorkflow(Workflow):
         """
         assert not self.read_only
         engine_steps = list(
-            [t for t in self.get_tasks(Task.READY)
+            [t for t in self.get_tasks(TaskState.READY)
              if self._is_engine_task(t.task_spec)])
         while engine_steps:
             for task in engine_steps:
@@ -124,7 +124,7 @@ class BpmnWorkflow(Workflow):
                 if task.task_spec.name == exit_at:
                     return task
             engine_steps = list(
-                [t for t in self.get_tasks(Task.READY)
+                [t for t in self.get_tasks(TaskState.READY)
                  if self._is_engine_task(t.task_spec)])
 
     def refresh_waiting_tasks(self):
@@ -133,7 +133,7 @@ class BpmnWorkflow(Workflow):
         Catching Timer Events whose waiting time has passed.
         """
         assert not self.read_only
-        for my_task in self.get_tasks(Task.WAITING):
+        for my_task in self.get_tasks(TaskState.WAITING):
             my_task.task_spec._update(my_task)
 
     def get_ready_user_tasks(self,lane=None):
@@ -141,18 +141,18 @@ class BpmnWorkflow(Workflow):
         Returns a list of User Tasks that are READY for user action
         """
         if lane is not None:
-            return [t for t in self.get_tasks(Task.READY)
+            return [t for t in self.get_tasks(TaskState.READY)
                        if (not self._is_engine_task(t.task_spec))
                            and (t.task_spec.lane == lane)]
         else:
-            return [t for t in self.get_tasks(Task.READY)
+            return [t for t in self.get_tasks(TaskState.READY)
                        if not self._is_engine_task(t.task_spec)]
 
     def get_waiting_tasks(self):
         """
         Returns a list of all WAITING tasks
         """
-        return self.get_tasks(Task.WAITING)
+        return self.get_tasks(TaskState.WAITING)
 
     def get_catching_tasks(self):
         return [ task for task in self.get_tasks() if isinstance(task.task_spec, CatchingEvent) ]

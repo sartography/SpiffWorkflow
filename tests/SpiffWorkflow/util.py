@@ -3,7 +3,7 @@
 from builtins import str
 from builtins import range
 import time
-from SpiffWorkflow import Workflow, Task
+from SpiffWorkflow import Workflow, Task, TaskState
 
 
 def on_reached_cb(workflow, task, taken_path):
@@ -99,7 +99,7 @@ def run_workflow(test, wf_spec, expected_path, expected_data, workflow=None):
     test.assertTrue(workflow.is_completed(), workflow.task_tree.get_dump())
 
     # Make sure that there are no waiting tasks left in the tree.
-    for thetask in Task.Iterator(workflow.task_tree, Task.READY):
+    for thetask in Task.Iterator(workflow.task_tree, TaskState.READY):
         workflow.task_tree.dump()
         raise Exception('Task with state READY: %s' % thetask.name)
 

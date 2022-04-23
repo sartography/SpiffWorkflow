@@ -17,7 +17,7 @@ from builtins import range
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ..task import Task
+from ..task import TaskState
 from .base import TaskSpec
 from .ThreadStart import ThreadStart
 from ..operators import valueof
@@ -105,7 +105,7 @@ class ThreadSplit(TaskSpec):
         additional outbound task.
         """
         for output in self.outputs:
-            new_task = my_task.add_child(output, Task.READY)
+            new_task = my_task.add_child(output, TaskState.READY)
             new_task.triggered = True
 
     def _predict_hook(self, my_task):
@@ -120,9 +120,9 @@ class ThreadSplit(TaskSpec):
         for i in range(split_n):
             outputs.append(self.thread_starter)
         if my_task._is_definite():
-            my_task._sync_children(outputs, Task.FUTURE)
+            my_task._sync_children(outputs, TaskState.FUTURE)
         else:
-            my_task._sync_children(outputs, Task.LIKELY)
+            my_task._sync_children(outputs, TaskState.LIKELY)
 
     def _on_complete_hook(self, my_task):
         # Split, and remember the number of splits in the context data.
@@ -132,7 +132,7 @@ class ThreadSplit(TaskSpec):
         outputs = []
         for i in range(split_n):
             outputs.append(self.thread_starter)
-        my_task._sync_children(outputs, Task.FUTURE)
+        my_task._sync_children(outputs, TaskState.FUTURE)
         for child in my_task.children:
             child.task_spec._update(child)
 

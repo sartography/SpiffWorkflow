@@ -5,7 +5,7 @@
 import unittest
 import datetime
 import time
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -31,11 +31,11 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         self.workflow = BpmnWorkflow(self.spec)
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         ready_tasks[0].data['work_done'] = 'No'
         self.workflow.complete_task_from_id(ready_tasks[0].id)
@@ -46,7 +46,7 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         # we should terminate loop before that.
         starttime = datetime.datetime.now()
         while loopcount < 10:
-            ready_tasks = self.workflow.get_tasks(Task.READY)
+            ready_tasks = self.workflow.get_tasks(TaskState.READY)
             if len(ready_tasks) > 1:
                 break
             if save_restore: self.save_restore()
@@ -71,7 +71,7 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
             self.workflow.complete_task_from_id(task.id)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         ready_tasks[0].data['experience'] = 'Great!'
         self.workflow.complete_task_from_id(ready_tasks[0].id)

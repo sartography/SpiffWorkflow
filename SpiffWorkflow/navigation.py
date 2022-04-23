@@ -10,7 +10,7 @@ from .bpmn.specs.ScriptTask import ScriptTask
 from .bpmn.specs.UserTask import UserTask
 from .dmn.specs.BusinessRuleTask import BusinessRuleTask
 from .specs import CancelTask, StartTask
-from .task import Task
+from .task import TaskStateNames, TaskState
 from .bpmn.specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
 from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
 from .bpmn.specs.MultiInstanceTask import MultiInstanceTask
@@ -209,9 +209,9 @@ def get_flat_nav_list(workflow):
                 # the first ready task,
                 # if available, then fall back to the last completed task.
                 ready_task = next((t for t in tasks
-                                   if t.state == Task.READY), None)
+                                   if t.state == TaskState.READY), None)
                 comp_task = next((t for t in reversed(tasks)
-                                  if t.state == Task.COMPLETED), None)
+                                  if t.state == TaskState.COMPLETED), None)
                 if ready_task:
                     task = ready_task
                 elif comp_task:
@@ -219,7 +219,7 @@ def get_flat_nav_list(workflow):
                 else:
                     task = tasks[0]  # Not sure what else to do here yet.
             used_tasks.add(task)
-            nav_item.state = task.state_names[task.state]
+            nav_item.state = TaskStateNames[task.state]
             nav_item.task_id = task.id
 
     return nav_items

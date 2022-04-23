@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.specs import WorkflowSpec, Simple, Join
 from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.workflow import Workflow
 
 
@@ -39,7 +39,7 @@ class TaskSpecTest(unittest.TestCase):
     def do_next_unique_task(self, name):
         # This method asserts that there is only one ready task! The specified
         # one - and then completes it
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         task = ready_tasks[0]
         self.assertEqual(name, task.task_spec.name)
@@ -48,7 +48,7 @@ class TaskSpecTest(unittest.TestCase):
     def do_next_named_step(self, name, other_ready_tasks):
         # This method completes a single task from the specified set of ready
         # tasks
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         all_tasks = sorted([name] + other_ready_tasks)
         self.assertEqual(
             all_tasks, sorted([t.task_spec.name for t in ready_tasks]))

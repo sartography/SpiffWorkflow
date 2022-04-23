@@ -16,7 +16,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ..task import Task
+from ..task import TaskState
 from ..exceptions import WorkflowException
 from ..operators import valueof
 from ..specs import Join
@@ -53,9 +53,9 @@ class ThreadMerge(Join):
 
     def _start(self, my_task):
         # If the threshold was already reached, there is nothing else to do.
-        if my_task._has_state(Task.COMPLETED):
+        if my_task._has_state(TaskState.COMPLETED):
             return False
-        if my_task._has_state(Task.READY):
+        if my_task._has_state(TaskState.READY):
             return True
 
         # Retrieve a list of all activated tasks from the associated
@@ -100,7 +100,7 @@ class ThreadMerge(Join):
 
     def _update_hook(self, my_task):
         if not self._start(my_task):
-            my_task._set_state(Task.WAITING)
+            my_task._set_state(TaskState.WAITING)
             return
 
         split_task_spec = my_task.workflow.get_task_spec_from_name(
@@ -126,7 +126,7 @@ class ThreadMerge(Join):
                 self.entered_event.emit(my_task.workflow, my_task)
                 task._ready()
             else:
-                task._set_state(Task.COMPLETED)
+                task._set_state(TaskState.COMPLETED)
                 task._drop_children()
 
     def serialize(self, serializer):

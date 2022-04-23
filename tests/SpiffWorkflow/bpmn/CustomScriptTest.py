@@ -6,7 +6,7 @@
 import os
 import unittest
 
-from SpiffWorkflow import Task
+from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -58,7 +58,7 @@ class CustomInlineScriptTest(BpmnWorkflowTestCase):
     def test_overwrite_function_with_local_variable(self):
         script_engine = CustomBpmnScriptEngine()
         self.workflow = BpmnWorkflow(self.spec,script_engine=script_engine)
-        ready_task = self.workflow.get_tasks(Task.READY)[0]
+        ready_task = self.workflow.get_tasks(TaskState.READY)[0]
         ready_task.data = {'custom_function': "bill"}
         with self.assertRaises(WorkflowTaskExecException) as e:
             self.workflow.do_engine_steps()

@@ -19,7 +19,7 @@
 import logging
 import json
 
-from ..task import Task
+from ..task import TaskState
 from ..exceptions import WorkflowException
 from .base import TaskSpec
 from ..operators import valueof, Attrib, PathAttrib
@@ -144,7 +144,7 @@ class Celery(TaskSpec):
 
     def _restart(self, my_task):
         """ Abort celery task and retry it"""
-        if not my_task._has_state(Task.WAITING):
+        if not my_task._has_state(TaskState.WAITING):
             raise WorkflowException(my_task, "Cannot refire a task that is not"
                                     "in WAITING state")
         # Check state of existing call and abort it (save history)
@@ -248,9 +248,9 @@ class Celery(TaskSpec):
 
     def _update_hook(self, my_task):
         if not self._start(my_task):
-            if not my_task._has_state(Task.WAITING):
+            if not my_task._has_state(TaskState.WAITING):
                 LOG.debug("'%s' going to WAITING state" % my_task.get_name())
-                my_task._set_state(Task.WAITING)
+                my_task._set_state(TaskState.WAITING)
             return
         super(Celery, self)._update_hook(my_task)
 

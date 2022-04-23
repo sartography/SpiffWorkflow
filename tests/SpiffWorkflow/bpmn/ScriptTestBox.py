@@ -3,7 +3,6 @@
 
 
 import unittest
-from SpiffWorkflow.task import Task
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

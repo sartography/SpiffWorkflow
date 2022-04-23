@@ -19,7 +19,7 @@
 
 from .event_types import CatchingEvent
 from .event_definitions import CycleTimerEventDefinition
-from ....task import Task
+from ....task import TaskState
 
 
 class StartEvent(CatchingEvent):
@@ -32,9 +32,9 @@ class StartEvent(CatchingEvent):
 
         # We might need to revisit a start event after it completes or
         # if it got cancelled so we'll still catch messages even if we're finished
-        if my_task.state == Task.COMPLETED or my_task.state == Task.CANCELLED:
+        if my_task.state == TaskState.COMPLETED or my_task.state == TaskState.CANCELLED:
             my_task.set_children_future()
-            my_task._set_state(Task.WAITING)
+            my_task._set_state(TaskState.WAITING)
 
         super(StartEvent, self).catch(my_task, source_task)
 

@@ -16,7 +16,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ..task import Task
+from ..task import TaskState
 from .base import TaskSpec
 
 
@@ -57,8 +57,8 @@ class Gate(TaskSpec):
         for task in root_task._find_any(context_task):
             if task.thread_id != my_task.thread_id:
                 continue
-            if not task._has_state(Task.COMPLETED):
-                my_task._set_state(Task.WAITING)
+            if not task._has_state(TaskState.COMPLETED):
+                my_task._set_state(TaskState.WAITING)
                 return
         super(Gate, self)._update_hook(my_task)
 

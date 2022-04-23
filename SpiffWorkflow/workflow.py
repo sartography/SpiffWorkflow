@@ -20,7 +20,7 @@ from builtins import object
 import logging
 from . import specs
 from .specs.LoopResetTask import LoopResetTask
-from .task import Task
+from .task import Task, TaskState
 from .util.compat import mutex
 from .util.event import Event
 from .exceptions import WorkflowException
@@ -72,8 +72,8 @@ class Workflow(object):
         self.completed_event = Event()
 
         # Prevent the root task from being executed.
-        self.task_tree.state = Task.COMPLETED
-        start = self.task_tree._add_child(self.spec.start, state=Task.FUTURE)
+        self.task_tree.state = TaskState.COMPLETED
+        start = self.task_tree._add_child(self.spec.start, state=TaskState.FUTURE)
 
         self.spec.start._predict(start)
         if 'parent' not in kwargs:
@@ -89,7 +89,7 @@ class Workflow(object):
         :rtype: bool
         :return: Whether the workflow is completed.
         """
-        mask = Task.NOT_FINISHED_MASK
+        mask = TaskState.NOT_FINISHED_MASK
         iter = Task.Iterator(self.task_tree, mask)
         try:
             nexttask = next(iter)
@@ -99,7 +99,7 @@ class Workflow(object):
         return False
 
     def _get_waiting_tasks(self):
-        waiting = Task.Iterator(self.task_tree, Task.WAITING)
+        waiting = Task.Iterator(self.task_tree, TaskState.WAITING)
         return [w for w in waiting]
 
     def _task_completed_notify(self, task):
@@ -167,7 +167,7 @@ class Workflow(object):
         """
         self.success = success
         cancel = []
-        mask = Task.NOT_FINISHED_MASK
+        mask = TaskState.NOT_FINISHED_MASK
         for task in Task.Iterator(self.task_tree, mask):
             cancel.append(task)
         for task in cancel:
@@ -240,7 +240,7 @@ class Workflow(object):
         from . import navigation
         return navigation.get_deep_nav_list(self)
 
-    def get_tasks(self, state=Task.ANY_MASK):
+    def get_tasks(self, state=TaskState.ANY_MASK):
         """
         Returns a list of Task objects with the given state.
 
@@ -283,7 +283,7 @@ class Workflow(object):
                                  destination.task_spec.name)
         return spec
 
-    def get_tasks_iterator(self, state=Task.ANY_MASK):
+    def get_tasks_iterator(self, state=TaskState.ANY_MASK):
         """
         Returns a iterator of Task objects with the given state.
 
@@ -330,7 +330,7 @@ class Workflow(object):
         blacklist = []
         if pick_up and self.last_task is not None:
             try:
-                iter = Task.Iterator(self.last_task, Task.READY)
+                iter = Task.Iterator(self.last_task, TaskState.READY)
                 task = next(iter)
             except StopIteration:
                 task = None
@@ -343,7 +343,7 @@ class Workflow(object):
                 blacklist.append(task)
 
         # Walk through all ready tasks.
-        for task in Task.Iterator(self.task_tree, Task.READY):
+        for task in Task.Iterator(self.task_tree, TaskState.READY):
             for blacklisted_task in blacklist:
                 if task._is_descendant_of(blacklisted_task):
                     continue
@@ -354,9 +354,9 @@ class Workflow(object):
             blacklist.append(task)
 
         # Walk through all waiting tasks.
-        for task in Task.Iterator(self.task_tree, Task.WAITING):
+        for task in Task.Iterator(self.task_tree, TaskState.WAITING):
             task.task_spec._update(task)
-            if not task._has_state(Task.WAITING):
+            if not task._has_state(TaskState.WAITING):
                 self.last_task = task
                 return True
         return False

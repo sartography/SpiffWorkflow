@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 import logging
-from ...task import Task
+from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
 from ...specs.Simple import Simple
 from ...specs.WorkflowSpec import WorkflowSpec
@@ -31,7 +31,7 @@ class _EndJoin(UnstructuredJoin):
         # Look at the tree to find all ready and waiting tasks (excluding
         # ourself). The EndJoin waits for everyone!
         waiting_tasks = []
-        for task in my_task.workflow.get_tasks(Task.READY | Task.WAITING):
+        for task in my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING):
             if task.thread_id != my_task.thread_id:
                 continue
             if task.task_spec == my_task.task_spec:
@@ -52,7 +52,7 @@ class _EndJoin(UnstructuredJoin):
             LOG.debug(
                 'Endjoin Task ready: %s (ready/waiting tasks: %s)',
                 my_task,
-                list(my_task.workflow.get_tasks(Task.READY | Task.WAITING)))
+                list(my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
         return force or len(waiting_tasks) == 0, waiting_tasks
 

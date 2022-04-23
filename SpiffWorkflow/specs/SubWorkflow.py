@@ -20,7 +20,7 @@ import os
 
 from . import StartTask
 from .base import TaskSpec
-from ..task import Task
+from ..task import TaskState
 from ..exceptions import WorkflowException
 from ..operators import valueof
 
@@ -81,7 +81,7 @@ class SubWorkflow(TaskSpec):
             if output not in outputs:
                 outputs.insert(0, output)
         if my_task._is_definite():
-            my_task._sync_children(outputs, Task.FUTURE)
+            my_task._sync_children(outputs, TaskState.FUTURE)
         else:
             my_task._sync_children(outputs, my_task.state)
 
@@ -107,7 +107,7 @@ class SubWorkflow(TaskSpec):
 
     def _integrate_subworkflow_tree(self, my_task, subworkflow):
         # Integrate the tree of the subworkflow into the tree of this workflow.
-        my_task._sync_children(self.outputs, Task.FUTURE)
+        my_task._sync_children(self.outputs, TaskState.FUTURE)
         for child in my_task.children:
             child.task_spec._update(child)
             child._inherit_data()

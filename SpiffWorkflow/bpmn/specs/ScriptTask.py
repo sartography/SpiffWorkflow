@@ -21,7 +21,7 @@ import logging
 from ... import WorkflowException
 
 from .BpmnSpecMixin import BpmnSpecMixin
-from ...task import Task
+from ...task import TaskState
 from ...specs.Simple import Simple
 from ...exceptions import WorkflowTaskExecException
 
@@ -55,7 +55,7 @@ class ScriptTask(Simple, BpmnSpecMixin):
             # set state to WAITING (because it is definitely not COMPLETED)
             # and raise WorkflowException pointing to this task because
             # maybe upstream someone will be able to handle this situation
-            task._setstate(Task.WAITING, force=True)
+            task._setstate(TaskState.WAITING, force=True)
             if isinstance(e, WorkflowTaskExecException):
                 raise e
             else:

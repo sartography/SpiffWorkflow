@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.serializer.dict import DictionarySerializer
 
@@ -47,15 +47,15 @@ class PersistSmallWorkflowTest(unittest.TestCase):
     def _advance_to_a1(self, wf_spec):
         workflow = Workflow(wf_spec)
 
-        tasks = workflow.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(TaskState.READY)
         task_start = tasks[0]
         workflow.complete_task_from_id(task_start.id)
 
-        tasks = workflow.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(TaskState.READY)
         multichoice = tasks[0]
         workflow.complete_task_from_id(multichoice.id)
 
-        tasks = workflow.get_tasks(Task.READY)
+        tasks = workflow.get_tasks(TaskState.READY)
         task_a1 = tasks[0]
         workflow.complete_task_from_id(task_a1.id)
         return workflow

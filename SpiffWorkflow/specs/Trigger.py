@@ -17,7 +17,7 @@ from builtins import range
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ..task import Task
+from ..task import Task, TaskState
 from .base import TaskSpec
 from ..operators import valueof
 
@@ -69,8 +69,8 @@ class Trigger(TaskSpec):
             if thetask.thread_id != my_task.thread_id:
                 continue
             if (thetask.task_spec == self and
-                    thetask._has_state(Task.COMPLETED)):
-                thetask._set_state(Task.FUTURE, True)
+                    thetask._has_state(TaskState.COMPLETED)):
+                thetask._set_state(TaskState.FUTURE, True)
                 thetask._ready()
 
     def _on_complete_hook(self, my_task):

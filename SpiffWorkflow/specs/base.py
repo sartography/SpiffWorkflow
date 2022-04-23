@@ -23,7 +23,7 @@ import logging
 from abc import abstractmethod
 
 from ..util.event import Event
-from ..task import Task
+from ..task import Task, TaskState
 from ..exceptions import WorkflowException
 
 
@@ -266,7 +266,7 @@ class TaskSpec(object):
         # for all it's outputs.
         # Otherwise, copy my own state to the children.
         if my_task._is_definite():
-            best_state = Task.FUTURE
+            best_state = TaskState.FUTURE
         else:
             best_state = my_task.state
 

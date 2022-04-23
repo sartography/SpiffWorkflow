@@ -23,7 +23,7 @@ from builtins import object
 from collections import deque
 import json
 import logging
-from ...task import Task
+from ...task import TaskState
 from ...specs import SubWorkflow
 from ...serializer.base import Serializer
 from ..workflow import BpmnWorkflow
@@ -163,7 +163,7 @@ class _BpmnProcessSpecState(object):
         for task in sorted(
                 leaf_tasks,
                 key=lambda t: 0 if getattr(
-                    t, '_bpmn_load_target_state', Task.READY) == Task.READY
+                    t, '_bpmn_load_target_state', TaskState.READY) == TaskState.READY
                 else 1):
             task.task_spec._update(task)
             task._inherit_data()
@@ -197,7 +197,7 @@ class _BpmnProcessSpecState(object):
         # being called, and targeting a specific subset of the children
         if task._is_finished():
             return
-        task._set_state(Task.COMPLETED)
+        task._set_state(TaskState.COMPLETED)
 
         task.children = []
         for task_spec in target_children_specs:
@@ -219,7 +219,7 @@ class _BpmnProcessSpecState(object):
         # Create the children (these are the tasks that follow the subworkflow,
         # on completion:
         my_task.children = []
-        my_task._sync_children(my_task.task_spec.outputs, Task.FUTURE)
+        my_task._sync_children(my_task.task_spec.outputs, TaskState.FUTURE)
         for t in my_task.children:
             t.task_spec._predict(t)
 
@@ -231,7 +231,7 @@ class _BpmnProcessSpecState(object):
 
         my_task._set_internal_data(subworkflow=subworkflow)
 
-        my_task._set_state(Task.COMPLETED)
+        my_task._set_state(TaskState.COMPLETED)
 
     def _merge_routes(self, target, src):
         assert target.task_spec == src.task_spec
@@ -377,7 +377,7 @@ class CompactWorkflowSerializer(Serializer):
         return BpmnWorkflow(workflow_spec, read_only=read_only, **kwargs)
 
     def _get_workflow_state(self, workflow):
-        active_tasks = workflow.get_tasks(state=(Task.READY | Task.WAITING))
+        active_tasks = workflow.get_tasks(state=(TaskState.READY | TaskState.WAITING))
         states = []
 
         for task in active_tasks:
@@ -389,7 +389,7 @@ class CompactWorkflowSerializer(Serializer):
             while w.outer_workflow and w.outer_workflow != w:
                 workflow_parents.append(w.name)
                 w = w.outer_workflow
-            state = ("W" if task.state == Task.WAITING else "R")
+            state = ("W" if task.state == TaskState.WAITING else "R")
             states.append(
                 [transition, list(reversed(workflow_parents)), state])
 
@@ -423,8 +423,8 @@ class CompactWorkflowSerializer(Serializer):
                 state = [str(state)]
             transition = state[0]
             workflow_parents = state[1] if len(state) > 1 else []
-            state = (Task.WAITING if len(state) >
-                     2 and state[2] == 'W' else Task.READY)
+            state = (TaskState.WAITING if len(state) >
+                     2 and state[2] == 'W' else TaskState.READY)
 
             route, route_to_parent_complete = s.get_path_to_transition(
                 transition, state, workflow_parents)
