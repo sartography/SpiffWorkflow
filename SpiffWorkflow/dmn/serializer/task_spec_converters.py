@@ -29,7 +29,7 @@ class BusinessRuleTaskConverter(BpmnTaskSpecConverter):
     def input_entry_to_dict(self, entry):
         return {
             'id': entry.id,
-            'input': entry.input.__dict__,
+            'input_id': entry.input.id,
             'description': entry.description,
             'lhs': entry.lhs,
         }
@@ -37,13 +37,10 @@ class BusinessRuleTaskConverter(BpmnTaskSpecConverter):
     def output_entry_to_dict(self, entry):
         dct = {
             'id': entry.id,
-            'output': entry.output.__dict__,
+            'output_id': entry.output.id,
             'description': entry.description,
             'text': entry.text,
         }
-        # Why do we have attributes that aren't defined in __init__??
-        if hasattr(entry, 'parsedRef'):
-            dct['parsed_ref'] = entry.parsedRef
         return dct
 
     def rule_to_dict(self, rule):
@@ -61,30 +58,39 @@ class BusinessRuleTaskConverter(BpmnTaskSpecConverter):
 
     def decision_table_from_dict(self, dct):
         table = DecisionTable(dct['id'], dct['name'])
-        table.inputs = [ Input(**val) for val in dct['inputs'] ]    
+        table.inputs = [ Input(**val) for val in dct['inputs'] ]
         table.outputs = [ Output(**val) for val in dct['outputs'] ]
-        table.rules = [ self.rule_from_dict(rule) for rule in dct['rules'] ]
+        table.rules = [ self.rule_from_dict(rule, table.inputs, table.outputs)
+                        for rule in dct['rules'] ]
         return table
 
-    def input_entry_from_dict(self, dct):
-        val = Input(**dct.pop('input'))
-        entry = InputEntry(dct['id'], val)
+    def input_entry_from_dict(self, dct, inputs):
+        input_id = dct.pop('input_id')
+        my_input = None
+        for i in inputs:
+            if i.id == input_id:
+                my_input = i
+        entry = InputEntry(dct['id'], my_input)
         entry.description = dct['description']
         entry.lhs = dct['lhs']
         return entry
 
-    def output_entry_from_dict(self, dct):
-        val = Output(**dct.pop('output'))
-        entry = OutputEntry(dct['id'], val)
+    def output_entry_from_dict(self, dct, outputs):
+        output_id = dct['output_id']
+        my_output = None
+        for i in outputs:
+            if i.id == output_id:
+                my_output = i
+        entry = OutputEntry(dct['id'], my_output)
         entry.description = dct['description']
         entry.text = dct['text']
-        if 'parsed_ref' in dct:
-            entry.parsedRef = dct['parsed_ref']
         return entry
 
-    def rule_from_dict(self, dct):
+    def rule_from_dict(self, dct, inputs, outputs):
         rule = Rule(dct['id'])
         rule.description = dct['description']
-        rule.inputEntries = [ self.input_entry_from_dict(entry) for entry in dct['input_entries'] ]
-        rule.outputEntries = [ self.output_entry_from_dict(entry) for entry in dct['output_entries'] ]
+        rule.inputEntries = [self.input_entry_from_dict(entry, inputs)
+                             for entry in dct['input_entries']]
+        rule.outputEntries = [self.output_entry_from_dict(entry, outputs)
+                              for entry in dct['output_entries']]
         return rule

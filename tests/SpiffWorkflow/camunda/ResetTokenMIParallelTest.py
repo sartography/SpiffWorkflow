@@ -57,7 +57,7 @@ class ResetTokenTestMIParallel(BaseTestCase):
 
         self.assertEqual({'current': {'A': 'y'},
                           'do_step': 'Yes',
-                          'output': {1: {'A': 'x'}, 2: {'A': 'y'}, 3: {'A': 'z'}}},
+                          'output': {'1': {'A': 'x'}, '2': {'A': 'y'}, '3': {'A': 'z'}}},
                          self.workflow.last_task.data)
 
         self.workflow.reset_task_from_id(firsttaskid)
@@ -80,9 +80,9 @@ class ResetTokenTestMIParallel(BaseTestCase):
         self.assertEqual({'current': {'A': 'x'},
                           'do_step': 'Yes',
                           'C': 'c',
-                          'output': {1: {'A': 'a1'},
-                                     2: {'A': 'y'},
-                                     3: {'A': 'z'}}},
+                          'output': {'1': {'A': 'a1'},
+                                     '2': {'A': 'y'},
+                                     '3': {'A': 'z'}}},
                          self.workflow.last_task.data)
 
 

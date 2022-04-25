@@ -77,9 +77,9 @@ class ResetTokenTestMI(BaseTestCase):
 
         self.assertTrue(self.workflow.is_completed())
         self.assertEqual({'do_step': 'Yes',
-                          'output': {1: {'A': 'a1'},
-                                     2: {'A': 'a2'},
-                                     3: {'A': 'a3'}},
+                          'output': {'1': {'A': 'a1'},
+                                     '2': {'A': 'a2'},
+                                     '3': {'A': 'a3'}},
                           'C': 'c'},
                          self.workflow.last_task.data)
 

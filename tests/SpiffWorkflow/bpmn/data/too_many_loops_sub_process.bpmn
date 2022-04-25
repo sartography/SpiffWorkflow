@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_d4f3442" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.10.0">
-  <bpmn:process id="loops" isExecutable="true">
+  <bpmn:process id="loops_sub" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0q7fkb7</bpmn:outgoing>
     </bpmn:startEvent>
@@ -71,7 +71,7 @@ counter3 = 0</bpmn:script>
     </bpmn:subProcess>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="loops">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="loops_sub">
       <bpmndi:BPMNEdge id="Flow_1ivr6d7_di" bpmnElement="Flow_1ivr6d7">
         <di:waypoint x="490" y="310" />
         <di:waypoint x="430" y="310" />
@@ -89,6 +89,13 @@ counter3 = 0</bpmn:script>
           <dc:Bounds x="863" y="292" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1tj9oz1_di" bpmnElement="Flow_1tj9oz1">
+        <di:waypoint x="945" y="127" />
+        <di:waypoint x="1072" y="127" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="958" y="109" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1gb8wca_di" bpmnElement="Flow_1gb8wca">
         <di:waypoint x="448" y="127" />
         <di:waypoint x="625" y="127" />
@@ -101,15 +108,14 @@ counter3 = 0</bpmn:script>
         <di:waypoint x="188" y="127" />
         <di:waypoint x="250" y="127" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1tj9oz1_di" bpmnElement="Flow_1tj9oz1">
-        <di:waypoint x="945" y="127" />
-        <di:waypoint x="1072" y="127" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="958" y="109" width="19" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="109" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1fgfg5d_di" bpmnElement="increment_counter">
+        <dc:Bounds x="625" y="87" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1tseamj_di" bpmnElement="end_event5">
+        <dc:Bounds x="1072" y="109" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0whindt_di" bpmnElement="TIMER_EVENT">
         <dc:Bounds x="412" y="109" width="36" height="36" />
@@ -117,20 +123,14 @@ counter3 = 0</bpmn:script>
           <dc:Bounds x="419" y="85" width="22" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0whalo9_di" bpmnElement="initialize">
-        <dc:Bounds x="250" y="87" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1tseamj_di" bpmnElement="end_event5">
-        <dc:Bounds x="1072" y="109" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0gr4bqq_di" bpmnElement="Gateway_over_20" isMarkerVisible="true">
         <dc:Bounds x="895" y="102" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="908" y="159" width="33" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1fgfg5d_di" bpmnElement="increment_counter">
-        <dc:Bounds x="625" y="87" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0whalo9_di" bpmnElement="initialize">
+        <dc:Bounds x="250" y="87" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0v3bik3_di" bpmnElement="my_sub_process" isExpanded="true">
         <dc:Bounds x="490" y="210" width="350" height="200" />

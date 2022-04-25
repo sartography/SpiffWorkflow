@@ -190,7 +190,6 @@ class DMNParser(object):
             if entry.text and entry.text != '':
                 try:
                     ast.parse(entry.text)
-                    entry.parsedRef = entry.text
                 except:
                     raise Exception("Malformed Output Expression '%s' " % entry.text)
         return entry

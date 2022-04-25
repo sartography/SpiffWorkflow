@@ -68,8 +68,8 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         if isinstance(self.event_definition, MessageEventDefinition):
             # If we are a message event, then we need to copy the event data out of
             # our internal data and into the task data
-            result_var, result = my_task.internal_data[self.event_definition.name]
-            my_task.data[result_var] = result
+            event_data = my_task.internal_data[self.event_definition.name]
+            my_task.data[event_data['result_var']] = event_data['payload']
         self.event_definition.reset(my_task)
         super(CatchingEvent, self)._on_complete_hook(my_task)
 

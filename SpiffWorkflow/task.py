@@ -298,6 +298,7 @@ class Task(object):
             return
 
         if isinstance(self.task_spec,SubWorkflowTask):
+            self.task_spec.sub_workflow = None
             self.children = [] # if we have a call activity,
                                # force reset of children.
 

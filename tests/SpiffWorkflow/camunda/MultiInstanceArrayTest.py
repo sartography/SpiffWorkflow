@@ -84,9 +84,9 @@ class MultiInstanceArrayTest(BaseTestCase):
             if save_restore: self.save_restore()
             self.workflow.do_engine_steps()
 
-        self.assertEqual({1: {'FirstName': 'The Funk #0'},
-                          2: {'FirstName': 'The Funk #1'},
-                          3: {'FirstName': 'The Funk #2'}},
+        self.assertEqual({'1': {'FirstName': 'The Funk #0'},
+                          '2': {'FirstName': 'The Funk #1'},
+                          '3': {'FirstName': 'The Funk #2'}},
                          task.data["Family"]["Members"])
         #### NB - start here
         ###  Data is not correctly getting to the next task upon complete of the last task
@@ -111,9 +111,9 @@ class MultiInstanceArrayTest(BaseTestCase):
         if save_restore: self.save_restore()
         self.assertTrue(self.workflow.is_completed())
 
-        self.assertEqual({1: {'FirstName': 'The Funk #0', "Birthdate": "10/00/1985"},
-                          2: {'FirstName': 'The Funk #1', "Birthdate": "10/01/1985"},
-                          3: {'FirstName': 'The Funk #2', "Birthdate": "10/02/1985"}},
+        self.assertEqual({'1': {'FirstName': 'The Funk #0', "Birthdate": "10/00/1985"},
+                          '2': {'FirstName': 'The Funk #1', "Birthdate": "10/01/1985"},
+                          '3': {'FirstName': 'The Funk #2', "Birthdate": "10/02/1985"}},
                          self.workflow.last_task.data["Family"]["Members"])
 
 
@@ -142,9 +142,9 @@ class MultiInstanceArrayTest(BaseTestCase):
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
 
-        self.assertEqual({1: {'FirstName': 'The Funk #0'},
-                          2: {'FirstName': 'The Funk #1'},
-                          3: {'FirstName': 'The Funk #2'}},
+        self.assertEqual({'1': {'FirstName': 'The Funk #0'},
+                          '2': {'FirstName': 'The Funk #1'},
+                          '3': {'FirstName': 'The Funk #2'}},
                          task.data["Family"]["Members"])
 
 
@@ -183,9 +183,9 @@ class MultiInstanceArrayTest(BaseTestCase):
             self.workflow.complete_task_from_id(task.id)
             if save_restore: self.save_restore()
 
-        self.assertEqual({1: {'FirstName': 'The Funk #0'},
-                          2: {'FirstName': 'The Funk #1'},
-                          3: {'FirstName': 'The Funk #2'}},
+        self.assertEqual({'1': {'FirstName': 'The Funk #0'},
+                          '2': {'FirstName': 'The Funk #1'},
+                          '3': {'FirstName': 'The Funk #2'}},
                          task.data["Family"]["Members"])
 
 

@@ -217,12 +217,21 @@ class BpmnWorkflowSerializer:
         children = [ dct['tasks'][child] for child in task_dict['children'] ]
 
         if isinstance(task_spec, SubWorkflowTask) and task_spec.sub_workflow is not None:
-            task_spec.sub_workflow = self.wf_class(
-                task_spec.spec, name=task_spec.sub_workflow, parent=workflow, read_only=read_only)
-            root = [ c for c in children if c['workflow_name'] == task_spec.sub_workflow.name ][0]
-            task_spec.sub_workflow.task_tree = self.task_tree_from_dict(
-                dct, root['id'], task, task_spec.sub_workflow, read_only)
-            task_spec.sub_workflow.completed_event.connect(task_spec._on_subworkflow_completed, task)
+            # Subworkflow task specs are modified (a subworkflow is attached to them) and the
+            # the tasks are incoporated into the main workflow task tree.  If the workflow
+            # is reset to an earlier state, the task spec still has the original data that
+            # refer to nonexistent tasks.  This handles that case.  A better fix would be
+            # clearing this during the reset process.
+            subtasks = [ c for c in children if c['workflow_name'] == task_spec.sub_workflow ]
+            if len(subtasks) > 0:
+                task_spec.sub_workflow = self.wf_class(
+                    task_spec.spec, name=task_spec.sub_workflow, parent=workflow, read_only=read_only)
+                root = subtasks[0]['id']
+                task_spec.sub_workflow.task_tree = self.task_tree_from_dict(
+                    dct, root, task, task_spec.sub_workflow, read_only)
+                task_spec.sub_workflow.completed_event.connect(task_spec._on_subworkflow_completed, task)
+            else:
+                task_spec.sub_workflow = None
 
         for child in [ c for c in children if c['workflow_name'] == workflow.name ]:
             self.task_tree_from_dict(dct, child['id'], task, workflow, read_only)
