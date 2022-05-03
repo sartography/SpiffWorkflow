@@ -53,10 +53,9 @@ class TestBpmnParser(BpmnParser):
         full_tag('userTask'): (UserTaskParser, TestUserTask),
     }
 
-    def parse_condition(self, condition_expression, outgoing_task, outgoing_task_node, sequence_flow_node, condition_expression_node, task_parser):
+    def parse_condition(self, sequence_flow_node):
         cond = super(
-            TestBpmnParser, self).parse_condition(condition_expression, outgoing_task,
-                                                  outgoing_task_node, sequence_flow_node, condition_expression_node, task_parser)
+            TestBpmnParser, self).parse_condition(sequence_flow_node)
         if cond is not None:
             return cond
         return "choice == '%s'" % sequence_flow_node.get('name', None)

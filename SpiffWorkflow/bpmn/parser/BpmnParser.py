@@ -160,40 +160,24 @@ class BpmnParser(object):
 
         processes = xpath('.//bpmn:process')
         for process in processes:
-            self.add_process(process, xpath, svg, filename)
+            self.create_parser(process, xpath, svg, filename)
 
-    def add_process(self, process, doc_xpath, svg=None, filename=None, current_lane=None):
-        process_parser = self.PROCESS_PARSER_CLASS(self, process, svg, filename=filename, doc_xpath=doc_xpath,
+    def create_parser(self, node, doc_xpath, svg=None, filename=None, current_lane=None):
+        parser = self.PROCESS_PARSER_CLASS(self, node, svg, filename=filename, doc_xpath=doc_xpath,
                                                    current_lane=current_lane)
-        if process_parser.get_id() in self.process_parsers:
-            raise ValidationException('Duplicate process ID', node=process, filename=filename)
-        if process_parser.get_name() in self.process_parsers_by_name:
-            raise ValidationException('Duplicate process name', node=process, filename=filename)
-        self.process_parsers[process_parser.get_id()] = process_parser
-        self.process_parsers_by_name[process_parser.get_name()] = process_parser
+        if parser.get_id() in self.process_parsers:
+            raise ValidationException('Duplicate process ID', node=node, filename=filename)
+        if parser.get_name() in self.process_parsers_by_name:
+            raise ValidationException('Duplicate process name', node=node, filename=filename)
+        self.process_parsers[parser.get_id()] = parser
+        self.process_parsers_by_name[parser.get_name()] = parser
 
-    def _parse_condition(self, outgoing_task, outgoing_task_node,
-                         sequence_flow_node, task_parser=None):
+    def parse_condition(self, sequence_flow_node):
         xpath = xpath_eval(sequence_flow_node)
-        condition_expression_node = conditionExpression = first(
-            xpath('.//bpmn:conditionExpression'))
-        if conditionExpression is not None:
-            conditionExpression = conditionExpression.text
-        return self.parse_condition(
-            conditionExpression, outgoing_task, outgoing_task_node,
-            sequence_flow_node, condition_expression_node, task_parser)
+        expression = first(xpath('.//bpmn:conditionExpression'))
+        return expression.text if expression is not None else None
 
-    def parse_condition(self, condition_expression, outgoing_task,
-                        outgoing_task_node, sequence_flow_node,
-                        condition_expression_node, task_parser):
-        """
-        Pre-parse the given condition expression, and return the parsed
-        version. The returned version will be passed to the Script Engine for
-        evaluation.
-        """
-        return condition_expression
-
-    def parse_extensions(self, node, task_parser=None, xpath=None):
+    def parse_extensions(self, node, xpath=None):
         extensions = {}
         xpath = xpath or xpath_eval(node)
         extension_nodes = xpath(
@@ -203,18 +187,9 @@ class BpmnParser(object):
             extensions[node.get('name')] = node.get('value')
         return extensions
 
-    def _parse_documentation(self, node, task_parser=None, xpath=None):
+    def parse_documentation(self, node, xpath=None):
         xpath = xpath or xpath_eval(node)
         documentation_node = first(xpath('.//bpmn:documentation'))
-        return self.parse_documentation(documentation_node, node, xpath,
-                                        task_parser=task_parser)
-
-    def parse_documentation(self, documentation_node, node, node_xpath,
-                            task_parser=None):
-        """
-        Pre-parse the documentation node for the given node and return the
-        text.
-        """
         return None if documentation_node is None else documentation_node.text
 
     def get_spec(self, process_id_or_name):
