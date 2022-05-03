@@ -3,7 +3,7 @@ import unittest
 
 from SpiffWorkflow.exceptions import WorkflowTaskExecException
 
-from SpiffWorkflow import Task, WorkflowException
+from SpiffWorkflow import TaskState, WorkflowException
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
@@ -29,7 +29,7 @@ class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
 
     def testDmnRaisesTaskErrors(self):
         self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.get_tasks(Task.READY)[0].set_data(x=3)
+        self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
         try:
             self.workflow.do_engine_steps()
             self.assertTrue(False, "An error should have been raised.")

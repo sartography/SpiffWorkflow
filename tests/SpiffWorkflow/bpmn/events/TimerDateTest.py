@@ -7,7 +7,7 @@ import datetime
 import time
 import pytz
 
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -32,7 +32,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
     def actual_test(self,save_restore = False):
         global counter
         self.workflow = BpmnWorkflow(self.spec)
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks)) # Start Event
         self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
@@ -43,13 +43,13 @@ class TimerDateTest(BpmnWorkflowTestCase):
         starttime = datetime.datetime.now()
         counter = 0
         while loopcount < 8:
-            if len(self.workflow.get_tasks(Task.READY)) >= 1:
+            if len(self.workflow.get_tasks(TaskState.READY)) >= 1:
                 break
             if save_restore:
                 self.save_restore()
 
 
-            waiting_tasks = self.workflow.get_tasks(Task.WAITING)
+            waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)
             #self.assertEqual(1, len(waiting_tasks))z
             time.sleep(0.1)
             self.workflow.refresh_waiting_tasks()

@@ -20,7 +20,7 @@ import logging
 
 from ... import WorkflowException
 
-from ...task import Task
+from ...task import TaskState
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.Join import Join
 
@@ -54,8 +54,8 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
         waiting_tasks = []
         completed_inputs = set()
         for task in tasks:
-            if task.parent._has_state(Task.COMPLETED) and (
-                    task._has_state(Task.WAITING) or task == my_task):
+            if task.parent._has_state(TaskState.COMPLETED) and (
+                    task._has_state(TaskState.WAITING) or task == my_task):
                 if task.parent.task_spec in completed_inputs:
                     raise(WorkflowException
                           (task.task_spec,
@@ -142,7 +142,7 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
                 self.entered_event.emit(my_task.workflow, my_task)
                 task._ready()
             else:
-                task._set_state(Task.COMPLETED)
+                task._set_state(TaskState.COMPLETED)
                 task._drop_children()
 
 
@@ -154,8 +154,8 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
             return
 
         target_state = getattr(my_task, '_bpmn_load_target_state', None)
-        if target_state == Task.WAITING:
-            my_task._set_state(Task.WAITING)
+        if target_state == TaskState.WAITING:
+            my_task._set_state(TaskState.WAITING)
             return
 
         LOG.debug('UnstructuredJoin._update_hook: %s (%s) - Children: %s',

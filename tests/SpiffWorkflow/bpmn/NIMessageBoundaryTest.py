@@ -5,7 +5,7 @@
 import unittest
 import datetime
 import time
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -31,7 +31,7 @@ class NIMessageBoundaryTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         self.workflow = BpmnWorkflow(self.spec)
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
@@ -41,7 +41,7 @@ class NIMessageBoundaryTest(BpmnWorkflowTestCase):
         answers = {'Activity_WorkLate':('flag_task','No'),
                    'Activity_DoWork': ('work_done','No')}
         for x in range(3):
-            ready_tasks = self.workflow.get_tasks(Task.READY)
+            ready_tasks = self.workflow.get_tasks(TaskState.READY)
             for task in ready_tasks:
                 response = answers.get(task.task_spec.name,None)
                 self.assertEqual(response==None,
@@ -61,7 +61,7 @@ class NIMessageBoundaryTest(BpmnWorkflowTestCase):
                    'Activity_DoWork': ('work_done','No'),
                    'Activity_WorkLateReason':('work_late_reason','covid-19')}
         for x in range(3):
-            ready_tasks = self.workflow.get_tasks(Task.READY)
+            ready_tasks = self.workflow.get_tasks(TaskState.READY)
             for task in ready_tasks:
                 response = answers.get(task.task_spec.name,None)
                 self.assertEqual(response==None,
@@ -73,14 +73,14 @@ class NIMessageBoundaryTest(BpmnWorkflowTestCase):
                 self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(len(ready_tasks),1)
         task = ready_tasks[0]
         self.assertEqual(task.task_spec.name,'Activity_DoWork')
         task.data['work_done'] = 'Yes'
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(len(ready_tasks), 1)
         task = ready_tasks[0]
         self.assertEqual(task.task_spec.name, 'Activity_WorkCompleted')

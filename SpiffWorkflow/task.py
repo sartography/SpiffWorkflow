@@ -23,7 +23,7 @@ from .exceptions import WorkflowException
 import logging
 import time
 from uuid import uuid4
-import random
+from enum import IntFlag
 
 from .util.deep_merge import DeepMerge
 
@@ -43,7 +43,7 @@ def updateDotDict(dct,dotted_path,value):
     return root
 
 
-class Task(object):
+class TaskState(IntFlag):
     """
     Used internally for composing a tree that represents the path that
     is taken (or predicted) within the workflow.
@@ -109,13 +109,65 @@ class Task(object):
     NOT_FINISHED_MASK = PREDICTED_MASK | WAITING | READY
     ANY_MASK = FINISHED_MASK | NOT_FINISHED_MASK
 
-    state_names = {FUTURE: 'FUTURE',
-                   WAITING: 'WAITING',
-                   READY: 'READY',
-                   CANCELLED: 'CANCELLED',
-                   COMPLETED: 'COMPLETED',
-                   LIKELY: 'LIKELY',
-                   MAYBE: 'MAYBE'}
+
+TaskStateNames = {TaskState.FUTURE: 'FUTURE',
+                  TaskState.WAITING: 'WAITING',
+                  TaskState.READY: 'READY',
+                  TaskState.CANCELLED: 'CANCELLED',
+                  TaskState.COMPLETED: 'COMPLETED',
+                  TaskState.LIKELY: 'LIKELY',
+                  TaskState.MAYBE: 'MAYBE'}
+
+class Task(object):
+    """
+    Used internally for composing a tree that represents the path that
+    is taken (or predicted) within the workflow.
+
+    Each Task has a state. For an explanation, consider the following task
+    specification::
+
+                                    ,-> Simple (default choice)
+        StartTask -> ExclusiveChoice
+                                    `-> Simple
+
+    The initial task tree for this specification looks like so::
+
+                                                   ,-> Simple LIKELY
+        StartTask WAITING -> ExclusiveChoice FUTURE
+                                                   `-> Simple MAYBE
+
+    The following states may exist:
+
+    - FUTURE: The task will definitely be reached in the future,
+      regardless of which choices the user makes within the workflow.
+
+    - LIKELY: The task may or may not be reached in the future. It
+      is likely because the specification lists it as the default
+      option for the ExclusiveChoice.
+
+    - MAYBE: The task may or may not be reached in the future. It
+      is not LIKELY, because the specification does not list it as the
+      default choice for the ExclusiveChoice.
+
+    - WAITING: The task is still waiting for an event before it
+      completes. For example, a Join task will be WAITING until all
+      predecessors are completed.
+
+    - READY: The conditions for completing the task are now satisfied.
+      Usually this means that all predecessors have completed and the
+      task may now be completed using
+      :class:`Workflow.complete_task_from_id()`.
+
+    - CANCELLED: The task was cancelled by a CancelTask or
+      CancelWorkflow task.
+
+    - COMPLETED: The task was regularily completed.
+
+    Note that the LIKELY and MAYBE tasks are merely predicted/guessed, so
+    those tasks may be removed from the tree at runtime later. They are
+    created to allow for visualizing the workflow at a time where
+    the required decisions have not yet been made.
+    """
 
     class Iterator(object):
 
@@ -159,8 +211,8 @@ class Task(object):
             # predicted tasks should only have predicted children.
             ignore_task = False
             if self.filter is not None:
-                search_predicted = self.filter & Task.LIKELY != 0
-                is_predicted = current.state & Task.LIKELY != 0
+                search_predicted = self.filter & TaskState.LIKELY != 0
+                is_predicted = current.state & TaskState.LIKELY != 0
                 ignore_task = is_predicted and not search_predicted
             if current.children and not ignore_task:
                 self.path.append(current.children[0])
@@ -200,7 +252,7 @@ class Task(object):
     # Pool for assigning a unique thread id to every new Task.
     thread_id_pool = 0
 
-    def __init__(self, workflow, task_spec, parent=None, state=MAYBE):
+    def __init__(self, workflow, task_spec, parent=None, state=TaskState.MAYBE):
         """
         Constructor.
         """
@@ -293,7 +345,7 @@ class Task(object):
         from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
         from .bpmn.specs.SubWorkflowTask import SubWorkflowTask
 
-        if (self.state != self.COMPLETED and self.state != self.READY) and \
+        if (self.state != TaskState.COMPLETED and self.state != TaskState.READY) and \
                 not (isinstance(self.task_spec,UnstructuredJoin)):
             return
 
@@ -307,11 +359,11 @@ class Task(object):
             # drop children and set state to WAITING
             for t in list(self.workflow.task_tree):
                 if t.task_spec.name == self.task_spec.name and \
-                        t.state == self.COMPLETED:
-                    t._set_state(self.WAITING)
+                        t.state == TaskState.COMPLETED:
+                    t._set_state(TaskState.WAITING)
         # now we set this one to execute
 
-        self._set_state(self.MAYBE)
+        self._set_state(TaskState.MAYBE)
         self._sync_children(self.task_spec.outputs)
         for child in self.children:
             child.set_children_future()
@@ -339,7 +391,7 @@ class Task(object):
             self.parent.data = copy.deepcopy(data)
         self.workflow.last_task = self.parent
         self.set_children_future()  # this method actually fixes the problem
-        self._set_state(self.FUTURE)
+        self._set_state(TaskState.FUTURE)
         self.task_spec._update(self)
 
 
@@ -357,7 +409,7 @@ class Task(object):
             raise WorkflowException(self.task_spec,
                                     'state went from %s to %s!' % (
                                         self.get_state_name(),
-                                        self.state_names[value]))
+                                        TaskStateNames[value]))
         if __debug__:
             old = self.get_state_name()
         self._state = value
@@ -436,15 +488,15 @@ class Task(object):
         return (self.state & state) != 0
 
     def _is_finished(self):
-        return self._has_state(self.FINISHED_MASK)
+        return self._has_state(TaskState.FINISHED_MASK)
 
     def _is_predicted(self):
-        return self._has_state(self.PREDICTED_MASK)
+        return self._has_state(TaskState.PREDICTED_MASK)
 
     def _is_definite(self):
-        return self._has_state(self.DEFINITE_MASK)
+        return self._has_state(TaskState.DEFINITE_MASK)
 
-    def _add_child(self, task_spec, state=MAYBE):
+    def _add_child(self, task_spec, state=TaskState.MAYBE):
         """
         Adds a new child and assigns the given TaskSpec to it.
 
@@ -457,12 +509,12 @@ class Task(object):
         """
         if task_spec is None:
             raise ValueError(self, '_add_child() requires a TaskSpec')
-        if self._is_predicted() and state & self.PREDICTED_MASK == 0:
+        if self._is_predicted() and state & TaskState.PREDICTED_MASK == 0:
             msg = 'Attempt to add non-predicted child to predicted task'
             raise WorkflowException(self.task_spec, msg)
         task = Task(self.workflow, task_spec, self, state=state)
         task.thread_id = self.thread_id
-        if state == self.READY:
+        if state == TaskState.READY:
             task._ready()
         return task
 
@@ -483,7 +535,7 @@ class Task(object):
             child.thread_id = self.thread_id
         return self.thread_id
 
-    def _sync_children(self, task_specs, state=MAYBE):
+    def _sync_children(self, task_specs, state=TaskState.MAYBE):
         """
         This method syncs up the task's children with the given list of task
         specs. In other words::
@@ -558,7 +610,7 @@ class Task(object):
                     continue
                 if child._is_definite():
                     continue
-                child._set_state(self.LIKELY)
+                child._set_state(TaskState.LIKELY)
                 return
 
     def _is_descendant_of(self, parent):
@@ -648,9 +700,9 @@ class Task(object):
         """
         Marks the task as ready for execution.
         """
-        if self._has_state(self.COMPLETED) or self._has_state(self.CANCELLED):
+        if self._has_state(TaskState.COMPLETED) or self._has_state(TaskState.CANCELLED):
             return
-        self._set_state(self.READY)
+        self._set_state(TaskState.READY)
         self.task_spec._on_ready(self)
 
     def get_name(self):
@@ -670,7 +722,7 @@ class Task(object):
         Returns a textual representation of this Task's state.
         """
         state_name = []
-        for state, name in list(self.state_names.items()):
+        for state, name in list(TaskStateNames.items()):
             if self._has_state(state):
                 state_name.append(name)
         return '|'.join(state_name)
@@ -736,7 +788,7 @@ class Task(object):
             for child in self.children:
                 child.cancel()
             return
-        self._set_state(self.CANCELLED)
+        self._set_state(TaskState.CANCELLED)
         self._drop_children()
         self.task_spec._on_cancel(self)
 
@@ -745,7 +797,7 @@ class Task(object):
         Called by the associated task to let us know that its state
         has changed (e.g. from FUTURE to COMPLETED.)
         """
-        self._set_state(self.COMPLETED)
+        self._set_state(TaskState.COMPLETED)
         # WHY on earth do we mark the task completed and THEN attempt to execute it.
         # A sane model would have success and failure states and instead we return
         # a boolean, with no systematic way of dealing with failures.  This is just

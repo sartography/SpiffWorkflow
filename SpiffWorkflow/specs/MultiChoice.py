@@ -16,7 +16,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ..task import Task
+from ..task import TaskState
 from ..exceptions import WorkflowException
 from .base import TaskSpec
 
@@ -102,7 +102,7 @@ class MultiChoice(TaskSpec):
         if not my_task._is_definite():
             best_state = my_task.state
         else:
-            best_state = Task.LIKELY
+            best_state = TaskState.LIKELY
 
         # Collect a list of all unconditional outputs.
         outputs = []
@@ -133,7 +133,7 @@ class MultiChoice(TaskSpec):
                 continue
             outputs.append(self._wf_spec.get_task_spec_from_name(output))
 
-        my_task._sync_children(outputs, Task.FUTURE)
+        my_task._sync_children(outputs, TaskState.FUTURE)
         for child in my_task.children:
             child.task_spec._update(child)
 

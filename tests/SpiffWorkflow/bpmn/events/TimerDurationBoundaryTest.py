@@ -7,7 +7,7 @@ import datetime
 import time
 
 from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 __author__ = 'kellym'
@@ -31,11 +31,11 @@ class TimerDurationTest(BpmnWorkflowTestCase):
     def actual_test(self,save_restore = False):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.script_engine = FeelLikeScriptEngine()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         ready_tasks[0].data['answer']='No'
         self.workflow.complete_task_from_id(ready_tasks[0].id)
@@ -46,7 +46,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         # we should terminate loop before that.
         starttime = datetime.datetime.now()
         while loopcount < 11:
-            ready_tasks = self.workflow.get_tasks(Task.READY)
+            ready_tasks = self.workflow.get_tasks(TaskState.READY)
             if len(ready_tasks) < 1:
                 break
             if save_restore:

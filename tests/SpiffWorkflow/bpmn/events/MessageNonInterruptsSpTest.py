@@ -5,7 +5,7 @@
 import unittest
 import datetime
 import time
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -28,8 +28,8 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.do_next_exclusive_step('Do Something In a Subprocess')
         self.workflow.do_engine_steps()
@@ -41,7 +41,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageSaveAndRestore(self):
 
@@ -51,8 +51,8 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.message('Test Message')
 
@@ -70,7 +70,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageOrder2SaveAndRestore(self):
 
@@ -80,8 +80,8 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.message('Test Message')
 
@@ -99,7 +99,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageOrder3SaveAndRestore(self):
 
@@ -109,8 +109,8 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.message('Test Message')
 
@@ -128,7 +128,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
 def suite():

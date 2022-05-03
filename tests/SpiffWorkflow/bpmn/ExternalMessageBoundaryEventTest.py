@@ -5,7 +5,7 @@
 import unittest
 import datetime
 import time
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -31,11 +31,11 @@ class ExternalMessageBoundaryTest(BpmnWorkflowTestCase):
     def actual_test(self,save_restore = False):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks),'Expected to have only one ready task')
         self.workflow.message('Interrupt','SomethingImportant','interrupt_var')
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(2,len(ready_tasks),'Expected to have two readys tasks')
 
         # here because the thread just dies and doesn't lead to a task, we expect the data
@@ -53,7 +53,7 @@ class ExternalMessageBoundaryTest(BpmnWorkflowTestCase):
         # we have the extra variables that happened in 'pause'
         # if on the other hand, we went on from 'meaningless task' those variables would not get added.
         self.workflow.message('reset','SomethingDrastic','reset_var')
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks),'Expected to have only one ready task')
         self.assertEqual('SomethingDrastic', ready_tasks[0].data['reset_var'])
         self.assertEqual(False, ready_tasks[0].data['caughtinterrupt'])

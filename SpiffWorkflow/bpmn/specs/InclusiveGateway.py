@@ -19,7 +19,7 @@
 from collections import deque
 
 import logging
-from ...task import Task
+from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
 
 LOG = logging.getLogger(__name__)
@@ -70,7 +70,7 @@ class InclusiveGateway(UnstructuredJoin):
         # Look at the tree to find all ready and waiting tasks (excluding ones
         # that are our completed inputs).
         tasks = []
-        for task in my_task.workflow.get_tasks(Task.READY | Task.WAITING):
+        for task in my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING):
             if task.thread_id != my_task.thread_id:
                 continue
             if task.workflow != my_task.workflow:

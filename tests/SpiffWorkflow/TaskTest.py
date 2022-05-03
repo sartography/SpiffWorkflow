@@ -9,7 +9,7 @@ import re
 import os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from SpiffWorkflow import Task
+from SpiffWorkflow import Task, TaskState
 from SpiffWorkflow.task import updateDotDict
 from SpiffWorkflow.specs import WorkflowSpec, Simple
 from SpiffWorkflow.exceptions import WorkflowException
@@ -51,7 +51,7 @@ class TaskTest(unittest.TestCase):
         c12 = Task(workflow, task7, c1)
         c2 = Task(workflow, task8, root)
         c3 = Task(workflow, task9, root)
-        c3.state = Task.COMPLETED
+        c3.state = TaskState.COMPLETED
 
         # Check whether the tree is built properly.
         expected = """!/0: Task of Simple 1 State: MAYBE Children: 3
@@ -79,7 +79,7 @@ class TaskTest(unittest.TestCase):
 
         # Run the iterator test.
         result = ''
-        for thetask in Task.Iterator(root, Task.MAYBE):
+        for thetask in Task.Iterator(root, TaskState.MAYBE):
             result += thetask.get_dump(0, False) + '\n'
         self.assertTrue(expected2.match(result),
                         'Expected:\n' + repr(expected2.pattern) + '\n' +

@@ -5,7 +5,7 @@
 import unittest
 import datetime
 import time
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -53,7 +53,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
         completed_set = set()
         track_workflow(self.spec, completed_set)
         self.workflow = BpmnWorkflow(self.spec)
-        for task in self.workflow.get_tasks(Task.READY):
+        for task in self.workflow.get_tasks(TaskState.READY):
             task.set_data(should_escalate=True)
         self.workflow.do_engine_steps()
         self.save_restore()
@@ -84,7 +84,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
         completed_set = set()
         track_workflow(self.spec, completed_set)
         self.workflow = BpmnWorkflow(self.spec)
-        for task in self.workflow.get_tasks(Task.READY):
+        for task in self.workflow.get_tasks(TaskState.READY):
             task.set_data(should_escalate=False)
         self.workflow.do_engine_steps()
         self.save_restore()
