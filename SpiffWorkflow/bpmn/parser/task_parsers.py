@@ -72,9 +72,7 @@ class ExclusiveGatewayParser(TaskParser):
                 outgoing_task, outgoing_task_node, sequence_flow_node,
                 is_default)
         else:
-            cond = self.parser._parse_condition(
-                outgoing_task, outgoing_task_node, sequence_flow_node,
-                task_parser=self)
+            cond = self.parser.parse_condition(sequence_flow_node)
             if cond is None:
                 raise ValidationException(
                     'Non-default exclusive outgoing sequence flow '
@@ -85,8 +83,7 @@ class ExclusiveGatewayParser(TaskParser):
                 cond, outgoing_task,
                 sequence_flow_node.get('id'),
                 sequence_flow_node.get('name', None),
-                self.parser._parse_documentation(
-                    sequence_flow_node, task_parser=self))
+                self.parser.parse_documentation(sequence_flow_node))
 
     def handles_multiple_outgoing(self):
         return True
@@ -123,7 +120,7 @@ class SubWorkflowParser(TaskParser):
     should be treated the same way as User Tasks.
     """
     def create_task(self):
-        wf_spec = self.get_subprocess_parser()
+        wf_spec = self.get_subprocess_spec()
         return self.spec_class(
             self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
             bpmn_wf_class=self.parser.WORKFLOW_CLASS,
@@ -131,12 +128,10 @@ class SubWorkflowParser(TaskParser):
             lane=self.get_lane(),
             description=self.node.get('name', None))
 
+    def get_subprocess_spec(self):
 
-    def get_subprocess_parser(self):
-
-        thisTask = self.process_xpath('.//*[@id="%s"]'% self.get_id())[0]
-        workflowStartEvent = self.process_xpath('.//*[@id="%s"]/bpmn:startEvent' % self.get_id())
-        workflowEndEvent =  self.process_xpath('.//*[@id="%s"]/bpmn:endEvent' % self.get_id())
+        workflowStartEvent = self.xpath('./bpmn:startEvent')
+        workflowEndEvent =  self.xpath('./bpmn:endEvent')
         if len(workflowStartEvent) != 1:
             raise ValidationException(
                 'Multiple Start points are not allowed in SubWorkflow Task',
@@ -156,58 +151,55 @@ class SubWorkflowParser(TaskParser):
         for ns, val in nsmap.items():
             etree.register_namespace(ns, val)
 
-        self.parser.add_process(
-            thisTask,
+        self.parser.create_parser(
+            self.node,
             doc_xpath=self.process_parser.doc_xpath,
             filename=self.process_parser.filename,
             current_lane=self.get_lane()
         )
-        wf_spec = self.parser.get_spec(thisTask.get('id'))
+        wf_spec = self.parser.get_spec(self.node.get('id'))
         wf_spec.file = self.process_parser.filename
         return wf_spec
-
-
-class CallActivityParser(SubWorkflowParser):
-    """
-    Parses a CallActivity node. This also supports the not-quite-correct BPMN
-    that Signavio produces (which does not have a calledElement attribute).
-    """
-
-    def create_task(self):
-        wf_spec = self.get_subprocess_parser().get_spec()
-        return self.spec_class(
-            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
-            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
-            position=self.process_parser.get_coord(self.get_id()),
-            description=self.node.get('name', None))
-
-    def get_subprocess_parser(self):
-        calledElement = self.node.get('calledElement', None)
-        if not calledElement:
-            raise ValidationException(
-                'No "calledElement" attribute for Call Activity.',
-                node=self.node,
-                filename=self.process_parser.filename)
-        process = self.parser.get_process_parser(calledElement)
-        if process is None:
-            raise ValidationException(
-                f"The process '{calledElement}' was not found. Did you mean one of the following: "
-                f"{', '.join(self.parser.get_process_ids())}?",
-                node=self.node,
-                filename=self.process_parser.filename)
-        return process
 
 
 class TransactionSubprocessParser(SubWorkflowParser):
     """Parses a transaction node"""
 
     def create_task(self):
-        wf_spec = self.get_subprocess_parser()
+        wf_spec = self.get_subprocess_spec()
         return self.spec_class(
             self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
             bpmn_wf_class=self.parser.WORKFLOW_CLASS,
             position=self.process_parser.get_coord(self.get_id()),
             description=self.node.get('name', None))
+
+
+class CallActivityParser(TaskParser):
+    """Parses a CallActivity node."""
+
+    def create_task(self):
+        wf_spec = self.get_subprocess_spec()
+        return self.spec_class(
+            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
+            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            position=self.process_parser.get_coord(self.get_id()),
+            description=self.node.get('name', None))
+
+    def get_subprocess_spec(self):
+        calledElement = self.node.get('calledElement', None)
+        if not calledElement:
+            raise ValidationException(
+                'No "calledElement" attribute for Call Activity.',
+                node=self.node,
+                filename=self.process_parser.filename)
+        parser = self.parser.get_process_parser(calledElement)
+        if parser is None:
+            raise ValidationException(
+                f"The process '{calledElement}' was not found. Did you mean one of the following: "
+                f"{', '.join(self.parser.get_process_ids())}?",
+                node=self.node,
+                filename=self.process_parser.filename)
+        return parser.get_spec()
 
 
 class ScriptTaskParser(TaskParser):
