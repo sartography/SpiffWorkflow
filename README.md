@@ -65,8 +65,8 @@ pip install spiffworkflow
 
 ## Tests
 ```
-cd tests
-./run_suite.sh
+cd tests/SpiffWorkflow
+coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
 ```
 
 ## Releases
