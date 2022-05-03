@@ -14,7 +14,6 @@ from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
 class BpmnWorkflowSerializerTest(unittest.TestCase):
     """Please note that the BpmnSerializer is Deprecated."""
-    CORRELATE = BpmnWorkflowSerializer
     SERIALIZER_VERSION = "100.1.ANY"
 
     def load_workflow_spec(self, filename, process_name):

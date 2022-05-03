@@ -54,7 +54,6 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         duration = endtime-starttime
         self.assertEqual(duration<datetime.timedelta(seconds=.5),True)
         self.assertEqual(duration>datetime.timedelta(seconds=.25),True)
-        print(duration)
 
 
 def suite():
