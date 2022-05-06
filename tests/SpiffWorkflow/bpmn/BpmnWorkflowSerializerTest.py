@@ -46,6 +46,12 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         spec_serialized2 = self.serializer.serialize_json(result)
         self.assertEqual(spec_serialized, spec_serialized2)
 
+    def testSerializeWorkflowSpecWithGzip(self):
+        spec_serialized = self.serializer.serialize_json(self.workflow, use_gzip=True)
+        result = self.serializer.deserialize_json(spec_serialized, use_gzip=True)
+        spec_serialized2 = self.serializer.serialize_json(result, use_gzip=True)
+        self.assertEqual(spec_serialized, spec_serialized2)
+
     def testSerlializePerservesVersion(self):
         spec_serialized = self.serializer.serialize_json(self.workflow)
         version = self.serializer.get_version(spec_serialized)

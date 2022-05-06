@@ -1,10 +1,7 @@
 import json
+import gzip
 from copy import deepcopy
-from subprocess import SubprocessError
 from uuid import UUID
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
-
-from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 
 from .bpmn_converters import BpmnDataConverter
 
@@ -110,7 +107,7 @@ class BpmnWorkflowSerializer:
         self.wf_class = wf_class if wf_class is not None else BpmnWorkflow
         self.VERSION = version
 
-    def serialize_json(self, workflow):
+    def serialize_json(self, workflow, use_gzip=False):
         """Serialize the dictionary representation of the workflow to JSON.
 
         :param workflow: the workflow to serialize
@@ -120,10 +117,11 @@ class BpmnWorkflowSerializer:
         """
         dct = self.workflow_to_dict(workflow)
         dct['serializer_version'] = self.VERSION
-        return json.dumps(dct)
+        json_str = json.dumps(dct)
+        return gzip.compress(json_str.encode('utf-8')) if use_gzip else json_str
 
-    def deserialize_json(self, serialization, read_only=False):
-        dct = json.loads(serialization)
+    def deserialize_json(self, serialization, read_only=False, use_gzip=False):
+        dct = json.loads(gzip.decompress(serialization)) if use_gzip else json.loads(serialization)
         version = dct.pop('serializer_version')
         return self.workflow_from_dict(dct, read_only)
 
@@ -143,7 +141,7 @@ class BpmnWorkflowSerializer:
         Returns:
             a dictionary representation of the workflow
         """
-        
+
         # Recursively search the workflow spec for subprocesses and store clean copies of each
         # (they are modified by running workflows) at the top level.
         subprocess_specs, subprocesses = {}, {}
