@@ -1,6 +1,10 @@
 import json
 from copy import deepcopy
+from subprocess import SubprocessError
 from uuid import UUID
+from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
+
+from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 
 from .bpmn_converters import BpmnDataConverter
 
@@ -85,7 +89,6 @@ class BpmnWorkflowSerializer:
         if task_spec_overrides is None:
             task_spec_overrides = []
 
-
         classnames = [c.__name__ for c in task_spec_overrides]
         converters = [c(data_converter=data_converter) for c in task_spec_overrides]
         for c in DEFAULT_TASK_SPEC_CONVERTER_CLASSES:
@@ -132,7 +135,6 @@ class BpmnWorkflowSerializer:
         except:  # Don't bail out trying to get a version, just return none.
             return None
 
-
     def workflow_to_dict(self, workflow):
         """Return a JSON-serializable dictionary representation of the workflow.
 
@@ -141,6 +143,14 @@ class BpmnWorkflowSerializer:
         Returns:
             a dictionary representation of the workflow
         """
+        
+        # Recursively search the workflow spec for subprocesses and store clean copies of each
+        # (they are modified by running workflows) at the top level.
+        subprocess_specs, subprocesses = {}, {}
+        self.find_subprocesses(workflow.spec, workflow, subprocess_specs, subprocesses)
+        for wf_name, wf_spec in subprocess_specs.items():
+            subprocess_specs[wf_name] = self.spec_converter.convert(wf_spec)
+
         return {
             'spec': self.spec_converter.convert(workflow.spec),
             'data': self.data_converter.convert(workflow.data),
@@ -148,6 +158,8 @@ class BpmnWorkflowSerializer:
             'success': workflow.success,
             'tasks': self.task_tree_to_dict(workflow.task_tree),
             'root': str(workflow.task_tree.id),
+            'subprocess_specs': subprocess_specs,
+            'subprocesses': subprocesses,
         }
 
     def workflow_from_dict(self, dct, read_only=False):
@@ -160,7 +172,24 @@ class BpmnWorkflowSerializer:
             a BPMN Workflow object
         """
         dct_copy = deepcopy(dct)
+
+        # First, we'll restore the specs for all the subprocesses
+        for name, wf_dct in dct_copy['subprocess_specs'].items():
+            dct_copy['subprocess_specs'][name] = self.spec_converter.restore(wf_dct)
+
+        # Then we check each subprocess for subworkflow tasks and restore the workflow spec
+        # on each task
+        for wf in dct_copy['subprocess_specs'].values():
+            for task_spec in wf.task_specs.values():
+                if isinstance(task_spec, SubWorkflowTask):
+                    task_spec.spec = dct_copy['subprocess_specs'][task_spec.spec]
+
+        # We also have to do the same for the top levvel workflow.
         spec = self.spec_converter.restore(dct_copy.pop('spec'))
+        for name, task_spec in spec.task_specs.items():
+            if isinstance(task_spec, SubWorkflowTask):
+                task_spec.spec = dct_copy['subprocess_specs'][task_spec.spec]
+
         workflow = self.wf_class(spec, read_only=read_only)
         workflow.data = self.data_converter.restore(dct_copy.pop('data'))
         workflow.success = dct_copy.pop('success')
@@ -214,26 +243,32 @@ class BpmnWorkflowSerializer:
         if task_id == dct['last_task']:
             workflow.last_task = task
 
-        children = [ dct['tasks'][child] for child in task_dict['children'] ]
+        children = [dct['tasks'][c] for c in task_dict['children']]
+        subtasks = dct['subprocesses'].get(str(task_id), [])
 
-        if isinstance(task_spec, SubWorkflowTask) and task_spec.sub_workflow is not None:
-            # Subworkflow task specs are modified (a subworkflow is attached to them) and the
-            # the tasks are incoporated into the main workflow task tree.  If the workflow
-            # is reset to an earlier state, the task spec still has the original data that
-            # refer to nonexistent tasks.  This handles that case.  A better fix would be
-            # clearing this during the reset process.
-            subtasks = [ c for c in children if c['workflow_name'] == task_spec.sub_workflow ]
+        if isinstance(task_spec, SubWorkflowTask):
             if len(subtasks) > 0:
                 task_spec.sub_workflow = self.wf_class(
-                    task_spec.spec, name=task_spec.sub_workflow, parent=workflow, read_only=read_only)
-                root = subtasks[0]['id']
+                    task_spec.spec, name=task_spec.name, parent=workflow, read_only=read_only)
+                root = subtasks[0]
                 task_spec.sub_workflow.task_tree = self.task_tree_from_dict(
                     dct, root, task, task_spec.sub_workflow, read_only)
                 task_spec.sub_workflow.completed_event.connect(task_spec._on_subworkflow_completed, task)
             else:
                 task_spec.sub_workflow = None
 
-        for child in [ c for c in children if c['workflow_name'] == workflow.name ]:
+        for child in [ c for c in children if c['id'] not in subtasks ]:
             self.task_tree_from_dict(dct, child['id'], task, workflow, read_only)
 
         return task
+
+    def find_subprocesses(self, spec, workflow, subprocess_specs, subprocesses):
+        for name, task_spec in spec.task_specs.items():
+            if isinstance(task_spec, SubWorkflowTask):
+                self.find_subprocesses(task_spec.spec, workflow, subprocess_specs, subprocesses)
+                if task_spec.name not in subprocess_specs:
+                    subprocess_specs[task_spec.spec.name] = task_spec.spec
+                if task_spec.sub_workflow is not None:
+                    tasks = [task for task in workflow.get_tasks() if task in task_spec.sub_workflow.get_tasks()]
+                    if len(tasks) > 0:
+                        subprocesses[str(tasks[0].parent.id)] = [str(task.id) for task in tasks]

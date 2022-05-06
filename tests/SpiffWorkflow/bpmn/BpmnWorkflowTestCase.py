@@ -99,15 +99,14 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         before_dump = self.workflow.get_dump()
         # Check that we can actully convert this to JSON
         json_str = json.dumps(before_state)
-        workflow2 = self.serializer.workflow_from_dict(json.loads(json_str), read_only=False)
-#       self.restore(json.loads(json_str))
+        after = self.serializer.workflow_from_dict(json.loads(json_str), read_only=False)
         # Check that serializing and deserializing results in the same workflow
-        after_state = self.serializer.workflow_to_dict(workflow2)
-        after_dump = workflow2.get_dump()
+        after_state = self.serializer.workflow_to_dict(after)
+        after_dump = after.get_dump()
         self.maxDiff = None
         self.assertEqual(before_dump, after_dump)
         self.assertEqual(before_state, after_state)
-        self.workflow = workflow2
+        self.workflow = after
 
     def restore(self, state):
         self.workflow = self.serializer.workflow_from_dict(state, read_only=False)

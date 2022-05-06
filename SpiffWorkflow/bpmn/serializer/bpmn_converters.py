@@ -164,8 +164,8 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             a dictionary of subworkflow task spec attributes
         """
         return {
-            'spec': spec.spec,
-            'sub_workflow': spec.sub_workflow,
+            'spec': spec.spec.name,
+            'sub_workflow': None,
         }
 
     def task_spec_from_dict(self, dct):
