@@ -112,14 +112,6 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
                 task_dict = self.multi_instance_to_dict(task_spec)
             else:
                 task_dict = self.convert(task_spec)
-            if isinstance(task_spec, SubWorkflowTask):
-                task_dict['spec'] = self.convert(task_spec.spec)
-                task_dict['sub_workflow'] = None
-                if isinstance(task_spec.sub_workflow, BpmnWorkflow):
-                    task_dict['sub_workflow'] = task_spec.sub_workflow.name
-                elif isinstance(task_spec.sub_workflow, str):
-                    task_dict['sub_workflow'] = task_spec.sub_workflow
-#                task_dict['sub_workflow'] = task_spec.sub_workflow.name if task_spec.sub_workflow is not None else None
             self.convert_task_spec_extensions(task_spec, task_dict)
             dct['task_specs'][name] = task_dict
 
@@ -149,8 +141,6 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
                 task_spec = self.restore(task_dict)
             if name == 'Start':
                 spec.start = task_spec
-            if isinstance(task_spec, SubWorkflowTask):
-                task_spec.spec = self.restore(task_spec.spec)
             self.restore_task_spec_extensions(task_dict, task_spec)
 
         # Now we have to go back and fix all the circular references to everything
