@@ -46,21 +46,6 @@ def updateDotDict(dct,dotted_path,value):
 
 class TaskState(IntFlag):
     """
-    Used internally for composing a tree that represents the path that
-    is taken (or predicted) within the workflow.
-
-    Each Task has a state. For an explanation, consider the following task
-    specification::
-
-                                    ,-> Simple (default choice)
-        StartTask -> ExclusiveChoice
-                                    `-> Simple
-
-    The initial task tree for this specification looks like so::
-
-                                                   ,-> Simple LIKELY
-        StartTask WAITING -> ExclusiveChoice FUTURE
-                                                   `-> Simple MAYBE
 
     The following states may exist:
 
@@ -119,7 +104,24 @@ TaskStateNames = {TaskState.FUTURE: 'FUTURE',
                   TaskState.LIKELY: 'LIKELY',
                   TaskState.MAYBE: 'MAYBE'}
 
-class Task(object):
+
+class DeprecatedMetaTask(type):
+    """
+    Handle deprecated methods that are now moved to TaskState
+    """
+    TaskStateFromNames = {v: k for k, v in TaskStateNames.items()}
+
+    def __getattribute__(self, item):
+        if item in TaskStateNames.values():
+            warnings.warn(f'Task.{item} is deprecated.  '
+                          f'Please use TaskState.{item}',
+                          DeprecationWarning, stacklevel=2)
+            return DeprecatedMetaTask.TaskStateFromNames[item]
+        else:
+            return type.__getattribute__(self, item)
+
+
+class Task(object,  metaclass=DeprecatedMetaTask):
     """
     Used internally for composing a tree that represents the path that
     is taken (or predicted) within the workflow.
@@ -137,74 +139,8 @@ class Task(object):
         StartTask WAITING -> ExclusiveChoice FUTURE
                                                    `-> Simple MAYBE
 
-    The following states may exist:
-
-    - FUTURE: The task will definitely be reached in the future,
-      regardless of which choices the user makes within the workflow.
-
-    - LIKELY: The task may or may not be reached in the future. It
-      is likely because the specification lists it as the default
-      option for the ExclusiveChoice.
-
-    - MAYBE: The task may or may not be reached in the future. It
-      is not LIKELY, because the specification does not list it as the
-      default choice for the ExclusiveChoice.
-
-    - WAITING: The task is still waiting for an event before it
-      completes. For example, a Join task will be WAITING until all
-      predecessors are completed.
-
-    - READY: The conditions for completing the task are now satisfied.
-      Usually this means that all predecessors have completed and the
-      task may now be completed using
-      :class:`Workflow.complete_task_from_id()`.
-
-    - CANCELLED: The task was cancelled by a CancelTask or
-      CancelWorkflow task.
-
-    - COMPLETED: The task was regularily completed.
-
-    Note that the LIKELY and MAYBE tasks are merely predicted/guessed, so
-    those tasks may be removed from the tree at runtime later. They are
-    created to allow for visualizing the workflow at a time where
-    the required decisions have not yet been made.
+    See TaskStates for the available states on a Task.
     """
-
-    @property
-    def MAYBE(self):
-        warnings.warn('Please use TaskState.MAYBE.', DeprecationWarning)
-        return TaskState.MAYBE
-
-    @property
-    def LIKELY(self):
-        warnings.warn('Please use TaskState.LIKELY.', DeprecationWarning)
-        return TaskState.LIKELY
-
-    @property
-    def FUTURE(self):
-        warnings.warn('Please use TaskState.FUTURE.', DeprecationWarning)
-        return TaskState.FUTURE
-
-    @property
-    def WAITING(self):
-        warnings.warn('Please use TaskState.WAITING.', DeprecationWarning)
-        return TaskState.WAITING
-
-    @property
-    def READY(self):
-        warnings.warn('Please use TaskState.READY.', DeprecationWarning)
-        return TaskState.READY
-
-    @property
-    def COMPLETED(self):
-        warnings.warn('Please use TaskState.COMPLETED.', DeprecationWarning)
-        return TaskState.COMPLETED
-
-    @property
-    def CANCELLED(self):
-        warnings.warn('Please use TaskState.CANCELLED.', DeprecationWarning)
-        return TaskState.CANCELLED
-
 
     class Iterator(object):
 
