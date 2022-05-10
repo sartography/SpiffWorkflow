@@ -103,16 +103,24 @@ TaskStateNames = {TaskState.FUTURE: 'FUTURE',
                   TaskState.COMPLETED: 'COMPLETED',
                   TaskState.LIKELY: 'LIKELY',
                   TaskState.MAYBE: 'MAYBE'}
+TaskStateMasks = {
+                  TaskState.FINISHED_MASK: 'FINISHED_MASK',
+                  TaskState.DEFINITE_MASK: 'DEFINITE_MASK',
+                  TaskState.PREDICTED_MASK: 'PREDICTED_MASK',
+                  TaskState.NOT_FINISHED_MASK: 'NOT_FINISHED_MASK',
+                  TaskState.ANY_MASK: 'ANY_MASK',
+                  }
 
 
 class DeprecatedMetaTask(type):
     """
     Handle deprecated methods that are now moved to TaskState
     """
-    TaskStateFromNames = {v: k for k, v in TaskStateNames.items()}
+    TaskNames = {**TaskStateNames, **TaskStateMasks}
+    TaskStateFromNames = {v: k for k, v in TaskNames.items()}
 
     def __getattribute__(self, item):
-        if item in TaskStateNames.values():
+        if item in DeprecatedMetaTask.TaskNames.values():
             warnings.warn(f'Task.{item} is deprecated.  '
                           f'Please use TaskState.{item}',
                           DeprecationWarning, stacklevel=2)
