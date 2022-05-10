@@ -17,7 +17,7 @@ from builtins import range
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ..task import Task
+from ..task import TaskState
 from .base import TaskSpec
 from ..operators import valueof
 
@@ -68,10 +68,10 @@ class MultiInstance(TaskSpec):
         """
         # Find a Task for this TaskSpec.
         my_task = self._find_my_task(task_spec)
-        if my_task._has_state(Task.COMPLETED):
-            state = Task.READY
+        if my_task._has_state(TaskState.COMPLETED):
+            state = TaskState.READY
         else:
-            state = Task.FUTURE
+            state = TaskState.FUTURE
         for output in self.outputs:
             new_task = my_task._add_child(output, state)
             new_task.triggered = True
@@ -95,13 +95,13 @@ class MultiInstance(TaskSpec):
         for i in range(split_n):
             outputs += self.outputs
         if my_task._is_definite():
-            my_task._sync_children(outputs, Task.FUTURE)
+            my_task._sync_children(outputs, TaskState.FUTURE)
         else:
-            my_task._sync_children(outputs, Task.LIKELY)
+            my_task._sync_children(outputs, TaskState.LIKELY)
 
     def _on_complete_hook(self, my_task):
         outputs = self._get_predicted_outputs(my_task)
-        my_task._sync_children(outputs, Task.FUTURE)
+        my_task._sync_children(outputs, TaskState.FUTURE)
         for child in my_task.children:
             child.task_spec._update(child)
 

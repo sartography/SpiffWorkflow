@@ -35,7 +35,7 @@ from ...util.impl import get_class
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ...task import Task
+from ...task import Task, TaskState
 from ...util.deep_merge import DeepMerge
 
 LOG = logging.getLogger(__name__)
@@ -98,10 +98,10 @@ class MultiInstanceTask(TaskSpec):
 
         my_task = self._find_my_task(task_spec)
         LOG.debug(my_task.get_name() + 'trigger')
-        if my_task._has_state(Task.COMPLETED):
-            state = Task.READY
+        if my_task._has_state(TaskState.COMPLETED):
+            state = TaskState.READY
         else:
-            state = Task.FUTURE
+            state = TaskState.FUTURE
         for output in self.outputs:
             new_task = my_task._add_child(output, state)
             new_task.triggered = True
@@ -347,7 +347,7 @@ class MultiInstanceTask(TaskSpec):
                 # create a new task spec for this new task and update it
                 new_task_spec = self._make_new_task_spec(proto_task_spec, my_task, x)
                 new_child.task_spec = new_task_spec
-                new_child._set_state(Task.MAYBE)
+                new_child._set_state(TaskState.MAYBE)
 
                 # update task spec inputs and outputs like we did for the task
                 current_task_spec.outputs = [new_task_spec]
@@ -416,9 +416,9 @@ class MultiInstanceTask(TaskSpec):
             super()._predict_hook(my_task)
         else:
             if my_task._is_definite():
-                my_task._sync_children(outputs, Task.FUTURE)
+                my_task._sync_children(outputs, TaskState.FUTURE)
             else:
-                my_task._sync_children(outputs, Task.LIKELY)
+                my_task._sync_children(outputs, TaskState.LIKELY)
 
     def _handle_special_cases(self, my_task):
         classes = [BusinessRuleTask, ScriptTask, SubWorkflowTask, SubWorkflow,
@@ -460,7 +460,7 @@ class MultiInstanceTask(TaskSpec):
         if (runtimes < runcount) and not \
             my_task.terminate_current_loop and \
             self.loopTask:
-            my_task._set_state(my_task.READY)
+            my_task._set_state(TaskState.READY)
             my_task._set_internal_data(runtimes=runtimes + 1)
             my_task.data[self.elementVar] = self._get_current_var(my_task,
                                                       runtimes + 1)
@@ -523,7 +523,7 @@ class MultiInstanceTask(TaskSpec):
         outputs += self.outputs
 
         if not isinstance(my_task.task_spec,SubWorkflowTask):
-            my_task._sync_children(outputs, Task.FUTURE)
+            my_task._sync_children(outputs, TaskState.FUTURE)
 
         for child in my_task.children:
             child.task_spec._update(child)

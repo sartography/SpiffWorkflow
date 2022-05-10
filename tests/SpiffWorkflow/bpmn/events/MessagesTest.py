@@ -3,7 +3,7 @@
 
 
 import unittest
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -23,19 +23,19 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.do_next_exclusive_step('Select Test', choice='Messages')
         self.workflow.do_engine_steps()
-        self.assertEqual([], self.workflow.get_tasks(Task.READY))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual([], self.workflow.get_tasks(TaskState.READY))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.workflow.message('Wrong Message')
-        self.assertEqual([], self.workflow.get_tasks(Task.READY))
+        self.assertEqual([], self.workflow.get_tasks(TaskState.READY))
         self.workflow.message('Test Message')
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.assertEqual(
-            'Test Message', self.workflow.get_tasks(Task.READY)[0].task_spec.description)
+            'Test Message', self.workflow.get_tasks(TaskState.READY)[0].task_spec.description)
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughSaveAndRestore(self):
 
@@ -45,17 +45,17 @@ class MessagesTest(BpmnWorkflowTestCase):
 
         self.save_restore()
 
-        self.assertEqual([], self.workflow.get_tasks(Task.READY))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual([], self.workflow.get_tasks(TaskState.READY))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.workflow.message('Wrong Message')
-        self.assertEqual([], self.workflow.get_tasks(Task.READY))
+        self.assertEqual([], self.workflow.get_tasks(TaskState.READY))
         self.workflow.message('Test Message')
 
         self.save_restore()
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
 def suite():

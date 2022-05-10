@@ -5,7 +5,7 @@
 import unittest
 import datetime
 import time
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -35,7 +35,7 @@ class MessageBoundaryTest(BpmnWorkflowTestCase):
                  ]
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(2, len(ready_tasks),'Expected to have two ready tasks')
         for step in steps:
             for task in ready_tasks:
@@ -47,7 +47,7 @@ class MessageBoundaryTest(BpmnWorkflowTestCase):
                 time.sleep(.1)
                 self.workflow.refresh_waiting_tasks()
                 if save_restore: self.save_restore()
-            ready_tasks = self.workflow.get_tasks(Task.READY)
+            ready_tasks = self.workflow.get_tasks(TaskState.READY)
         time.sleep(.1)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()

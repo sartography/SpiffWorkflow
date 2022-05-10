@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,MA  02110-1301  USA
-from ..task import Task
+from ..task import TaskState
 from .base import TaskSpec
 
 
@@ -53,7 +53,7 @@ class AcquireMutex(TaskSpec):
             self.entered_event.emit(my_task.workflow, my_task)
             my_task._ready()
             return
-        my_task._set_state(Task.WAITING)
+        my_task._set_state(TaskState.WAITING)
 
     def serialize(self, serializer):
         return serializer.serialize_acquire_mutex(self)

@@ -18,7 +18,7 @@ from builtins import object
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...task import Task
+from ...task import TaskState
 from ...operators import Operator
 from ...specs import TaskSpec
 
@@ -202,7 +202,7 @@ class BpmnSpecMixin(TaskSpec):
     def _update_hook(self, my_task):
         prev_state = my_task.state
         super(BpmnSpecMixin, self)._update_hook(my_task)
-        if (prev_state != Task.WAITING and my_task.state == Task.WAITING and
+        if (prev_state != TaskState.WAITING and my_task.state == TaskState.WAITING and
                 not my_task.workflow._is_busy_with_restore()):
             self.entering_waiting_state(my_task)
 

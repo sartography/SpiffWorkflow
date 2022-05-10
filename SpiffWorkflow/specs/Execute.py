@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 import subprocess
 
-from ..task import Task
+from ..task import TaskState
 from .base import TaskSpec
 
 
@@ -72,7 +72,7 @@ class Execute(TaskSpec):
 
     def _update_hook(self, my_task):
         if not self._start(my_task):
-            my_task._set_state(Task.WAITING)
+            my_task._set_state(TaskState.WAITING)
             return
         super(Execute, self)._update_hook(my_task)
 

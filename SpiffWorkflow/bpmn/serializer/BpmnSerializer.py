@@ -25,6 +25,7 @@ import zipfile
 import os
 from json import loads
 
+from SpiffWorkflow import TaskState
 from ...bpmn.specs.SubWorkflowTask import SubWorkflowTask
 from ...bpmn.workflow import BpmnWorkflow
 from ...serializer import json as spiff_json
@@ -113,7 +114,7 @@ class BpmnSerializer(spiff_json.JSONSerializer):
                     sub_workflow.task_tree = start_task
                     # get a list of tasks in reverse order of change
                     # our last task should be on the top.
-                    tasks = sub_workflow.get_tasks(task.COMPLETED)
+                    tasks = sub_workflow.get_tasks(TaskState.COMPLETED)
                     tasks.sort(key=lambda x: x.last_state_change,reverse=True)
                     if len(tasks)>0:
                         last_task = tasks[0]

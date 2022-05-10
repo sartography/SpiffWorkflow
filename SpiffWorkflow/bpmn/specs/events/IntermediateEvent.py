@@ -22,7 +22,7 @@ from .event_definitions import CycleTimerEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ..SubWorkflowTask import SubWorkflowTask
 from ....specs.Simple import Simple
-from ....task import Task
+from ....task import TaskState
 
 class IntermediateCatchEvent(CatchingEvent):
     pass
@@ -49,7 +49,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
         for child in my_task.children:
             if isinstance(child.task_spec, BoundaryEvent):
                 child.task_spec.event_definition.reset(child)
-                child._set_state(Task.WAITING)
+                child._set_state(TaskState.WAITING)
 
     def _child_complete_hook(self, child_task):
 
@@ -68,15 +68,15 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
 
         # If our event is a cycle timer, we need to set it back to waiting so it can fire again
         elif isinstance(child_task.task_spec.event_definition, CycleTimerEventDefinition):
-            child_task._set_state(Task.WAITING)
+            child_task._set_state(TaskState.WAITING)
             child_task.task_spec._update_hook(child_task)
 
     def _predict_hook(self, my_task):
 
         # Events attached to the main task might occur
-        my_task._sync_children(self.outputs, state=Task.MAYBE)
+        my_task._sync_children(self.outputs, state=TaskState.MAYBE)
         # The main child's state is based on this task's state
-        state = Task.FUTURE if my_task._is_definite() else my_task.state
+        state = TaskState.FUTURE if my_task._is_definite() else my_task.state
         for child in my_task.children:
             if child.task_spec == self.main_child_task_spec:
                 child._set_state(state)
@@ -102,7 +102,7 @@ class BoundaryEvent(CatchingEvent):
 
     def catches(self, my_task, event_definition):
         # Boundary events should only be caught while waiting
-        return super(BoundaryEvent, self).catches(my_task, event_definition) and my_task.state == Task.WAITING
+        return super(BoundaryEvent, self).catches(my_task, event_definition) and my_task.state == TaskState.WAITING
 
     def catch(self, my_task, event_definition):
         super(BoundaryEvent, self).catch(my_task, event_definition)

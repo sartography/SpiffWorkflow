@@ -21,7 +21,7 @@ from .event_definitions import NoneEventDefinition, MessageEventDefinition, Cycl
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
 from ....specs.StartTask import StartTask
-from ....task import Task
+from ....task import TaskState
 
 class CatchingEvent(Simple, BpmnSpecMixin):
     """Base Task Spec for Catching Event nodes."""
@@ -48,7 +48,7 @@ class CatchingEvent(Simple, BpmnSpecMixin):
 
     def _update_hook(self, my_task):
 
-        if my_task.state == Task.WAITING and self.event_definition.has_fired(my_task):
+        if my_task.state == TaskState.WAITING and self.event_definition.has_fired(my_task):
             my_task._ready()
         super(CatchingEvent, self)._update_hook(my_task)
 
@@ -60,7 +60,7 @@ class CatchingEvent(Simple, BpmnSpecMixin):
 
         # If we have not seen the event we're waiting for, enter the waiting state
         if not self.event_definition.has_fired(my_task):
-            my_task._set_state(Task.WAITING)
+            my_task._set_state(TaskState.WAITING)
         super(CatchingEvent, self)._on_ready(my_task)
 
     def _on_complete_hook(self, my_task):

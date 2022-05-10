@@ -5,7 +5,7 @@
 import unittest
 import datetime
 import time
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -39,8 +39,8 @@ class StartMessageTest(BpmnWorkflowTestCase):
                  ]
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps() # get around start task
-        ready_tasks = self.workflow.get_tasks(Task.READY)
-        waiting_tasks = self.workflow.get_tasks(Task.WAITING)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)
         self.assertEqual(1, len(ready_tasks),'Expected to have one ready task')
         self.assertEqual(1, len(waiting_tasks), 'Expected to have one waiting task')
 
@@ -52,7 +52,7 @@ class StartMessageTest(BpmnWorkflowTestCase):
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
             if save_restore: self.save_restore()
-            ready_tasks = self.workflow.get_tasks(Task.READY)
+            ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(self.workflow.is_completed(),True,'Expected the workflow to be complete at this point')
         self.assertEqual(self.workflow.last_task.data,{'plan_details': 'Best',
                                                        'ApprovalResult': 'Yes',

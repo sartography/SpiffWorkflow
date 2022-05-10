@@ -16,7 +16,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ..task import Task
+from ..task import Task, TaskState
 from ..exceptions import WorkflowException
 from .base import TaskSpec
 from ..operators import valueof
@@ -99,7 +99,7 @@ class Join(TaskSpec):
         # Determine whether that branch is now completed by checking whether
         # it has any waiting items other than myself in it.
         skip = None
-        for task in Task.Iterator(my_task, my_task.NOT_FINISHED_MASK):
+        for task in Task.Iterator(my_task, TaskState.NOT_FINISHED_MASK):
             # If the current task is a child of myself, ignore it.
             if skip is not None and task._is_descendant_of(skip):
                 continue
@@ -140,7 +140,7 @@ class Join(TaskSpec):
         waiting_tasks = []
         completed = 0
         for task in tasks:
-            if task.parent is None or task._has_state(Task.COMPLETED):
+            if task.parent is None or task._has_state(TaskState.COMPLETED):
                 completed += 1
             else:
                 waiting_tasks.append(task)
@@ -186,9 +186,9 @@ class Join(TaskSpec):
         Also returns the list of tasks that yet need to be completed.
         """
         # If the threshold was already reached, there is nothing else to do.
-        if my_task._has_state(Task.COMPLETED):
+        if my_task._has_state(TaskState.COMPLETED):
             return True, None
-        if my_task._has_state(Task.READY):
+        if my_task._has_state(TaskState.READY):
             return True, None
 
         # Check whether we may fire.
@@ -200,7 +200,7 @@ class Join(TaskSpec):
         # Check whether enough incoming branches have completed.
         may_fire, waiting_tasks = self._start(my_task)
         if not may_fire:
-            my_task._set_state(Task.WAITING)
+            my_task._set_state(TaskState.WAITING)
             return
 
         # If this is a cancelling join, cancel all incoming branches,
@@ -273,7 +273,7 @@ class Join(TaskSpec):
                 self.entered_event.emit(my_task.workflow, my_task)
                 task._ready()
             else:
-                task._set_state(Task.COMPLETED)
+                task._set_state(TaskState.COMPLETED)
                 task._drop_children()
 
 

@@ -7,7 +7,7 @@ import datetime
 import time
 
 from SpiffWorkflow.bpmn.specs.events import CancelEventDefinition
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -25,7 +25,7 @@ class MultipleEventsTest(BpmnWorkflowTestCase):
     def get_to_first_task(self):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual("hello", ready_tasks[0].get_name())
 
 
@@ -38,17 +38,17 @@ class MultipleEventsTest(BpmnWorkflowTestCase):
         self.workflow.catch(CancelEventDefinition())
 
         # Nothing should have happened.
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual("hello", ready_tasks[0].get_name())
 
     def test_cancel_works_with_signal(self,save_restore = False):
         self.get_to_first_task()
-        task = self.workflow.get_tasks(Task.READY)[0]
+        task = self.workflow.get_tasks(TaskState.READY)[0]
 
         # Move to User Task 1
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
-        task = self.workflow.get_tasks(Task.READY)[0]
+        task = self.workflow.get_tasks(TaskState.READY)[0]
         self.assertEqual('UserTaskOne', task.get_name())
 
         # Send cancel notifications to the workflow
@@ -62,15 +62,15 @@ class MultipleEventsTest(BpmnWorkflowTestCase):
 
     def test_cancel_works_with_cancel_Event(self,save_restore = False):
         self.get_to_first_task()
-        task = self.workflow.get_tasks(Task.READY)[0]
+        task = self.workflow.get_tasks(TaskState.READY)[0]
 
         # Move to User Task 2
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
-        task = self.workflow.get_tasks(Task.READY)[0]
+        task = self.workflow.get_tasks(TaskState.READY)[0]
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
-        task = self.workflow.get_tasks(Task.READY)[0]
+        task = self.workflow.get_tasks(TaskState.READY)[0]
         self.assertEqual('UserTaskTwo', task.get_name())
 
         # Send cancel notifications to the workflow

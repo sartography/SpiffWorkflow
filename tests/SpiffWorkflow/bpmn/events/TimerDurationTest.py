@@ -5,7 +5,7 @@
 import unittest
 import datetime
 import time
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -29,11 +29,11 @@ class TimerDurationTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         self.workflow = BpmnWorkflow(self.spec)
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
@@ -43,10 +43,10 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         # we should terminate loop before that.
         starttime = datetime.datetime.now()
         while loopcount < 10:
-            if len(self.workflow.get_tasks(Task.READY)) >= 1:
+            if len(self.workflow.get_tasks(TaskState.READY)) >= 1:
                 break
             if save_restore: self.save_restore()
-            self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+            self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
             time.sleep(0.1)
             self.workflow.refresh_waiting_tasks()
             loopcount = loopcount +1
@@ -54,7 +54,6 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         duration = endtime-starttime
         self.assertEqual(duration<datetime.timedelta(seconds=.5),True)
         self.assertEqual(duration>datetime.timedelta(seconds=.25),True)
-        print(duration)
 
 
 def suite():

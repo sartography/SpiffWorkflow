@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest.mock import patch
 
-from SpiffWorkflow import Task
+from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -29,14 +29,14 @@ class BusinessRuleTaskParserTest(BpmnDmnWorkflowTestCase):
 
     def testDmnHappy(self):
         self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.get_tasks(Task.READY)[0].set_data(x=3)
+        self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
         self.workflow.do_engine_steps()
         self.assertDictEqual(self.workflow.data, {'x': 3, 'y': 'A'})
         self.assertDictEqual(self.workflow.last_task.data, {'x': 3, 'y': 'A'})
 
     def testDmnSaveRestore(self):
         self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.get_tasks(Task.READY)[0].set_data(x=3)
+        self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
         self.save_restore()
         self.workflow.do_engine_steps()
         self.save_restore()
@@ -50,7 +50,7 @@ class BusinessRuleTaskParserTest(BpmnDmnWorkflowTestCase):
         an optional argument, it should always exist if executed in the context
         of a BPMNWorkflow"""
         self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.get_tasks(Task.READY)[0].set_data(x=3)
+        self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
         self.workflow.do_engine_steps()
         task = self.workflow.get_tasks_from_spec_name('TaskDecision')[0]
         name, args, kwargs = mock_engine.mock_calls[0]
@@ -58,7 +58,7 @@ class BusinessRuleTaskParserTest(BpmnDmnWorkflowTestCase):
 
     def testDmnUsesSameScriptEngineAsBPMN(self):
         self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.get_tasks(Task.READY)[0].set_data(x=3)
+        self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
         self.workflow.do_engine_steps()
 
 

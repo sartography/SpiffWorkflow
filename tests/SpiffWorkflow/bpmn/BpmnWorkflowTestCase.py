@@ -7,7 +7,7 @@ import os
 import unittest
 
 from SpiffWorkflow import NavItem
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
@@ -34,7 +34,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             self.save_restore_all()
 
         self.workflow.do_engine_steps()
-        tasks = self.workflow.get_tasks(Task.READY)
+        tasks = self.workflow.get_tasks(TaskState.READY)
         self._do_single_step(step_name, tasks, set_attribs, choice)
 
     def do_next_named_step(self, step_name, with_save_load=False, set_attribs=None, choice=None, only_one_instance=True):
@@ -60,13 +60,13 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             return True
 
         tasks = list(
-            [t for t in self.workflow.get_tasks(Task.READY) if is_match(t)])
+            [t for t in self.workflow.get_tasks(TaskState.READY) if is_match(t)])
 
         self._do_single_step(
             step_name_path[-1], tasks, set_attribs, choice, only_one_instance=only_one_instance)
 
     def assertTaskNotReady(self, step_name):
-        tasks = list([t for t in self.workflow.get_tasks(Task.READY)
+        tasks = list([t for t in self.workflow.get_tasks(TaskState.READY)
                      if t.task_spec.name == step_name or t.task_spec.description == step_name])
         self.assertEqual([], tasks)
 

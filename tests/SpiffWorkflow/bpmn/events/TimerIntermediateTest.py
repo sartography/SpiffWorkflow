@@ -5,7 +5,7 @@
 import unittest
 import datetime
 import time
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -26,23 +26,23 @@ class TimerIntermediateTest(BpmnWorkflowTestCase):
 
         due_time = datetime.datetime.now() + datetime.timedelta(seconds=0.5)
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
-        self.workflow.get_tasks(Task.READY)[0].set_data(due_time=due_time)
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.workflow.get_tasks(TaskState.READY)[0].set_data(due_time=due_time)
 
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         time.sleep(0.6)
 
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.workflow.refresh_waiting_tasks()
-        self.assertEqual(0, len(self.workflow.get_tasks(Task.WAITING)))
-        self.assertEqual(1, len(self.workflow.get_tasks(Task.READY)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.workflow.do_engine_steps()
         self.assertEqual(
-            0, len(self.workflow.get_tasks(Task.READY | Task.WAITING)))
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
 def suite():

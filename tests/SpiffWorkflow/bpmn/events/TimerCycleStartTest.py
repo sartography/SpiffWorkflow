@@ -7,7 +7,7 @@ import datetime
 import time
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -46,7 +46,7 @@ class TimerCycleStartTest(BpmnWorkflowTestCase):
     def actual_test(self,save_restore = False):
         global counter
         self.workflow = BpmnWorkflow(self.spec,script_engine=CustomScriptEngine())
-        ready_tasks = self.workflow.get_tasks(Task.READY)
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks)) # Start Event
         self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()

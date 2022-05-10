@@ -16,7 +16,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ..task import Task
+from ..task import TaskState
 from ..exceptions import WorkflowException
 from .MultiChoice import MultiChoice
 
@@ -87,7 +87,7 @@ class ExclusiveChoice(MultiChoice):
             raise WorkflowException(self,
                 f'No conditions satisfied for {my_task.task_spec.name}')
 
-        my_task._sync_children([output], Task.FUTURE)
+        my_task._sync_children([output], TaskState.FUTURE)
         for child in my_task.children:
             child.task_spec._update(child)
 

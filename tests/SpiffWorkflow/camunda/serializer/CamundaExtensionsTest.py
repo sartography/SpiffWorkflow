@@ -8,7 +8,6 @@ from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
 
 class CamundaExtensionsTest(BaseTestCase):
-    CORRELATE = UserTaskParser
 
     def setUp(self):
         self.spec = self.load_workflow_spec('data/random_fact.bpmn',

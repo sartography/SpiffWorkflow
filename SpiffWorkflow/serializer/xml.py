@@ -20,7 +20,7 @@ import warnings
 from lxml import etree
 from lxml.etree import SubElement
 from .. import Workflow, specs, operators
-from ..task import Task
+from ..task import Task, TaskStateNames
 from ..operators import (Attrib, Assign, PathAttrib, Equal, NotEqual,
                          GreaterThan, LessThan, Match)
 from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
@@ -794,7 +794,7 @@ class XmlSerializer(Serializer):
 
         state_name = elem.findtext('state')
         found = False
-        for key, value in list(Task.state_names.items()):
+        for key, value in list(TaskStateNames.items()):
             if value == state_name:
                 task._state = key
                 found = True

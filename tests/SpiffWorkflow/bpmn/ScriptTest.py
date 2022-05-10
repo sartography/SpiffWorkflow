@@ -6,7 +6,7 @@ import unittest
 from unittest import skip
 
 from SpiffWorkflow.exceptions import WorkflowTaskExecException
-from SpiffWorkflow.task import Task
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -37,7 +37,7 @@ class InlineScriptTest(BpmnWorkflowTestCase):
         bleed into a separate execution.  It will think a variable is there
         when it should not be there"""
         self.workflow = BpmnWorkflow(self.spec)
-        startTask = self.workflow.get_tasks(Task.READY)[0]
+        startTask = self.workflow.get_tasks(TaskState.READY)[0]
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
         self.assertTrue("testvar" in self.workflow.last_task.data)
