@@ -174,11 +174,8 @@ class TaskParser(object):
         try:
             self.task = self.create_task()
 
-            self.task.extensions = self.parser.parse_extensions(self.node,
-                                                                xpath=self.xpath,
-                                                                task_parser=self)
-            self.task.documentation = self.parser._parse_documentation(
-                self.node, xpath=self.xpath, task_parser=self)
+            self.task.extensions = self.parser.parse_extensions(self.node, xpath=self.xpath)
+            self.task.documentation = self.parser.parse_documentation(self.node, xpath=self.xpath)
 
             self._detect_multiinstance()
 
@@ -302,8 +299,7 @@ class TaskParser(object):
             outgoing_task, sequence_flow_node.get('id'),
             sequence_flow_node.get(
                 'name', None),
-            self.parser._parse_documentation(sequence_flow_node,
-                                             task_parser=self))
+            self.parser.parse_documentation(sequence_flow_node))
 
     def handles_multiple_outgoing(self):
         """

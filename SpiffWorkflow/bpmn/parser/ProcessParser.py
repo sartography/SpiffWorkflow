@@ -55,8 +55,6 @@ class ProcessParser(object):
         self._init_lane_lookup()
         self.id_to_coords_lookup = None  # Dictionary of positional arguments for each node.
         self._init_coord_lookup()
-        self.message_lookup = {}  # Dictionary of positional arguments for each node.
-        self._init_message_lookup()
         self.current_lane = current_lane
 
     def get_id(self):
@@ -121,15 +119,6 @@ class ProcessParser(object):
         """
         return self.id_to_coords_lookup.get(id, {'x':0, 'y':0})
 
-    def _init_message_lookup(self):
-        """Creates a lookup table for the name/id of all messages in the workflow
-        """
-        self.message_lookup = {}
-        for message in self.doc_xpath('.//bpmn:message'):
-            self.message_lookup[message.attrib['id']] = message.attrib['name']
-        for message in self.doc_xpath('.//bpmn:signal'):
-            self.message_lookup[message.attrib['id']] = message.attrib['name']
-
     def _init_coord_lookup(self):
         """Creates a lookup table with the x/y coordinates of each shape.
         Only tested with the output from the Camunda modeler, which provides
@@ -146,14 +135,9 @@ class ProcessParser(object):
         # here we only look in the top level, We will have another
         # bpmn:startEvent if we have a subworkflow task
         start_node_list = self.xpath('./bpmn:startEvent')
-
         if not start_node_list:
             raise ValidationException(
                 "No start event found", node=self.node, filename=self.filename)
-        # elif len(start_node_list) != 1:
-        #     raise ValidationException(
-        #         "Only one Start Event is supported in each process",
-        #         node=self.node, filename=self.filename)
         self.parsing_started = True
         for node in start_node_list:
             self.parse_node(node)
@@ -170,4 +154,4 @@ class ProcessParser(object):
             raise NotImplementedError(
                 'Recursive call Activities are not supported.')
         self._parse()
-        return self.get_spec()
+        return self.spec
