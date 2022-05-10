@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
+import warnings
 from builtins import str
 from builtins import hex
 from builtins import object
@@ -168,6 +169,42 @@ class Task(object):
     created to allow for visualizing the workflow at a time where
     the required decisions have not yet been made.
     """
+
+    @property
+    def MAYBE(self):
+        warnings.warn('Please use TaskState.MAYBE.', DeprecationWarning)
+        return TaskState.MAYBE
+
+    @property
+    def LIKELY(self):
+        warnings.warn('Please use TaskState.LIKELY.', DeprecationWarning)
+        return TaskState.LIKELY
+
+    @property
+    def FUTURE(self):
+        warnings.warn('Please use TaskState.FUTURE.', DeprecationWarning)
+        return TaskState.FUTURE
+
+    @property
+    def WAITING(self):
+        warnings.warn('Please use TaskState.WAITING.', DeprecationWarning)
+        return TaskState.WAITING
+
+    @property
+    def READY(self):
+        warnings.warn('Please use TaskState.READY.', DeprecationWarning)
+        return TaskState.READY
+
+    @property
+    def COMPLETED(self):
+        warnings.warn('Please use TaskState.COMPLETED.', DeprecationWarning)
+        return TaskState.COMPLETED
+
+    @property
+    def CANCELLED(self):
+        warnings.warn('Please use TaskState.CANCELLED.', DeprecationWarning)
+        return TaskState.CANCELLED
+
 
     class Iterator(object):
 
