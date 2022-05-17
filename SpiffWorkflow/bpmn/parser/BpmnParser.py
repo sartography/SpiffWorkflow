@@ -21,10 +21,10 @@ import glob
 
 from lxml import etree
 
-from ..workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
 from .ValidationException import ValidationException
 from ..specs.events import StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
-from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
+from ..specs.SubWorkflowTask import CallActivity, SubWorkflowTask, TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
 from ..specs.ManualTask import ManualTask
@@ -51,8 +51,7 @@ class BpmnParser(object):
 
     Extension points: OVERRIDE_PARSER_CLASSES provides a map from full BPMN tag
     name to a TaskParser and Task class. PROCESS_PARSER_CLASS provides a
-    subclass of ProcessParser WORKFLOW_CLASS provides a subclass of
-    BpmnWorkflow
+    subclass of ProcessParser
     """
 
     PARSER_CLASSES = {
@@ -80,7 +79,6 @@ class BpmnParser(object):
     OVERRIDE_PARSER_CLASSES = {}
 
     PROCESS_PARSER_CLASS = ProcessParser
-    WORKFLOW_CLASS = BpmnWorkflow
 
     def __init__(self):
         """
@@ -108,7 +106,7 @@ class BpmnParser(object):
 
     def get_process_ids(self):
         """Returns a list of process IDs"""
-        return  self.process_parsers.keys()
+        return self.process_parsers.keys()
 
     def add_bpmn_file(self, filename):
         """
@@ -205,3 +203,20 @@ class BpmnParser(object):
                 f"Did you mean one of the following: "
                 f"{', '.join(self.get_process_ids())}?")
         return parser.get_spec()
+
+    def get_process_specs(self):
+        # This is a little convoluted, but we might add more processes as we generate
+        # the dictionary if something refers to another subproess that we haven't seen.
+        processes = dict((id, self.get_spec(id)) for id in list(self.process_parsers.keys()))
+        while processes.keys() != self.process_parsers.keys():
+            for process_id in self.process_parsers.keys():
+                processes[process_id] = self.get_spec(process_id)
+        return processes
+
+    def get_top_level_spec(self, name, entry_points):
+        spec = BpmnProcessSpec(name)
+        for process in entry_points:
+            task = SubWorkflowTask(spec, process, process)
+            spec.start.connect(task)
+            task.connect(spec.end)
+        return spec

@@ -152,11 +152,8 @@ class CallActivityTaskConverter(BpmnTaskSpecConverter):
         return dct
 
     def from_dict(self, dct):
-        spec = self.task_spec_from_dict(dct)
-        spec.wf_class = self.wf_class
-        spec.spec = dct['spec']
-        spec.sub_workflow = dct['sub_workflow']
-        return spec
+        dct['subworkflow_spec'] = dct.pop('spec')
+        return self.task_spec_from_dict(dct)
 
 
 class TransactionSubprocessTaskConverter(BpmnTaskSpecConverter):
@@ -172,11 +169,8 @@ class TransactionSubprocessTaskConverter(BpmnTaskSpecConverter):
         return dct
 
     def from_dict(self, dct):
-        spec = self.task_spec_from_dict(dct)
-        spec.wf_class = self.wf_class
-        spec.spec = dct['spec']
-        spec.sub_workflow = dct['sub_workflow']
-        return spec
+        dct['subworkflow_spec'] = dct.pop('spec')
+        return self.task_spec_from_dict(dct)
 
 
 class ExclusiveGatewayConverter(BpmnTaskSpecConverter):

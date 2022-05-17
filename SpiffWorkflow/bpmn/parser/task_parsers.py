@@ -16,19 +16,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import copy
-
 from lxml import etree
 
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
-from ..workflow import BpmnWorkflow
 from .util import first, one, DEFAULT_NSMAP
-from ..specs.events import (TimerEventDefinition, MessageEventDefinition,
-                            EscalationEventDefinition,SignalEventDefinition,
-                            CancelEventDefinition, CycleTimerEventDefinition)
-from ...exceptions import WorkflowException
-from ...bpmn.specs.events import IntermediateCatchEvent
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
@@ -120,10 +112,9 @@ class SubWorkflowParser(TaskParser):
     should be treated the same way as User Tasks.
     """
     def create_task(self):
-        wf_spec = self.get_subprocess_spec()
+        subworkflow_spec = self.get_subprocess_spec()
         return self.spec_class(
-            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
-            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            self.spec, self.get_task_spec_name(), subworkflow_spec,
             position=self.process_parser.get_coord(self.get_id()),
             lane=self.get_lane(),
             description=self.node.get('name', None))
@@ -157,19 +148,16 @@ class SubWorkflowParser(TaskParser):
             filename=self.process_parser.filename,
             current_lane=self.get_lane()
         )
-        wf_spec = self.parser.get_spec(self.node.get('id'))
-        wf_spec.file = self.process_parser.filename
-        return wf_spec
+        return self.node.get('id')
 
 
 class TransactionSubprocessParser(SubWorkflowParser):
     """Parses a transaction node"""
 
     def create_task(self):
-        wf_spec = self.get_subprocess_spec()
+        subworkflow_spec = self.get_subprocess_spec()
         return self.spec_class(
-            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
-            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            self.spec, self.get_task_spec_name(), subworkflow_spec,
             position=self.process_parser.get_coord(self.get_id()),
             description=self.node.get('name', None))
 
@@ -178,28 +166,27 @@ class CallActivityParser(TaskParser):
     """Parses a CallActivity node."""
 
     def create_task(self):
-        wf_spec = self.get_subprocess_spec()
+        subworkflow_spec = self.get_subprocess_spec()
         return self.spec_class(
-            self.spec, self.get_task_spec_name(), bpmn_wf_spec=wf_spec,
-            bpmn_wf_class=self.parser.WORKFLOW_CLASS,
+            self.spec, self.get_task_spec_name(), subworkflow_spec,
             position=self.process_parser.get_coord(self.get_id()),
             description=self.node.get('name', None))
 
     def get_subprocess_spec(self):
-        calledElement = self.node.get('calledElement', None)
-        if not calledElement:
+        called_element = self.node.get('calledElement', None)
+        if not called_element:
             raise ValidationException(
                 'No "calledElement" attribute for Call Activity.',
                 node=self.node,
                 filename=self.process_parser.filename)
-        parser = self.parser.get_process_parser(calledElement)
+        parser = self.parser.get_process_parser(called_element)
         if parser is None:
             raise ValidationException(
-                f"The process '{calledElement}' was not found. Did you mean one of the following: "
+                f"The process '{called_element}' was not found. Did you mean one of the following: "
                 f"{', '.join(self.parser.get_process_ids())}?",
                 node=self.node,
                 filename=self.process_parser.filename)
-        return parser.get_spec()
+        return called_element
 
 
 class ScriptTaskParser(TaskParser):

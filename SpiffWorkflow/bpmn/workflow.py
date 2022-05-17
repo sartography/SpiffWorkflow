@@ -15,9 +15,11 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+
 from .PythonScriptEngine import PythonScriptEngine
+from .specs import BpmnProcessSpec, SubWorkflowTask
 from .specs.events.event_types import CatchingEvent
-from .specs.events import CancelEventDefinition, MessageEventDefinition, SignalEventDefinition
+from .specs.events import MessageEventDefinition, SignalEventDefinition
 from ..task import TaskState
 from ..workflow import Workflow
 
@@ -28,7 +30,7 @@ class BpmnWorkflow(Workflow):
     Spiff Workflow class with a few extra methods and attributes.
     """
 
-    def __init__(self, workflow_spec, name=None, script_engine=None,
+    def __init__(self, top_level_spec, subprocess_specs=None, name=None, script_engine=None,
                  read_only=False, **kwargs):
         """
         Constructor.
@@ -43,8 +45,10 @@ class BpmnWorkflow(Workflow):
         to provide read only access to a previously saved workflow.
         """
         self._busy_with_restore = False
-        super(BpmnWorkflow, self).__init__(workflow_spec, **kwargs)
-        self.name = name or workflow_spec.name
+        super(BpmnWorkflow, self).__init__(top_level_spec, **kwargs)
+        self.name = name or top_level_spec.name
+        self.subprocess_specs = subprocess_specs or {}
+        self.subprocesses = {}
         self.__script_engine = script_engine or PythonScriptEngine()
         self.read_only = read_only
 
@@ -67,6 +71,31 @@ class BpmnWorkflow(Workflow):
     @script_engine.setter
     def script_engine(self, engine):
         self.__script_engine = engine
+
+    def create_subprocess(self, my_task, spec_name, name):
+        
+        workflow = self._get_outermost_workflow(my_task)
+        subprocess = BpmnWorkflow(
+            workflow.subprocess_specs[spec_name], name=name,
+            read_only=self.read_only,
+            script_engine=self.script_engine,
+            parent=my_task.workflow)
+        workflow.subprocesses[my_task.id] = subprocess
+        return subprocess
+
+    def delete_subprocess(self, my_task):
+        workflow = self._get_outermost_workflow(my_task)
+        del workflow.subprocesses[my_task.id]
+
+    def get_subprocess(self, my_task):
+        workflow = self._get_outermost_workflow(my_task)
+        return workflow.subprocesses[my_task.id]
+
+    def _get_outermost_workflow(self, task):    
+        workflow = task.workflow
+        while workflow != workflow.outer_workflow:
+            workflow = workflow.outer_workflow
+        return workflow
 
     def message(self, message, payload=None, result_var=None):
         """
