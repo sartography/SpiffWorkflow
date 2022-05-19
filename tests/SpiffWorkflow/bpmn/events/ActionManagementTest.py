@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 import datetime
 import time
@@ -15,8 +13,8 @@ __author__ = 'matth'
 class ActionManagementTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-        self.workflow = BpmnWorkflow(self.spec)
+        self.spec, self.subprocesses = self.load_workflow_spec('Test-Workflows/Action-Management.bpmn20.xml', 'Action Management')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
         start_time = datetime.datetime.now() + datetime.timedelta(seconds=0.5)
         finish_time = datetime.datetime.now() + datetime.timedelta(seconds=1.5)
@@ -24,10 +22,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.workflow.get_tasks(TaskState.READY)[0].set_data(
             start_time=start_time, finish_time=finish_time)
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Action Management')
-
+    
     def testRunThroughHappy(self):
         self.do_next_exclusive_step("Review Action", choice='Approve')
         self.workflow.do_engine_steps()

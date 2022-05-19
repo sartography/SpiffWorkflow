@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
-import datetime
-import time
+
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -15,10 +12,11 @@ __author__ = 'kellym'
 class StartMessageTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
+        self.spec, self.subprocesses = self.load_workflow_spec('message_test.bpmn', 'ThrowCatch')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
     def load_spec(self):
-        return self.load_workflow_spec('message_test.bpmn', 'ThrowCatch')
+        return 
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -37,7 +35,6 @@ class StartMessageTest(BpmnWorkflowTestCase):
                  ('Activity_ApproveOrDeny', {'approved':'Yes'}),
                  ('Activity_EnablePlan',{'Done':'OK!'})
                  ]
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps() # get around start task
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)

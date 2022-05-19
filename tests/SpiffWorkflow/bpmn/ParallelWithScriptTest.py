@@ -12,14 +12,11 @@ __author__ = 'leashys'
 class ParallelWithScriptTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('ParallelWithScript.bpmn','ParallelWithScript')
+        spec, subprocesses = self.load_workflow_spec('ParallelWithScript.bpmn', 'ParallelWithScript')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughParallel(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         nav_list = self.workflow.get_flat_nav_list()
         for nav in nav_list:

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -19,16 +17,13 @@ class NavLeapfrogTest(BpmnWorkflowTestCase):
     """
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-        self.workflow = BpmnWorkflow(self.spec)
+        spec, subprocesses = self.load_workflow_spec('NavLeapFrog.bpmn','NavLeapFrog')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]
         task.data = {"cats": 10}
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('NavLeapFrog.bpmn','NavLeapFrog')
 
     def testRunThroughFlatNav(self):
 

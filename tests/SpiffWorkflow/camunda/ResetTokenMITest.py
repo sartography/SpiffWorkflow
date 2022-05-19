@@ -1,27 +1,19 @@
 # -*- coding: utf-8 -*-
 
-
-
-import sys
-import os
 import unittest
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-from SpiffWorkflow.exceptions import WorkflowException
-__author__ = 'kellym'
 
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
+__author__ = 'kellym'
 
 class ResetTokenTestMI(BaseTestCase):
     """The example bpmn diagram tests both a set cardinality from user input
     as well as looping over an existing array."""
 
     def setUp(self):
-        self.spec = self.load_workflow_spec(
-            'data/token_trial_MI.bpmn',
-            'token')
+        spec, subprocesses = self.load_workflow_spec('token_trial_MI.bpmn', 'token')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -29,11 +21,8 @@ class ResetTokenTestMI(BaseTestCase):
     def testRunThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
-
-
-
     def actual_test(self, save_restore=False,reset_data=False):
-        self.workflow = BpmnWorkflow(self.spec)
+
         self.workflow.do_engine_steps()
         firsttaskid = None
         steps = [{'taskname':'First',
@@ -82,12 +71,6 @@ class ResetTokenTestMI(BaseTestCase):
                                      '3': {'A': 'a3'}},
                           'C': 'c'},
                          self.workflow.last_task.data)
-
-
-
-
-
-
 
 
 

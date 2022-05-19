@@ -1,15 +1,13 @@
 import os
 import unittest
+import json
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.camunda.serializer import UserTaskConverter
-from SpiffWorkflow.dmn.serializer import BusinessRuleTaskConverter
 from tests.SpiffWorkflow.bpmn.BpmnLoaderForTests import TestUserTaskConverter
-from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
-
 
 
 class BpmnWorkflowSerializerTest(unittest.TestCase):
@@ -18,26 +16,22 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
 
     def load_workflow_spec(self, filename, process_name):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
-
-        return BpmnSerializer().deserialize_workflow_spec(
-            PackagerForTests.package_in_memory(process_name, f))
+        parser = BpmnParser()
+        parser.add_bpmn_files_by_glob(f)
+        top_level_spec = parser.get_spec(process_name)
+        subprocesses = parser.get_process_specs()
+        return top_level_spec, subprocesses
 
     def setUp(self):
         super(BpmnWorkflowSerializerTest, self).setUp()
-        wf_spec_converter = \
-            BpmnWorkflowSerializer.configure_workflow_spec_converter(
-                [UserTaskConverter,
-                 BusinessRuleTaskConverter,
-                 TestUserTaskConverter])
-        self.serializer = \
-            BpmnWorkflowSerializer(wf_spec_converter,
-                                   version=self.SERIALIZER_VERSION)
-        self.spec = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
-        self.workflow = BpmnWorkflow(self.spec)
-        self.return_type = str
+        wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([TestUserTaskConverter])
+        self.serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION)
+        spec, subprocesses = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testDeserializeWorkflowSpec(self):
-        self.assertIsNotNone(self.spec)
+        """Tested as a part of deserialize workflow."""
+        pass
 
     def testSerializeWorkflowSpec(self):
         spec_serialized = self.serializer.serialize_json(self.workflow)
@@ -63,10 +57,9 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         new_json = self.serializer.serialize_json(new_workflow)
         new_workflow_2 = self.serializer.deserialize_json(new_json)
 
-
     def testSerializeWorkflow(self):
-        json = self.serializer.serialize_json(self.workflow)
-        print(json)
+        serialized = self.serializer.serialize_json(self.workflow)
+        json.loads(serialized)
 
     def testDeserializeWorkflow(self):
         self._compare_with_deserialized_copy(self.workflow)
@@ -123,8 +116,6 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         self.assertIsNotNone(self.workflow.last_task)
         self.assertIsNotNone(wf2.last_task)
         self._compare_workflows(self.workflow, wf2)
-
-
 
     def _compare_with_deserialized_copy(self, wf):
         json = self.serializer.serialize_json(wf)

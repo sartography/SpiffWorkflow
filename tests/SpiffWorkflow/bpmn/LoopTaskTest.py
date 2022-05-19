@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -14,14 +12,11 @@ class LoopTaskTest(BpmnWorkflowTestCase):
     It should repeat 5 times before termination."""
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('bpmnLoopTask.bpmn','LoopTaskTest')
+        spec, subprocesses = self.load_workflow_spec('bpmnLoopTask.bpmn','LoopTaskTest')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         for i in range(5):
             self.workflow.do_engine_steps()
             ready_tasks = self.workflow.get_ready_user_tasks()
@@ -42,8 +37,6 @@ class LoopTaskTest(BpmnWorkflowTestCase):
 
     def testSaveRestore(self):
 
-
-        self.workflow = BpmnWorkflow(self.spec)
         for i in range(5):
             self.save_restore()
             self.workflow.do_engine_steps()

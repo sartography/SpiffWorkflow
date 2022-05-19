@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -13,15 +11,11 @@ __author__ = 'michaelc'
 class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('transaction.bpmn', 'Main_Process')
+        self.spec, self.subprocesses = self.load_workflow_spec('transaction.bpmn', 'Main_Process')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        self.workflow.do_engine_steps()
 
     def testBoundaryNavigation(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
 
         nav = self.workflow.get_flat_nav_list()
         self.assertEqual(27, len(nav))
@@ -47,8 +41,6 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def testNormalCompletion(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].complete()
@@ -76,8 +68,6 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def testSubworkflowCancelEvent(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
 
         # If value == '', we cancel
@@ -102,8 +92,6 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def testSubworkflowErrorCodeNone(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].complete()
@@ -132,8 +120,7 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
 
     def testSubworkflowErrorCodeOne(self):
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
+
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].complete()

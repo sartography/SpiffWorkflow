@@ -11,10 +11,8 @@ __author__ = 'essweine'
 class CallActivityMessageTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('call_activity_with_message*.bpmn', 'Process_0xeaemr')
+        self.spec, self.subprocesses = self.load_workflow_spec('call_activity_with_message*.bpmn', 'Process_0xeaemr')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -31,7 +29,7 @@ class CallActivityMessageTest(BpmnWorkflowTestCase):
                  ('Activity_ApproveOrDeny', {'approved':'Yes'}),
                  ('Activity_EnablePlan',{'Done':'OK!'})
                  ]
-        self.workflow = BpmnWorkflow(self.spec)
+
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)

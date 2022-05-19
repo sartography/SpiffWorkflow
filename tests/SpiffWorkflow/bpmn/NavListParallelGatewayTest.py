@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -26,14 +24,11 @@ class NavListParallelGatewayTest(BpmnWorkflowTestCase):
     """
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('ParallelTasksNavigation.bpmn','ParallelTasksNavigation')
+        spec, subprocesses = self.load_workflow_spec('ParallelTasksNavigation.bpmn','ParallelTasksNavigation')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         nav_list = self.workflow.get_flat_nav_list()
         self.assertNav(nav_list[0], name="StartEvent_1", indent=0)

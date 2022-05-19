@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 
-
 import json
-import logging
 import os
 import unittest
 
 from SpiffWorkflow import NavItem
 from SpiffWorkflow.task import TaskState
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
-from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
-from .BpmnLoaderForTests import TestUserTaskConverter
+from .BpmnLoaderForTests import TestUserTaskConverter, TestBpmnParser
 
 __author__ = 'matth'
 
@@ -25,9 +21,11 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def load_workflow_spec(self, filename, process_name):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
-
-        return BpmnSerializer().deserialize_workflow_spec(
-            PackagerForTests.package_in_memory(process_name, f))
+        parser = TestBpmnParser()
+        parser.add_bpmn_files_by_glob(f)
+        top_level_spec = parser.get_spec(process_name)
+        subprocesses = parser.get_process_specs()
+        return top_level_spec, subprocesses
 
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:

@@ -11,14 +11,11 @@ __author__ = 'neilc'
 class NestedProcessesTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Nested Subprocesses')
+        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Nested*.bpmn20.xml', 'Nested Subprocesses')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         self.do_next_named_step('Action1')
         self.workflow.do_engine_steps()
         self.save_restore()

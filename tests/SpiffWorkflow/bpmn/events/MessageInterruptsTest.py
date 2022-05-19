@@ -15,15 +15,11 @@ __author__ = 'matth'
 class MessageInterruptsTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-        # self.spec.dump()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Test Workflows')
+        self.spec, self.subprocesses = self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Test Workflows')
 
     def testRunThroughHappySaveAndRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.save_restore()
         self.do_next_exclusive_step('Select Test', choice='Message Interrupts')
         self.workflow.do_engine_steps()
@@ -46,7 +42,7 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
 
     def testRunThroughMessageInterruptSaveAndRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.save_restore()
         self.do_next_exclusive_step('Select Test', choice='Message Interrupts')
         self.workflow.do_engine_steps()
@@ -73,7 +69,7 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.do_next_exclusive_step('Select Test', choice='Message Interrupts')
         self.workflow.do_engine_steps()
 
@@ -91,7 +87,7 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
 
     def testRunThroughMessageInterrupt(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.do_next_exclusive_step('Select Test', choice='Message Interrupts')
         self.workflow.do_engine_steps()
 

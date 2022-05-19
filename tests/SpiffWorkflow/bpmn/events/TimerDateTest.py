@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 import datetime
 import time
@@ -17,10 +15,8 @@ __author__ = 'kellym'
 class TimerDateTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('timer-date-start.bpmn', 'date_timer')
+        self.spec, self.subprocesses = self.load_workflow_spec('timer-date-start.bpmn', 'date_timer')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -31,7 +27,6 @@ class TimerDateTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         global counter
-        self.workflow = BpmnWorkflow(self.spec)
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks)) # Start Event
         self.workflow.complete_task_from_id(ready_tasks[0].id)
@@ -50,7 +45,6 @@ class TimerDateTest(BpmnWorkflowTestCase):
 
 
             waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)
-            #self.assertEqual(1, len(waiting_tasks))z
             time.sleep(0.1)
             self.workflow.refresh_waiting_tasks()
             loopcount = loopcount +1

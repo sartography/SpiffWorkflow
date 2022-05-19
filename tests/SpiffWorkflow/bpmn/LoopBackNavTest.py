@@ -15,12 +15,9 @@ class LoopBackNavTest(BpmnWorkflowTestCase):
     that navigation works correctly in that circumstance."""
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-        self.workflow = BpmnWorkflow(self.spec)
+        spec, subprocesses = self.load_workflow_spec('LoopBackNav.bpmn', 'LoopBackNav')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('LoopBackNav.bpmn', 'LoopBackNav')
 
     def testRunThroughHappy(self):
 

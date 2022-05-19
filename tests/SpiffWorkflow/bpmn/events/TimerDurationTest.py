@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 import datetime
 import time
@@ -15,10 +13,8 @@ __author__ = 'kellym'
 class TimerDurationTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('timer.bpmn', 'timer')
+        self.spec, self.subprocesses = self.load_workflow_spec('timer.bpmn', 'timer')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -28,7 +24,6 @@ class TimerDurationTest(BpmnWorkflowTestCase):
 
 
     def actual_test(self,save_restore = False):
-        self.workflow = BpmnWorkflow(self.spec)
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         self.workflow.complete_task_from_id(ready_tasks[0].id)

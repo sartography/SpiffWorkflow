@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-
-__author__ = 'kellym'
 
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
+
+__author__ = 'kellym'
 
 
 class SubWorkflowTest(BaseTestCase):
@@ -16,10 +13,8 @@ class SubWorkflowTest(BaseTestCase):
        what we expect"""
 
     def setUp(self):
-        self.spec = self.load_workflow_spec(
-            'data/subWorkflowComplex.bpmn',
-            'SubWorkflow')
-        self.workflow = BpmnWorkflow(self.spec)
+        spec, subprocesses = self.load_workflow_spec('subWorkflowComplex.bpmn', 'SubWorkflow')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
         self.answers = ['A','A1','A2','B']
 
@@ -30,7 +25,6 @@ class SubWorkflowTest(BaseTestCase):
         self.actual_test(True)
 
     def actual_test(self, save_restore=False):
-
 
         # Set initial array size to 3 in the first user form.
         for answer in self.answers:

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -19,14 +17,11 @@ class NavListBacktrackTest(BpmnWorkflowTestCase):
     """
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('BacktrackNavigation.bpmn','BacktrackNavigation')
+        spec, subprocesses = self.load_workflow_spec('BacktrackNavigation.bpmn','BacktrackNavigation')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         nav_list = self.workflow.get_flat_nav_list()
         self.assertEqual(9, len(nav_list))

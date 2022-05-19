@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import sys
 import os
 import unittest
@@ -19,10 +17,10 @@ class ClashingNameTest2(BpmnWorkflowTestCase):
 
     def setUp(self):
         pass
+
     def loadWorkflow(self):
-        self.spec = self.load_workflow_spec(
-            'Approvals_bad.bpmn',
-            'Approvals')
+        self.load_workflow_spec('Approvals_bad.bpmn', 'Approvals')
+
     def testRunThroughHappy(self):
         # make sure we raise an exception
         # when validating a workflow with multiple

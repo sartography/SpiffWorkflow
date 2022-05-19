@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
@@ -17,22 +15,16 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
     for each loop, doing this a 100 or 1000 times would cause the system to
     run fail in various ways.  This assures that is no longer the case."""
 
-    def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('too_many_loops*.bpmn', 'loops')
-
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
 
     def testThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
-
     def actual_test(self,save_restore = False):
+        spec, subprocesses = self.load_workflow_spec('too_many_loops*.bpmn', 'loops')
+        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=PythonScriptEngine())
         counter = 0
-        self.workflow = BpmnWorkflow(self.spec,script_engine=PythonScriptEngine())
         data = {}
         while not self.workflow.is_completed():
             self.workflow.do_engine_steps()
@@ -48,8 +40,8 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
         # Found an issue where looping back would fail when it happens
         # right after a sub-process.  So assuring this is fixed.
         counter = 0
-        spec = self.load_workflow_spec('too_many_loops_sub_process.bpmn', 'loops_sub')
-        self.workflow = BpmnWorkflow(spec,script_engine=PythonScriptEngine())
+        spec, subprocesses = self.load_workflow_spec('too_many_loops_sub_process.bpmn', 'loops_sub')
+        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=PythonScriptEngine())
         data = {}
         while not self.workflow.is_completed():
             self.workflow.do_engine_steps()

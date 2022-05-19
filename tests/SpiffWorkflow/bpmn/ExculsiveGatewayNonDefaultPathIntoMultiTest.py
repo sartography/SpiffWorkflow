@@ -19,14 +19,15 @@ class ExclusiveGatewayNonDefaultPathIntoMultiTest(BpmnWorkflowTestCase):
     """
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
+        spec, subprocesses = self.load_workflow_spec('exclusive_non_default_path_into_multi.bpmn','ExclusiveNonDefaultMulti')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def load_workflow1_spec(self):
-        return self.load_workflow_spec('exclusive_non_default_path_into_multi.bpmn','ExclusiveNonDefaultMulti')
+        return 
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        
         self.workflow.do_engine_steps()
 
         # Set initial array size to 3 in the first user form.

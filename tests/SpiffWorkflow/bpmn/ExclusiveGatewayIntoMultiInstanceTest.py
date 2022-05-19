@@ -18,20 +18,17 @@ class ExclusiveGatewayIntoMultiInstanceTest(BpmnWorkflowTestCase):
     class, so it should run straight through and complete without issue."""
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('exclusive_into_multi.bpmn','ExclusiveToMulti')
+        spec, subprocesses = self.load_workflow_spec('exclusive_into_multi.bpmn','ExclusiveToMulti')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
 
     def testSaveRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
 

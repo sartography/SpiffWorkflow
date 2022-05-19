@@ -15,14 +15,11 @@ __author__ = 'matth'
 class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Message Non Interrupt SP')
+        self.spec, self.subprocesses = self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Message Non Interrupt SP')
 
     def testRunThroughHappySaveAndRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.save_restore()
 
         self.workflow.do_engine_steps()
@@ -45,7 +42,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
     def testRunThroughMessageSaveAndRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.save_restore()
 
         self.workflow.do_engine_steps()
@@ -74,7 +71,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
     def testRunThroughMessageOrder2SaveAndRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.save_restore()
 
         self.workflow.do_engine_steps()
@@ -103,7 +100,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
     def testRunThroughMessageOrder3SaveAndRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.save_restore()
 
         self.workflow.do_engine_steps()
