@@ -198,7 +198,7 @@ class BpmnParser(object):
         """
         parser = self.get_process_parser(process_id_or_name)
         if parser is None:
-            raise Exception(
+            raise ValidationException(
                 f"The process '{process_id_or_name}' was not found. "
                 f"Did you mean one of the following: "
                 f"{', '.join(self.get_process_ids())}?")
