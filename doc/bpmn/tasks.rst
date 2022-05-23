@@ -7,10 +7,10 @@ BPMN Model
 In this example, we'll model a customer selecting a product to illustrate
 the basic task types that can be used with SpiffWorkflow.
 
-We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
-- `task_types <https://github.com/sartography/SpiffExample/blob/master/bpmn/task_types.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/SpiffExample/blob/master/bpmn/product_prices.dmn>`_ DMN table
+- `task_types <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/task_types.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/product_prices.dmn>`_ DMN table
 
 User Tasks
 ^^^^^^^^^^

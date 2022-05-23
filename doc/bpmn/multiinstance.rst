@@ -4,12 +4,12 @@ MultiInstance Tasks
 BPMN Model
 ----------
 
-We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
-- `multiinstance <https://github.com/sartography/SpiffExample/blob/master/bpmn/multiinstance.bpmn>`_ workflow
-- `call activity multi <https://github.com/sartography/SpiffExample/blob/master/bpmn/call_activity_multi.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/SpiffExample/blob/master/bpmn/product_prices.dmn>`_ DMN table
-- `shipping_costs <https://github.com/sartography/SpiffExample/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
+- `multiinstance <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/multiinstance.bpmn>`_ workflow
+- `call activity multi <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/call_activity_multi.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/product_prices.dmn>`_ DMN table
+- `shipping_costs <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
 
 Suppose we want our customer to be able to select more than one product.
 

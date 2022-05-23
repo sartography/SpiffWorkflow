@@ -4,13 +4,13 @@ Organizing More Complex Workflows
 BPMN Model
 ----------
 
-We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
-- `lanes <https://github.com/sartography/SpiffExample/blob/master/bpmn/lanes.bpmn>`_ workflow
-- `top_level <https://github.com/sartography/SpiffExample/bpmn/top_level.bpmn>`_ workflow
-- `call_activity <https://github.com/sartography/SpiffExample/blob/master/bpmn/call_activity.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/SpiffExample/blob/master/bpmn/product_prices.dmn>`_ DMN table
-- `shipping_costs <https://github.com/sartography/SpiffExample/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
+- `lanes <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/lanes.bpmn>`_ workflow
+- `top_level <https://github.com/sartography/spiff-example-cli/bpmn/top_level.bpmn>`_ workflow
+- `call_activity <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/call_activity.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/product_prices.dmn>`_ DMN table
+- `shipping_costs <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
 
 Lanes
 ^^^^^

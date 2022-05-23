@@ -55,7 +55,7 @@ version 1.0._
 
 ## Code Examples and Documentation
 Detailed documentation is available on [ReadTheDocs](https://spiffworkflow.readthedocs.io/en/latest/)
-Also, checkout our [example application](https://github.com/sartography/SpiffExample), which we
+Also, checkout our [example application](https://github.com/sartography/spiff-example-cli), which we
 reference extensively from the Documentation.
 
 ## Installation
