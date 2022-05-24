@@ -12,16 +12,17 @@ class CallActivityParser(TaskParser):
         subworkflow_spec = self.get_subprocess_spec()
         return self.spec_class(
             self.spec, self.get_task_spec_name(), subworkflow_spec,
-            position=self.process_parser.get_coord(self.get_id()),
+            lane=self.lane,
+            position=self.position,
             description=self.node.get('name', None))
 
     def get_subprocess_spec(self):
         called_element = self.node.get('calledElement', None) or self._fix_call_activities()
-        parser = self.parser.get_process_parser(called_element)
+        parser = self.process_parser.parser.get_process_parser(called_element)
         if parser is None:
             raise ValidationException(
                 f"The process '{called_element}' was not found. Did you mean one of the following: "
-                f"{', '.join(self.parser.get_process_ids())}?",
+                f"{', '.join(self.process_parser.parser.get_process_ids())}?",
                 node=self.node,
                 filename=self.process_parser.filename)
         return parser.get_id()

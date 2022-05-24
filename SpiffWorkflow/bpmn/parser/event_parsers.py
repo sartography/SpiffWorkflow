@@ -23,7 +23,7 @@ class EventDefinitionParser(TaskParser):
 
         errorRef = errorEvent.get('errorRef')
         if errorRef:
-            error = one(self.process_parser.doc_xpath('.//bpmn:error[@id="%s"]' % errorRef))
+            error = one(self.doc_xpath('.//bpmn:error[@id="%s"]' % errorRef))
             error_code = error.get('errorCode')
             name = error.get('name')
         else:
@@ -35,7 +35,7 @@ class EventDefinitionParser(TaskParser):
 
         escalationRef = escalationEvent.get('escalationRef')
         if escalationRef:
-            escalation = one(self.process_parser.doc_xpath('.//bpmn:escalation[@id="%s"]' % escalationRef))
+            escalation = one(self.doc_xpath('.//bpmn:escalation[@id="%s"]' % escalationRef))
             escalation_code = escalation.get('escalationCode')
             name = escalation.get('name')
         else:
@@ -47,7 +47,7 @@ class EventDefinitionParser(TaskParser):
 
         messageRef = messageEvent.get('messageRef')
         if messageRef:
-            message = one(self.process_parser.doc_xpath('.//bpmn:message[@id="%s"]' % messageRef))
+            message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % messageRef))
             name = message.get('name')
         else:
             name = messageEvent.getparent().get('name')
@@ -60,7 +60,7 @@ class EventDefinitionParser(TaskParser):
         
         signalRef = signalEvent.get('signalRef')
         if signalRef:
-            signal = one(self.process_parser.doc_xpath('.//bpmn:signal[@id="%s"]' % signalRef))
+            signal = one(self.doc_xpath('.//bpmn:signal[@id="%s"]' % signalRef))
             name = signal.get('name')
         else:
             name = signalEvent.getparent().get('name')
@@ -86,7 +86,7 @@ class EventDefinitionParser(TaskParser):
             if timeCycle is not None:
                 return CycleTimerEventDefinition(self.node.get('name'), timeCycle.text)
         except:
-            raise ValidationException("Unknown Time Specification", node=self.node, filename=self.process_parser.filename)
+            raise ValidationException("Unknown Time Specification", node=self.node, filename=self.filename)
 
 
 class StartEventParser(EventDefinitionParser):
@@ -108,9 +108,9 @@ class StartEventParser(EventDefinitionParser):
             event_definition = NoneEventDefinition()
 
         kwargs = {
-            'lane': self.get_lane(),
+            'lane': self.lane,
             'description': self.node.get('name', None),
-            'position': self.process_parser.get_coord(self.get_id()),
+            'position': self.position,
         }
         task = StartEvent(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
         self.spec.start.connect(task)
@@ -146,9 +146,9 @@ class EndEventParser(EventDefinitionParser):
             event_definition = NoneEventDefinition()
 
         kwargs = {
-            'lane': self.get_lane(),
+            'lane': self.lane,
             'description': self.node.get('name', None),
-            'position': self.process_parser.get_coord(self.get_id()),
+            'position': self.position,
         }
         task = EndEvent(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
         task.connect_outgoing(self.spec.end, '%s.ToEndJoin' % self.node.get('id'), None, None)
@@ -174,9 +174,9 @@ class IntermediateCatchEventParser(EventDefinitionParser):
             raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node))
 
         kwargs = {
-            'lane': self.get_lane(),
+            'lane': self.lane,
             'description': self.node.get('name', None),
-            'position': self.process_parser.get_coord(self.get_id()),
+            'position': self.position,
         }
         return IntermediateCatchEvent(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
 
@@ -202,9 +202,9 @@ class IntermediateThrowEventParser(EventDefinitionParser):
             raise NotImplementedError('Unsupported Throw Event: %r', etree.tostring(self.node))
 
         kwargs = {
-            'lane': self.get_lane(),
+            'lane': self.lane,
             'description': self.node.get('name', None),
-            'position': self.process_parser.get_coord(self.get_id()),
+            'position': self.position,
         }
         return IntermediateThrowEvent(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
 
@@ -241,8 +241,8 @@ class BoundaryEventParser(EventDefinitionParser):
             raise NotImplementedError('Unsupported Catch Event: %r', etree.tostring(self.node))
 
         kwargs = {
-            'lane': self.get_lane(),
+            'lane': self.lane,
             'description': self.node.get('name', None),
-            'position': self.process_parser.get_coord(self.get_id()),
+            'position': self.position,
         }
         return BoundaryEvent(self.spec, self.get_task_spec_name(), event_definition, cancel_activity, **kwargs)

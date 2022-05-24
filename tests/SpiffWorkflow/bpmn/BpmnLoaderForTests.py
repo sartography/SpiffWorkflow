@@ -3,7 +3,7 @@
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.parser.task_parsers import UserTaskParser
+from SpiffWorkflow.bpmn.parser.task_parsers import ExclusiveGatewayParser, UserTaskParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 
 from SpiffWorkflow.bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
@@ -38,6 +38,13 @@ class TestUserTask(UserTask):
     def deserialize(self, serializer, wf_spec, s_state):
         return serializer.deserialize_generic(wf_spec, s_state, TestUserTask)
 
+class TestExclusiveGatewayParser(ExclusiveGatewayParser):
+
+    def parse_condition(self, sequence_flow_node):
+        cond = super().parse_condition(sequence_flow_node)
+        if cond is not None:
+            return cond
+        return "choice == '%s'" % sequence_flow_node.get('name', None)
 
 class TestUserTaskConverter(BpmnTaskSpecConverter):
 
@@ -56,13 +63,6 @@ class TestUserTaskConverter(BpmnTaskSpecConverter):
 class TestBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
         full_tag('userTask'): (UserTaskParser, TestUserTask),
+        full_tag('exclusiveGateway'): (TestExclusiveGatewayParser, ExclusiveGateway),
         full_tag('callActivity'): (CallActivityParser, CallActivity)
     }
-
-    def parse_condition(self, sequence_flow_node):
-        cond = super(
-            TestBpmnParser, self).parse_condition(sequence_flow_node)
-        if cond is not None:
-            return cond
-        return "choice == '%s'" % sequence_flow_node.get('name', None)
-

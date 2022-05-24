@@ -1,25 +1,24 @@
-from ...bpmn.parser.TaskParser import TaskParser, xpath_eval
+from ...bpmn.parser.TaskParser import TaskParser
+from ...bpmn.parser.util import xpath_eval
 from ...camunda.specs.UserTask import Form, FormField, EnumFormField
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 
 class UserTaskParser(TaskParser):
-
-    def __init__(self, process_parser, spec_class, node):
-        super(UserTaskParser, self).__init__(process_parser, spec_class, node)
-        self.xpath = xpath_eval(node, extra_ns={'camunda': CAMUNDA_MODEL_NS})
-
     """
     Base class for parsing User Tasks
     """
-    pass
+    
+    def __init__(self, process_parser, spec_class, node, lane=None):
+        super(UserTaskParser, self).__init__(process_parser, spec_class, node, lane)
+        self.xpath = xpath_eval(node, extra_ns={'camunda': CAMUNDA_MODEL_NS})
 
     def create_task(self):
         form = self.get_form()
         return self.spec_class(self.spec, self.get_task_spec_name(), form,
-                               lane=self.get_lane(),
-                               position=self.process_parser.get_coord(self.get_id()),
+                               lane=self.lane,
+                               position=self.position,
                                description=self.node.get('name', None))
 
     def get_form(self):

@@ -56,7 +56,7 @@ def xpath_eval(node, extra_ns=None):
     namespaces = DEFAULT_NSMAP.copy()
     if extra_ns:
         namespaces.update(extra_ns)
-    return lambda path: node.findall(path, namespaces)
+    return lambda path: node.xpath(path, namespaces=namespaces)
 
 
 def full_tag(tag):

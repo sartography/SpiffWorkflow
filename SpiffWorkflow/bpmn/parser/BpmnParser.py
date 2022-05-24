@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from builtins import object
+
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ from ..specs.ParallelGateway import ParallelGateway
 from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
 from .ProcessParser import ProcessParser
-from .util import full_tag, xpath_eval, first
+from .util import full_tag, xpath_eval
 from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
                            ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser,
                            CallActivityParser, TransactionSubprocessParser,
@@ -41,7 +41,6 @@ from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
 from .event_parsers import (StartEventParser, EndEventParser, BoundaryEventParser,
                            IntermediateCatchEventParser, IntermediateThrowEventParser)
 
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class BpmnParser(object):
     """
@@ -61,11 +60,9 @@ class BpmnParser(object):
         full_tag('task'): (NoneTaskParser, NoneTask),
         full_tag('subProcess'): (SubWorkflowParser, CallActivity),
         full_tag('manualTask'): (ManualTaskParser, ManualTask),
-        full_tag('exclusiveGateway'): (ExclusiveGatewayParser,
-                                       ExclusiveGateway),
+        full_tag('exclusiveGateway'): (ExclusiveGatewayParser, ExclusiveGateway),
         full_tag('parallelGateway'): (ParallelGatewayParser, ParallelGateway),
-        full_tag('inclusiveGateway'): (InclusiveGatewayParser,
-                                       InclusiveGateway),
+        full_tag('inclusiveGateway'): (InclusiveGatewayParser, InclusiveGateway),
         full_tag('callActivity'): (CallActivityParser, CallActivity),
         full_tag('transaction'): (TransactionSubprocessParser, TransactionSubprocess),
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
@@ -106,7 +103,7 @@ class BpmnParser(object):
 
     def get_process_ids(self):
         """Returns a list of process IDs"""
-        return self.process_parsers.keys()
+        return list(self.process_parsers.keys())
 
     def add_bpmn_file(self, filename):
         """
@@ -160,34 +157,14 @@ class BpmnParser(object):
         for process in processes:
             self.create_parser(process, xpath, filename)
 
-    def create_parser(self, node, doc_xpath, filename=None, current_lane=None):
-        parser = self.PROCESS_PARSER_CLASS(self, node, filename=filename, doc_xpath=doc_xpath, current_lane=current_lane)
+    def create_parser(self, node, doc_xpath, filename=None, lane=None):
+        parser = self.PROCESS_PARSER_CLASS(self, node, filename=filename, doc_xpath=doc_xpath, lane=lane)
         if parser.get_id() in self.process_parsers:
             raise ValidationException('Duplicate process ID', node=node, filename=filename)
         if parser.get_name() in self.process_parsers_by_name:
             raise ValidationException('Duplicate process name', node=node, filename=filename)
         self.process_parsers[parser.get_id()] = parser
         self.process_parsers_by_name[parser.get_name()] = parser
-
-    def parse_condition(self, sequence_flow_node):
-        xpath = xpath_eval(sequence_flow_node)
-        expression = first(xpath('.//bpmn:conditionExpression'))
-        return expression.text if expression is not None else None
-
-    def parse_extensions(self, node, xpath=None):
-        extensions = {}
-        xpath = xpath or xpath_eval(node)
-        extension_nodes = xpath(
-            './/bpmn:extensionElements/{%s}properties/{%s}property'%(
-                CAMUNDA_MODEL_NS,CAMUNDA_MODEL_NS))
-        for node in extension_nodes:
-            extensions[node.get('name')] = node.get('value')
-        return extensions
-
-    def parse_documentation(self, node, xpath=None):
-        xpath = xpath or xpath_eval(node)
-        documentation_node = first(xpath('.//bpmn:documentation'))
-        return None if documentation_node is None else documentation_node.text
 
     def get_spec(self, process_id_or_name):
         """
@@ -205,8 +182,8 @@ class BpmnParser(object):
 
     def get_process_specs(self):
         # This is a little convoluted, but we might add more processes as we generate
-        # the dictionary if something refers to another subproess that we haven't seen.
-        processes = dict((id, self.get_spec(id)) for id in list(self.process_parsers.keys()))
+        # the dictionary if something refers to another subprocess that we haven't seen.
+        processes = dict((id, self.get_spec(id)) for id in self.get_process_ids())
         while processes.keys() != self.process_parsers.keys():
             for process_id in self.process_parsers.keys():
                 processes[process_id] = self.get_spec(process_id)
