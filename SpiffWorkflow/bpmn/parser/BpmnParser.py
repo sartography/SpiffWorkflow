@@ -132,7 +132,7 @@ class BpmnParser(object):
             finally:
                 f.close()
 
-    def add_bpmn_xml(self, bpmn, svg=None, filename=None):
+    def add_bpmn_xml(self, bpmn, filename=None):
         """
         Add the given lxml representation of the BPMN file to the parser's set.
 
@@ -158,11 +158,10 @@ class BpmnParser(object):
 
         processes = xpath('.//bpmn:process')
         for process in processes:
-            self.create_parser(process, xpath, svg, filename)
+            self.create_parser(process, xpath, filename)
 
-    def create_parser(self, node, doc_xpath, svg=None, filename=None, current_lane=None):
-        parser = self.PROCESS_PARSER_CLASS(self, node, svg, filename=filename, doc_xpath=doc_xpath,
-                                                   current_lane=current_lane)
+    def create_parser(self, node, doc_xpath, filename=None, current_lane=None):
+        parser = self.PROCESS_PARSER_CLASS(self, node, filename=filename, doc_xpath=doc_xpath, current_lane=current_lane)
         if parser.get_id() in self.process_parsers:
             raise ValidationException('Duplicate process ID', node=node, filename=filename)
         if parser.get_name() in self.process_parsers_by_name:

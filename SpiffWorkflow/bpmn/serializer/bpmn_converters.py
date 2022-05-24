@@ -106,7 +106,6 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             'description': spec.description,
             'manual': spec.manual,
             'internal': spec.internal,
-            'position': spec.position,
             'lookahead': spec.lookahead,
             'inputs': [task.name for task in spec.inputs],
             'outputs': [task.name for task in spec.outputs],
@@ -133,6 +132,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             'lane': spec.lane,
             'documentation': spec.documentation,
             'loopTask': spec.loopTask,
+            'position': spec.position,
             'outgoing_sequence_flows': dict(
                 (k, self.convert(v)) for k, v in spec.outgoing_sequence_flows.items()
             ),

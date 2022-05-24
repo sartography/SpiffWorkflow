@@ -28,34 +28,24 @@ class ProcessParser(object):
     process.
     """
 
-    def __init__(self, p, node, svg=None, filename=None, doc_xpath=None,
-                 current_lane=None):
+    def __init__(self, p, node, filename=None, doc_xpath=None, current_lane=None):
         """
         Constructor.
 
         :param p: the owning BpmnParser instance
         :param node: the XML node for the process
-        :param svg: the SVG representation of this process as a string
-          (optional)
         :param filename: the source BPMN filename (optional)
         """
         self.parser = p
         self.node = node
+        self.filename = filename
         self.doc_xpath = doc_xpath
         self.xpath = xpath_eval(node)
-        self.spec = BpmnProcessSpec(
-            name=self.get_id(), description=self.get_name(), svg=svg,
-            filename=filename)
-        self.parsing_started = False
-        self.is_parsed = False
         self.parsed_nodes = {}
-        self.svg = svg
-        self.filename = filename
-        self.id_to_lane_lookup = None
-        self._init_lane_lookup()
-        self.id_to_coords_lookup = None  # Dictionary of positional arguments for each node.
-        self._init_coord_lookup()
+        self.id_to_lane_lookup = self._init_lane_lookup()
+        self.id_to_coords_lookup = self._init_coord_lookup()
         self.current_lane = current_lane
+        self.spec = None
 
     def get_id(self):
         """
@@ -103,15 +93,15 @@ class ProcessParser(object):
             return self.current_lane
 
     def _init_lane_lookup(self):
-        self.id_to_lane_lookup = {}
+        id_to_lane_lookup = {}
         for lane in self.xpath('.//bpmn:lane'):
             name = lane.get('name')
             if name:
                 for ref in xpath_eval(lane)('bpmn:flowNodeRef'):
                     id = ref.text
                     if id:
-                        self.id_to_lane_lookup[id] = name
-
+                        id_to_lane_lookup[id] = name
+        return id_to_lane_lookup
 
     def get_coord(self, id):
         """
@@ -123,13 +113,14 @@ class ProcessParser(object):
         """Creates a lookup table with the x/y coordinates of each shape.
         Only tested with the output from the Camunda modeler, which provides
         these details in the bpmndi / and dc namespaces."""
-        self.id_to_coords_lookup = {}
+        id_to_coords_lookup = {}
         for position in self.doc_xpath('.//bpmndi:BPMNShape'):
             bounds = xpath_eval(position)("dc:Bounds")
             if len(bounds) > 0 and 'bpmnElement' in position.attrib:
                 bound = bounds[0]
-                self.id_to_coords_lookup[position.attrib['bpmnElement']] = \
+                id_to_coords_lookup[position.attrib['bpmnElement']] = \
                     {'x': float(bound.attrib['x']), 'y': float(bound.attrib['y'])}
+        return id_to_coords_lookup
 
     def _parse(self):
         # here we only look in the top level, We will have another
@@ -138,19 +129,15 @@ class ProcessParser(object):
         if not start_node_list:
             raise ValidationException(
                 "No start event found", node=self.node, filename=self.filename)
-        self.parsing_started = True
+        self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), filename=self.filename)
         for node in start_node_list:
             self.parse_node(node)
-        self.is_parsed = True
 
     def get_spec(self):
         """
         Parse this process (if it has not already been parsed), and return the
         workflow spec.
         """
-        if self.is_parsed:
-            return self.spec
-        if self.parsing_started:
-            raise NotImplementedError('Recursive call Activities are not supported.')
-        self._parse()
+        if self.spec is None:
+            self._parse()
         return self.spec
