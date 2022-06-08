@@ -34,7 +34,7 @@ class CallActivityMessageTest(BpmnWorkflowTestCase):
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)
         self.assertEqual(1, len(ready_tasks),'Expected to have one ready task')
-        self.assertEqual(1, len(waiting_tasks), 'Expected to have one waiting task')
+        self.assertEqual(2, len(waiting_tasks), 'Expected to have two waiting tasks')
 
         for step in steps:
             current_task = ready_tasks[0]

@@ -17,11 +17,11 @@
 # 02110-1301  USA
 
 from .PythonScriptEngine import PythonScriptEngine
-from .specs import BpmnProcessSpec, SubWorkflowTask
 from .specs.events.event_types import CatchingEvent
 from .specs.events import MessageEventDefinition, SignalEventDefinition
 from ..task import TaskState
 from ..workflow import Workflow
+from ..exceptions import WorkflowException
 
 
 class BpmnWorkflow(Workflow):
@@ -89,10 +89,10 @@ class BpmnWorkflow(Workflow):
 
     def get_subprocess(self, my_task):
         workflow = self._get_outermost_workflow(my_task)
-        return workflow.subprocesses[my_task.id]
+        return workflow.subprocesses.get(my_task.id)
 
-    def _get_outermost_workflow(self, task):    
-        workflow = task.workflow
+    def _get_outermost_workflow(self, task=None):    
+        workflow = task.workflow if task is not None else self
         while workflow != workflow.outer_workflow:
             workflow = workflow.outer_workflow
         return workflow
@@ -164,6 +164,42 @@ class BpmnWorkflow(Workflow):
         assert not self.read_only
         for my_task in self.get_tasks(TaskState.WAITING):
             my_task.task_spec._update(my_task)
+
+    def get_tasks_from_spec_name(self, name, workflow=None):
+        return [t for t in self.get_tasks(workflow=workflow) if t.task_spec.name == name]
+
+    def get_tasks(self, state=TaskState.ANY_MASK, workflow=None):
+        tasks = []
+        top = self._get_outermost_workflow()
+        wf = workflow or top
+        for task in Workflow.get_tasks(wf):
+            subprocess = top.subprocesses.get(task.id)
+            if subprocess is not None:
+                tasks.extend(subprocess.get_tasks(state, subprocess))
+            if task._has_state(state):
+                tasks.append(task)
+        return tasks
+
+    def _find_task(self, task_id):
+        if task_id is None:
+            raise WorkflowException(self.spec, 'task_id is None')
+        for task in self.get_tasks():
+            if task.id == task_id:
+                return task
+        raise WorkflowException(self.spec, 
+            f'A task with the given task_id ({task_id}) was not found')
+
+    def complete_task_from_id(self, task_id):
+        # I don't even know why we use this stupid function instead of calling task.complete,
+        # since all it does is search the task tree and call the method
+        task = self._find_task(task_id)
+        return task.complete()
+
+    def reset_task_from_id(self, task_id):
+        task = self._find_task(task_id)
+        if task.workflow.last_task and task.workflow.last_task.data:
+            data = task.workflow.last_task.data
+        return task.reset_token(data)
 
     def get_ready_user_tasks(self,lane=None):
         """

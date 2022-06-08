@@ -295,12 +295,12 @@ class MultiInstanceTask(TaskSpec):
         # I think we will need to update both every variables
         # internal data and the copy of the public data to get the
         # variables correct
-        new_child.internal_data = copy.copy(my_task.internal_data)
+        new_child.internal_data = copy.deepcopy(my_task.internal_data)
 
         new_child.internal_data[
             'runtimes'] = x + 2  # working with base 1 and we already have one done
 
-        new_child.data = copy.copy(my_task.data)
+        new_child.data = copy.deepcopy(my_task.data)
         new_child.data[self.elementVar] = self._get_current_var(my_task,
                                                                 x + 2)
 
@@ -411,17 +411,13 @@ class MultiInstanceTask(TaskSpec):
             self._expand_sequential(my_task,split_n)
 
         outputs += self.outputs
-        if isinstance(my_task.task_spec,SubWorkflowTask):
-            super()._predict_hook(my_task)
+        if my_task._is_definite():
+            my_task._sync_children(outputs, TaskState.FUTURE)
         else:
-            if my_task._is_definite():
-                my_task._sync_children(outputs, TaskState.FUTURE)
-            else:
-                my_task._sync_children(outputs, TaskState.LIKELY)
+            my_task._sync_children(outputs, TaskState.LIKELY)
 
     def _handle_special_cases(self, my_task):
-        classes = [BusinessRuleTask, ScriptTask, SubWorkflowTask, SubWorkflow,
-                   CallActivity]
+        classes = [BusinessRuleTask, ScriptTask, SubWorkflowTask, SubWorkflow, CallActivity]
         classes = {x.__module__ + "." + x.__name__: x for x in classes}
         terminate = self._get_loop_completion(my_task)
         if my_task.task_spec.prevtaskclass in classes.keys() and not terminate:
@@ -432,8 +428,7 @@ class MultiInstanceTask(TaskSpec):
         # then all the keys should be there and we can use the sorted keylist
         # if not, we use an integer - we should be guaranteed that the
         # collection is a dictionary
-        if self.collection is not None and \
-           self.times.name == self.collection.name:
+        if self.collection is not None and self.times.name == self.collection.name:
             keys = list(collect.keys())
             if len(keys) < runtimes:
                 msg = f"There is a mismatch between runtimes and the number " \
@@ -455,13 +450,10 @@ class MultiInstanceTask(TaskSpec):
 
 
     def _update_sibling_data(self,my_task,runtimes,runcount,colvarname,collect):
-        if (runtimes < runcount) and not \
-            my_task.terminate_current_loop and \
-            self.loopTask:
+        if (runtimes < runcount) and not my_task.terminate_current_loop and self.loopTask:
             my_task._set_state(TaskState.READY)
             my_task._set_internal_data(runtimes=runtimes + 1)
-            my_task.data[self.elementVar] = self._get_current_var(my_task,
-                                                      runtimes + 1)
+            my_task.data[self.elementVar] = self._get_current_var(my_task, runtimes + 1)
             element_var_data = None
         else:
             # The element var data should not be passed on to children
@@ -471,29 +463,19 @@ class MultiInstanceTask(TaskSpec):
         # if this is a parallel mi - then update all siblings with the
         # current data
         if not self.isSequential:
-
-            for tasknum in range(len(my_task.parent.children)):
-                task = my_task.parent.children[tasknum]
-                task.data = DeepMerge.merge(task.data,
-                                            gendict(colvarname.split('/'),
-                                                    collect))
+            for task in my_task.parent.children:
+                task.data = DeepMerge.merge(
+                    task.data, 
+                    gendict(colvarname.split('/'),
+                    collect)
+                )
+                pass
 
         return element_var_data
 
     def _on_complete_hook(self, my_task):
         # do special stuff for non-user tasks
         self._handle_special_cases(my_task)
-
-        if isinstance(my_task.task_spec,SubWorkflowTask):
-            # See method below, we will complete the iteration at the end of
-            # the subworkflow, rather than on the completion of this task.
-            pass
-        else:
-            self.__iteration_complete(my_task)
-
-    def _on_subworkflow_completed(self, subworkflow, my_task):
-        """Override standard behavior for on_subworkflow_completed"""
-        my_task.data[self.elementVar] = subworkflow.last_task.data[self.elementVar]
         self.__iteration_complete(my_task)
 
     def __iteration_complete(self, my_task):

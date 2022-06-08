@@ -22,14 +22,6 @@ class ResetTokenTestSubProcess(BaseTestCase):
     def testRunThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
-#    def testRunThroughHappyAlt(self):
-#        self.actual_test2(save_restore=False)
-
- #   def testRunThroughSaveRestoreAlt(self):
- #       self.actual_test2(save_restore=True)
-
-
-
     def actual_test(self, save_restore=False):
         """
         Test a complicated parallel matrix, complete the matrix and
@@ -51,9 +43,8 @@ class ResetTokenTestSubProcess(BaseTestCase):
                  {'taskname': 'FormA3',
                   'formvar': 'A3',
                   'answer': 'xa3'},
-
-
                  ]
+
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
             if firsttaskid == None and step['taskname']=='FormA1':
@@ -129,8 +120,8 @@ class ResetTokenTestSubProcess(BaseTestCase):
                  {'taskname': 'FormB2',
                   'formvar': 'B2',
                   'answer': 'xb2'},
-
                  ]
+                 
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
             if firsttaskid == None and step['taskname']=='FormA2':

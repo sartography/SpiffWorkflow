@@ -37,7 +37,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         time.sleep(0.6)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step("Start Work")
@@ -60,19 +60,19 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         time.sleep(0.6)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step("Start Work")
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.assertEqual('Finish Time', self.workflow.get_tasks(
-            TaskState.WAITING)[0].task_spec.description)
+            TaskState.WAITING)[1].task_spec.description)
         time.sleep(1.1)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.assertNotEqual(
             'Finish Time', self.workflow.get_tasks(TaskState.WAITING)[0].task_spec.description)
 
@@ -116,7 +116,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         time.sleep(0.6)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step("Start Work")

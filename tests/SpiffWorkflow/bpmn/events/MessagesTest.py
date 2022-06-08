@@ -21,7 +21,7 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Select Test', choice='Messages')
         self.workflow.do_engine_steps()
         self.assertEqual([], self.workflow.get_tasks(TaskState.READY))
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.workflow.message('Wrong Message')
         self.assertEqual([], self.workflow.get_tasks(TaskState.READY))
         self.workflow.message('Test Message')
@@ -43,7 +43,7 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.assertEqual([], self.workflow.get_tasks(TaskState.READY))
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.workflow.message('Wrong Message')
         self.assertEqual([], self.workflow.get_tasks(TaskState.READY))
         self.workflow.message('Test Message')

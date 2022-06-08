@@ -87,18 +87,13 @@ class WorkflowTaskExecException(WorkflowException):
 
     @staticmethod
     def get_task_trace(task):
-        task_trace = []
-        back_task = task
-        last_workflow = None
-        while True:
-            if back_task.workflow != last_workflow:
-                task_trace.append(f"{back_task.task_spec.description} "
-                                  f"({back_task.workflow.spec.file})")
-                last_workflow = back_task.workflow
-            if back_task.parent and back_task != back_task.parent:
-                back_task = back_task.parent
-            else:
-                break
+        task_trace = [f"{task.task_spec.description} ({task.workflow.spec.file})"]
+        workflow = task.workflow
+        while workflow != workflow.outer_workflow:
+            caller = workflow.name
+            workflow = workflow.outer_workflow
+            task_trace.append(f"{workflow.spec.task_specs[caller].description} ({workflow.spec.file})")
+            pass
         return task_trace
 
 
