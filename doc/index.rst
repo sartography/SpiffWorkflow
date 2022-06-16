@@ -16,7 +16,8 @@
 
 What is SpiffWorkflow?
 ======================
-
+.. image:: images/logo.png
+    :align: center
 
 SpiffWorkflow allows your python application to process BPMN diagrams (think
 of them as very powerful flow charts,  See :doc:`intro`.) to accomplish
