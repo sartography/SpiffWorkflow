@@ -1,4 +1,6 @@
 ## SpiffWorkflow
+![Logo](./graphics/logo_med.png)
+
 Spiff Workflow is a workflow engine implemented in pure Python. It is based on
 the excellent work of the Workflow Patterns initiative. In 2020 and 2021,
 extensive support was added for BPMN / DMN processing.
