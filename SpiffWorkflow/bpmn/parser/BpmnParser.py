@@ -189,10 +189,16 @@ class BpmnParser(object):
                 processes[process_id] = self.get_spec(process_id)
         return processes
 
-    def get_top_level_spec(self, name, entry_points):
+    def get_top_level_spec(self, name, entry_points, parallel=True):
         spec = BpmnProcessSpec(name)
+        current = spec.start
         for process in entry_points:
             task = SubWorkflowTask(spec, process, process)
-            spec.start.connect(task)
-            task.connect(spec.end)
+            current.connect(task)
+            if parallel:
+                task.connect(spec.end)
+            else:
+                current = task
+        if not parallel:
+            current.connect(spec.end)
         return spec
