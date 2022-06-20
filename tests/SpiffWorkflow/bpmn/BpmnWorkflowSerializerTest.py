@@ -2,6 +2,7 @@ import os
 import unittest
 import json
 
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
@@ -98,8 +99,8 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
             pass
 
         self.workflow.script_engine = CustomScriptEngine()
-        json = self.serializer.serialize_json(self.workflow)
-        wf2 = self.serializer.deserialize_json(json)
+        dct = self.serializer.serialize_json(self.workflow)
+        wf2 = self.serializer.deserialize_json(dct)
         self.assertEqual(self.workflow.script_engine.__class__,
                          wf2.script_engine.__class__)
 
@@ -116,6 +117,17 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         self.assertIsNotNone(self.workflow.last_task)
         self.assertIsNotNone(wf2.last_task)
         self._compare_workflows(self.workflow, wf2)
+
+    def test_convert_1_0_to_1_1(self):
+        # The serialization used here comes from NestedSubprocessTest saved at line 25 with version 1.0
+        fn = os.path.join(os.path.dirname(__file__), 'data', 'serialization', 'v1.0.json')
+        wf = self.serializer.deserialize_json(open(fn).read())
+        # We should be able to finish the workflow from this point
+        ready_tasks = wf.get_tasks(TaskState.READY)
+        self.assertEqual('Action3', ready_tasks[0].task_spec.description)
+        ready_tasks[0].complete()
+        wf.do_engine_steps()
+        self.assertEqual(True, wf.is_completed())
 
     def _compare_with_deserialized_copy(self, wf):
         json = self.serializer.serialize_json(wf)

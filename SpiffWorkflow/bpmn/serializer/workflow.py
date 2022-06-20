@@ -3,6 +3,8 @@ import gzip
 from copy import deepcopy
 from uuid import UUID
 
+from .version_migration import MIGRATIONS
+
 from .bpmn_converters import BpmnDataConverter
 
 from ..workflow import BpmnWorkflow
@@ -123,6 +125,8 @@ class BpmnWorkflowSerializer:
     def deserialize_json(self, serialization, read_only=False, use_gzip=False):
         dct = json.loads(gzip.decompress(serialization)) if use_gzip else json.loads(serialization)
         version = dct.pop('serializer_version')
+        if version in MIGRATIONS:
+            dct = MIGRATIONS[version](dct)
         return self.workflow_from_dict(dct, read_only)
 
     def get_version(self, serialization):
