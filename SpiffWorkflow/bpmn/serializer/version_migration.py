@@ -2,7 +2,7 @@ from copy import deepcopy
 
 def version_1_0_to_1_1(old):
     """
-    Upgrade v1.0 serializations to v1.0.
+    Upgrade v1.0 serializations to v1.1.
 
     Starting with Spiff 1.1.8, subworkflows are no longer integrated in main task tree.  When
     a subworkflow (a subprocess, transaction, or call activity) is reached, a subprocss is
