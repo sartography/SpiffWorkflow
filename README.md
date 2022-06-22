@@ -1,4 +1,6 @@
 ## SpiffWorkflow
+![Logo](./graphics/logo_med.png)
+
 Spiff Workflow is a workflow engine implemented in pure Python. It is based on
 the excellent work of the Workflow Patterns initiative. In 2020 and 2021,
 extensive support was added for BPMN / DMN processing.
@@ -55,7 +57,7 @@ version 1.0._
 
 ## Code Examples and Documentation
 Detailed documentation is available on [ReadTheDocs](https://spiffworkflow.readthedocs.io/en/latest/)
-Also, checkout our [example application](https://github.com/sartography/SpiffExample), which we
+Also, checkout our [example application](https://github.com/sartography/spiff-example-cli), which we
 reference extensively from the Documentation.
 
 ## Installation
@@ -69,15 +71,11 @@ cd tests/SpiffWorkflow
 coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
 ```
 
-## Releases
+## Support
+You can find us on Discord at https://discord.gg/zDEBEnrF
 
-Be sure to edit the conf.py, and update the release tag: doc/conf.py
-And also edit setup.py and assure that has the same release tag.
-New versions of SpiffWorkflow are automatically published to PyPi whenever
-a maintainer of our GitHub repository creates a new release on  GitHub.  This
-is managed through GitHub's actions.  The configuration of which can be
-found in .github/workflows/....
-Just create a release in GitHub that mathches the release number in doc/conf.py
+Commercial support for SpiffWorkflow is available from
+[Sartography](https://sartography.com)
 
 ## Contribute
 Pull Requests are and always will be welcome!
@@ -118,10 +116,6 @@ From Ziad (@ziadsawalha) in the early days to Elizabeth (@essweine) more
 recently.  It is good to be a part of this long lived and strong
 community.
 
-
-## Support
-Commercial support for SpiffWorkflow is available from
-[Sartography](https://sartography.com)
 
 ## License
 GNU LESSER GENERAL PUBLIC LICENSE

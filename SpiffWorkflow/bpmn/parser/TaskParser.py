@@ -65,16 +65,16 @@ class TaskParser(NodeParser):
         self.spec_class = spec_class
         self.spec = self.process_parser.spec
 
-    def _set_multiinstance_attributes(self, isSequential, expanded, loopcount, 
+    def _set_multiinstance_attributes(self, isSequential, expanded, loopcount,
             loopTask=False, elementVar=None, collection=None, completioncondition=None):
         # This should be replaced with its own task parser (though I'm not sure how feasible this is given
-        # the current parser achitecture).  We should also consider separate classes for loop vs 
+        # the current parser achitecture).  We should also consider separate classes for loop vs
         # multiinstance because having all these optional attributes is a nightmare
 
         if not isinstance(self.task, (NoneTask,UserTask,BusinessRuleTask,ScriptTask,CallActivity,SubWorkflow)):
             raise ValidationException(
                 f'Unsupported MultiInstance Task: {self.task.__class__}',
-                node=self.node, 
+                node=self.node,
                 filename=self.filename)
 
         self.task.loopTask = loopTask
@@ -115,10 +115,10 @@ class TaskParser(NodeParser):
             completion_condition = first(self.xpath('./bpmn:multiInstanceLoopCharacteristics/bpmn:completionCondition'))
             if completion_condition is not None:
                 completion_condition = completion_condition.text
-            
-            self._set_multiinstance_attributes(isSequential, 1, loopcount, 
-                elementVar=elementVarText, 
-                collection=collection, 
+
+            self._set_multiinstance_attributes(isSequential, 1, loopcount,
+                elementVar=elementVarText,
+                collection=collection,
                 completioncondition=completion_condition)
 
         elif len(self.xpath('./bpmn:standardLoopCharacteristics')) > 0:
@@ -133,7 +133,6 @@ class TaskParser(NodeParser):
 
             self.task.extensions = self.parse_extensions()
             self.task.documentation = self.parse_documentation()
-
             self._detect_multiinstance()
 
             boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())

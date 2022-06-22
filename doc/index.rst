@@ -16,7 +16,8 @@
 
 What is SpiffWorkflow?
 ======================
-
+.. image:: images/logo.png
+    :align: center
 
 SpiffWorkflow allows your python application to process BPMN diagrams (think
 of them as very powerful flow charts,  See :doc:`intro`.) to accomplish
@@ -31,6 +32,15 @@ License
 -------
 Spiff Workflow is published under the terms of the
 `GNU Lesser General Public License (LGPL) Version 3 <https://www.gnu.org/licenses/lgpl-3.0.txt>`_.
+
+
+Support
+-------
+You can find us on `our Discord Channel <https://discord.gg/zDEBEnrF>`_
+
+Commercial support for SpiffWorkflow is available from
+`Sartography <https://sartography.com>`_
+
 
 Contents
 --------

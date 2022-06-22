@@ -11,11 +11,11 @@ by the user through forms.
 We've also added a second DMN table to find the cost of the selected shipping
 method, and we updated our order total calculations to incorporate that cost.
 
-We'll be using the following files from `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
-- `gateway_types <https://github.com/sartography/SpiffExample/blob/master/bpmn/gateway_types.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/SpiffExample/blob/master/bpmn/product_prices.dmn>`_ DMN table
-- `shipping_costs <https://github.com/sartography/SpiffExample/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
+- `gateway_types <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/gateway_types.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/product_prices.dmn>`_ DMN table
+- `shipping_costs <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
 
 Exclusive Gateway
 ^^^^^^^^^^^^^^^^^

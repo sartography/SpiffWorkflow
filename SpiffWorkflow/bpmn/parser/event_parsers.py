@@ -43,7 +43,7 @@ class EventDefinitionParser(TaskParser):
         return EscalationEventDefinition(name, escalation_code)
 
     def parse_message_event(self, messageEvent):
-        """Parse the messageEventDefinition node and return an instance of MessageEventDefinition."""     
+        """Parse the messageEventDefinition node and return an instance of MessageEventDefinition."""
 
         messageRef = messageEvent.get('messageRef')
         if messageRef:
@@ -57,7 +57,7 @@ class EventDefinitionParser(TaskParser):
 
     def parse_signal_event(self, signalEvent):
         """Parse the signalEventDefinition node and return an instance of SignalEventDefinition."""
-        
+
         signalRef = signalEvent.get('signalRef')
         if signalRef:
             signal = one(self.doc_xpath('.//bpmn:signal[@id="%s"]' % signalRef))
@@ -112,7 +112,7 @@ class StartEventParser(EventDefinitionParser):
             'description': self.node.get('name', None),
             'position': self.position,
         }
-        task = StartEvent(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
+        task = self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
         self.spec.start.connect(task)
         if isinstance(event_definition, CycleTimerEventDefinition):
             # We are misusing cycle timers, so this is a hack whereboy we will
@@ -150,7 +150,7 @@ class EndEventParser(EventDefinitionParser):
             'description': self.node.get('name', None),
             'position': self.position,
         }
-        task = EndEvent(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
+        task = self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
         task.connect_outgoing(self.spec.end, '%s.ToEndJoin' % self.node.get('id'), None, None)
         return task
 
@@ -178,7 +178,7 @@ class IntermediateCatchEventParser(EventDefinitionParser):
             'description': self.node.get('name', None),
             'position': self.position,
         }
-        return IntermediateCatchEvent(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
+        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
 
 class IntermediateThrowEventParser(EventDefinitionParser):
     """Parses an Intermediate Catch Event. Currently supports Message, Signal and Timer event definitions."""
@@ -206,7 +206,7 @@ class IntermediateThrowEventParser(EventDefinitionParser):
             'description': self.node.get('name', None),
             'position': self.position,
         }
-        return IntermediateThrowEvent(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
+        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
 
 class BoundaryEventParser(EventDefinitionParser):
     """
@@ -245,4 +245,4 @@ class BoundaryEventParser(EventDefinitionParser):
             'description': self.node.get('name', None),
             'position': self.position,
         }
-        return BoundaryEvent(self.spec, self.get_task_spec_name(), event_definition, cancel_activity, **kwargs)
+        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, cancel_activity, **kwargs)

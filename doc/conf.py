@@ -22,7 +22,6 @@ copyright = '2022, Sartography'
 author = 'Sartography'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.6'
 
 
 # -- General configuration ---------------------------------------------------
@@ -60,3 +59,6 @@ html_static_path = ['_static']
 
 # Set the master index file.
 master_doc = 'index'
+
+# Set the fav-icon
+html_favicon = 'favicon.ico'

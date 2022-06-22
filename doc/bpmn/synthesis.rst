@@ -2,7 +2,7 @@ Putting it All Together
 =======================
 
 In this section we'll be discussing the overall structure of the workflow
-runner we developed in `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+runner we developed in `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
 Loading a Workflow
 -------------------

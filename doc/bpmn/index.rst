@@ -21,12 +21,12 @@ has not been completed.  The developer will write code for displaying workflow
 state and presenting tasks to users of their application.
 
 All the Python code and BPMN models used here are available in an example
-project called `SpiffExample <https://github.com/sartography/SpiffExample>`_.
+project called `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
 Quickstart
 ----------
 
-Check out the code in `SpiffExample <https://github.com/sartography/SpiffExample>`_
+Check out the code in `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_
 and follow the instructions to set up an environment to run it in.
 
 Run the sample workflow we built up using our example application with the following 

@@ -66,3 +66,4 @@ class TestBpmnParser(BpmnParser):
         full_tag('exclusiveGateway'): (TestExclusiveGatewayParser, ExclusiveGateway),
         full_tag('callActivity'): (CallActivityParser, CallActivity)
     }
+

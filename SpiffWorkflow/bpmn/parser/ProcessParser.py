@@ -75,6 +75,7 @@ class ProcessParser(NodeParser):
         if not start_node_list:
             raise ValidationException("No start event found", node=self.node, filename=self.filename)
         self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), filename=self.filename)
+
         for node in start_node_list:
             self.parse_node(node)
 
