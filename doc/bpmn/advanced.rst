@@ -232,7 +232,8 @@ Serialization
 
 .. warning::
 
-   Serialization Changed in Version 1.2
+   Serialization Changed in Version 1.1.7.  Support for pre-1.1.7 serialization will be dropped in 1.2.
+
    The old serialization method still works but it is deprecated.
    To migrate your system to the new version, see "Migrating between
    serialization versions" below.
@@ -330,13 +331,23 @@ To do extend ours:
             return MyClass(**dct)
 
 More information can be found in the class documentation for the
-`default converter <https://github.com/sartography/SpiffWorkflow/blob/enhancement/167-drop-the-pickles/SpiffWorkflow/bpmn/serializer/bpmn_converters.py>`_
-and its `base class <https://github.com/sartography/SpiffWorkflow/blob/enhancement/167-drop-the-pickles/SpiffWorkflow/bpmn/serializer/dictionary.py>`_
-for more information.
+`default converter <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/bpmn_converters.py>`_
+and its `base class <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/dictionary.py>`_
+.
 
 You can also replace ours entirely with one of your own.  If you do so, you'll need to implement `convert` and
 `restore` methods.  The former should return a JSON-serializable representation of your workflow data; the
 latter should recreate your data from the serialization.
+
+If you have written any custom task specs, you'll need to implement task spec converters for those as well.
+
+Task Spec converters are also based on the :code:`DictionaryConverter`.  You should be able to use the
+`BpmnTaskSpecConverter <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/bpmn_converters.py>`_
+as a basis for your custom specs.  It provides some methods for extracting attributes from Spiff base classes as well as 
+standard BPNN attributes from tasks that inherit from :code:`BMPNSpecMixin`.
+
+The `Camunda User Task Converter <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/camunda/serializer/task_spec_converters.py>`_
+should provide a simple example of how you might create such a converter.
 
 Migrating Between Serialization Versions
 ----------------------------------------
@@ -367,3 +378,32 @@ method.  It should also allow you to modify the serialization and customize
 it over time, and still manage the different forms as you make adjustments
 without leaving people behind.
 
+If you are not using any custom tasks and do not require custom serialization, then you'll be able to
+serialize the workflow in the new format:
+
+.. code:: python
+
+    new_json = serializer.serialize_json(workflow)
+
+However, if you use custom tasks or data serialization, you'll also need to specify workflow spec or data
+serializers, as in the examples in the previous section, before you'll be able to serialize with the new serializer.  
+The code would then look more like this:
+
+.. code:: python
+
+    from SpiffWorkflow.camunda.serializer import UserTaskConverter
+
+    old_serializer = BpmnSerializer() # the deprecated serializer.
+
+    # new serializer, with customizations
+    wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([UserTaskConverter])
+    data_converter = MyDataConverter
+    serializer = BpmnWorkflowSerializer(wf_spec_converter, data_converter, version="MY_APP_V_1.0")
+
+    version = serializer.get_version(some_json)
+    if version == "MY_APP_V_1.0":
+         workflow = serializer.deserialize_json(some_json)
+    else:
+         workflow = old_serializer.deserialize_workflow(some_json, workflow_spec=spec)
+
+    new_json = serializer.serialize_json(workflow)
