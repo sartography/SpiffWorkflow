@@ -64,7 +64,7 @@ class BpmnWorkflowSerializer:
     # This is the default version set on the workflow, it can be overwritten
     # using the configure_workflow_spec_converter.
     VERSION = "1.0"
-
+    VERSION_KEY = "serializer_version"
 
     @staticmethod
     def configure_workflow_spec_converter(task_spec_overrides=None, data_converter=None, version=VERSION):
@@ -118,22 +118,28 @@ class BpmnWorkflowSerializer:
             a JSON dump of the dictionary representation
         """
         dct = self.workflow_to_dict(workflow)
-        dct['serializer_version'] = self.VERSION
+        dct[self.VERSION_KEY] = self.VERSION
         json_str = json.dumps(dct)
         return gzip.compress(json_str.encode('utf-8')) if use_gzip else json_str
 
+    def __get_dict(self, serialization, use_gzip=False):
+        if isinstance(serialization, dict):
+            dct = serialization
+        elif use_gzip:
+            dct = json.loads(gzip.decompress(serialization))
+        else:
+            dct = json.loads(serialization)
+        return dct
+
     def deserialize_json(self, serialization, read_only=False, use_gzip=False):
-        dct = json.loads(gzip.decompress(serialization)) if use_gzip else json.loads(serialization)
-        version = dct.pop('serializer_version')
-        if version in MIGRATIONS:
-            dct = MIGRATIONS[version](dct)
+        dct = self.__get_dict(serialization, use_gzip)
         return self.workflow_from_dict(dct, read_only)
 
-    def get_version(self, serialization):
+    def get_version(self, serialization, use_gzip=False):
         try:
-            dct = json.loads(serialization)
-            if 'serializer_version' in dct:
-                return dct['serializer_version']
+            dct = self.__get_dict(serialization, use_gzip)
+            if self.VERSION_KEY in dct:
+                return dct[self.VERSION_KEY]
         except:  # Don't bail out trying to get a version, just return none.
             return None
 
@@ -167,6 +173,12 @@ class BpmnWorkflowSerializer:
             a BPMN Workflow object
         """
         dct_copy = deepcopy(dct)
+
+        # Upgrade serialized version if necessary
+        if self.VERSION_KEY in dct_copy:
+            version = dct_copy.pop(self.VERSION_KEY)
+            if version in MIGRATIONS:
+                dct_copy = MIGRATIONS[version](dct_copy)
 
         # Restore the top level spec and the subprocess specs
         spec = self.spec_converter.restore(dct_copy.pop('spec'))

@@ -182,7 +182,7 @@ class CallActivityParser(TaskParser):
         if parser is None:
             raise ValidationException(
                 f"The process '{called_element}' was not found. Did you mean one of the following: "
-                f"{', '.join(self.parser.get_process_ids())}?",
+                f"{', '.join(self.process_parser.parser.get_process_ids())}?",
                 node=self.node,
                 filename=self.filename)
         return called_element
