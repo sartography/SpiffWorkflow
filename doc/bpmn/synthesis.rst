@@ -47,17 +47,27 @@ BPMN parsers in SpiffWorkflow.
         parser.add_bpmn_files(bpmn_files)
         if dmn_files:
             parser.add_dmn_files(dmn_files)
-        return BpmnWorkflow(parser.get_spec(process), script_engine=CustomScriptEngine)
+        top_level = parser.get_spec(process)
+        subprocesses = parser.get_process_specs()
+        return BpmnWorkflow(top_level, subprocesses, script_engine=CustomScriptEngine)
 
 We create an instance of our previously defined parser, add the BPMN files to it, and
 optionally add any DMN files, if they were supplied.
 
 We'll obtain the workflow specification from the parser for the top level process
-using :code:`parser.get_spec()` and return a :code:`BpmnWorkflow` based on the spec.
+using :code:`parser.get_spec()`.
+
+We'll get the specs of all the processes that were parsed with :code:`parser.get_process_specs()`
+and provide these to the workflow as well.  If your entire workflow is contained in your
+top-level process, you can omit this argument, but if your workflow contains call activities,
+you'll need to include it.
 
 We also provide an enhanced script engine to our workflow.  More information about how and
 why you might want to do this is covered in :doc:`advanced`.  The :code:`script_engine`
 argument is optional and the default will be used if none is supplied.
+
+We return a :code:`BpmnWorkflow` based on the specs that uses the our custom script engine
+to execute script tasks and evaluate expressions.
 
 Running a Workflow
 ------------------

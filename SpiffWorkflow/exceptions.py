@@ -93,7 +93,6 @@ class WorkflowTaskExecException(WorkflowException):
             caller = workflow.name
             workflow = workflow.outer_workflow
             task_trace.append(f"{workflow.spec.task_specs[caller].description} ({workflow.spec.file})")
-            pass
         return task_trace
 
 
