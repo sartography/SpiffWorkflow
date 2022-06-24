@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-
 import unittest
-import datetime
 import time
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -15,10 +13,8 @@ __author__ = 'kellym'
 class MessageBoundaryTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('MessageBoundary.bpmn', 'MessageBoundary')
+        self.spec, self.subprocesses = self.load_workflow_spec('MessageBoundary.bpmn', 'MessageBoundary')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -33,7 +29,6 @@ class MessageBoundaryTest(BpmnWorkflowTestCase):
                  ('Activity_Interrupt', {'interrupt_task': 'No'}),
                  ('Activity_Interrupt', {'interrupt_task': 'Yes'}),
                  ]
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(2, len(ready_tasks),'Expected to have two ready tasks')

@@ -1,25 +1,19 @@
 # -*- coding: utf-8 -*-
 
-
-
-import sys
-import os
 import unittest
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-__author__ = 'kellym'
 
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
+__author__ = 'kellym'
 
 class ResetTokenTestNestedParallel(BaseTestCase):
     """The example bpmn diagram tests both a set cardinality from user input
     as well as looping over an existing array."""
 
     def setUp(self):
-        self.spec = self.load_workflow_spec(
-            'data/token_trial_nested_parallel.bpmn',
-            'token')
+        spec, subprocesses = self.load_workflow_spec('token_trial_nested_parallel.bpmn', 'token')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -39,7 +33,6 @@ class ResetTokenTestNestedParallel(BaseTestCase):
         Reset somewhere in the middle. It should complete the row that we
         Reset to, and retain all previous answers.
         """
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         firsttaskid = None
         steps = [{'taskname':'First',
@@ -127,7 +120,6 @@ class ResetTokenTestNestedParallel(BaseTestCase):
         Also, after we reset the branch, there should then be three tasks ready,
         A2,B3,and C1
         """
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         firsttaskid = None
         steps = [{'taskname':'First',

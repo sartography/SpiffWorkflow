@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
-
+from asyncio import subprocess
 import sys
 import os
 import unittest
@@ -17,14 +16,11 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
     It should repeat 5 times before termination."""
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
+        spec, subprocesses = self.load_workflow_spec('bpmnMultiUserTask.bpmn','MultiInstance')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('bpmnMultiUserTask.bpmn','MultiInstance')
 
     def testRunThroughHappy(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
 
         for i in range(5):
             self.workflow.do_engine_steps()
@@ -36,7 +32,6 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
 
     def testSaveRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         for i in range(5):
             self.save_restore()
             self.workflow.do_engine_steps()
@@ -47,7 +42,6 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
         self.assertTrue(self.workflow.is_completed())
 
     def testNav(self):
-        self.workflow = BpmnWorkflow(self.spec)
         nav = self.workflow.get_flat_nav_list()
         print(nav)
 

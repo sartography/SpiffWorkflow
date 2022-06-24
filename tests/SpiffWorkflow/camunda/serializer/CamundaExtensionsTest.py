@@ -1,20 +1,17 @@
 import unittest
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.camunda.parser.UserTaskParser import UserTaskParser
-from SpiffWorkflow.camunda.specs.UserTask import UserTask
-from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
+
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
 
 class CamundaExtensionsTest(BaseTestCase):
 
     def setUp(self):
-        self.spec = self.load_workflow_spec('data/random_fact.bpmn',
-                                            'random_fact')
+        spec, subprocesses = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testExtensionsAreSerialized(self):
-        self.workflow = BpmnWorkflow(self.spec)
         self.assertMyExtension()
         self.save_restore()
         self.assertMyExtension()

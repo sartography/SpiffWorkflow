@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
-import datetime
-import time
+
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -17,10 +14,8 @@ class NIMessageBoundaryTest(BpmnWorkflowTestCase):
     Non-Interrupting Timer boundary test
     """
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('noninterrupting-MessageBoundary.bpmn', 'MessageBoundary')
+        spec, subprocesses = self.load_workflow_spec('noninterrupting-MessageBoundary.bpmn', 'MessageBoundary')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -30,7 +25,7 @@ class NIMessageBoundaryTest(BpmnWorkflowTestCase):
 
 
     def actual_test(self,save_restore = False):
-        self.workflow = BpmnWorkflow(self.spec)
+
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         self.workflow.complete_task_from_id(ready_tasks[0].id)

@@ -20,13 +20,13 @@ class BpmnDmnParser(BpmnParser):
         self.dmn_parsers = {}
         self.dmn_parsers_by_name = {}
 
-    def add_dmn_xml(self, node, svg=None, filename=None):
+    def add_dmn_xml(self, node, filename=None):
         """
         Add the given lxml representation of the DMN file to the parser's set.
         """
         xpath = xpath_eval(node)
         dmn_parser = DMNParser(
-            self, node, svg, filename=filename, doc_xpath=xpath)
+            self, node, filename=filename, doc_xpath=xpath)
         self.dmn_parsers[dmn_parser.get_id()] = dmn_parser
         self.dmn_parsers_by_name[dmn_parser.get_name()] = dmn_parser
 

@@ -3,11 +3,13 @@ import gzip
 from copy import deepcopy
 from uuid import UUID
 
+from .version_migration import MIGRATIONS
+
 from .bpmn_converters import BpmnDataConverter
 
 from ..workflow import BpmnWorkflow
 from ..specs.SubWorkflowTask import SubWorkflowTask
-from ...task import Task
+from ...task import Task, TaskState
 
 from .workflow_spec_converter import BpmnProcessSpecConverter
 
@@ -62,7 +64,7 @@ class BpmnWorkflowSerializer:
     # This is the default version set on the workflow, it can be overwritten
     # using the configure_workflow_spec_converter.
     VERSION = "1.0"
-
+    VERSION_KEY = "serializer_version"
 
     @staticmethod
     def configure_workflow_spec_converter(task_spec_overrides=None, data_converter=None, version=VERSION):
@@ -116,20 +118,28 @@ class BpmnWorkflowSerializer:
             a JSON dump of the dictionary representation
         """
         dct = self.workflow_to_dict(workflow)
-        dct['serializer_version'] = self.VERSION
+        dct[self.VERSION_KEY] = self.VERSION
         json_str = json.dumps(dct)
         return gzip.compress(json_str.encode('utf-8')) if use_gzip else json_str
 
+    def __get_dict(self, serialization, use_gzip=False):
+        if isinstance(serialization, dict):
+            dct = serialization
+        elif use_gzip:
+            dct = json.loads(gzip.decompress(serialization))
+        else:
+            dct = json.loads(serialization)
+        return dct
+
     def deserialize_json(self, serialization, read_only=False, use_gzip=False):
-        dct = json.loads(gzip.decompress(serialization)) if use_gzip else json.loads(serialization)
-        version = dct.pop('serializer_version')
+        dct = self.__get_dict(serialization, use_gzip)
         return self.workflow_from_dict(dct, read_only)
 
-    def get_version(self, serialization):
+    def get_version(self, serialization, use_gzip=False):
         try:
-            dct = json.loads(serialization)
-            if 'serializer_version' in dct:
-                return dct['serializer_version']
+            dct = self.__get_dict(serialization, use_gzip)
+            if self.VERSION_KEY in dct:
+                return dct[self.VERSION_KEY]
         except:  # Don't bail out trying to get a version, just return none.
             return None
 
@@ -141,24 +151,17 @@ class BpmnWorkflowSerializer:
         Returns:
             a dictionary representation of the workflow
         """
-
-        # Recursively search the workflow spec for subprocesses and store clean copies of each
-        # (they are modified by running workflows) at the top level.
-        subprocess_specs, subprocesses = {}, {}
-        self.find_subprocesses(workflow.spec, workflow, subprocess_specs, subprocesses)
-        for wf_name, wf_spec in subprocess_specs.items():
-            subprocess_specs[wf_name] = self.spec_converter.convert(wf_spec)
-
-        return {
-            'spec': self.spec_converter.convert(workflow.spec),
-            'data': self.data_converter.convert(workflow.data),
-            'last_task': str(workflow.last_task.id) if workflow.last_task is not None else None,
-            'success': workflow.success,
-            'tasks': self.task_tree_to_dict(workflow.task_tree),
-            'root': str(workflow.task_tree.id),
-            'subprocess_specs': subprocess_specs,
-            'subprocesses': subprocesses,
-        }
+        # These properties are applicable to top level & subprocesses
+        dct = self.process_to_dict(workflow)
+        # These are only used at the top-level
+        dct['spec'] = self.spec_converter.convert(workflow.spec)
+        dct['subprocess_specs'] = dict(
+            (name, self.spec_converter.convert(spec)) for name, spec in workflow.subprocess_specs.items()
+        )
+        dct['subprocesses'] = dict(
+            (str(task_id), self.process_to_dict(sp)) for task_id, sp in workflow.subprocesses.items()
+        )
+        return dct
 
     def workflow_from_dict(self, dct, read_only=False):
         """Create a workflow based on a dictionary representation.
@@ -171,29 +174,30 @@ class BpmnWorkflowSerializer:
         """
         dct_copy = deepcopy(dct)
 
-        # First, we'll restore the specs for all the subprocesses
-        for name, wf_dct in dct_copy['subprocess_specs'].items():
-            dct_copy['subprocess_specs'][name] = self.spec_converter.restore(wf_dct)
+        # Upgrade serialized version if necessary
+        if self.VERSION_KEY in dct_copy:
+            version = dct_copy.pop(self.VERSION_KEY)
+            if version in MIGRATIONS:
+                dct_copy = MIGRATIONS[version](dct_copy)
 
-        # Then we check each subprocess for subworkflow tasks and restore the workflow spec
-        # on each task
-        for wf in dct_copy['subprocess_specs'].values():
-            for task_spec in wf.task_specs.values():
-                if isinstance(task_spec, SubWorkflowTask):
-                    task_spec.spec = dct_copy['subprocess_specs'][task_spec.spec]
-
-        # We also have to do the same for the top levvel workflow.
+        # Restore the top level spec and the subprocess specs
         spec = self.spec_converter.restore(dct_copy.pop('spec'))
-        for name, task_spec in spec.task_specs.items():
-            if isinstance(task_spec, SubWorkflowTask):
-                task_spec.spec = dct_copy['subprocess_specs'][task_spec.spec]
+        subprocess_specs = dct_copy.pop('subprocess_specs', {})
+        for name, wf_dct in subprocess_specs.items():
+            subprocess_specs[name] = self.spec_converter.restore(wf_dct)
 
-        workflow = self.wf_class(spec, read_only=read_only)
+        # Create the top-level workflow
+        workflow = self.wf_class(spec, subprocess_specs, read_only=read_only)
+
+        # Copy the serialized subprocess info.
+        # These will have to be replaced with deserialized versions as we go along.
+        workflow.subprocesses = dct_copy.pop('subprocesses', {})
+
+        # Restore the remainder of the workflow
         workflow.data = self.data_converter.restore(dct_copy.pop('data'))
         workflow.success = dct_copy.pop('success')
+        workflow.task_tree = self.task_tree_from_dict(dct_copy, dct_copy.pop('root'), None, workflow)
 
-        root = dct_copy.pop('root')
-        workflow.task_tree = self.task_tree_from_dict(dct_copy, root, None, workflow, read_only)
         return workflow
 
     def task_to_dict(self, task):
@@ -214,7 +218,7 @@ class BpmnWorkflowSerializer:
 
         task = Task(workflow, task_spec, parent)
         task.id = UUID(dct['id'])
-        task.state = dct['state']
+        task.state = TaskState(dct['state'])
         task.last_state_change = dct['last_state_change']
         task.triggered = dct['triggered']
         task.internal_data = self.data_converter.restore(dct['internal_data'])
@@ -233,40 +237,36 @@ class BpmnWorkflowSerializer:
         add_task(root)
         return tasks
 
-    def task_tree_from_dict(self, dct, task_id, parent, workflow, read_only):
+    def task_tree_from_dict(self, dct, task_id, parent_task, process, top_level_workflow=None):
+
+        top = top_level_workflow or process
 
         task_dict = dct['tasks'][task_id]
-        task_spec = workflow.spec.task_specs[task_dict['task_spec']]
-        task = self.task_from_dict(task_dict, workflow, task_spec, parent)
+        task_spec = process.spec.task_specs[task_dict['task_spec']]
+        task = self.task_from_dict(task_dict, process, task_spec, parent_task)
         if task_id == dct['last_task']:
-            workflow.last_task = task
+            process.last_task = task
 
-        children = [dct['tasks'][c] for c in task_dict['children']]
-        subtasks = dct['subprocesses'].get(str(task_id), [])
+        if isinstance(task_spec, SubWorkflowTask) and task_id in top.subprocesses:
+            subprocess_spec = top.subprocess_specs[task_spec.spec]
+            subprocess = self.wf_class(subprocess_spec, {}, name=task_spec.name, parent=process, read_only=top.read_only)
+            subprocess_dct = top_level_workflow.subprocesses.pop(task_id, {})
+            subprocess.data = self.data_converter.restore(subprocess_dct.pop('data'))
+            subprocess.success = subprocess_dct.pop('success')
+            subprocess.task_tree = self.task_tree_from_dict(subprocess_dct, subprocess_dct.pop('root'), None, subprocess, top)
+            subprocess.completed_event.connect(task_spec._on_subworkflow_completed, task)
+            top_level_workflow.subprocesses[task.id] = subprocess
 
-        if isinstance(task_spec, SubWorkflowTask):
-            if len(subtasks) > 0:
-                task_spec.sub_workflow = self.wf_class(
-                    task_spec.spec, name=task_spec.name, parent=workflow, read_only=read_only)
-                root = subtasks[0]
-                task_spec.sub_workflow.task_tree = self.task_tree_from_dict(
-                    dct, root, task, task_spec.sub_workflow, read_only)
-                task_spec.sub_workflow.completed_event.connect(task_spec._on_subworkflow_completed, task)
-            else:
-                task_spec.sub_workflow = None
-
-        for child in [ c for c in children if c['id'] not in subtasks ]:
-            self.task_tree_from_dict(dct, child['id'], task, workflow, read_only)
+        for child in [ dct['tasks'][c] for c in task_dict['children'] ]:
+            self.task_tree_from_dict(dct, child['id'], task, process, top)
 
         return task
 
-    def find_subprocesses(self, spec, workflow, subprocess_specs, subprocesses):
-        for name, task_spec in spec.task_specs.items():
-            if isinstance(task_spec, SubWorkflowTask):
-                self.find_subprocesses(task_spec.spec, workflow, subprocess_specs, subprocesses)
-                if task_spec.name not in subprocess_specs:
-                    subprocess_specs[task_spec.spec.name] = task_spec.spec
-                if task_spec.sub_workflow is not None:
-                    tasks = [task for task in workflow.get_tasks() if task in task_spec.sub_workflow.get_tasks()]
-                    if len(tasks) > 0:
-                        subprocesses[str(tasks[0].parent.id)] = [str(task.id) for task in tasks]
+    def process_to_dict(self, process):
+        return {
+            'data': self.data_converter.convert(process.data),
+            'last_task': str(process.last_task.id) if process.last_task is not None else None,
+            'success': process.success,
+            'tasks': self.task_tree_to_dict(process.task_tree),
+            'root': str(process.task_tree.id),
+        }

@@ -115,7 +115,6 @@ class TaskSpec(object):
         self.pre_assign = kwargs.get('pre_assign',  [])
         self.post_assign = kwargs.get('post_assign', [])
         self.locks = kwargs.get('lock',        [])
-        self.position = kwargs.get('position', {'x': 0, 'y': 0})
         self.lookahead = 2  # Maximum number of MAYBE predictions.
 
         # Events.
@@ -461,10 +460,8 @@ class TaskSpec(object):
                   'pre_assign':self.pre_assign,
                   'post_assign':self.post_assign,
                   'locks':self.locks,
-                  'position':self.position,
                   'lookahead':self.lookahead,
                   }
-        raise NotImplementedError
 
     @classmethod
     def deserialize(cls, serializer, wf_spec, s_state, **kwargs):
@@ -503,7 +500,5 @@ class TaskSpec(object):
         out.pre_assign = s_state.get('pre_assign')
         out.post_assign = s_state.get('post_assign')
         out.locks = s_state.get('locks')
-        out.position = s_state.get('position')
         out.lookahead = s_state.get('lookahead')
         return out
-        #raise NotImplementedError

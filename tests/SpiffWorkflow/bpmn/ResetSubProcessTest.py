@@ -1,14 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
-
-import sys
-import os
 import unittest
 
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -20,30 +13,26 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         a sub-workflow."""
 
     def setUp(self):
-        self.filename = 'resetworkflowA-*.bpmn'
-        self.process_name = 'TopLevel'
-        self.spec = self.load_workflow1_spec()
-
+        spec, subprocesses = self.load_workflow_spec('resetworkflowA-*.bpmn', 'TopLevel')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def reload_save_restore(self):
-        self.filename = 'resetworkflowB-*.bpmn'
-        self.spec = self.load_workflow1_spec()
 
+        spec, subprocesses = self.load_workflow_spec('resetworkflowB-*.bpmn', 'TopLevel')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         # Save and restore the workflow, without including the spec.
         # When loading the spec, use a slightly different spec.
         self.workflow.do_engine_steps()
-        state = BpmnSerializer().serialize_workflow(self.workflow, include_spec=False)
-        self.workflow = BpmnSerializer().deserialize_workflow(state, workflow_spec=self.spec)
-
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec(self.filename, self.process_name)
+        state = self.serializer.serialize_json(self.workflow)
+        self.workflow = self.serializer.deserialize_json(state)
+        self.workflow.spec = spec
+        self.workflow.subprocesses = subprocesses
 
     def testSaveRestore(self):
         self.actualTest(True)
 
     def testResetToOuterWorkflowWhileInSubWorkflow(self):
-        self.workflow = BpmnWorkflow(self.spec)
+        
         self.workflow.do_engine_steps()
         top_level_task = self.workflow.get_ready_user_tasks()[0]
         self.workflow.complete_task_from_id(top_level_task.id)
@@ -57,15 +46,12 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
 
 
     def actualTest(self, save_restore=False):
-        self.workflow = BpmnWorkflow(self.spec)
+
         self.workflow.do_engine_steps()
         self.assertEqual(1, len(self.workflow.get_ready_user_tasks()))
         task = self.workflow.get_ready_user_tasks()[0]
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
-        navlist = self.workflow.get_flat_nav_list()
-        self.assertEqual(len(navlist),11)
-        self.assertNav(navlist[5], name="SubTask2", state="READY")
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'SubTask2')
         self.workflow.complete_task_from_id(task.id)
@@ -75,18 +61,11 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.reload_save_restore()
         task = self.workflow.get_ready_user_tasks()[0]
-        navlist = self.workflow.get_flat_nav_list()
-        self.assertEqual(len(navlist), 12)
-        self.assertNav(navlist[5], name="Subtask2", state=None)
-
         self.assertEqual(task.get_name(),'Task1')
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'Subtask2')
-        navlist = self.workflow.get_flat_nav_list()
-        self.assertNav(navlist[5], name="Subtask2", state="READY")
-
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]

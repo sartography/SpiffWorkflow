@@ -13,85 +13,16 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 __author__ = 'matth'
 
 
-class ParallelJoinLongTest(BpmnWorkflowTestCase):
-
-    def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-Join-Long.bpmn20.xml', 'Parallel Join Long')
-
-    def testRunThroughAlternating(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
-
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
-
-        self.do_next_named_step(
-            'Thread 1 - Choose', choice='Yes', with_save_load=True)
-        self.workflow.do_engine_steps()
-        self.do_next_named_step(
-            'Thread 2 - Choose', choice='Yes', with_save_load=True)
-        self.workflow.do_engine_steps()
-
-        for i in range(1, 13):
-            self.do_next_named_step(
-                'Thread 1 - Task %d' % i, with_save_load=True)
-            self.workflow.do_engine_steps()
-            self.do_next_named_step(
-                'Thread 2 - Task %d' % i, with_save_load=True)
-            self.workflow.do_engine_steps()
-
-        self.do_next_named_step('Done', with_save_load=True)
-        self.workflow.do_engine_steps()
-
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
-
-    def testRunThroughThread1First(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
-
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
-
-        self.do_next_named_step(
-            'Thread 1 - Choose', choice='Yes', with_save_load=True)
-        self.workflow.do_engine_steps()
-        for i in range(1, 13):
-            self.do_next_named_step('Thread 1 - Task %d' % i)
-            self.workflow.do_engine_steps()
-
-        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
-
-        self.do_next_named_step(
-            'Thread 2 - Choose', choice='Yes', with_save_load=True)
-        self.workflow.do_engine_steps()
-        for i in range(1, 13):
-            self.do_next_named_step(
-                'Thread 2 - Task %d' % i, with_save_load=True)
-            self.workflow.do_engine_steps()
-
-        self.do_next_named_step('Done', with_save_load=True)
-        self.workflow.do_engine_steps()
-
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
-
-
 class ParallelFromCamunda(BpmnWorkflowTestCase):
 
-    def setUp(self):
-        self.spec = self.load_spec()
+    # Should we move this to the Camunda package?  Is this even testing anything Camunda related?
 
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel.camunda.bpmn20.xml', 'Process_1hb021r')
+    def setUp(self):
+        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Parallel.camunda.bpmn20.xml', 'Process_1hb021r')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
 
     def testRunThroughParallelTaskFirst(self):
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
 
         # 1 first task
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
@@ -124,8 +55,7 @@ class ParallelFromCamunda(BpmnWorkflowTestCase):
     def testAllParallelDataMakesItIntoGatewayTask(self):
         """It should be true that data collected across parallel tasks
         is all available in the join task."""
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
+
         self.do_next_named_step('First Task')
         self.do_next_named_step('Parallel Task A',
                                 set_attribs={"taskA": "taskA"})
@@ -140,16 +70,14 @@ class ParallelFromCamunda(BpmnWorkflowTestCase):
         self.assertEquals("taskC", self.workflow.last_task.data["taskC"])
 
 
+class ParallelJoinLongInclusiveTest(BpmnWorkflowTestCase):
 
-class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-Join-Long-Inclusive.bpmn20.xml', 'Parallel Join Long Inclusive')
+    def setUp(self):
+        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Parallel-Join-Long-Inclusive.bpmn20.xml', 'Parallel Join Long Inclusive')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
 
     def testRunThroughThread1FirstThenNo(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
 
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
@@ -176,9 +104,6 @@ class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
 
     def testNoFirstThenThread1(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
-
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step(
@@ -202,18 +127,75 @@ class ParallelJoinLongInclusiveTest(ParallelJoinLongTest):
             0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
-class ParallelMultipleSplitsTest(BpmnWorkflowTestCase):
+class ParallelJoinLongTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-Multiple-Splits.bpmn20.xml', 'Parallel Multiple Splits')
+        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Parallel-Join-Long.bpmn20.xml', 'Parallel Join Long')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
 
     def testRunThroughAlternating(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
+
+        self.do_next_named_step(
+            'Thread 1 - Choose', choice='Yes', with_save_load=True)
         self.workflow.do_engine_steps()
+        self.do_next_named_step(
+            'Thread 2 - Choose', choice='Yes', with_save_load=True)
+        self.workflow.do_engine_steps()
+
+        for i in range(1, 13):
+            self.do_next_named_step(
+                'Thread 1 - Task %d' % i, with_save_load=True)
+            self.workflow.do_engine_steps()
+            self.do_next_named_step(
+                'Thread 2 - Task %d' % i, with_save_load=True)
+            self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done', with_save_load=True)
+        self.workflow.do_engine_steps()
+
+        self.assertEqual(
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+
+    def testRunThroughThread1First(self):
+
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
+
+        self.do_next_named_step(
+            'Thread 1 - Choose', choice='Yes', with_save_load=True)
+        self.workflow.do_engine_steps()
+        for i in range(1, 13):
+            self.do_next_named_step('Thread 1 - Task %d' % i)
+            self.workflow.do_engine_steps()
+
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+
+        self.do_next_named_step(
+            'Thread 2 - Choose', choice='Yes', with_save_load=True)
+        self.workflow.do_engine_steps()
+        for i in range(1, 13):
+            self.do_next_named_step(
+                'Thread 2 - Task %d' % i, with_save_load=True)
+            self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done', with_save_load=True)
+        self.workflow.do_engine_steps()
+
+        self.assertEqual(
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+
+
+class ParallelMultipleSplitsTest(BpmnWorkflowTestCase):
+
+    def setUp(self):
+        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Parallel-Multiple-Splits.bpmn20.xml', 'Parallel Multiple Splits')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
+
+    def testRunThroughAlternating(self):
 
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
@@ -239,18 +221,73 @@ class ParallelMultipleSplitsTest(BpmnWorkflowTestCase):
             0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
-class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
+class ParallelOnePathEndsTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-Then-Exclusive.bpmn20.xml', 'Parallel Then Exclusive')
+        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Parallel-One-Path-Ends.bpmn20.xml', 'Parallel One Path Ends')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
 
     def testRunThroughParallelTaskFirst(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
+
+        self.do_next_named_step('Parallel Task')
         self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Choice 1', choice='No')
+        self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+
+        self.assertEqual(
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+
+    def testRunThroughChoiceFirst(self):
+
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
+
+        self.do_next_named_step('Choice 1', choice='No')
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Parallel Task')
+        self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+
+        self.assertEqual(
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+
+    def testRunThroughParallelTaskFirstYes(self):
+
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
+
+        self.do_next_named_step('Parallel Task')
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Choice 1', choice='Yes')
+        self.workflow.do_engine_steps()
+        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
+        self.do_next_named_step('Yes Task')
+        self.workflow.do_engine_steps()
+
+        self.do_next_named_step('Done')
+        self.workflow.do_engine_steps()
+
+        self.assertEqual(
+            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+
+
+class ParallelThenExclusiveTest(BpmnWorkflowTestCase):
+
+    def setUp(self):
+        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Parallel-Then-Exclusive.bpmn20.xml', 'Parallel Then Exclusive')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
+
+    def testRunThroughParallelTaskFirst(self):
 
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
@@ -270,9 +307,6 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
 
     def testRunThroughChoiceFirst(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
-
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Choice 1', choice='Yes')
@@ -291,9 +325,6 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
 
     def testRunThroughChoiceThreadCompleteFirst(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
-
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Choice 1', choice='Yes')
@@ -311,24 +342,23 @@ class ParallelThenExlusiveTest(BpmnWorkflowTestCase):
             0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
-class ParallelThenExlusiveNoInclusiveTest(ParallelThenExlusiveTest):
+class ParallelThenExclusiveNoInclusiveTest(ParallelThenExclusiveTest):
 
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-Then-Exclusive-No-Inclusive.bpmn20.xml', 'Parallel Then Exclusive No Inclusive')
-
+    def setUp(self):
+        spec, subprocesses = self.load_workflow_spec(
+            'Test-Workflows/Parallel-Then-Exclusive-No-Inclusive.bpmn20.xml', 
+            'Parallel Then Exclusive No Inclusive')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
 
 class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-Through-Same-Task.bpmn20.xml', 'Parallel Through Same Task')
+        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Parallel-Through-Same-Task.bpmn20.xml', 'Parallel Through Same Task')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
 
     def testRunThroughFirstRepeatTaskFirst(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
 
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
@@ -353,9 +383,6 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
             0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRepeatTasksReadyTogether(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
 
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
@@ -385,10 +412,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
 
     def testRepeatTasksReadyTogetherSaveRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
         self.save_restore()
-
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Choice 1', choice='Yes')
@@ -423,10 +447,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
 
     def testNoRouteRepeatTaskFirst(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
         self.save_restore()
-
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Repeated Task')
@@ -452,10 +473,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
 
     def testNoRouteNoTaskFirst(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
         self.save_restore()
-
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Choice 1', choice='No')
@@ -477,10 +495,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
 
     def testNoRouteNoFirstThenRepeating(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
         self.save_restore()
-
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
 
         self.do_next_named_step('Choice 1', choice='No')
@@ -502,79 +517,10 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
             0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
-class ParallelOnePathEndsTest(BpmnWorkflowTestCase):
-
-    def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-One-Path-Ends.bpmn20.xml', 'Parallel One Path Ends')
-
-    def testRunThroughParallelTaskFirst(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
-
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
-
-        self.do_next_named_step('Parallel Task')
-        self.workflow.do_engine_steps()
-        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
-        self.do_next_named_step('Choice 1', choice='No')
-        self.workflow.do_engine_steps()
-
-        self.do_next_named_step('Done')
-        self.workflow.do_engine_steps()
-
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
-
-    def testRunThroughChoiceFirst(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
-
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
-
-        self.do_next_named_step('Choice 1', choice='No')
-        self.workflow.do_engine_steps()
-        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
-        self.do_next_named_step('Parallel Task')
-        self.workflow.do_engine_steps()
-
-        self.do_next_named_step('Done')
-        self.workflow.do_engine_steps()
-
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
-
-    def testRunThroughParallelTaskFirstYes(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
-
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
-
-        self.do_next_named_step('Parallel Task')
-        self.workflow.do_engine_steps()
-        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
-        self.do_next_named_step('Choice 1', choice='Yes')
-        self.workflow.do_engine_steps()
-        self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
-        self.do_next_named_step('Yes Task')
-        self.workflow.do_engine_steps()
-
-        self.do_next_named_step('Done')
-        self.workflow.do_engine_steps()
-
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
-
-
-class AbstractParallelTest(BpmnWorkflowTestCase):
+class BaseParallelTest(BpmnWorkflowTestCase):
 
     def _do_test(self, order, only_one_instance=True, save_restore=False):
-        self.workflow = BpmnWorkflow(self.spec)
+
         self.workflow.do_engine_steps()
         for s in order:
             choice = None
@@ -607,13 +553,13 @@ class AbstractParallelTest(BpmnWorkflowTestCase):
         self.assertEqual(0, len(unfinished))
 
 
-class ParallelMultipleSplitsAndJoinsTest(AbstractParallelTest):
+class ParallelMultipleSplitsAndJoinsTest(BaseParallelTest):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-Multiple-Splits-And-Joins.bpmn20.xml', 'Parallel Multiple Splits And Joins')
+        spec, subprocesses = self.load_workflow_spec(
+            'Test-Workflows/Parallel-Multiple-Splits-And-Joins.bpmn20.xml',
+            'Parallel Multiple Splits And Joins')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def test1(self):
         self._do_test(['1', '!Done', '2', '1A', '!Done', '2A', '1B', '2B',
@@ -632,13 +578,13 @@ class ParallelMultipleSplitsAndJoinsTest(AbstractParallelTest):
             ['1', '1B', '1A', '1 Done', '!Done', '2', '2B', '2A', '2 Done', 'Done'], save_restore=True)
 
 
-class ParallelLoopingAfterJoinTest(AbstractParallelTest):
+class ParallelLoopingAfterJoinTest(BaseParallelTest):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-Looping-After-Join.bpmn20.xml', 'Parallel Looping After Join')
+        spec, subprocesses = self.load_workflow_spec(
+            'Test-Workflows/Parallel-Looping-After-Join.bpmn20.xml',
+            'Parallel Looping After Join')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def test1(self):
         self._do_test(
@@ -650,13 +596,13 @@ class ParallelLoopingAfterJoinTest(AbstractParallelTest):
                      '1', '2', '2A', '2B', '2 Done', ('Retry?', 'No'), 'Done'], save_restore=True)
 
 
-class ParallelManyThreadsAtSamePointTest(AbstractParallelTest):
+class ParallelManyThreadsAtSamePointTest(BaseParallelTest):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-Many-Threads-At-Same-Point.bpmn20.xml', 'Parallel Many Threads At Same Point')
+        spec, subprocesses = self.load_workflow_spec(
+            'Test-Workflows/Parallel-Many-Threads-At-Same-Point.bpmn20.xml',
+            'Parallel Many Threads At Same Point')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def test1(self):
         self._do_test(['1', '2', '3', '4', 'Done', 'Done', 'Done', 'Done'],
@@ -671,13 +617,13 @@ class ParallelManyThreadsAtSamePointTest(AbstractParallelTest):
                       only_one_instance=False, save_restore=True)
 
 
-class ParallelManyThreadsAtSamePointTestNested(AbstractParallelTest):
+class ParallelManyThreadsAtSamePointTestNested(BaseParallelTest):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/Parallel-Many-Threads-At-Same-Point-Nested.bpmn20.xml', 'Parallel Many Threads At Same Point Nested')
+        spec, subprocesses = self.load_workflow_spec(
+            'Test-Workflows/Parallel-Many-Threads-At-Same-Point-Nested.bpmn20.xml',
+            'Parallel Many Threads At Same Point Nested')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def test_depth_first(self):
         instructions = []

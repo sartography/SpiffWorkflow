@@ -20,7 +20,7 @@ class BpmnDataConverter(DictionaryConverter):
     to be converted to a form that can be serialized with JSOM
 
     It also serves as a simple example for anyone who needs custom data serialization.  If you have
-    custom objects or python objects not included here in your workflow/task data, then you should 
+    custom objects or python objects not included here in your workflow/task data, then you should
     replace or extend this with one that can handle the contents of your workflow.
     """
     def __init__(self):
@@ -34,14 +34,14 @@ class BpmnDataConverter(DictionaryConverter):
 class BpmnTaskSpecConverter(DictionaryConverter):
     """
     This the base Task Spec Converter.
-    
+
     It contains methods for parsing generic and BPMN task spec attributes.
 
     If you have extended any of the the BPMN tasks with custom functionality, you'll need to
-    implement a converter for those task spec types.  You'll need to implement the `to_dict` and 
+    implement a converter for those task spec types.  You'll need to implement the `to_dict` and
     `from_dict` methods on any inheriting classes.
 
-    The default task spec converters are in `task_converters`; the `camunda` and `dmn` 
+    The default task spec converters are in `task_converters`; the `camunda` and `dmn`
     serialization packages contain other examples.
     """
 
@@ -62,7 +62,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         self.spec_class = spec_class
         self.data_converter = data_converter
         self.typename = typename if typename is not None else spec_class.__name__
-        
+
         event_definitions = [ NoneEventDefinition, CancelEventDefinition, TerminateEventDefinition,
             SignalEventDefinition, MessageEventDefinition, ErrorEventDefinition, EscalationEventDefinition,
             TimerEventDefinition, CycleTimerEventDefinition ]
@@ -70,10 +70,10 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         for event_definition in event_definitions:
             self.register(
                 event_definition,
-                self.event_definition_to_dict, 
+                self.event_definition_to_dict,
                 partial(self.event_defintion_from_dict, event_definition)
             )
-    
+
         self.register(SequenceFlow, self.sequence_flow_to_dict, self.sequence_flow_from_dict)
         self.register(Attrib, self.attrib_to_dict, partial(self.attrib_from_dict, Attrib))
         self.register(PathAttrib, self.attrib_to_dict, partial(self.attrib_from_dict, PathAttrib))
@@ -87,7 +87,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
 
     def from_dict(self, dct):
         """
-        The restore method that will be called when a Task Spec Converter is registered with a 
+        The restore method that will be called when a Task Spec Converter is registered with a
         Workflow Spec Converter.
         """
         raise NotImplementedError
@@ -106,7 +106,6 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             'description': spec.description,
             'manual': spec.manual,
             'internal': spec.internal,
-            'position': spec.position,
             'lookahead': spec.lookahead,
             'inputs': [task.name for task in spec.inputs],
             'outputs': [task.name for task in spec.outputs],
@@ -118,7 +117,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             dct['defines'] = self.data_converter.convert(spec.defines)
             dct['pre_assign'] = self.data_converter.convert(spec.pre_assign)
             dct['post_assign'] = self.data_converter.convert(spec.post_assign)
-        
+
         return dct
 
     def get_bpmn_attributes(self, spec):
@@ -133,6 +132,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             'lane': spec.lane,
             'documentation': spec.documentation,
             'loopTask': spec.loopTask,
+            'position': spec.position,
             'outgoing_sequence_flows': dict(
                 (k, self.convert(v)) for k, v in spec.outgoing_sequence_flows.items()
             ),
@@ -163,10 +163,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         Returns:
             a dictionary of subworkflow task spec attributes
         """
-        return {
-            'spec': spec.spec.name,
-            'sub_workflow': None,
-        }
+        return {'spec': spec.spec}
 
     def task_spec_from_dict(self, dct):
         """
@@ -205,7 +202,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
 
     def event_definition_to_dict(self, event_definition):
         """
-        Converts an BPMN event definition to a dict.  It will not typically be called directly, 
+        Converts an BPMN event definition to a dict.  It will not typically be called directly,
         but via `convert` and will convert any event type supported by Spiff.
 
         :param event_definition: the event_definition to be converted.
@@ -269,9 +266,9 @@ class BpmnTaskSpecConverter(DictionaryConverter):
 
 class BpmnWorkflowSpecConverter(DictionaryConverter):
     """
-    This is the base converter for a BPMN workflow spec.  
-    
-    It will register converters for the task spec types contained in the workflow, as well as 
+    This is the base converter for a BPMN workflow spec.
+
+    It will register converters for the task spec types contained in the workflow, as well as
     the workflow spec class itself.
 
     This class can be extended if you implement a custom workflow spec type.  See the converter
@@ -280,7 +277,7 @@ class BpmnWorkflowSpecConverter(DictionaryConverter):
 
     def __init__(self, spec_class, task_spec_converters, data_converter=None):
         """
-        Converter for a BPMN workflow spec class.  
+        Converter for a BPMN workflow spec class.
 
         The `to_dict` and `from_dict` methods of the given task spec converter classes will
         be registered, so that they can be restored automatically.

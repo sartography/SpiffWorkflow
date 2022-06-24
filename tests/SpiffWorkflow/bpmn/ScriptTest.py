@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from unittest import skip
 
@@ -16,14 +14,11 @@ __author__ = 'matth'
 class InlineScriptTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('ScriptTest.bpmn', 'ScriptTest')
+        spec, subprocesses = self.load_workflow_spec('ScriptTest.bpmn', 'ScriptTest')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         data = self.workflow.last_task.data
         self.assertEqual(data,{'testvar': {'a': 1, 'b': 2, 'new': 'Test'},
@@ -36,7 +31,6 @@ class InlineScriptTest(BpmnWorkflowTestCase):
         """Ran into an issue where data from one run of a workflow could
         bleed into a separate execution.  It will think a variable is there
         when it should not be there"""
-        self.workflow = BpmnWorkflow(self.spec)
         startTask = self.workflow.get_tasks(TaskState.READY)[0]
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())

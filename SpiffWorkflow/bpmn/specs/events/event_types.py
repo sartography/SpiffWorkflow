@@ -17,10 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .event_definitions import NoneEventDefinition, MessageEventDefinition, CycleTimerEventDefinition
+from .event_definitions import NoneEventDefinition, MessageEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
-from ....specs.StartTask import StartTask
 from ....task import TaskState
 
 class CatchingEvent(Simple, BpmnSpecMixin):

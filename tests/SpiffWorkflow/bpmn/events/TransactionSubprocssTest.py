@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -13,15 +11,11 @@ __author__ = 'michaelc'
 class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('transaction.bpmn', 'Main_Process')
+        self.spec, self.subprocesses = self.load_workflow_spec('transaction.bpmn', 'Main_Process')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        self.workflow.do_engine_steps()
 
     def testBoundaryNavigation(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
 
         nav = self.workflow.get_flat_nav_list()
         self.assertEqual(27, len(nav))
@@ -47,8 +41,6 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def testNormalCompletion(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].complete()
@@ -76,8 +68,6 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def testSubworkflowCancelEvent(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
 
         # If value == '', we cancel
@@ -97,13 +87,13 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         self.assertEqual(error_1_task.get_state(), TaskState.CANCELLED)
         error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
         self.assertEqual(error_none_task.get_state(), TaskState.CANCELLED)
-        print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")[0]
-        self.assertEqual(print_task.get_state(), TaskState.CANCELLED)
+
+        # We should not have this task, as we followed the 'cancel branch'
+        print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")
+        self.assertEqual(len(print_task), 0)
 
     def testSubworkflowErrorCodeNone(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].complete()
@@ -115,14 +105,13 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         ready_tasks[0].complete()
         self.workflow.do_engine_steps()
 
-        # Check that subprocess data does not persist
-        self.assertNotIn('value', self.workflow.last_task.data)
+        # We formerly checked that subprocess data does not persist, but I think it should persist
+        # A boundary event is just an alternate path out of a workflow, and we might need the context
+        # of the event in later steps
 
-        # The cancel boundary event and print data tasks should be cancelled
+        # The cancel boundary event should be cancelled
         cancel_task = self.workflow.get_tasks_from_spec_name("Catch_Cancel_Event")[0]
         self.assertEqual(cancel_task.get_state(), TaskState.CANCELLED)
-        print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")[0]
-        self.assertEqual(print_task.get_state(), TaskState.CANCELLED)
 
         # We should catch the None Error, but not Error 1
         error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
@@ -130,10 +119,12 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         error_1_task = self.workflow.get_tasks_from_spec_name("Catch_Error_1")[0]
         self.assertEqual(error_1_task.get_state(), TaskState.CANCELLED)
 
+        # Make sure this branch didn't getfollowed
+        print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")
+        self.assertEqual(len(print_task), 0)
 
     def testSubworkflowErrorCodeOne(self):
-        self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.do_engine_steps()
+
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].complete()
@@ -145,20 +136,17 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         ready_tasks[0].complete()
         self.workflow.do_engine_steps()
 
-        # Check that subprocess data does not persist
-        self.assertNotIn('value', self.workflow.last_task.data)
-
-        # The cancel boundary event and print data tasks should be cancelled
-        cancel_task = self.workflow.get_tasks_from_spec_name("Catch_Cancel_Event")[0]
-        self.assertEqual(cancel_task.get_state(), TaskState.CANCELLED)
-        print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")[0]
-        self.assertEqual(print_task.get_state(), TaskState.CANCELLED)
+        # The cancel boundary event should be cancelled
+        # I've removed this check, see previous test for rationale
 
         # Both boundary events should complete
         error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
         self.assertEqual(error_none_task.get_state(), TaskState.COMPLETED)
         error_1_task = self.workflow.get_tasks_from_spec_name("Catch_Error_1")[0]
         self.assertEqual(error_1_task.get_state(), TaskState.COMPLETED)
+
+        print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")
+        self.assertEqual(len(print_task), 0)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TransactionSubprocessTest)

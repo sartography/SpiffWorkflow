@@ -14,9 +14,8 @@ CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 class BusinessRuleTaskParser(TaskParser, BpmnSpecMixin):
     dmn_debug = None
 
-    def __init__(self, process_parser, spec_class, node):
-        super(BusinessRuleTaskParser, self).__init__(process_parser,
-                                                     spec_class, node)
+    def __init__(self, process_parser, spec_class, node, lane=None):
+        super(BusinessRuleTaskParser, self).__init__(process_parser, spec_class, node, lane)
         self.xpath = xpath_eval(self.node, extra_ns={'camunda': CAMUNDA_MODEL_NS})
         self.dmnEngine = self._get_engine()
 
@@ -27,7 +26,7 @@ class BusinessRuleTaskParser(TaskParser, BpmnSpecMixin):
             raise ValidationException(
                 'No DMN Diagram available with id "%s", Available DMN ids are: %s' %(decision_ref, options),
                 node=self.node, filename='')
-        dmnParser = self.parser.dmn_parsers[decision_ref]
+        dmnParser = self.process_parser.parser.dmn_parsers[decision_ref]
         dmnParser.parse()
         decision = dmnParser.decision
         return DMNEngine(decision.decisionTables[0])
@@ -35,7 +34,7 @@ class BusinessRuleTaskParser(TaskParser, BpmnSpecMixin):
     def create_task(self):
         return BusinessRuleTask(self.spec, self.get_task_spec_name(),
                                 dmnEngine=self.dmnEngine,
-                                lane=self.get_lane(),
+                                lane=self.lane, position=self.position,
                                 description=self.node.get('name', None),
                                 )
 

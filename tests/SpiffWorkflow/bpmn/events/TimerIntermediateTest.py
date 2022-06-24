@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 import datetime
 import time
@@ -15,14 +13,10 @@ __author__ = 'matth'
 class TimerIntermediateTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Timer Intermediate')
+        self.spec, self.subprocesss = self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Timer Intermediate')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesss)
 
     def testRunThroughHappy(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
 
         due_time = datetime.datetime.now() + datetime.timedelta(seconds=0.5)
 

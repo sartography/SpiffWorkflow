@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
-import datetime
-import time
+
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -15,10 +12,8 @@ __author__ = 'kellym'
 class ExternalMessageBoundaryTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('external_message.bpmn', 'ExternalMessage')
+        spec, subprocesses = self.load_workflow_spec('external_message.bpmn', 'ExternalMessage')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -27,9 +22,8 @@ class ExternalMessageBoundaryTest(BpmnWorkflowTestCase):
         self.actual_test(save_restore=True)
 
 
-
     def actual_test(self,save_restore = False):
-        self.workflow = BpmnWorkflow(self.spec)
+       
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks),'Expected to have only one ready task')

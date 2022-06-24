@@ -17,13 +17,11 @@ class ExclusiveGatewayNoDefaultTest(BpmnWorkflowTestCase):
     as well as looping over an existing array."""
 
     def setUp(self):
-        self.spec = self.load_workflow_spec(
-            'exclusive_gateway_no_default.bpmn',
-            'NoDefaultGateway')
+        spec, subprocesses = self.load_workflow_spec('exclusive_gateway_no_default.bpmn', 'NoDefaultGateway')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         first = self.workflow.get_tasks_from_spec_name('StartEvent_1')[0]
         first.data = { 'x': 1 }
         self.assertRaises(WorkflowException, self.workflow.do_engine_steps)

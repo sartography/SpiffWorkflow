@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 
-
 import json
-import logging
 import os
 import unittest
 
 from SpiffWorkflow import NavItem
 from SpiffWorkflow.task import TaskState
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
-from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
 
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
-from .BpmnLoaderForTests import TestUserTaskConverter
+from .BpmnLoaderForTests import TestUserTaskConverter, TestBpmnParser
 
 __author__ = 'matth'
 
@@ -25,9 +21,11 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def load_workflow_spec(self, filename, process_name):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
-
-        return BpmnSerializer().deserialize_workflow_spec(
-            PackagerForTests.package_in_memory(process_name, f))
+        parser = TestBpmnParser()
+        parser.add_bpmn_files_by_glob(f)
+        top_level_spec = parser.get_spec(process_name)
+        subprocesses = parser.get_process_specs()
+        return top_level_spec, subprocesses
 
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:
@@ -44,6 +42,11 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         self.workflow.do_engine_steps()
         step_name_path = step_name.split("|")
 
+        def switch_workflow(p):
+            for task_id, sp in p.workflow._get_outermost_workflow().subprocesses.items():
+                if p in sp.get_tasks(workflow=sp):
+                    return p.workflow.get_task(task_id)
+
         def is_match(t):
             if not (t.task_spec.name == step_name_path[-1] or t.task_spec.description == step_name_path[-1]):
                 return False
@@ -54,7 +57,10 @@ class BpmnWorkflowTestCase(unittest.TestCase):
                     if (p.task_spec.name == parent_name or p.task_spec.description == parent_name):
                         found = True
                         break
-                    p = p.parent
+                    if p.parent is None and p.workflow != p.workflow.outer_workflow:
+                        p = switch_workflow(p)
+                    else:
+                        p = p.parent
                 if not found:
                     return False
             return True

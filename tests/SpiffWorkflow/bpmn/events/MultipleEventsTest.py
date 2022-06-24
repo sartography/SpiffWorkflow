@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-
-
-
 import unittest
-import datetime
-import time
 
 from SpiffWorkflow.bpmn.specs.events import CancelEventDefinition
 from SpiffWorkflow.task import TaskState
@@ -17,21 +12,13 @@ __author__ = 'kellym'
 class MultipleEventsTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('multipleEvents.bpmn', 'SignalAndCancel')
-
-    def get_to_first_task(self):
-        self.workflow = BpmnWorkflow(self.spec)
+        self.spec, self.subprocesses = self.load_workflow_spec('multipleEvents.bpmn', 'SignalAndCancel')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual("hello", ready_tasks[0].get_name())
 
-
     def test_cancel_does_nothing_if_no_one_is_listening(self,save_restore = False):
-
-        self.get_to_first_task()
 
         # Send cancel notifications to the workflow
         self.workflow.signal('cancel')  # generate a cancel signal.
@@ -42,7 +29,7 @@ class MultipleEventsTest(BpmnWorkflowTestCase):
         self.assertEqual("hello", ready_tasks[0].get_name())
 
     def test_cancel_works_with_signal(self,save_restore = False):
-        self.get_to_first_task()
+
         task = self.workflow.get_tasks(TaskState.READY)[0]
 
         # Move to User Task 1
@@ -61,7 +48,7 @@ class MultipleEventsTest(BpmnWorkflowTestCase):
 
 
     def test_cancel_works_with_cancel_Event(self,save_restore = False):
-        self.get_to_first_task()
+
         task = self.workflow.get_tasks(TaskState.READY)[0]
 
         # Move to User Task 2

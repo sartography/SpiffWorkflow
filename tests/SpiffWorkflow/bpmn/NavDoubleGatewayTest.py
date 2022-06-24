@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -19,14 +17,12 @@ class NavDoubleGateway(BpmnWorkflowTestCase):
     """
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
+        spec, subprocesses = self.load_workflow_spec('DoubleGatewayNavigation.bpmn', 'DoubleGatewayNavigation')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('DoubleGatewayNavigation.bpmn','DoubleGatewayNavigation')
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         nav_list = self.workflow.get_flat_nav_list()
         self.assertEqual(14, len(nav_list))
@@ -47,7 +43,6 @@ class NavDoubleGateway(BpmnWorkflowTestCase):
         for nav_item in nav_list:
             if nav_item.spec_type[-4:] == "Task":
                 self.assertIsNotNone(nav_item.task_id)
-
 
         # Sanity check on deep nav.
         nav_list = self.workflow.get_deep_nav_list()

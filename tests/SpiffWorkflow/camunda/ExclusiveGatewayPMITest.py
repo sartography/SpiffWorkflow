@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-
-
-import sys
-import os
 import unittest
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-from SpiffWorkflow.exceptions import WorkflowException
-__author__ = 'matth'
 
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
+
+__author__ = 'matth'
 
 
 class ExclusiveGatewayPMITest(BaseTestCase):
@@ -19,9 +14,8 @@ class ExclusiveGatewayPMITest(BaseTestCase):
     as well as looping over an existing array."""
 
     def setUp(self):
-        self.spec = self.load_workflow_spec(
-            'data/default_gateway_pmi.bpmn',
-            'DefaultGateway')
+        spec, subprocesses = self.load_workflow_spec('default_gateway_pmi.bpmn', 'DefaultGateway')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(False)
@@ -35,11 +29,8 @@ class ExclusiveGatewayPMITest(BaseTestCase):
     def testRunThroughSaveRestoreNo(self):
         self.actual_test(True,'No')
 
-
-
     def actual_test(self, save_restore=False,response='Yes'):
 
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
 
         # Set initial array size to 3 in the first user form.

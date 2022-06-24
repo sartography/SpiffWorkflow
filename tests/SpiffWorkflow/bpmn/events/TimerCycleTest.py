@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
-import datetime
 import time
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
@@ -32,10 +29,8 @@ class CustomScriptEngine(PythonScriptEngine):
 class TimerDurationTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('timer-cycle.bpmn', 'timer')
+        self.spec, self.subprocesses = self.load_workflow_spec('timer-cycle.bpmn', 'timer')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=CustomScriptEngine())
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -46,7 +41,6 @@ class TimerDurationTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         global counter
-        self.workflow = BpmnWorkflow(self.spec,script_engine=CustomScriptEngine())
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks)) # Start Event
         self.workflow.complete_task_from_id(ready_tasks[0].id)

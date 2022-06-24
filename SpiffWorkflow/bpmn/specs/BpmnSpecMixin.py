@@ -62,7 +62,7 @@ class BpmnSpecMixin(TaskSpec):
     methods that are BPMN specific to the TaskSpec.
     """
 
-    def __init__(self, wf_spec, name, lane=None, **kwargs):
+    def __init__(self, wf_spec, name, lane=None, position=None, **kwargs):
         """
         Constructor.
 
@@ -72,8 +72,9 @@ class BpmnSpecMixin(TaskSpec):
         super(BpmnSpecMixin, self).__init__(wf_spec, name, **kwargs)
         self.outgoing_sequence_flows = {}
         self.outgoing_sequence_flows_by_id = {}
-        self.loopTask = False
         self.lane = lane
+        self.position = position or {'x': 0, 'y': 0}
+        self.loopTask = False
         self.documentation = None
 
     def is_loop_task(self):

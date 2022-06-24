@@ -310,13 +310,13 @@ def follow_tree(tree, output=None, found=None, level=0, workflow=None):
             # The call activity may not exist yet in some circumstances.
             return output
         tsk = tasks[0]
-        x = tree.create_sub_workflow(tsk)
+        subprocess = tsk.workflow.get_subprocess(tsk)
 
         output.append( NavItem.from_spec(tree, indent=level))
 
         sublist_outputs = [
-            follow_tree(top, output=[], found=set(), level=level + 1, workflow=x)
-            for top in x.task_tree.children[0].task_spec.outputs]
+            follow_tree(top, output=[], found=set(), level=level + 1, workflow=subprocess)
+            for top in subprocess.task_tree.children[0].task_spec.outputs]
         for lst in sublist_outputs:
             for item in lst:
                 output.append(item)
@@ -325,7 +325,7 @@ def follow_tree(tree, output=None, found=None, level=0, workflow=None):
             output = follow_tree(link.target_task_spec, output, found,
                                  level, workflow)
         return output
-
+    
     if isinstance(tree, MultiInstanceTask) and not tree.isSequential:
         # When we have expanded the tree, we'll have multiple tasks, and
         # need this special case.  If the tree has not yet been expanded
