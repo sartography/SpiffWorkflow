@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import sys
 import os
 import unittest
@@ -20,12 +18,11 @@ class MultiInstanceCondTest(BpmnWorkflowTestCase):
     and five items for the repeating section. """
 
     def setUp(self):
-        self.filename = 'MultiInstanceParallelTaskCond.bpmn'
-        self.process_name = 'MultiInstance'
-        self.spec = self.load_workflow1_spec()
+        spec, subprocesses = self.load_workflow_spec('MultiInstanceParallelTaskCond.bpmn', 'MultiInstance')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def load_workflow1_spec(self):
-        return self.load_workflow_spec(self.filename, self.process_name)
+        return 
 
     def testRunThroughHappy(self):
         self.actualTest()
@@ -34,7 +31,7 @@ class MultiInstanceCondTest(BpmnWorkflowTestCase):
         self.actualTest(True)
 
     def actualTest(self, save_restore=False):
-        self.workflow = BpmnWorkflow(self.spec)
+        
         self.workflow.do_engine_steps()
         self.assertEqual(1, len(self.workflow.get_ready_user_tasks()))
         task = self.workflow.get_ready_user_tasks()[0]

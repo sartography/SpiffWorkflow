@@ -4,8 +4,7 @@ import unittest
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.PackagerForTests import PackagerForTests
-
+from .BpmnLoaderForTests import TestBpmnParser
 
 
 class BpmnSerializerTest(unittest.TestCase):
@@ -13,16 +12,17 @@ class BpmnSerializerTest(unittest.TestCase):
 
     def load_workflow_spec(self, filename, process_name):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
-
-        return BpmnSerializer().deserialize_workflow_spec(
-            PackagerForTests.package_in_memory(process_name, f))
+        parser = TestBpmnParser()
+        parser.add_bpmn_files_by_glob(f)
+        top_level_spec = parser.get_spec(process_name)
+        subprocesses = parser.get_process_specs()
+        return top_level_spec, subprocesses
 
     def setUp(self):
         super(BpmnSerializerTest, self).setUp()
         self.serializer = BpmnSerializer()
-        self.spec = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
-        self.workflow = BpmnWorkflow(self.spec)
-        self.return_type = str
+        self.spec, subprocesses = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
+        self.workflow = BpmnWorkflow(self.spec, subprocesses)
 
     def testDeserializeWorkflowSpec(self):
         self.assertIsNotNone(self.spec)

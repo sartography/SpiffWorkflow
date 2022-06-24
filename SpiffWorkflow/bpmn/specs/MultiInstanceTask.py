@@ -1,24 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-import copy
-import logging
-import random
-import string
-from builtins import range
-from uuid import uuid4
-import re
-
-from .SubWorkflowTask import SubWorkflowTask, CallActivity
-from .ParallelGateway import ParallelGateway
-from .ScriptTask import ScriptTask
-from .ExclusiveGateway import ExclusiveGateway
-from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
-from ...exceptions import WorkflowException, WorkflowTaskExecException
-from ...operators import valueof, is_number
-from ...specs import SubWorkflow
-from ...specs.base import TaskSpec
-from ...util.impl import get_class
 # Copyright (C) 2020 Sartography
 #
 # This library is free software; you can redistribute it and/or
@@ -35,6 +16,23 @@ from ...util.impl import get_class
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+
+import copy
+import logging
+from builtins import range
+from uuid import uuid4
+import re
+
+from .SubWorkflowTask import SubWorkflowTask, CallActivity
+from .ParallelGateway import ParallelGateway
+from .ScriptTask import ScriptTask
+from .ExclusiveGateway import ExclusiveGateway
+from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
+from ...exceptions import WorkflowTaskExecException
+from ...operators import valueof, is_number
+from ...specs import SubWorkflow
+from ...specs.base import TaskSpec
+from ...util.impl import get_class
 from ...task import Task, TaskState
 from ...util.deep_merge import DeepMerge
 
@@ -74,9 +72,16 @@ class MultiInstanceTask(TaskSpec):
         if times is None:
             raise ValueError('times argument is required')
         self.times = times
-        self.elementVar = None
-        self.collection = None
-        self.expanded = 1 # this code never gets run
+
+        # We don't really pass these things in (we should), but putting them here to document that they exist
+        self.loopTask = kwargs.get('loopTask', False)
+        self.isSequential = kwargs.get('isSequential', False)
+        self.expanded = kwargs.get('expanded', 1)
+        self.elementVar = kwargs.get('element_var')
+        self.collection = kwargs.get('collection')
+
+        self.multiInstance = True
+
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
 
     def _find_my_task(self, task):
@@ -86,7 +91,6 @@ class MultiInstanceTask(TaskSpec):
             if thetask.task_spec == self:
                 return thetask
         return None
-
 
     def _on_trigger(self, task_spec):
         """
@@ -112,8 +116,7 @@ class MultiInstanceTask(TaskSpec):
             return
         # look for variable in context, if we don't find it, default to 1
         variable = valueof(my_task, self.times, 1)
-        if self.times.name == self.collection.name and type(variable) == type(
-            []):
+        if self.times.name == self.collection.name and type(variable) == type([]):
             raise WorkflowTaskExecException(my_task,
                                             'If we are updating a collection,'
                                             ' then the collection must be a '
@@ -139,8 +142,7 @@ class MultiInstanceTask(TaskSpec):
 
         if is_number(self.times.name):
             return int(self.times.name)
-        variable = valueof(my_task, self.times,
-                           1)  # look for variable in context, if we don't find it, default to 1
+        variable = valueof(my_task, self.times, 1)  # look for variable in context, if we don't find it, default to 1
 
         if is_number(variable):
             return int(variable)
@@ -265,8 +267,7 @@ class MultiInstanceTask(TaskSpec):
     def multiinstance_info(self, my_task):
         split_n = self._get_count(my_task)
 
-        runtimes = int(my_task._get_internal_data('runtimes',
-                                                  1))  # set a default if not already run
+        runtimes = int(my_task._get_internal_data('runtimes', 1))  # set a default if not already run
         loop = False
         parallel = False
         sequential = False
@@ -294,12 +295,12 @@ class MultiInstanceTask(TaskSpec):
         # I think we will need to update both every variables
         # internal data and the copy of the public data to get the
         # variables correct
-        new_child.internal_data = copy.copy(my_task.internal_data)
+        new_child.internal_data = copy.deepcopy(my_task.internal_data)
 
         new_child.internal_data[
             'runtimes'] = x + 2  # working with base 1 and we already have one done
 
-        new_child.data = copy.copy(my_task.data)
+        new_child.data = copy.deepcopy(my_task.data)
         new_child.data[self.elementVar] = self._get_current_var(my_task,
                                                                 x + 2)
 
@@ -389,15 +390,13 @@ class MultiInstanceTask(TaskSpec):
         LOG.debug(my_task.get_name() + 'pre hook')
 
         split_n = self._get_count(my_task)
-        runtimes = int(my_task._get_internal_data('runtimes',
-                                                  1))  # set a default if not already run
+        runtimes = int(my_task._get_internal_data('runtimes', 1))  # set a default if not already run
 
         my_task._set_internal_data(splits=split_n, runtimes=runtimes)
         if not self.elementVar:
             self.elementVar = my_task.task_spec.name + "_CurrentVar"
 
-        my_task.data[self.elementVar] = copy.copy(
-            self._get_current_var(my_task, runtimes))
+        my_task.data[self.elementVar] = copy.copy(self._get_current_var(my_task, runtimes))
 
         # Create the outgoing tasks.
         outputs = []
@@ -412,21 +411,16 @@ class MultiInstanceTask(TaskSpec):
             self._expand_sequential(my_task,split_n)
 
         outputs += self.outputs
-        if isinstance(my_task.task_spec,SubWorkflowTask):
-            super()._predict_hook(my_task)
+        if my_task._is_definite():
+            my_task._sync_children(outputs, TaskState.FUTURE)
         else:
-            if my_task._is_definite():
-                my_task._sync_children(outputs, TaskState.FUTURE)
-            else:
-                my_task._sync_children(outputs, TaskState.LIKELY)
+            my_task._sync_children(outputs, TaskState.LIKELY)
 
     def _handle_special_cases(self, my_task):
-        classes = [BusinessRuleTask, ScriptTask, SubWorkflowTask, SubWorkflow,
-                   CallActivity]
+        classes = [BusinessRuleTask, ScriptTask, SubWorkflowTask, SubWorkflow, CallActivity]
         classes = {x.__module__ + "." + x.__name__: x for x in classes}
         terminate = self._get_loop_completion(my_task)
-        if my_task.task_spec.prevtaskclass in classes.keys() \
-            and not terminate:
+        if my_task.task_spec.prevtaskclass in classes.keys() and not terminate:
             super()._on_complete_hook(my_task)
 
     def _merge_element_variable(self,my_task,collect,runtimes,colvarname):
@@ -434,8 +428,7 @@ class MultiInstanceTask(TaskSpec):
         # then all the keys should be there and we can use the sorted keylist
         # if not, we use an integer - we should be guaranteed that the
         # collection is a dictionary
-        if self.collection is not None and \
-           self.times.name == self.collection.name:
+        if self.collection is not None and self.times.name == self.collection.name:
             keys = list(collect.keys())
             if len(keys) < runtimes:
                 msg = f"There is a mismatch between runtimes and the number " \
@@ -457,13 +450,10 @@ class MultiInstanceTask(TaskSpec):
 
 
     def _update_sibling_data(self,my_task,runtimes,runcount,colvarname,collect):
-        if (runtimes < runcount) and not \
-            my_task.terminate_current_loop and \
-            self.loopTask:
+        if (runtimes < runcount) and not my_task.terminate_current_loop and self.loopTask:
             my_task._set_state(TaskState.READY)
             my_task._set_internal_data(runtimes=runtimes + 1)
-            my_task.data[self.elementVar] = self._get_current_var(my_task,
-                                                      runtimes + 1)
+            my_task.data[self.elementVar] = self._get_current_var(my_task, runtimes + 1)
             element_var_data = None
         else:
             # The element var data should not be passed on to children
@@ -473,29 +463,19 @@ class MultiInstanceTask(TaskSpec):
         # if this is a parallel mi - then update all siblings with the
         # current data
         if not self.isSequential:
-
-            for tasknum in range(len(my_task.parent.children)):
-                task = my_task.parent.children[tasknum]
-                task.data = DeepMerge.merge(task.data,
-                                            gendict(colvarname.split('/'),
-                                                    collect))
+            for task in my_task.parent.children:
+                task.data = DeepMerge.merge(
+                    task.data, 
+                    gendict(colvarname.split('/'),
+                    collect)
+                )
+                pass
 
         return element_var_data
 
     def _on_complete_hook(self, my_task):
         # do special stuff for non-user tasks
         self._handle_special_cases(my_task)
-
-        if isinstance(my_task.task_spec,SubWorkflowTask):
-            # See method below, we will complete the iteration at the end of
-            # the subworkflow, rather than on the completion of this task.
-            pass
-        else:
-            self.__iteration_complete(my_task)
-
-    def _on_subworkflow_completed(self, subworkflow, my_task):
-        """Override standard behavior for on_subworkflow_completed"""
-        my_task.data[self.elementVar] = subworkflow.last_task.data[self.elementVar]
         self.__iteration_complete(my_task)
 
     def __iteration_complete(self, my_task):

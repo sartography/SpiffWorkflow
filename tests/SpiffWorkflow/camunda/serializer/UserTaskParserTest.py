@@ -8,10 +8,7 @@ class UserTaskParserTest(BaseTestCase):
     CORRELATE = UserTaskParser
 
     def setUp(self):
-        self.spec = self.load_workflow_spec('data/random_fact.bpmn', 'random_fact')
-
-    def testConstructor(self):
-        pass  # this is accomplished through setup.
+        self.spec, subprocesses = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
 
     def testGetForm(self):
         form = self.spec.task_specs['Task_User_Select_Type'].form
@@ -37,7 +34,7 @@ class UserTaskParserTest(BaseTestCase):
         self.assertEquals('25', form.fields[0].validation[0].config)
 
     def testNoFormDoesNotBombOut(self):
-        self.load_workflow_spec('data/no_form.bpmn', 'no_form')
+        self.load_workflow_spec('no_form.bpmn', 'no_form')
         self.assertTrue(True) # You can load a user task that has no form and you can still get here.
 
     def testCreateTask(self):

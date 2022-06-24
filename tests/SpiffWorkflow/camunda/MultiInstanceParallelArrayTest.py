@@ -1,33 +1,22 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-
-
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-
-__author__ = 'matth'
 import random
 
-debug = True
-
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
+__author__ = 'matth'
+
+debug = True
 
 class MultiInstanceParallelArrayTest(BaseTestCase):
     """The example bpmn diagram tests both a set cardinality from user input
     as well as looping over an existing array."""
 
     def setUp(self):
-
-        self.spec = self.load_workflow_spec(
-            'data/multi_instance_array_parallel.bpmn',
-            'MultiInstanceArray')
+        spec, subprocesses = self.load_workflow_spec('multi_instance_array_parallel.bpmn', 'MultiInstanceArray')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(False)
@@ -35,10 +24,8 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
     def testRunThroughSaveRestore(self):
         self.actual_test(True)
 
-
     def actual_test(self, save_restore=False):
 
-        self.workflow = BpmnWorkflow(self.spec)
         first_task = self.workflow.task_tree
 
         # A previous task (in this case the root task) will set the data

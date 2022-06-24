@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import sys
 import os
 import unittest
@@ -21,8 +19,8 @@ class PythonScriptEngineTest(BpmnWorkflowTestCase):
         self.expressionEngine = PythonScriptEngine()
 
         # All this, just so we have a task object, not using anything in the Script.
-        spec = self.load_workflow_spec('ScriptTest.bpmn', 'ScriptTest')
-        workflow = BpmnWorkflow(spec)
+        spec, subprocesses = self.load_workflow_spec('ScriptTest.bpmn', 'ScriptTest')
+        workflow = BpmnWorkflow(spec, subprocesses)
         workflow.do_engine_steps()
         self.task = workflow.last_task
 

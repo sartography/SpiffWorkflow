@@ -15,21 +15,18 @@ __author__ = 'matth'
 class MessageInterruptsSpTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Message Interrupts SP')
+        self.spec, self.subprocesses = self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Message Interrupts SP')
 
     def testRunThroughHappySaveAndRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.save_restore()
 
         self.workflow.do_engine_steps()
         self.save_restore()
 
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.do_next_exclusive_step('Do Something In a Subprocess')
         self.workflow.do_engine_steps()
@@ -45,14 +42,14 @@ class MessageInterruptsSpTest(BpmnWorkflowTestCase):
 
     def testRunThroughInterruptSaveAndRestore(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.save_restore()
 
         self.workflow.do_engine_steps()
         self.save_restore()
 
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.message('Test Message')
         self.workflow.do_engine_steps()

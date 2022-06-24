@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 import datetime
 import time
 
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.specs.events import EndEvent
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -18,10 +14,8 @@ __author__ = 'kellym'
 class TimerDurationTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('boundary_timer_on_task.bpmn', 'test_timer')
+        self.spec, self.subprocesses = self.load_workflow_spec('boundary_timer_on_task.bpmn', 'test_timer')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -29,10 +23,8 @@ class TimerDurationTest(BpmnWorkflowTestCase):
     def testThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
-
     def actual_test(self,save_restore = False):
         # In the normal flow of things, the final end event should be the last task
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))

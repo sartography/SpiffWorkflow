@@ -331,7 +331,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             return
 
         if isinstance(self.task_spec,SubWorkflowTask):
-            self.task_spec.sub_workflow = None
+            self.workflow.delete_subprocess(self)
             self.children = [] # if we have a call activity,
                                # force reset of children.
 

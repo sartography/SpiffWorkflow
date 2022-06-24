@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -19,16 +17,14 @@ class NavLeapfrogTest(BpmnWorkflowTestCase):
     """
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-        self.workflow = BpmnWorkflow(self.spec)
+        
+        spec, subprocesses = self.load_workflow_spec('NavLeapFrog.bpmn','NavLeapFrog')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]
         task.data = {"cats": 10}
         self.workflow.complete_task_from_id(task.id)
         self.workflow.do_engine_steps()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('NavLeapFrog.bpmn','NavLeapFrog')
 
     def testRunThroughFlatNav(self):
 
@@ -65,7 +61,7 @@ class NavLeapfrogTest(BpmnWorkflowTestCase):
         self.assertNav(nav_list[0], name="StartEvent_1", indent=0, state="COMPLETED")
         self.assertNav(nav_list[1], description="Get Data", indent=0, state="COMPLETED")
         self.assertNav(nav_list[2], description="how many cats", indent=0, state="READY")
-        self.assertNav(nav_list[3], description="how many cows", indent=0, state="MAYBE")
+        self.assertNav(nav_list[3], description="how many cows", indent=0, state="LIKELY")
         self.assertNav(nav_list[4], description="How many chickens", indent=0, state="MAYBE")
         self.assertNav(nav_list[5], description="How many Pigs?", indent=0, state=None)
         self.assertNav(nav_list[6], spec_type="EndEvent", indent=0, state=None)

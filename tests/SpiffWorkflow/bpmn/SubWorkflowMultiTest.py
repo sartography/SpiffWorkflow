@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -22,24 +20,24 @@ class SubWorkflowMultiTest(BpmnWorkflowTestCase):
     }
 
     def testSequential(self):
-        self.spec = self.load_workflow_spec('sub_workflow_multi.bpmn', 'ScriptTest')
-        self.workflow = BpmnWorkflow(self.spec)
+        spec, subprocesses = self.load_workflow_spec('sub_workflow_multi.bpmn', 'ScriptTest')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
 
         data = self.workflow.last_task.data
         self.assertEqual(data['my_collection'], self.expected_data)
 
     def testParallel(self):
-        self.spec = self.load_workflow_spec('sub_workflow_multi_parallel.bpmn', 'ScriptTest')
-        self.workflow = BpmnWorkflow(self.spec)
+        spec, subprocesses= self.load_workflow_spec('sub_workflow_multi_parallel.bpmn', 'ScriptTest')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
 
         data = self.workflow.last_task.data
         self.assertEqual(data['my_collection'], self.expected_data)
 
     def testWrapped(self):
-        self.spec = self.load_workflow_spec('sub_within_sub_multi.bpmn', 'ScriptTest')
-        self.workflow = BpmnWorkflow(self.spec)
+        spec, subprocesses = self.load_workflow_spec('sub_within_sub_multi.bpmn', 'ScriptTest')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
 
         data = self.workflow.last_task.data

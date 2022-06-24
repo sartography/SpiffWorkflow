@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-
-
 import sys
 import os
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -22,7 +19,6 @@ class InvalidProcessIDTest(BpmnWorkflowTestCase):
             self.load_workflow_spec, "invalid_process*.bpmn", "topworkflow")
 
     def testInvalidCalledElement(self):
-
         self.assertRaisesRegex(
             ValidationException, "The process '\w+' was not found",
             self.load_workflow_spec, "invalid_process*.bpmn", "top_workflow")

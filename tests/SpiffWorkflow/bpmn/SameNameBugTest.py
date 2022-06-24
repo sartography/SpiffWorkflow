@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
@@ -17,10 +15,8 @@ class SameNameBugTest(BpmnWorkflowTestCase):
     that work with each other, have tasks with the same id?!?"""
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('same_id*.bpmn', 'same_id')
+        spec, subprocesses = self.load_workflow_spec('same_id*.bpmn', 'same_id')
+        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=PythonScriptEngine())
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -29,7 +25,6 @@ class SameNameBugTest(BpmnWorkflowTestCase):
         self.actual_test(save_restore=True)
 
     def actual_test(self,save_restore = False):
-        self.workflow = BpmnWorkflow(self.spec,script_engine=PythonScriptEngine())
         if save_restore:
             self.save_restore()
         self.workflow.do_engine_steps()

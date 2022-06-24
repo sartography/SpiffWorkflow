@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 import sys
 import os
 import unittest
@@ -19,14 +17,10 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
     they were created. """
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('ParallelOrder.bpmn','ParallelOrder')
+        spec, subprocesses = self.load_workflow_spec('ParallelOrder.bpmn','ParallelOrder')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
 
         self.workflow.do_engine_steps()
         self.assertFalse(self.workflow.is_completed())

@@ -1,27 +1,20 @@
 # -*- coding: utf-8 -*-
 
-
-
-import sys
-import os
 import unittest
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-from SpiffWorkflow.exceptions import WorkflowException
-__author__ = 'kellym'
 
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
+__author__ = 'kellym'
 
 class ResetTokenTestSubProcess(BaseTestCase):
     """The example bpmn diagram tests both a set cardinality from user input
     as well as looping over an existing array."""
 
     def setUp(self):
-        self.spec = self.load_workflow_spec(
-            'data/token_trial_subprocess.bpmn',
-            'token')
+        spec, subprocesses = self.load_workflow_spec('token_trial_subprocess.bpmn', 'token')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -29,21 +22,13 @@ class ResetTokenTestSubProcess(BaseTestCase):
     def testRunThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
-#    def testRunThroughHappyAlt(self):
-#        self.actual_test2(save_restore=False)
-
- #   def testRunThroughSaveRestoreAlt(self):
- #       self.actual_test2(save_restore=True)
-
-
-
     def actual_test(self, save_restore=False):
         """
         Test a complicated parallel matrix, complete the matrix and
         Reset somewhere in the middle. It should complete the row that we
         Reset to, and retain all previous answers.
         """
-        self.workflow = BpmnWorkflow(self.spec)
+        
         self.workflow.do_engine_steps()
         firsttaskid = None
         steps = [{'taskname':'First',
@@ -58,9 +43,8 @@ class ResetTokenTestSubProcess(BaseTestCase):
                  {'taskname': 'FormA3',
                   'formvar': 'A3',
                   'answer': 'xa3'},
-
-
                  ]
+
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
             if firsttaskid == None and step['taskname']=='FormA1':
@@ -116,7 +100,6 @@ class ResetTokenTestSubProcess(BaseTestCase):
         Also, after we reset the branch, there should then be three tasks ready,
         A2,B3,and C1
         """
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         firsttaskid = None
         steps = [{'taskname':'First',
@@ -137,8 +120,8 @@ class ResetTokenTestSubProcess(BaseTestCase):
                  {'taskname': 'FormB2',
                   'formvar': 'B2',
                   'answer': 'xb2'},
-
                  ]
+                 
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
             if firsttaskid == None and step['taskname']=='FormA2':

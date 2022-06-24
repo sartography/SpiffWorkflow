@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_06pyjz2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_06pyjz2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1">
   <bpmn:process id="NavLeapFrog" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_1d5ya6o</bpmn:outgoing>
@@ -72,9 +72,7 @@ Otherwise, edit each Additional Personnel as necessary and select the Save butto
     <bpmn:task id="Activity_0cqjxvr" name="Tell me bout da cats">
       <bpmn:incoming>Flow_0yq9y65</bpmn:incoming>
       <bpmn:outgoing>Flow_1284s5t</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics camunda:collection="cat">
-        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">cats</bpmn:loopCardinality>
-      </bpmn:multiInstanceLoopCharacteristics>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" />
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_1j25zj6" sourceRef="Activity_0o0x7bz" targetRef="Gateway_083qcb2" />
     <bpmn:sequenceFlow id="Flow_0yq9y65" name="many a cat" sourceRef="Gateway_083qcb2" targetRef="Activity_0cqjxvr">
@@ -131,6 +129,11 @@ Otherwise, edit each Sub-Investigator as necessary and select the Save button fo
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="NavLeapFrog">
+      <bpmndi:BPMNEdge id="Flow_011udmb_di" bpmnElement="Flow_011udmb">
+        <di:waypoint x="630" y="320" />
+        <di:waypoint x="750" y="320" />
+        <di:waypoint x="750" y="195" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15xpsq8_di" bpmnElement="Flow_15xpsq8">
         <di:waypoint x="1600" y="170" />
         <di:waypoint x="1702" y="170" />
@@ -217,11 +220,6 @@ Otherwise, edit each Sub-Investigator as necessary and select the Save button fo
       <bpmndi:BPMNEdge id="Flow_1d5ya6o_di" bpmnElement="Flow_1d5ya6o">
         <di:waypoint x="188" y="170" />
         <di:waypoint x="270" y="170" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_011udmb_di" bpmnElement="Flow_011udmb">
-        <di:waypoint x="630" y="320" />
-        <di:waypoint x="750" y="320" />
-        <di:waypoint x="750" y="195" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="152" width="36" height="36" />

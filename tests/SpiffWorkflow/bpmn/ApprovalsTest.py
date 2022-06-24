@@ -12,9 +12,7 @@ __author__ = 'matth'
 class ApprovalsTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-
-    def load_workflow1_spec(self):
+        spec, subprocesses = self.load_workflow_spec('Approvals.bpmn', 'Approvals')
         # Start (StartTask:0xb6b4204cL)
         #   --> Approvals.First_Approval_Wins (CallActivity)
         #          --> Start (StartTask:0xb6b4266cL)
@@ -45,11 +43,9 @@ class ApprovalsTest(BpmnWorkflowTestCase):
         #                        |                                                --> End (Simple)
         #                        --> Approvals.Supervisor_Approval__P_ (ManualTask)
         #                               --> [shown earlier] Approvals.Gateway5 (ParallelGateway)
-        return self.load_workflow_spec('Approvals.bpmn', 'Approvals')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
 
         self.do_next_named_step('First_Approval_Wins.Manager_Approval')
         self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
@@ -65,8 +61,6 @@ class ApprovalsTest(BpmnWorkflowTestCase):
 
     def testRunThroughHappyOtherOrders(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
-
         self.do_next_named_step('First_Approval_Wins.Supervisor_Approval')
         self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
 
@@ -80,8 +74,6 @@ class ApprovalsTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
 
     def testSaveRestore(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
 
         self.do_next_named_step('First_Approval_Wins.Manager_Approval')
         self.save_restore()
@@ -100,8 +92,6 @@ class ApprovalsTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
 
     def testSaveRestoreWaiting(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
 
         self.do_next_named_step('First_Approval_Wins.Manager_Approval')
         self.save_restore()
@@ -125,8 +115,6 @@ class ApprovalsTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
 
     def testReadonlyWaiting(self):
-
-        self.workflow = BpmnWorkflow(self.spec)
 
         self.do_next_named_step('First_Approval_Wins.Manager_Approval')
 

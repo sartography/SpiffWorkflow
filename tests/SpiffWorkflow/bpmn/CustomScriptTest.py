@@ -1,14 +1,8 @@
 # -*- coding: utf-8 -*-
-
-
-
-
-import os
 import unittest
 
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.exceptions import WorkflowTaskExecException
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -30,13 +24,9 @@ class CustomBpmnScriptEngine(PythonScriptEngine):
 class CustomInlineScriptTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        x = BpmnParser()
-        x.add_bpmn_file(os.path.join(os.path.dirname(__file__), 'data', 'custom_function_test.bpmn'))
-        x.add_bpmn_file(os.path.join(os.path.dirname(__file__), 'data', 'custom_function_test_call_activity.bpmn'))
-        return x.get_spec('top_workflow')
+        spec, subprocesses = self.load_workflow_spec('custom_function_test*', 'top_workflow')
+        script_engine = CustomBpmnScriptEngine()
+        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=script_engine)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -45,8 +35,6 @@ class CustomInlineScriptTest(BpmnWorkflowTestCase):
         self.actual_test(save_restore=False)
 
     def actual_test(self, save_restore):
-        script_engine = CustomBpmnScriptEngine()
-        self.workflow = BpmnWorkflow(self.spec,script_engine=script_engine)
         if save_restore: self.save_restore()
         self.workflow.do_engine_steps()
         if save_restore: self.save_restore()
@@ -56,8 +44,6 @@ class CustomInlineScriptTest(BpmnWorkflowTestCase):
         self.assertEqual(data['c3'], 'ARRIVEDERCI')
 
     def test_overwrite_function_with_local_variable(self):
-        script_engine = CustomBpmnScriptEngine()
-        self.workflow = BpmnWorkflow(self.spec,script_engine=script_engine)
         ready_task = self.workflow.get_tasks(TaskState.READY)[0]
         ready_task.data = {'custom_function': "bill"}
         with self.assertRaises(WorkflowTaskExecException) as e:

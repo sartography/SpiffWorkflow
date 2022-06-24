@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
-import datetime
 import time
 
 from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
@@ -16,10 +13,8 @@ __author__ = 'kellym'
 class TimerDurationTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('boundary.bpmn', 'boundary_event')
+        self.spec, self.subprocesses = self.load_workflow_spec('boundary.bpmn', 'boundary_event')
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -27,9 +22,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
     def testThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
-
     def actual_test(self,save_restore = False):
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.script_engine = FeelLikeScriptEngine()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
@@ -44,7 +37,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         loopcount = 0
         # test bpmn has a timeout of .25s
         # we should terminate loop before that.
-        starttime = datetime.datetime.now()
+
         while loopcount < 11:
             ready_tasks = self.workflow.get_tasks(TaskState.READY)
             if len(ready_tasks) < 1:
@@ -58,14 +51,10 @@ class TimerDurationTest(BpmnWorkflowTestCase):
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
             loopcount = loopcount +1
-        endtime = datetime.datetime.now()
-        duration = endtime-starttime
+
         # Assure that the loopcount is less than 10, and the timer interrupt fired, rather
         # than allowing us to continue to loop the full 10 times.
         self.assertTrue(loopcount < 10)
-        print(duration)
-
-
 
 
 def suite():

@@ -15,14 +15,11 @@ class AntiLoopTaskTest(BpmnWorkflowTestCase):
        it should fail when we try to terminate the loop"""
 
     def setUp(self):
-        self.spec = self.load_workflow1_spec()
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec('bpmnAntiLoopTask.bpmn','LoopTaskTest')
+        spec, subprocesses = self.load_workflow_spec('bpmnAntiLoopTask.bpmn','LoopTaskTest')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
 
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_ready_user_tasks()
         self.assertTrue(len(ready_tasks) ==1)

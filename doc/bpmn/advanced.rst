@@ -233,7 +233,6 @@ Serialization
 .. warning::
 
    Serialization Changed in Version 1.1.7.  Support for pre-1.1.7 serialization will be dropped in 1.2.
-
    The old serialization method still works but it is deprecated.
    To migrate your system to the new version, see "Migrating between
    serialization versions" below.
@@ -351,9 +350,11 @@ should provide a simple example of how you might create such a converter.
 
 Migrating Between Serialization Versions
 ----------------------------------------
-Because the serializer is highly customizable, you will need to manage your
-own versions of the serialization.  You can do this by passing a version number
-into the serializer, which will be embedded in the json of all workflows.
+
+Old (Non-Versioned) Serializer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Prior to Spiff 1.1.7, the serialized output did not contain a version number.
 
 .. code:: python
 
@@ -361,22 +362,18 @@ into the serializer, which will be embedded in the json of all workflows.
     # new serializer, which can be customized as described above.
     serializer = BpmnWorkflowSerializer(version="MY_APP_V_1.0")
 
-The new serializer has a "get_version" method that will read the version
+The new serializer has a :code:`get_version` method that will read the version
 back out of the serialized json.  If the version isn't found, it will return
-None, and you can then assume it is using the old style serializer.
+:code:`None`, and you can then assume it is using the old style serializer.
 
 .. code:: python
 
    version = serializer.get_version(some_json)
-   if(version == "MY_APP_V_1.0"):
+   if version == "MY_APP_V_1.0":
         workflow = serializer.deserialize_json(some_json)
    else:
         workflow = old_serializer.deserialize_workflow(some_json, workflow_spec=spec)
 
-This should help you migrate your old workflows to the new serialization
-method.  It should also allow you to modify the serialization and customize
-it over time, and still manage the different forms as you make adjustments
-without leaving people behind.
 
 If you are not using any custom tasks and do not require custom serialization, then you'll be able to
 serialize the workflow in the new format:
@@ -407,3 +404,20 @@ The code would then look more like this:
          workflow = old_serializer.deserialize_workflow(some_json, workflow_spec=spec)
 
     new_json = serializer.serialize_json(workflow)
+
+Because the serializer is highly customizable, we've made it possible for you to manage your own versions of the
+serialization.  You can do this by passing a version number into the serializer, which will be embedded in the 
+json of all workflows.  This allow you to modify the serialization and customize it over time, and still manage
+the different forms as you make adjustments without leaving people behind.
+
+Versioned Serializer
+^^^^^^^^^^^^^^^^^^^^
+
+As we make changes to Spiff, we may change the serialization format.  For example, in 1.1.8, we changed
+how subprocesses were handled interally in BPMN workflows and updated how they are serialized.   If you have
+not overridden our version number with one of your own, the serializer will transform the 1.0 format to the 
+new 1.1 format.
+
+If you've overridden the serializer version, you may need to incorporate our serialization changes with
+your own.  You can find our conversions in 
+`version_migrations.py <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/version_migration.py>`_

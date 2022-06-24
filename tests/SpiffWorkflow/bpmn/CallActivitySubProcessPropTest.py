@@ -19,20 +19,13 @@ class CallActivitySubProcessPropTest(BpmnWorkflowTestCase):
     """
 
     def setUp(self):
-        self.filename = 'proptest-*.bpmn'
-        self.process_name = 'TopLevel'
-        self.spec = self.load_workflow1_spec()
-
-
-
-    def load_workflow1_spec(self):
-        return self.load_workflow_spec(self.filename, self.process_name)
+        spec, subprocesses = self.load_workflow_spec('proptest-*.bpmn', 'TopLevel')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testSaveRestore(self):
         self.actualTest(True)
 
     def actualTest(self, save_restore=False):
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         if save_restore:
             self.save_restore()

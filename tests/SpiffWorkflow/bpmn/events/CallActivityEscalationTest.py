@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
-import datetime
-import time
+
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -44,15 +41,12 @@ def track_workflow(wf_spec, completed_set):
 class CallActivityEscalationTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec = self.load_spec()
-
-    def load_spec(self):
-        return self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'CallActivity-Escalation-Test')
+        self.spec, subprocesses = self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'CallActivity-Escalation-Test')
+        self.workflow = BpmnWorkflow(self.spec, subprocesses)
 
     def testShouldEscalate(self):
         completed_set = set()
         track_workflow(self.spec, completed_set)
-        self.workflow = BpmnWorkflow(self.spec)
         for task in self.workflow.get_tasks(TaskState.READY):
             task.set_data(should_escalate=True)
         self.workflow.do_engine_steps()
@@ -83,7 +77,6 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
     def testShouldNotEscalate(self):
         completed_set = set()
         track_workflow(self.spec, completed_set)
-        self.workflow = BpmnWorkflow(self.spec)
         for task in self.workflow.get_tasks(TaskState.READY):
             task.set_data(should_escalate=False)
         self.workflow.do_engine_steps()
@@ -114,7 +107,6 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
     def testMissingVariable(self):
         completed_set = set()
         track_workflow(self.spec, completed_set)
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         self.save_restore()
         self.workflow.complete_all()
