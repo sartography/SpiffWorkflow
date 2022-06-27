@@ -20,7 +20,6 @@ from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
 from ...specs.Simple import Simple
 from ...specs.WorkflowSpec import WorkflowSpec
-import lxml.etree as ET
 
 LOG = logging.getLogger(__name__)
 
@@ -67,6 +66,14 @@ class _EndJoin(UnstructuredJoin):
     def deserialize(self, serializer, wf_spec, s_state):
         return serializer.deserialize_join(wf_spec, s_state, _EndJoin)
 
+class BpmnDataSpecification:
+
+    def __init__(self, name, description):
+        """
+        """
+        self.name = name
+        self.description = description
+
 
 class BpmnProcessSpec(WorkflowSpec):
     """
@@ -88,6 +95,9 @@ class BpmnProcessSpec(WorkflowSpec):
         end.follow(self.end)
         self.svg = svg
         self.description = description
+        self.data_inputs = []
+        self.data_outputs = []
+        self.data_object_references = []
 
     def get_all_lanes(self):
         """

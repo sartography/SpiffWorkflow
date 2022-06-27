@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="sid-38422fae-e03e-43a3-bef4-bd33b32041b2" targetNamespace="http://bpmn.io/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="9.0.3">
+  <process id="Process_1" isExecutable="false">
+    <ioSpecification>
+      <dataInput id="in_1" name="input 1" />
+      <dataInput id="in_2" name="input 2" />
+      <dataOutput id="out_1" name="output 1" />
+      <dataOutput id="out_2" name="output 2" />
+    </ioSpecification>
+    <startEvent id="Event_1rtivo5">
+      <outgoing>Flow_0n038fc</outgoing>
+    </startEvent>
+    <sequenceFlow id="Flow_0n038fc" sourceRef="Event_1rtivo5" targetRef="Activity_04d94ee" />
+    <task id="Activity_00w3eln" name="Task 2">
+      <incoming>Flow_1d3l0mt</incoming>
+      <outgoing>Flow_1j5ijbd</outgoing>
+      <property id="Property_1eevv8c" name="__targetRef_placeholder" />
+      <dataInputAssociation id="input_ref_1">
+        <sourceRef>data_1</sourceRef>
+        <targetRef>Property_1eevv8c</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation id="input_ref_2">
+        <sourceRef>data_2</sourceRef>
+        <targetRef>Property_1eevv8c</targetRef>
+      </dataInputAssociation>
+    </task>
+    <sequenceFlow id="Flow_1d3l0mt" sourceRef="Activity_04d94ee" targetRef="Activity_00w3eln" />
+    <endEvent id="Event_0pgucu1">
+      <incoming>Flow_1j5ijbd</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_1j5ijbd" sourceRef="Activity_00w3eln" targetRef="Event_0pgucu1" />
+    <task id="Activity_04d94ee" name="Task 1">
+      <incoming>Flow_0n038fc</incoming>
+      <outgoing>Flow_1d3l0mt</outgoing>
+      <dataOutputAssociation id="output_ref_1">
+        <targetRef>data_1</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation id="output_ref_2">
+        <targetRef>data_2</targetRef>
+      </dataOutputAssociation>
+    </task>
+    <dataObjectReference id="data_1" name="data 1" dataObjectRef="DataObject_0h1jae2" />
+    <dataObject id="DataObject_0h1jae2" />
+    <dataObjectReference id="data_2" name="data 2" dataObjectRef="DataObject_1up1dsj" />
+    <dataObject id="DataObject_1up1dsj" />
+  </process>
+  <bpmndi:BPMNDiagram id="BpmnDiagram_1">
+    <bpmndi:BPMNPlane id="BpmnPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="DataInput-617683903-1DI" bpmnElement="in_1">
+        <omgdc:Bounds x="-118" y="15" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="-116" y="72" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataInput-482618998-1DI" bpmnElement="in_2">
+        <omgdc:Bounds x="-68" y="15" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="-67" y="72" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataOutput-884113161-1DI" bpmnElement="out_1">
+        <omgdc:Bounds x="232" y="15" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="233" y="72" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataOutput-744774063-1DI" bpmnElement="out_2">
+        <omgdc:Bounds x="282" y="15" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="280" y="72" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0n038fc_di" bpmnElement="Flow_0n038fc">
+        <omgdi:waypoint x="-92" y="170" />
+        <omgdi:waypoint x="-40" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1d3l0mt_di" bpmnElement="Flow_1d3l0mt">
+        <omgdi:waypoint x="60" y="170" />
+        <omgdi:waypoint x="120" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1j5ijbd_di" bpmnElement="Flow_1j5ijbd">
+        <omgdi:waypoint x="220" y="170" />
+        <omgdi:waypoint x="282" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1rtivo5_di" bpmnElement="Event_1rtivo5">
+        <omgdc:Bounds x="-128" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00w3eln_di" bpmnElement="Activity_00w3eln">
+        <omgdc:Bounds x="120" y="130" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0pgucu1_di" bpmnElement="Event_0pgucu1">
+        <omgdc:Bounds x="282" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0z17xzd_di" bpmnElement="Activity_04d94ee">
+        <omgdc:Bounds x="-40" y="130" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataObjectReference_0e2eexj_di" bpmnElement="data_1">
+        <omgdc:Bounds x="32" y="265" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="35" y="322" width="31" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataObjectReference_0vmll3v_di" bpmnElement="data_2">
+        <omgdc:Bounds x="122" y="265" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="125" y="322" width="31" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_0bt9nu2_di" bpmnElement="output_ref_1">
+        <omgdi:waypoint x="25" y="210" />
+        <omgdi:waypoint x="45" y="265" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataInputAssociation_03kln2s_di" bpmnElement="input_ref_1">
+        <omgdi:waypoint x="68" y="272" />
+        <omgdi:waypoint x="130" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_01a95oh_di" bpmnElement="output_ref_2">
+        <omgdi:waypoint x="55" y="209" />
+        <omgdi:waypoint x="122" y="268" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataInputAssociation_05t29wh_di" bpmnElement="input_ref_2">
+        <omgdi:waypoint x="149" y="265" />
+        <omgdi:waypoint x="170" y="210" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

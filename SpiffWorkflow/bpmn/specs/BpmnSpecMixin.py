@@ -76,7 +76,9 @@ class BpmnSpecMixin(TaskSpec):
         self.position = position or {'x': 0, 'y': 0}
         self.loopTask = False
         self.documentation = None
-
+        self.data_input_references = {}
+        self.data_output_references = {}
+        
     def is_loop_task(self):
         """
         Returns true if this task is a BPMN looping task
