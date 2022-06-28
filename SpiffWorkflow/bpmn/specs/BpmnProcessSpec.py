@@ -97,7 +97,6 @@ class BpmnProcessSpec(WorkflowSpec):
         self.description = description
         self.data_inputs = []
         self.data_outputs = []
-        self.data_object_references = []
 
     def get_all_lanes(self):
         """

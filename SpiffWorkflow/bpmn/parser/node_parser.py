@@ -26,24 +26,6 @@ class NodeParser:
         documentation_node = first(xpath('.//bpmn:documentation'))
         return None if documentation_node is None else documentation_node.text
 
-    def parse_data_input_associations(self):
-        data_refs = {}
-        for data_ref in self.xpath('./bpmn:dataInputAssociation'):
-            xpath = xpath_eval(data_ref)
-            source_ref = first(xpath('./bpmn:sourceRef'))
-            if source_ref is not None:
-                data_refs[data_ref.get('id')] = source_ref.text
-        return data_refs
-
-    def parse_data_output_associations(self):
-        data_refs = {}
-        for data_ref in self.xpath('./bpmn:dataOutputAssociation'):
-            xpath = xpath_eval(data_ref)
-            target_ref = first(xpath('./bpmn:targetRef'))
-            if target_ref is not None:
-                data_refs[data_ref.get('id')] = target_ref.text
-        return data_refs
-
     def parse_extensions(self):
         extensions = {}
         extra_ns = {'camunda': CAMUNDA_MODEL_NS}

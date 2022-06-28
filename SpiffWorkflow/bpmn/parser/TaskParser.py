@@ -135,9 +135,6 @@ class TaskParser(NodeParser):
             self.task.documentation = self.parse_documentation()
             self._detect_multiinstance()
 
-            self.task.data_input_references = self.parse_data_input_associations()
-            self.task.data_output_references = self.parse_data_output_associations()
-
             boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
             if boundary_event_nodes:
                 parent_task = _BoundaryEventParent(

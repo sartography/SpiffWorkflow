@@ -83,11 +83,6 @@ class ProcessParser(NodeParser):
             data_parser = DataSpecificationParser(io_spec, self.filename, self.doc_xpath)
             self.spec.data_inputs, self.spec.data_outputs = data_parser.parse_io_spec()
 
-        # Parse the data object references
-        for data_ref in self.xpath('./bpmn:dataObjectReference'):
-            data_parser = DataSpecificationParser(data_ref, self.filename, self.doc_xpath)
-            self.spec.data_object_references.append(data_parser.parse_data_object_reference())
-
         for node in start_node_list:
             self.parse_node(node)
 

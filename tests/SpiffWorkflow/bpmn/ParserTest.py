@@ -53,8 +53,3 @@ class ParserTest(unittest.TestCase):
         spec = parser.get_spec('Process_1')
         self.assertEqual(len(spec.data_inputs), 2)
         self.assertEqual(len(spec.data_outputs), 2)
-        self.assertEqual(len(spec.data_object_references), 2)
-        task_1 = spec.task_specs['Activity_04d94ee']
-        self.assertEqual(len(task_1.data_output_references), 2)
-        task_2 = spec.task_specs['Activity_00w3eln']
-        self.assertEqual(len(task_2.data_input_references), 2)
