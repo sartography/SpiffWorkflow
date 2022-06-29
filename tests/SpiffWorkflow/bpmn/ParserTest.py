@@ -50,6 +50,6 @@ class ParserTest(unittest.TestCase):
         parser = BpmnParser()
         bpmn_file = os.path.join(os.path.dirname(__file__), 'data', 'io_spec.bpmn')
         parser.add_bpmn_file(bpmn_file)
-        spec = parser.get_spec('Process_1')
+        spec = parser.get_spec('subprocess')
         self.assertEqual(len(spec.data_inputs), 2)
         self.assertEqual(len(spec.data_outputs), 2)

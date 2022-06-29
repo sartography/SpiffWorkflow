@@ -70,6 +70,8 @@ class BpmnDataSpecification:
 
     def __init__(self, name, description):
         """
+        :param name: the name of the task (the BPMN ID)
+        :param description: the task description (the BPMN name)
         """
         self.name = name
         self.description = description

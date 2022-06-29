@@ -98,3 +98,15 @@ class WorkflowTaskExecException(WorkflowException):
 
 class StorageException(Exception):
     pass
+
+class WorkflowDataException(Exception):
+
+    def __init__(self, task, data_input=None, data_output=None):
+        """
+        :param task: the task that generated the error
+        :param data_input: the spec of the input variable (if a data input)
+        :param data_output: the spec of the output variable (if a data output)
+        """
+        self.task = task
+        self.data_input = data_input
+        self.data_output = data_output
