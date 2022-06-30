@@ -1,6 +1,7 @@
 from .util import xpath_eval, first
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
+SPIFFWORKFLOW_MODEL_NS = 'https://github.com/sartography/SpiffWorkflow'
 
 class NodeParser:
 
@@ -15,7 +16,7 @@ class NodeParser:
 
     def get_id(self):
         return self.node.get('id')
-    
+
     def parse_condition(self, sequence_flow):
         xpath = xpath_eval(sequence_flow)
         expression = first(xpath('.//bpmn:conditionExpression'))
@@ -28,10 +29,15 @@ class NodeParser:
 
     def parse_extensions(self):
         extensions = {}
-        extra_ns = {'camunda': CAMUNDA_MODEL_NS}
+        extra_ns = {'camunda': CAMUNDA_MODEL_NS, 'spiffworkflow':
+                SPIFFWORKFLOW_MODEL_NS}
         xpath = xpath_eval(self.node, extra_ns)
         extension_nodes = xpath( './/bpmn:extensionElements/camunda:properties/camunda:property')
         for node in extension_nodes:
+            extensions[node.get('name')] = node.get('value')
+        spiffworkflow_extension_nodes = xpath(
+                './/bpmn:extensionElements/spiffworkflow:properties/spiffworkflow:property')
+        for node in spiffworkflow_extension_nodes:
             extensions[node.get('name')] = node.get('value')
         return extensions
 
