@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:spiffworkflow="http://sartography/spiffworkflow" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_19o7vxg" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <bpmn:process id="Process_1" isExecutable="true">
+    <bpmn:ioSpecification />
+    <bpmn:startEvent id="Event_1ftsuzw">
+      <bpmn:outgoing>Flow_1hjrex4</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_1iqs4li" name="Any Task">
+      <bpmn:extensionElements>
+        <spiffworkflow:preScript>x = a * 2
+y = b * 2
+z = x + y</spiffworkflow:preScript>
+        <spiffworkflow:postScript>c = z * 2
+del x
+del y</spiffworkflow:postScript>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1hjrex4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xndbxy</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1hjrex4" sourceRef="Event_1ftsuzw" targetRef="Activity_1iqs4li" />
+    <bpmn:endEvent id="Event_0c80924">
+      <bpmn:incoming>Flow_1xndbxy</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1xndbxy" sourceRef="Activity_1iqs4li" targetRef="Event_0c80924" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1mzevep">
+      <bpmndi:BPMNEdge id="Flow_1hjrex4_di" bpmnElement="Flow_1hjrex4">
+        <di:waypoint x="228" y="220" />
+        <di:waypoint x="280" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xndbxy_di" bpmnElement="Flow_1xndbxy">
+        <di:waypoint x="380" y="220" />
+        <di:waypoint x="432" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1ftsuzw_di" bpmnElement="Event_1ftsuzw">
+        <dc:Bounds x="192" y="202" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1iqs4li_di" bpmnElement="Activity_1iqs4li">
+        <dc:Bounds x="280" y="180" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0c80924_di" bpmnElement="Event_0c80924">
+        <dc:Bounds x="432" y="202" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

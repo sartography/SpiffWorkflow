@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_19o7vxg" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <bpmn:process id="update_data" isExecutable="true">
+    <bpmn:ioSpecification>
+      <bpmn:dataInput id="in_data" name="Input" />
+      <bpmn:dataOutput id="out_data" name="Output" />
+    </bpmn:ioSpecification>
+    <bpmn:startEvent id="Event_1ftsuzw">
+      <bpmn:outgoing>Flow_1a4nkhi</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1a4nkhi" sourceRef="Event_1ftsuzw" targetRef="Activity_10u9eb7" />
+    <bpmn:endEvent id="Event_191myup">
+      <bpmn:incoming>Flow_1eqhoeg</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1eqhoeg" sourceRef="Activity_10u9eb7" targetRef="Event_191myup" />
+    <bpmn:scriptTask id="Activity_10u9eb7" name="Do Something" scriptFormat="python">
+      <bpmn:incoming>Flow_1a4nkhi</bpmn:incoming>
+      <bpmn:outgoing>Flow_1eqhoeg</bpmn:outgoing>
+      <bpmn:script>out_data = in_data.upper()</bpmn:script>
+    </bpmn:scriptTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="update_data">
+      <bpmndi:BPMNShape id="DataInput-727004773-1DI" bpmnElement="DataInput-727004773-1">
+        <dc:Bounds x="432" y="15" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="439" y="72" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataOutput-381618655-1DI" bpmnElement="DataOutput-381618655-1">
+        <dc:Bounds x="672" y="15" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="675" y="72" width="31" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1a4nkhi_di" bpmnElement="Flow_1a4nkhi">
+        <di:waypoint x="468" y="140" />
+        <di:waypoint x="520" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1eqhoeg_di" bpmnElement="Flow_1eqhoeg">
+        <di:waypoint x="620" y="140" />
+        <di:waypoint x="672" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1ftsuzw_di" bpmnElement="Event_1ftsuzw">
+        <dc:Bounds x="432" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_191myup_di" bpmnElement="Event_191myup">
+        <dc:Bounds x="672" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0e5bjbf_di" bpmnElement="Activity_10u9eb7">
+        <dc:Bounds x="520" y="100" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

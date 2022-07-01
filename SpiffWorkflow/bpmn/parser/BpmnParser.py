@@ -36,8 +36,7 @@ from .ProcessParser import ProcessParser
 from .util import full_tag, xpath_eval
 from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
                            ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser,
-                           CallActivityParser, TransactionSubprocessParser,
-                           ScriptTaskParser, SubWorkflowParser)
+                           CallActivityParser, ScriptTaskParser, SubWorkflowParser)
 from .event_parsers import (StartEventParser, EndEventParser, BoundaryEventParser,
                            IntermediateCatchEventParser, IntermediateThrowEventParser)
 
@@ -64,7 +63,7 @@ class BpmnParser(object):
         full_tag('parallelGateway'): (ParallelGatewayParser, ParallelGateway),
         full_tag('inclusiveGateway'): (InclusiveGatewayParser, InclusiveGateway),
         full_tag('callActivity'): (CallActivityParser, CallActivity),
-        full_tag('transaction'): (TransactionSubprocessParser, TransactionSubprocess),
+        full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
         full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser,
                                              IntermediateCatchEvent),

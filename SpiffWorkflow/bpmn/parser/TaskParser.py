@@ -130,9 +130,11 @@ class TaskParser(NodeParser):
         """
         try:
             self.task = self.create_task()
-
+            # Why do we just set random attributes willy nilly everywhere in the code????
+            # And we still pass around a gigantic kwargs dict whenever we create anything!
             self.task.extensions = self.parse_extensions()
             self.task.documentation = self.parse_documentation()
+
             self._detect_multiinstance()
 
             boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
