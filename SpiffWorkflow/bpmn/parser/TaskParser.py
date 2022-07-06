@@ -134,6 +134,9 @@ class TaskParser(NodeParser):
             # And we still pass around a gigantic kwargs dict whenever we create anything!
             self.task.extensions = self.parse_extensions()
             self.task.documentation = self.parse_documentation()
+            # And now I have to add more of the same crappy thing.
+            self.task.data_input_associations = self.parse_incoming_data_references()
+            self.task.data_output_associations = self.parse_outgoing_data_references()
 
             self._detect_multiinstance()
 

@@ -2,7 +2,6 @@
 from copy import deepcopy
 
 from SpiffWorkflow.task import TaskState
-from SpiffWorkflow.exceptions import WorkflowDataException
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.SubWorkflow import SubWorkflow
 from ...specs import TaskSpec
@@ -41,13 +40,9 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
             # Copy all task data into start taak if no inputs specified
             start[0].set_data(**my_task.data)
         else:
-            # Copy only task data with the specified names
-            data = {}
+            # Otherwise copy only task data with the specified names
             for var in subworkflow.spec.data_inputs:
-                if var.name not in my_task.data:
-                    raise WorkflowDataException(my_task, data_input=var)
-                data[var.name] = deepcopy(my_task.data[var.name])
-            start[0].set_data(**data)
+                var.copy(my_task, start[0], data_input=True)
 
         self._predict(my_task)
         for child in subworkflow.task_tree.children:
@@ -66,14 +61,10 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
             # Copy all workflow data if no outputs are specified
             my_task.data = deepcopy(subworkflow.data)
         else:
-            # Update the task data with only the specified workflow data
-            data = {}
+            end = subworkflow.get_tasks_from_spec_name('End', workflow=subworkflow)
+            # Otherwise only copy data with the specified names
             for var in subworkflow.spec.data_outputs:
-                # Copy data out of workflow if specified
-                if var.name not in subworkflow.data:
-                    raise WorkflowDataException(my_task, data_output=var)
-                data[var.name] = subworkflow.data[var.name]
-            my_task.update_data(data)
+                var.copy(end[0], my_task, data_output=True)
 
         my_task._set_state(TaskState.READY)
 
