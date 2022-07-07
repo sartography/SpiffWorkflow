@@ -314,18 +314,19 @@ def follow_tree(tree, output=None, found=None, level=0, workflow=None):
 
         output.append( NavItem.from_spec(tree, indent=level))
 
-        sublist_outputs = [
-            follow_tree(top, output=[], found=set(), level=level + 1, workflow=subprocess)
-            for top in subprocess.task_tree.children[0].task_spec.outputs]
-        for lst in sublist_outputs:
-            for item in lst:
-                output.append(item)
+        if subprocess:
+            sublist_outputs = [
+                follow_tree(top, output=[], found=set(), level=level + 1, workflow=subprocess)
+                for top in subprocess.task_tree.children[0].task_spec.outputs]
+            for lst in sublist_outputs:
+                for item in lst:
+                    output.append(item)
         for key in tree.outgoing_sequence_flows.keys():
             link = tree.outgoing_sequence_flows[key]
             output = follow_tree(link.target_task_spec, output, found,
                                  level, workflow)
         return output
-    
+
     if isinstance(tree, MultiInstanceTask) and not tree.isSequential:
         # When we have expanded the tree, we'll have multiple tasks, and
         # need this special case.  If the tree has not yet been expanded
