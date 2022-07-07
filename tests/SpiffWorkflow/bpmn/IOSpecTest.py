@@ -12,30 +12,10 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         self.spec, self.subprocesses = self.load_workflow_spec('io_spec*.bpmn', 'parent')
 
     def testCallActivityWithIOSpec(self):
+        self.actual_test()
 
-        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
-        set_data = self.workflow.spec.task_specs['Activity_0haob58']
-        set_data.script = """in_1, in_2, unused = 1, "hello world", True"""
-
-        self.advance_to_subprocess()
-        # This will be the first task of the subprocess
-        task = self.workflow.get_tasks(TaskState.READY)[0]
-
-        # These should be copied
-        self.assertIn('in_1', task.data)
-        self.assertIn('in_2', task.data)
-        # This should not
-        self.assertNotIn('unused', task.data)
-
-        self.complete_subprocess()
-        task = self.workflow.get_tasks(TaskState.READY)[0]
-        # Originals should not change
-        self.assertEqual(task.data['in_1'], 1)
-        self.assertEqual(task.data['in_2'], "hello world")
-        self.assertEqual(task.data['unused'], True)
-        # New variables should be present
-        self.assertEqual(task.data['out_1'], 2)
-        self.assertEqual(task.data['out_2'], "HELLO WORLD")
+    def testCallActivityWithIOSpecSaveRestore(self):
+        self.actual_test(True)
 
     def testCallActivityMissingInput(self):
         
@@ -61,6 +41,35 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         with self.assertRaises(WorkflowDataException) as exc:
             self.complete_subprocess()
             self.assertEqual(exc.var.name,'out_2')
+
+    def actual_test(self, save_restore=False):
+
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        set_data = self.workflow.spec.task_specs['Activity_0haob58']
+        set_data.script = """in_1, in_2, unused = 1, "hello world", True"""
+
+        if save_restore:
+            self.save_restore()
+
+        self.advance_to_subprocess()
+        # This will be the first task of the subprocess
+        task = self.workflow.get_tasks(TaskState.READY)[0]
+
+        # These should be copied
+        self.assertIn('in_1', task.data)
+        self.assertIn('in_2', task.data)
+        # This should not
+        self.assertNotIn('unused', task.data)
+
+        self.complete_subprocess()
+        task = self.workflow.get_tasks(TaskState.READY)[0]
+        # Originals should not change
+        self.assertEqual(task.data['in_1'], 1)
+        self.assertEqual(task.data['in_2'], "hello world")
+        self.assertEqual(task.data['unused'], True)
+        # New variables should be present
+        self.assertEqual(task.data['out_1'], 2)
+        self.assertEqual(task.data['out_2'], "HELLO WORLD")
 
     def advance_to_subprocess(self):
         # Once we enter the subworkflow it becomes a waiting task

@@ -3,7 +3,6 @@ from functools import partial
 from .bpmn_converters import BpmnWorkflowSpecConverter
 
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
-from ..specs.SubWorkflowTask import SubWorkflowTask
 from ..specs.MultiInstanceTask import MultiInstanceTask, getDynamicMIClass
 from ..specs.BpmnSpecMixin import BpmnSpecMixin
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
@@ -17,7 +16,7 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
 
     def __init__(self, task_spec_converters, data_converter=None):
         super().__init__(BpmnProcessSpec, task_spec_converters, data_converter)
-        self.register(WorkflowSpec, self.to_dict, self.from_dict)
+        self.register(WorkflowSpec, self.base_workflow_spec_to_dict, self.from_dict)
 
     def multi_instance_to_dict(self, spec):
 
@@ -106,6 +105,9 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
             'description': spec.description,
             'file': spec.file,
             'task_specs': {},
+            'data_inputs': [ self.convert(obj) for obj in spec.data_inputs ],
+            'data_outputs': [ self.convert(obj) for obj in spec.data_outputs ],
+            'data_objects': [ (obj.name, self.convert(obj)) for obj in spec.data_objects ],
         }
         for name, task_spec in spec.task_specs.items():
             if isinstance(task_spec, MultiInstanceTask):
@@ -128,6 +130,11 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
         # These are also automatically created with a workflow and should be replaced
         del spec.task_specs['End']
         del spec.task_specs[f'{spec.name}.EndJoin']
+
+        # Add the data specs
+        spec.data_inputs = [ self.restore(obj_dct) for obj_dct in dct.pop('data_inputs', []) ]
+        spec.data_outputs = [ self.restore(obj_dct) for obj_dct in dct.pop('data_outputs', []) ]
+        spec.data_objects = [ (name, self.restore(obj_dct)) for name, obj_dct in dct.pop('data_objects', {}) ]
 
         for name, task_dict in dct['task_specs'].items():
             # I hate this, but I need to pass in the workflow spec when I create the task.
@@ -156,3 +163,26 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
             task_spec.outputs = [ spec.get_task_spec_from_name(name) for name in task_spec.outputs ]
 
         return spec
+
+    def base_workflow_spec_to_dict(self, spec):
+
+        # We should delete this method when we stop supporting the old serializer.
+        # It uses WorkflowSpec rather than BpmnWorkflowSpec, which does not support data objects.
+        # I hate copying this code here, but I am NOT putting an "if isinstance" check in the
+        # main method to handle a bug in the thing I'm replacing,
+
+        dct = {
+            'name': spec.name,
+            'description': spec.description,
+            'file': spec.file,
+            'task_specs': {},
+        }
+        for name, task_spec in spec.task_specs.items():
+            if isinstance(task_spec, MultiInstanceTask):
+                task_dict = self.multi_instance_to_dict(task_spec)
+            else:
+                task_dict = self.convert(task_spec)
+            self.convert_task_spec_extensions(task_spec, task_dict)
+            dct['task_specs'][name] = task_dict
+
+        return dct

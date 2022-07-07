@@ -1,1 +1,1 @@
-from .bpmn import SpiffBpmnParser
+from .process import SpiffBpmnParser
