@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import object
-
-from SpiffWorkflow.exceptions import WorkflowDataException
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or

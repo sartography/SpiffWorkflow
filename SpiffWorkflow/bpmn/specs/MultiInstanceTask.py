@@ -23,12 +23,12 @@ from builtins import range
 from uuid import uuid4
 import re
 
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from .SubWorkflowTask import SubWorkflowTask, CallActivity
 from .ParallelGateway import ParallelGateway
 from .ScriptTask import ScriptTask
 from .ExclusiveGateway import ExclusiveGateway
 from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
-from ...exceptions import WorkflowTaskExecException
 from ...operators import valueof, is_number
 from ...specs import SubWorkflow
 from ...specs.base import TaskSpec

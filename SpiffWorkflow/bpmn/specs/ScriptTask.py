@@ -18,12 +18,10 @@
 # 02110-1301  USA
 import logging
 
-from ... import WorkflowException
-
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...task import TaskState
 from ...specs.Simple import Simple
-from ...exceptions import WorkflowTaskExecException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 
 LOG = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ from decimal import Decimal
 import dateparser
 import pytz
 
-from ..exceptions import WorkflowTaskExecException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from ..operators import Operator
 from ..workflow import WorkflowException
 

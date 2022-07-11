@@ -18,7 +18,7 @@
 import logging
 from copy import deepcopy
 
-from SpiffWorkflow.exceptions import WorkflowDataException
+from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
 from ...specs.Simple import Simple

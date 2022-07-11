@@ -20,7 +20,7 @@
 
 from .base import TaskSpec, LOG
 from ..task import TaskState
-from ..exceptions import WorkflowTaskExecException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 
 
 class LoopResetTask(TaskSpec):
