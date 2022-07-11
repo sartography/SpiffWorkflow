@@ -37,7 +37,7 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
         start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
 
         if len(subworkflow.spec.data_inputs) == 0:
-            # Copy all task data into start taak if no inputs specified
+            # Copy all task data into start task if no inputs specified
             start[0].set_data(**my_task.data)
         else:
             # Otherwise copy only task data with the specified names
