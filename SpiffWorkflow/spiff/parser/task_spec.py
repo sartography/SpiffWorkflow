@@ -10,15 +10,28 @@ SPIFFWORKFLOW_MODEL_NS = 'http://spiffworkflow.org/bpmn/schema/1.0/core'
 class SpiffTaskParser(TaskParser):
 
     def parse_extensions(self):
-        # Too bad doing this works in such a stupid way.  We should set a namespace and automatically do this.
+        # Too bad doing this works in such a stupid way.
+        # We should set a namespace and automatically do this.
         extensions = {}
         extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
         xpath = xpath_eval(self.node, extra_ns)
         extension_nodes = xpath('.//bpmn:extensionElements/spiffworkflow:*')
         for node in extension_nodes:
             name = etree.QName(node).localname
-            extensions[name] = node.text
+            if name in ['preScript', 'postScript']:
+                extensions[name] = node.text
+            if name == 'properties':
+                extensions['properties'] = self._parse_properties(node)
         return extensions
+
+    def _parse_properties(self, node):
+        extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
+        xpath = xpath_eval(self.node, extra_ns)
+        property_nodes = xpath('.//spiffworkflow:property')
+        properties = {}
+        for node in property_nodes:
+            properties[node.attrib['name']] = node.attrib['value']
+        return properties
 
     def create_task(self):
         # The main task parser already calls this, and even sets an attribute, but
