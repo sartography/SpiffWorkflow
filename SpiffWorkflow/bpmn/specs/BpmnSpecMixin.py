@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import object
 # Copyright (C) 2012 Matthew Hampton
 #
 # This library is free software; you can redistribute it and/or
@@ -76,6 +75,8 @@ class BpmnSpecMixin(TaskSpec):
         self.position = position or {'x': 0, 'y': 0}
         self.loopTask = False
         self.documentation = None
+        self.data_input_associations = []
+        self.data_output_associations = []
 
     def is_loop_task(self):
         """
@@ -183,7 +184,19 @@ class BpmnSpecMixin(TaskSpec):
         """
         pass
 
+    def _on_ready_hook(self, my_task):
+        super()._on_ready_hook(my_task)
+        for obj in self.data_input_associations:
+            obj.get(my_task)
+
     def _on_complete_hook(self, my_task):
+
+        for obj in self.data_output_associations:
+            obj.set(my_task)
+
+        for obj in self.data_input_associations:
+            # Remove the any copied input variables that might not have already been removed
+            my_task.data.pop(obj.name)
 
         super(BpmnSpecMixin, self)._on_complete_hook(my_task)
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):

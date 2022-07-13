@@ -18,8 +18,9 @@
 # 02110-1301  USA
 
 from .ValidationException import ValidationException
-from ..specs.BpmnProcessSpec import BpmnProcessSpec
+from ..specs.BpmnProcessSpec import BpmnProcessSpec, BpmnDataSpecification
 from .node_parser import NodeParser
+from .util import first, xpath_eval
 
 
 class ProcessParser(NodeParser):
@@ -76,6 +77,18 @@ class ProcessParser(NodeParser):
             raise ValidationException("No start event found", node=self.node, filename=self.filename)
         self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), filename=self.filename)
 
+        # Check for an IO Specification.
+        io_spec = first(self.xpath('./bpmn:ioSpecification'))
+        if io_spec is not None:
+            data_parser = DataSpecificationParser(io_spec, self.filename, self.doc_xpath)
+            self.spec.data_inputs, self.spec.data_outputs = data_parser.parse_io_spec()
+
+        # Get the data objects
+        for obj in self.xpath('./bpmn:dataObject'):
+            data_parser = DataSpecificationParser(obj, self.filename, self.doc_xpath)
+            object = data_parser.parse_data_object()
+            self.spec.data_objects[object.name] = object
+
         for node in start_node_list:
             self.parse_node(node)
 
@@ -87,3 +100,17 @@ class ProcessParser(NodeParser):
         if self.spec is None:
             self._parse()
         return self.spec
+
+
+class DataSpecificationParser(NodeParser):
+
+    def parse_io_spec(self):
+        inputs, outputs = [], []
+        for elem in self.xpath('./bpmn:dataInput'):
+            inputs.append(BpmnDataSpecification(elem.get('id'), elem.get('name')))
+        for elem in self.xpath('./bpmn:dataOutput'):
+            outputs.append(BpmnDataSpecification(elem.get('id'), elem.get('name')))
+        return inputs, outputs
+
+    def parse_data_object(self):
+        return BpmnDataSpecification(self.node.get('id'), self.node.get('name'))

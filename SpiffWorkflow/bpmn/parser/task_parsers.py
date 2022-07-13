@@ -105,33 +105,28 @@ class InclusiveGatewayParser(TaskParser):
         return False
 
 
-class SubWorkflowParser(TaskParser):
+class SubprocessParser:
 
-    """
-    Base class for parsing unspecified Tasks. Currently assumes that such Tasks
-    should be treated the same way as User Tasks.
-    """
-    def create_task(self):
-        subworkflow_spec = self.get_subprocess_spec()
-        return self.spec_class(
-            self.spec, self.get_task_spec_name(), subworkflow_spec,
-            lane=self.lane, position=self.position,
-            description=self.node.get('name', None))
+    # Not really a fan of this, but I need a way of calling these methods from a task 
+    # parser that extends the base parser to override extension parsing.  I can't inherit
+    # from my extended task parser AND the original subworkflow parsers because they
+    # both inherit from the same base.
 
-    def get_subprocess_spec(self):
+    @staticmethod
+    def get_subprocess_spec(task_parser):
 
-        workflowStartEvent = self.xpath('./bpmn:startEvent')
-        workflowEndEvent =  self.xpath('./bpmn:endEvent')
+        workflowStartEvent = task_parser.xpath('./bpmn:startEvent')
+        workflowEndEvent = task_parser.xpath('./bpmn:endEvent')
         if len(workflowStartEvent) != 1:
             raise ValidationException(
                 'Multiple Start points are not allowed in SubWorkflow Task',
-                node=self.node,
-                filename=self.filename)
+                node=task_parser.node,
+                filename=task_parser.filename)
         if len(workflowEndEvent) == 0:
             raise ValidationException(
                 'A SubWorkflow Must contain an End event',
-                node=self.node,
-                filename=self.filename)
+                node=task_parser.node,
+                filename=task_parser.filename)
 
         nsmap = DEFAULT_NSMAP.copy()
         nsmap['camunda'] = "http://camunda.org/schema/1.0/bpmn"
@@ -141,23 +136,40 @@ class SubWorkflowParser(TaskParser):
         for ns, val in nsmap.items():
             etree.register_namespace(ns, val)
 
-        self.process_parser.parser.create_parser(
-            self.node,
-            doc_xpath=self.doc_xpath,
-            filename=self.filename,
-            lane=self.lane
+        task_parser.process_parser.parser.create_parser(
+            task_parser.node,
+            doc_xpath=task_parser.doc_xpath,
+            filename=task_parser.filename,
+            lane=task_parser.lane
         )
-        return self.node.get('id')
+        return task_parser.node.get('id')
 
+    @staticmethod
+    def get_call_activity_spec(task_parser):
 
-class TransactionSubprocessParser(SubWorkflowParser):
-    """Parses a transaction node"""
+        called_element = task_parser.node.get('calledElement', None)
+        if not called_element:
+            raise ValidationException(
+                'No "calledElement" attribute for Call Activity.',
+                node=task_parser.node,
+                filename=task_parser.filename)
+        parser = task_parser.process_parser.parser.get_process_parser(called_element)
+        if parser is None:
+            raise ValidationException(
+                f"The process '{called_element}' was not found. Did you mean one of the following: "
+                f"{', '.join(task_parser.process_parser.parser.get_process_ids())}?",
+                node=task_parser.node,
+                filename=task_parser.filename)
+        return called_element
+        
+
+class SubWorkflowParser(TaskParser):
 
     def create_task(self):
-        subworkflow_spec = self.get_subprocess_spec()
+        subworkflow_spec = SubprocessParser.get_subprocess_spec(self)
         return self.spec_class(
             self.spec, self.get_task_spec_name(), subworkflow_spec,
-            position=self.position,
+            lane=self.lane, position=self.position,
             description=self.node.get('name', None))
 
 
@@ -165,27 +177,11 @@ class CallActivityParser(TaskParser):
     """Parses a CallActivity node."""
 
     def create_task(self):
-        subworkflow_spec = self.get_subprocess_spec()
+        subworkflow_spec = SubprocessParser.get_call_activity_spec(self)
         return self.spec_class(
             self.spec, self.get_task_spec_name(), subworkflow_spec,
             lane=self.lane, position=self.position,
             description=self.node.get('name', None))
-
-    def get_subprocess_spec(self):
-        called_element = self.node.get('calledElement', None)
-        if not called_element:
-            raise ValidationException(
-                'No "calledElement" attribute for Call Activity.',
-                node=self.node,
-                filename=self.filename)
-        parser = self.process_parser.parser.get_process_parser(called_element)
-        if parser is None:
-            raise ValidationException(
-                f"The process '{called_element}' was not found. Did you mean one of the following: "
-                f"{', '.join(self.process_parser.parser.get_process_ids())}?",
-                node=self.node,
-                filename=self.filename)
-        return called_element
 
 
 class ScriptTaskParser(TaskParser):

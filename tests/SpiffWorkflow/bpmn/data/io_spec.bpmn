@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="sid-38422fae-e03e-43a3-bef4-bd33b32041b2" targetNamespace="http://bpmn.io/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1">
+  <collaboration id="Collaboration_1n9r2gx">
+    <participant id="Participant_1f8pqul" processRef="subprocess" />
+  </collaboration>
+  <process id="subprocess" isExecutable="false">
+    <ioSpecification>
+      <dataInput id="in_1" name="input 1" />
+      <dataInput id="in_2" name="input 2" />
+      <dataOutput id="out_1" name="output 1" />
+      <dataOutput id="out_2" name="output 2" />
+    </ioSpecification>
+    <startEvent id="Event_1rtivo5">
+      <outgoing>Flow_0n038fc</outgoing>
+    </startEvent>
+    <endEvent id="Event_0pgucu1">
+      <incoming>Flow_1d3l0mt</incoming>
+    </endEvent>
+    <scriptTask id="Activity_04d94ee" name="Task 1" scriptFormat="python">
+      <incoming>Flow_0n038fc</incoming>
+      <outgoing>Flow_1d3l0mt</outgoing>
+      <script>out_1, out_2, unused = in_1 * 2, in_2.upper(), False
+      </script>
+    </scriptTask>
+    <sequenceFlow id="Flow_1d3l0mt" sourceRef="Activity_04d94ee" targetRef="Event_0pgucu1" />
+    <sequenceFlow id="Flow_0n038fc" sourceRef="Event_1rtivo5" targetRef="Activity_04d94ee" />
+  </process>
+  <bpmndi:BPMNDiagram id="BpmnDiagram_1">
+    <bpmndi:BPMNPlane id="BpmnPlane_1" bpmnElement="Collaboration_1n9r2gx">
+      <bpmndi:BPMNShape id="Participant_1f8pqul_di" bpmnElement="Participant_1f8pqul" isHorizontal="true">
+        <omgdc:Bounds x="160" y="80" width="460" height="280" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataInput-617683903-1DI" bpmnElement="in_1">
+        <omgdc:Bounds x="242" y="115" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="244" y="172" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataInput-482618998-1DI" bpmnElement="in_2">
+        <omgdc:Bounds x="292" y="115" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="293" y="172" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataOutput-884113161-1DI" bpmnElement="out_1">
+        <omgdc:Bounds x="412" y="115" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="413" y="172" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataOutput-744774063-1DI" bpmnElement="out_2">
+        <omgdc:Bounds x="462" y="115" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="460" y="172" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1d3l0mt_di" bpmnElement="Flow_1d3l0mt">
+        <omgdi:waypoint x="420" y="270" />
+        <omgdi:waypoint x="472" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0n038fc_di" bpmnElement="Flow_0n038fc">
+        <omgdi:waypoint x="268" y="270" />
+        <omgdi:waypoint x="320" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1rtivo5_di" bpmnElement="Event_1rtivo5">
+        <omgdc:Bounds x="232" y="252" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0pgucu1_di" bpmnElement="Event_0pgucu1">
+        <omgdc:Bounds x="472" y="252" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1mvr1wa_di" bpmnElement="Activity_04d94ee">
+        <omgdc:Bounds x="320" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

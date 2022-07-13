@@ -1,3 +1,4 @@
+from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from .util import xpath_eval, first
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
@@ -25,6 +26,26 @@ class NodeParser:
         xpath = xpath_eval(sequence_flow) if sequence_flow is not None else self.xpath
         documentation_node = first(xpath('.//bpmn:documentation'))
         return None if documentation_node is None else documentation_node.text
+
+    def parse_incoming_data_references(self):
+        specs = []
+        for name in self.xpath('.//bpmn:dataInputAssociation/bpmn:sourceRef'):
+            ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
+            if ref is not None and ref.get('dataObjectRef') in self.process_parser.spec.data_objects:
+                specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
+            else:
+                raise ValidationException(f'Cannot resolve dataInputAssociation {name}', self.node, self.filename)
+        return specs
+
+    def parse_outgoing_data_references(self):
+        specs = []
+        for name in self.xpath('.//bpmn:dataOutputAssociation/bpmn:targetRef'):
+            ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
+            if ref is not None and ref.get('dataObjectRef') in self.process_parser.spec.data_objects:
+                specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
+            else:
+                raise ValidationException(f'Cannot resolve dataOutputAssociation {name}', self.node, self.filename)
+        return specs
 
     def parse_extensions(self):
         extensions = {}

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-from builtins import object
+
 import ast
 import re
 import datetime
 import operator
 from datetime import timedelta
 from decimal import Decimal
-from ..workflow import WorkflowException
 from .PythonScriptEngine import PythonScriptEngine
 
 # Copyright (C) 2020 Kelly McDonald
@@ -25,8 +24,6 @@ from .PythonScriptEngine import PythonScriptEngine
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ..exceptions import WorkflowTaskExecException
-from ..operators import Operator
 
 
 def feelConvertTime(datestr,parsestr):

@@ -26,15 +26,6 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
     def test(self):
         TaskSpec.test(self)
 
-    def _on_subworkflow_completed(self, subworkflow, my_task):
-        super(SubWorkflowTask, self)._on_subworkflow_completed(subworkflow, my_task)
-        # Shouldn't this always be true?
-        if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
-            my_task.parent.task_spec._child_complete_hook(my_task)
-        # Replace the task data with the workflow data
-        my_task.data = deepcopy(subworkflow.data)
-        my_task._set_state(TaskState.READY)
-
     def _on_ready_before_hook(self, my_task):
         subworkflow = my_task.workflow.create_subprocess(my_task, self.spec, self.name)
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
@@ -43,15 +34,39 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
     def _on_ready_hook(self, my_task):
 
         subworkflow = my_task.workflow.get_subprocess(my_task)
-        # Copy all task data into start taak
         start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
-        start[0].set_data(**my_task.data)
+
+        if len(subworkflow.spec.data_inputs) == 0:
+            # Copy all task data into start task if no inputs specified
+            start[0].set_data(**my_task.data)
+        else:
+            # Otherwise copy only task data with the specified names
+            for var in subworkflow.spec.data_inputs:
+                var.copy(my_task, start[0], data_input=True)
 
         self._predict(my_task)
         for child in subworkflow.task_tree.children:
             child.task_spec._update(child)
 
         my_task._set_state(TaskState.WAITING)
+
+    def _on_subworkflow_completed(self, subworkflow, my_task):
+
+        super(SubWorkflowTask, self)._on_subworkflow_completed(subworkflow, my_task)
+        # Shouldn't this always be true?
+        if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
+            my_task.parent.task_spec._child_complete_hook(my_task)
+
+        if len(subworkflow.spec.data_outputs) == 0:
+            # Copy all workflow data if no outputs are specified
+            my_task.data = deepcopy(subworkflow.data)
+        else:
+            end = subworkflow.get_tasks_from_spec_name('End', workflow=subworkflow)
+            # Otherwise only copy data with the specified names
+            for var in subworkflow.spec.data_outputs:
+                var.copy(end[0], my_task, data_output=True)
+
+        my_task._set_state(TaskState.READY)
 
     def _update_hook(self, my_task):
         wf = my_task.workflow._get_outermost_workflow(my_task)

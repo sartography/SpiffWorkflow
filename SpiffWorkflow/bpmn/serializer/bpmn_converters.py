@@ -3,6 +3,8 @@ from functools import partial
 from uuid import UUID
 from datetime import datetime, timedelta
 
+from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataSpecification
+
 from .dictionary import DictionaryConverter
 
 from ..specs.events import SignalEventDefinition, MessageEventDefinition, NoneEventDefinition
@@ -29,6 +31,17 @@ class BpmnDataConverter(DictionaryConverter):
         self.register(UUID, lambda v: { 'value': str(v) }, lambda v: UUID(v['value']))
         self.register(datetime, lambda v:  { 'value': v.isoformat() }, lambda v: datetime.fromisoformat(v['value']))
         self.register(timedelta, lambda v: { 'days': v.days, 'seconds': v.seconds }, lambda v: timedelta(**v))
+
+
+class BpmnDataSpecificationConverter:
+
+    @staticmethod
+    def to_dict(data_spec):
+        return { 'name': data_spec.name, 'description': data_spec.description }
+
+    @staticmethod
+    def from_dict(dct):
+        return BpmnDataSpecification(**dct)
 
 
 class BpmnTaskSpecConverter(DictionaryConverter):
@@ -77,6 +90,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         self.register(SequenceFlow, self.sequence_flow_to_dict, self.sequence_flow_from_dict)
         self.register(Attrib, self.attrib_to_dict, partial(self.attrib_from_dict, Attrib))
         self.register(PathAttrib, self.attrib_to_dict, partial(self.attrib_from_dict, PathAttrib))
+        self.register(BpmnDataSpecification, BpmnDataSpecificationConverter.to_dict, BpmnDataSpecificationConverter.from_dict)
 
     def to_dict(self, spec):
         """
@@ -138,7 +152,9 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             ),
             'outgoing_sequence_flows_by_id': dict(
                 (k, self.convert(v)) for k, v in spec.outgoing_sequence_flows_by_id.items()
-            )
+            ),
+            'data_input_associations': [ self.convert(obj) for obj in spec.data_input_associations ],
+            'data_output_associations': [ self.convert(obj) for obj in spec.data_output_associations ],
         }
 
     def get_join_attributes(self, spec):
@@ -197,6 +213,8 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             spec.loopTask = dct.pop('loopTask', False)
             spec.outgoing_sequence_flows = self.restore(dct.pop('outgoing_sequence_flows', {}))
             spec.outgoing_sequence_flows_by_id = self.restore(dct.pop('outgoing_sequence_flows_by_id', {}))
+            spec.data_input_associations = self.restore(dct.pop('data_input_associations', []))
+            spec.data_output_associations = self.restore(dct.pop('data_output_associations', []))
 
         return spec
 
@@ -296,6 +314,7 @@ class BpmnWorkflowSpecConverter(DictionaryConverter):
         self.register(spec_class, self.to_dict, self.from_dict)
         for converter in task_spec_converters:
             self.register(converter.spec_class, converter.to_dict, converter.from_dict, converter.typename)
+        self.register(BpmnDataSpecification, BpmnDataSpecificationConverter.to_dict, BpmnDataSpecificationConverter.from_dict)
 
     def to_dict(self, spec):
         """
