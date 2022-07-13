@@ -55,6 +55,17 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
         # hits 20.
         self.assertEqual(19, self.workflow.last_task.data['counter2'])
 
+    def test_with_two_call_activities(self):
+        spec, subprocess = self.load_workflow_spec('sub_in_loop*.bpmn', 'main')
+        self.workflow = BpmnWorkflow(spec, subprocess)
+        self.workflow.do_engine_steps()
+        for loop in range(3):
+            ready = self.workflow.get_ready_user_tasks()
+            ready[0].data = { 'done': True if loop == 3 else False }
+            ready[0].complete()
+            self.workflow.refresh_waiting_tasks()
+            self.workflow.do_engine_steps()
+            self.save_restore()
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TooManyLoopsTest)

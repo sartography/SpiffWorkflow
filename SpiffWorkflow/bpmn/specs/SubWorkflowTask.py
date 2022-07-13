@@ -58,6 +58,10 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
         if my_task.id not in wf.subprocesses:
             super()._update_hook(my_task)
 
+    def _predict_hook(self, my_task):
+        # The base Subworkflow task predict doesn't work with the loop reset task
+        BpmnSpecMixin._predict_hook(self, my_task)
+
     def _on_complete_hook(self, my_task):
         for child in my_task.children:
             child.task_spec._update(child)
