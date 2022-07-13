@@ -15,7 +15,7 @@ def version_1_0_to_1_1(old):
     """
     new = deepcopy(old)
     subprocesses = dict((sp, { 'tasks': {}, 'root': None, 'data': {}, 'success': True }) for sp in new['subprocesses'])
-    
+
     # Move the tasks out of the top-level
     for sp, task_ids in new['subprocesses'].items():
         for task_id in task_ids:

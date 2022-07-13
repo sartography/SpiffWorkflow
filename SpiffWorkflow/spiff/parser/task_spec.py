@@ -4,7 +4,7 @@ from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import SubprocessParser
 from SpiffWorkflow.bpmn.parser.util import xpath_eval
 
-SPIFFWORKFLOW_MODEL_NS = 'http://sartography/spiffworkflow'
+SPIFFWORKFLOW_MODEL_NS = 'http://spiffworkflow.org/bpmn/schema/1.0/core'
 
 
 class SpiffTaskParser(TaskParser):
@@ -21,9 +21,9 @@ class SpiffTaskParser(TaskParser):
         return extensions
 
     def create_task(self):
-        # The main task parser already calls this, and even sets an attribute, but 
+        # The main task parser already calls this, and even sets an attribute, but
         # 1. It calls it after creating the task so I don't have access to it here yet and
-        # 2. I want defined attributes, not a dict of random crap 
+        # 2. I want defined attributes, not a dict of random crap
         # (though the dict of random crap will still be there since the base parser adds it).
         extensions = self.parse_extensions()
         prescript = extensions.get('preScript')
@@ -32,7 +32,7 @@ class SpiffTaskParser(TaskParser):
                                lane=self.lane,
                                description=self.node.get('name', None),
                                position=self.position,
-                               prescript=prescript, 
+                               prescript=prescript,
                                postscript=postscript)
 
 
