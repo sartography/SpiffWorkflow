@@ -332,8 +332,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
 
         if isinstance(self.task_spec,SubWorkflowTask):
             self.workflow.delete_subprocess(self)
-            self.children = [] # if we have a call activity,
-                               # force reset of children.
 
         if isinstance(self.task_spec, UnstructuredJoin):
             # go find all of the gateways with the same name as this one,
