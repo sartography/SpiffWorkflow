@@ -175,7 +175,7 @@ class MessageEventDefinition(NamedEventDefinition):
 
     # It is not entirely clear how the payload is supposed to be handled, so I have
     # deviated from what the earlier code did as little as possible, but I believe
-    # this should be revisited: for one thing, we're relying on some Camunda-sepcific
+    # this should be revisited: for one thing, we're relying on some Camunda-specific
     # properties.
 
     def __init__(self, name, payload=None, result_var=None):
