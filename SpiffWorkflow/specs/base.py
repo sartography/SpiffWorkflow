@@ -97,7 +97,7 @@ class TaskSpec(object):
         :param post_assign: a list of name/value pairs
         :type  position: dict((str, object))
         :param position: a dict containing an 'x' and 'y' with coordinates
-                            that describe where the element occured in the
+                            that describe where the element occurred in the
                             diagram.
         """
         assert wf_spec is not None

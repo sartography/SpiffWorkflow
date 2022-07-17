@@ -185,7 +185,7 @@ Timer Events
 ^^^^^^^^^^^^
 
 In the previous section, we mentioned that that we would try again later if we were unable
-to ship the order.  We can use a Duration Timer Event to force our workflow to wait a cetain
+to ship the order.  We can use a Duration Timer Event to force our workflow to wait a certain
 amount of time before continuing.  We can use this as a regular Intermediate Event (in
 'Try Again Later') or a Boundary Event.  Timer Boundary Events can be Interrupting, but in
 this case, we simply want to notify the customer of the delay while continuing to process
