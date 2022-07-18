@@ -189,10 +189,6 @@ class BpmnWorkflowSerializer:
         # Create the top-level workflow
         workflow = self.wf_class(spec, subprocess_specs, read_only=read_only)
 
-        # Copy the serialized subprocess info.
-        # These will have to be replaced with deserialized versions as we go along.
-        workflow.subprocesses = dct_copy.pop('subprocesses', {})
-
         # Restore the remainder of the workflow
         workflow.data = self.data_converter.restore(dct_copy.pop('data'))
         workflow.success = dct_copy.pop('success')
@@ -237,28 +233,29 @@ class BpmnWorkflowSerializer:
         add_task(root)
         return tasks
 
-    def task_tree_from_dict(self, dct, task_id, parent_task, process, top_level_workflow=None):
+    def task_tree_from_dict(self, process_dct, task_id, parent_task, process, top_level_workflow=None, top_level_dct=None):
 
         top = top_level_workflow or process
+        top_dct = top_level_dct or process_dct
 
-        task_dict = dct['tasks'][task_id]
+        task_dict = process_dct['tasks'][task_id]
         task_spec = process.spec.task_specs[task_dict['task_spec']]
         task = self.task_from_dict(task_dict, process, task_spec, parent_task)
-        if task_id == dct['last_task']:
+        if task_id == process_dct['last_task']:
             process.last_task = task
 
-        if isinstance(task_spec, SubWorkflowTask) and task_id in top.subprocesses:
+        if isinstance(task_spec, SubWorkflowTask) and task_id in top_dct.get('subprocesses', {}):
             subprocess_spec = top.subprocess_specs[task_spec.spec]
             subprocess = self.wf_class(subprocess_spec, {}, name=task_spec.name, parent=process, read_only=top.read_only)
-            subprocess_dct = top_level_workflow.subprocesses.pop(task_id, {})
+            subprocess_dct = top_dct['subprocesses'].get(task_id, {})
             subprocess.data = self.data_converter.restore(subprocess_dct.pop('data'))
             subprocess.success = subprocess_dct.pop('success')
-            subprocess.task_tree = self.task_tree_from_dict(subprocess_dct, subprocess_dct.pop('root'), None, subprocess, top)
+            subprocess.task_tree = self.task_tree_from_dict(subprocess_dct, subprocess_dct.pop('root'), None, subprocess, top, top_dct)
             subprocess.completed_event.connect(task_spec._on_subworkflow_completed, task)
             top_level_workflow.subprocesses[task.id] = subprocess
 
-        for child in [ dct['tasks'][c] for c in task_dict['children'] ]:
-            self.task_tree_from_dict(dct, child['id'], task, process, top)
+        for child in [ process_dct['tasks'][c] for c in task_dict['children'] ]:
+            self.task_tree_from_dict(process_dct, child['id'], task, process, top, top_dct)
 
         return task
 
