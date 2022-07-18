@@ -134,7 +134,7 @@ def feelFilter(var,a,b,op,column=None):
     # then we convert it to a list of dictionaries with the elements
     # all having {'key':key,<rest of dict>}
     # if it is a dictionary and the key refers to a non-dict, then
-    # we conver to a dict having {'key':key,'value':value}
+    # we convert to a dict having {'key':key,'value':value}
     if (isinstance(var,dict)):
         newvar = []
         for key in var.keys():

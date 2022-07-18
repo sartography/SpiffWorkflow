@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0hx6iqe" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="main" name="Main" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0nlj5lh</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="initialize" name="Initialize">
+      <bpmn:incoming>Flow_0nlj5lh</bpmn:incoming>
+      <bpmn:incoming>Flow_16vai1a</bpmn:incoming>
+      <bpmn:outgoing>Flow_1lkecht</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1lkecht" sourceRef="initialize" targetRef="subprocess_in_loop" />
+    <bpmn:callActivity id="subprocess_in_loop" name="Subprocess in Loop" calledElement="subprocess">
+      <bpmn:incoming>Flow_1lkecht</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vci114</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_1vci114" sourceRef="subprocess_in_loop" targetRef="call_2" />
+    <bpmn:exclusiveGateway id="Gateway_158gdvg" default="Flow_16vai1a">
+      <bpmn:incoming>Flow_0iui938</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ew7zdi</bpmn:outgoing>
+      <bpmn:outgoing>Flow_16vai1a</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="Event_0l6q7ei">
+      <bpmn:incoming>Flow_0ew7zdi</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0ew7zdi" sourceRef="Gateway_158gdvg" targetRef="Event_0l6q7ei">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">done</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0iui938" sourceRef="call_2" targetRef="Gateway_158gdvg" />
+    <bpmn:callActivity id="call_2" name="Call Subprocess again" calledElement="subprocess">
+      <bpmn:incoming>Flow_1vci114</bpmn:incoming>
+      <bpmn:outgoing>Flow_0iui938</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_0nlj5lh" sourceRef="StartEvent_1" targetRef="initialize" />
+    <bpmn:sequenceFlow id="Flow_16vai1a" sourceRef="Gateway_158gdvg" targetRef="initialize" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="main">
+      <bpmndi:BPMNEdge id="Flow_1lkecht_di" bpmnElement="Flow_1lkecht">
+        <di:waypoint x="350" y="117" />
+        <di:waypoint x="420" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vci114_di" bpmnElement="Flow_1vci114">
+        <di:waypoint x="520" y="117" />
+        <di:waypoint x="580" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ew7zdi_di" bpmnElement="Flow_0ew7zdi">
+        <di:waypoint x="785" y="117" />
+        <di:waypoint x="862" y="117" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1104" y="159" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0iui938_di" bpmnElement="Flow_0iui938">
+        <di:waypoint x="680" y="117" />
+        <di:waypoint x="735" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nlj5lh_di" bpmnElement="Flow_0nlj5lh">
+        <di:waypoint x="188" y="117" />
+        <di:waypoint x="250" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16vai1a_di" bpmnElement="Flow_16vai1a">
+        <di:waypoint x="760" y="142" />
+        <di:waypoint x="760" y="240" />
+        <di:waypoint x="300" y="240" />
+        <di:waypoint x="300" y="157" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0721i5u_di" bpmnElement="initialize">
+        <dc:Bounds x="250" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1lcptwy_di" bpmnElement="call_2">
+        <dc:Bounds x="580" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1stre5m_di" bpmnElement="subprocess_in_loop">
+        <dc:Bounds x="420" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_158gdvg_di" bpmnElement="Gateway_158gdvg" isMarkerVisible="true">
+        <dc:Bounds x="735" y="92" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0l6q7ei_di" bpmnElement="Event_0l6q7ei">
+        <dc:Bounds x="862" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
