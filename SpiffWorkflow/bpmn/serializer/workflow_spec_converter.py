@@ -1,12 +1,9 @@
-from functools import partial
-
 from .bpmn_converters import BpmnWorkflowSpecConverter
 
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
 from ..specs.MultiInstanceTask import MultiInstanceTask, getDynamicMIClass
 from ..specs.BpmnSpecMixin import BpmnSpecMixin
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
-from ..workflow import BpmnWorkflow
 
 from ...operators import Attrib, PathAttrib
 from ...specs.WorkflowSpec import WorkflowSpec
@@ -22,12 +19,15 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
 
         # This is a hot mess, but I don't know how else to deal with the dynamically
         # generated classes.  Why do we use them?
-        classname = spec.prevtaskclass
-        registered = dict((f'{c.__module__}.{c.__name__}', c) for c in self.typenames)
-        self.typenames[spec.__class__] = self.typenames[registered[classname]]
-        dct = self.convert(spec)
-        # Delete this in case the serializer is reused.
-        del self.typenames[spec.__class__]
+        classname = spec.prevtaskclass.split('.')[-1]
+        # Bypass the automatic selection of a conversion function
+        # This returns the partial function that was created on register for the original task type.
+        # The second argument is the function that would be called by `convert`.
+        conversion = self.convert_to_dict[classname]
+        func = conversion.args[1]
+        # We can just call it directly and add the typename manually
+        dct = func(spec)
+        dct['typename'] = classname
         # And we have to do this here, rather than in a converter
         # We also have to manually apply the Attrib conversions
         convert_attrib = lambda v: { 'name': v.name, 'typename': v.__class__.__name__ }
