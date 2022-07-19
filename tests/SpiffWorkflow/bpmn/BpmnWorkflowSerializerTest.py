@@ -20,7 +20,7 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         parser = BpmnParser()
         parser.add_bpmn_files_by_glob(f)
         top_level_spec = parser.get_spec(process_name)
-        subprocesses = parser.get_process_specs()
+        subprocesses = parser.get_subprocess_specs(process_name)
         return top_level_spec, subprocesses
 
     def setUp(self):

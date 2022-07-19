@@ -179,7 +179,16 @@ class BpmnParser(object):
                 f"{', '.join(self.get_process_ids())}?")
         return parser.get_spec()
 
-    def get_process_specs(self):
+    def get_subprocess_specs(self, name, specs=None):
+        used = specs or {}
+        wf_spec = self.get_spec(name)
+        for task_spec in wf_spec.task_specs.values():
+            if isinstance(task_spec, SubWorkflowTask) and task_spec.spec not in used:
+                used[task_spec.spec] = self.get_spec(task_spec.spec)
+                self.get_subprocess_specs(task_spec.spec, used)
+        return used
+
+    def find_all_specs(self):
         # This is a little convoluted, but we might add more processes as we generate
         # the dictionary if something refers to another subprocess that we haven't seen.
         processes = dict((id, self.get_spec(id)) for id in self.get_process_ids())
@@ -187,17 +196,3 @@ class BpmnParser(object):
             for process_id in self.process_parsers.keys():
                 processes[process_id] = self.get_spec(process_id)
         return processes
-
-    def get_top_level_spec(self, name, entry_points, parallel=True):
-        spec = BpmnProcessSpec(name)
-        current = spec.start
-        for process in entry_points:
-            task = SubWorkflowTask(spec, process, process)
-            current.connect(task)
-            if parallel:
-                task.connect(spec.end)
-            else:
-                current = task
-        if not parallel:
-            current.connect(spec.end)
-        return spec
