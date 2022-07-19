@@ -15,11 +15,11 @@ class DictionaryConverter:
     by the converter.
 
     The (unqualified) class name will be used as the `typename` if one is not supplied.
-    You can optionally supply our own names (you'll need to do this if you need to 
+    You can optionally supply our own names (you'll need to do this if you need to
     identically named classes in multiple packages).
 
     When a dictionary is passed into `restore`, it will be checked for a `typename` key.
-    If a registered `typename` is found, the supplied from_dict function will be 
+    If a registered `typename` is found, the supplied from_dict function will be
     called.  Unrecognized objects will be returned as-is.
 
     For a simple example of how to use this class, see the `BpmnDataConverter` in
@@ -57,7 +57,7 @@ class DictionaryConverter:
     def obj_from_dict(func, dct):
         return func(dct)
 
-    def convert(self, obj):
+    def convert(self, obj, typename=None):
         """
         This is the public conversion method.  It will be applied to dictionary
         values, list items, and the object itself, applying the to_dict functions
@@ -65,19 +65,21 @@ class DictionaryConverter:
         it is not recognized.
 
         :param obj: the object to be converter
+        :param typename:  An optional typename (will look it up in typenames if not provided)
 
         Returns:
             the dictionary representation for registered objects or the original
             for unregistered objects
         """
-        typename = self.typenames.get(obj.__class__)
+        if not typename:
+            typename = self.typenames.get(obj.__class__)
         if typename in self.convert_to_dict:
             to_dict = self.convert_to_dict.get(typename)
             return to_dict(obj)
         elif isinstance(obj, dict):
-            return dict((k, self.convert(v)) for k, v in obj.items())
+            return dict((k, self.convert(v, typename)) for k, v in obj.items())
         elif isinstance(obj, (list, tuple, set)):
-            return obj.__class__([ self.convert(item) for item in obj ])
+            return obj.__class__([ self.convert(item, typename) for item in obj ])
         else:
             return obj
 

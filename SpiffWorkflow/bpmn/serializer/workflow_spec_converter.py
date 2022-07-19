@@ -24,10 +24,11 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
         # generated classes.  Why do we use them?
         classname = spec.prevtaskclass
         registered = dict((f'{c.__module__}.{c.__name__}', c) for c in self.typenames)
-        self.typenames[spec.__class__] = self.typenames[registered[classname]]
-        dct = self.convert(spec)
+#        self.typenames[spec.__class__] = self.typenames[registered[classname]]
+        typename = self.typenames[registered[classname]]
+        dct = self.convert(spec, typename)
         # Delete this in case the serializer is reused.
-        del self.typenames[spec.__class__]
+#        del self.typenames[spec.__class__]
         # And we have to do this here, rather than in a converter
         # We also have to manually apply the Attrib conversions
         convert_attrib = lambda v: { 'name': v.name, 'typename': v.__class__.__name__ }
