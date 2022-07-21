@@ -1,22 +1,17 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BaseTestCase import BaseTestCase
 
-__author__ = 'kellym'
+__author__ = 'essweine'
 
 
-class StartMessageTest(BpmnWorkflowTestCase):
+class CallActivityMessageTest(BaseTestCase):
 
     def setUp(self):
-        self.spec, self.subprocesses = self.load_workflow_spec('message_test.bpmn', 'ThrowCatch')
+        self.spec, self.subprocesses = self.load_workflow_spec('call_activity_with_message*.bpmn', 'Process_0xeaemr')
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
-
-    def load_spec(self):
-        return 
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -24,9 +19,7 @@ class StartMessageTest(BpmnWorkflowTestCase):
     def testThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
-
-
-    def actual_test(self,save_restore = False):
+    def actual_test(self, save_restore=False):
         steps = [('Activity_EnterPlan',{'plan_details':'Bad'}),
                  ('Activity_ApproveOrDeny', {'approved':'No'}),
                  ('Activity_EnterPlan', {'plan_details':'Better'}),
@@ -35,11 +28,12 @@ class StartMessageTest(BpmnWorkflowTestCase):
                  ('Activity_ApproveOrDeny', {'approved':'Yes'}),
                  ('Activity_EnablePlan',{'Done':'OK!'})
                  ]
-        self.workflow.do_engine_steps() # get around start task
+
+        self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)
         self.assertEqual(1, len(ready_tasks),'Expected to have one ready task')
-        self.assertEqual(1, len(waiting_tasks), 'Expected to have one waiting task')
+        self.assertEqual(2, len(waiting_tasks), 'Expected to have two waiting tasks')
 
         for step in steps:
             current_task = ready_tasks[0]
@@ -52,11 +46,12 @@ class StartMessageTest(BpmnWorkflowTestCase):
             ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(self.workflow.is_completed(),True,'Expected the workflow to be complete at this point')
         self.assertEqual(self.workflow.last_task.data,{'plan_details': 'Best',
-                                                       'ApprovalResult': 'Yes',
+                                                       'Approved': 'Yes',
                                                        'Done': 'OK!'})
 
 
+
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(StartMessageTest)
+    return unittest.TestLoader().loadTestsFromTestCase(CallActivityMessageTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

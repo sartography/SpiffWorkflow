@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.specs.events import MessageEventDefinition
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
@@ -124,7 +123,7 @@ class ApprovalsTest(BpmnWorkflowTestCase):
                           readonly.get_ready_user_tasks()[0].task_spec.name)
         self.assertRaises(AssertionError, readonly.do_engine_steps)
         self.assertRaises(AssertionError, readonly.refresh_waiting_tasks)
-        self.assertRaises(AssertionError, readonly.message, 'Cheese')
+        self.assertRaises(AssertionError, readonly.catch, MessageEventDefinition('Cheese'))
         self.assertRaises(
             AssertionError, readonly.get_ready_user_tasks()[0].complete)
 

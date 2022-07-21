@@ -97,22 +97,6 @@ class BpmnWorkflow(Workflow):
             workflow = workflow.outer_workflow
         return workflow
 
-    def message(self, message, payload=None, result_var=None):
-        """
-        This method generates a message event definition with the supplied
-        information, taking the same arguments as the message method it
-        replaces.  It is included for backwards compatibility.
-        """
-        self.catch(MessageEventDefinition(message, payload, result_var))
-
-    def signal(self, name):
-        """
-        This method generates a signal event definition with the supplied
-        information, taking the same arguments as the signal method it
-        replaces.  It is included for backwards compatibility.
-        """
-        self.catch(SignalEventDefinition(name))
-
     def catch(self, event_definition):
         """
         Send an event definition to any tasks that catch it.

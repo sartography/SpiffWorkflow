@@ -232,9 +232,6 @@ class BpmnTaskSpecConverter(DictionaryConverter):
 
         if isinstance(event_definition, NamedEventDefinition):
             dct['name'] = event_definition.name
-        if isinstance(event_definition, MessageEventDefinition):
-            dct['payload'] = event_definition.payload
-            dct['result_var'] = event_definition.result_var
         if isinstance(event_definition, TimerEventDefinition):
             dct['label'] = event_definition.label
             dct['dateTime'] = event_definition.dateTime

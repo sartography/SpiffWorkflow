@@ -5,15 +5,15 @@ import unittest
 import time
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BaseTestCase import BaseTestCase
 
 __author__ = 'kellym'
 
 
-class MessageBoundaryTest(BpmnWorkflowTestCase):
+class MessageBoundaryTest(BaseTestCase):
 
     def setUp(self):
-        self.spec, self.subprocesses = self.load_workflow_spec('MessageBoundary.bpmn', 'MessageBoundary')
+        self.spec, self.subprocesses = self.load_workflow_spec('MessageBoundary.bpmn', 'Process_1kjyavs')
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
     def testRunThroughHappy(self):

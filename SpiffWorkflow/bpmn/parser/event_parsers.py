@@ -6,87 +6,89 @@ from .util import first, one
 from ..specs.events import (TimerEventDefinition, MessageEventDefinition,
                             ErrorEventDefinition, EscalationEventDefinition,SignalEventDefinition,
                             CancelEventDefinition, CycleTimerEventDefinition,
-                            TerminateEventDefinition, NoneEventDefinition,
-                            StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent)
-
-
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
+                            TerminateEventDefinition, NoneEventDefinition)
 
 class EventDefinitionParser(TaskParser):
     """This class provvides methods for parsing different event definitions."""
 
-    def parse_cancel_event(self, cancelEvent):
+    def parse_cancel_event(self):
         return CancelEventDefinition()
 
-    def parse_error_event(self, errorEvent):
+    def parse_error_event(self, error_event):
         """Parse the errorEventDefinition node and return an instance of ErrorEventDefinition."""
 
-        errorRef = errorEvent.get('errorRef')
-        if errorRef:
-            error = one(self.doc_xpath('.//bpmn:error[@id="%s"]' % errorRef))
+        error_ref = error_event.get('errorRef')
+        if error_ref:
+            error = one(self.doc_xpath('.//bpmn:error[@id="%s"]' % error_ref))
             error_code = error.get('errorCode')
             name = error.get('name')
         else:
             name, error_code = 'None Error Event', None
         return ErrorEventDefinition(name, error_code)
 
-    def parse_escalation_event(self, escalationEvent):
+    def parse_escalation_event(self, escalation_event):
         """Parse the escalationEventDefinition node and return an instance of EscalationEventDefinition."""
 
-        escalationRef = escalationEvent.get('escalationRef')
-        if escalationRef:
-            escalation = one(self.doc_xpath('.//bpmn:escalation[@id="%s"]' % escalationRef))
+        escalation_ref = escalation_event.get('escalationRef')
+        if escalation_ref:
+            escalation = one(self.doc_xpath('.//bpmn:escalation[@id="%s"]' % escalation_ref))
             escalation_code = escalation.get('escalationCode')
             name = escalation.get('name')
         else:
             name, escalation_code = 'None Escalation Event', None
         return EscalationEventDefinition(name, escalation_code)
 
-    def parse_message_event(self, messageEvent):
-        """Parse the messageEventDefinition node and return an instance of MessageEventDefinition."""
-
-        messageRef = messageEvent.get('messageRef')
-        if messageRef:
-            message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % messageRef))
+    def parse_message_event(self, message_event):
+        message_ref = message_event.get('messageRef')
+        if message_ref:
+            message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
             name = message.get('name')
         else:
-            name = messageEvent.getparent().get('name')
-        payload = messageEvent.attrib.get('{' + CAMUNDA_MODEL_NS + '}expression')
-        resultVar = messageEvent.attrib.get('{' + CAMUNDA_MODEL_NS + '}resultVariable')
-        return MessageEventDefinition(name, payload, resultVar)
+            name = message_event.getparent().get('name')
+        return MessageEventDefinition(name)
 
-    def parse_signal_event(self, signalEvent):
+    def parse_signal_event(self, signal_event):
         """Parse the signalEventDefinition node and return an instance of SignalEventDefinition."""
 
-        signalRef = signalEvent.get('signalRef')
-        if signalRef:
-            signal = one(self.doc_xpath('.//bpmn:signal[@id="%s"]' % signalRef))
+        signal_ref = signal_event.get('signalRef')
+        if signal_ref:
+            signal = one(self.doc_xpath('.//bpmn:signal[@id="%s"]' % signal_ref))
             name = signal.get('name')
         else:
-            name = signalEvent.getparent().get('name')
+            name = signal_event.getparent().get('name')
         return SignalEventDefinition(name)
 
-    def parse_terminate_event(self, terminateEvent):
+    def parse_terminate_event(self):
         """Parse the terminateEventDefinition node and return an instance of TerminateEventDefinition."""
         return TerminateEventDefinition()
 
-    def parse_timer_event(self, timerEvent):
+    def parse_timer_event(self, timer_event):
         """Parse the timerEventDefinition node and return an instance of TimerEventDefinition."""
 
         try:
-            timeDate = first(self.xpath('.//bpmn:timeDate'))
-            if timeDate is not None:
-                return TimerEventDefinition(self.node.get('name'), timeDate.text)
+            time_date = first(self.xpath('.//bpmn:timeDate'))
+            if time_date is not None:
+                return TimerEventDefinition(self.node.get('name'), time_date.text)
 
-            timeDuration = first(self.xpath('.//bpmn:timeDuration'))
-            if timeDuration is not None:
-                return TimerEventDefinition(self.node.get('name'), timeDuration.text)
+            time_duration = first(self.xpath('.//bpmn:timeDuration'))
+            if time_duration is not None:
+                return TimerEventDefinition(self.node.get('name'), time_duration.text)
 
-            timeCycle = first(self.xpath('.//bpmn:timeCycle'))
-            if timeCycle is not None:
-                return CycleTimerEventDefinition(self.node.get('name'), timeCycle.text)
+            time_cycle = first(self.xpath('.//bpmn:timeCycle'))
+            if time_cycle is not None:
+                return CycleTimerEventDefinition(self.node.get('name'), time_cycle.text)
         except:
             raise ValidationException("Unknown Time Specification", node=self.node, filename=self.filename)
+
+    def _create_task(self, event_definition, cancel_activity=None):
+        kwargs = {
+            'lane': self.lane,
+            'description': self.node.get('name', None),
+            'position': self.position,
+        }
+        if cancel_activity is not None:
+            kwargs['cancel_activity'] = cancel_activity
+        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
 
 
 class StartEventParser(EventDefinitionParser):
@@ -107,12 +109,7 @@ class StartEventParser(EventDefinitionParser):
         else:
             event_definition = NoneEventDefinition()
 
-        kwargs = {
-            'lane': self.lane,
-            'description': self.node.get('name', None),
-            'position': self.position,
-        }
-        task = self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
+        task = self._create_task(event_definition)
         self.spec.start.connect(task)
         if isinstance(event_definition, CycleTimerEventDefinition):
             # We are misusing cycle timers, so this is a hack whereboy we will
@@ -135,22 +132,17 @@ class EndEventParser(EventDefinitionParser):
         terminateEvent = first(self.xpath('.//bpmn:terminateEventDefinition'))
 
         if cancelEvent is not None:
-            event_definition = self.parse_cancel_event(cancelEvent)
+            event_definition = self.parse_cancel_event()
         elif errorEvent is not None:
             event_definition = self.parse_error_event(errorEvent)
         elif escalationEvent is not None:
             event_definition = self.parse_escalation_event(escalationEvent)
         elif terminateEvent is not None:
-            event_definition = self.parse_terminate_event(terminateEvent)
+            event_definition = self.parse_terminate_event()
         else:
             event_definition = NoneEventDefinition()
 
-        kwargs = {
-            'lane': self.lane,
-            'description': self.node.get('name', None),
-            'position': self.position,
-        }
-        task = self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
+        task = self._create_task(event_definition)
         task.connect_outgoing(self.spec.end, '%s.ToEndJoin' % self.node.get('id'), None, None)
         return task
 
@@ -173,12 +165,7 @@ class IntermediateCatchEventParser(EventDefinitionParser):
         else:
             raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node))
 
-        kwargs = {
-            'lane': self.lane,
-            'description': self.node.get('name', None),
-            'position': self.position,
-        }
-        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
+        return super()._create_task(event_definition)
 
 class IntermediateThrowEventParser(EventDefinitionParser):
     """Parses an Intermediate Catch Event. Currently supports Message, Signal and Timer event definitions."""
@@ -201,12 +188,7 @@ class IntermediateThrowEventParser(EventDefinitionParser):
         else:
             raise NotImplementedError('Unsupported Throw Event: %r', etree.tostring(self.node))
 
-        kwargs = {
-            'lane': self.lane,
-            'description': self.node.get('name', None),
-            'position': self.position,
-        }
-        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
+        return self._create_task(event_definition)
 
 class BoundaryEventParser(EventDefinitionParser):
     """
@@ -226,7 +208,7 @@ class BoundaryEventParser(EventDefinitionParser):
         timerEvent = first(self.xpath('.//bpmn:timerEventDefinition'))
 
         if cancelEvent is not None:
-            event_definition = self.parse_cancel_event(cancelEvent)
+            event_definition = self.parse_cancel_event()
         elif errorEvent is not None:
             event_definition = self.parse_error_event(errorEvent)
         elif escalationEvent is not None:
@@ -240,9 +222,4 @@ class BoundaryEventParser(EventDefinitionParser):
         else:
             raise NotImplementedError('Unsupported Catch Event: %r', etree.tostring(self.node))
 
-        kwargs = {
-            'lane': self.lane,
-            'description': self.node.get('name', None),
-            'position': self.position,
-        }
-        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, cancel_activity, **kwargs)
+        return self._create_task(event_definition, cancel_activity)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0ktat0o" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.10.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0ktat0o" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1">
   <bpmn:collaboration id="Collaboration_0n93bdm">
     <bpmn:participant id="Participant_1s3h4jc" processRef="ThrowCatch" />
   </bpmn:collaboration>
@@ -7,14 +7,14 @@
     <bpmn:laneSet id="LaneSet_0ti2l3g">
       <bpmn:lane id="Lane_0stxlz6" name="process_a">
         <bpmn:flowNodeRef>Activity_ApproveOrDeny</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_SendRequestResponse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SendDecision</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_EndEvent2</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_GotRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>StartApprovalProcess</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_0m6phgl" name="process_b">
         <bpmn:flowNodeRef>Event_NormalStart</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_SendRequest</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_GetRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SendApprovalRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GetDecision</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_Approved</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_EnterPlan</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_EnablePlan</bpmn:flowNodeRef>
@@ -24,12 +24,12 @@
     <bpmn:startEvent id="Event_NormalStart">
       <bpmn:outgoing>Flow_060cfic</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:intermediateThrowEvent id="Event_SendRequest" name="SendApprovalRequest">
+    <bpmn:intermediateThrowEvent id="SendApprovalRequest" name="Send Approval Request">
       <bpmn:incoming>Flow_1nsjil4</bpmn:incoming>
       <bpmn:outgoing>Flow_1t3bhky</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1rqtu3x" messageRef="Message_1rkbi27" camunda:expression="plan_details" />
     </bpmn:intermediateThrowEvent>
-    <bpmn:intermediateCatchEvent id="Event_GetRequest" name="Get Approval Response">
+    <bpmn:intermediateCatchEvent id="GetDecision" name="Get Decision">
       <bpmn:incoming>Flow_1t3bhky</bpmn:incoming>
       <bpmn:outgoing>Flow_1jdfc06</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0glgh0p" messageRef="Message_0sqqwvq" />
@@ -39,15 +39,15 @@
       <bpmn:outgoing>Flow_0jqxt85</bpmn:outgoing>
       <bpmn:outgoing>Flow_1tfirpy</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1jdfc06" sourceRef="Event_GetRequest" targetRef="Gateway_Approved" />
+    <bpmn:sequenceFlow id="Flow_1jdfc06" sourceRef="GetDecision" targetRef="Gateway_Approved" />
     <bpmn:sequenceFlow id="Flow_1ync7ek" sourceRef="Activity_EnablePlan" targetRef="Event_EndEvent1" />
-    <bpmn:sequenceFlow id="Flow_1t3bhky" sourceRef="Event_SendRequest" targetRef="Event_GetRequest" />
-    <bpmn:sequenceFlow id="Flow_1nsjil4" sourceRef="Activity_EnterPlan" targetRef="Event_SendRequest" />
+    <bpmn:sequenceFlow id="Flow_1t3bhky" sourceRef="SendApprovalRequest" targetRef="GetDecision" />
+    <bpmn:sequenceFlow id="Flow_1nsjil4" sourceRef="Activity_EnterPlan" targetRef="SendApprovalRequest" />
     <bpmn:sequenceFlow id="Flow_0jqxt85" name="Sure" sourceRef="Gateway_Approved" targetRef="Activity_EnablePlan">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">ApprovalResult=="Yes"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0m1dzpq" sourceRef="Activity_ApproveOrDeny" targetRef="Event_SendRequestResponse" />
-    <bpmn:sequenceFlow id="Flow_1ym5g7r" sourceRef="Event_GotRequest" targetRef="Activity_ApproveOrDeny" />
+    <bpmn:sequenceFlow id="Flow_0m1dzpq" sourceRef="Activity_ApproveOrDeny" targetRef="SendDecision" />
+    <bpmn:sequenceFlow id="Flow_1ym5g7r" sourceRef="StartApprovalProcess" targetRef="Activity_ApproveOrDeny" />
     <bpmn:sequenceFlow id="Flow_1tfirpy" name="No Way!" sourceRef="Gateway_Approved" targetRef="Activity_EnterPlan" />
     <bpmn:userTask id="Activity_ApproveOrDeny" name="Approved?" camunda:formKey="ApprovalProcess">
       <bpmn:extensionElements>
@@ -69,8 +69,8 @@
       <bpmn:incoming>Flow_060cfic</bpmn:incoming>
       <bpmn:outgoing>Flow_1nsjil4</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_0abuvsx" sourceRef="Event_SendRequestResponse" targetRef="Event_EndEvent2" />
-    <bpmn:intermediateThrowEvent id="Event_SendRequestResponse" name="SendResponse">
+    <bpmn:sequenceFlow id="Flow_0abuvsx" sourceRef="SendDecision" targetRef="Event_EndEvent2" />
+    <bpmn:intermediateThrowEvent id="SendDecision" name="Send Decision">
       <bpmn:incoming>Flow_0m1dzpq</bpmn:incoming>
       <bpmn:outgoing>Flow_0abuvsx</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1un6meh" messageRef="Message_0sqqwvq" camunda:expression="approved" camunda:resultVariable="ApprovalResult" />
@@ -78,7 +78,7 @@
     <bpmn:endEvent id="Event_EndEvent2">
       <bpmn:incoming>Flow_0abuvsx</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:startEvent id="Event_GotRequest" name="GotApprovalRequest">
+    <bpmn:startEvent id="StartApprovalProcess" name="Start Approval Process">
       <bpmn:outgoing>Flow_1ym5g7r</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0q86vff" messageRef="Message_1rkbi27" />
     </bpmn:startEvent>
@@ -160,16 +160,16 @@
       <bpmndi:BPMNShape id="Event_1kih4yf_di" bpmnElement="Event_NormalStart">
         <dc:Bounds x="222" y="312" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0dqz4n8_di" bpmnElement="Event_SendRequest">
+      <bpmndi:BPMNShape id="Event_0dqz4n8_di" bpmnElement="SendApprovalRequest">
         <dc:Bounds x="422" y="312" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="395" y="355" width="90" height="27" />
+          <dc:Bounds x="404" y="355" width="73" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1cb7mmu_di" bpmnElement="Event_GetRequest">
+      <bpmndi:BPMNShape id="Event_1cb7mmu_di" bpmnElement="GetDecision">
         <dc:Bounds x="512" y="312" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="497" y="356" width="65" height="27" />
+          <dc:Bounds x="499" y="356" width="63" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0hlo27j_di" bpmnElement="Gateway_Approved" isMarkerVisible="true">
@@ -184,19 +184,19 @@
       <bpmndi:BPMNShape id="Activity_1kg6an6_di" bpmnElement="Activity_EnterPlan">
         <dc:Bounds x="280" y="290" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0jotxd7_di" bpmnElement="Event_SendRequestResponse">
+      <bpmndi:BPMNShape id="Event_0jotxd7_di" bpmnElement="SendDecision">
         <dc:Bounds x="492" y="132" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="472" y="175" width="76" height="14" />
+          <dc:Bounds x="476" y="175" width="71" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_16fdfur_di" bpmnElement="Event_EndEvent2">
         <dc:Bounds x="572" y="132" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_11yv3q9_di" bpmnElement="Event_GotRequest">
+      <bpmndi:BPMNShape id="Event_11yv3q9_di" bpmnElement="StartApprovalProcess">
         <dc:Bounds x="242" y="132" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="217" y="175" width="88" height="27" />
+          <dc:Bounds x="228" y="175" width="70" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_13sr7ty_di" bpmnElement="Activity_EnablePlan">

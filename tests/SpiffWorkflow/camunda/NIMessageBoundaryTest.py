@@ -4,12 +4,13 @@ import unittest
 
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+
+from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
 __author__ = 'kellym'
 
 
-class NIMessageBoundaryTest(BpmnWorkflowTestCase):
+class NIMessageBoundaryTest(BaseTestCase):
     """
     Non-Interrupting Timer boundary test
     """
@@ -49,7 +50,8 @@ class NIMessageBoundaryTest(BpmnWorkflowTestCase):
             # if we have a list of tasks - that list becomes invalid
             # after we do a save restore, so I'm completing the list
             # before doing the save restore.
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
 
 
         answers = {'Activity_WorkLate':('flag_task','Yes'),

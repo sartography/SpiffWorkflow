@@ -235,84 +235,55 @@ class ParallelGatewayConverter(BpmnTaskSpecConverter):
         return self.task_spec_from_dict(dct)
 
 
-class StartEventConverter(BpmnTaskSpecConverter):
+class EventConverter(BpmnTaskSpecConverter):
+
+    def __init__(self, spec_class, data_converter, typename):
+        super().__init__(spec_class, data_converter, typename)
+
+    def to_dict(self, spec):
+        dct = self.get_default_attributes(spec)
+        dct.update(self.get_bpmn_attributes(spec))
+        dct['event_definition'] = self.convert(spec.event_definition)
+        return dct
+
+    def from_dict(self, dct):
+        dct['event_definition'] = self.restore(dct['event_definition'])
+        return self.task_spec_from_dict(dct)
+
+
+class StartEventConverter(EventConverter):
 
     def __init__(self, data_converter=None, typename=None):
         super().__init__(StartEvent, data_converter, typename)
 
-    def to_dict(self, spec):
-        dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
-        dct['event_definition'] = self.convert(spec.event_definition)
-        return dct
 
-    def from_dict(self, dct):
-        dct['event_definition'] = self.restore(dct['event_definition'])
-        return self.task_spec_from_dict(dct)
-
-
-class EndEventConverter(BpmnTaskSpecConverter):
+class EndEventConverter(EventConverter):
 
     def __init__(self, data_converter=None, typename=None):
         super().__init__(EndEvent, data_converter, typename)
 
-    def to_dict(self, spec):
-        dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
-        dct['event_definition'] = self.convert(spec.event_definition)
-        return dct
 
-    def from_dict(self, dct):
-        dct['event_definition'] = self.restore(dct['event_definition'])
-        return self.task_spec_from_dict(dct)
-
-class IntermediateCatchEventConverter(BpmnTaskSpecConverter):
+class IntermediateCatchEventConverter(EventConverter):
 
     def __init__(self, data_converter=None, typename=None):
         super().__init__(IntermediateCatchEvent, data_converter, typename)
 
-    def to_dict(self, spec):
-        dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
-        dct['event_definition'] = self.convert(spec.event_definition)
-        return dct
 
-    def from_dict(self, dct):
-        dct['event_definition'] = self.restore(dct['event_definition'])
-        return self.task_spec_from_dict(dct)
-
-
-class IntermediateThrowEventConverter(BpmnTaskSpecConverter):
+class IntermediateThrowEventConverter(EventConverter):
 
     def __init__(self, data_converter=None, typename=None):
         super().__init__(IntermediateThrowEvent, data_converter, typename)
 
-    def to_dict(self, spec):
-        dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
-        dct['event_definition'] = self.convert(spec.event_definition)
-        return dct
 
-    def from_dict(self, dct):
-        dct['event_definition'] = self.restore(dct['event_definition'])
-        return self.task_spec_from_dict(dct)
-
-
-class BoundaryEventConverter(BpmnTaskSpecConverter):
+class BoundaryEventConverter(EventConverter):
 
     def __init__(self, data_converter=None, typename=None):
         super().__init__(BoundaryEvent, data_converter, typename)
 
     def to_dict(self, spec):
-        dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
-        dct['event_definition'] = self.convert(spec.event_definition)
+        dct = super().to_dict(spec)
         dct['cancel_activity'] = spec.cancel_activity
         return dct
-
-    def from_dict(self, dct):
-        dct['event_definition'] = self.restore(dct['event_definition'])
-        return self.task_spec_from_dict(dct)
 
 
 class BoundaryEventParentConverter(BpmnTaskSpecConverter):

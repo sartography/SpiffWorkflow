@@ -1,9 +1,63 @@
-from ...bpmn.serializer.bpmn_converters import BpmnDataConverter, BpmnTaskSpecConverter
+from functools import partial
+
+from SpiffWorkflow.bpmn.specs.events import EndEvent, IntermediateThrowEvent
+from ..specs.events.event_types import StartEvent, IntermediateCatchEvent, BoundaryEvent
+from ..specs.events.event_definitions import MessageEventDefinition
+from ...bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
 
 from ..specs.UserTask import UserTask, Form
-from ..specs.UserTask import FormField
 
-class UserTaskConverter(BpmnTaskSpecConverter):
+class CamundaEventConverter(BpmnTaskSpecConverter):
+
+    def __init__(self, spec_class, data_converter, typename):
+        super().__init__(spec_class, data_converter, typename)
+        self.register(
+                MessageEventDefinition,
+                self.event_definition_to_dict,
+                partial(self.event_defintion_from_dict, MessageEventDefinition)
+        )
+
+    def to_dict(self, spec):
+        dct = self.get_default_attributes(spec)
+        dct.update(self.get_bpmn_attributes(spec))
+        if isinstance(spec, BoundaryEvent):
+            dct['cancel_activity'] = spec.cancel_activity
+        dct['event_definition'] = self.convert(spec.event_definition)
+        return dct
+
+    def from_dict(self, dct):
+        dct['event_definition'] = self.restore(dct['event_definition'])
+        return self.task_spec_from_dict(dct)
+
+    def event_definition_to_dict(self, event_definition):
+        dct = super().event_definition_to_dict(event_definition)
+        if isinstance(event_definition, MessageEventDefinition):
+            dct['payload'] = event_definition.payload
+            dct['result_var'] = event_definition.result_var
+        return dct
+
+
+class StartEventConverter(CamundaEventConverter):
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(StartEvent, data_converter, typename)
+
+class EndEventConverter(CamundaEventConverter):
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(EndEvent, data_converter, typename)
+
+class BoundaryEventConverter(CamundaEventConverter):
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(BoundaryEvent, data_converter, typename)
+
+class IntermediateCatchEventConverter(CamundaEventConverter):
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(IntermediateCatchEvent, data_converter, typename)
+
+class IntermediateThrowEventConverter(CamundaEventConverter):
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(IntermediateThrowEvent, data_converter, typename)
+
+class UserTaskConverter(CamundaEventConverter):
 
     def __init__(self, data_converter=None, typename=None):
         super().__init__(UserTask, data_converter, typename)

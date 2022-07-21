@@ -3,14 +3,19 @@ import os
 
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
-from SpiffWorkflow.camunda.serializer import UserTaskConverter
+from SpiffWorkflow.camunda.serializer import UserTaskConverter, StartEventConverter, EndEventConverter, \
+    IntermediateCatchEventConverter, IntermediateThrowEventConverter, BoundaryEventConverter
+
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 
 __author__ = 'danfunk'
 
-wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([UserTaskConverter])
+wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([UserTaskConverter,
+    StartEventConverter, EndEventConverter, BoundaryEventConverter,
+    IntermediateCatchEventConverter, IntermediateThrowEventConverter])
+
 class BaseTestCase(BpmnWorkflowTestCase):
     """ Provides some basic tools for loading up and parsing camunda BPMN files """
 

@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .event_definitions import NoneEventDefinition, MessageEventDefinition
+from .event_definitions import NoneEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
 from ....task import TaskState
@@ -64,11 +64,6 @@ class CatchingEvent(Simple, BpmnSpecMixin):
 
     def _on_complete_hook(self, my_task):
 
-        if isinstance(self.event_definition, MessageEventDefinition):
-            # If we are a message event, then we need to copy the event data out of
-            # our internal data and into the task data
-            event_data = my_task.internal_data[self.event_definition.name]
-            my_task.data[event_data['result_var']] = event_data['payload']
         self.event_definition.reset(my_task)
         super(CatchingEvent, self)._on_complete_hook(my_task)
 
