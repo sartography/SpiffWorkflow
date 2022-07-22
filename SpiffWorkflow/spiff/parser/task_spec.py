@@ -26,11 +26,11 @@ class SpiffTaskParser(TaskParser):
 
     def _parse_properties(self, node):
         extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
-        xpath = xpath_eval(self.node, extra_ns)
+        xpath = xpath_eval(node, extra_ns)
         property_nodes = xpath('.//spiffworkflow:property')
         properties = {}
-        for node in property_nodes:
-            properties[node.attrib['name']] = node.attrib['value']
+        for prop_node in property_nodes:
+            properties[prop_node.attrib['name']] = prop_node.attrib['value']
         return properties
 
     def create_task(self):
