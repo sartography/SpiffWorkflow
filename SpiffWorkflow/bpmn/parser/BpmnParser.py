@@ -21,9 +21,9 @@ import glob
 
 from lxml import etree
 
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
 from .ValidationException import ValidationException
 from ..specs.events import StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
+from ..specs.events import SendTask, ReceiveTask
 from ..specs.SubWorkflowTask import CallActivity, SubWorkflowTask, TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
@@ -38,7 +38,8 @@ from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
                            ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser,
                            CallActivityParser, ScriptTaskParser, SubWorkflowParser)
 from .event_parsers import (StartEventParser, EndEventParser, BoundaryEventParser,
-                           IntermediateCatchEventParser, IntermediateThrowEventParser)
+                           IntermediateCatchEventParser, IntermediateThrowEventParser,
+                           SendTaskParser)
 
 
 class BpmnParser(object):
@@ -65,11 +66,11 @@ class BpmnParser(object):
         full_tag('callActivity'): (CallActivityParser, CallActivity),
         full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
-        full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser,
-                                             IntermediateCatchEvent),
-        full_tag('intermediateThrowEvent'): (IntermediateThrowEventParser,
-                                             IntermediateThrowEvent),
+        full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser, IntermediateCatchEvent),
+        full_tag('intermediateThrowEvent'): (IntermediateThrowEventParser, IntermediateThrowEvent),
         full_tag('boundaryEvent'): (BoundaryEventParser, BoundaryEvent),
+        full_tag('receiveTask'): (IntermediateCatchEventParser, ReceiveTask),
+        full_tag('sendTask'): (SendTaskParser, SendTask),
     }
 
     OVERRIDE_PARSER_CLASSES = {}

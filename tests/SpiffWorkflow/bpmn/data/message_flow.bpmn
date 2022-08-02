@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0qmxumb" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+
+  <bpmn:collaboration id="my_collaboration">
+    
+    <bpmn:participant id="buddy" name="Buddy" processRef="process_buddy" />
+    <bpmn:participant id="Person" name="Person" processRef="random_person_process" />
+    
+    <bpmn:messageFlow id="love_letter_flow" name="Love Letter Flow" sourceRef="ActivitySendLetter" targetRef="Person" />
+    <bpmn:messageFlow id="response_flow" name="response flow" sourceRef="Person" targetRef="EventReceiveLetter" />
+    
+    <bpmn:correlationKey name="lover">
+      <bpmn:correlationPropertyRef>lover_name</bpmn:correlationPropertyRef>
+    </bpmn:correlationKey>
+  
+  </bpmn:collaboration>
+  
+  <bpmn:message id="love_letter" name="Love Letter" />
+  <bpmn:message id="love_letter_response" name="Love Letter Response" />
+
+  <bpmn:correlationProperty id="lover_name" name="Lover&#39;s Name">
+    <bpmn:correlationPropertyRetrievalExpression messageRef="love_letter">
+      <bpmn:formalExpression>lover.name</bpmn:formalExpression>
+    </bpmn:correlationPropertyRetrievalExpression>
+    <bpmn:correlationPropertyRetrievalExpression messageRef="love_letter_response">
+      <bpmn:formalExpression>from.name</bpmn:formalExpression>
+    </bpmn:correlationPropertyRetrievalExpression>
+  </bpmn:correlationProperty>
+  
+  <bpmn:process id="process_buddy" name="Process Buddy" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1bl6jeh</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sendTask id="ActivitySendLetter" name="Send Letter" messageRef="love_letter">
+      <bpmn:incoming>Flow_1bl6jeh</bpmn:incoming>
+      <bpmn:outgoing>Flow_0tp8uut</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="Event_01h5zqa">
+      <bpmn:incoming>Flow_1ai45pq</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:intermediateCatchEvent id="EventReceiveLetter" name="receive Letter">
+      <bpmn:incoming>Flow_0tp8uut</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ai45pq</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="medllr" messageRef="love_letter_response" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_1ai45pq" sourceRef="EventReceiveLetter" targetRef="Event_01h5zqa" />
+    <bpmn:sequenceFlow id="Flow_0tp8uut" sourceRef="ActivitySendLetter" targetRef="EventReceiveLetter" />
+    <bpmn:sequenceFlow id="Flow_1bl6jeh" sourceRef="StartEvent_1" targetRef="ActivitySendLetter" />
+  </bpmn:process>
+
+  <bpmn:process id="random_person_process" name="Process" isExecutable="false" />
+  
+  
+  
+  
+  
+  
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="my_collaboration">
+      <bpmndi:BPMNShape id="Participant_12ffz3p_di" bpmnElement="buddy" isHorizontal="true">
+        <dc:Bounds x="129" y="80" width="471" height="200" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1bl6jeh_di" bpmnElement="Flow_1bl6jeh">
+        <di:waypoint x="215" y="155" />
+        <di:waypoint x="270" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tp8uut_di" bpmnElement="Flow_0tp8uut">
+        <di:waypoint x="370" y="155" />
+        <di:waypoint x="432" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ai45pq_di" bpmnElement="Flow_1ai45pq">
+        <di:waypoint x="468" y="155" />
+        <di:waypoint x="532" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="137" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0p9c4se_di" bpmnElement="ActivitySendLetter">
+        <dc:Bounds x="270" y="115" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_01h5zqa_di" bpmnElement="Event_01h5zqa">
+        <dc:Bounds x="532" y="137" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0s2n1j8_di" bpmnElement="EventReceiveLetter">
+        <dc:Bounds x="432" y="137" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="416" y="113" width="67" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_0nbivcp_di" bpmnElement="Person" isHorizontal="true">
+        <dc:Bounds x="129" y="314" width="471" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_11c08m8_di" bpmnElement="love_letter_flow">
+        <di:waypoint x="320" y="195" />
+        <di:waypoint x="320" y="314" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="229" y="233" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1k8kbqt_di" bpmnElement="response_flow">
+        <di:waypoint x="450" y="314" />
+        <di:waypoint x="450" y="173" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="466" y="233" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

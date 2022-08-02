@@ -17,11 +17,14 @@ class CamundaEventDefinitionParser(EventDefinitionParser):
         if message_ref:
             message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
             name = message.get('name')
+            correlations = self.get_message_correlations(message_ref)
         else:
             name = message_event.getparent().get('name')
+            correlations = {}
+
         payload = message_event.attrib.get('{' + CAMUNDA_MODEL_NS + '}expression')
         result_var = message_event.attrib.get('{' + CAMUNDA_MODEL_NS + '}resultVariable')
-        return MessageEventDefinition(name, payload, result_var)
+        return MessageEventDefinition(name, correlations, payload, result_var)
 
 
 # This really sucks, but it's still better than copy-pasting a bunch of code a million times

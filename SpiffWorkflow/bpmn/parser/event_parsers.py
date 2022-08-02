@@ -1,8 +1,10 @@
 from lxml import etree
 
+from SpiffWorkflow.bpmn.specs.events.event_definitions import CorrelationProperty
+
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
-from .util import first, one
+from .util import first, one, xpath_eval
 from ..specs.events import (TimerEventDefinition, MessageEventDefinition,
                             ErrorEventDefinition, EscalationEventDefinition,SignalEventDefinition,
                             CancelEventDefinition, CycleTimerEventDefinition,
@@ -39,13 +41,11 @@ class EventDefinitionParser(TaskParser):
         return EscalationEventDefinition(name, escalation_code)
 
     def parse_message_event(self, message_event):
+
         message_ref = message_event.get('messageRef')
-        if message_ref:
-            message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
-            name = message.get('name')
-        else:
-            name = message_event.getparent().get('name')
-        return MessageEventDefinition(name)
+        name = message_ref or message_event.getparent().get('name')
+        correlations = self.get_message_correlations(message_ref) if message_ref is not None else {}
+        return MessageEventDefinition(name, correlations)
 
     def parse_signal_event(self, signal_event):
         """Parse the signalEventDefinition node and return an instance of SignalEventDefinition."""
@@ -79,6 +79,19 @@ class EventDefinitionParser(TaskParser):
                 return CycleTimerEventDefinition(self.node.get('name'), time_cycle.text)
         except:
             raise ValidationException("Unknown Time Specification", node=self.node, filename=self.filename)
+
+    def get_message_correlations(self, message_ref):
+
+        correlations = []
+        for correlation in self.doc_xpath(f".//bpmn:correlationPropertyRetrievalExpression[@messageRef='{message_ref}']"):
+            key = correlation.getparent().get('id')
+            children = correlation.getchildren()
+            expression = children[0].text if len(children) > 0 else None
+            used_by = [ e.getparent().get('name') for e in
+                self.doc_xpath(f".//bpmn:correlationKey/bpmn:correlationPropertyRef[text()='{key}']") ]
+            if key is not None and expression is not None:
+                correlations.append(CorrelationProperty(key, expression, used_by))
+        return correlations
 
     def _create_task(self, event_definition, cancel_activity=None):
         kwargs = {
@@ -163,9 +176,10 @@ class IntermediateCatchEventParser(EventDefinitionParser):
         elif timerEvent is not None:
             event_definition = self.parse_timer_event(timerEvent)
         else:
-            raise NotImplementedError('Unsupported Intermediate Catch Event: %r', etree.tostring(self.node))
+            event_definition = NoneEventDefinition()
 
         return super()._create_task(event_definition)
+
 
 class IntermediateThrowEventParser(EventDefinitionParser):
     """Parses an Intermediate Catch Event. Currently supports Message, Signal and Timer event definitions."""
@@ -186,9 +200,27 @@ class IntermediateThrowEventParser(EventDefinitionParser):
         elif timerEvent is not None:
             event_definition = self.parse_timer_event(timerEvent)
         else:
-            raise NotImplementedError('Unsupported Throw Event: %r', etree.tostring(self.node))
+            event_definition = NoneEventDefinition()
 
         return self._create_task(event_definition)
+
+
+class SendTaskParser(IntermediateThrowEventParser):
+
+    def create_task(self):
+
+        message_ref = self.node.get('messageRef')
+        message_event = first(self.xpath('.//bpmn:messageEventDefinition'))
+        if message_ref is not None:
+            correlations = self.get_message_correlations(message_ref)
+            event_definition = MessageEventDefinition(message_ref, correlations)
+        elif message_event is not None:
+            event_definition = self.parse_message_event(message_event)
+        else:
+            event_definition = NoneEventDefinition()
+
+        return self._create_task(event_definition)
+
 
 class BoundaryEventParser(EventDefinitionParser):
     """

@@ -23,6 +23,12 @@ from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
 from ....task import TaskState
 
+class SendTask(ThrowingEvent):
+    pass
+
+class ReceiveTask(CatchingEvent):
+    pass
+
 class IntermediateCatchEvent(CatchingEvent):
     pass
 

@@ -19,7 +19,6 @@
 
 import datetime
 import logging
-import datetime
 
 LOG = logging.getLogger(__name__)
 
@@ -121,6 +120,7 @@ class CancelEventDefinition(EventDefinition):
         super(CancelEventDefinition, self).__init__()
         self.internal = False
 
+
 class ErrorEventDefinition(NamedEventDefinition):
     """
     Error events can occur only in subprocesses and as subprocess boundary events.  They're
@@ -165,9 +165,21 @@ class EscalationEventDefinition(NamedEventDefinition):
         return retdict
 
 
+class CorrelationProperty:
+    """Rules for generating a correlation key when a message is sent or received."""
+
+    def __init__(self, name, expression, correlation_keys):
+        self.name = name                            # This is the property name
+        self.expression = expression                # This is how it's generated
+        self.correlation_keys = correlation_keys    # These are the keys it's used by
+
+
 class MessageEventDefinition(NamedEventDefinition):
     """The default message event."""
-    pass
+
+    def __init__(self, name, correlation_properties=None):
+        super().__init__(name)
+        self.correlation_properties = correlation_properties
 
 
 class NoneEventDefinition(EventDefinition):

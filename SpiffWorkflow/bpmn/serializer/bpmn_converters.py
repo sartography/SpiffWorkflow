@@ -10,7 +10,7 @@ from .dictionary import DictionaryConverter
 from ..specs.events import SignalEventDefinition, MessageEventDefinition, NoneEventDefinition
 from ..specs.events import TimerEventDefinition, CycleTimerEventDefinition, TerminateEventDefinition
 from ..specs.events import ErrorEventDefinition, EscalationEventDefinition, CancelEventDefinition
-from ..specs.events.event_definitions import NamedEventDefinition
+from ..specs.events.event_definitions import CorrelationProperty, NamedEventDefinition
 
 from ..specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
 from ...operators import Attrib, PathAttrib
@@ -232,6 +232,8 @@ class BpmnTaskSpecConverter(DictionaryConverter):
 
         if isinstance(event_definition, NamedEventDefinition):
             dct['name'] = event_definition.name
+        if isinstance(event_definition, MessageEventDefinition):
+            dct['correlation_properties'] = [prop.__dict__ for prop in event_definition.correlation_properties]
         if isinstance(event_definition, TimerEventDefinition):
             dct['label'] = event_definition.label
             dct['dateTime'] = event_definition.dateTime
@@ -256,6 +258,8 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             an `EventDefinition` object
         """
         internal, external = dct.pop('internal'), dct.pop('external')
+        if 'correlation_properties' in dct:
+            dct['correlation_properties'] = [CorrelationProperty(**prop) for prop in dct['correlation_properties']]
         event_definition = definition_class(**dct)
         event_definition.internal = internal
         event_definition.external = external

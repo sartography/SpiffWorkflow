@@ -28,7 +28,7 @@ class ExternalMessageBoundaryTest(BaseTestCase):
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks),'Expected to have only one ready task')
-        self.workflow.catch(MessageEventDefinition('Interrupt','SomethingImportant','interrupt_var'))
+        self.workflow.catch(MessageEventDefinition('Interrupt', payload='SomethingImportant', result_var='interrupt_var'))
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(2,len(ready_tasks),'Expected to have two ready tasks')
@@ -47,7 +47,7 @@ class ExternalMessageBoundaryTest(BaseTestCase):
         # last_task and appending the data to whatever happened there, so it would make sense that
         # we have the extra variables that happened in 'pause'
         # if on the other hand, we went on from 'meaningless task' those variables would not get added.
-        self.workflow.catch(MessageEventDefinition('reset','SomethingDrastic','reset_var'))
+        self.workflow.catch(MessageEventDefinition('reset', payload='SomethingDrastic', result_var='reset_var'))
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         # The user activity is running, and we should have received a boundary event
         self.assertEqual(2, len(ready_tasks),'Expected to have two ready tasks')

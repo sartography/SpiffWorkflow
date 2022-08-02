@@ -18,10 +18,16 @@
 
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
-from .specs.events import MessageEventDefinition, SignalEventDefinition
 from ..task import TaskState
 from ..workflow import Workflow
 from ..exceptions import WorkflowException
+
+
+class BpmnMessage:
+    
+    def __init__(self, message_flow, payload):
+        self.message_flow = message_flow  # The "spec"
+        self.payload      = payload       # The "data"
 
 
 class BpmnWorkflow(Workflow):
