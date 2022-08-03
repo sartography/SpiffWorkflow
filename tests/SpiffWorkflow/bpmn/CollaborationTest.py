@@ -1,13 +1,15 @@
+from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.task import TaskState
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-class MessageFlowTest(BpmnWorkflowTestCase):
+class CollaborationTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec, self.subprocesses = self.load_workflow_spec('message_flow.bpmn', 'process_buddy')
+        self.spec, self.subprocesses = self.load_workflow_spec('collaboration.bpmn', 'process_buddy')
 
-    def testParser(self):
+    def testParseMessageFlow(self):
 
         self.assertDictEqual({'lover': ['lover_name']}, self.spec.correlation_keys)
         self.assertEqual(len(self.spec.outgoing_message_flows), 1)
@@ -41,6 +43,22 @@ class MessageFlowTest(BpmnWorkflowTestCase):
         self.assertEqual(prop.name, 'lover_name')
         self.assertEqual(prop.expression, 'from.name')
         self.assertListEqual(prop.correlation_keys, ['lover'])
+
+    def testParseCollaboration(self):
+
+        spec, subprocesses = self.load_collaboration('collaboration.bpmn', 'my_collaboration')
+        
+        # Only executable processes should be started
+        self.assertIn('process_buddy', subprocesses)
+        self.assertNotIn('random_person_process', subprocesses)
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
+
+        # Call activities should be created for executable processes and be reachable
+        buddy = self.workflow.get_tasks_from_spec_name('process_buddy')[0]
+        self.assertIsInstance(buddy.task_spec, CallActivity)
+        self.assertEqual(buddy.task_spec.spec, 'process_buddy')
+        self.assertEqual(buddy.state, TaskState.WAITING)
 
     def testSerialization(self):
 

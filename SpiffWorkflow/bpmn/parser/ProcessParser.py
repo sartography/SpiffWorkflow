@@ -17,7 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.events import event_definitions
 from .ValidationException import ValidationException
 from ..specs.BpmnProcessSpec import BpmnMessageFlow, BpmnProcessSpec, BpmnDataSpecification
 from .node_parser import NodeParser
@@ -45,6 +44,7 @@ class ProcessParser(NodeParser):
         self.parsed_nodes = {}
         self.lane = lane
         self.spec = None
+        self.process_executable = True
 
     def get_name(self):
         """
@@ -73,8 +73,9 @@ class ProcessParser(NodeParser):
     def _parse(self):
         # here we only look in the top level, We will have another
         # bpmn:startEvent if we have a subworkflow task
+        self.process_executable = self.node.get('isExecutable', 'true') == 'true'
         start_node_list = self.xpath('./bpmn:startEvent')
-        if not start_node_list and not self.node.get('isExecutable') == 'false':
+        if not start_node_list and self.process_executable:
             raise ValidationException("No start event found", node=self.node, filename=self.filename)
         self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), filename=self.filename)
 
