@@ -3,7 +3,7 @@ from functools import partial
 from uuid import UUID
 from datetime import datetime, timedelta
 
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataSpecification
+from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataSpecification, BpmnMessageFlow
 
 from .dictionary import DictionaryConverter
 
@@ -42,6 +42,24 @@ class BpmnDataSpecificationConverter:
     @staticmethod
     def from_dict(dct):
         return BpmnDataSpecification(**dct)
+
+
+class BpmnMessageFlowConverter:
+
+    @staticmethod
+    def to_dict(flow):
+        return {
+            'name': flow.name,
+            'message_ref': flow.message_ref,
+            'source_process': flow.source_process,
+            'target_process': flow.target_process,
+            'source_task': flow.source_task,
+            'target_task': flow.target_task,
+        }
+
+    @staticmethod
+    def from_dict(dct):
+        return BpmnMessageFlow(**dct)
 
 
 class BpmnTaskSpecConverter(DictionaryConverter):

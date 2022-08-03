@@ -1,19 +1,18 @@
 from uuid import UUID
 
-from .bpmn_converters import BpmnDataConverter, BpmnTaskSpecConverter
+from .bpmn_converters import BpmnTaskSpecConverter
 
 from ...specs import StartTask
 from ...specs.Simple import Simple
 from ...specs.LoopResetTask import LoopResetTask
 
 from ..specs.BpmnProcessSpec import _EndJoin
-from ..specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow, _BpmnCondition
+from ..specs.BpmnSpecMixin import _BpmnCondition
 
 from ..specs.NoneTask import NoneTask
 from ..specs.UserTask import UserTask
 from ..specs.ManualTask import ManualTask
 from ..specs.ScriptTask import ScriptTask
-from ..specs.MultiInstanceTask import MultiInstanceTask
 from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
 
 from ..specs.ExclusiveGateway import ExclusiveGateway
@@ -21,7 +20,7 @@ from ..specs.InclusiveGateway import InclusiveGateway
 from ..specs.ParallelGateway import ParallelGateway
 
 from ..specs.events import StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
-from ..specs.events.IntermediateEvent import _BoundaryEventParent
+from ..specs.events.IntermediateEvent import _BoundaryEventParent, SendTask, ReceiveTask
 
 from ..workflow import BpmnWorkflow
 
@@ -269,10 +268,20 @@ class IntermediateCatchEventConverter(EventConverter):
         super().__init__(IntermediateCatchEvent, data_converter, typename)
 
 
+class ReceiveTaskConverter(EventConverter):
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(ReceiveTask, data_converter, typename)
+
+
 class IntermediateThrowEventConverter(EventConverter):
 
     def __init__(self, data_converter=None, typename=None):
         super().__init__(IntermediateThrowEvent, data_converter, typename)
+
+
+class SendTaskConverter(EventConverter):
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(SendTask, data_converter, typename)
 
 
 class BoundaryEventConverter(EventConverter):

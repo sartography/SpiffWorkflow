@@ -1,4 +1,4 @@
-from .bpmn_converters import BpmnWorkflowSpecConverter
+from .bpmn_converters import BpmnWorkflowSpecConverter, BpmnMessageFlowConverter
 
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
 from ..specs.MultiInstanceTask import MultiInstanceTask, getDynamicMIClass
@@ -114,6 +114,9 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
             'data_inputs': [ self.convert(obj) for obj in spec.data_inputs ],
             'data_outputs': [ self.convert(obj) for obj in spec.data_outputs ],
             'data_objects': [ (obj.name, self.convert(obj)) for obj in spec.data_objects ],
+            'incoming_message_flows': [BpmnMessageFlowConverter.to_dict(flow) for flow in spec.incoming_message_flows],
+            'outgoing_message_flows': [BpmnMessageFlowConverter.to_dict(flow) for flow in spec.outgoing_message_flows],
+            'correlation_keys': spec.correlation_keys,
         }
         for name, task_spec in spec.task_specs.items():
             if isinstance(task_spec, MultiInstanceTask):
@@ -141,6 +144,11 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
         spec.data_inputs = [ self.restore(obj_dct) for obj_dct in dct.pop('data_inputs', []) ]
         spec.data_outputs = [ self.restore(obj_dct) for obj_dct in dct.pop('data_outputs', []) ]
         spec.data_objects = [ (name, self.restore(obj_dct)) for name, obj_dct in dct.pop('data_objects', {}) ]
+
+        # Add messaging related stuff
+        spec.correlation_keys = dct.pop('correlation_keys', {})
+        spec.incoming_message_flows = [ BpmnMessageFlowConverter.from_dict(flow) for flow in dct.pop('incoming_message_flows', []) ]
+        spec.outgoing_message_flows = [ BpmnMessageFlowConverter.from_dict(flow) for flow in dct.pop('outgoing_message_flows', []) ]
 
         for name, task_dict in dct['task_specs'].items():
             # I hate this, but I need to pass in the workflow spec when I create the task.
