@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" id="Definitions_161i2er" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:collaboration id="plan">
+    <bpmn:participant id="requestor" name="Requestor" processRef="request" />
+    <bpmn:participant id="approver" name="Approver" processRef="approve" />
+    <bpmn:participant id="final_arbiter" name="Final Arbiter" processRef="appeal" />
+    <bpmn:messageFlow id="request_approval" name="Request Approval" sourceRef="send_plan_details" targetRef="start_approval" />
+    <bpmn:messageFlow id="decision" name="Decision" sourceRef="send_decision" targetRef="receive_decision" />
+    <bpmn:messageFlow id="appeal_denial" name="Appeal" sourceRef="send_appeal" targetRef="final_arbiter" />
+    <bpmn:messageFlow id="appeal_decision" name="Override Decision" sourceRef="final_arbiter" targetRef="receive_override" />
+  </bpmn:collaboration>
+  <bpmn:process id="request" name="Request Approval" isExecutable="true">
+    <bpmn:startEvent id="start_request" name="Start Request">
+      <bpmn:outgoing>Flow_0cklspd</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="enter_plan" name="Enter Plan">
+      <bpmn:incoming>Flow_0cklspd</bpmn:incoming>
+      <bpmn:incoming>Flow_0chkiid</bpmn:incoming>
+      <bpmn:incoming>not_overriden</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xt95fh</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateThrowEvent id="send_plan_details" name="Send Plan Details">
+      <bpmn:extensionElements>
+        <spiffworkflow:messagePayload>{'plan_details': plan_details, 'request_num': request_num}</spiffworkflow:messagePayload>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0xt95fh</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hp6xzi</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1pbnpqb" messageRef="Message_0edf649" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateCatchEvent id="receive_decision" name="Receive Decision">
+      <bpmn:extensionElements>
+        <spiffworkflow:messageVariable>approval</spiffworkflow:messageVariable>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1hp6xzi</bpmn:incoming>
+      <bpmn:outgoing>Flow_1az7so0</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_07soo70" messageRef="Message_01594xu" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:exclusiveGateway id="approved" name="Approved?" default="not_approved">
+      <bpmn:incoming>Flow_1az7so0</bpmn:incoming>
+      <bpmn:outgoing>plan_approved</bpmn:outgoing>
+      <bpmn:outgoing>not_approved</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="Event_0h6l1kg">
+      <bpmn:incoming>Flow_1q5jgn1</bpmn:incoming>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_08wrvy1" />
+    </bpmn:endEvent>
+    <bpmn:task id="execute_plan" name="Execute Plan">
+      <bpmn:incoming>plan_approved</bpmn:incoming>
+      <bpmn:incoming>overridden</bpmn:incoming>
+      <bpmn:outgoing>Flow_1q5jgn1</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="request_override" name="Request Override" default="Flow_0chkiid">
+      <bpmn:incoming>not_approved</bpmn:incoming>
+      <bpmn:outgoing>Flow_0chkiid</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1vwpdw3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateThrowEvent id="send_appeal" name="Send Appeal">
+      <bpmn:extensionElements>
+        <spiffworkflow:messagePayload>{'plan_details': plan_details, 'request_num': request_num, 'justification': justification}</spiffworkflow:messagePayload>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1vwpdw3</bpmn:incoming>
+      <bpmn:outgoing>Flow_0grsouv</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1wrz8wz" messageRef="Message_0amm7hp" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:exclusiveGateway id="override" name="Overriden?" default="not_overriden">
+      <bpmn:incoming>Flow_1kd8nsl</bpmn:incoming>
+      <bpmn:outgoing>not_overriden</bpmn:outgoing>
+      <bpmn:outgoing>overridden</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateCatchEvent id="receive_override" name="Receive Override">
+      <bpmn:extensionElements>
+        <spiffworkflow:messageVariable>override</spiffworkflow:messageVariable>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0grsouv</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kd8nsl</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_17yaj9y" messageRef="Message_0hhsrcu" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="overridden" name="Yes" sourceRef="override" targetRef="execute_plan">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">override['overridden']</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="not_overriden" name="No" sourceRef="override" targetRef="enter_plan" />
+    <bpmn:sequenceFlow id="Flow_1kd8nsl" sourceRef="receive_override" targetRef="override" />
+    <bpmn:sequenceFlow id="Flow_0grsouv" sourceRef="send_appeal" targetRef="receive_override" />
+    <bpmn:sequenceFlow id="Flow_1vwpdw3" sourceRef="request_override" targetRef="send_appeal">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">request_num &gt; 2</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0chkiid" sourceRef="request_override" targetRef="enter_plan" />
+    <bpmn:sequenceFlow id="Flow_1q5jgn1" sourceRef="execute_plan" targetRef="Event_0h6l1kg" />
+    <bpmn:sequenceFlow id="not_approved" name="No" sourceRef="approved" targetRef="request_override" />
+    <bpmn:sequenceFlow id="plan_approved" name="Yes" sourceRef="approved" targetRef="execute_plan">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">approval['approved']</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1az7so0" sourceRef="receive_decision" targetRef="approved" />
+    <bpmn:sequenceFlow id="Flow_1hp6xzi" sourceRef="send_plan_details" targetRef="receive_decision" />
+    <bpmn:sequenceFlow id="Flow_0xt95fh" sourceRef="enter_plan" targetRef="send_plan_details" />
+    <bpmn:sequenceFlow id="Flow_0cklspd" sourceRef="start_request" targetRef="enter_plan" />
+  </bpmn:process>
+  <bpmn:process id="approve" name="Approve" isExecutable="true">
+    <bpmn:startEvent id="start_approval" name="Start Approval">
+      <bpmn:extensionElements>
+        <spiffworkflow:messageVariable>approval_request</spiffworkflow:messageVariable>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_1oa5knu</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1tx3sgr" messageRef="Message_0edf649" />
+    </bpmn:startEvent>
+    <bpmn:endEvent id="Event_127wq2r">
+      <bpmn:incoming>Flow_0a2atc2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:intermediateThrowEvent id="send_decision" name="Send Decision">
+      <bpmn:extensionElements>
+        <spiffworkflow:messagePayload>{'request_num': approval_request['request_num'], 'approved': approved}</spiffworkflow:messagePayload>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_03jjnp1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0a2atc2</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_12cf4pc" messageRef="Message_01594xu" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:task id="approve_or_deny" name="Approve or Deny">
+      <bpmn:incoming>Flow_1oa5knu</bpmn:incoming>
+      <bpmn:outgoing>Flow_03jjnp1</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_0a2atc2" sourceRef="send_decision" targetRef="Event_127wq2r" />
+    <bpmn:sequenceFlow id="Flow_03jjnp1" sourceRef="approve_or_deny" targetRef="send_decision" />
+    <bpmn:sequenceFlow id="Flow_1oa5knu" sourceRef="start_approval" targetRef="approve_or_deny" />
+  </bpmn:process>
+  <bpmn:message id="Message_0edf649" name="plan_details" />
+  <bpmn:message id="Message_01594xu" name="plan_decision" />
+  <bpmn:process id="appeal" name="Appeal" isExecutable="false" />
+  <bpmn:message id="Message_0amm7hp" name="appeal" />
+  <bpmn:message id="Message_0hhsrcu" name="appeal_decision" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="plan">
+      <bpmndi:BPMNShape id="Participant_1t16moc_di" bpmnElement="requestor" isHorizontal="true">
+        <dc:Bounds x="120" y="240" width="860" height="410" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0cklspd_di" bpmnElement="Flow_0cklspd">
+        <di:waypoint x="215" y="547" />
+        <di:waypoint x="270" y="547" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xt95fh_di" bpmnElement="Flow_0xt95fh">
+        <di:waypoint x="370" y="547" />
+        <di:waypoint x="432" y="547" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hp6xzi_di" bpmnElement="Flow_1hp6xzi">
+        <di:waypoint x="468" y="547" />
+        <di:waypoint x="532" y="547" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1az7so0_di" bpmnElement="Flow_1az7so0">
+        <di:waypoint x="568" y="547" />
+        <di:waypoint x="635" y="547" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bx4116_di" bpmnElement="plan_approved">
+        <di:waypoint x="685" y="547" />
+        <di:waypoint x="740" y="547" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="703" y="529" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lekzyy_di" bpmnElement="not_approved">
+        <di:waypoint x="660" y="522" />
+        <di:waypoint x="660" y="440" />
+        <di:waypoint x="365" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="514" y="443" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1q5jgn1_di" bpmnElement="Flow_1q5jgn1">
+        <di:waypoint x="840" y="547" />
+        <di:waypoint x="902" y="547" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0chkiid_di" bpmnElement="Flow_0chkiid">
+        <di:waypoint x="340" y="465" />
+        <di:waypoint x="340" y="507" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vwpdw3_di" bpmnElement="Flow_1vwpdw3">
+        <di:waypoint x="340" y="415" />
+        <di:waypoint x="340" y="358" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0grsouv_di" bpmnElement="Flow_0grsouv">
+        <di:waypoint x="358" y="340" />
+        <di:waypoint x="412" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kd8nsl_di" bpmnElement="Flow_1kd8nsl">
+        <di:waypoint x="448" y="340" />
+        <di:waypoint x="525" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mtcykb_di" bpmnElement="not_overriden">
+        <di:waypoint x="550" y="315" />
+        <di:waypoint x="550" y="270" />
+        <di:waypoint x="300" y="270" />
+        <di:waypoint x="300" y="507" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="562" y="283" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06pzipm_di" bpmnElement="overridden">
+        <di:waypoint x="575" y="340" />
+        <di:waypoint x="790" y="340" />
+        <di:waypoint x="790" y="507" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="673" y="322" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="start_request">
+        <dc:Bounds x="179" y="529" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="163" y="572" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rz3hy7_di" bpmnElement="enter_plan">
+        <dc:Bounds x="270" y="507" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1hv54n0_di" bpmnElement="send_plan_details">
+        <dc:Bounds x="432" y="529" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="406" y="505" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_00x8rsv_di" bpmnElement="receive_decision">
+        <dc:Bounds x="532" y="529" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="507" y="505" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1hk2kxj_di" bpmnElement="approved" isMarkerVisible="true">
+        <dc:Bounds x="635" y="522" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="633" y="579" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_039xo3c_di" bpmnElement="Event_0h6l1kg">
+        <dc:Bounds x="902" y="529" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_05bk3qf_di" bpmnElement="execute_plan">
+        <dc:Bounds x="740" y="507" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0jrocq8_di" bpmnElement="request_override" isMarkerVisible="true">
+        <dc:Bounds x="315" y="415" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="366" y="413" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0hfe8p0_di" bpmnElement="send_appeal">
+        <dc:Bounds x="322" y="322" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="249" y="333" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0h44n6w_di" bpmnElement="override" isMarkerVisible="true">
+        <dc:Bounds x="525" y="315" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="523" y="375" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_08a008h_di" bpmnElement="receive_override">
+        <dc:Bounds x="412" y="322" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="388" y="365" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_1jjxq92_di" bpmnElement="approver" isHorizontal="true">
+        <dc:Bounds x="120" y="720" width="620" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1oa5knu_di" bpmnElement="Flow_1oa5knu">
+        <di:waypoint x="218" y="800" />
+        <di:waypoint x="310" y="800" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03jjnp1_di" bpmnElement="Flow_03jjnp1">
+        <di:waypoint x="410" y="800" />
+        <di:waypoint x="532" y="800" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0a2atc2_di" bpmnElement="Flow_0a2atc2">
+        <di:waypoint x="568" y="800" />
+        <di:waypoint x="642" y="800" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0mekdcc_di" bpmnElement="start_approval">
+        <dc:Bounds x="182" y="782" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="165" y="825" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_127wq2r_di" bpmnElement="Event_127wq2r">
+        <dc:Bounds x="642" y="782" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_149awvh_di" bpmnElement="send_decision">
+        <dc:Bounds x="532" y="782" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="515" y="825" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1iefzx7_di" bpmnElement="approve_or_deny">
+        <dc:Bounds x="310" y="760" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_11qlg2t_di" bpmnElement="final_arbiter" isHorizontal="true">
+        <dc:Bounds x="120" y="80" width="600" height="110" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_17smaym_di" bpmnElement="request_approval">
+        <di:waypoint x="450" y="565" />
+        <di:waypoint x="450" y="674" />
+        <di:waypoint x="200" y="674" />
+        <di:waypoint x="200" y="782" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="283" y="683" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1aoxoc0_di" bpmnElement="decision">
+        <di:waypoint x="550" y="782" />
+        <di:waypoint x="550" y="565" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="569" y="671" width="43" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ld9e60_di" bpmnElement="appeal_denial">
+        <di:waypoint x="340" y="322" />
+        <di:waypoint x="340" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="292" y="213" width="35" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nr9u5a_di" bpmnElement="appeal_decision">
+        <di:waypoint x="430" y="190" />
+        <di:waypoint x="430" y="322" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="446" y="213" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
