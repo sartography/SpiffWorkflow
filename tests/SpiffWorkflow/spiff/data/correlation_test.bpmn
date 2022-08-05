@@ -8,7 +8,24 @@
     <bpmn:messageFlow id="decision" name="Decision" sourceRef="send_decision" targetRef="receive_decision" />
     <bpmn:messageFlow id="appeal_denial" name="Appeal" sourceRef="send_appeal" targetRef="final_arbiter" />
     <bpmn:messageFlow id="appeal_decision" name="Override Decision" sourceRef="final_arbiter" targetRef="receive_override" />
+    <bpmn:correlationKey name="request">
+      <bpmn:correlationPropertyRef>request_num</bpmn:correlationPropertyRef>
+    </bpmn:correlationKey>
   </bpmn:collaboration>
+  <bpmn:correlationProperty id="request_num" name="Request Number">
+    <bpmn:correlationPropertyRetrievalExpression messageRef="Message_0edf649">
+      <bpmn:formalExpression>request_num</bpmn:formalExpression>
+    </bpmn:correlationPropertyRetrievalExpression>
+    <bpmn:correlationPropertyRetrievalExpression messageRef="Message_01594xu">
+      <bpmn:formalExpression>request_num</bpmn:formalExpression>
+    </bpmn:correlationPropertyRetrievalExpression>
+    <bpmn:correlationPropertyRetrievalExpression messageRef="Message_0amm7hp">
+      <bpmn:formalExpression>request_num</bpmn:formalExpression>
+    </bpmn:correlationPropertyRetrievalExpression>
+    <bpmn:correlationPropertyRetrievalExpression messageRef="Message_0hhsrcu">
+      <bpmn:formalExpression>request_num</bpmn:formalExpression>
+    </bpmn:correlationPropertyRetrievalExpression>
+  </bpmn:correlationProperty>
   <bpmn:process id="request" name="Request Approval" isExecutable="true">
     <bpmn:startEvent id="start_request" name="Start Request">
       <bpmn:outgoing>Flow_0cklspd</bpmn:outgoing>
@@ -82,7 +99,7 @@
     <bpmn:sequenceFlow id="Flow_1kd8nsl" sourceRef="receive_override" targetRef="override" />
     <bpmn:sequenceFlow id="Flow_0grsouv" sourceRef="send_appeal" targetRef="receive_override" />
     <bpmn:sequenceFlow id="Flow_1vwpdw3" sourceRef="request_override" targetRef="send_appeal">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">request_num &gt; 2</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">request_num &gt;= 2</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0chkiid" sourceRef="request_override" targetRef="enter_plan" />
     <bpmn:sequenceFlow id="Flow_1q5jgn1" sourceRef="execute_plan" targetRef="Event_0h6l1kg" />

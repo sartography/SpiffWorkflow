@@ -16,6 +16,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from email import message
+
+from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
 from ..task import TaskState
@@ -25,10 +28,14 @@ from ..exceptions import WorkflowException
 
 class BpmnMessage:
     
-    def __init__(self, message_flow, payload):
-        self.message_flow = message_flow  # The "spec"
-        self.payload      = payload       # The "data"
-
+    def __init__(self, message_flows, correlations, payload):
+        # The payload is the event definition, which has a payload property.
+        # I don't really like this, but I don't want to make too many changes to how
+        # the internal events work right now.  Once the correct process instance is
+        # determined, the "payload" can be sent via the workflow.catch method.
+        self.message_flows = message_flows
+        self.correlations = correlations
+        self.payload = payload
 
 class BpmnWorkflow(Workflow):
     """
@@ -55,6 +62,7 @@ class BpmnWorkflow(Workflow):
         self.name = name or top_level_spec.name
         self.subprocess_specs = subprocess_specs or {}
         self.subprocesses = {}
+        self.bpmn_messages = []
         self.__script_engine = script_engine or PythonScriptEngine()
         self.read_only = read_only
 
@@ -103,7 +111,7 @@ class BpmnWorkflow(Workflow):
             workflow = workflow.outer_workflow
         return workflow
 
-    def catch(self, event_definition):
+    def catch(self, event_definition, message_flows=None):
         """
         Send an event definition to any tasks that catch it.
 
@@ -123,6 +131,17 @@ class BpmnWorkflow(Workflow):
         tasks = [ t for t in self.get_catching_tasks() if t.task_spec.catches(t, event_definition) ]
         for task in tasks:
             task.task_spec.catch(task, event_definition)
+        
+        # Figure out if we need to create an extenal message
+        targets = set([ flow.target_process for flow in message_flows or [] ])
+        if len(targets & set(self.subprocess_specs)) == 0 and isinstance(event_definition, MessageEventDefinition):
+            correlations = event_definition.get_correlations(self.script_engine)
+            self.bpmn_messages.append(BpmnMessage(message_flows, correlations, event_definition))
+
+    def get_bpmn_messages(self):
+        messages = self.bpmn_messages
+        self.bpmn_messages = []
+        return messages
 
     def do_engine_steps(self, exit_at = None):
         """

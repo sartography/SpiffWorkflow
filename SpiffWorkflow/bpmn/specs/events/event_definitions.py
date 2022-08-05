@@ -67,7 +67,8 @@ class EventDefinition(object):
         if self.internal:
             workflow.catch(event)
         if self.external and workflow != outer_workflow:
-            outer_workflow.catch(event)
+            flows = [ flow for flow in workflow.spec.outgoing_message_flows if flow.message_ref == event.name ]
+            outer_workflow.catch(event, flows)
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__
@@ -181,6 +182,10 @@ class MessageEventDefinition(NamedEventDefinition):
         super().__init__(name)
         self.correlation_properties = correlation_properties
 
+    def get_correlations(self, script_engine):
+        # Ideally this would do something, but without a way creating a payload, there's
+        # not much that can be done.
+        return {}
 
 class NoneEventDefinition(EventDefinition):
     """

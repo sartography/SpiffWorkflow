@@ -25,3 +25,12 @@ class MessageEventDefinition(MessageEventDefinition):
     def reset(self, my_task):
         my_task.internal_data.pop(self.message_var, None)
         super(MessageEventDefinition, self).reset(my_task)
+
+    def get_correlations(self, script_engine):
+        correlations = {}
+        for property in self.correlation_properties:
+            for key in property.correlation_keys:
+                if key not in correlations:
+                    correlations[key] = {}
+                correlations[key][property.name] = script_engine._evaluate(property.expression, self.payload)
+        return correlations
