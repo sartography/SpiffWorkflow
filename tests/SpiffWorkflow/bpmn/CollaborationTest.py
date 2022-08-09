@@ -27,7 +27,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertEqual(len(love_letter.correlation_properties), 1)
         prop = love_letter.correlation_properties[0]
         self.assertEqual(prop.name, 'lover_name')
-        self.assertEqual(prop.expression, 'lover.name')
+        self.assertEqual(prop.expression, 'lover_name')
         self.assertListEqual(prop.correlation_keys, ['lover'])
 
         self.assertEqual(incoming.name, 'response_flow')
@@ -41,7 +41,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertEqual(len(response.correlation_properties), 1)
         prop = response.correlation_properties[0]
         self.assertEqual(prop.name, 'lover_name')
-        self.assertEqual(prop.expression, 'from.name')
+        self.assertEqual(prop.expression, 'from_name')
         self.assertListEqual(prop.correlation_keys, ['lover'])
 
     def testParseCollaboration(self):
@@ -52,6 +52,9 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertIn('process_buddy', subprocesses)
         self.assertNotIn('random_person_process', subprocesses)
         self.workflow = BpmnWorkflow(spec, subprocesses)
+        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        # Set up some data to be evaluated so that the workflow can proceed
+        start.data['lover_name'] = 'Peggy'
         self.workflow.do_engine_steps()
 
         # Call activities should be created for executable processes and be reachable

@@ -8,8 +8,9 @@ class CatchingEvent(CatchingEvent):
         if isinstance(self.event_definition, MessageEventDefinition):
             # If we are a message event, then we need to copy the event data out of
             # our internal data and into the task data
-            event_data = my_task.internal_data[self.event_definition.name]
-            my_task.data[event_data['result_var']] = event_data['payload']
+            result_var = my_task.internal_data['result_var']
+            name = my_task.task_spec.event_definition.name
+            my_task.data[result_var] = my_task.internal_data[name]
         super(CatchingEvent, self)._on_complete_hook(my_task)
 
 

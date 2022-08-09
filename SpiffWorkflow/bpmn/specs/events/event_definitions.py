@@ -19,6 +19,7 @@
 
 import datetime
 import logging
+from copy import deepcopy
 
 LOG = logging.getLogger(__name__)
 
@@ -180,12 +181,40 @@ class MessageEventDefinition(NamedEventDefinition):
 
     def __init__(self, name, correlation_properties=None):
         super().__init__(name)
-        self.correlation_properties = correlation_properties
+        self.correlation_properties = correlation_properties or []
+        self._payload = None
+
+    @property
+    def payload(self):
+        return self._payload
+
+    @payload.setter
+    def payload(self, value):
+        self._payload = value
+
+    def catch(self, my_task, event_definition):
+        my_task.internal_data[event_definition.name] = event_definition.payload
+        super(MessageEventDefinition, self).catch(my_task, event_definition)
+
+    def throw(self, my_task):
+        # We can't update our own payload, because if this task is reached again
+        # we have to evaluate it again so we have to create a new event
+        event = MessageEventDefinition(self.name, self.correlation_properties)
+        # Generating a payload unfortunately needs to be handled using custom extensions
+        # However, there needs to be something to apply the correlations to in the
+        # standard case and this is line with the way Spiff works otherwise
+        event.payload = deepcopy(my_task.data)
+        self._throw(event, my_task.workflow, my_task.workflow.outer_workflow)
 
     def get_correlations(self, script_engine):
-        # Ideally this would do something, but without a way creating a payload, there's
-        # not much that can be done.
-        return {}
+        correlations = {}
+        for property in self.correlation_properties:
+            for key in property.correlation_keys:
+                if key not in correlations:
+                    correlations[key] = {}
+                correlations[key][property.name] = script_engine._evaluate(property.expression, self.payload)
+        return correlations
+
 
 class NoneEventDefinition(EventDefinition):
     """

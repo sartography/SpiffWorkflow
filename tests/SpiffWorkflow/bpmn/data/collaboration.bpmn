@@ -20,10 +20,10 @@
 
   <bpmn:correlationProperty id="lover_name" name="Lover&#39;s Name">
     <bpmn:correlationPropertyRetrievalExpression messageRef="love_letter">
-      <bpmn:formalExpression>lover.name</bpmn:formalExpression>
+      <bpmn:formalExpression>lover_name</bpmn:formalExpression>
     </bpmn:correlationPropertyRetrievalExpression>
     <bpmn:correlationPropertyRetrievalExpression messageRef="love_letter_response">
-      <bpmn:formalExpression>from.name</bpmn:formalExpression>
+      <bpmn:formalExpression>from_name</bpmn:formalExpression>
     </bpmn:correlationPropertyRetrievalExpression>
   </bpmn:correlationProperty>
   

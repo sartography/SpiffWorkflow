@@ -16,8 +16,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from email import message
-
 from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
@@ -28,14 +26,13 @@ from ..exceptions import WorkflowException
 
 class BpmnMessage:
     
-    def __init__(self, message_flows, correlations, payload):
-        # The payload is the event definition, which has a payload property.
-        # I don't really like this, but I don't want to make too many changes to how
-        # the internal events work right now.  Once the correct process instance is
-        # determined, the "payload" can be sent via the workflow.catch method.
-        self.message_flows = message_flows
+    def __init__(self, message_flows, correlations, name, payload):
+
+        self.message_flows = message_flows or []
         self.correlations = correlations
+        self.name = name
         self.payload = payload
+
 
 class BpmnWorkflow(Workflow):
     """
@@ -136,12 +133,18 @@ class BpmnWorkflow(Workflow):
         targets = set([ flow.target_process for flow in message_flows or [] ])
         if len(targets & set(self.subprocess_specs)) == 0 and isinstance(event_definition, MessageEventDefinition):
             correlations = event_definition.get_correlations(self.script_engine)
-            self.bpmn_messages.append(BpmnMessage(message_flows, correlations, event_definition))
+            self.bpmn_messages.append(
+                BpmnMessage(message_flows, correlations, event_definition.name, event_definition.payload))
 
     def get_bpmn_messages(self):
         messages = self.bpmn_messages
         self.bpmn_messages = []
         return messages
+
+    def catch_bpmn_message(self, name, payload):
+        event_definition = MessageEventDefinition(name)
+        event_definition.payload = payload
+        self.catch(event_definition)
 
     def do_engine_steps(self, exit_at = None):
         """

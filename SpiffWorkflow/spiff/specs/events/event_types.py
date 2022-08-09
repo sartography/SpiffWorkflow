@@ -1,7 +1,7 @@
 from SpiffWorkflow.bpmn.specs.events.event_types import CatchingEvent, ThrowingEvent
 from SpiffWorkflow.bpmn.specs.events import StartEvent
 from .event_definitions import MessageEventDefinition
-#from ..spiff_task import SpiffBpmnTask
+
 
 class CatchingEvent(CatchingEvent):
 

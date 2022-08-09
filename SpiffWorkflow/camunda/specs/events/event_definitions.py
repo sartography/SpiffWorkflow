@@ -32,10 +32,8 @@ class MessageEventDefinition(MessageEventDefinition):
             result_var = f'{my_task.task_spec.name}_Response'
         else:
             result_var = event_definition.result_var
-        my_task.internal_data[event_definition.name] = {
-            "result_var": result_var,
-            "payload": event_definition.payload
-        }
+        # Prevent this from conflicting 
+        my_task.internal_data['result_var'] = result_var
         super(MessageEventDefinition, self).catch(my_task, event_definition)
 
     def throw(self, my_task):
@@ -47,7 +45,7 @@ class MessageEventDefinition(MessageEventDefinition):
         self._throw(event, my_task.workflow, my_task.workflow.outer_workflow)
 
     def reset(self, my_task):
-        my_task.internal_data.pop(self.name, None)
+        my_task.internal_data.pop('result_var', None)
         super(MessageEventDefinition, self).reset(my_task)
 
     def serialize(self):

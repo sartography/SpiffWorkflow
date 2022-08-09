@@ -37,7 +37,7 @@ class CorrelationTest(BaseTestCase):
         messages = self.workflow.get_bpmn_messages()
         self.assertEqual(len(messages), 1)
         self.assertDictEqual(messages[0].correlations, {'request': {'request_num': 2}})
-        self.assertEqual(messages[0].payload.name, 'appeal')
+        self.assertEqual(messages[0].name, 'appeal')
         self.assertEqual(messages[0].message_flows[0].message_ref, 'appeal')
         # The workflow message queue should be clear now
         self.assertEqual(len(self.workflow.bpmn_messages), 0)
