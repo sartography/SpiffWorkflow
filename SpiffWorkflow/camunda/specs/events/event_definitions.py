@@ -22,20 +22,6 @@ class MessageEventDefinition(MessageEventDefinition):
 
         #self.internal = False
 
-    def catch(self, my_task, event_definition):
-
-        # It seems very stupid to me that the sender of the message should define the
-        # name of the variable the payload is saved in (the receiver ought to decide
-        # what to do with it); however, Camunda puts the field on the sender, not the
-        # receiver.
-        if event_definition.result_var is None:
-            result_var = f'{my_task.task_spec.name}_Response'
-        else:
-            result_var = event_definition.result_var
-        # Prevent this from conflicting 
-        my_task.internal_data['result_var'] = result_var
-        super(MessageEventDefinition, self).catch(my_task, event_definition)
-
     def throw(self, my_task):
         # We need to evaluate the message payload in the context of this task
         result = my_task.workflow.script_engine.evaluate(my_task, self.payload)
@@ -43,6 +29,21 @@ class MessageEventDefinition(MessageEventDefinition):
         # we have to evaluate it again so we have to create a new event
         event = MessageEventDefinition(self.name, payload=result, result_var=self.result_var)
         self._throw(event, my_task.workflow, my_task.workflow.outer_workflow)
+
+    def update_internal_data(self, my_task, event_definition):
+        if event_definition.result_var is None:
+            result_var = f'{my_task.task_spec.name}_Response'
+        else:
+            result_var = event_definition.result_var
+        # Prevent this from conflicting 
+        my_task.internal_data[self.name] = {
+            'payload': event_definition.payload,
+            'result_var': result_var
+        }
+
+    def update_task_data(self, my_task):
+        event_data = my_task.internal_data.get(self.name)
+        my_task.data[event_data['result_var']] = event_data['payload']
 
     def reset(self, my_task):
         my_task.internal_data.pop('result_var', None)

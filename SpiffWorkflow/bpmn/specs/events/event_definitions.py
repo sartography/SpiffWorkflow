@@ -182,18 +182,10 @@ class MessageEventDefinition(NamedEventDefinition):
     def __init__(self, name, correlation_properties=None):
         super().__init__(name)
         self.correlation_properties = correlation_properties or []
-        self._payload = None
-
-    @property
-    def payload(self):
-        return self._payload
-
-    @payload.setter
-    def payload(self, value):
-        self._payload = value
+        self.payload = None
 
     def catch(self, my_task, event_definition):
-        my_task.internal_data[event_definition.name] = event_definition.payload
+        self.update_internal_data(my_task, event_definition)
         super(MessageEventDefinition, self).catch(my_task, event_definition)
 
     def throw(self, my_task):
@@ -205,6 +197,16 @@ class MessageEventDefinition(NamedEventDefinition):
         # standard case and this is line with the way Spiff works otherwise
         event.payload = deepcopy(my_task.data)
         self._throw(event, my_task.workflow, my_task.workflow.outer_workflow)
+
+    def update_internal_data(self, my_task, event_definition):
+        my_task.internal_data[event_definition.name] = event_definition.payload
+
+    def update_task_data(self, my_task):
+        # I've added this method so that different message implementations can handle
+        # copying their message data into the task
+        payload = my_task.internal_data.get(self.name)
+        if payload is not None:
+            my_task.set_data(**payload)
 
     def get_correlations(self, script_engine):
         correlations = {}

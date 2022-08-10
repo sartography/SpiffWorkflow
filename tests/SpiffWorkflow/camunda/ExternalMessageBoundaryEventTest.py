@@ -49,8 +49,8 @@ class ExternalMessageBoundaryTest(BaseTestCase):
         # if on the other hand, we went on from 'meaningless task' those variables would not get added.
         self.workflow.catch(MessageEventDefinition('reset', payload='SomethingDrastic', result_var='reset_var'))
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        # The user activity is running, and we should have received a boundary event
-        self.assertEqual(2, len(ready_tasks),'Expected to have two ready tasks')
+        # The user activity was cancelled and we should continue from the boundary event
+        self.assertEqual(1, len(ready_tasks),'Expected to have two ready tasks')
         event = self.workflow.get_tasks_from_spec_name('Event_19detfv')[0]
         event.complete()
         self.assertEqual('SomethingDrastic', event.data['reset_var'])

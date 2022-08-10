@@ -2,8 +2,7 @@ from ..specs.UserTask import UserTask
 from ..parser.UserTaskParser import UserTaskParser
 from ...bpmn.parser.BpmnParser import BpmnParser, full_tag
 
-from SpiffWorkflow.bpmn.specs.events import EndEvent, IntermediateThrowEvent
-from ..specs.events.event_types import StartEvent, IntermediateCatchEvent, BoundaryEvent
+from SpiffWorkflow.bpmn.specs.events import EndEvent, IntermediateThrowEvent, StartEvent, IntermediateCatchEvent, BoundaryEvent
 from .event_parsers import CamundaStartEventParser, CamundaEndEventParser, \
     CamundaIntermediateCatchEventParser, CamundaIntermediateThrowEventParser, CamundaBoundaryEventParser
 

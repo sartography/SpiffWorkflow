@@ -1,7 +1,6 @@
 from functools import partial
 
-from SpiffWorkflow.bpmn.specs.events import EndEvent, IntermediateThrowEvent
-from ..specs.events.event_types import StartEvent, IntermediateCatchEvent, BoundaryEvent
+from SpiffWorkflow.bpmn.specs.events import EndEvent, IntermediateThrowEvent, StartEvent, IntermediateCatchEvent, BoundaryEvent
 from ..specs.events.event_definitions import MessageEventDefinition
 from ...bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
 

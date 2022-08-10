@@ -16,6 +16,9 @@ class MessageEventDefinition(MessageEventDefinition):
         event.payload = my_task.workflow.script_engine.evaluate(my_task, self.expression)
         self._throw(event, my_task.workflow, my_task.workflow.outer_workflow)
 
+    def update_task_data(self, my_task):
+        my_task.data[self.message_var] = my_task.internal_data[self.name]
+
     def reset(self, my_task):
         my_task.internal_data.pop(self.message_var, None)
         super(MessageEventDefinition, self).reset(my_task)
