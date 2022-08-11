@@ -222,6 +222,22 @@ class SendTaskParser(IntermediateThrowEventParser):
         return self._create_task(event_definition)
 
 
+class ReceiveTaskParser(IntermediateCatchEventParser):
+
+    def create_task(self):
+
+        message_ref = self.node.get('messageRef')
+        message_event = first(self.xpath('.//bpmn:messageEventDefinition'))
+        if message_ref is not None:
+            correlations = self.get_message_correlations(message_ref)
+            event_definition = MessageEventDefinition(message_ref, correlations)
+        elif message_event is not None:
+            event_definition = self.parse_message_event(message_event)
+        else:
+            event_definition = NoneEventDefinition()
+
+        return self._create_task(event_definition)
+
 class BoundaryEventParser(EventDefinitionParser):
     """
     Parse a Catching Boundary Event. This extends the

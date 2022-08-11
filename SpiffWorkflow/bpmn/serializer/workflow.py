@@ -286,7 +286,7 @@ class BpmnWorkflowSerializer:
     def message_from_dict(self, dct):
         return BpmnMessage(
             [BpmnMessageFlowConverter.from_dict(flow) for flow in dct['message_flows']],
-            dict([ (k, self.data_converter.restore(v)) for k, v in dct['correlations'] ]),
+            dict([ (k, self.data_converter.restore(v)) for k, v in dct['correlations'].items() ]),
             dct['name'],
             self.spec_converter.restore(dct['payload'])
         )

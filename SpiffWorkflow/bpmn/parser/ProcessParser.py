@@ -149,10 +149,12 @@ class MessageFlowParser(NodeParser):
 
     def resolve_ref(self, ref):
         if ref in self.participants:
-            process, task, event_name = self.participants[ref], None, None
+            process, task, event_name = self.participants[ref].name, None, None
         else:
             for spec in self.participants.values():
                 if ref in spec.task_specs:
-                    process, task, event_name = spec, ref, spec.task_specs[ref].event_definition.name
+                    process, task, event_name = spec.name, ref, spec.task_specs[ref].event_definition.name
                     break
-        return process.name, task, event_name
+            else:
+                process, task, event_name = None, None, None
+        return process, task, event_name

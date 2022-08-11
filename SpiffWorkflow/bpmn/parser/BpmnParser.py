@@ -18,7 +18,6 @@
 # 02110-1301  USA
 
 import glob
-from re import I
 
 from lxml import etree
 
@@ -43,7 +42,7 @@ from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
                            CallActivityParser, ScriptTaskParser, SubWorkflowParser)
 from .event_parsers import (StartEventParser, EndEventParser, BoundaryEventParser,
                            IntermediateCatchEventParser, IntermediateThrowEventParser,
-                           SendTaskParser)
+                           SendTaskParser, ReceiveTaskParser)
 
 
 class BpmnParser(object):
@@ -73,7 +72,7 @@ class BpmnParser(object):
         full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser, IntermediateCatchEvent),
         full_tag('intermediateThrowEvent'): (IntermediateThrowEventParser, IntermediateThrowEvent),
         full_tag('boundaryEvent'): (BoundaryEventParser, BoundaryEvent),
-        full_tag('receiveTask'): (IntermediateCatchEventParser, ReceiveTask),
+        full_tag('receiveTask'): (ReceiveTaskParser, ReceiveTask),
         full_tag('sendTask'): (SendTaskParser, SendTask),
     }
 
