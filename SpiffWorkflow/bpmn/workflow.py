@@ -167,10 +167,10 @@ class BpmnWorkflow(Workflow):
         self.bpmn_messages = []
         return messages
 
-    def catch_bpmn_message(self, name, payload):
+    def catch_bpmn_message(self, name, payload, correlations=None):
         event_definition = MessageEventDefinition(name)
         event_definition.payload = payload
-        self.catch(event_definition)
+        self.catch(event_definition, correlations=correlations)
 
     def do_engine_steps(self, exit_at = None):
         """
