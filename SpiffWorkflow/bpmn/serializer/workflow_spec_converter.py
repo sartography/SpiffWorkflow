@@ -86,11 +86,11 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
             else:
                 task_spec.__dict__[attr] = self.restore(dct[attr])
 
-        # THese are recent attributes that previously serialized tasks might not have.
-        if not hasattr(task_spec, 'data_input_associations'):
-            task_spec.data_input_associations = []
-        if not hasattr(task_spec, 'data_output_ssociations'):
-            task_spec.data_output_associations = []
+        # Handle adding any remaining attributes from the original task type that might not be
+        # present in the restored version (for example attributes added since last serialized)
+        for attr in original.__dict__:
+            if not hasattr(task_spec, attr):
+                task_spec.__dict__[attr] = original.__dict__[attr]
 
         return task_spec
 

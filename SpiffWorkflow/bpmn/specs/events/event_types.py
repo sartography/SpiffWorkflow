@@ -34,8 +34,8 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         super(CatchingEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
 
-    def catches(self, my_task, event_definition):
-        return self.event_definition == event_definition
+    def catches(self, my_task, event_definition, correlations=None):
+        return self.event_definition == event_definition and my_task.workflow.correlations == correlations
 
     def catch(self, my_task, event_definition):
         """

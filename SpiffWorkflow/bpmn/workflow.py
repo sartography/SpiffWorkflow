@@ -16,10 +16,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from ast import Call
 from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
-from ..task import TaskState
+from .specs.events.StartEvent import StartEvent
+from .specs.SubWorkflowTask import CallActivity
+from ..task import TaskState, Task
 from ..workflow import Workflow
 from ..exceptions import WorkflowException
 
@@ -29,7 +32,7 @@ class BpmnMessage:
     def __init__(self, message_flows, correlations, name, payload):
 
         self.message_flows = message_flows or []
-        self.correlations = correlations
+        self.correlations = correlations or {}
         self.name = name
         self.payload = payload
 
@@ -60,6 +63,7 @@ class BpmnWorkflow(Workflow):
         self.subprocess_specs = subprocess_specs or {}
         self.subprocesses = {}
         self.bpmn_messages = []
+        self.correlations = {}
         self.__script_engine = script_engine or PythonScriptEngine()
         self.read_only = read_only
 
@@ -102,13 +106,24 @@ class BpmnWorkflow(Workflow):
         workflow = self._get_outermost_workflow(my_task)
         return workflow.subprocesses.get(my_task.id)
 
+    def add_subprocess(self, spec_name, name):
+
+        new = CallActivity(self.spec, name, spec_name)
+        self.spec.start.connect(new)
+        task = Task(self, new)
+        task._ready()
+        start = self.get_tasks_from_spec_name('Start', workflow=self)[0]
+        start.children.append(task)
+        task.parent = start
+        return self.subprocesses[task.id]
+
     def _get_outermost_workflow(self, task=None):    
         workflow = task.workflow if task is not None else self
         while workflow != workflow.outer_workflow:
             workflow = workflow.outer_workflow
         return workflow
 
-    def catch(self, event_definition, message_flows=None):
+    def catch(self, event_definition, message_flows=None, correlations=None):
         """
         Send an event definition to any tasks that catch it.
 
@@ -122,17 +137,28 @@ class BpmnWorkflow(Workflow):
         :param event_definition: the thrown event
         """
         assert not self.read_only and not self._is_busy_with_restore()
+
+        # Start a subprocess for known specs with start events that catch this
+        # This is total hypocritical of me given how I've argued that specs should
+        # be immutable, but I see no other way of doing this.
+        for name, spec in self.subprocess_specs.items():
+            for task_spec in list(spec.task_specs.values()):
+                if isinstance(task_spec, StartEvent) and task_spec.event_definition == event_definition:
+                    subprocess = self.add_subprocess(spec.name, f'{spec.name}_{len(self.subprocesses)}')
+                    subprocess.correlations = correlations or {}
+                    start = self.get_tasks_from_spec_name(task_spec.name, workflow=subprocess)[0]
+                    task_spec.event_definition.catch(start, event_definition)
+
         # We need to get all the tasks that catch an event before completing any of them
         # in order to prevent the scenario where multiple boundary events catch the
         # same event and the first executed cancels the rest
-        tasks = [ t for t in self.get_catching_tasks() if t.task_spec.catches(t, event_definition) ]
+        tasks = [ t for t in self.get_catching_tasks() if t.task_spec.catches(t, event_definition, correlations or {}) ]
         for task in tasks:
             task.task_spec.catch(task, event_definition)
-        
+
         # Figure out if we need to create an extenal message
         targets = set([ flow.target_process for flow in message_flows or [] ])
         if len(targets & set(self.subprocess_specs)) == 0 and isinstance(event_definition, MessageEventDefinition):
-            correlations = event_definition.get_correlations(self.script_engine)
             self.bpmn_messages.append(
                 BpmnMessage(message_flows, correlations, event_definition.name, event_definition.payload))
 

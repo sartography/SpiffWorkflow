@@ -17,10 +17,8 @@ class MessageEventDefinition(MessageEventDefinition):
         self.result_var = result_var
 
         # The BPMN spec says that Messages should not be used within a process; however
-        # we're doing this wrong so I am putting this here as a reminder that it should be
-        # fixed, but commenting it out.
-
-        #self.internal = False
+        # our camunda workflows depend on it
+        self.internal = True
 
     def throw(self, my_task):
         # We need to evaluate the message payload in the context of this task

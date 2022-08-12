@@ -99,9 +99,6 @@ class ProcessParser(NodeParser):
             if 'processRef' in node.attrib:
                 participants[node.get('id')] = self.parser.get_spec(node.get('processRef'))
 
-        for key in self.doc_xpath('.//bpmn:correlationKey'):
-            self.spec.correlation_keys[key.get('name')] = [ prop.text for prop in key.getchildren() ]
-
         for item in self.doc_xpath('.//bpmn:messageFlow'):
             parser = MessageFlowParser(item, self.filename, self.doc_xpath, participants)
             flow = parser.parse()

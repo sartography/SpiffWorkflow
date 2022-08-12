@@ -35,3 +35,9 @@ class BaseTestCase(BpmnWorkflowTestCase):
         parser = SpiffBpmnParser()
         parser.add_bpmn_files_by_glob(f)
         return parser.get_collaboration(collaboration_name)
+
+    def get_all_specs(self, filename):
+        f = os.path.join(os.path.dirname(__file__), 'data', filename)
+        parser = SpiffBpmnParser()
+        parser.add_bpmn_files_by_glob(f)
+        return parser.find_all_specs()

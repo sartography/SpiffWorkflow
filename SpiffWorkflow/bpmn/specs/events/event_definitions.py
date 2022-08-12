@@ -69,7 +69,7 @@ class EventDefinition(object):
             workflow.catch(event)
         if self.external and workflow != outer_workflow:
             flows = [ flow for flow in workflow.spec.outgoing_message_flows if flow.message_ref == event.name ]
-            outer_workflow.catch(event, flows)
+            outer_workflow.catch(event, flows, workflow.correlations)
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__
@@ -183,6 +183,7 @@ class MessageEventDefinition(NamedEventDefinition):
         super().__init__(name)
         self.correlation_properties = correlation_properties or []
         self.payload = None
+        self.internal = False
 
     def catch(self, my_task, event_definition):
         self.update_internal_data(my_task, event_definition)
@@ -196,6 +197,8 @@ class MessageEventDefinition(NamedEventDefinition):
         # However, there needs to be something to apply the correlations to in the
         # standard case and this is line with the way Spiff works otherwise
         event.payload = deepcopy(my_task.data)
+        my_task.workflow.correlations.update(
+            self.get_correlations(my_task.workflow.script_engine, event.payload))
         self._throw(event, my_task.workflow, my_task.workflow.outer_workflow)
 
     def update_internal_data(self, my_task, event_definition):
@@ -208,13 +211,13 @@ class MessageEventDefinition(NamedEventDefinition):
         if payload is not None:
             my_task.set_data(**payload)
 
-    def get_correlations(self, script_engine):
+    def get_correlations(self, script_engine, payload):
         correlations = {}
         for property in self.correlation_properties:
             for key in property.correlation_keys:
                 if key not in correlations:
                     correlations[key] = {}
-                correlations[key][property.name] = script_engine._evaluate(property.expression, self.payload)
+                correlations[key][property.name] = script_engine._evaluate(property.expression, payload)
         return correlations
 
 

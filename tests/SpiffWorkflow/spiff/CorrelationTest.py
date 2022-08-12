@@ -4,58 +4,35 @@ from .BaseTestCase import BaseTestCase
 
 class CorrelationTest(BaseTestCase):
 
-    def setUp(self):
-        spec, subprocesses = self.load_collaboration('correlation_test.bpmn', 'plan')
-        self.workflow = BpmnWorkflow(spec, subprocesses)
-        self.plan_details = [ 'Plan A', 'Plan B', 'Plan C']
-
     def testMessagePayload(self):
+        self.actual_test(False)
 
+    def testMessagePayloadSaveRestore(self):
+        self.actual_test(True)
+
+    def actual_test(self,save_restore):
+
+        specs = self.get_all_specs('correlation.bpmn')
+        proc_1 = specs['proc_1']
+        self.workflow = BpmnWorkflow(proc_1, specs)
+        if save_restore:
+            self.save_restore()
         self.workflow.do_engine_steps()
-        self.request_approval(0, False)
-        self.request_approval(1, True)
-        ready_tasks = self.workflow.get_ready_user_tasks()
-        self.assertEqual(len(ready_tasks), 1)
-        self.assertEqual(ready_tasks[0].task_spec.name, 'execute_plan')
-        ready_tasks[0].complete()
-        self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
-        # Final plan details should reflect the accepted plan.
-        self.assertEqual(self.workflow.data['plan_details'], 'Plan B')
-
-    def testCorrelation(self):
-
-        self.workflow.do_engine_steps()
-        self.request_approval(0, False)
-        self.request_approval(1, False)
-        ready_tasks = self.workflow.get_ready_user_tasks()
-        self.assertEqual(ready_tasks[0].task_spec.name, 'enter_plan')
-        ready_tasks[0].data.update({'justification': 'This plan is awesome.'})
-        self.request_approval(2, False)
-        self.workflow.do_engine_steps()
-        # This time we asked for an appeal, so there should be one external message waiting
-        messages = self.workflow.get_bpmn_messages()
-        self.assertEqual(len(messages), 1)
-        self.assertDictEqual(messages[0].correlations, {'request': {'request_num': 2}})
-        self.assertEqual(messages[0].name, 'appeal')
-        self.assertEqual(messages[0].message_flows[0].message_ref, 'appeal')
-        # The workflow message queue should be clear now
-        self.assertEqual(len(self.workflow.bpmn_messages), 0)
-
-    def request_approval(self, request_num, approve):
-
-        ready_tasks = self.workflow.get_ready_user_tasks()
-        self.assertEqual(len(ready_tasks), 1)
-        self.assertEqual(ready_tasks[0].task_spec.name, 'enter_plan')
-        ready_tasks[0].data.update({
-            'plan_details': self.plan_details[request_num], 
-            'request_num': request_num
-        })
-        ready_tasks[0].complete()
+        # Set up some data to evaluate the payload expression against
+        for idx, task in enumerate(self.workflow.get_ready_user_tasks()):
+            task.data['task_num'] = idx
+            task.data['task_name'] = f'subprocess {idx}'
+            task.data['extra_data'] = f'unused data'
+            task.complete()
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_ready_user_tasks()
-        self.assertEqual(len(ready_tasks), 1)
-        self.assertEqual(ready_tasks[0].task_spec.name, 'approve_or_deny')
-        ready_tasks[0].data.update({ 'approved': approve })
-        ready_tasks[0].complete()
+        for task in ready_tasks:
+            self.assertEqual(task.task_spec.name, 'prepare_response')
+            response = 'OK' if task.data['source_task']['num'] else 'No'
+            task.data.update(response=response)
+            task.complete()
         self.workflow.do_engine_steps()
+        # If the messages were routed properly, the task number should match the response id
+        for task in self.workflow.get_tasks_from_spec_name('subprocess_end'):
+            self.assertEqual(task.data['response']['init_id'], task.data['task_num'])
+            self.assertEqual(task.data['response']['response'], 'OK' if task.data['task_num'] else 'No')

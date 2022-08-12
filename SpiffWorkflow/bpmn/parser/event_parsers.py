@@ -4,7 +4,7 @@ from SpiffWorkflow.bpmn.specs.events.event_definitions import CorrelationPropert
 
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
-from .util import first, one, xpath_eval
+from .util import first, one
 from ..specs.events import (TimerEventDefinition, MessageEventDefinition,
                             ErrorEventDefinition, EscalationEventDefinition,SignalEventDefinition,
                             CancelEventDefinition, CycleTimerEventDefinition,
@@ -94,6 +94,15 @@ class EventDefinitionParser(TaskParser):
         return correlations
 
     def _create_task(self, event_definition, cancel_activity=None):
+
+        if isinstance(event_definition, MessageEventDefinition):
+            for prop in event_definition.correlation_properties:
+                for key in prop.correlation_keys:
+                    if key not in self.spec.correlation_keys:
+                        self.spec.correlation_keys[key] = []
+                    if prop.name not in self.spec.correlation_keys[key]:
+                        self.spec.correlation_keys[key].append(prop.name)
+
         kwargs = {
             'lane': self.lane,
             'description': self.node.get('name', None),

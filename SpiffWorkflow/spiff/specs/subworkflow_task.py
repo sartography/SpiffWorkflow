@@ -11,6 +11,7 @@ class SubWorkflowTask(SpiffBpmnTask, SubWorkflowTask):
         # this properly
         self.spec = subworkflow_spec
         self.transaction = transaction
+        self.in_assign = []
         self.out_assign = []
 
 class TransactionSubprocess(SpiffBpmnTask, TransactionSubprocess):
@@ -20,6 +21,7 @@ class TransactionSubprocess(SpiffBpmnTask, TransactionSubprocess):
         SpiffBpmnTask.__init__(self, wf_spec, name, **kwargs)
         self.spec = subworkflow_spec
         self.transaction = transaction
+        self.in_assign = []
         self.out_assign = []
 
 class CallActivity(SpiffBpmnTask, CallActivity):
@@ -28,4 +30,5 @@ class CallActivity(SpiffBpmnTask, CallActivity):
         
         SpiffBpmnTask.__init__(self, wf_spec, name, **kwargs)
         self.spec = subworkflow_spec
+        self.in_assign = []
         self.out_assign = []
