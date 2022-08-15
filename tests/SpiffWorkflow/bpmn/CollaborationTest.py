@@ -62,6 +62,26 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertEqual(buddy.task_spec.spec, 'process_buddy')
         self.assertEqual(buddy.state, TaskState.WAITING)
 
+    def testBpmnMessage(self):
+
+        spec, subprocesses = self.load_workflow_spec('collaboration.bpmn', 'process_buddy')
+        workflow = BpmnWorkflow(spec, subprocesses)
+        start = workflow.get_tasks_from_spec_name('Start')[0]
+        # Set up some data to be evaluated so that the workflow can proceed
+        start.data['lover_name'] = 'Peggy'
+        workflow.do_engine_steps()
+        # An external message should be created
+        messages = workflow.get_bpmn_messages()
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(len(workflow.bpmn_messages), 0)
+        receive = workflow.get_tasks_from_spec_name('EventReceiveLetter')[0]
+        workflow.catch_bpmn_message('Love Letter Response', messages[0].payload, messages[0].correlations)
+        workflow.do_engine_steps()
+        # The external message created above should be caught
+        self.assertEqual(receive.state, TaskState.COMPLETED)
+        self.assertEqual(receive.data, messages[0].payload)
+        self.assertEqual(workflow.is_completed(), True)
+
     def testCorrelation(self):
 
         specs = self.get_all_specs('correlation.bpmn')

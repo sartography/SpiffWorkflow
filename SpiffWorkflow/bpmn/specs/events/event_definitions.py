@@ -67,7 +67,7 @@ class EventDefinition(object):
         # between processes and subprocesses.
         if self.internal:
             workflow.catch(event)
-        if self.external and workflow != outer_workflow:
+        if self.external:
             flows = [ flow for flow in workflow.spec.outgoing_message_flows if flow.message_ref == event.name ]
             outer_workflow.catch(event, flows, workflow.correlations)
 
