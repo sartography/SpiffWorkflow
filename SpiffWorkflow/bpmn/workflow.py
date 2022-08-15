@@ -157,8 +157,7 @@ class BpmnWorkflow(Workflow):
             task.task_spec.catch(task, event_definition)
 
         # Figure out if we need to create an extenal message
-        targets = set([ flow.target_process for flow in message_flows or [] ])
-        if len(targets & set(self.subprocess_specs)) == 0 and isinstance(event_definition, MessageEventDefinition):
+        if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
             self.bpmn_messages.append(
                 BpmnMessage(message_flows, correlations, event_definition.name, event_definition.payload))
 

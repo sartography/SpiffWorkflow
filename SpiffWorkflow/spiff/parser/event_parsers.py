@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn.parser.event_parsers import EventDefinitionParser
+from SpiffWorkflow.bpmn.parser.event_parsers import EventDefinitionParser, ReceiveTaskParser
 from SpiffWorkflow.bpmn.parser.event_parsers import StartEventParser, EndEventParser, \
     IntermediateCatchEventParser, IntermediateThrowEventParser, BoundaryEventParser, \
     SendTaskParser
@@ -52,5 +52,6 @@ class SpiffSendTaskParser(SpiffEventDefinitionParser, SendTaskParser):
     def create_task(self):
         return SendTaskParser.create_task(self)
 
-class SpiffReceiveTaskParser(SpiffIntermediateCatchEventParser):
-    pass
+class SpiffReceiveTaskParser(SpiffEventDefinitionParser, ReceiveTaskParser):
+    def create_task(self):
+        return ReceiveTaskParser.create_task(self)

@@ -31,32 +31,30 @@
         <bpmn:outgoing>Flow_10qgjde</bpmn:outgoing>
       </bpmn:startEvent>
       <bpmn:sequenceFlow id="Flow_10qgjde" sourceRef="Event_0b1hubm" targetRef="configure" />
-      <bpmn:intermediateThrowEvent id="start_proc_2" name="Start Process 2">
-        <bpmn:extensionElements>
-          <spiffworkflow:messagePayload>{'num': task_num, 'name': task_name}</spiffworkflow:messagePayload>
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_02xt17l</bpmn:incoming>
-        <bpmn:outgoing>Flow_018er1s</bpmn:outgoing>
-        <bpmn:messageEventDefinition id="MessageEventDefinition_1mbo6e3" messageRef="Message_19nm5f5" />
-      </bpmn:intermediateThrowEvent>
-      <bpmn:sequenceFlow id="Flow_018er1s" sourceRef="start_proc_2" targetRef="get_response" />
-      <bpmn:intermediateCatchEvent id="get_response" name="Await Response">
-        <bpmn:extensionElements>
-          <spiffworkflow:messageVariable>response</spiffworkflow:messageVariable>
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_018er1s</bpmn:incoming>
-        <bpmn:outgoing>Flow_1qfn3g2</bpmn:outgoing>
-        <bpmn:messageEventDefinition id="MessageEventDefinition_18wu3o0" messageRef="Message_0fc1gu7" />
-      </bpmn:intermediateCatchEvent>
       <bpmn:endEvent id="subprocess_end" name="Subprocess End">
-        <bpmn:incoming>Flow_1qfn3g2</bpmn:incoming>
+        <bpmn:incoming>Flow_17cd3h6</bpmn:incoming>
       </bpmn:endEvent>
-      <bpmn:sequenceFlow id="Flow_1qfn3g2" sourceRef="get_response" targetRef="subprocess_end" />
       <bpmn:task id="configure" name="Configure Data">
         <bpmn:incoming>Flow_10qgjde</bpmn:incoming>
         <bpmn:outgoing>Flow_02xt17l</bpmn:outgoing>
       </bpmn:task>
       <bpmn:sequenceFlow id="Flow_02xt17l" sourceRef="configure" targetRef="start_proc_2" />
+      <bpmn:sequenceFlow id="Flow_0ts36fv" sourceRef="start_proc_2" targetRef="get_response" />
+      <bpmn:sendTask id="start_proc_2" name="Start Process 2" messageRef="Message_19nm5f5">
+        <bpmn:extensionElements>
+          <spiffworkflow:messagePayload>{'num': task_num, 'name': task_name}</spiffworkflow:messagePayload>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_02xt17l</bpmn:incoming>
+        <bpmn:outgoing>Flow_0ts36fv</bpmn:outgoing>
+      </bpmn:sendTask>
+      <bpmn:sequenceFlow id="Flow_17cd3h6" sourceRef="get_response" targetRef="subprocess_end" />
+      <bpmn:receiveTask id="get_response" name="Await Response" messageRef="Message_0fc1gu7">
+        <bpmn:extensionElements>
+          <spiffworkflow:messageVariable>response</spiffworkflow:messageVariable>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_0ts36fv</bpmn:incoming>
+        <bpmn:outgoing>Flow_17cd3h6</bpmn:outgoing>
+      </bpmn:receiveTask>
     </bpmn:subProcess>
     <bpmn:endEvent id="Event_0qga5tr">
       <bpmn:incoming>Flow_0gp7t8p</bpmn:incoming>
@@ -94,11 +92,11 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="correlation_test">
       <bpmndi:BPMNShape id="Participant_05lx8c5_di" bpmnElement="initiator" isHorizontal="true">
-        <dc:Bounds x="160" y="52" width="800" height="250" />
+        <dc:Bounds x="160" y="52" width="900" height="250" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0gp7t8p_di" bpmnElement="Flow_0gp7t8p">
-        <di:waypoint x="830" y="177" />
-        <di:waypoint x="882" y="177" />
+        <di:waypoint x="930" y="177" />
+        <di:waypoint x="992" y="177" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0lrjj2a_di" bpmnElement="Flow_0lrjj2a">
         <di:waypoint x="258" y="177" />
@@ -107,20 +105,23 @@
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="222" y="159" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1rv0zgy_di" bpmnElement="subprocess" isExpanded="true">
-        <dc:Bounds x="290" y="72" width="540" height="210" />
+      <bpmndi:BPMNShape id="Event_0qga5tr_di" bpmnElement="Event_0qga5tr">
+        <dc:Bounds x="992" y="159" width="36" height="36" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rv0zgy_di" bpmnElement="subprocess" isExpanded="true">
+        <dc:Bounds x="290" y="72" width="640" height="210" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_17cd3h6_di" bpmnElement="Flow_17cd3h6">
+        <di:waypoint x="780" y="180" />
+        <di:waypoint x="842" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ts36fv_di" bpmnElement="Flow_0ts36fv">
+        <di:waypoint x="640" y="180" />
+        <di:waypoint x="680" y="180" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_02xt17l_di" bpmnElement="Flow_02xt17l">
         <di:waypoint x="510" y="180" />
-        <di:waypoint x="562" y="180" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1qfn3g2_di" bpmnElement="Flow_1qfn3g2">
-        <di:waypoint x="698" y="180" />
-        <di:waypoint x="752" y="180" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_018er1s_di" bpmnElement="Flow_018er1s">
-        <di:waypoint x="598" y="180" />
-        <di:waypoint x="662" y="180" />
+        <di:waypoint x="540" y="180" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_10qgjde_di" bpmnElement="Flow_10qgjde">
         <di:waypoint x="358" y="180" />
@@ -129,29 +130,20 @@
       <bpmndi:BPMNShape id="Event_0b1hubm_di" bpmnElement="Event_0b1hubm">
         <dc:Bounds x="322" y="162" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0ocenh1_di" bpmnElement="start_proc_2">
-        <dc:Bounds x="562" y="162" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="542" y="138" width="76" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1dzadqr_di" bpmnElement="get_response">
-        <dc:Bounds x="662" y="162" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="640" y="138" width="80" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1mppl0l_di" bpmnElement="subprocess_end">
-        <dc:Bounds x="752" y="162" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="730" y="205" width="81" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1xp3cjy_di" bpmnElement="configure">
         <dc:Bounds x="410" y="140" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0qga5tr_di" bpmnElement="Event_0qga5tr">
-        <dc:Bounds x="882" y="159" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_0o7delq_di" bpmnElement="start_proc_2">
+        <dc:Bounds x="540" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18ojbes_di" bpmnElement="get_response">
+        <dc:Bounds x="680" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1mppl0l_di" bpmnElement="subprocess_end">
+        <dc:Bounds x="842" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="820" y="205" width="81" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Participant_1xcc8ht_di" bpmnElement="responder" isHorizontal="true">
         <dc:Bounds x="160" y="350" width="530" height="130" />

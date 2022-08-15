@@ -4,7 +4,7 @@ import os
 from SpiffWorkflow.spiff.parser import SpiffBpmnParser
 from SpiffWorkflow.spiff.serializer import NoneTaskConverter, ManualTaskConverter, UserTaskConverter, \
         SubWorkflowTaskConverter, TransactionSubprocessConverter, CallActivityTaskConverter, \
-        StartEventConverter, EndEventConverter, BoundaryEventConverter,SendTaskConverter, ReceiveTaskConverter, \
+        StartEventConverter, EndEventConverter, BoundaryEventConverter, SendTaskConverter, ReceiveTaskConverter, \
         IntermediateCatchEventConverter, IntermediateThrowEventConverter
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 
@@ -13,7 +13,7 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([
     NoneTaskConverter, ManualTaskConverter, UserTaskConverter,
     SubWorkflowTaskConverter, TransactionSubprocessConverter, CallActivityTaskConverter,
-    StartEventConverter, EndEventConverter, BoundaryEventConverter,SendTaskConverter, ReceiveTaskConverter,
+    StartEventConverter, EndEventConverter, BoundaryEventConverter, SendTaskConverter, ReceiveTaskConverter,
     IntermediateCatchEventConverter, IntermediateThrowEventConverter
 ])
 

@@ -1,9 +1,9 @@
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.parser.BpmnParser import full_tag
 
-from SpiffWorkflow.bpmn.specs.events import (
-    StartEvent, EndEvent, IntermediateThrowEvent, BoundaryEvent, IntermediateCatchEvent, ReceiveTask, SendTask)
+from SpiffWorkflow.bpmn.specs.events import StartEvent, EndEvent, IntermediateThrowEvent, BoundaryEvent, IntermediateCatchEvent
 from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, SubWorkflowTask, TransactionSubprocess, CallActivity
+from SpiffWorkflow.spiff.specs.events.event_types import SendTask, ReceiveTask
 from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser, SubWorkflowParser, CallActivityParser
 from SpiffWorkflow.spiff.parser.event_parsers import (SpiffStartEventParser, SpiffEndEventParser, SpiffBoundaryEventParser,
     SpiffIntermediateCatchEventParser, SpiffIntermediateThrowEventParser, SpiffSendTaskParser, SpiffReceiveTaskParser)

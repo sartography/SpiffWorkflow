@@ -43,8 +43,13 @@ class EventDefinitionParser(TaskParser):
     def parse_message_event(self, message_event):
 
         message_ref = message_event.get('messageRef')
-        name = message_ref or message_event.getparent().get('name')
-        correlations = self.get_message_correlations(message_ref) if message_ref is not None else {}
+        if message_ref is not None:
+            message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
+            name = message.get('name')
+            correlations = self.get_message_correlations(message_ref)
+        else:
+            name = message_event.getparent().get('name')
+            correlations = {}
         return MessageEventDefinition(name, correlations)
 
     def parse_signal_event(self, signal_event):
@@ -218,15 +223,14 @@ class SendTaskParser(IntermediateThrowEventParser):
 
     def create_task(self):
 
-        message_ref = self.node.get('messageRef')
-        message_event = first(self.xpath('.//bpmn:messageEventDefinition'))
-        if message_ref is not None:
-            correlations = self.get_message_correlations(message_ref)
-            event_definition = MessageEventDefinition(message_ref, correlations)
-        elif message_event is not None:
-            event_definition = self.parse_message_event(message_event)
+        if self.node.get('messageRef') is not None:
+            event_definition = self.parse_message_event(self.node)
         else:
-            event_definition = NoneEventDefinition()
+            message_event = first(self.xpath('.//bpmn:messageEventDefinition'))
+            if message_event is not None:
+                event_definition = self.parse_message_event(message_event)
+            else:
+                event_definition = NoneEventDefinition()
 
         return self._create_task(event_definition)
 
@@ -235,17 +239,17 @@ class ReceiveTaskParser(IntermediateCatchEventParser):
 
     def create_task(self):
 
-        message_ref = self.node.get('messageRef')
-        message_event = first(self.xpath('.//bpmn:messageEventDefinition'))
-        if message_ref is not None:
-            correlations = self.get_message_correlations(message_ref)
-            event_definition = MessageEventDefinition(message_ref, correlations)
-        elif message_event is not None:
-            event_definition = self.parse_message_event(message_event)
+        if self.node.get('messageRef') is not None:
+            event_definition = self.parse_message_event(self.node)
         else:
-            event_definition = NoneEventDefinition()
+            message_event = first(self.xpath('.//bpmn:messageEventDefinition'))
+            if message_event is not None:
+                event_definition = self.parse_message_event(message_event)
+            else:
+                event_definition = NoneEventDefinition()
 
         return self._create_task(event_definition)
+
 
 class BoundaryEventParser(EventDefinitionParser):
     """

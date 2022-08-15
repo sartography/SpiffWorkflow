@@ -16,7 +16,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         outgoing, incoming = spec.outgoing_message_flows[0], spec.incoming_message_flows[0]
 
         self.assertEqual(outgoing.name, 'love_letter_flow')
-        self.assertEqual(outgoing.message_ref, 'love_letter')
+        self.assertEqual(outgoing.message_ref, 'Love Letter')
         self.assertEqual(outgoing.source_process, 'process_buddy')
         self.assertEqual(outgoing.source_task, 'ActivitySendLetter')
         self.assertEqual(outgoing.target_process, 'random_person_process')
@@ -30,7 +30,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertListEqual(prop.correlation_keys, ['lover'])
 
         self.assertEqual(incoming.name, 'response_flow')
-        self.assertEqual(incoming.message_ref, 'love_letter_response')
+        self.assertEqual(incoming.message_ref, 'Love Letter Response')
         self.assertEqual(incoming.source_process, 'random_person_process')
         self.assertEqual(incoming.source_task, None)
         self.assertEqual(incoming.target_process, 'process_buddy')
