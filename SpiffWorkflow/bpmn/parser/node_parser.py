@@ -47,10 +47,10 @@ class NodeParser:
                 raise ValidationException(f'Cannot resolve dataOutputAssociation {name}', self.node, self.filename)
         return specs
 
-    def parse_extensions(self):
+    def parse_extensions(self, node=None):
         extensions = {}
         extra_ns = {'camunda': CAMUNDA_MODEL_NS}
-        xpath = xpath_eval(self.node, extra_ns)
+        xpath = xpath_eval(self.node, extra_ns) if node is None else xpath_eval(node, extra_ns)
         extension_nodes = xpath( './/bpmn:extensionElements/camunda:properties/camunda:property')
         for node in extension_nodes:
             extensions[node.get('name')] = node.get('value')

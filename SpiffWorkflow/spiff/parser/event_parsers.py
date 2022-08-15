@@ -16,12 +16,13 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
         if message_ref:
             message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
             name = message.get('name')
+            extensions = self.parse_extensions(message)
             correlations = self.get_message_correlations(message_ref)
         else:
             name = message_event.getparent().get('name')
+            extensions = {}
             correlations = []
 
-        extensions = self.parse_extensions()
         return MessageEventDefinition(name, correlations, 
             expression=extensions.get('messagePayload'),
             message_var=extensions.get('messageVariable')
