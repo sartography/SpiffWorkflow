@@ -29,6 +29,7 @@ from .exceptions import WorkflowException
 
 logger = logging.getLogger('spiff')
 metrics = logging.getLogger('spiff.metrics')
+data_log = logging.getLogger('spiff.data')
 
 
 def updateDotDict(dct,dotted_path,value):
@@ -43,6 +44,7 @@ def updateDotDict(dct,dotted_path,value):
         else:
             dct[key] = value
     return root
+
 
 
 class TaskState(IntFlag):
@@ -296,6 +298,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             'task_spec': self.task_spec.name,
             'task_id': self.id,
             'data': self.data if logger.level < 20 else None,
+            'internal_data': self.internal_data if logger.level <= 10 else None,
         })
         return extra
 
@@ -312,6 +315,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         and MultiInstance tasks will be updated correctly.
         """
         self.data = DeepMerge.merge(self.data, data)
+        data_log.info('Data update', extra=self.log_info())
 
     def task_info(self):
         """
@@ -724,6 +728,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         Defines the given attribute/value pairs.
         """
         self.data.update(kwargs)
+        data_log.info('Set data', extra=self.log_info())
 
     def _inherit_data(self):
         """

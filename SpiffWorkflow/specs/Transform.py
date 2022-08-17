@@ -53,7 +53,7 @@ class Transform(TaskSpec):
     def _update_hook(self, my_task):
         if self.transforms:
             for transform in self.transforms:
-                logger.debug(f'Execute transform', extra=self.get_log({'transform': transform}))
+                logger.debug(f'Execute transform', extra=my_task.log_info({'transform': transform}))
                 exec(transform)
         super(Transform, self)._update_hook(my_task)
 
