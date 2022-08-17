@@ -18,10 +18,7 @@
 # 02110-1301  USA
 
 import datetime
-import logging
 from copy import deepcopy
-
-LOG = logging.getLogger(__name__)
 
 
 class EventDefinition(object):

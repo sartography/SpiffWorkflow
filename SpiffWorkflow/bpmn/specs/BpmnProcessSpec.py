@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-import logging
+
 from copy import deepcopy
 
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
@@ -23,8 +23,6 @@ from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
 from ...specs.Simple import Simple
 from ...specs.WorkflowSpec import WorkflowSpec
-
-LOG = logging.getLogger(__name__)
 
 
 class _EndJoin(UnstructuredJoin):
@@ -49,12 +47,6 @@ class _EndJoin(UnstructuredJoin):
                     is_mine = True
             if is_mine:
                 waiting_tasks.append(task)
-
-        if len(waiting_tasks) == 0:
-            LOG.debug(
-                'Endjoin Task ready: %s (ready/waiting tasks: %s)',
-                my_task,
-                list(my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
         return force or len(waiting_tasks) == 0, waiting_tasks
 

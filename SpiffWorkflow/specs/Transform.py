@@ -19,7 +19,7 @@ import logging
 
 from .base import TaskSpec
 
-LOG = logging.getLogger(__name__)
+logger = logging.getLogger('spiff')
 
 
 class Transform(TaskSpec):
@@ -53,7 +53,7 @@ class Transform(TaskSpec):
     def _update_hook(self, my_task):
         if self.transforms:
             for transform in self.transforms:
-                LOG.debug("Executing transform", extra=dict(data=transform))
+                logger.debug(f'Execute transform', extra=self.get_log({'transform': transform}))
                 exec(transform)
         super(Transform, self)._update_hook(my_task)
 

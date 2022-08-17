@@ -16,14 +16,11 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-import logging
 
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...task import TaskState
 from ...specs.Simple import Simple
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
-
-LOG = logging.getLogger(__name__)
 
 
 class ScriptTask(Simple, BpmnSpecMixin):
@@ -48,12 +45,10 @@ class ScriptTask(Simple, BpmnSpecMixin):
         try:
             task.workflow.script_engine.execute(task, self.script, task.data)
         except Exception as e:
-            LOG.error('Error executing ScriptTask; task=%r',
-                      task)
             # set state to WAITING (because it is definitely not COMPLETED)
             # and raise WorkflowException pointing to this task because
             # maybe upstream someone will be able to handle this situation
-            task._setstate(TaskState.WAITING, force=True)
+            task._set_state(TaskState.WAITING)
             if isinstance(e, WorkflowTaskExecException):
                 raise e
             else:

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from builtins import next
-from builtins import object
+
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -17,16 +16,17 @@ from builtins import object
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+
 import logging
+
 from . import specs
 from .specs.LoopResetTask import LoopResetTask
 from .task import Task, TaskState
 from .util.compat import mutex
 from .util.event import Event
 from .exceptions import WorkflowException
-LOG = logging.getLogger(__name__)
 
-
+logger = logging.getLogger('spiff')
 
 class Workflow(object):
 
@@ -49,7 +49,6 @@ class Workflow(object):
         """
         self.name = None
         assert workflow_spec is not None
-        LOG.debug("__init__ Workflow instance: %s" % self.__str__())
         self.spec = workflow_spec
         self.data = {}
         self.outer_workflow = kwargs.get('parent', self)
@@ -67,6 +66,8 @@ class Workflow(object):
         self.success = True
         self.debug = False
 
+        logger.info('Initialize', extra=self.log_info())
+
         # Events.
         self.completed_event = Event()
 
@@ -79,7 +80,16 @@ class Workflow(object):
             start.task_spec._update(start)
 
         self.task_mapping = self._get_task_mapping()
-        # start.dump()
+
+    def log_info(self, dct=None):
+        extra = dct or {}
+        extra.update({
+            'workflow': self.spec.name,
+            'task_spec': '-',
+            'task_id': None,
+            'data': None,
+        })
+        return extra
 
     def is_completed(self):
         """
@@ -171,6 +181,7 @@ class Workflow(object):
             cancel.append(task)
         for task in cancel:
             task.cancel()
+        logger.info(f'Cancel with {len(cancel)} remaining', extra=self.log_info())
 
     def get_task_spec_from_name(self, name):
         """
