@@ -208,3 +208,11 @@ class ScriptTaskParser(TaskParser):
             raise ValidationException(
                 f"Invalid Script Task.  No Script Provided. ",
                 node=self.node, filename=self.filename)
+
+
+class ServiceTaskParser(TaskParser):
+
+    """
+    Parses a ServiceTask node.
+    """
+    pass
