@@ -36,8 +36,8 @@ uninstall:
 
 .PHONY : tests
 tests:
-	cd tests/$(NAME); \
-		[ -e run_suite.* ] && ./run_suite.* || [ ! -e run_suite.* ]
+	cd tests/$(NAME)
+	coverage run --source=$(NAME) -m unittest discover -v . "*Test.py"
 
 ###################################################################
 # Package builders.
