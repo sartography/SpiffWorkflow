@@ -16,7 +16,6 @@ __author__ = 'jbirddog'
 class ServiceTaskTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        # TODO load bpmn with service task
         spec, subprocesses = self.load_workflow_spec('service_task.bpmn', 'service_task_example1')
         self.workflow = BpmnWorkflow(spec, subprocesses)
 

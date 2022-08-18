@@ -23,9 +23,6 @@ class ServiceTask(Simple, BpmnSpecMixin):
         super(ServiceTask, self).__init__(wf_spec, name, **kwargs)
 
     def _on_complete_hook(self, task):
-        if task.workflow._is_busy_with_restore():
-            return
-        assert not task.workflow.read_only
         super(ServiceTask, self)._on_complete_hook(task)
 
     def serialize(self, serializer):
