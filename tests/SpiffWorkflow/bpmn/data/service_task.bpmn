@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1rkzagd" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.2.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.0.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" id="Definitions_1rkzagd" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.2.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.0.0">
   <bpmn:process id="service_task_example1" name="ServiceTaskExample1" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0l9vzsi</bpmn:outgoing>
@@ -7,6 +7,13 @@
     <bpmn:sequenceFlow id="Flow_0l9vzsi" sourceRef="StartEvent_1" targetRef="Activity_1inxqgx" />
     <bpmn:serviceTask id="Activity_1inxqgx" name="ServiceTask1">
       <bpmn:extensionElements>
+        <spiffworkflow:serviceOperator name="SlackWebhookHookOperator">
+          <spiffworkflow:properties>
+            <spiffworkflow:property name="webhook_token" value="[FIXME]" />
+            <spiffworkflow:property name="message" value="ServiceTask testing" />
+            <spiffworkflow:property name="channel" value="#" />
+          </spiffworkflow:properties>
+        </spiffworkflow:serviceOperator>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0l9vzsi</bpmn:incoming>
       <bpmn:outgoing>Flow_16rdnn7</bpmn:outgoing>
