@@ -22,6 +22,8 @@ class SpiffTaskParser(TaskParser):
                 extensions[name] = node.text
             if name == 'properties':
                 extensions['properties'] = self._parse_properties(node)
+            if name == 'serviceTaskOperator':
+                extensions['serviceTaskOperator'] = self._parse_servicetask_operator(node)
         return extensions
 
     def _parse_properties(self, node):
@@ -32,6 +34,17 @@ class SpiffTaskParser(TaskParser):
         for prop_node in property_nodes:
             properties[prop_node.attrib['name']] = prop_node.attrib['value']
         return properties
+
+    def _parse_servicetask_operator(self, node):
+        name = node.attrib['name']
+        extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
+        xpath = xpath_eval(node, extra_ns)
+        parameter_nodes = xpath('.//spiffworkflow:parameter')
+        parameters = {}
+        for param_node in parameter_nodes:
+            # TODO not handling type currently
+            parameters[param_node.attrib['name']] = param_node.attrib['value']
+        return (name, parameters)
 
     def create_task(self):
         # The main task parser already calls this, and even sets an attribute, but
@@ -80,8 +93,8 @@ class CallActivityParser(SpiffTaskParser):
 
 class ServiceTaskParser(SpiffTaskParser):
     def create_task(self):
-        assert 1 == 2
         extensions = self.parse_extensions()
+        (name, params) = extensions.get('serviceTaskOperator')
         return self.spec_class(
-                self.spec, self.get_task_spec_name(), '', {},
+                self.spec, self.get_task_spec_name(), name, params,
                 lane=self.lane, position=self.position)

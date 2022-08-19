@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" id="Definitions_1rkzagd" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.2.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.0.0">
+  <bpmn:process id="service_task_example1" name="ServiceTaskExample1" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0l9vzsi</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0l9vzsi" sourceRef="StartEvent_1" targetRef="Activity_1inxqgx" />
+    <bpmn:serviceTask id="Activity_1inxqgx" name="ServiceTask1">
+      <bpmn:extensionElements>
+        <spiffworkflow:serviceTaskOperator name="SlackWebhookOperator">
+          <spiffworkflow:parameters>
+            <spiffworkflow:parameter name="webhook_token" type="string" value="[FIXME]" />
+            <spiffworkflow:parameter name="message" type="string" value="ServiceTask testing" />
+            <spiffworkflow:parameter name="channel" type="string" value="#" />
+          </spiffworkflow:parameters>
+        </spiffworkflow:serviceTaskOperator>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0l9vzsi</bpmn:incoming>
+      <bpmn:outgoing>Flow_16rdnn7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_0j8psiq">
+      <bpmn:incoming>Flow_16rdnn7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_16rdnn7" sourceRef="Activity_1inxqgx" targetRef="Event_0j8psiq" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="service_task_example1">
+      <bpmndi:BPMNEdge id="Flow_0l9vzsi_di" bpmnElement="Flow_0l9vzsi">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="330" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16rdnn7_di" bpmnElement="Flow_16rdnn7">
+        <di:waypoint x="430" y="117" />
+        <di:waypoint x="582" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0j8psiq_di" bpmnElement="Event_0j8psiq">
+        <dc:Bounds x="582" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0wwg8c1_di" bpmnElement="Activity_1inxqgx">
+        <dc:Bounds x="330" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
