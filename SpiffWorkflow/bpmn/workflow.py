@@ -31,13 +31,18 @@ class BpmnWorkflow(Workflow):
     """
 
     def __init__(self, top_level_spec, subprocess_specs=None, name=None, script_engine=None,
-                 read_only=False, **kwargs):
+                 servicetask_script_engine=None, read_only=False, **kwargs):
         """
         Constructor.
 
         :param script_engine: set to an extension of PythonScriptEngine if you
         need a specialised version. Defaults to the script engine of the top
         most workflow, or to the PythonScriptEngine if none is provided.
+
+        :param servicetask_script_engine: set to an extension of PythonScriptEngine 
+        if you need a specialised version. Defaults to the service task script 
+        engine of the top most workflow, or to the PythonScriptEngine if none is 
+        provided.
 
         :param read_only: If this parameter is set then the workflow state
         cannot change. It can only be queried to find out about the current
@@ -50,6 +55,7 @@ class BpmnWorkflow(Workflow):
         self.subprocess_specs = subprocess_specs or {}
         self.subprocesses = {}
         self.__script_engine = script_engine or PythonScriptEngine()
+        self.__servicetask_script_engine = servicetask_script_engine or PythonScriptEngine()
         self.read_only = read_only
 
     @property
@@ -57,20 +63,22 @@ class BpmnWorkflow(Workflow):
         # The outermost script engine always takes precedence.
         # All call activities, sub-workflows and DMNs should use the
         # workflow engine of the outermost workflow.
-        outer_workflow = self.outer_workflow
-        script_engine = self.__script_engine
-
-        while outer_workflow:
-            script_engine = outer_workflow.__script_engine
-            if outer_workflow == outer_workflow.outer_workflow:
-                break
-            else:
-                outer_workflow = outer_workflow.outer_workflow
-        return script_engine
+        return self._get_outermost_workflow().__script_engine
 
     @script_engine.setter
     def script_engine(self, engine):
         self.__script_engine = engine
+
+    @property
+    def servicetask_script_engine(self):
+        # The outermost script engine always takes precedence.
+        # All call activities, sub-workflows and DMNs should use the
+        # workflow engine of the outermost workflow.
+        return self._get_outermost_workflow().__servicetask_script_engine
+
+    @servicetask_script_engine.setter
+    def servicetask_script_engine(self, engine):
+        self.__servicetask_script_engine = engine
 
     def create_subprocess(self, my_task, spec_name, name):
         
