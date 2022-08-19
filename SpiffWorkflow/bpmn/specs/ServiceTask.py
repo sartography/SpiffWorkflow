@@ -23,13 +23,14 @@ class ServiceTask(Simple, BpmnSpecMixin):
         super(ServiceTask, self).__init__(wf_spec, name, **kwargs)
         # TODO parse from bpmn, have passed in
         #self.operator_name = operator_name
-        #self.operator_args = operator_args
+        #self.operator_params = operator_params
 
     def _on_complete_hook(self, task):
         if task.workflow._is_busy_with_restore():
             return
         assert not task.workflow.read_only
-        script = "# TODO"
+        # TODO form this script dynamically
+        script = "SlackWebhookOperator(message='bob', channel='joe', webhook_token='sam').execute()"
         try:
             task.workflow.servicetask_script_engine.execute(task, script, task.data)
         except Exception as e:

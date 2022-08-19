@@ -14,27 +14,36 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'jbirddog'
 
+# TODO must be a better way to do this
+assertEqual = None
+
 class SlackWebhookOperator(object):
     def __init__(self, webhook_token="", message="", channel="", **kwargs):
-        super().__init(**kwargs)
         self.channel = channel
         self.message = message
         self.webhook_token = webhook_token
 
     def execute(self):
-        pass
+        assertEqual(self.channel, "#")
+        assertEqual(self.message, "ServiceTask testing")
+        assertEqual(self.webhook_token, "[FIXME]")
 
 class ServiceTaskTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        spec, subprocesses = self.load_workflow_spec('service_task.bpmn', 'service_task_example1')
+        global assertEqual
+        assertEqual = self.assertEqual
+
+        spec, subprocesses = self.load_workflow_spec('service_task.bpmn', 
+                'service_task_example1')
         additions = { 'SlackWebhookOperator': SlackWebhookOperator }
         script_engine = PythonScriptEngine(scriptingAdditions=additions)
-        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=script_engine)
+        self.workflow = BpmnWorkflow(spec, subprocesses, 
+                servicetask_script_engine=script_engine)
 
     def testRunThroughHappy(self):
         self.workflow.do_engine_steps()
-        # TODO check some indication that it ran
+        # TODO check some indication that it actually ran instead of silence being success
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ServiceTaskTest)
