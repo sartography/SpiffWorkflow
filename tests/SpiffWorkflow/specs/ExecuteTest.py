@@ -34,7 +34,7 @@ class ExecuteTest(TaskSpecTest):
 
     def testPattern(self):
         """
-        Tests that we can create a task that executes an shell command
+        Tests that we can create a task that executes a shell command
         and that the workflow can be called to complete such tasks.
         """
         self.wf_spec.start.connect(self.spec)
