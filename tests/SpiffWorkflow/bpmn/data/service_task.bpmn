@@ -8,11 +8,11 @@
     <bpmn:serviceTask id="Activity_1inxqgx" name="ServiceTask1">
       <bpmn:extensionElements>
         <spiffworkflow:serviceTaskOperator name="SlackWebhookHookOperator">
-          <spiffworkflow:properties>
-            <spiffworkflow:property name="webhook_token" value="[FIXME]" />
-            <spiffworkflow:property name="message" value="ServiceTask testing" />
-            <spiffworkflow:property name="channel" value="#" />
-          </spiffworkflow:properties>
+          <spiffworkflow:parameters>
+            <spiffworkflow:parameter name="webhook_token" type="string" value="[FIXME]" />
+            <spiffworkflow:parameter name="message" type="string" value="ServiceTask testing" />
+            <spiffworkflow:parameter name="channel" type="string" value="#" />
+          </spiffworkflow:parameters>
         </spiffworkflow:serviceTaskOperator>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0l9vzsi</bpmn:incoming>
