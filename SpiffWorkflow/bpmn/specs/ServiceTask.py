@@ -21,8 +21,28 @@ class ServiceTask(Simple, BpmnSpecMixin):
         Constructor.
         """
         super(ServiceTask, self).__init__(wf_spec, name, **kwargs)
+        # TODO parse from bpmn, have passed in
+        #self.operator_name = operator_name
+        #self.operator_args = operator_args
 
     def _on_complete_hook(self, task):
+        if task.workflow._is_busy_with_restore():
+            return
+        assert not task.workflow.read_only
+        script = "# TODO"
+        try:
+            task.workflow.servicetask_script_engine.execute(task, script, task.data)
+        except Exception as e:
+            LOG.error('Error executing ServiceTask; task=%r', task)
+            # set state to WAITING (because it is definitely not COMPLETED)
+            # and raise WorkflowException pointing to this task because
+            # maybe upstream someone will be able to handle this situation
+            task._setstate(TaskState.WAITING, force=True)
+            if isinstance(e, WorkflowTaskExecException):
+                raise e
+            else:
+                raise WorkflowTaskExecException(
+                    task, 'Error during script execution:' + str(e), e)
         super(ServiceTask, self)._on_complete_hook(task)
 
     def serialize(self, serializer):
