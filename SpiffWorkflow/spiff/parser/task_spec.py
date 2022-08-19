@@ -18,10 +18,10 @@ class SpiffTaskParser(TaskParser):
         extension_nodes = xpath('.//bpmn:extensionElements/spiffworkflow:*')
         for node in extension_nodes:
             name = etree.QName(node).localname
-            if name in ['preScript', 'postScript']:
-                extensions[name] = node.text
             if name == 'properties':
                 extensions['properties'] = self._parse_properties(node)
+            else:
+                extensions[name] = node.text
         return extensions
 
     def _parse_properties(self, node):
