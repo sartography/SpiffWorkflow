@@ -93,7 +93,7 @@ class WorkflowSpecTest(unittest.TestCase):
 
     def testValidate(self):
         """
-        Tests that we can detect when two wait taks are waiting on each
+        Tests that we can detect when two wait tasks are waiting on each
         other.
         """
         task1 = Join(self.wf_spec, 'First')
