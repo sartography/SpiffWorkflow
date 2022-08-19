@@ -16,23 +16,27 @@ class ServiceTask(Simple, BpmnSpecMixin):
     Task Spec for a bpmn:serviceTask node.
     """
 
-    def __init__(self, wf_spec, name, **kwargs):
+    def __init__(self, wf_spec, name, operator_name, operator_params, **kwargs):
         """
         Constructor.
         """
         super(ServiceTask, self).__init__(wf_spec, name, **kwargs)
-        # TODO parse from bpmn, have passed in
-        #self.operator_name = operator_name
-        #self.operator_params = operator_params
+        self.operator_name = operator_name
+        self.operator_params = operator_params
+
+    def _build_script(self):
+        if self.operator_name == '':
+            return '# TODO - what do we do in this case? bpmn parser without spiff extensions'
+        return f'{self.operator_name}(**operator_params).execute()'
 
     def _on_complete_hook(self, task):
         if task.workflow._is_busy_with_restore():
             return
         assert not task.workflow.read_only
-        # TODO form this script dynamically
-        script = "SlackWebhookOperator(message='bob', channel='joe', webhook_token='sam').execute()"
+        script = self._build_script()
         try:
-            task.workflow.servicetask_script_engine.execute(task, script, task.data)
+            task.workflow.servicetask_script_engine.execute(task, script, task.data, 
+                    external_methods={ 'operator_params': self.operator_params })
         except Exception as e:
             LOG.error('Error executing ServiceTask; task=%r', task)
             # set state to WAITING (because it is definitely not COMPLETED)

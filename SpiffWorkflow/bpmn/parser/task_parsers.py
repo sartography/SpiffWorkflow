@@ -215,4 +215,8 @@ class ServiceTaskParser(TaskParser):
     """
     Parses a ServiceTask node.
     """
-    pass
+    def create_task(self):
+        return self.spec_class(self.spec, self.get_task_spec_name(), '', {},
+                               lane=self.lane,
+                               position=self.position,
+                               description=self.node.get('name', None))

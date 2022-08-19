@@ -77,3 +77,11 @@ class CallActivityParser(SpiffTaskParser):
             description=self.node.get('name', None),
             prescript=prescript,
             postscript=postscript)
+
+class ServiceTaskParser(SpiffTaskParser):
+    def create_task(self):
+        assert 1 == 2
+        extensions = self.parse_extensions()
+        return self.spec_class(
+                self.spec, self.get_task_spec_name(), '', {},
+                lane=self.lane, position=self.position)

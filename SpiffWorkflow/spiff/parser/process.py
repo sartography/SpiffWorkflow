@@ -1,8 +1,8 @@
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.parser.BpmnParser import full_tag
 
-from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, SubWorkflowTask, TransactionSubprocess, CallActivity
-from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser, SubWorkflowParser, CallActivityParser
+from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, SubWorkflowTask, TransactionSubprocess, CallActivity, ServiceTask
+from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser, SubWorkflowParser, CallActivityParser, ServiceTaskParser
 
 class SpiffBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
@@ -12,4 +12,5 @@ class SpiffBpmnParser(BpmnParser):
         full_tag('subProcess'): (SubWorkflowParser, SubWorkflowTask),
         full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
         full_tag('callActivity'): (CallActivityParser, CallActivity),
+        full_tag('serviceTask'): (ServiceTaskParser, ServiceTask),
     }
