@@ -6,15 +6,6 @@
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_0l9vzsi" sourceRef="StartEvent_1" targetRef="Activity_1inxqgx" />
     <bpmn:serviceTask id="Activity_1inxqgx" name="ServiceTask1">
-      <bpmn:extensionElements>
-        <spiffworkflow:serviceTaskOperator name="SlackWebhookHookOperator">
-          <spiffworkflow:parameters>
-            <spiffworkflow:parameter name="webhook_token" type="string" value="[FIXME]" />
-            <spiffworkflow:parameter name="message" type="string" value="ServiceTask testing" />
-            <spiffworkflow:parameter name="channel" type="string" value="#" />
-          </spiffworkflow:parameters>
-        </spiffworkflow:serviceTaskOperator>
-      </bpmn:extensionElements>
       <bpmn:incoming>Flow_0l9vzsi</bpmn:incoming>
       <bpmn:outgoing>Flow_16rdnn7</bpmn:outgoing>
     </bpmn:serviceTask>
