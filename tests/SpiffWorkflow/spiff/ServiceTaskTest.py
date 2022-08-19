@@ -11,8 +11,6 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from .BaseTestCase import BaseTestCase
 
-__author__ = 'jbirddog'
-
 # TODO must be a better way to do this
 assertEqual = None
 
