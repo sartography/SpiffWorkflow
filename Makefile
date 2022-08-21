@@ -37,7 +37,17 @@ uninstall:
 .PHONY : tests
 tests:
 	cd tests/$(NAME)
+	PYTHONPATH=../.. python -m unittest discover -v . "*Test.py"
+
+.PHONY : tests-cov
+tests-cov:
+	cd tests/$(NAME)
 	coverage run --source=$(NAME) -m unittest discover -v . "*Test.py"
+
+.PHONY : tests-timing
+tests-timing:
+	# TODO generate this file
+	./scripts/test_times.py < /tmp/rawtimes.txt
 
 ###################################################################
 # Package builders.
