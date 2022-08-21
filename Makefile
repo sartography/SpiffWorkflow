@@ -47,7 +47,7 @@ tests-cov:
 .PHONY : tests-timing
 tests-timing:
 	# TODO generate this file
-	./scripts/test_times.py < /tmp/rawtimes.txt
+	./scripts/test_times.py < /tmp/rawtimes.txt | xclip -sel clip
 
 ###################################################################
 # Package builders.

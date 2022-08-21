@@ -42,8 +42,16 @@ def parse(lines):
     return test_file_timings
 
 def report(parsed_data):
-    for parsed in parsed_data:
-        print(f'{parsed[0]}: {parsed[1]}')
+    lines = [
+        '| Method | Time | Tests Ran |',
+        '|----|----|----|',
+    ]
+
+    sorted_data = sorted(parsed_data, key=lambda d: d[1][1], reverse=True)
+    for d in sorted_data:
+        lines.append(f'| {d[0]} | {d[1][1]} | {d[1][0]} |')
+
+    print('\n'.join(lines))
 
 if __name__ == '__main__':
     data = sys.stdin.readlines()
