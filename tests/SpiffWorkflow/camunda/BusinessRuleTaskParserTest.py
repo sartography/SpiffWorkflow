@@ -1,41 +1,28 @@
-import os
 import unittest
 from unittest.mock import patch
 
 from SpiffWorkflow import TaskState
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
-from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from .BpmnDmnWorkflowTestCase import BpmnDmnWorkflowTestCase
+from .BaseTestCase import BaseTestCase
 
 
-class BusinessRuleTaskParserTest(BpmnDmnWorkflowTestCase):
+class BusinessRuleTaskParserTest(BaseTestCase):
 
     def setUp(self):
-        parser = BpmnDmnParser()
-        bpmn = os.path.join(os.path.dirname(__file__), 'data', 'BpmnDmn',
-                            'ExclusiveGatewayIfElseAndDecision.bpmn')
-        dmn = os.path.join(os.path.dirname(__file__), 'data', 'BpmnDmn',
-                            'test_integer_decision.dmn')
-        parser.add_bpmn_file(bpmn)
-        parser.add_dmn_file(dmn)
-        self.spec = parser.get_spec('Process_1')
+        self.spec, subprocesses = self.load_workflow_spec(
+            'ExclusiveGatewayIfElseAndDecision.bpmn',
+            'Process_1',
+            'test_integer_decision.dmn')
         self.workflow = BpmnWorkflow(self.spec)
-
-    def testConstructor(self):
-        pass  # this is accomplished through setup.
 
     def testDmnHappy(self):
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
         self.workflow.do_engine_steps()
         self.assertDictEqual(self.workflow.data, {'x': 3, 'y': 'A'})
         self.assertDictEqual(self.workflow.last_task.data, {'x': 3, 'y': 'A'})
 
     def testDmnSaveRestore(self):
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
         self.save_restore()
         self.workflow.do_engine_steps()
@@ -49,7 +36,6 @@ class BusinessRuleTaskParserTest(BpmnDmnWorkflowTestCase):
         but the DMN evaluate method did not get a task object.  While this is
         an optional argument, it should always exist if executed in the context
         of a BPMNWorkflow"""
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
         self.workflow.do_engine_steps()
         task = self.workflow.get_tasks_from_spec_name('TaskDecision')[0]
@@ -57,7 +43,6 @@ class BusinessRuleTaskParserTest(BpmnDmnWorkflowTestCase):
         self.assertIn(task, args)
 
     def testDmnUsesSameScriptEngineAsBPMN(self):
-        self.workflow = BpmnWorkflow(self.spec)
         self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
         self.workflow.do_engine_steps()
 

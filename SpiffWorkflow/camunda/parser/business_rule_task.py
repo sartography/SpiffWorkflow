@@ -1,17 +1,14 @@
-from ...bpmn.parser.ValidationException import ValidationException
+from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
+from SpiffWorkflow.bpmn.parser.util import xpath_eval
+from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 
-from ...bpmn.parser.util import xpath_eval
-
-from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-
-from ...bpmn.parser.TaskParser import TaskParser
-from ...dmn.engine.DMNEngine import DMNEngine
-from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
+from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
+from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 
-class BusinessRuleTaskParser(TaskParser, BpmnSpecMixin):
+class BusinessRuleTaskParser(TaskParser):
     dmn_debug = None
 
     def __init__(self, process_parser, spec_class, node, lane=None):

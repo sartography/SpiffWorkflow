@@ -2,18 +2,11 @@ import glob
 
 from ...bpmn.parser.util import xpath_eval
 
-from ...bpmn.parser.BpmnParser import BpmnParser, full_tag
-from ...dmn.parser.BusinessRuleTaskParser import BusinessRuleTaskParser
+from ...bpmn.parser.BpmnParser import BpmnParser
 from ...dmn.parser.DMNParser import DMNParser
-from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from lxml import etree
 
 class BpmnDmnParser(BpmnParser):
-
-    OVERRIDE_PARSER_CLASSES = {
-        full_tag('businessRuleTask'): (BusinessRuleTaskParser,
-                                       BusinessRuleTask)
-    }
 
     def __init__(self):
         super().__init__()

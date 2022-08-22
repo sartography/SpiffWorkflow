@@ -1,9 +1,8 @@
-import os
 import unittest
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from .BpmnDmnWorkflowTestCase import BpmnDmnWorkflowTestCase
+
+from .BaseTestCase import BaseTestCase
 
 
 def my_custom_function(txt):
@@ -17,19 +16,12 @@ class CustomScriptEngine(PythonScriptEngine):
         super().__init__(scriptingAdditions=augment_methods)
 
 
-class DMNCustomScriptTest(BpmnDmnWorkflowTestCase):
+class DMNCustomScriptTest(BaseTestCase):
 
     def setUp(self):
-        parser = BpmnDmnParser()
-        bpmn = os.path.join(os.path.dirname(__file__), 'data', 'BpmnDmn',
-                            'CustomScript.bpmn')
-        dmn = os.path.join(os.path.dirname(__file__), 'data', 'BpmnDmn',
-                           'CustomScript.dmn')
-        parser.add_bpmn_file(bpmn)
-        parser.add_dmn_file(dmn)
-        self.spec = parser.get_spec('start')
-        self.workflow = BpmnWorkflow(self.spec,
-                                     script_engine=CustomScriptEngine())
+
+        self.spec, subprocesses = self.load_workflow_spec('CustomScript.bpmn', 'start', 'CustomScript.dmn')
+        self.workflow = BpmnWorkflow(self.spec, script_engine=CustomScriptEngine())
 
     def testConstructor(self):
         pass  # this is accomplished through setup.

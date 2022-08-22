@@ -1,27 +1,16 @@
-import os
+
 import unittest
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
-from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from .BpmnDmnWorkflowTestCase import BpmnDmnWorkflowTestCase
+from .BaseTestCase import BaseTestCase
 
-class DMNDictTest(BpmnDmnWorkflowTestCase):
+class DMNDictTest(BaseTestCase):
 
     def setUp(self):
-        parser = BpmnDmnParser()
-        bpmn = os.path.join(os.path.dirname(__file__), 'data', 'BpmnDmn',
-                            'dmndict.bpmn')
-        dmn = os.path.join(os.path.dirname(__file__), 'data', 'BpmnDmn',
-                            'dmndict.dmn')
-        parser.add_bpmn_file(bpmn)
-        parser.add_dmn_file(dmn)
-        self.expectedResult = {'inputvar': 1,  'pi': {'test': {'me': 'yup it worked'}, 'test2': {'other': 'yes'}}}
-        self.spec = parser.get_spec('start')
+        self.spec, subprocesses = self.load_workflow_spec('dmndict.bpmn', 'start', 'dmndict.dmn')
         self.workflow = BpmnWorkflow(self.spec)
-
-    def testConstructor(self):
-        pass  # this is accomplished through setup.
+        self.expectedResult = {'inputvar': 1,  'pi': {'test': {'me': 'yup it worked'}, 'test2': {'other': 'yes'}}}
 
     def testDmnHappy(self):
         self.workflow = BpmnWorkflow(self.spec)

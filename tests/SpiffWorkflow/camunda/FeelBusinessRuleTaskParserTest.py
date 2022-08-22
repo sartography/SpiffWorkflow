@@ -1,24 +1,16 @@
-import os
 import unittest
 
 from SpiffWorkflow import TaskState
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
-from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from .BpmnDmnWorkflowTestCase import BpmnDmnWorkflowTestCase
+from .BaseTestCase import BaseTestCase
 
-class FeelBusinessRuleTaskParserTest(BpmnDmnWorkflowTestCase):
+class FeelBusinessRuleTaskParserTest(BaseTestCase):
 
     def setUp(self):
-        parser = BpmnDmnParser()
-        bpmn = os.path.join(os.path.dirname(__file__), 'data', 'BpmnDmn',
-                            'ExclusiveGatewayIfElseAndDecision.bpmn')
-        dmn = os.path.join(os.path.dirname(__file__), 'data', 'BpmnDmn',
-                            'test_integer_decision_feel.dmn')
-        parser.add_bpmn_file(bpmn)
-        parser.add_dmn_file(dmn)
-        self.spec = parser.get_spec('Process_1')
+        self.spec, subprocesses = self.load_workflow_spec(
+            'ExclusiveGatewayIfElseAndDecision.bpmn', 'Process_1',  'test_integer_decision_feel.dmn')
         self.workflow = BpmnWorkflow(self.spec)
 
     def testConstructor(self):

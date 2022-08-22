@@ -2,30 +2,18 @@ import os
 import unittest
 
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
-
 from SpiffWorkflow import TaskState
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
-from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BaseTestCase import BaseTestCase
 
-class BusinessRuleTaskParserTest(BpmnWorkflowTestCase):
-    PARSER_CLASS = BpmnDmnParser
+
+class BusinessRuleTaskParserTest(BaseTestCase):
 
     def setUp(self):
-        parser = BpmnDmnParser()
-        bpmn = os.path.join(os.path.dirname(__file__), 'data', 'InvalidBpmnDmn',
-                            'InvalidDecision.bpmn')
-        dmn = os.path.join(os.path.dirname(__file__), 'data', 'InvalidBpmnDmn',
-                            'invalid_decision.dmn')
-        parser.add_bpmn_file(bpmn)
-        parser.add_dmn_file(dmn)
-        self.spec = parser.get_spec('Process_1')
+        self.spec, subproceses = self.load_workflow_spec(
+            'invalid/InvalidDecision.bpmn', 'Process_1', 'invalid_decision.dmn')
         self.workflow = BpmnWorkflow(self.spec)
-
-    def testConstructor(self):
-        pass  # this is accomplished through setup.
 
     def testDmnRaisesTaskErrors(self):
         self.workflow = BpmnWorkflow(self.spec)

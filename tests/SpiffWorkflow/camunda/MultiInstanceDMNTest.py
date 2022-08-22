@@ -1,22 +1,14 @@
-import os
 import unittest
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
-from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from .BpmnDmnWorkflowTestCase import BpmnDmnWorkflowTestCase
+from .BaseTestCase import BaseTestCase
 
-class MultiInstanceDMNTest(BpmnDmnWorkflowTestCase):
+class MultiInstanceDMNTest(BaseTestCase):
 
     def setUp(self):
-        parser = BpmnDmnParser()
-        bpmn = os.path.join(os.path.dirname(__file__), 'data', 'BpmnDmn',
-                            'DMNMultiInstance.bpmn')
-        dmn = os.path.join(os.path.dirname(__file__), 'data', 'BpmnDmn',
-                            'test_integer_decision_multi.dmn')
-        parser.add_bpmn_file(bpmn)
-        parser.add_dmn_file(dmn)
-        self.spec = parser.get_spec('Process_1')
+        self.spec, subprocesses = self.load_workflow_spec(
+            'DMNMultiInstance.bpmn', 'Process_1', 'test_integer_decision_multi.dmn')
         self.workflow = BpmnWorkflow(self.spec)
 
     def testConstructor(self):

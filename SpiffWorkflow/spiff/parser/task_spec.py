@@ -77,3 +77,4 @@ class CallActivityParser(SpiffTaskParser):
             description=self.node.get('name', None),
             prescript=prescript,
             postscript=postscript)
+
