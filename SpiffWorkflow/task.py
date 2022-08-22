@@ -44,7 +44,7 @@ def updateDotDict(dct,dotted_path,value):
     return root
 
 
-class TaskState(IntFlag):
+class TaskState:
     """
 
     The following states may exist:
