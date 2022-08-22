@@ -47,7 +47,7 @@ tests-cov:
 .PHONY : tests-ind
 tests-ind:
 	cd tests/$(NAME)
-	PYTHONPATH=../.. find . -name "*Test.py" -printf '%p' -exec python -m unittest {} \;
+	@PYTHONPATH=../.. find . -name "*Test.py" -printf '%p' -exec python -m unittest {} \;
 
 .PHONY : tests-timing
 tests-timing:
