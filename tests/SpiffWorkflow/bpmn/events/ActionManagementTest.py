@@ -11,13 +11,18 @@ __author__ = 'matth'
 
 
 class ActionManagementTest(BpmnWorkflowTestCase):
+    START_TIME_DELTA=0.01
+    FINISH_TIME_DELTA=0.02
+
+    def now_plus_seconds(self, seconds):
+        return datetime.datetime.now() + datetime.timedelta(seconds=seconds)
 
     def setUp(self):
         self.spec, self.subprocesses = self.load_workflow_spec('Test-Workflows/Action-Management.bpmn20.xml', 'Action Management')
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
-        start_time = datetime.datetime.now() + datetime.timedelta(seconds=0.5)
-        finish_time = datetime.datetime.now() + datetime.timedelta(seconds=1.5)
+        start_time = self.now_plus_seconds(self.START_TIME_DELTA)
+        finish_time = self.now_plus_seconds(self.FINISH_TIME_DELTA)
 
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.workflow.get_tasks(TaskState.READY)[0].set_data(
@@ -34,7 +39,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEqual('Cancel Action (if necessary)',
                           self.workflow.get_tasks(TaskState.READY)[0].task_spec.description)
 
-        time.sleep(0.6)
+        time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
@@ -57,7 +62,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEqual('Cancel Action (if necessary)',
                           self.workflow.get_tasks(TaskState.READY)[0].task_spec.description)
 
-        time.sleep(0.6)
+        time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
@@ -69,7 +74,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.assertEqual('Finish Time', self.workflow.get_tasks(
             TaskState.WAITING)[1].task_spec.description)
-        time.sleep(1.1)
+        time.sleep(self.FINISH_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
@@ -113,7 +118,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
 
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
-        time.sleep(0.6)
+        time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
