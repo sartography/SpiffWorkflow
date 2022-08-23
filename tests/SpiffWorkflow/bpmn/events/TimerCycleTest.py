@@ -50,11 +50,11 @@ class TimerDurationTest(BpmnWorkflowTestCase):
 
         # See comments in timer cycle test for more context
         counter = 0
-        for loopcount in range(10):
+        for loopcount in range(5):
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = CustomScriptEngine()
-            time.sleep(0.1)
+            time.sleep(0.01)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
 
