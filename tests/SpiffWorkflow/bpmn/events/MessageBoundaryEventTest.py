@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
-import os
-import sys
 import unittest
 import time
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
-
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
