@@ -13,7 +13,7 @@ from .BaseTestCase import BaseTestCase
 
 # TODO must be a better way to do this
 assertEqual = None
-testRan = False
+operatorExecuted = False
 
 class SlackWebhookOperator(object):
     def __init__(self, webhook_token="", message="", channel="", **kwargs):
@@ -26,15 +26,15 @@ class SlackWebhookOperator(object):
         assertEqual(self.message, "ServiceTask testing")
         assertEqual(self.webhook_token, "[FIXME]")
 
-        global testRan
-        testRan = True
+        global operatorExecuted
+        operatorExecuted = True
 
 class ServiceTaskTest(BaseTestCase):
 
     def setUp(self):
-        global assertEqual, testRan
+        global assertEqual, operatorExecuted
         assertEqual = self.assertEqual
-        testRan = False
+        operatorExecuted = False
 
         spec, subprocesses = self.load_workflow_spec('service_task.bpmn', 
                 'service_task_example1')
@@ -45,7 +45,7 @@ class ServiceTaskTest(BaseTestCase):
 
     def testRunThroughHappy(self):
         self.workflow.do_engine_steps()
-        self.assertTrue(testRan)
+        self.assertTrue(operatorExecuted)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ServiceTaskTest)
