@@ -3,13 +3,18 @@ from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
 
 class ServiceTask(SpiffBpmnTask, ServiceTask):
 
-    def __init__(self, wf_spec, name, operator_name, operator_params, **kwargs):
-
+    def __init__(self, wf_spec, name, operation_name, operation_params, **kwargs):
         SpiffBpmnTask.__init__(self, wf_spec, name, **kwargs)
-        self.operator_name = operator_name
-        self.operator_params = operator_params
+        self.operation_name = operation_name
+        self.operation_params = operation_params
 
     def _execute(self, task):
-        script = f'{self.operator_name}(**operator_params).execute()'
+        def evaluate(expression):
+            return task.workflow.servicetask_script_engine.evaluate(task, repr(expression))
+
+        operation_params_var_name = 'spiff__operation_params'
+        evaluated_params = {k: evaluate(v) for k, v in self.operation_params.items()}
+        script = f'{self.operation_name}(**{operation_params_var_name}).execute()'
+
         task.workflow.servicetask_script_engine.execute(task, script, task.data, 
-                external_methods={ 'operator_params': self.operator_params })
+                external_methods={ operation_params_var_name: evaluated_params })
