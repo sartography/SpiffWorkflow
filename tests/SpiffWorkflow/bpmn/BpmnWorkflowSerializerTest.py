@@ -29,6 +29,7 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         self.serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION)
         spec, subprocesses = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
         self.workflow = BpmnWorkflow(spec, subprocesses)
+        pass
 
     def testDeserializeWorkflowSpec(self):
         """Tested as a part of deserialize workflow."""

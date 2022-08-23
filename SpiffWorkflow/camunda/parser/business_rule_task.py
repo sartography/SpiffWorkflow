@@ -1,8 +1,6 @@
-from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.parser.util import xpath_eval
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 
-from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
 from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
@@ -14,23 +12,11 @@ class BusinessRuleTaskParser(TaskParser):
     def __init__(self, process_parser, spec_class, node, lane=None):
         super(BusinessRuleTaskParser, self).__init__(process_parser, spec_class, node, lane)
         self.xpath = xpath_eval(self.node, extra_ns={'camunda': CAMUNDA_MODEL_NS})
-        self.dmnEngine = self._get_engine()
-
-    def _get_engine(self):
-        decision_ref = self.node.attrib['{' + CAMUNDA_MODEL_NS + '}decisionRef']
-        if decision_ref not in self.process_parser.parser.dmn_parsers:
-            options = ', '.join(list(self.process_parser.parser.dmn_parsers.keys()))
-            raise ValidationException(
-                'No DMN Diagram available with id "%s", Available DMN ids are: %s' %(decision_ref, options),
-                node=self.node, filename='')
-        dmnParser = self.process_parser.parser.dmn_parsers[decision_ref]
-        dmnParser.parse()
-        decision = dmnParser.decision
-        return DMNEngine(decision.decisionTables[0])
 
     def create_task(self):
+        decision_ref = self.node.attrib['{' + CAMUNDA_MODEL_NS + '}decisionRef']
         return BusinessRuleTask(self.spec, self.get_task_spec_name(),
-                                dmnEngine=self.dmnEngine,
+                                dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
                                 lane=self.lane, position=self.position,
                                 description=self.node.get('name', None),
                                 )
