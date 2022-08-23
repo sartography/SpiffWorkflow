@@ -54,11 +54,11 @@ class TimerCycleStartTest(BpmnWorkflowTestCase):
         # timers expire.  The test workflow has a wait timer that pauses long enough to
         # allow the cycle to complete twice -- otherwise the first iteration through the
         # cycle process causes the remaining tasks to be cancelled.
-        for loopcount in range(10):
+        for loopcount in range(5):
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = CustomScriptEngine()
-            time.sleep(0.1)
+            time.sleep(0.01)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
         self.assertEqual(counter, 2)
