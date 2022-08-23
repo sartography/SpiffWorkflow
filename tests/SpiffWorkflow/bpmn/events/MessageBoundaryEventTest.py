@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
 
+import os
+import sys
 import unittest
 import time
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
+
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -39,11 +44,11 @@ class MessageBoundaryTest(BpmnWorkflowTestCase):
 
                 self.workflow.complete_task_from_id(task.id)
                 self.workflow.do_engine_steps()
-                time.sleep(.1)
+                time.sleep(.01)
                 self.workflow.refresh_waiting_tasks()
                 if save_restore: self.save_restore()
             ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        time.sleep(.1)
+        time.sleep(.01)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.is_completed(),True,'Expected the workflow to be complete at this point')
