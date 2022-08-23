@@ -13,12 +13,12 @@ __author__ = 'matth'
 class TimerIntermediateTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec, self.subprocesss = self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Timer Intermediate')
+        self.spec, self.subprocesss = self.load_workflow_spec('Test-Workflows/Timer-Intermediate.bpmn20.xml', 'Timer Intermediate')
         self.workflow = BpmnWorkflow(self.spec, self.subprocesss)
 
     def testRunThroughHappy(self):
 
-        due_time = datetime.datetime.now() + datetime.timedelta(seconds=0.5)
+        due_time = datetime.datetime.now() + datetime.timedelta(seconds=0.01)
 
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.workflow.get_tasks(TaskState.READY)[0].set_data(due_time=due_time)
@@ -27,7 +27,7 @@ class TimerIntermediateTest(BpmnWorkflowTestCase):
 
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
 
-        time.sleep(0.6)
+        time.sleep(0.02)
 
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.workflow.refresh_waiting_tasks()
