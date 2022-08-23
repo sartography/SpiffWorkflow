@@ -11,7 +11,7 @@
     <bpmn:sequenceFlow id="Flow_0l8nhib" sourceRef="Activity_0ux7vpx" targetRef="Event_184erzz" />
     <bpmn:businessRuleTask id="Activity_0ux7vpx" name="Business Rules" scriptFormat="python" script="question = &#34;X&#34;">
       <bpmn:extensionElements>
-        <spiffworkflow:calledDecision>decision_1</spiffworkflow:calledDecision>
+        <spiffworkflow:calledDecisionId>decision_1</spiffworkflow:calledDecisionId>
         <spiffworkflow:preScript />
         <spiffworkflow:postScript />
       </bpmn:extensionElements>

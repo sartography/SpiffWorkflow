@@ -18,12 +18,11 @@ class SpiffTaskParser(TaskParser):
         xpath = xpath_eval(self.node, extra_ns)
         extension_nodes = xpath('.//bpmn:extensionElements/spiffworkflow:*')
         for node in extension_nodes:
-            name = etree.QName(node).localname
-            # Wish we'd handled properties the same way -- now we have to expicitly specify eveything.
-            if name in ['preScript', 'postScript', 'calledDecision']:
-                extensions[name] = node.text
+            name = etree.QName(node).localname                
             if name == 'properties':
                 extensions['properties'] = self._parse_properties(node)
+            else:
+                extensions[name] = node.text
         return extensions
 
     def _parse_properties(self, node):
@@ -85,7 +84,7 @@ class BusinessRuleTaskParser(SpiffTaskParser):
 
     def create_task(self):
         extensions = self.parse_extensions()
-        decision_ref = extensions.get('calledDecision')
+        decision_ref = extensions.get('calledDecisionId')
         return BusinessRuleTask(self.spec, 
             self.get_task_spec_name(),
             dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
