@@ -12,7 +12,7 @@
       <bpmn:incoming>Flow_1pvkgnu</bpmn:incoming>
       <bpmn:outgoing>Flow_1elbn9u</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_1jrn73k">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=.25)</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=.025)</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:manualTask id="Activity_1rbj8j1" name="Get Back To Work">

@@ -33,7 +33,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         loopcount = 0
-        # test bpmn has a timeout of .25s
+        # test bpmn has a timeout of .05s
         # we should terminate loop before that.
         starttime = datetime.datetime.now()
         counter = 0
@@ -45,7 +45,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
 
 
             waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)
-            time.sleep(0.1)
+            time.sleep(0.01)
             self.workflow.refresh_waiting_tasks()
             loopcount = loopcount +1
         endtime = datetime.datetime.now()
@@ -55,7 +55,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
         self.assertEqual(self.workflow.last_task.data['futuredate2'],testdate)
         self.assertTrue('completed' in self.workflow.last_task.data)
         self.assertTrue(self.workflow.last_task.data['completed'])
-        self.assertTrue((endtime-starttime) > datetime.timedelta(seconds=.25))
+        self.assertTrue((endtime-starttime) > datetime.timedelta(seconds=.04))
 
 
 
