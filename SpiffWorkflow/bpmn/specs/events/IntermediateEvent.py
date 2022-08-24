@@ -20,7 +20,6 @@
 from .event_types import ThrowingEvent, CatchingEvent
 from .event_definitions import CycleTimerEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
-from ..SubWorkflowTask import SubWorkflowTask
 from ....specs.Simple import Simple
 from ....task import TaskState
 

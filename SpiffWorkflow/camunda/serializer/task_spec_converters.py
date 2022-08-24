@@ -1,7 +1,6 @@
-from ...bpmn.serializer.bpmn_converters import BpmnDataConverter, BpmnTaskSpecConverter
+from ...bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
 
 from ..specs.UserTask import UserTask, Form
-from ..specs.UserTask import FormField
 
 class UserTaskConverter(BpmnTaskSpecConverter):
 

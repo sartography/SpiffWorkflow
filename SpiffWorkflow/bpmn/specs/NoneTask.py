@@ -20,8 +20,6 @@ from ...specs import Simple
 
 from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 
-from .UserTask import UserTask
-
 
 class NoneTask(Simple, BpmnSpecMixin):
 

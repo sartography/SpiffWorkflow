@@ -1,19 +1,18 @@
 from uuid import UUID
 
-from .bpmn_converters import BpmnDataConverter, BpmnTaskSpecConverter
+from .bpmn_converters import BpmnTaskSpecConverter
 
 from ...specs import StartTask
 from ...specs.Simple import Simple
 from ...specs.LoopResetTask import LoopResetTask
 
 from ..specs.BpmnProcessSpec import _EndJoin
-from ..specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow, _BpmnCondition
+from ..specs.BpmnSpecMixin import _BpmnCondition
 
 from ..specs.NoneTask import NoneTask
 from ..specs.UserTask import UserTask
 from ..specs.ManualTask import ManualTask
 from ..specs.ScriptTask import ScriptTask
-from ..specs.MultiInstanceTask import MultiInstanceTask
 from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
 
 from ..specs.ExclusiveGateway import ExclusiveGateway
