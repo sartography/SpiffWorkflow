@@ -1,6 +1,6 @@
 import unittest
 
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+from .PythonDecisionRunner import PythonDecisionRunner
 
 
 class ListDecisionTestClass(unittest.TestCase):
@@ -10,7 +10,7 @@ class ListDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('list_decision.dmn', debug='DEBUG')
+        cls.runner = PythonDecisionRunner('list_decision.dmn', debug='DEBUG')
 
     def test_string_decision_string_output1(self):
         res = self.runner.decide({'allergies',["PEANUTS", "SPAM"]})

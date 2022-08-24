@@ -1,13 +1,12 @@
 import unittest
 
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+from .PythonDecisionRunner import PythonDecisionRunner
 
 
 class InvalidBusinessRuleNameErrorTest(unittest.TestCase):
 
     def test_integer_decision_string_output_inclusive(self):
-        runner = DecisionRunner('invalid_decision_name_error.dmn',
-                                debug='DEBUG')
+        runner = PythonDecisionRunner('invalid_decision_name_error.dmn', debug='DEBUG')
         try:
             res = runner.decide({'spam': 1})
         except Exception as e:

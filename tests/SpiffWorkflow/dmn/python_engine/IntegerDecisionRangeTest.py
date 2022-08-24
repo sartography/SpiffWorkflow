@@ -1,18 +1,15 @@
 import unittest
 
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+from .PythonDecisionRunner import PythonDecisionRunner
 
 
-class FeelIntegerDecisionRangeTestClass(unittest.TestCase):
+class IntegerDecisionRangeTestClass(unittest.TestCase):
     """
     Doc: https://docs.camunda.org/manual/7.7/user-guide/dmn-engine/
     """
-    engine = FeelLikeScriptEngine()
 
     def test_integer_decision_string_output_inclusive(self):
-        runner = DecisionRunner('integer_decision_range_inclusive_feel.dmn',
-                                script_engine=self.engine, debug='DEBUG')
+        runner = PythonDecisionRunner('integer_decision_range_inclusive.dmn', debug='DEBUG')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, '100-110 Inclusive Annotation')
@@ -27,8 +24,7 @@ class FeelIntegerDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_integer_decision_string_output_exclusive(self):
-        runner = DecisionRunner('integer_decision_range_exclusive_feel.dmn',
-                                script_engine=self.engine, debug='DEBUG')
+        runner = PythonDecisionRunner('integer_decision_range_exclusive.dmn', debug='DEBUG')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, 'ELSE Row Annotation')
@@ -43,24 +39,22 @@ class FeelIntegerDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, '100-110 Exclusive Annotation')
 
     def test_integer_decision_string_output_excl_inclusive(self):
-        runner = DecisionRunner('integer_decision_range_excl_inclusive_feel.dmn',
-                                script_engine=self.engine, debug='DEBUG')
+        runner = PythonDecisionRunner('integer_decision_range_excl_inclusive.dmn', debug='DEBUG')
 
-        res = runner.decide({'Age': 100})
+        res = runner.decide({"Age":100})
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
-        res = runner.decide({'Age':101})
+        res = runner.decide({"Age":101})
         self.assertEqual(res.description, '100-110 ExclInclusive Annotation')
 
-        res = runner.decide({'Age':110})
+        res = runner.decide({"Age":110})
         self.assertEqual(res.description, '100-110 ExclInclusive Annotation')
 
-        res = runner.decide({'Age':111})
+        res = runner.decide({"Age":111})
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_integer_decision_string_output_incl_exclusive(self):
-        runner = DecisionRunner('integer_decision_range_incl_exclusive_feel.dmn',
-                                script_engine=self.engine, debug='DEBUG')
+        runner = PythonDecisionRunner('integer_decision_range_incl_exclusive.dmn', debug='DEBUG')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, '100-110 InclExclusive Annotation')
@@ -75,7 +69,7 @@ class FeelIntegerDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, '100-110 InclExclusive Annotation')
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(FeelIntegerDecisionRangeTestClass)
+    return unittest.TestLoader().loadTestsFromTestCase(IntegerDecisionRangeTestClass)
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

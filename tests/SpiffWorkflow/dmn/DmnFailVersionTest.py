@@ -2,7 +2,6 @@ import unittest
 import os
 
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
 
 
 class DmnVersionTest(unittest.TestCase):

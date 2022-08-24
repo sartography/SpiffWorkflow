@@ -1,27 +1,22 @@
 import unittest
 
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+from .PythonDecisionRunner import PythonDecisionRunner
 
 
-class FeelDictDecisionTestClass(unittest.TestCase):
+class DictDecisionTestClass(unittest.TestCase):
     """
     Doc: https://docs.camunda.org/manual/7.7/user-guide/dmn-engine/
     """
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('dict_decision_feel.dmn',
-                                    script_engine=FeelLikeScriptEngine(),
-                                    debug='DEBUG')
+        cls.runner = PythonDecisionRunner('dict_decision.dmn', debug='DEBUG')
 
     def test_string_decision_string_output1(self):
         data = {"allergies": {
                 "PEANUTS": {"delicious": True},
                 "SPAM": {"delicious": False}
                 }}
-        PythonScriptEngine.convertToBox(PythonScriptEngine(),data)
         res = self.runner.decide(data)
         self.assertEqual(res.description, 'They are allergic to peanuts')
 
@@ -35,7 +30,7 @@ class FeelDictDecisionTestClass(unittest.TestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(FeelDictDecisionTestClass)
+    return unittest.TestLoader().loadTestsFromTestCase(DictDecisionTestClass)
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

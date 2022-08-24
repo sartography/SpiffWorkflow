@@ -1,9 +1,9 @@
 import unittest
 from datetime import datetime
 
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
 from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+
+from .FeelDecisionRunner import FeelDecisionRunner
 
 
 class FeelDateDecisionTestClass(unittest.TestCase):
@@ -13,9 +13,7 @@ class FeelDateDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('date_decision_feel.dmn',
-                                    script_engine=FeelLikeScriptEngine(),
-                                    debug='DEBUG')
+        cls.runner = FeelDecisionRunner('date_decision_feel.dmn', debug='DEBUG')
 
     def test_date_decision_string_output1(self):
         res = self.runner.decide(datetime.strptime('2017-11-01T10:00:00', DMNParser.DT_FORMAT))

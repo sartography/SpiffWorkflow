@@ -2,19 +2,16 @@ import unittest
 
 from decimal import Decimal
 
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+from .PythonDecisionRunner import PythonDecisionRunner
 
 
-class FeelLongOrDoubleDecisionRangeTestClass(unittest.TestCase):
+class LongOrDoubleDecisionRangeTestClass(unittest.TestCase):
     """
     Doc: https://docs.camunda.org/manual/7.7/user-guide/dmn-engine/
     """
-    engine = FeelLikeScriptEngine();
 
     def test_long_or_double_decision_string_output_inclusive(self):
-        runner = DecisionRunner('long_or_double_decision_range_inclusive_feel.dmn',
-                                script_engine=self.engine, debug='DEBUG')
+        runner = PythonDecisionRunner('long_or_double_decision_range_inclusive.dmn', debug='DEBUG')
 
         res = runner.decide({"Age":Decimal('100.05')})
         self.assertEqual(res.description, '100.05-110.05 Inclusive Annotation')
@@ -29,8 +26,7 @@ class FeelLongOrDoubleDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_long_or_double_decision_string_output_exclusive(self):
-        runner = DecisionRunner('long_or_double_decision_range_exclusive_feel.dmn',
-                                script_engine=self.engine, debug='DEBUG')
+        runner = PythonDecisionRunner('long_or_double_decision_range_exclusive.dmn', debug='DEBUG')
 
         res = runner.decide({"Age":Decimal('100.05')})
         self.assertEqual(res.description, 'ELSE Row Annotation')
@@ -45,8 +41,7 @@ class FeelLongOrDoubleDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, '100.05-110.05 Exclusive Annotation')
 
     def test_long_or_double_decision_string_output_excl_inclusive(self):
-        runner = DecisionRunner('long_or_double_decision_range_excl_inclusive_feel.dmn',
-                                script_engine=self.engine, debug='DEBUG')
+        runner = PythonDecisionRunner('long_or_double_decision_range_excl_inclusive.dmn', debug='DEBUG')
 
         res = runner.decide({"Age":Decimal('100.05')})
         self.assertEqual(res.description, 'ELSE Row Annotation')
@@ -61,8 +56,7 @@ class FeelLongOrDoubleDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_long_or_double_decision_string_output_incl_exclusive(self):
-        runner = DecisionRunner('long_or_double_decision_range_incl_exclusive_feel.dmn',
-                                script_engine=self.engine, debug='DEBUG')
+        runner = PythonDecisionRunner('long_or_double_decision_range_incl_exclusive.dmn', debug='DEBUG')
 
         res = runner.decide({"Age":Decimal('100.05')})
         self.assertEqual(res.description, '100.05-110.05 InclExclusive Annotation')
@@ -77,7 +71,7 @@ class FeelLongOrDoubleDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, '100.05-110.05 InclExclusive Annotation')
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(FeelLongOrDoubleDecisionRangeTestClass)
+    return unittest.TestLoader().loadTestsFromTestCase(LongOrDoubleDecisionRangeTestClass)
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

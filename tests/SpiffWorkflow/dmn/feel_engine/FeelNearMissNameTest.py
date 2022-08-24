@@ -1,9 +1,9 @@
 import unittest
 
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+from .FeelDecisionRunner import FeelDecisionRunner
 
 
-class NearMissTestClass(unittest.TestCase):
+class FeelNearMissTestClass(unittest.TestCase):
     """
     Doc: https://docs.camunda.org/manual/7.7/user-guide/dmn-engine/
     """
@@ -37,7 +37,7 @@ class NearMissTestClass(unittest.TestCase):
             "shared": []
         }
 
-        cls.runner = DecisionRunner('exclusive.dmn', debug='DEBUG')
+        cls.runner = FeelDecisionRunner('exclusive_feel.dmn', debug='DEBUG')
 
     def test_string_decision_string_output1(self):
         self.assertRaisesRegex(NameError,
@@ -47,7 +47,7 @@ class NearMissTestClass(unittest.TestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(NearMissTestClass)
+    return unittest.TestLoader().loadTestsFromTestCase(FeelNearMissTestClass)
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

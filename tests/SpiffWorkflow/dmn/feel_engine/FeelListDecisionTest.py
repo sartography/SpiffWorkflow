@@ -1,8 +1,6 @@
 import unittest
 
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
-
+from .FeelDecisionRunner import FeelDecisionRunner
 
 class FeelListDecisionTestClass(unittest.TestCase):
     """
@@ -11,9 +9,7 @@ class FeelListDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('list_decision_feel.dmn',
-                                    script_engine=FeelLikeScriptEngine(),
-                                    debug='DEBUG')
+        cls.runner = FeelDecisionRunner('list_decision_feel.dmn', debug='DEBUG')
 
     def test_string_decision_string_output1(self):
         res = self.runner.decide({'allergies':["PEANUTS", "SPAM"]})

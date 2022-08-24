@@ -1,6 +1,6 @@
 import unittest
 
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+from .FeelDecisionRunner import FeelDecisionRunner
 
 
 class FeelStringDecisionTestClass(unittest.TestCase):
@@ -10,7 +10,7 @@ class FeelStringDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('kwargs_parameter_feel.dmn', debug='DEBUG')
+        cls.runner = FeelDecisionRunner('kwargs_parameter_feel.dmn', debug='DEBUG')
 
     def test_string_decision_string_output1(self):
         res = self.runner.decide({"Gender":'m'})

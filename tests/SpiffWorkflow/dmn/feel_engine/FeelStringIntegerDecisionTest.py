@@ -1,6 +1,6 @@
 import unittest
 
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+from .FeelDecisionRunner import FeelDecisionRunner
 
 
 class FeelStringIntegerDecisionTestClass(unittest.TestCase):
@@ -10,7 +10,7 @@ class FeelStringIntegerDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('string_integer_decision_feel.dmn', debug='DEBUG')
+        cls.runner = FeelDecisionRunner('string_integer_decision_feel.dmn', debug='DEBUG')
 
     def test_string_integer_decision_string_output1(self):
         res = self.runner.decide({"Gender":'m', "Age": 30})

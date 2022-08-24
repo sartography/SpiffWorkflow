@@ -1,14 +1,15 @@
 import unittest
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import Box
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+
+from .FeelDecisionRunner import FeelDecisionRunner
 
 
 class FeelDictDotNotationDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('dict_dot_notation_decision_feel.dmn', debug='DEBUG')
+        cls.runner = FeelDecisionRunner('dict_dot_notation_decision_feel.dmn', debug='DEBUG')
 
     def test_string_decision_string_output1(self):
         data = {"foods": {

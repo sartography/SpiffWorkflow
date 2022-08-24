@@ -1,7 +1,8 @@
 import unittest
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import Box
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+
+from .PythonDecisionRunner import PythonDecisionRunner
 
 
 class DictDotNotationDecisionWeirdCharactersTestClass(unittest.TestCase):
@@ -12,7 +13,7 @@ class DictDotNotationDecisionWeirdCharactersTestClass(unittest.TestCase):
             'dict_dot_notation_decision_weird_characters.dmn',
             'dict_dot_notation_decision_weird_characters_v1_3.dmn',
         ]
-        cls.runners = [DecisionRunner(d, debug='DEBUG') for d in dmn_files]
+        cls.runners = [PythonDecisionRunner(d, debug='DEBUG') for d in dmn_files]
 
     def test_string_decision_string_output1(self):
         for runner in self.runners:

@@ -1,19 +1,16 @@
 import unittest
 
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
+from .PythonDecisionRunner import PythonDecisionRunner
 
 
-class FeelStringDecisionTestClass(unittest.TestCase):
+class StringDecisionTestClass(unittest.TestCase):
     """
     Doc: https://docs.camunda.org/manual/7.7/user-guide/dmn-engine/
     """
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = DecisionRunner('string_decision_feel.dmn',
-                                    script_engine=FeelLikeScriptEngine(),
-                                    debug='DEBUG')
+        cls.runner = PythonDecisionRunner('string_decision.dmn', debug='DEBUG')
 
     def test_string_decision_string_output1(self):
         res = self.runner.decide({"Gender":'m'})
@@ -32,7 +29,7 @@ class FeelStringDecisionTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(FeelStringDecisionTestClass)
+    return unittest.TestLoader().loadTestsFromTestCase(StringDecisionTestClass)
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
