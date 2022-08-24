@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import str
 from SpiffWorkflow.specs import *
 from SpiffWorkflow.operators import *
 

@@ -3,9 +3,7 @@
 from builtins import object
 import sys
 import unittest
-import re
 import os
-import glob
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from SpiffWorkflow.specs import *

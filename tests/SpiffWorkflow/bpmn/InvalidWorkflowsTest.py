@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from fileinput import filename
 import unittest
 
 import os

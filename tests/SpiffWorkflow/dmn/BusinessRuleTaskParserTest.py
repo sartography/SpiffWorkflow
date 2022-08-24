@@ -3,7 +3,6 @@ import unittest
 from unittest.mock import patch
 
 from SpiffWorkflow import TaskState
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
