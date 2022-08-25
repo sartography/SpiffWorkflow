@@ -6,8 +6,7 @@ from .util import first, one
 from ..specs.events import (TimerEventDefinition, MessageEventDefinition,
                             ErrorEventDefinition, EscalationEventDefinition,SignalEventDefinition,
                             CancelEventDefinition, CycleTimerEventDefinition,
-                            TerminateEventDefinition, NoneEventDefinition,
-                            StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent)
+                            TerminateEventDefinition, NoneEventDefinition)
 
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'

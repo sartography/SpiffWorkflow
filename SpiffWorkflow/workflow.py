@@ -24,7 +24,6 @@ from .task import Task, TaskState
 from .util.compat import mutex
 from .util.event import Event
 from .exceptions import WorkflowException
-from .bpmn.specs.events import _BoundaryEventParent
 LOG = logging.getLogger(__name__)
 
 

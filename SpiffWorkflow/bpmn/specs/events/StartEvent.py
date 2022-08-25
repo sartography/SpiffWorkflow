@@ -18,7 +18,6 @@
 # 02110-1301  USA
 
 from .event_types import CatchingEvent
-from .event_definitions import CycleTimerEventDefinition
 from ....task import TaskState
 
 

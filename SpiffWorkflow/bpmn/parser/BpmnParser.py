@@ -21,7 +21,6 @@ import glob
 
 from lxml import etree
 
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnProcessSpec
 from .ValidationException import ValidationException
 from ..specs.events import StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
 from ..specs.SubWorkflowTask import CallActivity, SubWorkflowTask, TransactionSubprocess

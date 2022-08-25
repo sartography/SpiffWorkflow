@@ -24,7 +24,6 @@ from .exceptions import WorkflowException
 import logging
 import time
 from uuid import uuid4
-from enum import IntFlag
 
 from .util.deep_merge import DeepMerge
 

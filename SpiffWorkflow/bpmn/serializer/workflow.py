@@ -9,7 +9,7 @@ from .bpmn_converters import BpmnDataConverter
 
 from ..workflow import BpmnWorkflow
 from ..specs.SubWorkflowTask import SubWorkflowTask
-from ...task import Task, TaskState
+from ...task import Task
 
 from .workflow_spec_converter import BpmnProcessSpecConverter
 

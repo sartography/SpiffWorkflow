@@ -9,8 +9,6 @@ import os
 import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-from SpiffWorkflow.exceptions import WorkflowException
 __author__ = 'matth'
 
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
