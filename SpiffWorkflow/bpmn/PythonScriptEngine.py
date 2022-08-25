@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
+import ast
 import copy
-import re
 import sys
 import traceback
-from builtins import object
-import ast
 import datetime
 from datetime import timedelta
-from decimal import Decimal
 
 import dateparser
 import pytz
 
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from ..operators import Operator
-from ..workflow import WorkflowException
 
 
 # Copyright (C) 2020 Kelly McDonald
@@ -104,83 +100,18 @@ class PythonScriptEngine(object):
     expressions in a different way.
     """
 
-    def __init__(self, scriptingAdditions=None):
-        if scriptingAdditions is None:
-            scriptingAdditions = {}
+    def __init__(self, scripting_additions=None):
+
         self.globals = {'timedelta': timedelta,
                         'datetime': datetime,
                         'dateparser': dateparser,
                         'pytz': pytz,
                         'Box': Box,
                         }
-        self.globals.update(scriptingAdditions)
+        self.globals.update(scripting_additions or {})
 
-    def validate_expression(self, text):
-        if text is None:
-            return
-        try:
-            # this should work if we can just do a straight equality
-            ast.parse(text)
-            return text, True
-        except:
-            try:
-                revised_text = 's ' + text  # if we have problems parsing,
-                # then we introduce a variable on the left hand side and try
-                # that and see if that parses. If so, then we know that we do
-                # not need to introduce an equality operator later in the dmn
-                ast.parse(revised_text)
-                return revised_text[2:], False
-            except Exception as e:
-                raise Exception("error parsing expression " + str(text) + " " +
-                                str(e))
-
-    def eval_dmn_expression(self, inputExpr, matchExpr, context, task=None):
-        """
-        Here we need to handle a few things such as if it is an equality or if
-        the equality has already been taken care of. For now, we just assume
-         it is equality.
-
-         An optional task can be included if this is being executed in the
-         context of a BPMN task.
-        """
-        if matchExpr is None:
-            return True
-
-        nolhs = False
-        # NB - the question mark allows us to do a double ended test - for
-        # example - our input expr is 5 and the match expr is 4 < ? < 6  -
-        # this should evaluate as 4  < 5 < 6 and it should evaluate as 'True'
-        # NOTE:  It should only do this replacement outside of quotes.
-        # for example, provided "This thing?"  in quotes, it should not
-        # do the replacement.
-        matchExpr = re.sub('(\?)(?=(?:[^\'"]|[\'"][^\'"]*[\'"])*$)',
-                           'dmninputexpr', matchExpr)
-        if 'dmninputexpr' in matchExpr:
-            nolhs = True
-
-        rhs, needsEquals = self.validate_expression(matchExpr)
-
-        external_methods = {
-            'datetime': datetime,
-            'timedelta': timedelta,
-            'Decimal': Decimal,
-            'Box': Box
-        }
-
-        lhs, lhsNeedsEquals = self.validate_expression(inputExpr)
-        if not lhsNeedsEquals:
-            raise WorkflowException(
-                "Input Expression '%s' is malformed" % inputExpr)
-        if nolhs:
-            dmninputexpr = self._evaluate(lhs, context, task, external_methods)
-            external_methods['dmninputexpr'] = dmninputexpr
-            return self._evaluate(rhs, context, task, external_methods)
-        if needsEquals:
-            expression = lhs + ' == ' + rhs
-        else:
-            expression = lhs + rhs
-
-        return self._evaluate(expression, context, task, external_methods)
+    def validate(self, expression):
+        ast.parse(expression)
 
     def evaluate(self, task, expression):
         """
@@ -207,7 +138,6 @@ class PythonScriptEngine(object):
         if external_methods is None:
             external_methods = {}
 
-        expression, valid = self.validate_expression(expression)
         lcls = {}
         if isinstance(context, dict):
             lcls.update(context)

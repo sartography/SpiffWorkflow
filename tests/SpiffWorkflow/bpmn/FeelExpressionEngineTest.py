@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import sys
-import os
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine, FeelInterval
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 import datetime
@@ -50,7 +47,6 @@ class FeelExpressionTest(BpmnWorkflowTestCase):
                  ("list contains(a.keys(),'c')", False, {'a': {'b': ['a', 'x']}}),
                  ]
         for test in tests:
-            print(test[0])
             self.assertEqual(self.expressionEngine._evaluate(test[0], test[2]),
                              test[1], "test --> %s <-- with variables ==> %s <==Fail!" % (test[0], str(test[2])))
 
@@ -65,9 +61,11 @@ class FeelExpressionTest(BpmnWorkflowTestCase):
                 }
             ]
         }
-        x = self.expressionEngine.eval_dmn_expression("""sum([1 for x in exclusive if x.get(
-        'ExclusiveSpaceAMComputingID',None)==None])""", '0', data)
-        self.assertEqual(x, False)
+        x = self.expressionEngine._evaluate(
+            """sum([1 for x in exclusive if x.get('ExclusiveSpaceAMComputingID',None)==None])""", 
+            data
+        )
+        self.assertEqual(x, 1)
 
 
 

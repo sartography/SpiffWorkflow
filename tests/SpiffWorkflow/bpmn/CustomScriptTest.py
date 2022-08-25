@@ -18,7 +18,7 @@ class CustomBpmnScriptEngine(PythonScriptEngine):
      scripts directory available for execution. """
     def __init__(self):
         augment_methods = {'custom_function': my_custom_function}
-        super().__init__(scriptingAdditions=augment_methods)
+        super().__init__(scripting_additions=augment_methods)
 
 
 class CustomInlineScriptTest(BpmnWorkflowTestCase):
