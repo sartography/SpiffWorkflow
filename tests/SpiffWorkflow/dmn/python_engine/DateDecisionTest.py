@@ -12,7 +12,7 @@ class DateDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = PythonDecisionRunner('date_decision.dmn', debug='DEBUG')
+        cls.runner = PythonDecisionRunner('date_decision.dmn')
 
     def test_date_decision_string_output1(self):
         res = self.runner.decide(datetime.strptime('2017-11-01T10:00:00', DMNParser.DT_FORMAT))

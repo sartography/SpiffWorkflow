@@ -9,7 +9,7 @@ class IntegerDecisionRangeTestClass(unittest.TestCase):
     """
 
     def test_integer_decision_string_output_inclusive(self):
-        runner = PythonDecisionRunner('integer_decision_range_inclusive.dmn', debug='DEBUG')
+        runner = PythonDecisionRunner('integer_decision_range_inclusive.dmn')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, '100-110 Inclusive Annotation')
@@ -24,7 +24,7 @@ class IntegerDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_integer_decision_string_output_exclusive(self):
-        runner = PythonDecisionRunner('integer_decision_range_exclusive.dmn', debug='DEBUG')
+        runner = PythonDecisionRunner('integer_decision_range_exclusive.dmn')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, 'ELSE Row Annotation')
@@ -39,7 +39,7 @@ class IntegerDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, '100-110 Exclusive Annotation')
 
     def test_integer_decision_string_output_excl_inclusive(self):
-        runner = PythonDecisionRunner('integer_decision_range_excl_inclusive.dmn', debug='DEBUG')
+        runner = PythonDecisionRunner('integer_decision_range_excl_inclusive.dmn')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, 'ELSE Row Annotation')
@@ -54,7 +54,7 @@ class IntegerDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_integer_decision_string_output_incl_exclusive(self):
-        runner = PythonDecisionRunner('integer_decision_range_incl_exclusive.dmn', debug='DEBUG')
+        runner = PythonDecisionRunner('integer_decision_range_incl_exclusive.dmn')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, '100-110 InclExclusive Annotation')

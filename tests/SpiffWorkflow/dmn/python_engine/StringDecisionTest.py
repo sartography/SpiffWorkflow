@@ -10,7 +10,7 @@ class StringDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = PythonDecisionRunner('string_decision.dmn', debug='DEBUG')
+        cls.runner = PythonDecisionRunner('string_decision.dmn')
 
     def test_string_decision_string_output1(self):
         res = self.runner.decide({"Gender":'m'})

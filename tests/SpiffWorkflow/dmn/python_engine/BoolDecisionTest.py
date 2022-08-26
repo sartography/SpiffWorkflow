@@ -7,7 +7,7 @@ class BoolDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = PythonDecisionRunner('bool_decision.dmn', debug='DEBUG')
+        cls.runner = PythonDecisionRunner('bool_decision.dmn')
 
     def test_bool_decision_string_output1(self):
         res = self.runner.decide({'input': True})

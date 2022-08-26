@@ -37,7 +37,7 @@ class NearMissTestClass(unittest.TestCase):
             "shared": []
         }
 
-        cls.runner = PythonDecisionRunner('exclusive.dmn', debug='DEBUG')
+        cls.runner = PythonDecisionRunner('exclusive.dmn')
 
     def test_string_decision_string_output1(self):
         self.assertRaisesRegex(NameError,

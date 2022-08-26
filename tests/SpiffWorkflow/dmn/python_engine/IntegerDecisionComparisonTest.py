@@ -10,7 +10,7 @@ class IntegerDecisionComparisonTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = PythonDecisionRunner('integer_decision_comparison.dmn', debug='DEBUG')
+        cls.runner = PythonDecisionRunner('integer_decision_comparison.dmn')
 
     def test_integer_decision_string_output1(self):
         res = self.runner.decide({"Age":30})

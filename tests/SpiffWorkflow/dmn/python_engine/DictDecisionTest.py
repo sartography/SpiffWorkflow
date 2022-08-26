@@ -10,7 +10,7 @@ class DictDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = PythonDecisionRunner('dict_decision.dmn', debug='DEBUG')
+        cls.runner = PythonDecisionRunner('dict_decision.dmn')
 
     def test_string_decision_string_output1(self):
         data = {"allergies": {
