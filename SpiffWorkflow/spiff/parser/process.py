@@ -28,6 +28,6 @@ class SpiffBpmnParser(BpmnDmnParser):
         full_tag('intermediateCatchEvent'): (SpiffIntermediateCatchEventParser, IntermediateCatchEvent),
         full_tag('intermediateThrowEvent'): (SpiffIntermediateThrowEventParser, IntermediateThrowEvent),
         full_tag('sendTask'): (SpiffSendTaskParser, SendTask),
-        full_tag('receiveTask'): (SpiffReceiveTaskParser, ReceiveTask)
+        full_tag('receiveTask'): (SpiffReceiveTaskParser, ReceiveTask),
         full_tag('businessRuleTask'): (BusinessRuleTaskParser, BusinessRuleTask)
     }
