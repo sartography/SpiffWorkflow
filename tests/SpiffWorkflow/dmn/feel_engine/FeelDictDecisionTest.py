@@ -19,7 +19,7 @@ class FeelDictDecisionTestClass(unittest.TestCase):
                 "PEANUTS": {"delicious": True},
                 "SPAM": {"delicious": False}
                 }}
-        PythonScriptEngine.convertToBox(PythonScriptEngine(),data)
+        PythonScriptEngine.convert_to_box(PythonScriptEngine(), data)
         res = self.runner.decide(data)
         self.assertEqual(res.description, 'They are allergic to peanuts')
 

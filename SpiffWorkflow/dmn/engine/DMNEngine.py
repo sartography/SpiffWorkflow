@@ -83,7 +83,7 @@ class DMNEngine:
         match_expr = re.sub('(\?)(?=(?:[^\'"]|[\'"][^\'"]*[\'"])*$)', 'dmninputexpr', match_expr)
         if 'dmninputexpr' in match_expr:
             external_methods = {
-                'dmninputexpr': script_engine._evaluate(input_expr, context, task)
+                'dmninputexpr': script_engine._evaluate(input_expr, context)
             }
             return script_engine._evaluate(match_expr, context, external_methods=external_methods)
 

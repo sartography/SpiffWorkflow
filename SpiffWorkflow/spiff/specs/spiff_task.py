@@ -15,7 +15,7 @@ class SpiffBpmnTask(BpmnSpecMixin):
 
     def execute_script(self, my_task, script):
         try:
-            my_task.workflow.script_engine.execute(my_task, script, my_task.data)
+            my_task.workflow.script_engine.execute(my_task, script)
         except Exception as exc:
             my_task._setstate(TaskState.WAITING, force=True)
             raise exc

@@ -4,7 +4,6 @@ import copy
 import sys
 import traceback
 import datetime
-from datetime import timedelta
 
 import dateparser
 import pytz
@@ -29,6 +28,8 @@ from ..operators import Operator
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+
+
 class Box(dict):
     """
     Example:
@@ -102,7 +103,7 @@ class PythonScriptEngine(object):
 
     def __init__(self, scripting_additions=None):
 
-        self.globals = {'timedelta': timedelta,
+        self.globals = {'timedelta': datetime.timedelta,
                         'datetime': datetime,
                         'dateparser': dateparser,
                         'pytz': pytz,
@@ -124,63 +125,17 @@ class PythonScriptEngine(object):
                 # expression judging from the contents of operators.py
                 return expression._matches(task)
             else:
-                return self._evaluate(expression, task.data, task=task)
+                return self._evaluate(expression, task.data)
         except Exception as e:
-            raise WorkflowTaskExecException(task,
-                                            "Error evaluating expression "
-                                            "'%s', %s" % (expression, str(e)))
+            raise WorkflowTaskExecException(task, f"Error evaluating expression {expression}", e)
 
-    def _evaluate(self, expression, context, task=None, external_methods=None):
-        """
-        Evaluate the given expression, within the context of the given task and
-        return the result.
-        """
-        if external_methods is None:
-            external_methods = {}
-
-        lcls = {}
-        if isinstance(context, dict):
-            lcls.update(context)
-
-        globals = copy.copy(self.globals)  # else we pollute all later evals.
-        for x in lcls.keys():
-            if isinstance(lcls[x], Box):
-                pass # Stunning performance improvement with this line.
-            elif isinstance(lcls[x], dict):
-                lcls[x] = Box(lcls[x])
-        globals.update(lcls)
-        globals.update(external_methods)
-        return eval(expression, globals, lcls)
-
-    def convertToBoxSub(self, data):
-        if isinstance(data, list):
-            for x in range(len(data)):
-                data[x] = self.convertToBoxSub(data[x])
-            return data
-        if isinstance(data, dict):
-            for x in data.keys():
-                if isinstance(data[x], dict):
-                    data[x] = self.convertToBoxSub(data[x])
-            return Box(data)
-        return data
-
-    def convertToBox(self, data):
-        for key in data.keys():
-            data[key] = self.convertToBoxSub(data[key])
-
-    def execute(self, task, script, data, external_methods=None):
+    def execute(self, task, script, external_methods=None):
         """
         Execute the script, within the context of the specified task
         """
-        if external_methods is None:
-            external_methods = {}
-        my_globals = copy.copy(self.globals)
-        self.check_for_overwrite(task, my_globals, external_methods, data)
-        self.convertToBox(data)
-        my_globals.update(data)
-        my_globals.update(external_methods)
         try:
-            exec(script, my_globals, data)
+            self.check_for_overwrite(task, external_methods or {})
+            self._execute(script, task.data, external_methods or {})
         except WorkflowTaskExecException as wte:
             raise wte  # Something lower down is already raising a detailed error
         except Exception as err:
@@ -193,22 +148,60 @@ class PythonScriptEngine(object):
             # Loop back through the stack trace to find the file called
             # 'string' - which is the script we are executing, then use that
             # to parse and pull out the offending line.
-            for frameSummary in traceback.extract_tb(tb):
-                if frameSummary.filename == '<string>':
-                    line_number = frameSummary.lineno
+            for frame_summary in traceback.extract_tb(tb):
+                if frame_summary.filename == '<string>':
+                    line_number = frame_summary.lineno
                     error_line = script.splitlines()[line_number - 1]
-            raise WorkflowTaskExecException(task, detail, err, line_number,
-                                            error_line)
+            raise WorkflowTaskExecException(task, detail, err, line_number, error_line)
 
-    def check_for_overwrite(self, task, my_globals, more_methods, data):
+    def check_for_overwrite(self, task, external_methods):
         """It's possible that someone will define a variable with the
         same name as a pre-defined script, rending the script un-callable.
         This results in a nearly indecipherable error.  Better to fail
         fast with a sensible error message."""
-        func_overwrites = set(my_globals).intersection(data)
-        func_overwrites.update(set(more_methods).intersection(data))
+        func_overwrites = set(self.globals).intersection(task.data)
+        func_overwrites.update(set(external_methods).intersection(task.data))
         if len(func_overwrites) > 0:
             msg = f"You have task data that overwrites a predefined " \
                   f"function(s). Please change the following variable or " \
                   f"field name(s) to something else: {func_overwrites}"
             raise WorkflowTaskExecException(task, msg)
+
+    def convert_to_box(self, data):
+        if isinstance(data, dict):
+            for x in data.keys():
+                if isinstance(data[x], dict):
+                    data[x] = self.convert_to_box(data[x])
+            return Box(data)
+        if isinstance(data, list):
+            for x in range(len(data)):
+                data[x] = self.convert_to_box(data[x])
+            return data
+        return data
+
+    def _evaluate(self, expression, context, external_methods=None):
+        """
+        Evaluate the given expression, within the context of the given task and
+        return the result.
+        """
+        lcls = {}
+        if isinstance(context, dict):
+            lcls.update(context)
+
+        globals = copy.copy(self.globals)  # else we pollute all later evals.
+        for key in lcls.keys():
+            if isinstance(lcls[key], Box):
+                pass # Stunning performance improvement with this line.
+            elif isinstance(lcls[key], dict):
+                lcls[key] = Box(lcls[key])
+        globals.update(lcls)
+        globals.update(external_methods or {})
+        return eval(expression, globals, lcls)
+
+    def _execute(self, script, context, external_methods=None):
+
+        my_globals = copy.copy(self.globals)
+        self.convert_to_box(context)
+        my_globals.update(context)
+        my_globals.update(external_methods or {})
+        exec(script, my_globals, context)
