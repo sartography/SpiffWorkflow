@@ -1,7 +1,7 @@
-from ...bpmn.serializer.bpmn_converters import BpmnDataConverter, BpmnTaskSpecConverter
+from ...bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
 
 from ..specs.BusinessRuleTask import BusinessRuleTask
-from ..specs.model import Decision, DecisionTable, Rule
+from ..specs.model import DecisionTable, Rule
 from ..specs.model import Input, InputEntry, Output, OutputEntry
 from ..engine.DMNEngine import DMNEngine
 

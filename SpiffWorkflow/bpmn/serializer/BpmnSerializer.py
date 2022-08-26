@@ -23,7 +23,6 @@ from warnings import warn
 from lxml import etree
 import zipfile
 import os
-from json import loads
 
 from SpiffWorkflow import TaskState
 from ...bpmn.specs.SubWorkflowTask import SubWorkflowTask

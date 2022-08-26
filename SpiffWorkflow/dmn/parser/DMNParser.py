@@ -1,8 +1,4 @@
 import ast
-import re
-from decimal import Decimal
-from ast import literal_eval
-from datetime import datetime
 
 from ...bpmn.parser.util import xpath_eval
 

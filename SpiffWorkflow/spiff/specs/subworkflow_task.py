@@ -1,4 +1,3 @@
-from ast import Pass
 from SpiffWorkflow.bpmn.specs.SubWorkflowTask import SubWorkflowTask, TransactionSubprocess, CallActivity
 from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
 

@@ -10,6 +10,9 @@ from ..specs.events import (TimerEventDefinition, MessageEventDefinition,
                             CancelEventDefinition, CycleTimerEventDefinition,
                             TerminateEventDefinition, NoneEventDefinition)
 
+
+CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
+
 class EventDefinitionParser(TaskParser):
     """This class provvides methods for parsing different event definitions."""
 

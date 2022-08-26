@@ -3,21 +3,17 @@
 from builtins import str
 import sys
 import unittest
-import re
 import os
 import warnings
 dirname = os.path.dirname(__file__)
 data_dir = os.path.join(dirname, '..', 'data')
 sys.path.insert(0, os.path.join(dirname, '..'))
 
-from uuid import UUID
 from PatternTest import run_workflow, PatternTest
 from SpiffWorkflow.serializer.base import Serializer
 from SpiffWorkflow.specs import WorkflowSpec
 from SpiffWorkflow import Workflow
-from SpiffWorkflow.serializer.exceptions import TaskSpecNotSupportedError, \
-    TaskNotSupportedError
-from data.spiff.workflow1 import TestWorkflowSpec
+from SpiffWorkflow.serializer.exceptions import TaskNotSupportedError
 
 
 class SerializerTest(PatternTest):

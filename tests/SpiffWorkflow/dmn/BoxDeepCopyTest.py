@@ -1,6 +1,5 @@
 import unittest
 
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
 from SpiffWorkflow.bpmn.PythonScriptEngine import Box
 
 

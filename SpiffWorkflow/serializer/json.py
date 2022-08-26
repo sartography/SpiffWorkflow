@@ -19,7 +19,6 @@ import uuid
 from .dict import DictionarySerializer
 from ..operators import Attrib
 from ..camunda.specs.UserTask import Form
-from ..util.impl import get_class
 
 def object_hook(dct):
     if '__uuid__' in dct:

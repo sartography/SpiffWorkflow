@@ -65,7 +65,7 @@
     <bpmn:boundaryEvent id="Event_0iiih8g" name="FedUp" attachedToRef="Subworkflow">
       <bpmn:outgoing>Flow_0yzqey7</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0irxg9m">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT0.3S</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT0.03S</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
   </bpmn:process>

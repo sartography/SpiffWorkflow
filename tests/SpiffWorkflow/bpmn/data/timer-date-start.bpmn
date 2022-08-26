@@ -7,7 +7,7 @@
     <bpmn:scriptTask id="Activity_1q1wged" name="Set Future Date">
       <bpmn:incoming>Flow_1i73q45</bpmn:incoming>
       <bpmn:outgoing>Flow_00e79cz</bpmn:outgoing>
-      <bpmn:script>futuredate = dateparser.parse('in 1 second') - timedelta(seconds=.75) 
+      <bpmn:script>futuredate = dateparser.parse('in 1 second') - timedelta(seconds=.95) 
 futuredate2 = dateparser.parse('September 1 2021 at 10am EDT')</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_1i73q45" sourceRef="Event_0u1rmur" targetRef="Activity_1q1wged" />
