@@ -1,5 +1,6 @@
 from lxml import etree
 
+from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import SubprocessParser
 from SpiffWorkflow.bpmn.parser.util import xpath_eval
@@ -77,3 +78,17 @@ class CallActivityParser(SpiffTaskParser):
             description=self.node.get('name', None),
             prescript=prescript,
             postscript=postscript)
+
+
+class BusinessRuleTaskParser(SpiffTaskParser):
+
+    def create_task(self):
+        extensions = self.parse_extensions()
+        decision_ref = extensions.get('calledDecisionId')
+        return BusinessRuleTask(self.spec,
+            self.get_task_spec_name(),
+            dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
+            lane=self.lane,
+            position=self.position,
+            description=self.node.get('name', None)
+        )

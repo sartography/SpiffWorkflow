@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
+from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from SpiffWorkflow.bpmn.parser.BpmnParser import full_tag
 
 from SpiffWorkflow.bpmn.specs.events import StartEvent, EndEvent, IntermediateThrowEvent, BoundaryEvent, IntermediateCatchEvent
@@ -7,8 +7,14 @@ from SpiffWorkflow.spiff.specs.events.event_types import SendTask, ReceiveTask
 from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser, SubWorkflowParser, CallActivityParser
 from SpiffWorkflow.spiff.parser.event_parsers import (SpiffStartEventParser, SpiffEndEventParser, SpiffBoundaryEventParser,
     SpiffIntermediateCatchEventParser, SpiffIntermediateThrowEventParser, SpiffSendTaskParser, SpiffReceiveTaskParser)
+from SpiffWorkflow.dmn.specs import BusinessRuleTask
 
-class SpiffBpmnParser(BpmnParser):
+from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser
+from SpiffWorkflow.spiff.parser.task_spec import SubWorkflowParser, CallActivityParser
+from SpiffWorkflow.spiff.parser.task_spec import BusinessRuleTaskParser
+
+class SpiffBpmnParser(BpmnDmnParser):
+
     OVERRIDE_PARSER_CLASSES = {
         full_tag('task'): (SpiffTaskParser, NoneTask),
         full_tag('userTask'): (SpiffTaskParser, UserTask),
@@ -23,4 +29,5 @@ class SpiffBpmnParser(BpmnParser):
         full_tag('intermediateThrowEvent'): (SpiffIntermediateThrowEventParser, IntermediateThrowEvent),
         full_tag('sendTask'): (SpiffSendTaskParser, SendTask),
         full_tag('receiveTask'): (SpiffReceiveTaskParser, ReceiveTask)
+        full_tag('businessRuleTask'): (BusinessRuleTaskParser, BusinessRuleTask)
     }
