@@ -16,7 +16,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ast import Call
 from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent

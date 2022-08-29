@@ -36,3 +36,20 @@ class CorrelationTest(BaseTestCase):
         for task in self.workflow.get_tasks_from_spec_name('subprocess_end'):
             self.assertEqual(task.data['response']['init_id'], task.data['task_num'])
             self.assertEqual(task.data['response']['response'], 'OK' if task.data['task_num'] else 'No')
+
+
+class DualConversationTest(BaseTestCase):
+
+    def testTwoCorrelatonKeys(self):
+
+        spec, subprocesses = self.load_workflow_spec('correlation_two_conversations.bpmn', 'message_send_process')
+        workflow = BpmnWorkflow(spec, subprocesses)
+        workflow.do_engine_steps()
+        messages = workflow.get_bpmn_messages()
+        self.assertEqual(len(messages), 2)
+        message_one = [ msg for msg in messages if msg.name== 'Message Send One' ][0]
+        message_two = [ msg for msg in messages if msg.name== 'Message Send Two' ][0]
+        self.assertIn('message_correlation_key_one', message_one.correlations)
+        self.assertNotIn('message_correlation_key_one', message_two.correlations)
+        self.assertIn('message_correlation_key_two', message_two.correlations)
+        self.assertNotIn('message_correlation_key_two', message_one.correlations)
