@@ -32,7 +32,7 @@
     <bpmn:boundaryEvent id="CatchMessage" cancelActivity="false" attachedToRef="Get_Coffee">
       <bpmn:outgoing>Flow_1pzc4jz</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_180fybf">
-        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">(2,timedelta(seconds=.25))</bpmn:timeCycle>
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">(2,timedelta(seconds=0.01))</bpmn:timeCycle>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
   </bpmn:process>

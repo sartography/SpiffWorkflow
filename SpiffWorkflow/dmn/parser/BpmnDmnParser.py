@@ -1,24 +1,30 @@
 import glob
 
 from ...bpmn.parser.util import xpath_eval
+from ...bpmn.parser.ValidationException import ValidationException
 
-from ...bpmn.parser.BpmnParser import BpmnParser, full_tag
-from ...dmn.parser.BusinessRuleTaskParser import BusinessRuleTaskParser
+from ...bpmn.parser.BpmnParser import BpmnParser
 from ...dmn.parser.DMNParser import DMNParser
-from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
+from ..engine.DMNEngine import DMNEngine
 from lxml import etree
 
 class BpmnDmnParser(BpmnParser):
-
-    OVERRIDE_PARSER_CLASSES = {
-        full_tag('businessRuleTask'): (BusinessRuleTaskParser,
-                                       BusinessRuleTask)
-    }
 
     def __init__(self):
         super().__init__()
         self.dmn_parsers = {}
         self.dmn_parsers_by_name = {}
+
+    def get_engine(self, decision_ref, node):
+        if decision_ref not in self.dmn_parsers:
+            options = ', '.join(list(self.dmn_parsers.keys()))
+            raise ValidationException(
+                'No DMN Diagram available with id "%s", Available DMN ids are: %s' %(decision_ref, options),
+                node=node, filename='')
+        dmnParser = self.dmn_parsers[decision_ref]
+        dmnParser.parse()
+        decision = dmnParser.decision
+        return DMNEngine(decision.decisionTables[0])
 
     def add_dmn_xml(self, node, filename=None):
         """

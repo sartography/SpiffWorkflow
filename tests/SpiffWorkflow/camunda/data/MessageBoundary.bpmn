@@ -78,7 +78,7 @@
         <bpmn:incoming>Flow_11u0pgk</bpmn:incoming>
         <bpmn:outgoing>Flow_1rqk2v9</bpmn:outgoing>
         <bpmn:timerEventDefinition id="TimerEventDefinition_0bct7zl">
-          <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=.1)</bpmn:timeDuration>
+          <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=.01)</bpmn:timeDuration>
         </bpmn:timerEventDefinition>
       </bpmn:intermediateCatchEvent>
       <bpmn:sequenceFlow id="Flow_1gs89vo" sourceRef="Event_0akpdke" targetRef="Activity_106f08z" />

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from asyncio import subprocess
 import sys
 import os
 import unittest

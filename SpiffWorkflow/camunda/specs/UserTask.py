@@ -3,7 +3,6 @@
 
 from ...bpmn.specs.UserTask import UserTask
 from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-from ...specs import Simple
 
 
 class UserTask(UserTask, BpmnSpecMixin):

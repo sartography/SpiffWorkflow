@@ -60,7 +60,7 @@ class UserTaskConverter(CamundaEventConverter):
 
     def __init__(self, data_converter=None, typename=None):
         super().__init__(UserTask, data_converter, typename)
- 
+
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
         dct.update(self.get_bpmn_attributes(spec))

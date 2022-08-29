@@ -22,7 +22,6 @@ import logging
 import time
 import warnings
 from uuid import uuid4
-from enum import IntFlag
 
 from .util.deep_merge import DeepMerge
 from .exceptions import WorkflowException
@@ -46,8 +45,7 @@ def updateDotDict(dct,dotted_path,value):
     return root
 
 
-
-class TaskState(IntFlag):
+class TaskState:
     """
 
     The following states may exist:

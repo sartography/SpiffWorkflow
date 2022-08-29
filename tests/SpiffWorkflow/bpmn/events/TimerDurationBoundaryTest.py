@@ -35,7 +35,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         loopcount = 0
-        # test bpmn has a timeout of .25s
+        # test bpmn has a timeout of .03s
         # we should terminate loop before that.
 
         while loopcount < 11:
@@ -46,7 +46,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
                 self.save_restore()
                 self.workflow.script_engine = FeelLikeScriptEngine()
             #self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
-            time.sleep(0.1)
+            time.sleep(0.01)
             self.workflow.complete_task_from_id(ready_tasks[0].id)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()

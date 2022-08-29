@@ -9,7 +9,7 @@ from .bpmn_converters import BpmnDataConverter
 
 from ..workflow import BpmnMessage, BpmnWorkflow
 from ..specs.SubWorkflowTask import SubWorkflowTask
-from ...task import Task, TaskState
+from ...task import Task
 
 from .workflow_spec_converter import BpmnProcessSpecConverter
 from .bpmn_converters import BpmnMessageFlowConverter
@@ -220,7 +220,7 @@ class BpmnWorkflowSerializer:
 
         task = Task(workflow, task_spec, parent)
         task.id = UUID(dct['id'])
-        task.state = TaskState(dct['state'])
+        task.state = dct['state']
         task.last_state_change = dct['last_state_change']
         task.triggered = dct['triggered']
         task.internal_data = self.data_converter.restore(dct['internal_data'])
