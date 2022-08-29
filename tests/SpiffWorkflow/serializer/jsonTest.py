@@ -2,14 +2,12 @@
 
 import sys
 import unittest
-import re
 import os
 dirname = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 import json
 from SpiffWorkflow.serializer.json import JSONSerializer
-from .baseTest import SerializerTest
 from .dictTest import DictionarySerializerTest
 
 

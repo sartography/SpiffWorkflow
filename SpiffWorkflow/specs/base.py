@@ -23,7 +23,7 @@ import logging
 from abc import abstractmethod
 
 from ..util.event import Event
-from ..task import Task, TaskState
+from ..task import TaskState
 from ..exceptions import WorkflowException
 
 

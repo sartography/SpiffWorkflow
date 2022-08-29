@@ -26,7 +26,7 @@ def parse(lines):
     test_file_timings = []
 
     test_file_line_parser = regex_line_parser('.*?Test.py', rstripped)
-    timing_line_parser = regex_line_parser('Ran (.*) tests in (.*)', tupled)
+    timing_line_parser = regex_line_parser('Ran (.*) tests? in (.*)', tupled)
 
     for line in lines:
         if test_file is None:

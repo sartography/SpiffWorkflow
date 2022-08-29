@@ -46,7 +46,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         if save_restore:
             self.save_restore()
-        time.sleep(0.5)
+        time.sleep(0.1)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]

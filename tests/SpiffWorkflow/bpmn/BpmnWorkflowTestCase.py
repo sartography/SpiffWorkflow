@@ -27,6 +27,18 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         subprocesses = parser.get_subprocess_specs(process_name)
         return top_level_spec, subprocesses
 
+    def load_collaboration(self, filename, collaboration_name):
+        f = os.path.join(os.path.dirname(__file__), 'data', filename)
+        parser = TestBpmnParser()
+        parser.add_bpmn_files_by_glob(f)
+        return parser.get_collaboration(collaboration_name)
+
+    def get_all_specs(self, filename):
+        f = os.path.join(os.path.dirname(__file__), 'data', filename)
+        parser = TestBpmnParser()
+        parser.add_bpmn_files_by_glob(f)
+        return parser.find_all_specs()
+
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:
             self.save_restore_all()

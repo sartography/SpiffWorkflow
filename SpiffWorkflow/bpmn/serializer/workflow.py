@@ -7,17 +7,19 @@ from .version_migration import MIGRATIONS
 
 from .bpmn_converters import BpmnDataConverter
 
-from ..workflow import BpmnWorkflow
+from ..workflow import BpmnMessage, BpmnWorkflow
 from ..specs.SubWorkflowTask import SubWorkflowTask
-from ...task import Task, TaskState
+from ...task import Task
 
 from .workflow_spec_converter import BpmnProcessSpecConverter
+from .bpmn_converters import BpmnMessageFlowConverter
 
 from .task_spec_converters import SimpleTaskConverter, StartTaskConverter, EndJoinConverter, LoopResetTaskConverter
 from .task_spec_converters import NoneTaskConverter, UserTaskConverter, ManualTaskConverter, ScriptTaskConverter
 from .task_spec_converters import CallActivityTaskConverter, TransactionSubprocessTaskConverter
 from .task_spec_converters import StartEventConverter, EndEventConverter
 from .task_spec_converters import IntermediateCatchEventConverter, IntermediateThrowEventConverter
+from .task_spec_converters import SendTaskConverter, ReceiveTaskConverter
 from .task_spec_converters import BoundaryEventConverter, BoundaryEventParentConverter
 from .task_spec_converters import ParallelGatewayConverter, ExclusiveGatewayConverter, InclusiveGatewayConverter
 
@@ -25,7 +27,7 @@ DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
     SimpleTaskConverter, StartTaskConverter, EndJoinConverter, LoopResetTaskConverter,
     NoneTaskConverter, UserTaskConverter, ManualTaskConverter, ScriptTaskConverter,
     CallActivityTaskConverter, TransactionSubprocessTaskConverter,
-    StartEventConverter, EndEventConverter,
+    StartEventConverter, EndEventConverter, SendTaskConverter, ReceiveTaskConverter,
     IntermediateCatchEventConverter, IntermediateThrowEventConverter,
     BoundaryEventConverter, BoundaryEventParentConverter,
     ParallelGatewayConverter, ExclusiveGatewayConverter, InclusiveGatewayConverter
@@ -161,6 +163,7 @@ class BpmnWorkflowSerializer:
         dct['subprocesses'] = dict(
             (str(task_id), self.process_to_dict(sp)) for task_id, sp in workflow.subprocesses.items()
         )
+        dct['bpmn_messages'] = [self.message_to_dict(msg) for msg in workflow.bpmn_messages]
         return dct
 
     def workflow_from_dict(self, dct, read_only=False):
@@ -188,6 +191,9 @@ class BpmnWorkflowSerializer:
 
         # Create the top-level workflow
         workflow = self.wf_class(spec, subprocess_specs, read_only=read_only)
+        
+        # Restore any unretrieve messages
+        workflow.bpmn_messages = [ self.message_from_dict(msg) for msg in dct.get('bpmn_messages', []) ]
 
         # Restore the remainder of the workflow
         workflow.data = self.data_converter.restore(dct_copy.pop('data'))
@@ -267,3 +273,20 @@ class BpmnWorkflowSerializer:
             'tasks': self.task_tree_to_dict(process.task_tree),
             'root': str(process.task_tree.id),
         }
+
+    def message_to_dict(self, message):
+        dct = {
+            'message_flows': [BpmnMessageFlowConverter.to_dict(flow) for flow in message.message_flows],
+            'correlations': dict([ (k, self.data_converter.convert(v)) for k, v in message.correlations.items() ]),
+            'name': message.name,
+            'payload': self.spec_converter.convert(message.payload),
+        }
+        return dct
+
+    def message_from_dict(self, dct):
+        return BpmnMessage(
+            [BpmnMessageFlowConverter.from_dict(flow) for flow in dct['message_flows']],
+            dict([ (k, self.data_converter.restore(v)) for k, v in dct['correlations'].items() ]),
+            dct['name'],
+            self.spec_converter.restore(dct['payload'])
+        )

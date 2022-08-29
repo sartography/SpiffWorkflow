@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="Definitions_76910d7" name="DRD" namespace="http://camunda.org/schema/1.0/dmn">
+  <decision id="decision_1" name="decision_1">
+    <decisionTable id="decisionTable_1">
+      <input id="input_1" label="question">
+        <inputExpression id="inputExpression_1" typeRef="string">
+          <text>question</text>
+        </inputExpression>
+      </input>
+      <output id="output_1" label="Answer" name="answer" typeRef="string" />
+      <rule id="DecisionRule_0q751jh">
+        <inputEntry id="UnaryTests_0etz9ah">
+          <text>"X"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1glqaro">
+          <text>"Y"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0fkmbpp">
+        <inputEntry id="UnaryTests_1u0ex1a">
+          <text>"A"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0twqhz2">
+          <text>"B"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1m4213a">
+        <inputEntry id="UnaryTests_0z7qrm1">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_085ofdi">
+          <text>"Something is wrog"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1cykosu">
+      <dmndi:DMNShape id="DMNShape_1dhfq2s" dmnElementRef="decision_1">
+        <dc:Bounds height="80" width="180" x="157" y="151" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn.specs .BpmnSpecMixin import BpmnSpecMixin
 
@@ -14,6 +16,15 @@ class SpiffBpmnTask(BpmnSpecMixin):
     def execute_script(self, my_task, script):
         try:
             my_task.workflow.script_engine.execute(my_task, script, my_task.data)
+        except Exception as exc:
+            my_task._setstate(TaskState.WAITING, force=True)
+            raise exc
+
+    def get_payload(self, my_task, script, expr):
+        try:
+            data = deepcopy(my_task.data)
+            my_task.worklflow.script_engine.execute(my_task, script, data)
+            return my_task.workflow.script_engine._evaluate(expr, data)
         except Exception as exc:
             my_task._setstate(TaskState.WAITING, force=True)
             raise exc

@@ -1,8 +1,6 @@
 import os
 import unittest
 
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

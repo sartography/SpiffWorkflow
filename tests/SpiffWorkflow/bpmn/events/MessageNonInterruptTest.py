@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
-
-
 import unittest
-import datetime
-import time
+
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
@@ -53,7 +51,7 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
 
-        self.workflow.message('Test Message')
+        self.workflow.catch(MessageEventDefinition('Test Message'))
         self.save_restore()
 
         self.workflow.do_engine_steps()
@@ -105,7 +103,7 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
 
-        self.workflow.message('Test Message')
+        self.workflow.catch(MessageEventDefinition('Test Message'))
 
         self.workflow.do_engine_steps()
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
@@ -133,7 +131,7 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
 
-        self.workflow.message('Test Message')
+        self.workflow.catch(MessageEventDefinition('Test Message'))
 
         self.workflow.do_engine_steps()
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
@@ -162,7 +160,7 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
 
-        self.workflow.message('Test Message')
+        self.workflow.catch(MessageEventDefinition('Test Message'))
         self.save_restore()
 
         self.workflow.do_engine_steps()

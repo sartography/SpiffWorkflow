@@ -2,7 +2,6 @@
 
 import sys
 import unittest
-import re
 import os
 dirname = os.path.dirname(__file__)
 data_dir = os.path.join(dirname, '..', 'data')
