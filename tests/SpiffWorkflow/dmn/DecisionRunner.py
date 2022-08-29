@@ -2,22 +2,19 @@ import os
 
 from lxml import etree
 
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
 from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
 
 
 class DecisionRunner:
-    def __init__(self, path, script_engine=None, debug=None):
-        self.script_engine = script_engine or PythonScriptEngine()
-        self.path = os.path.join(os.path.dirname(__file__),
-                                 'data', path)
 
-        f = open(self.path, 'r')
-        try:
-            node = etree.parse(f)
-        finally:
-            f.close()
+    def __init__(self, script_engine, filename, path='', debug=None):
+        self.script_engine = script_engine
+        fn = os.path.join(os.path.dirname(__file__), path, 'data', filename)
+
+        with open(fn) as fh:    
+            node = etree.parse(fh)
+
         self.dmnParser = DMNParser(None, node.getroot())
         self.dmnParser.parse()
 

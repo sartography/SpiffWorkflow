@@ -3,14 +3,14 @@ from functools import partial
 from uuid import UUID
 from datetime import datetime, timedelta
 
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataSpecification
+from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataSpecification, BpmnMessageFlow
 
 from .dictionary import DictionaryConverter
 
 from ..specs.events import SignalEventDefinition, MessageEventDefinition, NoneEventDefinition
 from ..specs.events import TimerEventDefinition, CycleTimerEventDefinition, TerminateEventDefinition
 from ..specs.events import ErrorEventDefinition, EscalationEventDefinition, CancelEventDefinition
-from ..specs.events.event_definitions import NamedEventDefinition
+from ..specs.events.event_definitions import CorrelationProperty, NamedEventDefinition
 
 from ..specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
 from ...operators import Attrib, PathAttrib
@@ -42,6 +42,24 @@ class BpmnDataSpecificationConverter:
     @staticmethod
     def from_dict(dct):
         return BpmnDataSpecification(**dct)
+
+
+class BpmnMessageFlowConverter:
+
+    @staticmethod
+    def to_dict(flow):
+        return {
+            'name': flow.name,
+            'message_ref': flow.message_ref,
+            'source_process': flow.source_process,
+            'target_process': flow.target_process,
+            'source_task': flow.source_task,
+            'target_task': flow.target_task,
+        }
+
+    @staticmethod
+    def from_dict(dct):
+        return BpmnMessageFlow(**dct)
 
 
 class BpmnTaskSpecConverter(DictionaryConverter):
@@ -233,8 +251,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         if isinstance(event_definition, NamedEventDefinition):
             dct['name'] = event_definition.name
         if isinstance(event_definition, MessageEventDefinition):
-            dct['payload'] = event_definition.payload
-            dct['result_var'] = event_definition.result_var
+            dct['correlation_properties'] = [prop.__dict__ for prop in event_definition.correlation_properties]
         if isinstance(event_definition, TimerEventDefinition):
             dct['label'] = event_definition.label
             dct['dateTime'] = event_definition.dateTime
@@ -259,6 +276,8 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             an `EventDefinition` object
         """
         internal, external = dct.pop('internal'), dct.pop('external')
+        if 'correlation_properties' in dct:
+            dct['correlation_properties'] = [CorrelationProperty(**prop) for prop in dct['correlation_properties']]
         event_definition = definition_class(**dct)
         event_definition.internal = internal
         event_definition.external = external

@@ -21,8 +21,12 @@ import glob
 
 from lxml import etree
 
+from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
+
 from .ValidationException import ValidationException
+from ..specs.BpmnProcessSpec import BpmnProcessSpec
 from ..specs.events import StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
+from ..specs.events import SendTask, ReceiveTask
 from ..specs.SubWorkflowTask import CallActivity, SubWorkflowTask, TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
@@ -32,12 +36,13 @@ from ..specs.ParallelGateway import ParallelGateway
 from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
 from .ProcessParser import ProcessParser
-from .util import full_tag, xpath_eval
+from .util import full_tag, xpath_eval, first
 from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
                            ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser,
                            CallActivityParser, ScriptTaskParser, SubWorkflowParser)
 from .event_parsers import (StartEventParser, EndEventParser, BoundaryEventParser,
-                           IntermediateCatchEventParser, IntermediateThrowEventParser)
+                           IntermediateCatchEventParser, IntermediateThrowEventParser,
+                           SendTaskParser, ReceiveTaskParser)
 
 
 class BpmnParser(object):
@@ -64,11 +69,11 @@ class BpmnParser(object):
         full_tag('callActivity'): (CallActivityParser, CallActivity),
         full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
-        full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser,
-                                             IntermediateCatchEvent),
-        full_tag('intermediateThrowEvent'): (IntermediateThrowEventParser,
-                                             IntermediateThrowEvent),
+        full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser, IntermediateCatchEvent),
+        full_tag('intermediateThrowEvent'): (IntermediateThrowEventParser, IntermediateThrowEvent),
         full_tag('boundaryEvent'): (BoundaryEventParser, BoundaryEvent),
+        full_tag('receiveTask'): (ReceiveTaskParser, ReceiveTask),
+        full_tag('sendTask'): (SendTaskParser, SendTask),
     }
 
     OVERRIDE_PARSER_CLASSES = {}
@@ -81,6 +86,7 @@ class BpmnParser(object):
         """
         self.process_parsers = {}
         self.process_parsers_by_name = {}
+        self.collaborations = {}
 
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
@@ -151,9 +157,14 @@ class BpmnParser(object):
             else:
                 foundids[id] = 1
 
-        processes = xpath('.//bpmn:process')
-        for process in processes:
+        for process in xpath('.//bpmn:process'):
             self.create_parser(process, xpath, filename)
+
+        collaboration = first(xpath('.//bpmn:collaboration'))
+        if collaboration is not None:
+            collaboration_xpath = xpath_eval(collaboration)
+            name = collaboration.get('id')
+            self.collaborations[name] = [ participant.get('processRef') for participant in collaboration_xpath('.//bpmn:participant') ]
 
     def create_parser(self, node, doc_xpath, filename=None, lane=None):
         parser = self.PROCESS_PARSER_CLASS(self, node, filename=filename, doc_xpath=doc_xpath, lane=lane)
@@ -195,3 +206,21 @@ class BpmnParser(object):
             for process_id in self.process_parsers.keys():
                 processes[process_id] = self.get_spec(process_id)
         return processes
+
+    def get_collaboration(self, name):
+        self.find_all_specs()
+        spec = BpmnProcessSpec(name)
+        subprocesses = {}
+        start = StartEvent(spec, 'Start Collaboration', NoneEventDefinition())
+        spec.start.connect(start)
+        end = EndEvent(spec, 'End Collaboration', NoneEventDefinition())
+        end.connect(spec.end)
+        for process in self.collaborations[name]:
+            process_parser = self.get_process_parser(process)
+            if process_parser and process_parser.process_executable:
+                participant = CallActivity(spec, process, process)
+                start.connect(participant)
+                participant.connect(end)
+                subprocesses[process] = self.get_spec(process)
+                subprocesses.update(self.get_subprocess_specs(process))
+        return spec, subprocesses

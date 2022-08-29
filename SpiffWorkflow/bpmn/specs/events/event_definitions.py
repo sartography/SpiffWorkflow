@@ -19,9 +19,7 @@
 
 import datetime
 import logging
-import datetime
-
-from builtins import object
+from copy import deepcopy
 
 LOG = logging.getLogger(__name__)
 
@@ -69,8 +67,9 @@ class EventDefinition(object):
         # between processes and subprocesses.
         if self.internal:
             workflow.catch(event)
-        if self.external and workflow != outer_workflow:
-            outer_workflow.catch(event)
+        if self.external:
+            flows = [ flow for flow in workflow.spec.outgoing_message_flows if flow.message_ref == event.name ]
+            outer_workflow.catch(event, flows, workflow.correlations)
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__
@@ -123,6 +122,7 @@ class CancelEventDefinition(EventDefinition):
         super(CancelEventDefinition, self).__init__()
         self.internal = False
 
+
 class ErrorEventDefinition(NamedEventDefinition):
     """
     Error events can occur only in subprocesses and as subprocess boundary events.  They're
@@ -167,61 +167,58 @@ class EscalationEventDefinition(NamedEventDefinition):
         return retdict
 
 
+class CorrelationProperty:
+    """Rules for generating a correlation key when a message is sent or received."""
+
+    def __init__(self, name, expression, correlation_keys):
+        self.name = name                            # This is the property name
+        self.expression = expression                # This is how it's generated
+        self.correlation_keys = correlation_keys    # These are the keys it's used by
+
+
 class MessageEventDefinition(NamedEventDefinition):
-    """
-    Message Events have both a name and a payload.
-    """
+    """The default message event."""
 
-    # It is not entirely clear how the payload is supposed to be handled, so I have
-    # deviated from what the earlier code did as little as possible, but I believe
-    # this should be revisited: for one thing, we're relying on some Camunda-specific
-    # properties.
-
-    def __init__(self, name, payload=None, result_var=None):
-
-        super(MessageEventDefinition, self).__init__(name)
-        self.payload = payload
-        self.result_var = result_var
-
-        # The BPMN spec says that Messages should not be used within a process; however
-        # we're doing this wrong so I am putting this here as a reminder that it should be
-        # fixed, but commenting it out.
-
-        #self.internal = False
+    def __init__(self, name, correlation_properties=None):
+        super().__init__(name)
+        self.correlation_properties = correlation_properties or []
+        self.payload = None
+        self.internal = False
 
     def catch(self, my_task, event_definition):
-
-        # It seems very stupid to me that the sender of the message should define the
-        # name of the variable the payload is saved in (the receiver ought to decide
-        # what to do with it); however, Camunda puts the field on the sender, not the
-        # receiver.
-        if event_definition.result_var is None:
-            result_var = f'{my_task.task_spec.name}_Response'
-        else:
-            result_var = event_definition.result_var
-        my_task.internal_data[event_definition.name] = {
-            "result_var": result_var,
-            "payload": event_definition.payload
-        }
+        self.update_internal_data(my_task, event_definition)
         super(MessageEventDefinition, self).catch(my_task, event_definition)
 
     def throw(self, my_task):
-        # We need to evaluate the message payload in the context of this task
-        result = my_task.workflow.script_engine.evaluate(my_task, self.payload)
         # We can't update our own payload, because if this task is reached again
         # we have to evaluate it again so we have to create a new event
-        event = MessageEventDefinition(self.name, payload=result, result_var=self.result_var)
+        event = MessageEventDefinition(self.name, self.correlation_properties)
+        # Generating a payload unfortunately needs to be handled using custom extensions
+        # However, there needs to be something to apply the correlations to in the
+        # standard case and this is line with the way Spiff works otherwise
+        event.payload = deepcopy(my_task.data)
+        my_task.workflow.correlations.update(
+            self.get_correlations(my_task.workflow.script_engine, event.payload))
         self._throw(event, my_task.workflow, my_task.workflow.outer_workflow)
 
-    def reset(self, my_task):
-        my_task.internal_data.pop(self.name, None)
-        super(MessageEventDefinition, self).reset(my_task)
+    def update_internal_data(self, my_task, event_definition):
+        my_task.internal_data[event_definition.name] = event_definition.payload
 
-    def serialize(self):
-        retdict = super(MessageEventDefinition, self).serialize()
-        retdict['payload'] = self.payload
-        retdict['result_var'] = self.result_var
-        return retdict
+    def update_task_data(self, my_task):
+        # I've added this method so that different message implementations can handle
+        # copying their message data into the task
+        payload = my_task.internal_data.get(self.name)
+        if payload is not None:
+            my_task.set_data(**payload)
+
+    def get_correlations(self, script_engine, payload):
+        correlations = {}
+        for property in self.correlation_properties:
+            for key in property.correlation_keys:
+                if key not in correlations:
+                    correlations[key] = {}
+                correlations[key][property.name] = script_engine._evaluate(property.expression, payload)
+        return correlations
 
 
 class NoneEventDefinition(EventDefinition):

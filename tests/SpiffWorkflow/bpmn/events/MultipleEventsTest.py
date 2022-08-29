@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from SpiffWorkflow.bpmn.specs.events import CancelEventDefinition
+from SpiffWorkflow.bpmn.specs.events import CancelEventDefinition, SignalEventDefinition
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -21,7 +21,7 @@ class MultipleEventsTest(BpmnWorkflowTestCase):
     def test_cancel_does_nothing_if_no_one_is_listening(self,save_restore = False):
 
         # Send cancel notifications to the workflow
-        self.workflow.signal('cancel')  # generate a cancel signal.
+        self.workflow.catch(SignalEventDefinition('cancel'))  # generate a cancel signal.
         self.workflow.catch(CancelEventDefinition())
 
         # Nothing should have happened.
@@ -39,7 +39,7 @@ class MultipleEventsTest(BpmnWorkflowTestCase):
         self.assertEqual('UserTaskOne', task.get_name())
 
         # Send cancel notifications to the workflow
-        self.workflow.signal('cancel')  # generate a cancel signal.
+        self.workflow.catch(SignalEventDefinition('cancel'))  # generate a cancel signal.
         self.workflow.catch(CancelEventDefinition())
         self.workflow.do_engine_steps()
 
@@ -61,7 +61,7 @@ class MultipleEventsTest(BpmnWorkflowTestCase):
         self.assertEqual('UserTaskTwo', task.get_name())
 
         # Send cancel notifications to the workflow
-        self.workflow.signal('cancel')  # generate a cancel signal.
+        self.workflow.catch(SignalEventDefinition('cancel'))  # generate a cancel signal.
         self.workflow.catch(CancelEventDefinition())
         self.workflow.do_engine_steps()
 

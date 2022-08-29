@@ -23,6 +23,12 @@ from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
 from ....task import TaskState
 
+class SendTask(ThrowingEvent):
+    pass
+
+class ReceiveTask(CatchingEvent):
+    pass
+
 class IntermediateCatchEvent(CatchingEvent):
     pass
 
@@ -99,9 +105,9 @@ class BoundaryEvent(CatchingEvent):
         super(BoundaryEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
         self.cancel_activity = cancel_activity
 
-    def catches(self, my_task, event_definition):
+    def catches(self, my_task, event_definition, correlations=None):
         # Boundary events should only be caught while waiting
-        return super(BoundaryEvent, self).catches(my_task, event_definition) and my_task.state == TaskState.WAITING
+        return super(BoundaryEvent, self).catches(my_task, event_definition, correlations) and my_task.state == TaskState.WAITING
 
     def catch(self, my_task, event_definition):
         super(BoundaryEvent, self).catch(my_task, event_definition)
