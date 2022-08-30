@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from tkinter.messagebox import Message
+#from tkinter.messagebox import Message
 import unittest
 
 from SpiffWorkflow.task import TaskState
