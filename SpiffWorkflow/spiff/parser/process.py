@@ -9,8 +9,6 @@ from SpiffWorkflow.spiff.parser.event_parsers import (SpiffStartEventParser, Spi
     SpiffIntermediateCatchEventParser, SpiffIntermediateThrowEventParser, SpiffSendTaskParser, SpiffReceiveTaskParser)
 from SpiffWorkflow.dmn.specs import BusinessRuleTask
 
-from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser
-from SpiffWorkflow.spiff.parser.task_spec import SubWorkflowParser, CallActivityParser
 from SpiffWorkflow.spiff.parser.task_spec import BusinessRuleTaskParser
 
 class SpiffBpmnParser(BpmnDmnParser):
