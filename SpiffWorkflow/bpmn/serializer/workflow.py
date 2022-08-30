@@ -12,7 +12,6 @@ from ..specs.SubWorkflowTask import SubWorkflowTask
 from ...task import Task
 
 from .workflow_spec_converter import BpmnProcessSpecConverter
-from .bpmn_converters import BpmnMessageFlowConverter
 
 from .task_spec_converters import SimpleTaskConverter, StartTaskConverter, EndJoinConverter, LoopResetTaskConverter
 from .task_spec_converters import NoneTaskConverter, UserTaskConverter, ManualTaskConverter, ScriptTaskConverter
@@ -276,7 +275,6 @@ class BpmnWorkflowSerializer:
 
     def message_to_dict(self, message):
         dct = {
-            'message_flows': [BpmnMessageFlowConverter.to_dict(flow) for flow in message.message_flows],
             'correlations': dict([ (k, self.data_converter.convert(v)) for k, v in message.correlations.items() ]),
             'name': message.name,
             'payload': self.spec_converter.convert(message.payload),
@@ -285,7 +283,6 @@ class BpmnWorkflowSerializer:
 
     def message_from_dict(self, dct):
         return BpmnMessage(
-            [BpmnMessageFlowConverter.from_dict(flow) for flow in dct['message_flows']],
             dict([ (k, self.data_converter.restore(v)) for k, v in dct['correlations'].items() ]),
             dct['name'],
             self.spec_converter.restore(dct['payload'])

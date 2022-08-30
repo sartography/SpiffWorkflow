@@ -1,4 +1,3 @@
-from SpiffWorkflow import workflow
 from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.task import TaskState
@@ -6,42 +5,6 @@ from SpiffWorkflow.task import TaskState
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 class CollaborationTest(BpmnWorkflowTestCase):
-
-    def testParseMessageFlow(self):
-
-        spec, subprocesses = self.load_workflow_spec('collaboration.bpmn', 'process_buddy')
-        self.assertDictEqual({'lover': ['lover_name']}, spec.correlation_keys)
-        self.assertEqual(len(spec.outgoing_message_flows), 1)
-        self.assertEqual(len(spec.incoming_message_flows), 1)
-        outgoing, incoming = spec.outgoing_message_flows[0], spec.incoming_message_flows[0]
-
-        self.assertEqual(outgoing.name, 'love_letter_flow')
-        self.assertEqual(outgoing.message_ref, 'Love Letter')
-        self.assertEqual(outgoing.source_process, 'process_buddy')
-        self.assertEqual(outgoing.source_task, 'ActivitySendLetter')
-        self.assertEqual(outgoing.target_process, 'random_person_process')
-        self.assertEqual(outgoing.target_task, None)
-
-        love_letter = spec.task_specs[outgoing.source_task].event_definition
-        self.assertEqual(len(love_letter.correlation_properties), 1)
-        prop = love_letter.correlation_properties[0]
-        self.assertEqual(prop.name, 'lover_name')
-        self.assertEqual(prop.expression, 'lover_name')
-        self.assertListEqual(prop.correlation_keys, ['lover'])
-
-        self.assertEqual(incoming.name, 'response_flow')
-        self.assertEqual(incoming.message_ref, 'Love Letter Response')
-        self.assertEqual(incoming.source_process, 'random_person_process')
-        self.assertEqual(incoming.source_task, None)
-        self.assertEqual(incoming.target_process, 'process_buddy')
-        self.assertEqual(incoming.target_task, 'EventReceiveLetter')
-
-        response = spec.task_specs[incoming.target_task].event_definition
-        self.assertEqual(len(response.correlation_properties), 1)
-        prop = response.correlation_properties[0]
-        self.assertEqual(prop.name, 'lover_name')
-        self.assertEqual(prop.expression, 'from_name')
-        self.assertListEqual(prop.correlation_keys, ['lover'])
 
     def testCollaboration(self):
 
@@ -107,6 +70,50 @@ class CollaborationTest(BpmnWorkflowTestCase):
         # If the messages were routed properly, the id should match
         for task in workflow.get_tasks_from_spec_name('subprocess_end'):
             self.assertEqual(task.data['task_num'], task.data['init_id'])
+
+    def testTwoCorrelationKeys(self):
+
+        specs = self.get_all_specs('correlation_two_conversations.bpmn')
+        proc_1 = specs['proc_1']
+        workflow = BpmnWorkflow(proc_1, specs)
+        workflow.do_engine_steps()
+        for idx, task in enumerate(workflow.get_ready_user_tasks()):
+            task.data['task_num'] = idx
+            task.complete()
+        workflow.do_engine_steps()
+
+        # Two processes should have been started and two corresponding catch events should be waiting
+        ready_tasks = workflow.get_ready_user_tasks()
+        waiting = workflow.get_tasks_from_spec_name('get_response_one')
+        self.assertEqual(len(ready_tasks), 2)
+        self.assertEqual(len(waiting), 2)
+        for task in waiting:
+            self.assertEqual(task.state, TaskState.WAITING)
+        # Now copy the task_num that was sent into a new variable
+        for task in ready_tasks:
+            task.data.update(init_id=task.data['task_num'])
+            task.complete()
+        workflow.do_engine_steps()
+
+        # Complete dummy tasks
+        for task in workflow.get_ready_user_tasks():
+            task.complete()
+        workflow.do_engine_steps()
+
+        # Repeat for the other process, using a different mapped name
+        ready_tasks = workflow.get_ready_user_tasks()
+        waiting = workflow.get_tasks_from_spec_name('get_response_two')
+        self.assertEqual(len(ready_tasks), 2)
+        self.assertEqual(len(waiting), 2)
+        for task in ready_tasks:
+            task.data.update(subprocess=task.data['task_num'])
+            task.complete()
+        workflow.do_engine_steps()
+
+        # If the messages were routed properly, the id should match
+        for task in workflow.get_tasks_from_spec_name('subprocess_end'):
+            self.assertEqual(task.data['task_num'], task.data['init_id'])
+            self.assertEqual(task.data['task_num'], task.data['subprocess'])
 
     def testSerialization(self):
 

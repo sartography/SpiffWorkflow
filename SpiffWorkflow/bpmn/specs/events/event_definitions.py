@@ -59,7 +59,7 @@ class EventDefinition(object):
     def reset(self, my_task):
         my_task._set_internal_data(event_fired=False)
 
-    def _throw(self, event, workflow, outer_workflow):
+    def _throw(self, event, workflow, outer_workflow, correlations=None):
         # This method exists because usually we just want to send the event in our
         # own task spec, but we can't do that for message events.
         # We also don't have a more sophisticated method for addressing events to
@@ -68,8 +68,7 @@ class EventDefinition(object):
         if self.internal:
             workflow.catch(event)
         if self.external:
-            flows = [ flow for flow in workflow.spec.outgoing_message_flows if flow.message_ref == event.name ]
-            outer_workflow.catch(event, flows, workflow.correlations)
+            outer_workflow.catch(event, correlations)
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__
@@ -197,9 +196,9 @@ class MessageEventDefinition(NamedEventDefinition):
         # However, there needs to be something to apply the correlations to in the
         # standard case and this is line with the way Spiff works otherwise
         event.payload = deepcopy(my_task.data)
-        my_task.workflow.correlations.update(
-            self.get_correlations(my_task.workflow.script_engine, event.payload))
-        self._throw(event, my_task.workflow, my_task.workflow.outer_workflow)
+        correlations = self.get_correlations(my_task.workflow.script_engine, event.payload)
+        my_task.workflow.correlations.update(correlations)
+        self._throw(event, my_task.workflow, my_task.workflow.outer_workflow, correlations)
 
     def update_internal_data(self, my_task, event_definition):
         my_task.internal_data[event_definition.name] = event_definition.payload

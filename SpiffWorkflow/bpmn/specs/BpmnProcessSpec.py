@@ -105,18 +105,6 @@ class BpmnDataSpecification:
         destination.data[self.name] = deepcopy(source.data[self.name])
 
 
-class BpmnMessageFlow:
-
-    def __init__(self, name, message_ref, source_process, target_process, source_task=None, target_task=None):
-
-        self.name = name
-        self.message_ref = message_ref
-        self.source_process = source_process
-        self.target_process = target_process
-        self.source_task = source_task
-        self.target_task = target_task
-
-
 class BpmnProcessSpec(WorkflowSpec):
     """
     This class represents the specification of a BPMN process workflow. This
@@ -140,8 +128,6 @@ class BpmnProcessSpec(WorkflowSpec):
         self.data_inputs = []
         self.data_outputs = []
         self.data_objects = {}
-        self.incoming_message_flows = []
-        self.outgoing_message_flows = []
         self.correlation_keys = {}
 
     def get_all_lanes(self):

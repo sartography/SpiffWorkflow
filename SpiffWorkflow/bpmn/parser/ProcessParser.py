@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from .ValidationException import ValidationException
-from ..specs.BpmnProcessSpec import BpmnMessageFlow, BpmnProcessSpec, BpmnDataSpecification
+from ..specs.BpmnProcessSpec import BpmnProcessSpec, BpmnDataSpecification
 from .node_parser import NodeParser
 from .util import first
 
@@ -94,19 +94,6 @@ class ProcessParser(NodeParser):
         for node in start_node_list:
             self.parse_node(node)
 
-        participants = {}
-        for node in self.doc_xpath('.//bpmn:participant'):
-            if 'processRef' in node.attrib:
-                participants[node.get('id')] = self.parser.get_spec(node.get('processRef'))
-
-        for item in self.doc_xpath('.//bpmn:messageFlow'):
-            parser = MessageFlowParser(item, self.filename, self.doc_xpath, participants)
-            flow = parser.parse()
-            if flow.source_process == self.spec.name:
-                self.spec.outgoing_message_flows.append(flow)
-            if flow.target_process == self.spec.name:
-                self.spec.incoming_message_flows.append(flow)
-
     def get_spec(self):
         """
         Parse this process (if it has not already been parsed), and return the
@@ -129,29 +116,3 @@ class DataSpecificationParser(NodeParser):
 
     def parse_data_object(self):
         return BpmnDataSpecification(self.node.get('id'), self.node.get('name'))
-
-
-class MessageFlowParser(NodeParser):
-
-    def __init__(self, node, filename, doc_xpath, participants):
-        super().__init__(node, filename, doc_xpath)
-        self.participants = participants
-
-    def parse(self):
-        source_proc, source_task, source_event_name = self.resolve_ref(self.node.get('sourceRef'))
-        target_proc, target_task, target_event_name = self.resolve_ref(self.node.get('targetRef'))
-        # If both events are present, they should be the same
-        message_ref = source_event_name or target_event_name
-        return BpmnMessageFlow(self.node.get('id'), message_ref, source_proc, target_proc, source_task, target_task)
-
-    def resolve_ref(self, ref):
-        if ref in self.participants:
-            process, task, event_name = self.participants[ref].name, None, None
-        else:
-            for spec in self.participants.values():
-                if ref in spec.task_specs:
-                    process, task, event_name = spec.name, ref, spec.task_specs[ref].event_definition.name
-                    break
-            else:
-                process, task, event_name = None, None, None
-        return process, task, event_name
