@@ -68,8 +68,7 @@ class EventDefinition(object):
         if self.internal:
             workflow.catch(event)
         if self.external:
-            flows = [ flow for flow in workflow.spec.outgoing_message_flows if flow.message_ref == event.name ]
-            outer_workflow.catch(event, flows, correlations)
+            outer_workflow.catch(event, correlations)
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__

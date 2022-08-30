@@ -28,9 +28,8 @@ from ..exceptions import WorkflowException
 
 class BpmnMessage:
     
-    def __init__(self, message_flows, correlations, name, payload):
+    def __init__(self, correlations, name, payload):
 
-        self.message_flows = message_flows or []
         self.correlations = correlations or {}
         self.name = name
         self.payload = payload
@@ -122,7 +121,7 @@ class BpmnWorkflow(Workflow):
             workflow = workflow.outer_workflow
         return workflow
 
-    def catch(self, event_definition, message_flows=None, correlations=None):
+    def catch(self, event_definition, correlations=None):
         """
         Send an event definition to any tasks that catch it.
 
@@ -158,7 +157,7 @@ class BpmnWorkflow(Workflow):
         # Figure out if we need to create an extenal message
         if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
             self.bpmn_messages.append(
-                BpmnMessage(message_flows, correlations, event_definition.name, event_definition.payload))
+                BpmnMessage(correlations, event_definition.name, event_definition.payload))
 
     def get_bpmn_messages(self):
         messages = self.bpmn_messages

@@ -6,42 +6,6 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 class CollaborationTest(BpmnWorkflowTestCase):
 
-    def testParseMessageFlow(self):
-
-        spec, subprocesses = self.load_workflow_spec('collaboration.bpmn', 'process_buddy')
-        self.assertDictEqual({'lover': ['lover_name']}, spec.correlation_keys)
-        self.assertEqual(len(spec.outgoing_message_flows), 1)
-        self.assertEqual(len(spec.incoming_message_flows), 1)
-        outgoing, incoming = spec.outgoing_message_flows[0], spec.incoming_message_flows[0]
-
-        self.assertEqual(outgoing.name, 'love_letter_flow')
-        self.assertEqual(outgoing.message_ref, 'Love Letter')
-        self.assertEqual(outgoing.source_process, 'process_buddy')
-        self.assertEqual(outgoing.source_task, 'ActivitySendLetter')
-        self.assertEqual(outgoing.target_process, 'random_person_process')
-        self.assertEqual(outgoing.target_task, None)
-
-        love_letter = spec.task_specs[outgoing.source_task].event_definition
-        self.assertEqual(len(love_letter.correlation_properties), 1)
-        prop = love_letter.correlation_properties[0]
-        self.assertEqual(prop.name, 'lover_name')
-        self.assertEqual(prop.expression, 'lover_name')
-        self.assertListEqual(prop.correlation_keys, ['lover'])
-
-        self.assertEqual(incoming.name, 'response_flow')
-        self.assertEqual(incoming.message_ref, 'Love Letter Response')
-        self.assertEqual(incoming.source_process, 'random_person_process')
-        self.assertEqual(incoming.source_task, None)
-        self.assertEqual(incoming.target_process, 'process_buddy')
-        self.assertEqual(incoming.target_task, 'EventReceiveLetter')
-
-        response = spec.task_specs[incoming.target_task].event_definition
-        self.assertEqual(len(response.correlation_properties), 1)
-        prop = response.correlation_properties[0]
-        self.assertEqual(prop.name, 'lover_name')
-        self.assertEqual(prop.expression, 'from_name')
-        self.assertListEqual(prop.correlation_keys, ['lover'])
-
     def testCollaboration(self):
 
         spec, subprocesses = self.load_collaboration('collaboration.bpmn', 'my_collaboration')
