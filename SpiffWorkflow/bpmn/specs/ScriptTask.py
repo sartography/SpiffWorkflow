@@ -41,15 +41,15 @@ class ScriptTask(Simple, BpmnSpecMixin):
         super(ScriptTask, self).__init__(wf_spec, name, **kwargs)
         self.script = script
 
-    def _on_complete_hook(self, task):
+    def _on_ready_hook(self, task):
+        super(ScriptTask, self)._on_ready_hook(task)
         if task.workflow._is_busy_with_restore():
             return
         assert not task.workflow.read_only
         try:
             task.workflow.script_engine.execute(task, self.script)
         except Exception as e:
-            LOG.error('Error executing ScriptTask; task=%r',
-                      task)
+            LOG.error('Error executing ScriptTask; task=%r',task)
             # set state to WAITING (because it is definitely not COMPLETED)
             # and raise WorkflowException pointing to this task because
             # maybe upstream someone will be able to handle this situation
@@ -57,9 +57,25 @@ class ScriptTask(Simple, BpmnSpecMixin):
             if isinstance(e, WorkflowTaskExecException):
                 raise e
             else:
-                raise WorkflowTaskExecException(
-                    task, 'Error during script execution:' + str(e), e)
-        super(ScriptTask, self)._on_complete_hook(task)
+                raise WorkflowTaskExecException(task, f'Error during script execution: {e}', e)
+
+    def _update_hook(self, task):
+        if task.state == TaskState.WAITING:
+            if task.workflow.script_engine.is_complete(task):
+                # I don't like updating the task here, but we can't set it to ready
+                # or the script will be executed again.
+                task.complete()
+        else:
+            return super()._update_hook(task)
+
+    def _on_complete_hook(self, task):
+        if not task.workflow.script_engine.is_complete(task):
+            # Spiff moves tasks from "ready" to "complete" automatically, so we have
+            # to force it back to a WAITING state if it's not done.
+            # This embodies much of what's wrong with this library.
+            task._setstate(TaskState.WAITING, force=True)
+        else:
+            super()._on_complete_hook(task)
 
     def serialize(self, serializer):
         return serializer.serialize_script_task(self)

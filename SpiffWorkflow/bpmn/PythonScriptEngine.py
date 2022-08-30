@@ -110,6 +110,8 @@ class PythonScriptEngine(object):
                         'Box': Box,
                         }
         self.globals.update(scripting_additions or {})
+        self.running_tasks = {}
+        self.error_tasks = {}
 
     def validate(self, expression):
         ast.parse(expression)
@@ -135,24 +137,51 @@ class PythonScriptEngine(object):
         """
         try:
             self.check_for_overwrite(task, external_methods or {})
-            self._execute(script, task.data, external_methods or {})
-        except WorkflowTaskExecException as wte:
-            raise wte  # Something lower down is already raising a detailed error
+            result = self._execute(script, task.data, external_methods or {})
+            if result is not None:
+                self.running_tasks[task.id] = result
         except Exception as err:
-            detail = err.__class__.__name__
-            if len(err.args) > 0:
-                detail += ":" + err.args[0]
-            line_number = 0
-            error_line = ''
-            cl, exc, tb = sys.exc_info()
-            # Loop back through the stack trace to find the file called
-            # 'string' - which is the script we are executing, then use that
-            # to parse and pull out the offending line.
-            for frame_summary in traceback.extract_tb(tb):
-                if frame_summary.filename == '<string>':
-                    line_number = frame_summary.lineno
-                    error_line = script.splitlines()[line_number - 1]
-            raise WorkflowTaskExecException(task, detail, err, line_number, error_line)
+            wte = self.create_task_exec_exception(task, err)
+            self.error_tasks[task.id] = wte
+            raise wte
+
+    def is_complete(self, task):
+
+        if task.id in self.running_tasks:
+            try:
+                result = self._is_complete(self.running_tasks.get(task.id), task.data)
+                if result is None:
+                    del self.running_tasks[task.id]
+                    return True
+                else:
+                    return False
+            except Exception as err:
+                self.error_tasks[task.id] = self.create_task_exec_exception(task, err)
+                return False
+        elif task.id in self.error_tasks:
+            return False
+        else:
+            return True
+
+    def create_task_exec_exception(self, task, err):
+
+        if isinstance(err, WorkflowTaskExecException):
+            return err
+
+        detail = err.__class__.__name__
+        if len(err.args) > 0:
+            detail += ":" + err.args[0]
+        line_number = 0
+        error_line = ''
+        cl, exc, tb = sys.exc_info()
+        # Loop back through the stack trace to find the file called
+        # 'string' - which is the script we are executing, then use that
+        # to parse and pull out the offending line.
+        for frame_summary in traceback.extract_tb(tb):
+            if frame_summary.filename == '<string>':
+                line_number = frame_summary.lineno
+                error_line = task.task_spec.script.splitlines()[line_number - 1]    
+        return WorkflowTaskExecException(task, detail, err, line_number, error_line)    
 
     def check_for_overwrite(self, task, external_methods):
         """It's possible that someone will define a variable with the
@@ -205,3 +234,9 @@ class PythonScriptEngine(object):
         my_globals.update(context)
         my_globals.update(external_methods or {})
         exec(script, my_globals, context)
+
+    def _is_complete(self, info):
+        # The default is just to run exec in this process, so we'll never need this
+        # However, an asynchronous execution environment can extend it with a polling
+        # mechanism
+        return True
