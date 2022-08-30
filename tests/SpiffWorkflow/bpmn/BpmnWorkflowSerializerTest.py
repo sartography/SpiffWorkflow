@@ -29,11 +29,6 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         self.serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION)
         spec, subprocesses = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
         self.workflow = BpmnWorkflow(spec, subprocesses)
-        pass
-
-    def testDeserializeWorkflowSpec(self):
-        """Tested as a part of deserialize workflow."""
-        pass
 
     def testSerializeWorkflowSpec(self):
         spec_serialized = self.serializer.serialize_json(self.workflow)
@@ -65,10 +60,6 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
 
     def testDeserializeWorkflow(self):
         self._compare_with_deserialized_copy(self.workflow)
-
-    def testDeserializeCallActivityChildren(self):
-        """Tested as a part of deserialize workflow."""
-        pass
 
     def testSerializeTask(self):
         self.serializer.serialize_json(self.workflow)

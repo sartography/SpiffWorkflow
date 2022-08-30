@@ -5,7 +5,7 @@ from SpiffWorkflow.bpmn.specs .BpmnSpecMixin import BpmnSpecMixin
 
 class SpiffBpmnTask(BpmnSpecMixin):
 
-    def __init__(self, wf_spec, name, lane=None, description=None, prescript=None, postscript=None, **kwargs):
+    def __init__(self, wf_spec, name, prescript=None, postscript=None, **kwargs):
 
         # WHy am I doing this instead of just calling super?
         # Because I need to deal with multiple inheritance and the kwargs nightmare created by our parser design
