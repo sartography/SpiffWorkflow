@@ -43,8 +43,9 @@ class SpiffTaskParser(TaskParser):
         parameter_nodes = xpath('.//spiffworkflow:parameter')
         parameters = {}
         for param_node in parameter_nodes:
-            # TODO not handling type currently
-            parameters[param_node.attrib['id']] = param_node.attrib['value']
+            # TODO not handling type currently and check if required
+            if 'value' in param_node.attrib:
+                parameters[param_node.attrib['id']] = param_node.attrib['value']
         return (name, parameters)
 
     def create_task(self):
