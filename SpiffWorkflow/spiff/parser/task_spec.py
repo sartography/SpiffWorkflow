@@ -37,14 +37,14 @@ class SpiffTaskParser(TaskParser):
         return properties
 
     def _parse_servicetask_operator(self, node):
-        name = node.attrib['name']
+        name = node.attrib['id']
         extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
         xpath = xpath_eval(node, extra_ns)
         parameter_nodes = xpath('.//spiffworkflow:parameter')
         parameters = {}
         for param_node in parameter_nodes:
             # TODO not handling type currently
-            parameters[param_node.attrib['name']] = param_node.attrib['value']
+            parameters[param_node.attrib['id']] = param_node.attrib['value']
         return (name, parameters)
 
     def create_task(self):
