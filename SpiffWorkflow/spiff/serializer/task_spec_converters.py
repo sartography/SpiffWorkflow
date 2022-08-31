@@ -35,9 +35,19 @@ class UserTaskConverter(SpiffBpmnTaskConverter):
         super().__init__(UserTask, data_converter)
 
 
-class UserTaskConverter(SpiffBpmnTaskConverter):
+class ServiceTaskConverter(SpiffBpmnTaskConverter):
     def __init__(self, data_converter=None):
         super().__init__(ServiceTask, data_converter)
+
+    def to_dict(self, spec):
+        dct = super().to_dict(spec)
+        dct['operation_name'] = spec.operation_name
+        dct['operation_params'] = spec.operation_params
+        return dct
+
+    def from_dict(self, dct):
+        newDct = self.task_spec_from_dict(dct)
+        return newDct
 
 
 class SubprocessTaskConverter(SpiffBpmnTaskConverter):

@@ -16,5 +16,5 @@ class ServiceTask(SpiffBpmnTask, ServiceTask):
         evaluated_params = {k: evaluate(v) for k, v in self.operation_params.items()}
         script = f'{self.operation_name}(**{operation_params_var_name}).execute()'
 
-        task.workflow.servicetask_script_engine.execute(task, script, task.data, 
+        task.workflow.servicetask_script_engine.execute(task, script, task.data,
                 external_methods={ operation_params_var_name: evaluated_params })
