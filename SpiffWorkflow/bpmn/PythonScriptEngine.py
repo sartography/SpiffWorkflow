@@ -270,6 +270,24 @@ class PythonScriptEngine(object):
             raise WorkflowTaskExecException(task, detail, err, line_number,
                                             error_line)
 
+    def service_task_external_methods(self):
+        """Allows consumers a hook to specify external methods that can be
+        called from service tasks."""
+        return None
+
+    def execute_service_task_script(self, task, script, data,
+            external_methods=None):
+        """Execute the script, within the context of the specified task. Task
+        is assumed to be a service task. service_task_external_methods are
+        merged with the supplied external_methods before execution."""
+
+        if external_methods is None:
+            external_methods = self.service_task_external_methods()
+        else:
+            external_methods.update(self.service_task_external_methods())
+
+        self.execute(task, script, data, external_methods=external_methods)
+
     def check_for_overwrite(self, task, my_globals, more_methods, data):
         """It's possible that someone will define a variable with the
         same name as a pre-defined script, rending the script un-callable.

@@ -27,7 +27,7 @@ from ..exceptions import WorkflowException
 
 
 class BpmnMessage:
-    
+
     def __init__(self, correlations, name, payload):
 
         self.correlations = correlations or {}
@@ -42,18 +42,13 @@ class BpmnWorkflow(Workflow):
     """
 
     def __init__(self, top_level_spec, subprocess_specs=None, name=None, script_engine=None,
-                 servicetask_script_engine=None, read_only=False, **kwargs):
+                 read_only=False, **kwargs):
         """
         Constructor.
 
         :param script_engine: set to an extension of PythonScriptEngine if you
         need a specialised version. Defaults to the script engine of the top
         most workflow, or to the PythonScriptEngine if none is provided.
-
-        :param servicetask_script_engine: set to an extension of PythonScriptEngine 
-        if you need a specialised version. Defaults to the service task script 
-        engine of the top most workflow, or to the PythonScriptEngine if none is 
-        provided.
 
         :param read_only: If this parameter is set then the workflow state
         cannot change. It can only be queried to find out about the current
@@ -68,7 +63,6 @@ class BpmnWorkflow(Workflow):
         self.bpmn_messages = []
         self.correlations = {}
         self.__script_engine = script_engine or PythonScriptEngine()
-        self.__servicetask_script_engine = servicetask_script_engine or PythonScriptEngine()
         self.read_only = read_only
 
     @property
@@ -82,19 +76,8 @@ class BpmnWorkflow(Workflow):
     def script_engine(self, engine):
         self.__script_engine = engine
 
-    @property
-    def servicetask_script_engine(self):
-        # The outermost script engine always takes precedence.
-        # All call activities, sub-workflows and DMNs should use the
-        # workflow engine of the outermost workflow.
-        return self._get_outermost_workflow().__servicetask_script_engine
-
-    @servicetask_script_engine.setter
-    def servicetask_script_engine(self, engine):
-        self.__servicetask_script_engine = engine
-
     def create_subprocess(self, my_task, spec_name, name):
-        
+
         workflow = self._get_outermost_workflow(my_task)
         subprocess = BpmnWorkflow(
             workflow.subprocess_specs[spec_name], name=name,
@@ -123,7 +106,7 @@ class BpmnWorkflow(Workflow):
         task.parent = start
         return self.subprocesses[task.id]
 
-    def _get_outermost_workflow(self, task=None):    
+    def _get_outermost_workflow(self, task=None):
         workflow = task.workflow if task is not None else self
         while workflow != workflow.outer_workflow:
             workflow = workflow.outer_workflow
@@ -229,7 +212,7 @@ class BpmnWorkflow(Workflow):
         for task in self.get_tasks():
             if task.id == task_id:
                 return task
-        raise WorkflowException(self.spec, 
+        raise WorkflowException(self.spec,
             f'A task with the given task_id ({task_id}) was not found')
 
     def complete_task_from_id(self, task_id):

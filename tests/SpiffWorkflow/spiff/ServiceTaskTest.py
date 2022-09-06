@@ -29,6 +29,10 @@ class SlackWebhookOperator(object):
         global operatorExecuted
         operatorExecuted = True
 
+class ExampleCustomScriptEngine(PythonScriptEngine):
+    def service_task_external_methods(self):
+        return { 'SlackWebhookOperator': SlackWebhookOperator }
+
 class ServiceTaskTest(BaseTestCase):
 
     def setUp(self):
@@ -36,12 +40,10 @@ class ServiceTaskTest(BaseTestCase):
         assertEqual = self.assertEqual
         operatorExecuted = False
 
-        spec, subprocesses = self.load_workflow_spec('service_task.bpmn', 
+        spec, subprocesses = self.load_workflow_spec('service_task.bpmn',
                 'service_task_example1')
-        additions = { 'SlackWebhookOperator': SlackWebhookOperator }
-        script_engine = PythonScriptEngine(scriptingAdditions=additions)
-        self.workflow = BpmnWorkflow(spec, subprocesses, 
-                servicetask_script_engine=script_engine)
+        script_engine = ExampleCustomScriptEngine()
+        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=script_engine)
 
     def testRunThroughHappy(self):
         self.workflow.do_engine_steps()
