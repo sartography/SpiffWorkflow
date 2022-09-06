@@ -41,12 +41,16 @@ class SpiffTaskParser(TaskParser):
         extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
         xpath = xpath_eval(node, extra_ns)
         parameter_nodes = xpath('.//spiffworkflow:parameter')
+        operator = {'name': name}
         parameters = {}
         for param_node in parameter_nodes:
-            # TODO not handling type currently and check if required
             if 'value' in param_node.attrib:
-                parameters[param_node.attrib['id']] = param_node.attrib['value']
-        return (name, parameters)
+                parameters[param_node.attrib['id']] = {
+                    'value': param_node.attrib['value'],
+                    'type': param_node.attrib['type']
+                }
+        operator['parameters'] = parameters
+        return operator
 
     def create_task(self):
         # The main task parser already calls this, and even sets an attribute, but
@@ -96,9 +100,10 @@ class CallActivityParser(SpiffTaskParser):
 class ServiceTaskParser(SpiffTaskParser):
     def create_task(self):
         extensions = self.parse_extensions()
-        (name, params) = extensions.get('serviceTaskOperator')
+        operator = extensions.get('serviceTaskOperator')
         return self.spec_class(
-                self.spec, self.get_task_spec_name(), name, params,
+                self.spec, self.get_task_spec_name(),
+                operator['name'], operator['parameters'],
                 lane=self.lane, position=self.position)
 
 class BusinessRuleTaskParser(SpiffTaskParser):

@@ -2,10 +2,14 @@
 import os
 
 from SpiffWorkflow.spiff.parser import SpiffBpmnParser
-from SpiffWorkflow.spiff.serializer import NoneTaskConverter, ManualTaskConverter, UserTaskConverter, \
-        SubWorkflowTaskConverter, TransactionSubprocessConverter, CallActivityTaskConverter, \
-        StartEventConverter, EndEventConverter, BoundaryEventConverter, SendTaskConverter, ReceiveTaskConverter, \
-        IntermediateCatchEventConverter, IntermediateThrowEventConverter
+from SpiffWorkflow.spiff.serializer import NoneTaskConverter, \
+    ManualTaskConverter, UserTaskConverter, \
+    SubWorkflowTaskConverter, TransactionSubprocessConverter, \
+    CallActivityTaskConverter, \
+    StartEventConverter, EndEventConverter, BoundaryEventConverter, \
+    SendTaskConverter, ReceiveTaskConverter, \
+    IntermediateCatchEventConverter, IntermediateThrowEventConverter, \
+    ServiceTaskConverter
 from SpiffWorkflow.dmn.serializer.task_spec_converters import BusinessRuleTaskConverter
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 
@@ -15,7 +19,8 @@ wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([
     NoneTaskConverter, ManualTaskConverter, UserTaskConverter,
     SubWorkflowTaskConverter, TransactionSubprocessConverter, CallActivityTaskConverter,
     StartEventConverter, EndEventConverter, BoundaryEventConverter, SendTaskConverter, ReceiveTaskConverter,
-    IntermediateCatchEventConverter, IntermediateThrowEventConverter, BusinessRuleTaskConverter
+    IntermediateCatchEventConverter, IntermediateThrowEventConverter, BusinessRuleTaskConverter,
+    ServiceTaskConverter
 ])
 
 class BaseTestCase(BpmnWorkflowTestCase):
