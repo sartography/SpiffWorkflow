@@ -16,12 +16,9 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-import logging
 
 from .Join import Join
-from ..util import merge_dictionary
-
-LOG = logging.getLogger(__name__)
+from ..util.deep_merge import DeepMerge
 
 
 class Merge(Join):
@@ -36,25 +33,9 @@ class Merge(Join):
             tasks = [task for task in my_task.workflow.task_tree
                      if task.task_spec is input_spec]
             for task in tasks:
-                LOG.debug("Merging %s (%s) into %s" % (task.get_name(),
-                                                       task.get_state_name(
-                ), self.name),
-                    extra=dict(data=task.data))
-                _log_overwrites(my_task.data, task.data)
-                merge_dictionary(my_task.data, task.data)
+                DeepMerge.merge(my_task.data, task.data)
         return super(Merge, self)._do_join(my_task)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
         return serializer.deserialize_merge(wf_spec, s_state)
-
-
-def _log_overwrites(dst, src):
-    # Temporary: We log when we overwrite during debugging
-    for k, v in list(src.items()):
-        if k in dst:
-            if isinstance(v, dict) and isinstance(dst[k], dict):
-                _log_overwrites(v, dst[k])
-            else:
-                if v != dst[k]:
-                    LOG.warning("Overwriting %s=%s with %s" % (k, dst[k], v))

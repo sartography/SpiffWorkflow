@@ -1,4 +1,3 @@
-
 class DeepMerge(object):
     # Merges two deeply nested json-like dictionaries,
     # useful for updating things like task data.

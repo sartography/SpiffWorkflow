@@ -16,7 +16,6 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-import logging
 
 from ... import WorkflowException
 
@@ -24,7 +23,6 @@ from ...task import TaskState
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.Join import Join
 
-LOG = logging.getLogger(__name__)
 
 
 class UnstructuredJoin(Join, BpmnSpecMixin):
@@ -158,6 +156,4 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
             my_task._set_state(TaskState.WAITING)
             return
 
-        LOG.debug('UnstructuredJoin._update_hook: %s (%s) - Children: %s',
-                      self.name, self.description, len(my_task.children))
         super(UnstructuredJoin, self)._update_hook(my_task)

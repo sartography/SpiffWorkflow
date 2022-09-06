@@ -23,14 +23,13 @@ from ...task import TaskState
 from ...specs.Simple import Simple
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 
-LOG = logging.getLogger(__name__)
-
 
 class ScriptTask(Simple, BpmnSpecMixin):
 
     """
     Task Spec for a bpmn:scriptTask node.
     """
+    logger = logging.getLogger('spiff.script_task')
 
     def __init__(self, wf_spec, name, script, **kwargs):
         """
@@ -49,11 +48,11 @@ class ScriptTask(Simple, BpmnSpecMixin):
         try:
             task.workflow.script_engine.execute(task, self.script)
         except Exception as e:
-            LOG.error('Error executing ScriptTask; task=%r',task)
+            self.logger.error('Error executing ScriptTask; task=%r',task)
             # set state to WAITING (because it is definitely not COMPLETED)
             # and raise WorkflowException pointing to this task because
             # maybe upstream someone will be able to handle this situation
-            task._setstate(TaskState.WAITING, force=True)
+            task._set_state(TaskState.WAITING)
             if isinstance(e, WorkflowTaskExecException):
                 raise e
             else:

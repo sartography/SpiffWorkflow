@@ -23,7 +23,7 @@ class FeelIntegerDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_integer_decision_string_output_exclusive(self):
-        runner = FeelDecisionRunner('integer_decision_range_exclusive_feel.dmn''')
+        runner = FeelDecisionRunner('integer_decision_range_exclusive_feel.dmn')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, 'ELSE Row Annotation')
