@@ -17,9 +17,9 @@ operatorExecuted = False
 
 class SlackWebhookOperator(object):
     def __init__(self, webhook_token="", message="", channel="", **kwargs):
-        self.channel = channel
-        self.message = message
-        self.webhook_token = webhook_token
+        self.channel = channel['value']
+        self.message = message['value']
+        self.webhook_token = webhook_token['value']
 
     def execute(self):
         assertEqual(self.channel, "#")
@@ -42,12 +42,21 @@ class ServiceTaskTest(BaseTestCase):
 
         spec, subprocesses = self.load_workflow_spec('service_task.bpmn',
                 'service_task_example1')
-        script_engine = ExampleCustomScriptEngine()
-        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=script_engine)
+        self.script_engine = ExampleCustomScriptEngine()
+        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=self.script_engine)
 
     def testRunThroughHappy(self):
         self.workflow.do_engine_steps()
         self.assertTrue(operatorExecuted)
+
+    def testRunThroughSaveRestore(self):
+        self.save_restore()
+        # Engine isn't preserved through save/restore, so we have to reset it.
+        self.workflow.script_engine = self.script_engine
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        self.assertTrue(operatorExecuted)
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ServiceTaskTest)
