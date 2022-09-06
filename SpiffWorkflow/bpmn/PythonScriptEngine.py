@@ -149,7 +149,7 @@ class PythonScriptEngine(object):
 
         if task.id in self.running_tasks:
             try:
-                result = self._is_complete(self.running_tasks.get(task.id), task.data)
+                result = self._is_complete(self.running_tasks.get(task.id))
                 if result is None:
                     del self.running_tasks[task.id]
                     return True
@@ -180,8 +180,8 @@ class PythonScriptEngine(object):
         for frame_summary in traceback.extract_tb(tb):
             if frame_summary.filename == '<string>':
                 line_number = frame_summary.lineno
-                error_line = task.task_spec.script.splitlines()[line_number - 1]    
-        return WorkflowTaskExecException(task, detail, err, line_number, error_line)    
+                error_line = task.task_spec.script.splitlines()[line_number - 1]
+        return WorkflowTaskExecException(task, detail, err, line_number, error_line)
 
     def check_for_overwrite(self, task, external_methods):
         """It's possible that someone will define a variable with the
@@ -235,7 +235,7 @@ class PythonScriptEngine(object):
         my_globals.update(external_methods or {})
         exec(script, my_globals, context)
 
-    def _is_complete(self, info):
+    def _is_complete(self, task):
         # The default is just to run exec in this process, so we'll never need this
         # However, an asynchronous execution environment can extend it with a polling
         # mechanism
