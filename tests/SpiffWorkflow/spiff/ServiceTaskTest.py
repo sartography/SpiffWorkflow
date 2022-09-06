@@ -30,7 +30,7 @@ class SlackWebhookOperator(object):
         operatorExecuted = True
 
 class ExampleCustomScriptEngine(PythonScriptEngine):
-    def service_task_external_methods(self):
+    def available_service_task_external_methods(self):
         return { 'SlackWebhookOperator': SlackWebhookOperator }
 
 class ServiceTaskTest(BaseTestCase):
