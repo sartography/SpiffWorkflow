@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from builtins import str
-from builtins import object
+
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -20,7 +19,7 @@ from builtins import object
 import logging
 import re
 
-LOG = logging.getLogger(__name__)
+logger = logging.getLogger('spiff')
 
 
 class Term(object):
@@ -181,8 +180,7 @@ def valueof(scope, op, default=None):
         return default
     elif isinstance(op, Attrib):
         if op.name not in scope.data:
-            LOG.debug("Attrib('%s') not present in task '%s' data" %
-                      (op.name, scope.get_name()))
+            logger.debug("Attrib('{op.name}') not present in task data", extra=scope.log_info({'data': scope.data}))
         return scope.get_data(op.name, default)
     elif isinstance(op, PathAttrib):
         if not op.path:
@@ -191,9 +189,7 @@ def valueof(scope, op, default=None):
         data = scope.data
         for part in parts:
             if part not in data:
-                LOG.debug("PathAttrib('%s') not present in task '%s' "
-                          "data" % (op.path, scope.get_name()),
-                          extra=dict(data=scope.data))
+                logger.debug(f"PathAttrib('{op.name}') not present in task data",  extra=scope.log_info({'data': scope.data}))
                 return default
             data = data[part]  # move down the path
         return data

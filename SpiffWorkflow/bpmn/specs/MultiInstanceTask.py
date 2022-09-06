@@ -18,7 +18,6 @@
 # 02110-1301  USA
 
 import copy
-import logging
 from builtins import range
 from uuid import uuid4
 import re
@@ -35,8 +34,6 @@ from ...specs.base import TaskSpec
 from ...util.impl import get_class
 from ...task import Task, TaskState
 from ...util.deep_merge import DeepMerge
-
-LOG = logging.getLogger(__name__)
 
 
 def gendict(path, d):
@@ -101,7 +98,6 @@ class MultiInstanceTask(TaskSpec):
         # Find a Task for this TaksSpec.
 
         my_task = self._find_my_task(task_spec)
-        LOG.debug(my_task.get_name() + 'trigger')
         if my_task._has_state(TaskState.COMPLETED):
             state = TaskState.READY
         else:
@@ -178,9 +174,7 @@ class MultiInstanceTask(TaskSpec):
         Build a unique name for each task - need to be the
         same over save/restore of the workflow spec.
         """
-        base = 'Gateway_for_' + str(self.name) + "_" + position
-        LOG.debug("MI New Gateway " + base )
-        return base
+        return 'Gateway_for_' + str(self.name) + "_" + position
 
     def _make_new_gateway(self,my_task,suffix,descr):
         gw_spec = ParallelGateway(self._wf_spec,
@@ -207,10 +201,8 @@ class MultiInstanceTask(TaskSpec):
         # check to see if we have already done this, this code gets called multiple times
         # as we build the tree
         if my_task.parent.task_spec.name[:11] == 'Gateway_for':
-            LOG.debug("MI Recovering from save/restore")
             return
 
-        LOG.debug("MI being augmented")
         # build the gateway specs and the tasks.
         # Spiff wants a distinct spec for each task
         # that it has in the workflow or it will throw an error
@@ -289,7 +281,6 @@ class MultiInstanceTask(TaskSpec):
     def _make_new_child_task(self,my_task,x):
         # here we generate a distinct copy of our original task each
         # parallel instance, and hook them up into the task tree
-        LOG.debug("MI creating new child & task spec")
         new_child = copy.copy(my_task)
         new_child.id = uuid4()
         # I think we will need to update both every variables
@@ -387,8 +378,6 @@ class MultiInstanceTask(TaskSpec):
 
     def _predict_hook(self, my_task):
 
-        LOG.debug(my_task.get_name() + 'pre hook')
-
         split_n = self._get_count(my_task)
         runtimes = int(my_task._get_internal_data('runtimes', 1))  # set a default if not already run
 
@@ -444,7 +433,6 @@ class MultiInstanceTask(TaskSpec):
             collect[str(runtimesvar)] = DeepMerge.merge(collect.get(runtimesvar, {}),
                                                    copy.copy(my_task.data[self.elementVar]))
 
-        LOG.debug(my_task.task_spec.name + 'complete hook')
         my_task.data = DeepMerge.merge(my_task.data,
                                        gendict(colvarname.split('/'), collect))
 

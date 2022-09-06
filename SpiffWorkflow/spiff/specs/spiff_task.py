@@ -17,7 +17,7 @@ class SpiffBpmnTask(BpmnSpecMixin):
         try:
             my_task.workflow.script_engine.execute(my_task, script, my_task.data)
         except Exception as exc:
-            my_task._setstate(TaskState.WAITING, force=True)
+            my_task._set_state(TaskState.WAITING)
             raise exc
 
     def get_payload(self, my_task, script, expr):
@@ -26,7 +26,7 @@ class SpiffBpmnTask(BpmnSpecMixin):
             my_task.worklflow.script_engine.execute(my_task, script, data)
             return my_task.workflow.script_engine._evaluate(expr, data)
         except Exception as exc:
-            my_task._setstate(TaskState.WAITING, force=True)
+            my_task._set_state(TaskState.WAITING)
             raise exc
 
     def _on_ready_hook(self, my_task):

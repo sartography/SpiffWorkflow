@@ -22,14 +22,10 @@ from builtins import object
 
 from collections import deque
 import json
-import logging
 from ...task import TaskState
 from ...specs import SubWorkflow
 from ...serializer.base import Serializer
 from ..workflow import BpmnWorkflow
-
-
-LOG = logging.getLogger(__name__)
 
 
 class UnrecoverableWorkflowChange(Exception):
@@ -159,7 +155,6 @@ class _BpmnProcessSpecState(object):
     def go(self, workflow):
         leaf_tasks = []
         self._go(workflow.task_tree.children[0], self.route, leaf_tasks)
-        LOG.debug('Leaf tasks after load, before _update: %s', leaf_tasks)
         for task in sorted(
                 leaf_tasks,
                 key=lambda t: 0 if getattr(

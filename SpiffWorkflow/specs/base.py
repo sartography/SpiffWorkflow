@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-from builtins import str
-from builtins import object
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -19,15 +16,11 @@ from builtins import object
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-import logging
 from abc import abstractmethod
 
 from ..util.event import Event
 from ..task import TaskState
 from ..exceptions import WorkflowException
-
-
-LOG = logging.getLogger(__name__)
 
 
 class TaskSpec(object):
@@ -110,11 +103,11 @@ class TaskSpec(object):
         self.outputs = []
         self.manual = kwargs.get('manual', False)
         self.internal = False  # Only for easing debugging.
-        self.data = kwargs.get('data',        {})
-        self.defines = kwargs.get('defines',     {})
-        self.pre_assign = kwargs.get('pre_assign',  [])
+        self.data = kwargs.get('data', {})
+        self.defines = kwargs.get('defines', {})
+        self.pre_assign = kwargs.get('pre_assign',[])
         self.post_assign = kwargs.get('post_assign', [])
-        self.locks = kwargs.get('lock',        [])
+        self.locks = kwargs.get('lock', [])
         self.lookahead = 2  # Maximum number of MAYBE predictions.
 
         # Events.
@@ -295,10 +288,6 @@ class TaskSpec(object):
         """
         if my_task._is_predicted():
             self._predict(my_task)
-        LOG.debug("'%s'._update_hook says parent (%s, state=%s) "
-                  "is_finished=%s" % (self.name, my_task.parent.get_name(),
-                                      my_task.parent.get_state_name(),
-                                      my_task.parent._is_finished()))
         if not my_task.parent._is_finished():
             return
         self.entered_event.emit(my_task.workflow, my_task)
