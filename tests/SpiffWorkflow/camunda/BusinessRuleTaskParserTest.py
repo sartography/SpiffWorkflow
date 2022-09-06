@@ -30,7 +30,7 @@ class BusinessRuleTaskParserTest(BaseTestCase):
         self.assertDictEqual(self.workflow.data, {'x': 3, 'y': 'A'})
         self.assertDictEqual(self.workflow.last_task.data, {'x': 3, 'y': 'A'})
 
-    @patch('SpiffWorkflow.bpmn.PythonScriptEngine.PythonScriptEngine.eval_dmn_expression')
+    @patch('SpiffWorkflow.dmn.engine.DMNEngine.DMNEngine.evaluate')
     def testDmnExecHasAccessToTask(self, mock_engine):
         """At one time, the Execute and Evaluate methods received a Task object
         but the DMN evaluate method did not get a task object.  While this is

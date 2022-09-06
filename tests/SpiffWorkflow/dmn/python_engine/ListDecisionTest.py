@@ -10,7 +10,7 @@ class ListDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = PythonDecisionRunner('list_decision.dmn', debug='DEBUG')
+        cls.runner = PythonDecisionRunner('list_decision.dmn')
 
     def test_string_decision_string_output1(self):
         res = self.runner.decide({'allergies',["PEANUTS", "SPAM"]})

@@ -18,11 +18,8 @@
 # 02110-1301  USA
 from collections import deque
 
-import logging
 from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
-
-LOG = logging.getLogger(__name__)
 
 
 class InclusiveGateway(UnstructuredJoin):

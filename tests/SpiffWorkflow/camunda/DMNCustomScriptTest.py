@@ -13,7 +13,7 @@ class CustomScriptEngine(PythonScriptEngine):
 
     def __init__(self):
         augment_methods = {'my_custom_function': my_custom_function}
-        super().__init__(scriptingAdditions=augment_methods)
+        super().__init__(scripting_additions=augment_methods)
 
 
 class DMNCustomScriptTest(BaseTestCase):

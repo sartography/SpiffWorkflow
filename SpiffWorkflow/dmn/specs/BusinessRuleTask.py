@@ -4,7 +4,6 @@ from ...specs import Simple
 
 from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 from ...util.deep_merge import DeepMerge
-from ...util.metrics import timeit
 
 
 class BusinessRuleTask(Simple, BpmnSpecMixin):
@@ -22,11 +21,9 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
         self.res = None
         self.resDict = None
 
-    @timeit
     def _on_complete_hook(self, my_task):
         try:
-            self.res = self.dmnEngine.decide(my_task.workflow.script_engine,
-                                             my_task, my_task.data)
+            self.res = self.dmnEngine.decide(my_task)
             if self.res is not None:  # it is conceivable that no rules fire.
                 self.resDict = self.res.output_as_dict(my_task)
                 my_task.data = DeepMerge.merge(my_task.data,self.resDict)

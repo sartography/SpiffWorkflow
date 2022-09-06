@@ -8,7 +8,7 @@ class FeelIntegerDecisionRangeTestClass(unittest.TestCase):
     Doc: https://docs.camunda.org/manual/7.7/user-guide/dmn-engine/
     """
     def test_integer_decision_string_output_inclusive(self):
-        runner = FeelDecisionRunner('integer_decision_range_inclusive_feel.dmn', debug='DEBUG')
+        runner = FeelDecisionRunner('integer_decision_range_inclusive_feel.dmn')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, '100-110 Inclusive Annotation')
@@ -23,7 +23,7 @@ class FeelIntegerDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_integer_decision_string_output_exclusive(self):
-        runner = FeelDecisionRunner('integer_decision_range_exclusive_feel.dmn', debug='DEBUG')
+        runner = FeelDecisionRunner('integer_decision_range_exclusive_feel.dmn')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, 'ELSE Row Annotation')
@@ -38,7 +38,7 @@ class FeelIntegerDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, '100-110 Exclusive Annotation')
 
     def test_integer_decision_string_output_excl_inclusive(self):
-        runner = FeelDecisionRunner('integer_decision_range_excl_inclusive_feel.dmn', debug='DEBUG')
+        runner = FeelDecisionRunner('integer_decision_range_excl_inclusive_feel.dmn')
 
         res = runner.decide({'Age': 100})
         self.assertEqual(res.description, 'ELSE Row Annotation')
@@ -53,7 +53,7 @@ class FeelIntegerDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_integer_decision_string_output_incl_exclusive(self):
-        runner = FeelDecisionRunner('integer_decision_range_incl_exclusive_feel.dmn', debug='DEBUG')
+        runner = FeelDecisionRunner('integer_decision_range_incl_exclusive_feel.dmn')
 
         res = runner.decide({"Age":100})
         self.assertEqual(res.description, '100-110 InclExclusive Annotation')

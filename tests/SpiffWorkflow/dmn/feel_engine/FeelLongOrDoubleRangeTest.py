@@ -11,7 +11,7 @@ class FeelLongOrDoubleDecisionRangeTestClass(unittest.TestCase):
     """
 
     def test_long_or_double_decision_string_output_inclusive(self):
-        runner = FeelDecisionRunner('long_or_double_decision_range_inclusive_feel.dmn', debug='DEBUG')
+        runner = FeelDecisionRunner('long_or_double_decision_range_inclusive_feel.dmn')
 
         res = runner.decide({"Age":Decimal('100.05')})
         self.assertEqual(res.description, '100.05-110.05 Inclusive Annotation')
@@ -26,7 +26,7 @@ class FeelLongOrDoubleDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_long_or_double_decision_string_output_exclusive(self):
-        runner = FeelDecisionRunner('long_or_double_decision_range_exclusive_feel.dmn', debug='DEBUG')
+        runner = FeelDecisionRunner('long_or_double_decision_range_exclusive_feel.dmn')
 
         res = runner.decide({"Age":Decimal('100.05')})
         self.assertEqual(res.description, 'ELSE Row Annotation')
@@ -41,7 +41,7 @@ class FeelLongOrDoubleDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, '100.05-110.05 Exclusive Annotation')
 
     def test_long_or_double_decision_string_output_excl_inclusive(self):
-        runner = FeelDecisionRunner('long_or_double_decision_range_excl_inclusive_feel.dmn', debug='DEBUG')
+        runner = FeelDecisionRunner('long_or_double_decision_range_excl_inclusive_feel.dmn')
 
         res = runner.decide({"Age":Decimal('100.05')})
         self.assertEqual(res.description, 'ELSE Row Annotation')
@@ -56,7 +56,7 @@ class FeelLongOrDoubleDecisionRangeTestClass(unittest.TestCase):
         self.assertEqual(res.description, 'ELSE Row Annotation')
 
     def test_long_or_double_decision_string_output_incl_exclusive(self):
-        runner = FeelDecisionRunner('long_or_double_decision_range_incl_exclusive_feel.dmn', debug='DEBUG')
+        runner = FeelDecisionRunner('long_or_double_decision_range_incl_exclusive_feel.dmn')
 
         res = runner.decide({"Age":Decimal('100.05')})
         self.assertEqual(res.description, '100.05-110.05 InclExclusive Annotation')

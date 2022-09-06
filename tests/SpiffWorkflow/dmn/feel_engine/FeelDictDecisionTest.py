@@ -12,14 +12,14 @@ class FeelDictDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = FeelDecisionRunner('dict_decision_feel.dmn', debug='DEBUG')
+        cls.runner = FeelDecisionRunner('dict_decision_feel.dmn')
 
     def test_string_decision_string_output1(self):
         data = {"allergies": {
                 "PEANUTS": {"delicious": True},
                 "SPAM": {"delicious": False}
                 }}
-        PythonScriptEngine.convertToBox(PythonScriptEngine(),data)
+        PythonScriptEngine.convert_to_box(PythonScriptEngine(), data)
         res = self.runner.decide(data)
         self.assertEqual(res.description, 'They are allergic to peanuts')
 

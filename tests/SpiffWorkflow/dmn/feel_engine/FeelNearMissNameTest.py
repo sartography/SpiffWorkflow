@@ -37,7 +37,7 @@ class FeelNearMissTestClass(unittest.TestCase):
             "shared": []
         }
 
-        cls.runner = FeelDecisionRunner('exclusive_feel.dmn', debug='DEBUG')
+        cls.runner = FeelDecisionRunner('exclusive_feel.dmn')
 
     def test_string_decision_string_output1(self):
         self.assertRaisesRegex(NameError,

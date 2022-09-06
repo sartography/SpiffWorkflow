@@ -10,7 +10,7 @@ class FeelBoolDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = FeelDecisionRunner('bool_decision_feel.dmn', debug='DEBUG')
+        cls.runner = FeelDecisionRunner('bool_decision_feel.dmn')
 
     def test_bool_decision_string_output1(self):
         res = self.runner.decide(True)

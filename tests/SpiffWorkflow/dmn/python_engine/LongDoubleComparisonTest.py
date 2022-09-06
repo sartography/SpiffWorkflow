@@ -12,7 +12,7 @@ class LongOrDoubleDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = PythonDecisionRunner('long_or_double_decision_comparison.dmn', debug='DEBUG')
+        cls.runner = PythonDecisionRunner('long_or_double_decision_comparison.dmn')
 
     def test_long_or_double_decision_string_output1(self):
         res = self.runner.decide({"Age":Decimal('30.5')})

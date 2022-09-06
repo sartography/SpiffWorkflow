@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
-from builtins import object
 import sys
 import unittest
 import re
@@ -15,7 +12,8 @@ from SpiffWorkflow.specs import WorkflowSpec, Simple
 
 
 class MockWorkflow(object):
-    pass
+    def __init__(self, spec):
+        self.spec = spec
 
 class UpdateDotDictTest(unittest.TestCase):
     def test_update(self):
@@ -30,8 +28,8 @@ class TaskTest(unittest.TestCase):
 
     def testTree(self):
         # Build a tree.
-        spec = WorkflowSpec()
-        workflow = MockWorkflow()
+        spec = WorkflowSpec(name='Mock Workflow')
+        workflow = MockWorkflow(spec)
         task1 = Simple(spec, 'Simple 1')
         task2 = Simple(spec, 'Simple 2')
         task3 = Simple(spec, 'Simple 3')

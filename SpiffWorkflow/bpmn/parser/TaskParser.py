@@ -17,7 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import logging
 import sys
 import traceback
 from .ValidationException import ValidationException
@@ -33,8 +32,6 @@ from ...operators import Attrib, PathAttrib
 from .util import one, first
 from .node_parser import NodeParser
 from ...specs.SubWorkflow import SubWorkflow
-
-LOG = logging.getLogger(__name__)
 
 STANDARDLOOPCOUNT = '25'
 
@@ -212,7 +209,6 @@ class TaskParser(NodeParser):
             exc_info = sys.exc_info()
             tb = "".join(traceback.format_exception(
                 exc_info[0], exc_info[1], exc_info[2]))
-            LOG.error("%r\n%s", ex, tb)
             raise ValidationException("%r" % (ex), node=self.node, filename=self.filename)
 
     def get_task_spec_name(self, target_ref=None):

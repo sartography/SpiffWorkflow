@@ -70,7 +70,7 @@ class Trigger(TaskSpec):
                 continue
             if (thetask.task_spec == self and
                     thetask._has_state(TaskState.COMPLETED)):
-                thetask._set_state(TaskState.FUTURE, True)
+                thetask._set_state(TaskState.FUTURE)
                 thetask._ready()
 
     def _on_complete_hook(self, my_task):
