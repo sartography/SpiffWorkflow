@@ -36,7 +36,7 @@ class ServiceTask(Simple, BpmnSpecMixin):
             # set state to WAITING (because it is definitely not COMPLETED)
             # and raise WorkflowException pointing to this task because
             # maybe upstream someone will be able to handle this situation
-            task._setstate(TaskState.WAITING, force=True)
+            task._setstate(TaskState.WAITING)
             if isinstance(e, WorkflowTaskExecException):
                 raise e
             else:

@@ -175,7 +175,7 @@ class PythonScriptEngine(object):
 
         external_methods.update(additions)
 
-        self.execute(task, script, data, external_methods=external_methods)
+        self.execute(task, script, external_methods=external_methods)
 
     def is_complete(self, task):
 
