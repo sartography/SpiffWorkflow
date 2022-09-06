@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import ast
 import re
 import datetime
 import operator
@@ -124,7 +123,6 @@ def feelFilter(var,a,b,op,column=None):
              '<=':operator.le,
              '>=':operator.ge,
              '!=':operator.ne}
-    #print('eval b',a,b,op,column)
     b = eval(b)
     # if it is a list and we are referring to 'item' then we
     # expect the variable to be a simple list
@@ -146,8 +144,6 @@ def feelFilter(var,a,b,op,column=None):
                 newvar.append({'key':key,'value':var[key]})
         var = newvar
 
-    #print (var)
-    #print(column)
     if column!=None:
         return [x.get(column) for x in var if opmap[op](x.get(a), b)]
     else:
@@ -185,10 +181,6 @@ def feelParseISODuration(input):
                ]
     totaltime = [transformDuration(lookupPart(x[0],x[1]),x[2]) for x in lookups]
     return sum(totaltime,timedelta(seconds=0))
-
-
-
-
 
 
 
@@ -246,7 +238,8 @@ fixes = [(r'string\s+length\((.+?)\)','len(\\1)'),
 
          ('true','True'),
          ('false','False')
-         ]
+    ]
+         
 externalFuncs = {
     'feelConvertTime':feelConvertTime,
     'FeelInterval':FeelInterval,
@@ -276,39 +269,23 @@ class FeelLikeScriptEngine(PythonScriptEngine):
     def __init__(self):
         super().__init__()
 
-    def patch_expression(self,invalid_python,lhs=''):
+    def validate(self, expression):
+        super().validate(self.patch_expression(expression))
+
+    def patch_expression(self, invalid_python, lhs=''):
         if invalid_python is None:
             return None
         proposed_python = invalid_python
         for transformation in fixes:
-            if isinstance(transformation[1],str):
-                proposed_python = re.sub(transformation[0],transformation[1],proposed_python)
+            if isinstance(transformation[1], str):
+                proposed_python = re.sub(transformation[0], transformation[1], proposed_python)
             else:
-                for x in re.findall(transformation[0],proposed_python):
+                for x in re.findall(transformation[0], proposed_python):
                     if '.' in(x):
-                        proposed_python = proposed_python.replace(x,transformation[1](x))
+                        proposed_python = proposed_python.replace(x, transformation[1](x))
         if lhs is not None:
             proposed_python = lhs + proposed_python
         return proposed_python
-
-    def validate_expression (self, text):
-        if text is None:
-            return
-        try:
-            # this should work if we can just do a straight equality
-            revised_text = self.patch_expression(text)
-            ast.parse(revised_text)
-            return revised_text,True
-        except:
-            try:
-                revised_text = self.patch_expression(text, 's ') # if we have problems parsing, then we introduce a
-                # variable on the left hand side and try that and see if that parses. If so, then we know that
-                # we do not need to introduce an equality operator later in the dmn
-                ast.parse(revised_text)
-                return revised_text[2:],False
-            except Exception as e:
-                raise Exception("error parsing expression "+text + " " +
-                                str(e))
 
     def _evaluate(self, expression, context, task=None, external_methods=None):
         """
@@ -317,9 +294,10 @@ class FeelLikeScriptEngine(PythonScriptEngine):
         """
         if external_methods is None:
             external_methods = {}
+
+        revised = self.patch_expression(expression)
         external_methods.update(externalFuncs)
-        return super()._evaluate(expression, context,
-                                 external_methods=external_methods)
+        return super()._evaluate(revised, context, external_methods=external_methods)
 
     def execute(self, task, script, data, external_methods=None):
         """
@@ -328,7 +306,7 @@ class FeelLikeScriptEngine(PythonScriptEngine):
         if external_methods is None:
             external_methods = {}
         external_methods.update(externalFuncs)
-        super(PythonScriptEngine).execute(task,script,external_methods)
+        super(PythonScriptEngine).execute(task, script, external_methods)
 
 
 

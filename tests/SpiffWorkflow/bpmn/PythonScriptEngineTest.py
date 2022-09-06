@@ -38,11 +38,10 @@ dt = dateparser.parse(datestr)
 localtime = dt.astimezone(pytz.timezone('US/Eastern'))
 localtime_str = localtime.strftime("%Y-%m-%d %H:%M:%S")
         """
-        data = {}
-        self.expressionEngine.execute(task=self.task, script=script, data=data)
-        self.assertEqual(data['now_utc'].utcoffset().days, 0)
-        self.assertEqual(data['now_est'].tzinfo.zone, "US/Eastern")
-        self.assertEqual(data['localtime_str'], "2021-09-23 12:11:00")
+        self.expressionEngine.execute(self.task, script)
+        self.assertEqual(self.task.data['now_utc'].utcoffset().days, 0)
+        self.assertEqual(self.task.data['now_est'].tzinfo.zone, "US/Eastern")
+        self.assertEqual(self.task.data['localtime_str'], "2021-09-23 12:11:00")
         self.assertTrue(True)
 
 def suite():

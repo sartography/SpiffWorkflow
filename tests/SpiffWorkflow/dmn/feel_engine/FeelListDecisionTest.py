@@ -9,7 +9,7 @@ class FeelListDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = FeelDecisionRunner('list_decision_feel.dmn', debug='DEBUG')
+        cls.runner = FeelDecisionRunner('list_decision_feel.dmn')
 
     def test_string_decision_string_output1(self):
         res = self.runner.decide({'allergies':["PEANUTS", "SPAM"]})

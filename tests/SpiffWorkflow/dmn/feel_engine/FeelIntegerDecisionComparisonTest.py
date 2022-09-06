@@ -10,7 +10,7 @@ class FeelIntegerDecisionComparisonTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = FeelDecisionRunner('integer_decision_comparison_feel.dmn', debug='DEBUG')
+        cls.runner = FeelDecisionRunner('integer_decision_comparison_feel.dmn')
 
     def test_integer_decision_string_output1(self):
         res = self.runner.decide(30)

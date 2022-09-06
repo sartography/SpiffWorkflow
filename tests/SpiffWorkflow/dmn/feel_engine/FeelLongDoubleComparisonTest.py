@@ -12,7 +12,7 @@ class FeelLongOrDoubleDecisionTestClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.runner = FeelDecisionRunner('long_or_double_decision_comparison_feel.dmn', debug='DEBUG')
+        cls.runner = FeelDecisionRunner('long_or_double_decision_comparison_feel.dmn')
 
     def test_long_or_double_decision_string_output1(self):
         res = self.runner.decide({"Age":Decimal('30.5')})
