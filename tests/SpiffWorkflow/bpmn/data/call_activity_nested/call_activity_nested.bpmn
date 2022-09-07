@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
+                  xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_f07329e" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0">
+  <bpmn:process id="Level1" name="Level1" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1g3dpd7</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1g3dpd7" sourceRef="StartEvent_1" targetRef="Activity_12zat0d" />
+    <bpmn:callActivity id="Activity_12zat0d" name="call level 2" calledElement="Level2">
+      <bpmn:incoming>Flow_1g3dpd7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qdgvah</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_0qdgvah" sourceRef="Activity_12zat0d" targetRef="Activity_0rkbhbz" />
+    <bpmn:endEvent id="Event_18dla68">
+      <bpmn:documentation># Main Workflow
+Hello {{my_other_var}}
+
+</bpmn:documentation>
+      <bpmn:incoming>Flow_04o2npf</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0upce00" sourceRef="Activity_0rkbhbz" targetRef="Activity_0gg4414" />
+    <bpmn:callActivity id="Activity_0rkbhbz" name="call level 2B" calledElement="Level2b">
+      <bpmn:incoming>Flow_0qdgvah</bpmn:incoming>
+      <bpmn:outgoing>Flow_0upce00</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_04o2npf" sourceRef="Activity_0gg4414" targetRef="Event_18dla68" />
+    <bpmn:businessRuleTask id="Activity_0gg4414" name="call level 2c" camunda:decisionRef="Level2c">
+			<bpmn:extensionElements>
+         <spiffworkflow:calledDecisionId>Level2c</spiffworkflow:calledDecisionId>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0upce00</bpmn:incoming>
+      <bpmn:outgoing>Flow_04o2npf</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Level1">
+      <bpmndi:BPMNEdge id="Flow_0qdgvah_di" bpmnElement="Flow_0qdgvah">
+        <di:waypoint x="380" y="117" />
+        <di:waypoint x="420" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1g3dpd7_di" bpmnElement="Flow_1g3dpd7">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="280" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0upce00_di" bpmnElement="Flow_0upce00">
+        <di:waypoint x="520" y="117" />
+        <di:waypoint x="560" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04o2npf_di" bpmnElement="Flow_04o2npf">
+        <di:waypoint x="660" y="117" />
+        <di:waypoint x="702" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0mcej1g_di" bpmnElement="Activity_12zat0d">
+        <dc:Bounds x="280" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jddvat_di" bpmnElement="Activity_0rkbhbz">
+        <dc:Bounds x="420" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_18dla68_di" bpmnElement="Event_18dla68">
+        <dc:Bounds x="702" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1lzid7b_di" bpmnElement="Activity_0gg4414">
+        <dc:Bounds x="560" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

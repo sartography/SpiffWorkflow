@@ -14,12 +14,17 @@ class BusinessRuleTaskParser(TaskParser):
         self.xpath = xpath_eval(self.node, extra_ns={'camunda': CAMUNDA_MODEL_NS})
 
     def create_task(self):
-        decision_ref = self.node.attrib['{' + CAMUNDA_MODEL_NS + '}decisionRef']
+        decision_ref = self.get_decision_ref(self.node)
         return BusinessRuleTask(self.spec, self.get_task_spec_name(),
                                 dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
                                 lane=self.lane, position=self.position,
                                 description=self.node.get('name', None),
                                 )
+
+    @staticmethod
+    def get_decision_ref(node):
+        return node.attrib['{' + CAMUNDA_MODEL_NS + '}decisionRef']
+
 
     def _on_trigger(self, my_task):
         pass

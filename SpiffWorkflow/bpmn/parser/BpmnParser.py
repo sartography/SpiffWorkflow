@@ -87,6 +87,7 @@ class BpmnParser(object):
         self.process_parsers = {}
         self.process_parsers_by_name = {}
         self.collaborations = {}
+        self.dependencies = []
 
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
@@ -160,11 +161,24 @@ class BpmnParser(object):
         for process in xpath('.//bpmn:process'):
             self.create_parser(process, xpath, filename)
 
+        self._find_dependencies(xpath)
+
         collaboration = first(xpath('.//bpmn:collaboration'))
         if collaboration is not None:
             collaboration_xpath = xpath_eval(collaboration)
             name = collaboration.get('id')
             self.collaborations[name] = [ participant.get('processRef') for participant in collaboration_xpath('.//bpmn:participant') ]
+
+    def _find_dependencies(self, xpath):
+        """Locate all calls to external BPMN and DMN files, and store their
+        ids in our list of dependencies"""
+        for call_activity in xpath('.//bpmn:callActivity'):
+            self.dependencies.append(call_activity.get('calledElement'))
+        parser_cls, cls = self._get_parser_class(full_tag('businessRuleTask'))
+        if parser_cls:
+            for business_rule in xpath('.//bpmn:businessRuleTask'):
+                self.dependencies.append(parser_cls.get_decision_ref(business_rule))
+
 
     def create_parser(self, node, doc_xpath, filename=None, lane=None):
         parser = self.PROCESS_PARSER_CLASS(self, node, filename=filename, doc_xpath=doc_xpath, lane=lane)
@@ -174,6 +188,9 @@ class BpmnParser(object):
             raise ValidationException('Duplicate process name', node=node, filename=filename)
         self.process_parsers[parser.get_id()] = parser
         self.process_parsers_by_name[parser.get_name()] = parser
+
+    def get_dependencies(self):
+        return self.dependencies
 
     def get_spec(self, process_id_or_name):
         """
