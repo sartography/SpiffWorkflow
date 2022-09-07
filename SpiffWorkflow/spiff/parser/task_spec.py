@@ -21,7 +21,7 @@ class SpiffTaskParser(TaskParser):
         # We should set a namespace and automatically do this.
         extensions = {}
         extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
-        xpath = xpath_eval(node, extra_ns) if node is None else xpath_eval(node, extra_ns)
+        xpath = xpath_eval(node, extra_ns)
         extension_nodes = xpath('.//bpmn:extensionElements/spiffworkflow:*')
         for node in extension_nodes:
             name = etree.QName(node).localname
