@@ -40,9 +40,13 @@ class ProcessDependencyTest(BpmnWorkflowTestCase):
         parser.add_bpmn_file(os.path.join(base_dir, 'call_activity_nested.bpmn'))
         dependencies = parser.get_dependencies()
         self.assertEqual(3, len(dependencies))
-        self.assertIn('Level2', dependencies)
-        self.assertIn('Level2b', dependencies)
-        self.assertIn('Level2c', dependencies)
+        process_deps = parser.get_process_dependencies()
+        self.assertEqual(2, len(process_deps))
+        self.assertIn('Level2', process_deps)
+        self.assertIn('Level2b', process_deps)
+        dmn_deps = parser.get_dmn_dependencies()
+        self.assertEqual(1, len(dmn_deps))
+        self.assertIn('Level2c', dmn_deps)
 
         # Add Level 2 file, and we should find a level 3 dependency as well.
         parser.add_bpmn_file(os.path.join(base_dir, 'call_activity_level_2.bpmn'))

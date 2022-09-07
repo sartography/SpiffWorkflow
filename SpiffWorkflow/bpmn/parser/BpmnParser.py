@@ -87,7 +87,8 @@ class BpmnParser(object):
         self.process_parsers = {}
         self.process_parsers_by_name = {}
         self.collaborations = {}
-        self.dependencies = []
+        self.process_dependencies = set()
+        self.dmn_dependencies = set()
 
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
@@ -173,11 +174,11 @@ class BpmnParser(object):
         """Locate all calls to external BPMN and DMN files, and store their
         ids in our list of dependencies"""
         for call_activity in xpath('.//bpmn:callActivity'):
-            self.dependencies.append(call_activity.get('calledElement'))
+            self.process_dependencies.add(call_activity.get('calledElement'))
         parser_cls, cls = self._get_parser_class(full_tag('businessRuleTask'))
         if parser_cls:
             for business_rule in xpath('.//bpmn:businessRuleTask'):
-                self.dependencies.append(parser_cls.get_decision_ref(business_rule))
+                self.dmn_dependencies.add(parser_cls.get_decision_ref(business_rule))
 
 
     def create_parser(self, node, doc_xpath, filename=None, lane=None):
@@ -190,7 +191,13 @@ class BpmnParser(object):
         self.process_parsers_by_name[parser.get_name()] = parser
 
     def get_dependencies(self):
-        return self.dependencies
+        return self.process_dependencies.union(self.dmn_dependencies)
+
+    def get_process_dependencies(self):
+        return self.process_dependencies
+
+    def get_dmn_dependencies(self):
+        return self.dmn_dependencies
 
     def get_spec(self, process_id_or_name):
         """
