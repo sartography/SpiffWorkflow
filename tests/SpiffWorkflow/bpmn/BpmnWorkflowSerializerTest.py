@@ -62,20 +62,26 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
     def testSerializeWorkflowCustomJSONEncoder(self):
         class MyJsonEncoder(json.JSONEncoder):
             def default(self, z):
-                if isinstance(z, UUID):
-                    return str(z)
+                if isinstance(z, MyCls):
+                    return z.to_dict()
                 return super().default(z)
         
+        class MyCls:
+            a = 1
+            def to_dict(self):
+                return {'a': 1}
+
         a_task = self.workflow.spec.task_specs[list(self.workflow.spec.task_specs)[0]]
-        uuid_val = uuid4()
-        a_task.data['jsonTest'] = uuid_val
+        unserializable = MyCls()
+
+        a_task.data['jsonTest'] = unserializable
 
         try:
             self.assertRaises(TypeError, self.serializer.serialize_json, self.workflow)
             wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([TestUserTaskConverter])
             custom_serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION,json_encoder_cls=MyJsonEncoder)
             serialized = custom_serializer.serialize_json(self.workflow)
-            self.assertEqual(str(uuid_val), serialized['data']['jsonTest'])
+            self.assertEqual(str(unserializable), serialized['data']['jsonTest'])
         finally:
             a_task.data.pop('jsonTest',None)
 
