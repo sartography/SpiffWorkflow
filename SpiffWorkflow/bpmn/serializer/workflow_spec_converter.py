@@ -113,7 +113,7 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
             'task_specs': {},
             'data_inputs': [ self.convert(obj) for obj in spec.data_inputs ],
             'data_outputs': [ self.convert(obj) for obj in spec.data_outputs ],
-            'data_objects': [ (obj.name, self.convert(obj)) for obj in spec.data_objects ],
+            'data_objects': dict([ (name, self.convert(obj)) for name, obj in spec.data_objects .items() ]),
             'correlation_keys': spec.correlation_keys,
         }
         for name, task_spec in spec.task_specs.items():
@@ -141,7 +141,7 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
         # Add the data specs
         spec.data_inputs = [ self.restore(obj_dct) for obj_dct in dct.pop('data_inputs', []) ]
         spec.data_outputs = [ self.restore(obj_dct) for obj_dct in dct.pop('data_outputs', []) ]
-        spec.data_objects = [ (name, self.restore(obj_dct)) for name, obj_dct in dct.pop('data_objects', {}) ]
+        spec.data_objects = dict([ (name, self.restore(obj_dct)) for name, obj_dct in dct.pop('data_objects', {}).items() ])
 
         # Add messaging related stuff
         spec.correlation_keys = dct.pop('correlation_keys', {})
