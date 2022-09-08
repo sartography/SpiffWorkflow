@@ -66,6 +66,7 @@ class BpmnWorkflowSerializer:
     # using the configure_workflow_spec_converter.
     VERSION = "1.0"
     VERSION_KEY = "serializer_version"
+    JSON_ENCODER_CLS = None
 
     @staticmethod
     def configure_workflow_spec_converter(task_spec_overrides=None, data_converter=None, version=VERSION):
@@ -97,7 +98,7 @@ class BpmnWorkflowSerializer:
         return BpmnProcessSpecConverter(converters, version)
 
 
-    def __init__(self, spec_converter=None, data_converter=None, wf_class=None, version=VERSION):
+    def __init__(self, spec_converter=None, data_converter=None, wf_class=None, version=VERSION, json_encoder_cls=JSON_ENCODER_CLS):
         """Intializes a Workflow Serializer with the given Workflow, Task and Data Converters.
 
         :param spec_converter: the workflow spec converter
@@ -108,6 +109,7 @@ class BpmnWorkflowSerializer:
         self.spec_converter = spec_converter if spec_converter is not None else self.configure_workflow_spec_converter()
         self.data_converter = data_converter if data_converter is not None else BpmnDataConverter()
         self.wf_class = wf_class if wf_class is not None else BpmnWorkflow
+        self.json_encoder_cls = json_encoder_cls
         self.VERSION = version
 
     def serialize_json(self, workflow, use_gzip=False):
@@ -120,16 +122,16 @@ class BpmnWorkflowSerializer:
         """
         dct = self.workflow_to_dict(workflow)
         dct[self.VERSION_KEY] = self.VERSION
-        json_str = json.dumps(dct)
+        json_str = json.dumps(dct, cls=self.json_encoder_cls)
         return gzip.compress(json_str.encode('utf-8')) if use_gzip else json_str
 
     def __get_dict(self, serialization, use_gzip=False):
         if isinstance(serialization, dict):
             dct = serialization
         elif use_gzip:
-            dct = json.loads(gzip.decompress(serialization))
+            dct = json.loads(gzip.decompress(serialization), cls=self.json_encoder_cls)
         else:
-            dct = json.loads(serialization)
+            dct = json.loads(serialization, cls=self.json_encoder_cls)
         return dct
 
     def deserialize_json(self, serialization, read_only=False, use_gzip=False):

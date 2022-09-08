@@ -1,6 +1,7 @@
 import os
 import unittest
 import json
+from uuid import uuid4, UUID
 
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
@@ -57,6 +58,26 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
     def testSerializeWorkflow(self):
         serialized = self.serializer.serialize_json(self.workflow)
         json.loads(serialized)
+    
+    def testSerializeWorkflowCustomJSONEncoder(self):
+        class MyJsonEncoder(json.JSONEncoder):
+            def default(self, z):
+                if isinstance(z, UUID):
+                    return str(z)
+                return super().default(z)
+        
+        a_task = self.workflow.spec.task_specs[list(self.workflow.spec.task_specs)[0]]
+        uuid_val = uuid4()
+        a_task.data['jsonTest'] = uuid_val
+
+        try:
+            self.assertRaises(TypeError, self.serializer.serialize_json, self.workflow)
+            wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([TestUserTaskConverter])
+            custom_serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION,json_encoder_cls=MyJsonEncoder)
+            serialized = custom_serializer.serialize_json(self.workflow)
+            self.assertEqual(str(uuid_val), serialized['data']['jsonTest'])
+        finally:
+            a_task.data.pop('jsonTest',None)
 
     def testDeserializeWorkflow(self):
         self._compare_with_deserialized_copy(self.workflow)
