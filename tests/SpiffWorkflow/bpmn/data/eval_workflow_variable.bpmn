@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1qnx3d3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <bpmn:process id="test_gateway_expression" name="Data Object Gateway Test" isExecutable="true">
+    <bpmn:startEvent id="Event_0s5pcxb">
+      <bpmn:outgoing>Flow_1ebkh4y</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1ebkh4y" sourceRef="Event_0s5pcxb" targetRef="set_data" />
+    <bpmn:userTask id="set_data" name="Set Data">
+      <bpmn:incoming>Flow_1ebkh4y</bpmn:incoming>
+      <bpmn:outgoing>Flow_0j3tk1t</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_00vx4qd">
+        <bpmn:targetRef>workflow_var_storage</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="check_data" name="Check data" default="Flow_1nf1r3m">
+      <bpmn:incoming>Flow_0j3tk1t</bpmn:incoming>
+      <bpmn:outgoing>Flow_1nf1r3m</bpmn:outgoing>
+      <bpmn:outgoing>Flow_14hcomu</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0j3tk1t" sourceRef="set_data" targetRef="check_data" />
+    <bpmn:task id="task_a" name="Task A">
+      <bpmn:incoming>Flow_1nf1r3m</bpmn:incoming>
+      <bpmn:outgoing>Flow_1des9ab</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1nf1r3m" name="Select A" sourceRef="check_data" targetRef="task_a" />
+    <bpmn:task id="task_b" name="Task B">
+      <bpmn:incoming>Flow_14hcomu</bpmn:incoming>
+      <bpmn:outgoing>Flow_1egm97b</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_14hcomu" name="Select B" sourceRef="check_data" targetRef="task_b">
+      <bpmn:conditionExpression>task_var == 'b' and workflow_var == 'b'</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="task_a_end" name="Task A End">
+      <bpmn:incoming>Flow_1des9ab</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1des9ab" sourceRef="task_a" targetRef="task_a_end" />
+    <bpmn:endEvent id="task_b_end" name="Task B End">
+      <bpmn:incoming>Flow_1egm97b</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1egm97b" sourceRef="task_b" targetRef="task_b_end" />
+    <bpmn:dataObjectReference id="workflow_var_storage" name="Workflow Var" dataObjectRef="workflow_var" />
+    <bpmn:dataObject id="workflow_var" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="test_gateway_expression">
+      <bpmndi:BPMNEdge id="Flow_1egm97b_di" bpmnElement="Flow_1egm97b">
+        <di:waypoint x="540" y="230" />
+        <di:waypoint x="592" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1des9ab_di" bpmnElement="Flow_1des9ab">
+        <di:waypoint x="540" y="120" />
+        <di:waypoint x="592" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14hcomu_di" bpmnElement="Flow_14hcomu">
+        <di:waypoint x="310" y="145" />
+        <di:waypoint x="310" y="230" />
+        <di:waypoint x="440" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="367" y="213" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nf1r3m_di" bpmnElement="Flow_1nf1r3m">
+        <di:waypoint x="335" y="120" />
+        <di:waypoint x="440" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="367" y="102" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0j3tk1t_di" bpmnElement="Flow_0j3tk1t">
+        <di:waypoint x="230" y="120" />
+        <di:waypoint x="285" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ebkh4y_di" bpmnElement="Flow_1ebkh4y">
+        <di:waypoint x="78" y="120" />
+        <di:waypoint x="130" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0s5pcxb_di" bpmnElement="Event_0s5pcxb">
+        <dc:Bounds x="42" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10mkxxf_di" bpmnElement="set_data">
+        <dc:Bounds x="130" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1pqoh01_di" bpmnElement="check_data" isMarkerVisible="true">
+        <dc:Bounds x="285" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="282" y="71" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1x1kym2_di" bpmnElement="task_a">
+        <dc:Bounds x="440" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vjsibp_di" bpmnElement="task_b">
+        <dc:Bounds x="440" y="190" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1oftval_di" bpmnElement="task_a_end">
+        <dc:Bounds x="592" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="583" y="145" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1rq5w8s_di" bpmnElement="task_b_end">
+        <dc:Bounds x="592" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="582" y="255" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataObjectReference_11ng87r_di" bpmnElement="workflow_var_storage">
+        <dc:Bounds x="162" y="-25" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="152" y="-62" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_00vx4qd_di" bpmnElement="DataOutputAssociation_00vx4qd">
+        <di:waypoint x="181" y="80" />
+        <di:waypoint x="182" y="25" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

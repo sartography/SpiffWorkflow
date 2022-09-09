@@ -18,12 +18,6 @@ class PythonScriptEngineTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.expressionEngine = PythonScriptEngine()
 
-        # All this, just so we have a task object, not using anything in the Script.
-        spec, subprocesses = self.load_workflow_spec('ScriptTest.bpmn', 'ScriptTest')
-        workflow = BpmnWorkflow(spec, subprocesses)
-        workflow.do_engine_steps()
-        self.task = workflow.last_task
-
     def testDateTimeExpressions(self):
         """Basically, assure that we can use datime, dateutils, and pytz"""
         script = """
@@ -38,10 +32,12 @@ dt = dateparser.parse(datestr)
 localtime = dt.astimezone(pytz.timezone('US/Eastern'))
 localtime_str = localtime.strftime("%Y-%m-%d %H:%M:%S")
         """
-        self.expressionEngine.execute(self.task, script)
-        self.assertEqual(self.task.data['now_utc'].utcoffset().days, 0)
-        self.assertEqual(self.task.data['now_est'].tzinfo.zone, "US/Eastern")
-        self.assertEqual(self.task.data['localtime_str'], "2021-09-23 12:11:00")
+        # In a workflow this happens automatically
+        data = {}
+        self.expressionEngine._execute(script, data)
+        self.assertEqual(data['now_utc'].utcoffset().days, 0)
+        self.assertEqual(data['now_est'].tzinfo.zone, "US/Eastern")
+        self.assertEqual(data['localtime_str'], "2021-09-23 12:11:00")
         self.assertTrue(True)
 
 def suite():

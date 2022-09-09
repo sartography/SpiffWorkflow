@@ -17,12 +17,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 import logging
+from re import A
 
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...task import TaskState
 from ...specs.Simple import Simple
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 
 class ScriptTask(Simple, BpmnSpecMixin):
 
@@ -42,39 +43,24 @@ class ScriptTask(Simple, BpmnSpecMixin):
 
     def _on_ready_hook(self, task):
         super(ScriptTask, self)._on_ready_hook(task)
-        if task.workflow._is_busy_with_restore():
-            return
-        assert not task.workflow.read_only
-        try:
-            task.workflow.script_engine.execute(task, self.script)
-        except Exception as e:
-            self.logger.error('Error executing ScriptTask; task=%r',task)
-            # set state to WAITING (because it is definitely not COMPLETED)
-            # and raise WorkflowException pointing to this task because
-            # maybe upstream someone will be able to handle this situation
-            task._set_state(TaskState.WAITING)
-            if isinstance(e, WorkflowTaskExecException):
-                raise e
-            else:
-                raise WorkflowTaskExecException(task, f'Error during script execution: {e}', e)
+        task.workflow.script_engine.queue(task)
+        task._set_state(TaskState.WAITING)
 
     def _update_hook(self, task):
+
         if task.state == TaskState.WAITING:
+            if task.workflow.script_engine.is_queued(task):
+                if task.workflow._is_busy_with_restore():
+                    return
+                assert not task.workflow.read_only
+                task.workflow.script_engine.execute(task, self.script)
+
             if task.workflow.script_engine.is_complete(task):
                 # I don't like updating the task here, but we can't set it to ready
                 # or the script will be executed again.
                 task.complete()
         else:
             return super()._update_hook(task)
-
-    def _on_complete_hook(self, task):
-        if not task.workflow.script_engine.is_complete(task):
-            # Spiff moves tasks from "ready" to "complete" automatically, so we have
-            # to force it back to a WAITING state if it's not done.
-            # This embodies much of what's wrong with this library.
-            task._setstate(TaskState.WAITING, force=True)
-        else:
-            super()._on_complete_hook(task)
 
     def serialize(self, serializer):
         return serializer.serialize_script_task(self)

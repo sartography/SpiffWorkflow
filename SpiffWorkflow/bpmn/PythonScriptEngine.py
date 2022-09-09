@@ -110,6 +110,7 @@ class PythonScriptEngine(object):
                         'Box': Box,
                         }
         self.globals.update(scripting_additions or {})
+        self.queued_tasks = set()
         self.running_tasks = {}
         self.error_tasks = {}
 
@@ -136,6 +137,7 @@ class PythonScriptEngine(object):
         Execute the script, within the context of the specified task
         """
         try:
+            self.queued_tasks.remove(task.id)
             self.check_for_overwrite(task, external_methods or {})
             result = self._execute(script, task.data, external_methods or {})
             if result is not None:
@@ -144,6 +146,12 @@ class PythonScriptEngine(object):
             wte = self.create_task_exec_exception(task, err)
             self.error_tasks[task.id] = wte
             raise wte
+
+    def queue(self, task):
+        self.queued_tasks.add(task.id)
+
+    def is_queued(self, task):
+        return task.id in self.queued_tasks
 
     def is_complete(self, task):
 
@@ -170,7 +178,7 @@ class PythonScriptEngine(object):
 
         detail = err.__class__.__name__
         if len(err.args) > 0:
-            detail += ":" + err.args[0]
+            detail += f": {err.args[0]}"
         line_number = 0
         error_line = ''
         cl, exc, tb = sys.exc_info()
