@@ -59,31 +59,54 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         serialized = self.serializer.serialize_json(self.workflow)
         json.loads(serialized)
     
-    def testSerializeWorkflowCustomJSONEncoder(self):
+    def testSerializeWorkflowCustomJSONEncoderDecoder(self):
+        class MyCls:
+            a = 1
+            def to_dict(self):
+                return {'a': 1, 'my_type': 'mycls'}
+
+            @classmethod
+            def from_dict(self, data):
+                return MyCls()
+
         class MyJsonEncoder(json.JSONEncoder):
             def default(self, z):
                 if isinstance(z, MyCls):
                     return z.to_dict()
                 return super().default(z)
-        
-        class MyCls:
-            a = 1
-            def to_dict(self):
-                return {'a': 1}
 
-        a_task = self.workflow.spec.task_specs[list(self.workflow.spec.task_specs)[0]]
+        class MyJsonDecoder(json.JSONDecoder):
+            classes = {'mycls': MyCls}
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(object_hook=self.object_hook, *args, **kwargs)
+
+            def object_hook(self, z):
+                if 'my_type' in z and z['my_type'] in self.classes:
+                    return self.classes[z['my_type']].from_dict(z)
+
+                return z
+
         unserializable = MyCls()
 
+        a_task_spec = self.workflow.spec.task_specs[list(self.workflow.spec.task_specs)[0]]
+        a_task = self.workflow.get_tasks_from_spec_name(a_task_spec.name)[0]
         a_task.data['jsonTest'] = unserializable
 
         try:
             self.assertRaises(TypeError, self.serializer.serialize_json, self.workflow)
             wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([TestUserTaskConverter])
-            custom_serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION,json_encoder_cls=MyJsonEncoder)
-            serialized = custom_serializer.serialize_json(self.workflow)
-            self.assertEqual(str(unserializable), serialized['data']['jsonTest'])
+            custom_serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION,json_encoder_cls=MyJsonEncoder, json_decoder_cls=MyJsonDecoder)
+            serialized_workflow = custom_serializer.serialize_json(self.workflow)
         finally:
             a_task.data.pop('jsonTest',None)
+
+        serialized_task = [x for x in json.loads(serialized_workflow)['tasks'].values() if x['task_spec'] == a_task_spec.name][0]
+        self.assertEqual(serialized_task['data']['jsonTest'], {'a': 1, 'my_type': 'mycls'})
+
+        deserialized_workflow = custom_serializer.deserialize_json(serialized_workflow)
+        deserialized_task = deserialized_workflow.get_tasks_from_spec_name(a_task_spec.name)[0]
+        self.assertTrue(isinstance(deserialized_task.data['jsonTest'], MyCls))
 
     def testDeserializeWorkflow(self):
         self._compare_with_deserialized_copy(self.workflow)
