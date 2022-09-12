@@ -11,7 +11,7 @@ SPIFFWORKFLOW_MODEL_NS = 'http://spiffworkflow.org/bpmn/schema/1.0/core'
 class SpiffTaskParser(TaskParser):
 
     def parse_extensions(self, node=None):
-        if not node:
+        if node is None:
             node = self.node
         return SpiffTaskParser._parse_extensions(node)
 
