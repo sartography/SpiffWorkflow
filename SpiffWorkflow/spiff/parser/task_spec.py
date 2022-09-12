@@ -43,7 +43,8 @@ class SpiffTaskParser(TaskParser):
             properties[prop_node.attrib['name']] = prop_node.attrib['value']
         return properties
 
-    def _parse_servicetask_operator(self, node):
+    @staticmethod
+    def _parse_servicetask_operator(node):
         name = node.attrib['id']
         extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
         xpath = xpath_eval(node, extra_ns)
