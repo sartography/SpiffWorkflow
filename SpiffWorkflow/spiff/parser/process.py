@@ -2,15 +2,13 @@ from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from SpiffWorkflow.bpmn.parser.BpmnParser import full_tag
 
 from SpiffWorkflow.bpmn.specs.events import StartEvent, EndEvent, IntermediateThrowEvent, BoundaryEvent, IntermediateCatchEvent
-from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, SubWorkflowTask, TransactionSubprocess, CallActivity
+from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, SubWorkflowTask, TransactionSubprocess, CallActivity, ServiceTask
 from SpiffWorkflow.spiff.specs.events.event_types import SendTask, ReceiveTask
-from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser, SubWorkflowParser, CallActivityParser
+from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser, SubWorkflowParser, CallActivityParser, ServiceTaskParser
 from SpiffWorkflow.spiff.parser.event_parsers import (SpiffStartEventParser, SpiffEndEventParser, SpiffBoundaryEventParser,
     SpiffIntermediateCatchEventParser, SpiffIntermediateThrowEventParser, SpiffSendTaskParser, SpiffReceiveTaskParser)
 from SpiffWorkflow.dmn.specs import BusinessRuleTask
 
-from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser
-from SpiffWorkflow.spiff.parser.task_spec import SubWorkflowParser, CallActivityParser
 from SpiffWorkflow.spiff.parser.task_spec import BusinessRuleTaskParser
 
 class SpiffBpmnParser(BpmnDmnParser):
@@ -22,6 +20,7 @@ class SpiffBpmnParser(BpmnDmnParser):
         full_tag('subProcess'): (SubWorkflowParser, SubWorkflowTask),
         full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
         full_tag('callActivity'): (CallActivityParser, CallActivity),
+        full_tag('serviceTask'): (ServiceTaskParser, ServiceTask),
         full_tag('startEvent'): (SpiffStartEventParser, StartEvent),
         full_tag('endEvent'): (SpiffEndEventParser, EndEvent),
         full_tag('boundaryEvent'): (SpiffBoundaryEventParser, BoundaryEvent),

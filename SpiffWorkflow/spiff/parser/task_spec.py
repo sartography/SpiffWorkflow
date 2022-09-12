@@ -27,6 +27,8 @@ class SpiffTaskParser(TaskParser):
             name = etree.QName(node).localname
             if name == 'properties':
                 extensions['properties'] = SpiffTaskParser._parse_properties(node)
+            elif name == 'serviceTaskOperator':
+                extensions['serviceTaskOperator'] = SpiffTaskParser._parse_servicetask_operator(node)
             else:
                 extensions[name] = node.text
         return extensions
@@ -40,6 +42,23 @@ class SpiffTaskParser(TaskParser):
         for prop_node in property_nodes:
             properties[prop_node.attrib['name']] = prop_node.attrib['value']
         return properties
+
+    @staticmethod
+    def _parse_servicetask_operator(node):
+        name = node.attrib['id']
+        extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
+        xpath = xpath_eval(node, extra_ns)
+        parameter_nodes = xpath('.//spiffworkflow:parameter')
+        operator = {'name': name}
+        parameters = {}
+        for param_node in parameter_nodes:
+            if 'value' in param_node.attrib:
+                parameters[param_node.attrib['id']] = {
+                    'value': param_node.attrib['value'],
+                    'type': param_node.attrib['type']
+                }
+        operator['parameters'] = parameters
+        return operator
 
     def create_task(self):
         # The main task parser already calls this, and even sets an attribute, but
@@ -86,6 +105,14 @@ class CallActivityParser(SpiffTaskParser):
             prescript=prescript,
             postscript=postscript)
 
+class ServiceTaskParser(SpiffTaskParser):
+    def create_task(self):
+        extensions = self.parse_extensions()
+        operator = extensions.get('serviceTaskOperator')
+        return self.spec_class(
+                self.spec, self.get_task_spec_name(),
+                operator['name'], operator['parameters'],
+                lane=self.lane, position=self.position)
 
 class BusinessRuleTaskParser(SpiffTaskParser):
 
