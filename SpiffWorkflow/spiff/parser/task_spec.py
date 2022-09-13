@@ -11,21 +11,30 @@ SPIFFWORKFLOW_MODEL_NS = 'http://spiffworkflow.org/bpmn/schema/1.0/core'
 class SpiffTaskParser(TaskParser):
 
     def parse_extensions(self, node=None):
+        if node is None:
+            node = self.node
+        return SpiffTaskParser._parse_extensions(node)
+
+    @staticmethod
+    def _parse_extensions(node):
         # Too bad doing this works in such a stupid way.
         # We should set a namespace and automatically do this.
         extensions = {}
         extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
-        xpath = xpath_eval(self.node, extra_ns) if node is None else xpath_eval(node, extra_ns)
+        xpath = xpath_eval(node, extra_ns)
         extension_nodes = xpath('.//bpmn:extensionElements/spiffworkflow:*')
         for node in extension_nodes:
             name = etree.QName(node).localname
             if name == 'properties':
-                extensions['properties'] = self._parse_properties(node)
+                extensions['properties'] = SpiffTaskParser._parse_properties(node)
+            elif name == 'serviceTaskOperator':
+                extensions['serviceTaskOperator'] = SpiffTaskParser._parse_servicetask_operator(node)
             else:
                 extensions[name] = node.text
         return extensions
 
-    def _parse_properties(self, node):
+    @staticmethod
+    def _parse_properties(node):
         extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
         xpath = xpath_eval(node, extra_ns)
         property_nodes = xpath('.//spiffworkflow:property')
@@ -33,6 +42,23 @@ class SpiffTaskParser(TaskParser):
         for prop_node in property_nodes:
             properties[prop_node.attrib['name']] = prop_node.attrib['value']
         return properties
+
+    @staticmethod
+    def _parse_servicetask_operator(node):
+        name = node.attrib['id']
+        extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
+        xpath = xpath_eval(node, extra_ns)
+        parameter_nodes = xpath('.//spiffworkflow:parameter')
+        operator = {'name': name}
+        parameters = {}
+        for param_node in parameter_nodes:
+            if 'value' in param_node.attrib:
+                parameters[param_node.attrib['id']] = {
+                    'value': param_node.attrib['value'],
+                    'type': param_node.attrib['type']
+                }
+        operator['parameters'] = parameters
+        return operator
 
     def create_task(self):
         # The main task parser already calls this, and even sets an attribute, but
@@ -79,12 +105,19 @@ class CallActivityParser(SpiffTaskParser):
             prescript=prescript,
             postscript=postscript)
 
+class ServiceTaskParser(SpiffTaskParser):
+    def create_task(self):
+        extensions = self.parse_extensions()
+        operator = extensions.get('serviceTaskOperator')
+        return self.spec_class(
+                self.spec, self.get_task_spec_name(),
+                operator['name'], operator['parameters'],
+                lane=self.lane, position=self.position)
 
 class BusinessRuleTaskParser(SpiffTaskParser):
 
     def create_task(self):
-        extensions = self.parse_extensions()
-        decision_ref = extensions.get('calledDecisionId')
+        decision_ref = self.get_decision_ref(self.node)
         return BusinessRuleTask(self.spec,
             self.get_task_spec_name(),
             dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
@@ -92,3 +125,8 @@ class BusinessRuleTaskParser(SpiffTaskParser):
             position=self.position,
             description=self.node.get('name', None)
         )
+
+    @staticmethod
+    def get_decision_ref(node):
+        extensions = SpiffTaskParser._parse_extensions(node)
+        return extensions.get('calledDecisionId')

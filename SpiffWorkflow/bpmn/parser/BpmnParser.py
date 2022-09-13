@@ -34,12 +34,14 @@ from ..specs.ManualTask import ManualTask
 from ..specs.NoneTask import NoneTask
 from ..specs.ParallelGateway import ParallelGateway
 from ..specs.ScriptTask import ScriptTask
+from ..specs.ServiceTask import ServiceTask
 from ..specs.UserTask import UserTask
 from .ProcessParser import ProcessParser
 from .util import full_tag, xpath_eval, first
 from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
                            ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser,
-                           CallActivityParser, ScriptTaskParser, SubWorkflowParser)
+                           CallActivityParser, ScriptTaskParser, SubWorkflowParser,
+                           ServiceTaskParser)
 from .event_parsers import (StartEventParser, EndEventParser, BoundaryEventParser,
                            IntermediateCatchEventParser, IntermediateThrowEventParser,
                            SendTaskParser, ReceiveTaskParser)
@@ -69,6 +71,7 @@ class BpmnParser(object):
         full_tag('callActivity'): (CallActivityParser, CallActivity),
         full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
+        full_tag('serviceTask'): (ServiceTaskParser, ServiceTask),
         full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser, IntermediateCatchEvent),
         full_tag('intermediateThrowEvent'): (IntermediateThrowEventParser, IntermediateThrowEvent),
         full_tag('boundaryEvent'): (BoundaryEventParser, BoundaryEvent),
@@ -87,6 +90,8 @@ class BpmnParser(object):
         self.process_parsers = {}
         self.process_parsers_by_name = {}
         self.collaborations = {}
+        self.process_dependencies = set()
+        self.dmn_dependencies = set()
 
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
@@ -160,11 +165,24 @@ class BpmnParser(object):
         for process in xpath('.//bpmn:process'):
             self.create_parser(process, xpath, filename)
 
+        self._find_dependencies(xpath)
+
         collaboration = first(xpath('.//bpmn:collaboration'))
         if collaboration is not None:
             collaboration_xpath = xpath_eval(collaboration)
             name = collaboration.get('id')
             self.collaborations[name] = [ participant.get('processRef') for participant in collaboration_xpath('.//bpmn:participant') ]
+
+    def _find_dependencies(self, xpath):
+        """Locate all calls to external BPMN and DMN files, and store their
+        ids in our list of dependencies"""
+        for call_activity in xpath('.//bpmn:callActivity'):
+            self.process_dependencies.add(call_activity.get('calledElement'))
+        parser_cls, cls = self._get_parser_class(full_tag('businessRuleTask'))
+        if parser_cls:
+            for business_rule in xpath('.//bpmn:businessRuleTask'):
+                self.dmn_dependencies.add(parser_cls.get_decision_ref(business_rule))
+
 
     def create_parser(self, node, doc_xpath, filename=None, lane=None):
         parser = self.PROCESS_PARSER_CLASS(self, node, filename=filename, doc_xpath=doc_xpath, lane=lane)
@@ -174,6 +192,15 @@ class BpmnParser(object):
             raise ValidationException('Duplicate process name', node=node, filename=filename)
         self.process_parsers[parser.get_id()] = parser
         self.process_parsers_by_name[parser.get_name()] = parser
+
+    def get_dependencies(self):
+        return self.process_dependencies.union(self.dmn_dependencies)
+
+    def get_process_dependencies(self):
+        return self.process_dependencies
+
+    def get_dmn_dependencies(self):
+        return self.dmn_dependencies
 
     def get_spec(self, process_id_or_name):
         """

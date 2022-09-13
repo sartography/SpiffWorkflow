@@ -27,7 +27,7 @@ from ..exceptions import WorkflowException
 
 
 class BpmnMessage:
-    
+
     def __init__(self, correlations, name, payload):
 
         self.correlations = correlations or {}
@@ -70,23 +70,14 @@ class BpmnWorkflow(Workflow):
         # The outermost script engine always takes precedence.
         # All call activities, sub-workflows and DMNs should use the
         # workflow engine of the outermost workflow.
-        outer_workflow = self.outer_workflow
-        script_engine = self.__script_engine
-
-        while outer_workflow:
-            script_engine = outer_workflow.__script_engine
-            if outer_workflow == outer_workflow.outer_workflow:
-                break
-            else:
-                outer_workflow = outer_workflow.outer_workflow
-        return script_engine
+        return self._get_outermost_workflow().__script_engine
 
     @script_engine.setter
     def script_engine(self, engine):
         self.__script_engine = engine
 
     def create_subprocess(self, my_task, spec_name, name):
-        
+
         workflow = self._get_outermost_workflow(my_task)
         subprocess = BpmnWorkflow(
             workflow.subprocess_specs[spec_name], name=name,
@@ -115,7 +106,7 @@ class BpmnWorkflow(Workflow):
         task.parent = start
         return self.subprocesses[task.id]
 
-    def _get_outermost_workflow(self, task=None):    
+    def _get_outermost_workflow(self, task=None):
         workflow = task.workflow if task is not None else self
         while workflow != workflow.outer_workflow:
             workflow = workflow.outer_workflow
@@ -221,7 +212,7 @@ class BpmnWorkflow(Workflow):
         for task in self.get_tasks():
             if task.id == task_id:
                 return task
-        raise WorkflowException(self.spec, 
+        raise WorkflowException(self.spec,
             f'A task with the given task_id ({task_id}) was not found')
 
     def complete_task_from_id(self, task_id):
