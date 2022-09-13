@@ -160,8 +160,11 @@ class EndEventParser(EventDefinitionParser):
         errorEvent = first(self.xpath('.//bpmn:errorEventDefinition'))
         escalationEvent = first(self.xpath('.//bpmn:escalationEventDefinition'))
         terminateEvent = first(self.xpath('.//bpmn:terminateEventDefinition'))
+        messageEvent = first(self.xpath('.//bpmn:messageEventDefinition'))
 
-        if cancelEvent is not None:
+        if messageEvent is not None:
+            event_definition = self.parse_message_event(messageEvent)
+        elif cancelEvent is not None:
             event_definition = self.parse_cancel_event()
         elif errorEvent is not None:
             event_definition = self.parse_error_event(errorEvent)
