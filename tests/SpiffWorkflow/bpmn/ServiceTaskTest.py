@@ -1,14 +1,7 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
 import unittest
 
-dirname = os.path.dirname(__file__)
-sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
-
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 class ServiceTaskTest(BpmnWorkflowTestCase):

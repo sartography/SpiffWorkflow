@@ -16,33 +16,20 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-import logging
-from re import A
 
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...task import TaskState
 from ...specs.Simple import Simple
 
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 
-class ScriptTask(Simple, BpmnSpecMixin):
+class ScriptEngineTask(Simple, BpmnSpecMixin):
+    """Task Spec for a bpmn:scriptTask node"""
 
-    """
-    Task Spec for a bpmn:scriptTask node.
-    """
-    logger = logging.getLogger('spiff.script_task')
-
-    def __init__(self, wf_spec, name, script, **kwargs):
-        """
-        Constructor.
-
-        :param script: the script that must be executed by the script engine.
-        """
-        super(ScriptTask, self).__init__(wf_spec, name, **kwargs)
-        self.script = script
+    def _execute(self, task):
+        pass
 
     def _on_ready_hook(self, task):
-        super(ScriptTask, self)._on_ready_hook(task)
+        super(ScriptEngineTask, self)._on_ready_hook(task)
         task.workflow.script_engine.queue(task)
         task._set_state(TaskState.WAITING)
 
@@ -53,7 +40,7 @@ class ScriptTask(Simple, BpmnSpecMixin):
                 if task.workflow._is_busy_with_restore():
                     return
                 assert not task.workflow.read_only
-                task.workflow.script_engine.execute(task, self.script)
+                self._execute(task)
 
             if task.workflow.script_engine.is_complete(task):
                 # I don't like updating the task here, but we can't set it to ready
@@ -68,4 +55,19 @@ class ScriptTask(Simple, BpmnSpecMixin):
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
         return serializer.deserialize_script_task(wf_spec, s_state)
+
+
+class ScriptTask(ScriptEngineTask):
+
+    def __init__(self, wf_spec, name, script, **kwargs):
+        """
+        Constructor.
+
+        :param script: the script that must be executed by the script engine.
+        """
+        super(ScriptTask, self).__init__(wf_spec, name, **kwargs)
+        self.script = script
+
+    def _execute(self, task):
+        task.workflow.script_engine.execute(task, self.script)
 
