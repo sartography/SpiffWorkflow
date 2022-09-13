@@ -15,23 +15,21 @@ from .BaseTestCase import BaseTestCase
 assertEqual = None
 operatorExecuted = False
 
-class SlackWebhookOperator(object):
-    def __init__(self, webhook_token="", message="", channel="", **kwargs):
-        self.channel = channel['value']
-        self.message = message['value']
-        self.webhook_token = webhook_token['value']
-
-    def execute(self):
-        assertEqual(self.channel, "#")
-        assertEqual(self.message, "ServiceTask testing")
-        assertEqual(self.webhook_token, "[FIXME]")
+class ServiceTaskDelegate:
+    @staticmethod
+    def callConnector(name, params):
+        assertEqual(name, 'bamboohr/GetPayRate')
+        assertEqual(len(params), 3)
+        assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
+        assertEqual(params['employee_id']['value'], '4')
+        assertEqual(params['subdomain']['value'], 'ServiceTask')
 
         global operatorExecuted
         operatorExecuted = True
 
 class ExampleCustomScriptEngine(PythonScriptEngine):
     def available_service_task_external_methods(self):
-        return { 'SlackWebhookOperator': SlackWebhookOperator }
+        return { 'ServiceTaskDelegate': ServiceTaskDelegate }
 
 class ServiceTaskTest(BaseTestCase):
 

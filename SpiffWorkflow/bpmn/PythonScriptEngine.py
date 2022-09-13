@@ -150,25 +150,14 @@ class PythonScriptEngine(object):
         called from service tasks."""
         return None
 
-    def external_methods_for_operation_name(self, operation_name):
-        """Returns a subset of available_service_task_external_methods
-        that can be called from a service task with the given
-        operation_name."""
-
-        external_methods = self.available_service_task_external_methods()
-        if external_methods is None or operation_name not in external_methods:
-            return {}
-
-        return { operation_name: external_methods[operation_name] }
-
-    def execute_service_task_script(self, task, operation_name, script, data,
+    def execute_service_task_script(self, task, script, data,
             external_methods=None):
         """Execute the script, within the context of the specified task. Task
         is assumed to be a service task. service_task_external_methods are
         filtered by the given operation name and merged with the supplied
         external_methods before execution."""
 
-        additions = self.external_methods_for_operation_name(operation_name)
+        additions = self.available_service_task_external_methods()
 
         if external_methods is None:
             external_methods = {}
