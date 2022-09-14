@@ -12,5 +12,3 @@ class ServiceTask(ScriptEngineTask):
     def __init__(self, wf_spec, name, **kwargs):
         super(ServiceTask, self).__init__(wf_spec, name, **kwargs)
 
-    def _execute(self, task):
-        pass

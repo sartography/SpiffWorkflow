@@ -132,16 +132,19 @@ class PythonScriptEngine(object):
         except Exception as e:
             raise WorkflowTaskExecException(task, f"Error evaluating expression {expression}", e)
 
-    def execute(self, task, script, external_methods=None):
+    def execute(self, task, script, external_methods=None, exec_async=False):
         """
         Execute the script, within the context of the specified task
         """
         try:
-            self.queued_tasks.remove(task.id)
             self.check_for_overwrite(task, external_methods or {})
-            result = self._execute(script, task.data, external_methods or {})
-            if result is not None:
-                self.running_tasks[task.id] = result
+            if exec_async:
+                self.queued_tasks.remove(task.id)
+                result = self._execute_async(script, task.data, external_methods or {})
+                if result is not None:
+                    self.running_tasks[task.id] = result
+            else:
+                self._execute(script, task.data, external_methods or {})
         except Exception as err:
             wte = self.create_task_exec_exception(task, err)
             self.error_tasks[task.id] = wte
@@ -157,7 +160,7 @@ class PythonScriptEngine(object):
 
         if task.id in self.running_tasks:
             try:
-                result = self._is_complete(self.running_tasks.get(task.id))
+                result = self._is_complete(self.running_tasks.get(task.id), task.data)
                 if result is None:
                     del self.running_tasks[task.id]
                     return True
@@ -200,7 +203,7 @@ class PythonScriptEngine(object):
 
         external_methods.update(additions)
 
-        self.execute(task, script, external_methods=external_methods)
+        self.execute(task, script, external_methods=external_methods, exec_async=True)
 
     def create_task_exec_exception(self, task, err):
 
@@ -273,6 +276,9 @@ class PythonScriptEngine(object):
         my_globals.update(context)
         my_globals.update(external_methods or {})
         exec(script, my_globals, context)
+
+    def _execute_async(self, script, context, external_methods=None):
+        self._execute(script, context, external_methods)
 
     def _is_complete(self, task):
         # The default is just to run exec in this process, so we'll never need this
