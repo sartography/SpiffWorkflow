@@ -58,7 +58,7 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
     def testSerializeWorkflow(self):
         serialized = self.serializer.serialize_json(self.workflow)
         json.loads(serialized)
-    
+
     def testSerializeWorkflowCustomJSONEncoderDecoder(self):
         class MyCls:
             a = 1
@@ -170,6 +170,17 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         ready_tasks[0].complete()
         wf.do_engine_steps()
         self.assertEqual(True, wf.is_completed())
+
+    def test_serialize_workflow_where_script_task_includes_function(self):
+        self.workflow.do_engine_steps()
+        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks[0].complete()
+        self.workflow.do_engine_steps()
+        results = self.serializer.serialize_json(self.workflow)
+        assert self.workflow.is_completed()
+        assert 'y' in self.workflow.last_task.data
+        assert 'x' not in self.workflow.last_task.data
+        assert 'some_fun' not in self.workflow.last_task.data
 
     def _compare_with_deserialized_copy(self, wf):
         json = self.serializer.serialize_json(wf)

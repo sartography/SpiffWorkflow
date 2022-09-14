@@ -266,6 +266,14 @@ class PythonScriptEngine(object):
         my_globals.update(context)
         my_globals.update(external_methods or {})
         exec(script, my_globals, context)
+        self.remove_functions_from_context(context)
+
+    def remove_functions_from_context(self, context):
+        """When executing a script, don't leave function definitions around
+         in the context"""
+        for k in list(context):
+            if hasattr(context[k], '__call__'):
+                context.pop(k)
 
     def _is_complete(self, task):
         # The default is just to run exec in this process, so we'll never need this
