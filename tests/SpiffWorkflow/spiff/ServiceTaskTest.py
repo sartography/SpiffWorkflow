@@ -17,7 +17,7 @@ operatorExecuted = False
 
 class ServiceTaskDelegate:
     @staticmethod
-    def callConnector(name, params):
+    def call_connector(name, params):
         assertEqual(name, 'bamboohr/GetPayRate')
         assertEqual(len(params), 3)
         assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
