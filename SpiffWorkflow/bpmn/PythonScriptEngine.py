@@ -263,8 +263,13 @@ class PythonScriptEngine(object):
 
         my_globals = copy.copy(self.globals)
         self.convert_to_box(context)
-        my_globals.update(context)
         my_globals.update(external_methods or {})
+        # Executing the script without local variables will allow scopes defined in the
+        # script to be added to the global context.  Otherwise constructs like list
+        # comprehensions and locally defined functions will not be able to use anything
+        # defined within the script.
+        my_globals.update(copy.deepcopy(context))
+        exec(script, my_globals)
         exec(script, my_globals, context)
 
     def _is_complete(self, task):
