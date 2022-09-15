@@ -39,7 +39,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         with self.assertRaises(WorkflowDataException) as exc:
             ready_tasks[0].complete()
             self.assertEqual(exc.data_output.name, 'obj_1')
-    
+
     def actual_test(self, save_restore):
 
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
