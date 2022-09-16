@@ -34,7 +34,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         loopcount = 0
-        # test bpmn has a timeout of .025s
+        # test bpmn has a timeout of .25s
         # we should terminate loop before that.
         starttime = datetime.datetime.now()
         while loopcount < 10:
@@ -42,13 +42,13 @@ class TimerDurationTest(BpmnWorkflowTestCase):
                 break
             if save_restore: self.save_restore()
             self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
-            time.sleep(0.01)
+            time.sleep(0.1)
             self.workflow.refresh_waiting_tasks()
             loopcount = loopcount +1
         endtime = datetime.datetime.now()
         duration = endtime-starttime
-        self.assertEqual(duration<datetime.timedelta(seconds=.05),True)
-        self.assertEqual(duration>datetime.timedelta(seconds=.02),True)
+        self.assertEqual(duration<datetime.timedelta(seconds=.5),True)
+        self.assertEqual(duration>datetime.timedelta(seconds=.2),True)
 
 
 def suite():

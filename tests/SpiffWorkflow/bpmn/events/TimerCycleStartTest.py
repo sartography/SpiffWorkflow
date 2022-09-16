@@ -58,7 +58,7 @@ class TimerCycleStartTest(BpmnWorkflowTestCase):
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = CustomScriptEngine()
-            time.sleep(0.01)
+            time.sleep(0.1)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
         self.assertEqual(counter, 2)
