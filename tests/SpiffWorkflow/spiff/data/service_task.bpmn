@@ -7,11 +7,11 @@
     <bpmn:sequenceFlow id="Flow_0l9vzsi" sourceRef="StartEvent_1" targetRef="Activity_1inxqgx" />
     <bpmn:serviceTask id="Activity_1inxqgx" name="ServiceTask1">
       <bpmn:extensionElements>
-        <spiffworkflow:serviceTaskOperator id="SlackWebhookOperator">
+          <spiffworkflow:serviceTaskOperator id="bamboohr/GetPayRate">
           <spiffworkflow:parameters>
-            <spiffworkflow:parameter id="webhook_token" type="string" value="[FIXME]" />
-            <spiffworkflow:parameter id="message" type="string" value="ServiceTask testing" />
-            <spiffworkflow:parameter id="channel" type="string" value="#" />
+            <spiffworkflow:parameter id="api_key" type="string" value="secret:BAMBOOHR_API_KEY" />
+            <spiffworkflow:parameter id="employee_id" type="string" value="4" />
+            <spiffworkflow:parameter id="subdomain" type="string" value="ServiceTask" />
           </spiffworkflow:parameters>
         </spiffworkflow:serviceTaskOperator>
       </bpmn:extensionElements>
