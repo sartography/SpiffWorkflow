@@ -43,6 +43,7 @@ class ServiceTaskConverter(SpiffBpmnTaskConverter):
         dct = super().to_dict(spec)
         dct['operation_name'] = spec.operation_name
         dct['operation_params'] = spec.operation_params
+        dct['result_variable'] = spec.result_variable
         return dct
 
     def from_dict(self, dct):

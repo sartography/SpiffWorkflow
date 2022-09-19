@@ -4,16 +4,15 @@ from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
 
 class ServiceTask(SpiffBpmnTask, ServiceTask):
 
-    def __init__(self, wf_spec, name, operation_name, operation_params, **kwargs):
+    def __init__(self, wf_spec, name, operation_name, operation_params, result_variable, **kwargs):
         SpiffBpmnTask.__init__(self, wf_spec, name, **kwargs)
         self.operation_name = operation_name
         self.operation_params = operation_params
-        # TODO parse this from bpmn
-        self.result_variable = None
+        self.result_variable = result_variable
 
     def _result_variable(self, task):
-        if self.result_variable is not None:
-            return self.reslut_variable
+        if self.result_variable is not None and len(self.result_variable) > 0:
+            return self.result_variable
 
         return f'spiff__{task.task_spec.name}_result'
 

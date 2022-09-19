@@ -46,10 +46,11 @@ class SpiffTaskParser(TaskParser):
     @staticmethod
     def _parse_servicetask_operator(node):
         name = node.attrib['id']
+        result_variable = node.get('resultVariable', None)
         extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
         xpath = xpath_eval(node, extra_ns)
         parameter_nodes = xpath('.//spiffworkflow:parameter')
-        operator = {'name': name}
+        operator = {'name': name, 'resultVariable': result_variable}
         parameters = {}
         for param_node in parameter_nodes:
             if 'value' in param_node.attrib:
@@ -112,6 +113,7 @@ class ServiceTaskParser(SpiffTaskParser):
         return self.spec_class(
                 self.spec, self.get_task_spec_name(),
                 operator['name'], operator['parameters'],
+                operator['resultVariable'],
                 lane=self.lane, position=self.position)
 
 class BusinessRuleTaskParser(SpiffTaskParser):

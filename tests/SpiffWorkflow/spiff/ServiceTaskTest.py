@@ -22,6 +22,9 @@ class ServiceTaskDelegate:
             assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
             assertEqual(params['employee_id']['value'], '4')
             assertEqual(params['subdomain']['value'], 'ServiceTask')
+        elif name == 'weather/CurrentTemp':
+            assertEqual(len(params), 1)
+            assertEqual(params['zipcode']['value'], '22980')
         else:
             raise AssertionError('unexpected connector name')
 
@@ -31,6 +34,10 @@ class ServiceTaskDelegate:
                 "currency": "USD",
                 "id": "4",
                 "payRate": "65000.00 USD",
+            }
+        elif name == 'weather/CurrentTemp':
+            sample_response = {
+                "temp": "72F",
             }
 
         return json.dumps(sample_response)
@@ -66,11 +73,16 @@ class ServiceTaskTest(BaseTestCase):
         # service task without result variable name specified, mock
         # bamboohr/GetPayRate response
         result = self.workflow.data['spiff__Activity_1inxqgx_result']
-        assert len(result) == 4
-        assert result['amount'] == '65000.00'
-        assert result['currency'] == 'USD'
-        assert result['id'] == '4'
-        assert result['payRate'] == '65000.00 USD'
+        self.assertEqual(len(result), 4)
+        self.assertEqual(result['amount'], '65000.00')
+        self.assertEqual(result['currency'], 'USD')
+        self.assertEqual(result['id'], '4')
+        self.assertEqual(result['payRate'], '65000.00 USD')
+
+        # service task with result variable specified, mock weather response
+        result = self.workflow.data['waynesboroWeatherResult']
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result['temp'], '72F')
 
 
 def suite():
