@@ -150,12 +150,11 @@ class PythonScriptEngine(object):
         called from service tasks."""
         return None
 
-    def execute_service_task_script(self, task, script, data,
+    def evaluate_service_task_script(self, task, script, data,
             external_methods=None):
-        """Execute the script, within the context of the specified task. Task
+        """Evaluates the script, within the context of the specified task. Task
         is assumed to be a service task. service_task_external_methods are
-        filtered by the given operation name and merged with the supplied
-        external_methods before execution."""
+        merged with the supplied external_methods before execution."""
 
         additions = self.available_service_task_external_methods()
 
@@ -164,7 +163,7 @@ class PythonScriptEngine(object):
 
         external_methods.update(additions)
 
-        self.execute(task, script, external_methods=external_methods)
+        return self._evaluate(script, task.data, external_methods=external_methods)
 
     def is_complete(self, task):
 
