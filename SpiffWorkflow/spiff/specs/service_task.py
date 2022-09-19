@@ -14,7 +14,9 @@ class ServiceTask(SpiffBpmnTask, ServiceTask):
         if self.result_variable is not None and len(self.result_variable) > 0:
             return self.result_variable
 
-        return f'spiff__{task.task_spec.name}_result'
+        escaped_spec_name = task.task_spec.name.replace('-', '_')
+
+        return f'spiff__{escaped_spec_name}_result'
 
     def _execute(self, task):
         def evaluate(expression):
