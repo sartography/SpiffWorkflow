@@ -12,7 +12,7 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from .BaseTestCase import BaseTestCase
 
-assertEqual = None
+#assertEqual = None
 
 class ServiceTaskDelegate:
     @staticmethod
