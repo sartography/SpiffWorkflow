@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import os
 import sys
 import unittest
@@ -11,21 +12,28 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from .BaseTestCase import BaseTestCase
 
-# TODO must be a better way to do this
 assertEqual = None
-operatorExecuted = False
 
 class ServiceTaskDelegate:
     @staticmethod
     def call_connector(name, params):
-        assertEqual(name, 'bamboohr/GetPayRate')
-        assertEqual(len(params), 3)
-        assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
-        assertEqual(params['employee_id']['value'], '4')
-        assertEqual(params['subdomain']['value'], 'ServiceTask')
+        if name == 'bamboohr/GetPayRate':
+            assertEqual(len(params), 3)
+            assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
+            assertEqual(params['employee_id']['value'], '4')
+            assertEqual(params['subdomain']['value'], 'ServiceTask')
+        else:
+            raise AssertionError('unexpected connector name')
 
-        global operatorExecuted
-        operatorExecuted = True
+        if name == 'bamboohr/GetPayRate':
+            sample_response = {
+                "amount": "65000.00",
+                "currency": "USD",
+                "id": "4",
+                "payRate": "65000.00 USD",
+            }
+
+        return json.dumps(sample_response)
 
 class ExampleCustomScriptEngine(PythonScriptEngine):
     def available_service_task_external_methods(self):
@@ -34,9 +42,8 @@ class ExampleCustomScriptEngine(PythonScriptEngine):
 class ServiceTaskTest(BaseTestCase):
 
     def setUp(self):
-        global assertEqual, operatorExecuted
+        global assertEqual
         assertEqual = self.assertEqual
-        operatorExecuted = False
 
         spec, subprocesses = self.load_workflow_spec('service_task.bpmn',
                 'service_task_example1')
@@ -45,7 +52,7 @@ class ServiceTaskTest(BaseTestCase):
 
     def testRunThroughHappy(self):
         self.workflow.do_engine_steps()
-        self.assertTrue(operatorExecuted)
+        self._assert_service_tasks()
 
     def testRunThroughSaveRestore(self):
         self.save_restore()
@@ -53,7 +60,17 @@ class ServiceTaskTest(BaseTestCase):
         self.workflow.script_engine = self.script_engine
         self.workflow.do_engine_steps()
         self.save_restore()
-        self.assertTrue(operatorExecuted)
+        self._assert_service_tasks()
+
+    def _assert_service_tasks(self):
+        # service task without result variable name specified, mock
+        # bamboohr/GetPayRate response
+        result = self.workflow.data['spiff__Activity_1inxqgx_result']
+        assert len(result) == 4
+        assert result['amount'] == '65000.00'
+        assert result['currency'] == 'USD'
+        assert result['id'] == '4'
+        assert result['payRate'] == '65000.00 USD'
 
 
 def suite():
