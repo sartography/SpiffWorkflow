@@ -8,7 +8,7 @@ import datetime
 import dateparser
 import pytz
 
-from SpiffWorkflow.exceptions import WorkflowTaskExecException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from ..operators import Operator
 
 

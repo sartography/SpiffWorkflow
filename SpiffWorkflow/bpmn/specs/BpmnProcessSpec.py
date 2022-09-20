@@ -19,7 +19,7 @@
 from copy import deepcopy
 import logging
 
-from SpiffWorkflow.exceptions import WorkflowDataException
+from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
 from ...specs.Simple import Simple
@@ -97,7 +97,7 @@ class BpmnDataSpecification:
         if self.name not in source.data:
             message = f"Unable to copy {self.name}"
             raise WorkflowDataException(
-                source,
+                source, 
                 data_input=self if data_input else None,
                 data_output=self if data_output else None,
                 message=message
