@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
+from SpiffWorkflow.exceptions import WorkflowDataException
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
@@ -18,7 +18,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         self.actual_test(True)
 
     def testCallActivityMissingInput(self):
-        
+
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         set_data = self.workflow.spec.task_specs['Activity_0haob58']
         set_data.script = """in_1, unused = 1, True"""

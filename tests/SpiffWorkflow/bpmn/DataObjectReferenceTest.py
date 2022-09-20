@@ -1,6 +1,6 @@
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
+from SpiffWorkflow.exceptions import WorkflowDataException
 
 
 class DataObjectReferenceTest(BpmnWorkflowTestCase):

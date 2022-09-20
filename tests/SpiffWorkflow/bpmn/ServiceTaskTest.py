@@ -8,16 +8,16 @@ sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
+from SpiffWorkflow.exceptions import WorkflowTaskExecException
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 class ServiceTaskTest(BpmnWorkflowTestCase):
 
     def setUp(self):
 
-        spec, subprocesses = self.load_workflow_spec('service_task.bpmn', 
+        spec, subprocesses = self.load_workflow_spec('service_task.bpmn',
                 'service_task_example1')
-        self.workflow = BpmnWorkflow(spec, subprocesses) 
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
         self.workflow.do_engine_steps()

@@ -22,7 +22,7 @@ from builtins import range
 from uuid import uuid4
 import re
 
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
+from SpiffWorkflow.exceptions import WorkflowTaskExecException
 from .SubWorkflowTask import SubWorkflowTask, CallActivity
 from .ParallelGateway import ParallelGateway
 from .ScriptTask import ScriptTask
@@ -453,7 +453,7 @@ class MultiInstanceTask(TaskSpec):
         if not self.isSequential:
             for task in my_task.parent.children:
                 task.data = DeepMerge.merge(
-                    task.data, 
+                    task.data,
                     gendict(colvarname.split('/'),
                     collect)
                 )

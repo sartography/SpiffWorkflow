@@ -5,7 +5,7 @@ import logging
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...task import TaskState
 from ...specs.Simple import Simple
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
+from SpiffWorkflow.exceptions import WorkflowTaskExecException
 
 LOG = logging.getLogger(__name__)
 
