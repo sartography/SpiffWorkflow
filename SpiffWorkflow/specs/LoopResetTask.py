@@ -20,7 +20,7 @@
 
 from .base import TaskSpec
 from ..task import TaskState
-from SpiffWorkflow.exceptions import WorkflowException
+from SpiffWorkflow.exceptions import WorkflowTaskException
 
 
 class LoopResetTask(TaskSpec):
@@ -56,10 +56,10 @@ class LoopResetTask(TaskSpec):
             # and raise WorkflowException pointing to this task because
             # maybe upstream someone will be able to handle this situation
             task._set_state(TaskState.WAITING)
-            if isinstance(e, WorkflowException):
+            if isinstance(e, WorkflowTaskException):
                 raise e
             else:
-                raise WorkflowException(
+                raise WorkflowTaskException(
                     task, 'Error during loop back:' + str(e), e)
         super(LoopResetTask, self)._on_complete_hook(task)
 
