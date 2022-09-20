@@ -1,7 +1,7 @@
 import os
 import unittest
 import json
-from uuid import uuid4, UUID
+from uuid import uuid4
 
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
@@ -151,6 +151,16 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         user_task = self.workflow.get_ready_user_tasks()[0]
         user_task.data = {"test":"my_test"}
         self._compare_with_deserialized_copy(self.workflow)
+
+    def testSerializeIgnoresCallable(self):
+        self.workflow.do_engine_steps()
+        user_task = self.workflow.get_ready_user_tasks()[0]
+        def f(n):
+            return n + 1
+        user_task.data = { 'f': f }
+        task_id = str(user_task.id)
+        dct = self.serializer.workflow_to_dict(self.workflow)
+        self.assertNotIn('f', dct['tasks'][task_id]['data'])
 
     def testLastTaskIsSetAndWorksThroughRestore(self):
         self.workflow.do_engine_steps()
