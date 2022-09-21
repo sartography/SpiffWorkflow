@@ -32,6 +32,18 @@ class BpmnDataConverter(DictionaryConverter):
         self.register(datetime, lambda v:  { 'value': v.isoformat() }, lambda v: datetime.fromisoformat(v['value']))
         self.register(timedelta, lambda v: { 'days': v.days, 'seconds': v.seconds }, lambda v: timedelta(**v))
 
+    def convert(self, obj):
+        self.clean(obj)
+        return super().convert(obj)
+
+    def clean(self, obj):
+        # This removes functions and other callables from task data.
+        # By default we don't want to serialize these
+        if isinstance(obj, dict):
+            items = [ (k, v) for k, v in obj.items() ]
+            for key, value in items:
+                if callable(value):
+                    del obj[key]
 
 class BpmnDataSpecificationConverter:
 

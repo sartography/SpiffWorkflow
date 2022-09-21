@@ -33,6 +33,9 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
 
     def _on_ready_hook(self, my_task):
 
+        for obj in self.data_input_associations:
+            obj.get(my_task)
+
         subworkflow = my_task.workflow.get_subprocess(my_task)
         start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
 
@@ -78,6 +81,7 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
         BpmnSpecMixin._predict_hook(self, my_task)
 
     def _on_complete_hook(self, my_task):
+        BpmnSpecMixin._on_complete_hook(self, my_task)
         for child in my_task.children:
             child.task_spec._update(child)
 

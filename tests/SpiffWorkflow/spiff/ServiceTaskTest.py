@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import os
 import sys
 import unittest
@@ -11,34 +12,45 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from .BaseTestCase import BaseTestCase
 
-# TODO must be a better way to do this
-assertEqual = None
-operatorExecuted = False
+#assertEqual = None
 
-class SlackWebhookOperator(object):
-    def __init__(self, webhook_token="", message="", channel="", **kwargs):
-        self.channel = channel['value']
-        self.message = message['value']
-        self.webhook_token = webhook_token['value']
+class ServiceTaskDelegate:
+    @staticmethod
+    def call_connector(name, params):
+        if name == 'bamboohr/GetPayRate':
+            assertEqual(len(params), 3)
+            assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
+            assertEqual(params['employee_id']['value'], '4')
+            assertEqual(params['subdomain']['value'], 'ServiceTask')
+        elif name == 'weather/CurrentTemp':
+            assertEqual(len(params), 1)
+            assertEqual(params['zipcode']['value'], '22980')
+        else:
+            raise AssertionError('unexpected connector name')
 
-    def execute(self):
-        assertEqual(self.channel, "#")
-        assertEqual(self.message, "ServiceTask testing")
-        assertEqual(self.webhook_token, "[FIXME]")
+        if name == 'bamboohr/GetPayRate':
+            sample_response = {
+                "amount": "65000.00",
+                "currency": "USD",
+                "id": "4",
+                "payRate": "65000.00 USD",
+            }
+        elif name == 'weather/CurrentTemp':
+            sample_response = {
+                "temp": "72F",
+            }
 
-        global operatorExecuted
-        operatorExecuted = True
+        return json.dumps(sample_response)
 
 class ExampleCustomScriptEngine(PythonScriptEngine):
     def available_service_task_external_methods(self):
-        return { 'SlackWebhookOperator': SlackWebhookOperator }
+        return { 'ServiceTaskDelegate': ServiceTaskDelegate }
 
 class ServiceTaskTest(BaseTestCase):
 
     def setUp(self):
-        global assertEqual, operatorExecuted
+        global assertEqual
         assertEqual = self.assertEqual
-        operatorExecuted = False
 
         spec, subprocesses = self.load_workflow_spec('service_task.bpmn',
                 'service_task_example1')
@@ -47,7 +59,7 @@ class ServiceTaskTest(BaseTestCase):
 
     def testRunThroughHappy(self):
         self.workflow.do_engine_steps()
-        self.assertTrue(operatorExecuted)
+        self._assert_service_tasks()
 
     def testRunThroughSaveRestore(self):
         self.save_restore()
@@ -55,7 +67,22 @@ class ServiceTaskTest(BaseTestCase):
         self.workflow.script_engine = self.script_engine
         self.workflow.do_engine_steps()
         self.save_restore()
-        self.assertTrue(operatorExecuted)
+        self._assert_service_tasks()
+
+    def _assert_service_tasks(self):
+        # service task without result variable name specified, mock
+        # bamboohr/GetPayRate response
+        result = self.workflow.data['spiff__Activity_1inxqgx_result']
+        self.assertEqual(len(result), 4)
+        self.assertEqual(result['amount'], '65000.00')
+        self.assertEqual(result['currency'], 'USD')
+        self.assertEqual(result['id'], '4')
+        self.assertEqual(result['payRate'], '65000.00 USD')
+
+        # service task with result variable specified, mock weather response
+        result = self.workflow.data['waynesboroWeatherResult']
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result['temp'], '72F')
 
 
 def suite():

@@ -179,31 +179,38 @@ class PythonScriptEngine(object):
         called from service tasks."""
         return None
 
-    def external_methods_for_operation_name(self, operation_name):
-        """Returns a subset of available_service_task_external_methods
-        that can be called from a service task with the given
-        operation_name."""
-
-        external_methods = self.available_service_task_external_methods()
-        if external_methods is None or operation_name not in external_methods:
-            return {}
-
-        return { operation_name: external_methods[operation_name] }
-
-    def execute_service_task_script(self, task, operation_name, script, external_methods=None):
-        """Execute the script, within the context of the specified task. Task
+    def evaluate_service_task_script(self, task, script, data,
+            external_methods=None):
+        """Evaluates the script, within the context of the specified task. Task
         is assumed to be a service task. service_task_external_methods are
-        filtered by the given operation name and merged with the supplied
-        external_methods before execution."""
+        merged with the supplied external_methods before execution."""
 
-        additions = self.external_methods_for_operation_name(operation_name)
+        additions = self.available_service_task_external_methods()
 
         if external_methods is None:
             external_methods = {}
 
         external_methods.update(additions)
 
-        self.execute(task, script, external_methods=external_methods, exec_async=True)
+        return self._evaluate(script, task.data, external_methods=external_methods)
+
+    def is_complete(self, task):
+
+        if task.id in self.running_tasks:
+            try:
+                result = self._is_complete(self.running_tasks.get(task.id))
+                if result is None:
+                    del self.running_tasks[task.id]
+                    return True
+                else:
+                    return False
+            except Exception as err:
+                self.error_tasks[task.id] = self.create_task_exec_exception(task, err)
+                return False
+        elif task.id in self.error_tasks:
+            return False
+        else:
+            return True
 
     def create_task_exec_exception(self, task, err):
 
@@ -273,9 +280,24 @@ class PythonScriptEngine(object):
 
         my_globals = copy.copy(self.globals)
         self.convert_to_box(context)
-        my_globals.update(context)
         my_globals.update(external_methods or {})
-        exec(script, my_globals, context)
+        context.update(my_globals)
+        exec(script, context)
+        self.remove_globals_and_functions_from_context(context, external_methods)
+
+    def remove_globals_and_functions_from_context(self, context,
+                                                  external_methods = None):
+        """When executing a script, don't leave the globals, functions
+        and external methods in the context that we return."""
+        for k in list(context):
+            if k == "__builtins__":
+                context.pop(k)
+            elif hasattr(context[k], '__call__'):
+                context.pop(k)
+            elif k in self.globals:
+                context.pop(k)
+            elif external_methods and k in external_methods:
+                context.pop(k)
 
     def _execute_async(self, script, context, external_methods=None):
         self._execute(script, context, external_methods)

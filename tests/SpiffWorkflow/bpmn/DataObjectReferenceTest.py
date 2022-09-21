@@ -39,7 +39,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         with self.assertRaises(WorkflowDataException) as exc:
             ready_tasks[0].complete()
             self.assertEqual(exc.data_output.name, 'obj_1')
-    
+
     def actual_test(self, save_restore):
 
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
@@ -71,3 +71,12 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         # and be removed from the task data
         self.assertNotIn('obj_1', ready_tasks[0].data)
         self.assertEqual(self.workflow.data['obj_1'], 'hello')
+
+        # Make sure data objects can be copied in and out of a subprocess
+        self.workflow.do_engine_steps()
+        ready_tasks = self.workflow.get_ready_user_tasks()
+        self.assertEqual(ready_tasks[0].data['obj_1'], 'hello')
+        ready_tasks[0].complete()
+        self.workflow.do_engine_steps()
+        sp = self.workflow.get_tasks_from_spec_name('subprocess')[0]
+        self.assertNotIn('obj_1', sp.data)
