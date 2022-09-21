@@ -44,6 +44,13 @@ localtime_str = localtime.strftime("%Y-%m-%d %H:%M:%S")
         self.assertEqual(self.task.data['localtime_str'], "2021-09-23 12:11:00")
         self.assertTrue(True)
 
+    def testFunctionsAndGlobalsAreRemoved(self):
+        self.assertIn('testvar', self.task.data)
+        self.assertIn('testvar2', self.task.data)
+        self.assertIn('sample', self.task.data)
+        self.assertNotIn('my_function', self.task.data)
+        self.assertNotIn('datetime', self.task.data)
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(PythonScriptEngineTest)
 
