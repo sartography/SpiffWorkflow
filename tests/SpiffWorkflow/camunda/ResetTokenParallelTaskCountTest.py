@@ -27,7 +27,7 @@ class ResetTokenParallelTaskCountTest(BaseTestCase):
 
         # Set the workflow in motion, and assure we have the right
         # number of tasks
-        
+
         self.workflow.do_engine_steps()
         self.assertEquals(total, len(self.workflow.get_tasks()))
 
@@ -47,8 +47,6 @@ class ResetTokenParallelTaskCountTest(BaseTestCase):
         self.workflow.task_tree.dump()
         self.assertEquals(total, len(self.workflow.get_tasks()))
         self.assertEquals(1, len(self.workflow.get_ready_user_tasks()))
-        ready_nav = [item for item in self.workflow.get_flat_nav_list() if item.state == "READY"]
-        self.assertEquals(1, len(ready_nav))
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ResetTokenParallelTaskCountTest)

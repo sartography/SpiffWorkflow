@@ -138,21 +138,3 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
         return self.serializer.workflow_to_dict(self.workflow)
-
-    def assertNav(self, nav_item: NavItem, name=None, description=None,
-                  spec_type=None, indent=None, state=None, lane=None,
-                  backtrack_to=None):
-        if name:
-            self.assertEqual(name, nav_item.name)
-        if description:
-            self.assertEqual(description, nav_item.description)
-        if spec_type:
-            self.assertEqual(spec_type, nav_item.spec_type)
-        if indent:
-            self.assertEqual(indent, nav_item.indent)
-        if state:
-            self.assertEqual(state, nav_item.state)
-        if lane:
-            self.assertEqual(lane, nav_item.lane)
-        if backtrack_to:
-            self.assertEqual(backtrack_to, nav_item.backtrack_to)
