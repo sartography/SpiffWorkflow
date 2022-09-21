@@ -282,7 +282,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             self._state = value
         else:
             logger.debug(f'State set to {TaskStateNames[value]}', extra=self.log_info())
-    
+
     def __repr__(self):
         return '<Task object (%s) in state %s at %s>' % (
             self.task_spec.name,
@@ -295,10 +295,14 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             'workflow': self.workflow.spec.name,
             'task_spec': self.task_spec.name,
             'task_id': self.id,
+            'task_type': self.task_spec_type(),
             'data': self.data if logger.level < 20 else None,
             'internal_data': self.internal_data if logger.level <= 10 else None,
         })
         return extra
+
+    def task_spec_type(self):
+        return self.task_spec.__class__.__name__
 
     def update_data_var(self, fieldid, value):
         model = {}
@@ -776,7 +780,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         extra = self.log_info({
             'action': 'Complete',
             'elapsed': time.time() - start,
-            'task_type': self.task_spec.__class__.__name__
+            'task_type': self.task_spec_type(),
         })
         metrics.debug('', extra=extra)
         return retval
