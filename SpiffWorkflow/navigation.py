@@ -45,15 +45,26 @@ class NavItem(object):
         self.state = None
         self.children = []
 
+    def additional_spec_types(self):
+        """ALlow subclasses to provide additional spec types."""
+        pass
+
+    def name_for_unknown_spec(self, spec):
+        """Allow subclasses to provide a name for an unknown spec."""
+        pass
+
     def set_spec_type(self, spec):
-        types = [CancelTask, StartTask]
+        additional_spec_types = self.additional_spec_types() or []
+        types = [CancelTask, StartTask] + additional_spec_types
 
         for t in types:
             if isinstance(spec, t):
                 self.spec_type = t.__name__
                 return
 
-        raise WorkflowException(spec, "Unknown spec: " + spec.__class__.__name__)
+        self.spec_type = self.name_for_unknown_spec(spec)
+        if self.spec_type is None:
+            raise WorkflowException(spec, "Unknown spec: " + spec.__class__.__name__)
 
     @classmethod
     def from_spec(cls, spec: BpmnSpecMixin, backtrack_to=None, indent=None):

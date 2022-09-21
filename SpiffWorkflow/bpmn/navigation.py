@@ -19,22 +19,18 @@ from .specs.SubWorkflowTask import SubWorkflowTask, CallActivity, TransactionSub
 
 class NavItem(CoreNavItem):
 
-    def set_spec_type(self, spec):
-        types = [UserTask, ManualTask, BusinessRuleTask,
-                 ScriptTask, EndEvent, StartEvent,
-                 MultiInstanceTask, SequenceFlow,
-                 ExclusiveGateway, ParallelGateway, CallActivity, TransactionSubprocess,
-                 UnstructuredJoin, NoneTask, BoundaryEvent, IntermediateThrowEvent,IntermediateCatchEvent]
-        for t in types:
-            if isinstance(spec, t):
-                self.spec_type = t.__name__
-                return
+    def additional_spec_types(self):
+        return [UserTask, ManualTask, BusinessRuleTask, ScriptTask, EndEvent,
+                StartEvent, MultiInstanceTask, SequenceFlow, ExclusiveGateway,
+                ParallelGateway, CallActivity, TransactionSubprocess,
+                UnstructuredJoin, NoneTask, BoundaryEvent,
+                IntermediateThrowEvent, IntermediateCatchEvent]
 
-        if spec.__class__.__name__.startswith('_'):
-            # These should be removed at some point in the process.
-            self.spec_type = spec.__class__.__name__
-        else:
-            super().set_spec_type(spec)
+    def name_for_unknown_spec(self, spec):
+        class_name = spec.__class__.__name__
+
+        # These should be removed at some point in the process.
+        return class_name if class_name.startswith('_') else None
 
     @classmethod
     def from_spec(cls, spec: BpmnSpecMixin, backtrack_to=None, indent=None):
