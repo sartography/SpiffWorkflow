@@ -1,59 +1,40 @@
 import copy
 
-from . import WorkflowException
-from .bpmn.specs.events import StartEvent, EndEvent, IntermediateCatchEvent, IntermediateThrowEvent, BoundaryEvent, _BoundaryEventParent
-from .bpmn.specs.ExclusiveGateway import ExclusiveGateway
-from .bpmn.specs.ManualTask import ManualTask
-from .bpmn.specs.NoneTask import NoneTask
-from .bpmn.specs.ParallelGateway import ParallelGateway
-from .bpmn.specs.ScriptTask import ScriptTask
-from .bpmn.specs.UserTask import UserTask
-from .dmn.specs.BusinessRuleTask import BusinessRuleTask
-from .specs import CancelTask, StartTask
-from .task import TaskStateNames, TaskState
-from .bpmn.specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
-from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
-from .bpmn.specs.MultiInstanceTask import MultiInstanceTask
-from .bpmn.specs.SubWorkflowTask import SubWorkflowTask, CallActivity, TransactionSubprocess
+from ..navigation import NavItem as CoreNavItem
+from ..exceptions import WorkflowException
+from .specs.events import StartEvent, EndEvent, IntermediateCatchEvent, IntermediateThrowEvent, BoundaryEvent, _BoundaryEventParent
+from .specs.ExclusiveGateway import ExclusiveGateway
+from .specs.ManualTask import ManualTask
+from .specs.NoneTask import NoneTask
+from .specs.ParallelGateway import ParallelGateway
+from .specs.ScriptTask import ScriptTask
+from .specs.UserTask import UserTask
+from ..dmn.specs.BusinessRuleTask import BusinessRuleTask
+from ..task import TaskStateNames, TaskState
+from .specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
+from .specs.UnstructuredJoin import UnstructuredJoin
+from .specs.MultiInstanceTask import MultiInstanceTask
+from .specs.SubWorkflowTask import SubWorkflowTask, CallActivity, TransactionSubprocess
 
 
-class NavItem(object):
-    """
-        A waypoint in a workflow along with some key metrics
-        - Each list item has :
-           spec_id          -   TaskSpec or Sequence flow id
-           name             -   The name of the task spec (or sequence)
-           spec_type        -   The type of task spec (it's class name)
-           task_id          -   The uuid of the actual task instance, if it exists
-           description      -   Text description
-           backtrack_to     -   The spec_id of the task this will back track to.
-           indent           -   A hint for indentation
-           lane             -   This is the lane for the task if indicated.
-           state            -   State of the task
-    """
-
-    def __init__(self, spec_id, name, description,
-                 lane=None, backtrack_to=None, indent=0):
-        self.spec_id = spec_id
-        self.name = name
-        self.spec_type = "None"
-        self.description = description
-        self.lane = lane
-        self.backtrack_to = backtrack_to
-        self.indent = indent
-        self.task_id = None
-        self.state = None
-        self.children = []
+class NavItem(CoreNavItem):
 
     def set_spec_type(self, spec):
-        types = [CancelTask, StartTask]
-
+        types = [UserTask, ManualTask, BusinessRuleTask,
+                 ScriptTask, EndEvent, StartEvent,
+                 MultiInstanceTask, SequenceFlow,
+                 ExclusiveGateway, ParallelGateway, CallActivity, TransactionSubprocess,
+                 UnstructuredJoin, NoneTask, BoundaryEvent, IntermediateThrowEvent,IntermediateCatchEvent]
         for t in types:
             if isinstance(spec, t):
                 self.spec_type = t.__name__
                 return
 
-        raise WorkflowException(spec, "Unknown spec: " + spec.__class__.__name__)
+        if spec.__class__.__name__.startswith('_'):
+            # These should be removed at some point in the process.
+            self.spec_type = spec.__class__.__name__
+        else:
+            super().set_spec_type(spec)
 
     @classmethod
     def from_spec(cls, spec: BpmnSpecMixin, backtrack_to=None, indent=None):

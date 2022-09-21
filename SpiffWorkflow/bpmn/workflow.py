@@ -76,6 +76,18 @@ class BpmnWorkflow(Workflow):
     def script_engine(self, engine):
         self.__script_engine = engine
 
+    def get_flat_nav_list(self):
+        """Returns a navigation list with indentation hints, but the list
+        is completly flat, and a nav item has no children."""
+        from . import navigation
+        return navigation.get_flat_nav_list(self)
+
+    def get_deep_nav_list(self):
+        """Returns a nested navigation list, where indentation hints are
+        applied to recreate a deep structure."""
+        from . import navigation
+        return navigation.get_deep_nav_list(self)
+
     def create_subprocess(self, my_task, spec_name, name):
 
         workflow = self._get_outermost_workflow(my_task)
