@@ -251,9 +251,24 @@ class PythonScriptEngine(object):
 
         my_globals = copy.copy(self.globals)
         self.convert_to_box(context)
-        my_globals.update(context)
         my_globals.update(external_methods or {})
-        exec(script, my_globals, context)
+        context.update(my_globals)
+        exec(script, context)
+        self.remove_globals_and_functions_from_context(context, external_methods)
+
+    def remove_globals_and_functions_from_context(self, context,
+                                                  external_methods = None):
+        """When executing a script, don't leave the globals, functions
+        and external methods in the context that we return."""
+        for k in list(context):
+            if k == "__builtins__":
+                context.pop(k)
+            elif hasattr(context[k], '__call__'):
+                context.pop(k)
+            elif k in self.globals:
+                context.pop(k)
+            elif external_methods and k in external_methods:
+                context.pop(k)
 
     def _is_complete(self, task):
         # The default is just to run exec in this process, so we'll never need this
