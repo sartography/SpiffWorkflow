@@ -158,6 +158,9 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
 
         super(UnstructuredJoin, self)._update_hook(my_task)
 
+    def task_should_set_children_future(self, my_task):
+        return True
+
     def task_will_set_children_future(self, my_task):
         # go find all of the gateways with the same name as this one,
         # drop children and set state to WAITING

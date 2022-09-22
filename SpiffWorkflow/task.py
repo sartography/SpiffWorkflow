@@ -365,10 +365,8 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         the inputs - otherwise our child process never gets marked as
         'READY'
         """
-        from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
 
-        if (self.state != TaskState.COMPLETED and self.state != TaskState.READY) and \
-                not (isinstance(self.task_spec, UnstructuredJoin)):
+        if not self.task_spec.task_should_set_children_future(self):
             return
 
         self.task_spec.task_will_set_children_future(self)
