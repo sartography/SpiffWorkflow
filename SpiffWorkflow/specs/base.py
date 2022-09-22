@@ -491,3 +491,11 @@ class TaskSpec(object):
         out.locks = s_state.get('locks')
         out.lookahead = s_state.get('lookahead')
         return out
+
+    def task_will_set_children_future(self, my_task):
+        """
+        Called right before a task runs the logic for set_children_future.
+
+        Subclasses can override to perform work during that stage of execution.
+        """
+        pass

@@ -97,6 +97,9 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
     def deserialize(self, serializer, wf_spec, s_state):
         return serializer.deserialize_subworkflow_task(wf_spec, s_state, SubWorkflowTask)
 
+    def task_will_set_children_future(self, my_task):
+        my_task.workflow.delete_subprocess(my_task)
+
 
 class CallActivity(SubWorkflowTask):
 
