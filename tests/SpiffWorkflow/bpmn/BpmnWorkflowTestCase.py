@@ -4,7 +4,6 @@ import json
 import os
 import unittest
 
-from SpiffWorkflow import NavItem
 from SpiffWorkflow.task import TaskState
 
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
