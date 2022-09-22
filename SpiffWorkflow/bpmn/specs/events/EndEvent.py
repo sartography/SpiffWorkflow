@@ -45,6 +45,10 @@ class EndEvent(ThrowingEvent):
     def __init__(self, wf_spec, name, event_definition, **kwargs):
         super(EndEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
 
+    @property
+    def spec_type(self):
+        return f'{self.event_definition.event_type} End Event'
+
     def _on_complete_hook(self, my_task):
 
         super(EndEvent, self)._on_complete_hook(my_task)

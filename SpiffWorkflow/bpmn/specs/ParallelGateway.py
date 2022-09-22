@@ -47,6 +47,10 @@ class ParallelGateway(UnstructuredJoin):
         return (force or len(completed_inputs) >= len(self.inputs),
                 waiting_tasks)
 
+    @property
+    def spec_type(self):
+        return 'Parallel Gateway'
+
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
         return serializer.deserialize_generic(wf_spec, s_state, ParallelGateway)

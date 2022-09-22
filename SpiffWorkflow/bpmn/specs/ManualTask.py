@@ -27,6 +27,9 @@ class ManualTask(Simple, BpmnSpecMixin):
     def deserialize(self, serializer, wf_spec, s_state):
         return serializer.deserialize_generic(wf_spec, s_state, ManualTask)
 
-
     def is_engine_task(self):
         return False
+
+    @property
+    def spec_type(self):
+        return 'Manual Task'

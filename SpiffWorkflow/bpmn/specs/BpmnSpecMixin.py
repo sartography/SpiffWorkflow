@@ -78,6 +78,10 @@ class BpmnSpecMixin(TaskSpec):
         self.data_input_associations = []
         self.data_output_associations = []
 
+    @property
+    def spec_type(self):
+        return 'BPMN Task'
+
     def is_loop_task(self):
         """
         Returns true if this task is a BPMN looping task

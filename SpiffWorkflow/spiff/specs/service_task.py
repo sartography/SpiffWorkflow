@@ -10,6 +10,10 @@ class ServiceTask(SpiffBpmnTask, ServiceTask):
         self.operation_params = operation_params
         self.result_variable = result_variable
 
+    @property
+    def spec_type(self):
+        return 'Service Task'
+
     def _result_variable(self, task):
         if self.result_variable is not None and len(self.result_variable) > 0:
             return self.result_variable

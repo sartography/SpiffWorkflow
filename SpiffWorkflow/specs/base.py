@@ -122,6 +122,10 @@ class TaskSpec(object):
         self.data.update(self.defines)
         assert self.id is not None
 
+    @property
+    def spec_type(self):
+        return f'{self.__class__.__module__}.{self.__class__.__name__}'
+
     def _connect_notify(self, taskspec):
         """
         Called by the previous task to let us know that it exists.
