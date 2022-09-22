@@ -40,6 +40,10 @@ class ScriptTask(Simple, BpmnSpecMixin):
         super(ScriptTask, self).__init__(wf_spec, name, **kwargs)
         self.script = script
 
+    @property
+    def spec_type(self):
+        return 'Script Task'
+
     def _on_ready_hook(self, task):
         super(ScriptTask, self)._on_ready_hook(task)
         if task.workflow._is_busy_with_restore():

@@ -22,6 +22,10 @@ class ServiceTask(Simple, BpmnSpecMixin):
         """
         super(ServiceTask, self).__init__(wf_spec, name, **kwargs)
 
+    @property
+    def spec_type(self):
+        return 'Service Task'
+
     def _execute(self, task):
         pass
 

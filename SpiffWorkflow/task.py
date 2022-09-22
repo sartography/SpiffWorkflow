@@ -295,14 +295,11 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             'workflow': self.workflow.spec.name,
             'task_spec': self.task_spec.name,
             'task_id': self.id,
-            'task_type': self.task_spec_type(),
+            'task_type': self.task_spec.spec_type,
             'data': self.data if logger.level < 20 else None,
             'internal_data': self.internal_data if logger.level <= 10 else None,
         })
         return extra
-
-    def task_spec_type(self):
-        return self.task_spec.__class__.__name__
 
     def update_data_var(self, fieldid, value):
         model = {}
@@ -779,8 +776,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         retval = self.task_spec._on_complete(self)
         extra = self.log_info({
             'action': 'Complete',
-            'elapsed': time.time() - start,
-            'task_type': self.task_spec_type(),
+            'elapsed': time.time() - start
         })
         metrics.debug('', extra=extra)
         return retval
