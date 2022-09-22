@@ -40,8 +40,6 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
         for task in self.workflow.get_ready_user_tasks():
             self.assertFalse(self.workflow.is_completed())
             self.workflow.complete_task_from_id(task.id)
-            # TODO assert this in another way?
-            #self.assertNotEqual(None, nav_list[4].task_id)
             if save_restore:
                 self.save_restore()
         self.workflow.do_engine_steps()
