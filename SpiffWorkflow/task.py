@@ -294,6 +294,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         extra.update({
             'workflow': self.workflow.spec.name,
             'task_spec': self.task_spec.name,
+            'task_name': self.task_spec.description,
             'task_id': self.id,
             'task_type': self.task_spec.spec_type,
             'data': self.data if logger.level < 20 else None,
