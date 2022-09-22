@@ -19,7 +19,7 @@ class ServiceTaskDelegate:
         assertEqual(len(params), 3)
         assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
         assertEqual(params['employee_id']['value'], '109')
-        assertEqual(params['subdomain']['value'], 'ServiceTask')
+        assertEqual(params['subdomain']['value'], 'statusdemo')
 
         sample_response = {
             "amount": "65000.00",
@@ -57,7 +57,7 @@ class ServiceTaskVariableTest(BaseTestCase):
         self.save_restore()
         self._assert_service_task()
 
-    def _assert_service_tasks(self):
+    def _assert_service_task(self):
         result = self.workflow.data['spiff__Activity_0xhr131_result']
         self.assertEqual(len(result), 4)
         self.assertEqual(result['amount'], '65000.00')

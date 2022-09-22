@@ -20,11 +20,11 @@ class ServiceTaskDelegate:
         if name == 'bamboohr/GetPayRate':
             assertEqual(len(params), 3)
             assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
-            assertEqual(params['employee_id']['value'], '4')
+            assertEqual(params['employee_id']['value'], 4)
             assertEqual(params['subdomain']['value'], 'ServiceTask')
         elif name == 'weather/CurrentTemp':
             assertEqual(len(params), 1)
-            assertEqual(params['zipcode']['value'], '22980')
+            assertEqual(params['zipcode']['value'], 22980)
         else:
             raise AssertionError('unexpected connector name')
 
