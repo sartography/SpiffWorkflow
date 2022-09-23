@@ -33,9 +33,6 @@ from .base import Serializer
 from .exceptions import TaskNotSupportedError, MissingSpecError
 import warnings
 
-# TODOs left
-from ..bpmn.specs.MultiInstanceTask import MultiInstanceTask
-
 class DictionarySerializer(Serializer):
 
     def __init__(self):
@@ -523,6 +520,9 @@ class DictionarySerializer(Serializer):
         task_spec.inputs = [spec.get_task_spec_from_id(t) for t in task_spec.inputs]
         task_spec.outputs = [spec.get_task_spec_from_id(t) for t in task_spec.outputs]
 
+    def _prevtaskclass_bases(self, oldtask):
+        return (oldtask)
+
     def deserialize_workflow_spec(self, s_state, **kwargs):
         spec = WorkflowSpec(s_state['name'], filename=s_state['file'])
         spec.description = s_state['description']
@@ -546,8 +546,8 @@ class DictionarySerializer(Serializer):
             prevtask = task_spec_state.get('prevtaskclass', None)
             if prevtask:
                 oldtask = get_class(prevtask)
-                task_spec_cls = type(task_spec_state['class'], (
-                      MultiInstanceTask, oldtask), {})
+                task_spec_cls = type(task_spec_state['class'],
+                      self._prevtaskclass_bases(oldtask), {})
             else:
                 task_spec_cls = get_class(task_spec_state['class'])
             task_spec = task_spec_cls.deserialize(self, spec, task_spec_state)

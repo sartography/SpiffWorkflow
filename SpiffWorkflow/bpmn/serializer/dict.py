@@ -254,3 +254,6 @@ class BPMNDictionarySerializer(DictionarySerializer):
                         value['documentation'],
                         spec.get_task_spec_from_id(value['target_task_spec']))
         super()._deserialize_workflow_spec_task_spec(spec, task_spec, name)
+
+    def _prevtaskclass_bases(self, oldtask):
+        return (MultiInstanceTask, oldtask)
