@@ -86,6 +86,7 @@ class Workflow(object):
         extra.update({
             'workflow': self.spec.name,
             'task_spec': '-',
+            'task_type': None,
             'task_id': None,
             'data': None,
         })

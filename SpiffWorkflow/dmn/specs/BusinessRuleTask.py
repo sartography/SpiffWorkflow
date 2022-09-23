@@ -21,6 +21,10 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
         self.res = None
         self.resDict = None
 
+    @property
+    def spec_class(self):
+        return 'Business Rule Task'
+
     def _on_complete_hook(self, my_task):
         try:
             self.res = self.dmnEngine.decide(my_task)

@@ -28,6 +28,10 @@ class ScriptEngineTask(Simple, BpmnSpecMixin):
     def _execute(self, task):
         pass
 
+    @property
+    def spec_type(self):
+        return 'Script Task'
+
     def _on_ready_hook(self, task):
         super(ScriptEngineTask, self)._on_ready_hook(task)
         task.workflow.script_engine.queue(task)

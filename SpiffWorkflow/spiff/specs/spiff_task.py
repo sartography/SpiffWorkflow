@@ -13,6 +13,10 @@ class SpiffBpmnTask(BpmnSpecMixin):
         self.prescript = prescript
         self.postscript = postscript
 
+    @property
+    def spec_type(self):
+        return 'Spiff BPMN Task'
+
     def execute_script(self, my_task, script):
         try:
             my_task.workflow.script_engine.execute(my_task, script)

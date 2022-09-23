@@ -40,6 +40,10 @@ class EventDefinition(object):
         # I don't want to write a separate deserializer for every every type.
         self.internal, self.external = True, True
 
+    @property
+    def event_type(self):
+        return f'{self.__class__.__module__}.{self.__class__.__name__}'
+
     def has_fired(self, my_task):
         return my_task._get_internal_data('event_fired', False)
 
@@ -118,6 +122,10 @@ class CancelEventDefinition(EventDefinition):
         super(CancelEventDefinition, self).__init__()
         self.internal = False
 
+    @property
+    def event_type(self):
+        return 'Cancel'
+
 
 class ErrorEventDefinition(NamedEventDefinition):
     """
@@ -129,6 +137,10 @@ class ErrorEventDefinition(NamedEventDefinition):
         super(ErrorEventDefinition, self).__init__(name)
         self.error_code = error_code
         self.internal = False
+
+    @property
+    def event_type(self):
+        return 'Error'
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__ and self.error_code in [ None, other.error_code ]
@@ -153,6 +165,10 @@ class EscalationEventDefinition(NamedEventDefinition):
         """
         super(EscalationEventDefinition, self).__init__(name)
         self.escalation_code = escalation_code
+
+    @property
+    def event_type(self):
+        return 'Escalation'
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__ and self.escalation_code in [ None, other.escalation_code ]
@@ -180,6 +196,10 @@ class MessageEventDefinition(NamedEventDefinition):
         self.correlation_properties = correlation_properties or []
         self.payload = None
         self.internal = False
+
+    @property
+    def event_type(self):
+        return 'Message'
 
     def catch(self, my_task, event_definition):
         self.update_internal_data(my_task, event_definition)
@@ -224,6 +244,10 @@ class NoneEventDefinition(EventDefinition):
     def __init__(self):
         self.internal, self.external = False, False
 
+    @property
+    def event_type(self):
+        return 'Default'
+
     def throw(self, my_task):
         pass
 
@@ -233,7 +257,10 @@ class NoneEventDefinition(EventDefinition):
 
 class SignalEventDefinition(NamedEventDefinition):
     """The SignalEventDefinition is the implementation of event definition used for Signal Events."""
-    pass
+
+    @property
+    def spec_type(self):
+        return 'Signal'
 
 class TerminateEventDefinition(EventDefinition):
     """The TerminateEventDefinition is the implementation of event definition used for Termination Events."""
@@ -241,6 +268,10 @@ class TerminateEventDefinition(EventDefinition):
     def __init__(self):
         super(TerminateEventDefinition, self).__init__()
         self.external = False
+
+    @property
+    def event_type(self):
+        return 'Terminate'
 
 class TimerEventDefinition(EventDefinition):
     """
@@ -261,6 +292,10 @@ class TimerEventDefinition(EventDefinition):
         super(TimerEventDefinition, self).__init__()
         self.label = label
         self.dateTime = dateTime
+
+    @property
+    def event_type(self):
+        return 'Timer'
 
     def has_fired(self, my_task):
         """
@@ -316,6 +351,10 @@ class CycleTimerEventDefinition(EventDefinition):
         # with a duration timer
         self.cycle_definition = cycle_definition
 
+    @property
+    def event_type(self):
+        return 'Cycle Timer'
+
     def has_fired(self, my_task):
         # We will fire this timer whenever a cycle completes
         # The task itself will manage counting how many times it fires
@@ -360,4 +399,3 @@ class CycleTimerEventDefinition(EventDefinition):
         retdict['label'] = self.label
         retdict['cycle_definition'] = self.cycle_definition
         return retdict
-

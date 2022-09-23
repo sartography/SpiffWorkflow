@@ -81,6 +81,10 @@ class MultiInstanceTask(TaskSpec):
 
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
 
+    @property
+    def spec_type(self):
+        return 'MultiInstance Task'
+
     def _find_my_task(self, task):
         for thetask in task.workflow.task_tree:
             if thetask.thread_id != task.thread_id:
@@ -512,6 +516,7 @@ class MultiInstanceTask(TaskSpec):
         spec.prevtaskclass = s_state['prevtaskclass']
 
         return serializer.deserialize_multi_instance(wf_spec, s_state, spec)
+
 
 def getDynamicMIClass(id,prevclass):
     id = re.sub('(.+)_[0-9]$','\\1',id)

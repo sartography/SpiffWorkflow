@@ -23,6 +23,10 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
         self.spec = subworkflow_spec
         self.transaction = transaction
 
+    @property
+    def spec_type(self):
+        return 'Subprocess'
+
     def test(self):
         TaskSpec.test(self)
 
@@ -103,6 +107,10 @@ class CallActivity(SubWorkflowTask):
     def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
         super(CallActivity, self).__init__(wf_spec, name, subworkflow_spec, False, **kwargs)
 
+    @property
+    def spec_type(self):
+        return 'Call Activity'
+
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
         return serializer.deserialize_subworkflow_task(wf_spec, s_state, CallActivity)
@@ -111,6 +119,10 @@ class TransactionSubprocess(SubWorkflowTask):
 
     def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
         super(TransactionSubprocess, self).__init__(wf_spec, name, subworkflow_spec, True, **kwargs)
+
+    @property
+    def spec_type(self):
+        return 'Transactional Subprocess'
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):

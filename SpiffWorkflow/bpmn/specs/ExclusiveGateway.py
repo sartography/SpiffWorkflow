@@ -49,6 +49,10 @@ class ExclusiveGateway(ExclusiveChoice, BpmnSpecMixin):
             if condition is None:
                 continue
 
+    @property
+    def spec_type(self):
+        return 'Exclusive Gateway'
+
     def serialize(self, serializer):
         return serializer.serialize_exclusive_gateway(self)
 

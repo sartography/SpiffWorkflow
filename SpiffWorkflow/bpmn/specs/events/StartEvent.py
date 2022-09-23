@@ -17,7 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
 from .event_types import CatchingEvent
 from ....task import TaskState
 
@@ -27,6 +26,10 @@ class StartEvent(CatchingEvent):
 
     def __init__(self, wf_spec, name, event_definition, **kwargs):
         super(StartEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
+
+    @property
+    def spec_type(self):
+        return f'{self.event_definition.event_type} Start Event'
 
     def catch(self, my_task, event_definition):
 
