@@ -92,6 +92,20 @@ class SubWorkflowParser(SpiffTaskParser):
             postscript=postscript)
 
 
+class ScriptTaskParser(SpiffTaskParser):
+    def create_task(self):
+        extensions = self.parse_extensions()
+        script = None
+        for child_node in self.node:
+            if child_node.tag.endswith('script'):
+                script = child_node.text
+        # import pdb; pdb.set_trace()
+        return self.spec_class(
+            self.spec, self.get_task_spec_name(), script,
+            lane=self.lane, position=self.position,
+            description=self.node.get('name', None))
+
+
 class CallActivityParser(SpiffTaskParser):
 
     def create_task(self):
