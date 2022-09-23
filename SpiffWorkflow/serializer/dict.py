@@ -37,7 +37,6 @@ from .base import Serializer
 from ..bpmn.specs.MultiInstanceTask import MultiInstanceTask
 from ..bpmn.specs.SubWorkflowTask import SubWorkflowTask
 from ..camunda.specs.UserTask import UserTask
-from ..bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from ..bpmn.specs.ScriptTask import ScriptTask
 from .exceptions import TaskNotSupportedError, MissingSpecError
 import warnings
@@ -151,24 +150,11 @@ class DictionarySerializer(Serializer):
                        lookahead=spec.lookahead)
         module_name = spec.__class__.__module__
         s_state['class'] = module_name + '.' + spec.__class__.__name__
-        x = all([hasattr(t,'id') for t in spec.inputs])
         s_state['inputs'] = [t.id for t in spec.inputs]
         s_state['outputs'] = [t.id for t in spec.outputs]
         s_state['data'] = self.serialize_dict(spec.data)
-        if hasattr(spec,'documentation'):
-            s_state['documentation'] = spec.documentation
-        if hasattr(spec,'extensions'):
-            s_state['extensions'] = self.serialize_dict(spec.extensions)
         if hasattr(spec, 'position'):
             s_state['position'] = self.serialize_dict(spec.position)
-        if hasattr(spec,'lane'):
-            s_state['lane'] = spec.lane
-
-        if hasattr(spec,'outgoing_sequence_flows'):
-            s_state['outgoing_sequence_flows'] = {x:spec.outgoing_sequence_flows[x].serialize() for x in
-                                                  spec.outgoing_sequence_flows.keys()}
-            s_state['outgoing_sequence_flows_by_id'] = {x:spec.outgoing_sequence_flows_by_id[x].serialize() for x in
-                                                  spec.outgoing_sequence_flows_by_id.keys()}
 
         s_state['defines'] = self.serialize_dict(spec.defines)
         s_state['pre_assign'] = self.serialize_list(spec.pre_assign)
@@ -186,16 +172,8 @@ class DictionarySerializer(Serializer):
         spec.manual = s_state.get('manual', False)
         spec.internal = s_state.get('internal', False)
         spec.lookahead = s_state.get('lookahead', 2)
-        # I would use the s_state.get('extensions',{}) inside of the deserialize
-        # but many tasks have no extensions on them.
-        if s_state.get('extensions',None) != None:
-            spec.extensions = self.deserialize_dict(s_state['extensions'])
-        if 'documentation' in s_state.keys():
-            spec.documentation = s_state['documentation']
 
         spec.data = self.deserialize_dict(s_state.get('data', {}))
-        if 'lane' in s_state.keys():
-            spec.lane = s_state.get('lane',None)
         if 'position' in s_state.keys():
             spec.position = self.deserialize_dict(s_state.get('position', {}))
         spec.defines = self.deserialize_dict(s_state.get('defines', {}))
@@ -207,9 +185,6 @@ class DictionarySerializer(Serializer):
         # deserialized yet. So keep the names, and resolve them in the end.
         spec.inputs = s_state.get('inputs', [])[:]
         spec.outputs = s_state.get('outputs', [])[:]
-        if s_state.get('outgoing_sequence_flows',None):
-            spec.outgoing_sequence_flows = s_state.get('outgoing_sequence_flows', {})
-            spec.outgoing_sequence_flows_by_id = s_state.get('outgoing_sequence_flows_by_id', {})
 
         return spec
 
@@ -285,18 +260,6 @@ class DictionarySerializer(Serializer):
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
-    def serialize_exclusive_gateway(self, spec):
-        s_state = self.serialize_multi_choice(spec)
-        s_state['default_task_spec'] = spec.default_task_spec
-        return s_state
-
-    def deserialize_exclusive_gateway(self, wf_spec, s_state):
-        spec = ExclusiveGateway(wf_spec, s_state['name'])
-        self.deserialize_multi_choice(wf_spec, s_state, spec=spec)
-        spec.default_task_spec = s_state['default_task_spec']
-        return spec
-
-
 
     def serialize_exclusive_choice(self, spec):
         s_state = self.serialize_multi_choice(spec)
@@ -326,16 +289,6 @@ class DictionarySerializer(Serializer):
 
     def deserialize_gate(self, wf_spec, s_state):
         spec = Gate(wf_spec, s_state['name'], s_state['context'])
-        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
-        return spec
-
-    def serialize_script_task(self, spec):
-        s_state = self.serialize_task_spec(spec)
-        s_state['script'] = spec.script
-        return s_state
-
-    def deserialize_script_task(self, wf_spec, s_state):
-        spec = ScriptTask(wf_spec, s_state['name'], s_state['script'])
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 

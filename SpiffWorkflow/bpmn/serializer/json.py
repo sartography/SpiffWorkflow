@@ -16,10 +16,8 @@
 # 02110-1301  USA
 import json
 import uuid
+from .dict import DictionarySerializer
 from ..operators import Attrib
-
-# TODO refactor to move bpmn/camunda parts out of core
-from ..bpmn.serializer.dict import BPMNDictionarySerializer
 from ..camunda.specs.UserTask import Form
 
 def object_hook(dct):
@@ -74,8 +72,7 @@ def dumps(dct):
     return json.dumps(dct, sort_keys=True, default=default)
 
 
-# TODO refactor to move bpmn/camunda parts out of core
-class JSONSerializer(BPMNDictionarySerializer):
+class JSONSerializer(DictionarySerializer):
 
     def serialize_workflow_spec(self, wf_spec, **kwargs):
         thedict = super(JSONSerializer, self).serialize_workflow_spec(
@@ -96,4 +93,3 @@ class JSONSerializer(BPMNDictionarySerializer):
         thedict = loads(s_state)
         return super(JSONSerializer, self).deserialize_workflow(
             thedict, **kwargs)
-
