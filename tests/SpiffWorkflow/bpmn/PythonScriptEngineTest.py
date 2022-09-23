@@ -46,7 +46,7 @@ localtime_str = localtime.strftime("%Y-%m-%d %H:%M:%S")
         data = {
             'x': 1,
             'y': {'a': 2},
-            'z': [{'a': 'apple'}, {'b': 'bannana'}]
+            'z': [{'a': 'apple'}, {'b': 'banana'}]
         }
         boxed_data = PythonScriptEngine().convert_to_box(data)
         self.assertEqual(1, boxed_data.x)
@@ -54,6 +54,9 @@ localtime_str = localtime.strftime("%Y-%m-%d %H:%M:%S")
         # This doesn't feel right o me, seems like we should be able
         # to use dot notation here as well.
         self.assertEqual('apple', boxed_data.z[0]['a'])
+        boxed_data = PythonScriptEngine().convert_to_box(data['z'])
+        self.assertEqual('banana', boxed_data[1].b)
+
 
     def test_box_construction_with_kwargs(self):
         """assure we are exercising this part of the code in the tests"""
