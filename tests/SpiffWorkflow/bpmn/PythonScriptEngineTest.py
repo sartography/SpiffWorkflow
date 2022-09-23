@@ -4,8 +4,9 @@ import sys
 import os
 import unittest
 
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine, Box
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.spiff.specs import NoneTask
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -40,8 +41,29 @@ localtime_str = localtime.strftime("%Y-%m-%d %H:%M:%S")
         self.assertEqual(data['localtime_str'], "2021-09-23 12:11:00")
         self.assertTrue(True)
 
+    def testConvertToBox(self):
+        """assure we are exercising this function fully in the tests"""
+        data = {
+            'x': 1,
+            'y': {'a': 2},
+            'z': [{'a': 'apple'}, {'b': 'bannana'}]
+        }
+        boxed_data = PythonScriptEngine().convert_to_box(data)
+        self.assertEqual(1, boxed_data.x)
+        self.assertEqual(2, boxed_data.y.a)
+        # This doesn't feel right o me, seems like we should be able
+        # to use dot notation here as well.
+        self.assertEqual('apple', boxed_data.z[0]['a'])
+
+    def test_box_construction_with_kwargs(self):
+        """assure we are exercising this part of the code in the tests"""
+        my_box = Box(a="apple", b={"b": "banana"})
+        self.assertEqual('apple', my_box.a)
+        self.assertEqual('banana', my_box.b.b)
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(PythonScriptEngineTest)
+
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
