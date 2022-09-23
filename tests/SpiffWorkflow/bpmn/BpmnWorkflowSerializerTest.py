@@ -40,8 +40,12 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
     def testSerializeWorkflowSpecWithGzip(self):
         spec_serialized = self.serializer.serialize_json(self.workflow, use_gzip=True)
         result = self.serializer.deserialize_json(spec_serialized, use_gzip=True)
-        spec_serialized2 = self.serializer.serialize_json(result, use_gzip=True)
-        self.assertEqual(spec_serialized, spec_serialized2)
+
+        # Random failures occur when comparing zipped versions, so round trip
+        # through gzip, but compare the un-gzipped versions.
+        spec_serialized_orig = self.serializer.serialize_json(self.workflow)
+        spec_restore_from_gzip = self.serializer.serialize_json(result)
+        self.assertEqual(spec_serialized_orig, spec_restore_from_gzip)
 
     def testSerlializePerservesVersion(self):
         spec_serialized = self.serializer.serialize_json(self.workflow)

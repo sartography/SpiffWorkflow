@@ -160,7 +160,7 @@ class PythonScriptEngine(object):
 
         if task.id in self.running_tasks:
             try:
-                result = self._is_complete(self.running_tasks.get(task.id), task.data)
+                result = self._is_complete(self.running_tasks.get(task.id))
                 if result is None:
                     del self.running_tasks[task.id]
                     return True
