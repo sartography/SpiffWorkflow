@@ -146,7 +146,7 @@ class PythonScriptEngine(object):
             else:
                 self._execute(script, task.data, external_methods or {})
         except Exception as err:
-            wte = self.create_task_exec_exception(task, err)
+            wte = self.create_task_exec_exception(task, script, err)
             self.error_tasks[task.id] = wte
             raise wte
 
@@ -167,7 +167,7 @@ class PythonScriptEngine(object):
                 else:
                     return False
             except Exception as err:
-                self.error_tasks[task.id] = self.create_task_exec_exception(task, err)
+                self.error_tasks[task.id] = self.create_task_exec_exception(task, task.script, err)
                 return False
         elif task.id in self.error_tasks:
             return False
@@ -194,25 +194,7 @@ class PythonScriptEngine(object):
 
         return self._evaluate(script, task.data, external_methods=external_methods)
 
-    def is_complete(self, task):
-
-        if task.id in self.running_tasks:
-            try:
-                result = self._is_complete(self.running_tasks.get(task.id))
-                if result is None:
-                    del self.running_tasks[task.id]
-                    return True
-                else:
-                    return False
-            except Exception as err:
-                self.error_tasks[task.id] = self.create_task_exec_exception(task, err)
-                return False
-        elif task.id in self.error_tasks:
-            return False
-        else:
-            return True
-
-    def create_task_exec_exception(self, task, err):
+    def create_task_exec_exception(self, task, script, err):
 
         if isinstance(err, WorkflowTaskExecException):
             return err
@@ -229,7 +211,7 @@ class PythonScriptEngine(object):
         for frame_summary in traceback.extract_tb(tb):
             if frame_summary.filename == '<string>':
                 line_number = frame_summary.lineno
-                error_line = task.task_spec.script.splitlines()[line_number - 1]
+                error_line = script.splitlines()[line_number - 1]
         return WorkflowTaskExecException(task, detail, err, line_number, error_line)
 
     def check_for_overwrite(self, task, external_methods):
