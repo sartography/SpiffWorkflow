@@ -22,6 +22,7 @@ from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...dmn.specs.model import DecisionTable
 from ...serializer.dict import DictionarySerializer
 from ...util.impl import get_class
+from ..specs.BpmnSpecMixin import SequenceFlow
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.MultiInstanceTask import MultiInstanceTask
 from ..specs.ScriptTask import ScriptTask
@@ -237,3 +238,19 @@ class BPMNDictionarySerializer(DictionarySerializer):
             cls.form = s_state['form']
 
         return cls
+
+    def _deserialize_workflow_spec_task_spec(self, spec, task_spec, name):
+        if hasattr(task_spec,'outgoing_sequence_flows'):
+            for entry,value in task_spec.outgoing_sequence_flows.items():
+                task_spec.outgoing_sequence_flows[entry] =  \
+                    SequenceFlow(value['id'],
+                        value['name'],
+                        value['documentation'],
+                        spec.get_task_spec_from_id(value['target_task_spec']))
+            for entry, value in task_spec.outgoing_sequence_flows_by_id.items():
+                task_spec.outgoing_sequence_flows_by_id[entry] = \
+                    SequenceFlow(value['id'],
+                        value['name'],
+                        value['documentation'],
+                        spec.get_task_spec_from_id(value['target_task_spec']))
+        super()._deserialize_workflow_spec_task_spec(spec, task_spec, name)

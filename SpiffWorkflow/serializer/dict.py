@@ -20,10 +20,6 @@ from builtins import str
 import pickle
 from base64 import b64encode, b64decode
 from .. import Workflow
-from ..bpmn.specs.BpmnSpecMixin import SequenceFlow
-from ..dmn.engine.DMNEngine import DMNEngine
-from ..dmn.specs.BusinessRuleTask import BusinessRuleTask
-from ..dmn.specs.model import DecisionTable
 from ..util.impl import get_class
 from ..task import Task
 from ..operators import (Attrib, PathAttrib, Equal, NotEqual,
@@ -34,13 +30,11 @@ from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
                      TaskSpec, SubWorkflow, StartTask, ThreadMerge,
                      ThreadSplit, ThreadStart, Merge, Trigger, LoopResetTask)
 from .base import Serializer
-from ..bpmn.specs.MultiInstanceTask import MultiInstanceTask
-from ..bpmn.specs.SubWorkflowTask import SubWorkflowTask
-from ..camunda.specs.UserTask import UserTask
-from ..bpmn.specs.ScriptTask import ScriptTask
 from .exceptions import TaskNotSupportedError, MissingSpecError
 import warnings
 
+# TODOs left
+from ..bpmn.specs.MultiInstanceTask import MultiInstanceTask
 
 class DictionarySerializer(Serializer):
 
@@ -385,8 +379,6 @@ class DictionarySerializer(Serializer):
         self.deserialize_task_spec(wf_spec, s_state, spec=cls)
         return cls
 
-# TODO - got this far
-
     def serialize_release_mutex(self, spec):
         s_state = self.serialize_task_spec(spec)
         s_state['mutex'] = spec.mutex
@@ -527,6 +519,10 @@ class DictionarySerializer(Serializer):
         s_state['task_specs'] = dict(mylist)
         return s_state
 
+    def _deserialize_workflow_spec_task_spec(self, spec, task_spec, name):
+        task_spec.inputs = [spec.get_task_spec_from_id(t) for t in task_spec.inputs]
+        task_spec.outputs = [spec.get_task_spec_from_id(t) for t in task_spec.outputs]
+
     def deserialize_workflow_spec(self, s_state, **kwargs):
         spec = WorkflowSpec(s_state['name'], filename=s_state['file'])
         spec.description = s_state['description']
@@ -547,35 +543,19 @@ class DictionarySerializer(Serializer):
         for name, task_spec_state in list(s_state['task_specs'].items()):
             if name == 'Start':
                 continue
-            prevtask = task_spec_state.get('prevtaskclass',None)
+            prevtask = task_spec_state.get('prevtaskclass', None)
             if prevtask:
                 oldtask = get_class(prevtask)
                 task_spec_cls = type(task_spec_state['class'], (
-                      MultiInstanceTask,oldtask ), {})
+                      MultiInstanceTask, oldtask), {})
             else:
                 task_spec_cls = get_class(task_spec_state['class'])
             task_spec = task_spec_cls.deserialize(self, spec, task_spec_state)
             spec.task_specs[name] = task_spec
 
         for name, task_spec in list(spec.task_specs.items()):
-            if hasattr(task_spec,'outgoing_sequence_flows'):
-                for entry,value in task_spec.outgoing_sequence_flows.items():
-                    task_spec.outgoing_sequence_flows[entry] =  \
-                          SequenceFlow(value['id'],
-                            value['name'],
-                            value['documentation'],
-                            spec.get_task_spec_from_id(value['target_task_spec']))
-                for entry, value in task_spec.outgoing_sequence_flows_by_id.items():
-                    task_spec.outgoing_sequence_flows_by_id[entry] = \
-                          SequenceFlow(value['id'],
-                             value['name'],
-                             value['documentation'],
-                             spec.get_task_spec_from_id(value['target_task_spec']))
+            self._deserialize_workflow_spec_task_spec(spec, task_spec, name)
 
-            task_spec.inputs = [spec.get_task_spec_from_id(t)
-                                for t in task_spec.inputs]
-            task_spec.outputs = [spec.get_task_spec_from_id(t)
-                                 for t in task_spec.outputs]
         if s_state.get('end', None):
             spec.end = spec.get_task_spec_from_id(s_state['end'])
 
