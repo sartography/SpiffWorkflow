@@ -17,13 +17,9 @@
 import json
 import uuid
 from ..operators import Attrib
+from .dict import DictionarySerializer
 
-# TODO refactor to move bpmn/camunda parts out of core
-from ..bpmn.serializer.dict import BPMNDictionarySerializer
-from ..camunda.specs.UserTask import Form
-
-# TODO refactor to move bpmn/camunda parts out of core
-class JSONSerializer(BPMNDictionarySerializer):
+class JSONSerializer(DictionarySerializer):
 
     def serialize_workflow_spec(self, wf_spec, **kwargs):
         thedict = super(JSONSerializer, self).serialize_workflow_spec(
@@ -55,9 +51,6 @@ class JSONSerializer(BPMNDictionarySerializer):
         if '__attrib__' in dct:
             return Attrib(dct['__attrib__'])
 
-        if '__form__' in dct:
-            return Form(init=json.loads(dct['__form__']))
-
         return dct
 
     def _jsonableHandler(self, obj):
@@ -78,10 +71,6 @@ class JSONSerializer(BPMNDictionarySerializer):
         if isinstance(obj, Attrib):
             return {'__attrib__': obj.name}
 
-        if isinstance(obj,Form):
-            return {'__form__': json.dumps(obj, default=lambda o:
-                self._jsonableHandler(o))}
-
         raise TypeError('%r is not JSON serializable' % obj)
 
     def _loads(self, text):
@@ -90,4 +79,3 @@ class JSONSerializer(BPMNDictionarySerializer):
     def _dumps(self, dct):
         return json.dumps(dct, sort_keys=True, default=lambda o:
                 self._default(o))
-

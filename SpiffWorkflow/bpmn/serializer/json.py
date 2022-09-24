@@ -15,81 +15,21 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 import json
-import uuid
-from .dict import DictionarySerializer
-from ..operators import Attrib
-from ..camunda.specs.UserTask import Form
+from ..serializer.dict import BPMNDictionarySerializer
+from ...camunda.specs.UserTask import Form
+from ...serializer.json import JSONSerializer
 
-def object_hook(dct):
-    if '__uuid__' in dct:
-        return uuid.UUID(dct['__uuid__'])
+class BPMNJSONSerializer(BPMNDictionarySerializer, JSONSerializer):
 
-    if '__bytes__' in dct:
-        return dct['__bytes__'].encode('ascii')
+    def _object_hook(self, dct):
+        if '__form__' in dct:
+            return Form(init=json.loads(dct['__form__']))
 
-    if '__attrib__' in dct:
-        return Attrib(dct['__attrib__'])
+        return super()._object_hook(dct)
 
-    if '__form__' in dct:
-        return Form(init=json.loads(dct['__form__']))
+    def _default(self, obj):
+        if isinstance(obj,Form):
+            return {'__form__': json.dumps(obj, default=lambda o:
+                self._jsonableHandler(o))}
 
-
-    return dct
-
-
-def JsonableHandler(Obj):
-    if hasattr(Obj, 'jsonable'):
-        return Obj.jsonable()
-    else:
-        raise 'Object of type %s with value of %s is not JSON serializable' % (
-            type(Obj), repr(Obj))
-
-
-
-
-
-def default(obj):
-    if isinstance(obj, uuid.UUID):
-        return {'__uuid__': obj.hex}
-
-    if isinstance(obj, bytes):
-        return {'__bytes__': obj.decode('ascii')}
-
-    if isinstance(obj, Attrib):
-        return {'__attrib__': obj.name}
-
-    if isinstance(obj,Form):
-        return {'__form__': json.dumps(obj, default=JsonableHandler)}
-
-    raise TypeError('%r is not JSON serializable' % obj)
-
-
-def loads(text):
-    return json.loads(text, object_hook=object_hook)
-
-
-def dumps(dct):
-    return json.dumps(dct, sort_keys=True, default=default)
-
-
-class JSONSerializer(DictionarySerializer):
-
-    def serialize_workflow_spec(self, wf_spec, **kwargs):
-        thedict = super(JSONSerializer, self).serialize_workflow_spec(
-            wf_spec, **kwargs)
-        return dumps(thedict)
-
-    def deserialize_workflow_spec(self, s_state, **kwargs):
-        thedict = loads(s_state)
-        return super(JSONSerializer, self).deserialize_workflow_spec(
-            thedict, **kwargs)
-
-    def serialize_workflow(self, workflow, **kwargs):
-        thedict = super(JSONSerializer, self).serialize_workflow(
-            workflow, **kwargs)
-        return dumps(thedict)
-
-    def deserialize_workflow(self, s_state, **kwargs):
-        thedict = loads(s_state)
-        return super(JSONSerializer, self).deserialize_workflow(
-            thedict, **kwargs)
+        return super()._default(obj)
