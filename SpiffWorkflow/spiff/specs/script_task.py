@@ -1,10 +1,6 @@
 from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
+from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask as BpmnScriptTask
 
-class ScriptTask(SpiffBpmnTask):
 
-    def is_engine_task(self):
-        return True
-
-    @property
-    def spec_type(self):
-        return 'Script Task'
+class ScriptTask(BpmnScriptTask, SpiffBpmnTask):
+    pass

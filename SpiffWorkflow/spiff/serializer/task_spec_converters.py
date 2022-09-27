@@ -39,6 +39,11 @@ class ScriptTaskConverter(SpiffBpmnTaskConverter):
     def __init__(self, data_converter=None):
         super().__init__(ScriptTask, data_converter)
 
+    def to_dict(self, spec):
+        dct = super().to_dict(spec)
+        dct['script'] = spec.script
+        return dct
+
 
 class ServiceTaskConverter(SpiffBpmnTaskConverter):
     def __init__(self, data_converter=None):
