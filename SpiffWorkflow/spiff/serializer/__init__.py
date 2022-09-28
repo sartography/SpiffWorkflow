@@ -1,4 +1,4 @@
-from .task_spec_converters import NoneTaskConverter, ManualTaskConverter, UserTaskConverter
+from .task_spec_converters import NoneTaskConverter, ManualTaskConverter, UserTaskConverter, ScriptTaskConverter
 from .task_spec_converters import TransactionSubprocessConverter, CallActivityTaskConverter, SubWorkflowTaskConverter
 from .task_spec_converters import StartEventConverter, EndEventConverter, IntermediateCatchEventConverter, IntermediateThrowEventConverter, \
     BoundaryEventConverter, SendTaskConverter, ReceiveTaskConverter, ServiceTaskConverter
