@@ -1,3 +1,10 @@
+import os
+import sys
+import unittest
+
+dirname = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
+
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from .BaseTestCase import BaseTestCase

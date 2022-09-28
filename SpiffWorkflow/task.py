@@ -363,22 +363,12 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         the inputs - otherwise our child process never gets marked as
         'READY'
         """
-        from .bpmn.specs.UnstructuredJoin import UnstructuredJoin
-        from .bpmn.specs.SubWorkflowTask import SubWorkflowTask
 
-        if (self.state != TaskState.COMPLETED and self.state != TaskState.READY) and \
-                not (isinstance(self.task_spec, UnstructuredJoin)):
+        if not self.task_spec.task_should_set_children_future(self):
             return
 
-        if isinstance(self.task_spec,SubWorkflowTask):
-            self.workflow.delete_subprocess(self)
+        self.task_spec.task_will_set_children_future(self)
 
-        if isinstance(self.task_spec, UnstructuredJoin):
-            # go find all of the gateways with the same name as this one,
-            # drop children and set state to WAITING
-            for t in list(self.workflow.task_tree):
-                if t.task_spec.name == self.task_spec.name and t.state == TaskState.COMPLETED:
-                    t._set_state(TaskState.WAITING)
         # now we set this one to execute
 
         self._set_state(TaskState.MAYBE)
