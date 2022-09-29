@@ -110,7 +110,6 @@ class PythonScriptEngine(object):
                         'Box': Box,
                         }
         self.globals.update(scripting_additions or {})
-        self.running_tasks = {}
         self.error_tasks = {}
 
     def validate(self, expression):
@@ -137,9 +136,7 @@ class PythonScriptEngine(object):
         """
         try:
             self.check_for_overwrite(task, external_methods or {})
-            result = self._execute(script, task.data, external_methods or {})
-            if result is not None:
-                self.running_tasks[task.id] = result
+            self._execute(script, task.data, external_methods or {})
         except Exception as err:
             wte = self.create_task_exec_exception(task, err)
             self.error_tasks[task.id] = wte
@@ -164,24 +161,6 @@ class PythonScriptEngine(object):
         external_methods.update(additions)
 
         return self._evaluate(script, task.data, external_methods=external_methods)
-
-    def is_complete(self, task):
-
-        if task.id in self.running_tasks:
-            try:
-                result = self._is_complete(self.running_tasks.get(task.id))
-                if result is None:
-                    del self.running_tasks[task.id]
-                    return True
-                else:
-                    return False
-            except Exception as err:
-                self.error_tasks[task.id] = self.create_task_exec_exception(task, err)
-                return False
-        elif task.id in self.error_tasks:
-            return False
-        else:
-            return True
 
     def create_task_exec_exception(self, task, err):
 
@@ -270,8 +249,3 @@ class PythonScriptEngine(object):
             elif external_methods and k in external_methods:
                 context.pop(k)
 
-    def _is_complete(self, task):
-        # The default is just to run exec in this process, so we'll never need this
-        # However, an asynchronous execution environment can extend it with a polling
-        # mechanism
-        return True
