@@ -23,8 +23,14 @@ class ServiceTask(SpiffBpmnTask, ServiceTask):
         return f'spiff__{escaped_spec_name}_result'
 
     def _execute(self, task):
-        def evaluate(expression):
-            return task.workflow.script_engine.evaluate(task, repr(expression))
+        def evaluate(param):
+            try:
+                param['value'] = task.workflow.script_engine.evaluate(task,
+                        param['value'])
+            except:
+                pass
+
+            return param
 
         operation_params_var_name = 'spiff__operation_params'
         evaluated_params = {k: evaluate(v) for k, v in self.operation_params.items()}

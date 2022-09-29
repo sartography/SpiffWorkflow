@@ -12,33 +12,21 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from .BaseTestCase import BaseTestCase
 
-#assertEqual = None
-
 class ServiceTaskDelegate:
     @staticmethod
     def call_connector(name, params):
-        if name == 'bamboohr/GetPayRate':
-            assertEqual(len(params), 3)
-            assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
-            assertEqual(params['employee_id']['value'], 4)
-            assertEqual(params['subdomain']['value'], 'ServiceTask')
-        elif name == 'weather/CurrentTemp':
-            assertEqual(len(params), 1)
-            assertEqual(params['zipcode']['value'], 22980)
-        else:
-            raise AssertionError('unexpected connector name')
+        assertEqual(name, 'bamboohr/GetPayRate')
+        assertEqual(len(params), 3)
+        assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
+        assertEqual(params['employee_id']['value'], '109')
+        assertEqual(params['subdomain']['value'], 'statusdemo')
 
-        if name == 'bamboohr/GetPayRate':
-            sample_response = {
-                "amount": "65000.00",
-                "currency": "USD",
-                "id": "4",
-                "payRate": "65000.00 USD",
-            }
-        elif name == 'weather/CurrentTemp':
-            sample_response = {
-                "temp": "72F",
-            }
+        sample_response = {
+            "amount": "65000.00",
+            "currency": "USD",
+            "id": "4",
+            "payRate": "65000.00 USD",
+        }
 
         return json.dumps(sample_response)
 
@@ -46,20 +34,20 @@ class ExampleCustomScriptEngine(PythonScriptEngine):
     def available_service_task_external_methods(self):
         return { 'ServiceTaskDelegate': ServiceTaskDelegate }
 
-class ServiceTaskTest(BaseTestCase):
+class ServiceTaskVariableTest(BaseTestCase):
 
     def setUp(self):
         global assertEqual
         assertEqual = self.assertEqual
 
-        spec, subprocesses = self.load_workflow_spec('service_task.bpmn',
-                'service_task_example1')
+        spec, subprocesses = self.load_workflow_spec('service_task_variable.bpmn',
+                'Process_bd2e724555')
         self.script_engine = ExampleCustomScriptEngine()
         self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=self.script_engine)
 
     def testRunThroughHappy(self):
         self.workflow.do_engine_steps()
-        self._assert_service_tasks()
+        self._assert_service_task()
 
     def testRunThroughSaveRestore(self):
         self.save_restore()
@@ -67,25 +55,17 @@ class ServiceTaskTest(BaseTestCase):
         self.workflow.script_engine = self.script_engine
         self.workflow.do_engine_steps()
         self.save_restore()
-        self._assert_service_tasks()
+        self._assert_service_task()
 
-    def _assert_service_tasks(self):
-        # service task without result variable name specified, mock
-        # bamboohr/GetPayRate response
-        result = self.workflow.data['spiff__Activity_1inxqgx_result']
+    def _assert_service_task(self):
+        result = self.workflow.data['spiff__Activity_0xhr131_result']
         self.assertEqual(len(result), 4)
         self.assertEqual(result['amount'], '65000.00')
         self.assertEqual(result['currency'], 'USD')
         self.assertEqual(result['id'], '4')
         self.assertEqual(result['payRate'], '65000.00 USD')
 
-        # service task with result variable specified, mock weather response
-        result = self.workflow.data['waynesboroWeatherResult']
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result['temp'], '72F')
-
-
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ServiceTaskTest)
+    return unittest.TestLoader().loadTestsFromTestCase(ServiceTaskVariableTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
