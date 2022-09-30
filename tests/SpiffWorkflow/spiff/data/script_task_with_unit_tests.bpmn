@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1ny7jp4" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <bpmn:process id="Process_ScriptTaskWithUnitTests" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_10jwwqy</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_10jwwqy" sourceRef="StartEvent_1" targetRef="Activity_03fldr6" />
+    <bpmn:endEvent id="Event_1qb1u6a">
+      <bpmn:incoming>Flow_0htxke7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0htxke7" sourceRef="script_with_unit_test_id" targetRef="Event_1qb1u6a" />
+    <bpmn:scriptTask id="script_with_unit_test_id" name="Script with unit test">
+      <bpmn:extensionElements>
+        <spiffworkflow:unitTests>
+          <spiffworkflow:unitTest id="sets_hey_to_true_if_hey_is_false">
+            <spiffworkflow:inputJson>{"hey": false}</spiffworkflow:inputJson>
+            <spiffworkflow:expectedOutputJson>{"hey": true}</spiffworkflow:expectedOutputJson>
+          </spiffworkflow:unitTest>
+          <spiffworkflow:unitTest id="sets_something_else_if_no_hey">
+            <spiffworkflow:inputJson>{}</spiffworkflow:inputJson>
+            <spiffworkflow:expectedOutputJson>{"something_else": true}</spiffworkflow:expectedOutputJson>
+          </spiffworkflow:unitTest>
+        </spiffworkflow:unitTests>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0niwe1y</bpmn:incoming>
+      <bpmn:outgoing>Flow_0htxke7</bpmn:outgoing>
+      <bpmn:script>if 'hey' in locals():
+  hey = True
+else:
+  something_else = True</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_0niwe1y" sourceRef="Activity_03fldr6" targetRef="script_with_unit_test_id" />
+    <bpmn:scriptTask id="Activity_03fldr6" name="Set var">
+      <bpmn:incoming>Flow_10jwwqy</bpmn:incoming>
+      <bpmn:outgoing>Flow_0niwe1y</bpmn:outgoing>
+      <bpmn:script>hey = False</bpmn:script>
+    </bpmn:scriptTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="sample">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="132" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1qb1u6a_di" bpmnElement="Event_1qb1u6a">
+        <dc:Bounds x="642" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17ohe7r_di" bpmnElement="script_with_unit_test_id">
+        <dc:Bounds x="440" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1fab1y2_di" bpmnElement="Activity_03fldr6">
+        <dc:Bounds x="250" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_10jwwqy_di" bpmnElement="Flow_10jwwqy">
+        <di:waypoint x="168" y="120" />
+        <di:waypoint x="250" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0htxke7_di" bpmnElement="Flow_0htxke7">
+        <di:waypoint x="540" y="120" />
+        <di:waypoint x="642" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0niwe1y_di" bpmnElement="Flow_0niwe1y">
+        <di:waypoint x="350" y="120" />
+        <di:waypoint x="440" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
