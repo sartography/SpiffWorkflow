@@ -4,7 +4,7 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 # Assure we correctly parse and pass on the Spiffworkflow properties in
 # an extension.
-class SpiffWorkflowProperties(BaseTestCase):
+class SpiffPropertiesTest(BaseTestCase):
 
     def testTask(self):
         self.task_test()

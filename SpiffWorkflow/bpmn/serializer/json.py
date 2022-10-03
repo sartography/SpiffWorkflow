@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2012 Matthew Hampton
-#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
@@ -16,20 +14,22 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ...specs import Simple
+import json
+from ..serializer.dict import BPMNDictionarySerializer
+from ...camunda.specs.UserTask import Form
+from ...serializer.json import JSONSerializer
 
-from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
+class BPMNJSONSerializer(BPMNDictionarySerializer, JSONSerializer):
 
+    def _object_hook(self, dct):
+        if '__form__' in dct:
+            return Form(init=json.loads(dct['__form__']))
 
-class NoneTask(Simple, BpmnSpecMixin):
+        return super()._object_hook(dct)
 
-    def is_engine_task(self):
-        return False
+    def _default(self, obj):
+        if isinstance(obj,Form):
+            return {'__form__': json.dumps(obj, default=lambda o:
+                self._jsonableHandler(o))}
 
-    @property
-    def spec_type(self):
-        return 'Task'
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_generic(wf_spec, s_state, NoneTask)
+        return super()._default(obj)

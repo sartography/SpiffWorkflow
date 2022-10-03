@@ -13,6 +13,10 @@ class SubWorkflowTask(SpiffBpmnTask, SubWorkflowTask):
         self.in_assign = []
         self.out_assign = []
 
+    @property
+    def spec_type(self):
+        return 'Subprocess'
+
 class TransactionSubprocess(SpiffBpmnTask, TransactionSubprocess):
 
     def __init__(self, wf_spec, name, subworkflow_spec, transaction=True, **kwargs):
@@ -23,6 +27,10 @@ class TransactionSubprocess(SpiffBpmnTask, TransactionSubprocess):
         self.in_assign = []
         self.out_assign = []
 
+    @property
+    def spec_type(self):
+        return 'Transactional Subprocess'
+
 class CallActivity(SpiffBpmnTask, CallActivity):
 
     def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
@@ -31,3 +39,7 @@ class CallActivity(SpiffBpmnTask, CallActivity):
         self.spec = subworkflow_spec
         self.in_assign = []
         self.out_assign = []
+
+    @property
+    def spec_type(self):
+        return 'Call Activity'

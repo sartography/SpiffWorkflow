@@ -62,6 +62,10 @@ class InclusiveGateway(UnstructuredJoin):
     specified, the Inclusive Gateway throws an exception.
     """
 
+    @property
+    def spec_type(self):
+        return 'Inclusive Gateway'
+
     def _check_threshold_unstructured(self, my_task, force=False):
 
         # Look at the tree to find all ready and waiting tasks (excluding ones

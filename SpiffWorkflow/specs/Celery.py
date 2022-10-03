@@ -133,7 +133,7 @@ class Celery(TaskSpec):
             args = _eval_args(self.args, my_task)
         if self.kwargs:
             kwargs = _eval_kwargs(self.kwargs, my_task)
-        logger.debug(f"{self.name} (task id {my_task.id}) calling {self.call}", my_task.log_info())
+        logger.debug(f"{self.name} (task id {my_task.id}) calling {self.call}", extra=my_task.log_info())
         async_call = default_app.send_task(self.call, args=args, kwargs=kwargs)
         my_task._set_internal_data(task_id=async_call.task_id)
         my_task.async_call = async_call

@@ -15,30 +15,6 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.workflow.do_engine_steps()
 
-    def testBoundaryNavigation(self):
-
-        nav = self.workflow.get_flat_nav_list()
-        self.assertEqual(27, len(nav))
-        self.assertNav(nav_item=nav[22], state="WAITING", description="Catch Error 1")
-        self.assertNav(nav_item=nav[24], state="WAITING", description="Catch Error None")
-        self.assertNav(nav_item=nav[26], state="WAITING", description="Catch Cancel Event")
-
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        ready_tasks[0].update_data({'value': 'asdf'})
-        ready_tasks[0].complete()
-        self.workflow.do_engine_steps()
-
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        ready_tasks[0].update_data({'quantity': 2})
-        ready_tasks[0].complete()
-        self.workflow.do_engine_steps()
-
-        nav = self.workflow.get_flat_nav_list()
-        self.assertEquals(27, len(nav))
-        self.assertNav(nav_item=nav[22], state="CANCELLED", description="Catch Error 1")
-        self.assertNav(nav_item=nav[24], state="CANCELLED", description="Catch Error None")
-        self.assertNav(nav_item=nav[26], state="CANCELLED", description="Catch Cancel Event")
-
     def testNormalCompletion(self):
 
         ready_tasks = self.workflow.get_tasks(TaskState.READY)

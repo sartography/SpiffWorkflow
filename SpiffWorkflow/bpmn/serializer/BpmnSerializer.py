@@ -27,11 +27,11 @@ import os
 from SpiffWorkflow import TaskState
 from ...bpmn.specs.SubWorkflowTask import SubWorkflowTask
 from ...bpmn.workflow import BpmnWorkflow
-from ...serializer import json as spiff_json
+from ...bpmn.serializer.json import BPMNJSONSerializer
 from ..parser.BpmnParser import BpmnParser
 from .Packager import Packager
 
-class BpmnSerializer(spiff_json.JSONSerializer):
+class BpmnSerializer(BPMNJSONSerializer):
     """
     DEPRECATED --- This call remains available only so that folks can deserialize
     existing workflows.

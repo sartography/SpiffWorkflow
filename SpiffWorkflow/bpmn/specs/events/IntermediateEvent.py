@@ -24,16 +24,32 @@ from ....specs.Simple import Simple
 from ....task import TaskState
 
 class SendTask(ThrowingEvent):
-    pass
+
+    @property
+    def spec_type(self):
+        return 'Send Task'
+
 
 class ReceiveTask(CatchingEvent):
-    pass
+
+    @property
+    def spec_type(self):
+        return 'Receive Task'
+
 
 class IntermediateCatchEvent(CatchingEvent):
-    pass
+
+    @property
+    def spec_type(self):
+        return f'{self.event_definition.event_type} Catching Event'
+
 
 class IntermediateThrowEvent(ThrowingEvent):
-    pass
+
+    @property
+    def spec_type(self):
+        return f'{self.event_definition.event_type} Throwing Event'
+
 
 class _BoundaryEventParent(Simple, BpmnSpecMixin):
     """This task is inserted before a task with boundary events."""
@@ -46,6 +62,10 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
 
         super(_BoundaryEventParent, self).__init__(wf_spec, name)
         self.main_child_task_spec = main_child_task_spec
+    
+    @property
+    def spec_type(self):
+        return 'Boundary Event Parent'
 
     def _on_ready_hook(self, my_task):
 
@@ -104,6 +124,12 @@ class BoundaryEvent(CatchingEvent):
         """
         super(BoundaryEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
         self.cancel_activity = cancel_activity
+
+    @property
+    def spec_type(self):
+        interrupting = 'Interrupting' if self.cancel_activity else 'Non-Interrupting'
+        return f'{interrupting} {self.event_definition.event_type} Event'
+
 
     def catches(self, my_task, event_definition, correlations=None):
         # Boundary events should only be caught while waiting

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_96f6665" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.0.0-dev">
+  <bpmn:process id="Process_bd2e724555" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1tqygmt</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1tqygmt" sourceRef="StartEvent_1" targetRef="Activity_1shyq8p" />
+    <bpmn:endEvent id="Event_0i3s49y">
+      <bpmn:incoming>Flow_1h9lfz7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1h9lfz7" sourceRef="Activity_0xhr131" targetRef="Event_0i3s49y" />
+    <bpmn:serviceTask id="Activity_0xhr131" name="Service Task">
+      <bpmn:extensionElements>
+        <spiffworkflow:serviceTaskOperator id="bamboohr/GetPayRate">
+          <spiffworkflow:parameters>
+              <spiffworkflow:parameter id="api_key" type="str" value="secret:BAMBOOHR_API_KEY" />
+            <spiffworkflow:parameter id="employee_id" type="str" value="employeeID" />
+            <spiffworkflow:parameter id="subdomain" type="str" value="statusdemo" />
+          </spiffworkflow:parameters>
+        </spiffworkflow:serviceTaskOperator>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1boxww6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1h9lfz7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:dataObject id="DataObject_0zzgapz" />
+    <bpmn:sequenceFlow id="Flow_1boxww6" sourceRef="Activity_1shyq8p" targetRef="Activity_0xhr131" />
+    <bpmn:scriptTask id="Activity_1shyq8p" name="Set Employee ID">
+      <bpmn:incoming>Flow_1tqygmt</bpmn:incoming>
+      <bpmn:outgoing>Flow_1boxww6</bpmn:outgoing>
+      <bpmn:script>employeeID = "109"</bpmn:script>
+    </bpmn:scriptTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_bd2e724555">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0i3s49y_di" bpmnElement="Event_0i3s49y">
+        <dc:Bounds x="602" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_147g6ef_di" bpmnElement="Activity_0xhr131">
+        <dc:Bounds x="440" y="137" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jgpgla_di" bpmnElement="Activity_1shyq8p">
+        <dc:Bounds x="280" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1tqygmt_di" bpmnElement="Flow_1tqygmt">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="280" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1h9lfz7_di" bpmnElement="Flow_1h9lfz7">
+        <di:waypoint x="540" y="177" />
+        <di:waypoint x="602" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1boxww6_di" bpmnElement="Flow_1boxww6">
+        <di:waypoint x="380" y="177" />
+        <di:waypoint x="440" y="177" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -23,6 +23,10 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
         self.spec = subworkflow_spec
         self.transaction = transaction
 
+    @property
+    def spec_type(self):
+        return 'Subprocess'
+
     def test(self):
         TaskSpec.test(self)
 
@@ -32,6 +36,9 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
         subworkflow.data = deepcopy(my_task.workflow.data)
 
     def _on_ready_hook(self, my_task):
+
+        for obj in self.data_input_associations:
+            obj.get(my_task)
 
         subworkflow = my_task.workflow.get_subprocess(my_task)
         start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
@@ -78,6 +85,7 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
         BpmnSpecMixin._predict_hook(self, my_task)
 
     def _on_complete_hook(self, my_task):
+        BpmnSpecMixin._on_complete_hook(self, my_task)
         for child in my_task.children:
             child.task_spec._update(child)
 
@@ -93,11 +101,18 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
     def deserialize(self, serializer, wf_spec, s_state):
         return serializer.deserialize_subworkflow_task(wf_spec, s_state, SubWorkflowTask)
 
+    def task_will_set_children_future(self, my_task):
+        my_task.workflow.delete_subprocess(my_task)
+
 
 class CallActivity(SubWorkflowTask):
 
     def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
         super(CallActivity, self).__init__(wf_spec, name, subworkflow_spec, False, **kwargs)
+
+    @property
+    def spec_type(self):
+        return 'Call Activity'
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):
@@ -107,6 +122,10 @@ class TransactionSubprocess(SubWorkflowTask):
 
     def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
         super(TransactionSubprocess, self).__init__(wf_spec, name, subworkflow_spec, True, **kwargs)
+
+    @property
+    def spec_type(self):
+        return 'Transactional Subprocess'
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):

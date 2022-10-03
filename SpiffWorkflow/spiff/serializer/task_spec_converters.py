@@ -2,7 +2,7 @@ from functools import partial
 
 from SpiffWorkflow.bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
 from SpiffWorkflow.bpmn.specs.events import EndEvent, StartEvent, IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
-from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, ServiceTask, SubWorkflowTask, TransactionSubprocess, CallActivity
+from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, ScriptTask, ServiceTask, SubWorkflowTask, TransactionSubprocess, CallActivity
 from SpiffWorkflow.spiff.specs.events import SendTask, ReceiveTask
 from SpiffWorkflow.spiff.specs.events.event_definitions import MessageEventDefinition
 
@@ -35,6 +35,16 @@ class UserTaskConverter(SpiffBpmnTaskConverter):
         super().__init__(UserTask, data_converter)
 
 
+class ScriptTaskConverter(SpiffBpmnTaskConverter):
+    def __init__(self, data_converter=None):
+        super().__init__(ScriptTask, data_converter)
+
+    def to_dict(self, spec):
+        dct = super().to_dict(spec)
+        dct['script'] = spec.script
+        return dct
+
+
 class ServiceTaskConverter(SpiffBpmnTaskConverter):
     def __init__(self, data_converter=None):
         super().__init__(ServiceTask, data_converter)
@@ -43,6 +53,7 @@ class ServiceTaskConverter(SpiffBpmnTaskConverter):
         dct = super().to_dict(spec)
         dct['operation_name'] = spec.operation_name
         dct['operation_params'] = spec.operation_params
+        dct['result_variable'] = spec.result_variable
         return dct
 
     def from_dict(self, dct):

@@ -41,20 +41,6 @@ class SubWorkflowTest(BaseTestCase):
                                                         'FieldB': 'B'})
         self.assertTrue(self.workflow.is_completed())
 
-    def testSubWorkflowNav(self):
-        flat = self.workflow.get_flat_nav_list()
-        nav = self.workflow.get_deep_nav_list()
-        self.assertNav(nav[0], spec_type="StartEvent")
-        self.assertNav(nav[1], spec_type="CallActivity", state="READY")
-        self.assertNav(nav[1].children[0], spec_type="StartEvent", state="COMPLETED")
-        self.assertNav(nav[1].children[1], description="FormA", state="READY")
-        self.assertNav(nav[1].children[2], spec_type="ParallelGateway")
-        self.assertNav(nav[1].children[2].children[0], description="Form A1")
-        self.assertNav(nav[1].children[2].children[1], description="Form A2")
-        self.assertNav(nav[1].children[4], spec_type="EndEvent")
-        self.assertNav(nav[2], spec_type="UserTask", description="FormB", state="FUTURE")
-        self.assertNav(nav[3], spec_type="EndEvent", state="FUTURE")
-
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(SubWorkflowTest)
 

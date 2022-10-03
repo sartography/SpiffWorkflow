@@ -1,0 +1,348 @@
+diff --git a/SpiffWorkflow/spiff/parser/process.py b/SpiffWorkflow/spiff/parser/process.py
+index 4abdb96..2ec536f 100644
+--- a/SpiffWorkflow/spiff/parser/process.py
++++ b/SpiffWorkflow/spiff/parser/process.py
+@@ -2,9 +2,9 @@ from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
+ from SpiffWorkflow.bpmn.parser.BpmnParser import full_tag
+ 
+ from SpiffWorkflow.bpmn.specs.events import StartEvent, EndEvent, IntermediateThrowEvent, BoundaryEvent, IntermediateCatchEvent
+-from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, SubWorkflowTask, TransactionSubprocess, CallActivity, ServiceTask
++from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, ScriptTask, SubWorkflowTask, TransactionSubprocess, CallActivity, ServiceTask
+ from SpiffWorkflow.spiff.specs.events.event_types import SendTask, ReceiveTask
+-from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser, SubWorkflowParser, CallActivityParser, ServiceTaskParser
++from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser, SubWorkflowParser, CallActivityParser, ServiceTaskParser, ScriptTaskParser
+ from SpiffWorkflow.spiff.parser.event_parsers import (SpiffStartEventParser, SpiffEndEventParser, SpiffBoundaryEventParser,
+     SpiffIntermediateCatchEventParser, SpiffIntermediateThrowEventParser, SpiffSendTaskParser, SpiffReceiveTaskParser)
+ from SpiffWorkflow.dmn.specs import BusinessRuleTask
+@@ -17,6 +17,7 @@ class SpiffBpmnParser(BpmnDmnParser):
+         full_tag('task'): (SpiffTaskParser, NoneTask),
+         full_tag('userTask'): (SpiffTaskParser, UserTask),
+         full_tag('manualTask'): (SpiffTaskParser, ManualTask),
++        full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
+         full_tag('subProcess'): (SubWorkflowParser, SubWorkflowTask),
+         full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
+         full_tag('callActivity'): (CallActivityParser, CallActivity),
+diff --git a/SpiffWorkflow/spiff/parser/task_spec.py b/SpiffWorkflow/spiff/parser/task_spec.py
+index 32e8ecf..da3961d 100644
+--- a/SpiffWorkflow/spiff/parser/task_spec.py
++++ b/SpiffWorkflow/spiff/parser/task_spec.py
+@@ -6,6 +6,7 @@ from SpiffWorkflow.bpmn.parser.task_parsers import SubprocessParser
+ from SpiffWorkflow.bpmn.parser.util import xpath_eval
+ 
+ SPIFFWORKFLOW_MODEL_NS = 'http://spiffworkflow.org/bpmn/schema/1.0/core'
++SPIFFWORKFLOW_MODEL_PREFIX = 'spiffworkflow'
+ 
+ 
+ class SpiffTaskParser(TaskParser):
+@@ -20,36 +21,55 @@ class SpiffTaskParser(TaskParser):
+         # Too bad doing this works in such a stupid way.
+         # We should set a namespace and automatically do this.
+         extensions = {}
+-        extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
++        extra_ns = {SPIFFWORKFLOW_MODEL_PREFIX: SPIFFWORKFLOW_MODEL_NS}
+         xpath = xpath_eval(node, extra_ns)
+-        extension_nodes = xpath('.//bpmn:extensionElements/spiffworkflow:*')
++        extension_nodes = xpath(f'.//bpmn:extensionElements/{SPIFFWORKFLOW_MODEL_PREFIX}:*')
+         for node in extension_nodes:
+             name = etree.QName(node).localname
+             if name == 'properties':
+                 extensions['properties'] = SpiffTaskParser._parse_properties(node)
++            elif name == 'unitTests':
++                extensions['unitTests'] = SpiffTaskParser._parse_script_unit_tests(node)
+             elif name == 'serviceTaskOperator':
+                 extensions['serviceTaskOperator'] = SpiffTaskParser._parse_servicetask_operator(node)
+             else:
+                 extensions[name] = node.text
+         return extensions
+ 
+-    @staticmethod
+-    def _parse_properties(node):
+-        extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
+-        xpath = xpath_eval(node, extra_ns)
+-        property_nodes = xpath('.//spiffworkflow:property')
++    @classmethod
++    def _node_children_by_tag_name(cls, node, tag_name):
++        xpath = cls._spiffworkflow_ready_xpath_for_node(node)
++        return xpath(f'.//{SPIFFWORKFLOW_MODEL_PREFIX}:{tag_name}')
++
++    @classmethod
++    def _parse_properties(cls, node):
++        property_nodes = cls._node_children_by_tag_name(node, 'property')
+         properties = {}
+         for prop_node in property_nodes:
+             properties[prop_node.attrib['name']] = prop_node.attrib['value']
+         return properties
+ 
+     @staticmethod
+-    def _parse_servicetask_operator(node):
++    def _spiffworkflow_ready_xpath_for_node(node):
++        extra_ns = {SPIFFWORKFLOW_MODEL_PREFIX: SPIFFWORKFLOW_MODEL_NS}
++        return xpath_eval(node, extra_ns)
++
++    @classmethod
++    def _parse_script_unit_tests(cls, node):
++        unit_test_nodes = cls._node_children_by_tag_name(node, 'unitTest')
++        unit_tests = []
++        for unit_test_node in unit_test_nodes:
++            unit_test_dict = {"id": unit_test_node.attrib['id']}
++            unit_test_dict['inputJson'] = cls._node_children_by_tag_name(unit_test_node, 'inputJson')[0].text
++            unit_test_dict['expectedOutputJson'] = cls._node_children_by_tag_name(unit_test_node, 'expectedOutputJson')[0].text
++            unit_tests.append(unit_test_dict)
++        return unit_tests
++
++    @classmethod
++    def _parse_servicetask_operator(cls, node):
+         name = node.attrib['id']
+         result_variable = node.get('resultVariable', None)
+-        extra_ns = {'spiffworkflow': SPIFFWORKFLOW_MODEL_NS}
+-        xpath = xpath_eval(node, extra_ns)
+-        parameter_nodes = xpath('.//spiffworkflow:parameter')
++        parameter_nodes = cls._node_children_by_tag_name(node, 'parameter')
+         operator = {'name': name, 'resultVariable': result_variable}
+         parameters = {}
+         for param_node in parameter_nodes:
+@@ -92,6 +112,20 @@ class SubWorkflowParser(SpiffTaskParser):
+             postscript=postscript)
+ 
+ 
++class ScriptTaskParser(SpiffTaskParser):
++    def create_task(self):
++        extensions = self.parse_extensions()
++        script = None
++        for child_node in self.node:
++            if child_node.tag.endswith('script'):
++                script = child_node.text
++        # import pdb; pdb.set_trace()
++        return self.spec_class(
++            self.spec, self.get_task_spec_name(), script,
++            lane=self.lane, position=self.position,
++            description=self.node.get('name', None))
++
++
+ class CallActivityParser(SpiffTaskParser):
+ 
+     def create_task(self):
+diff --git a/SpiffWorkflow/spiff/serializer/__init__.py b/SpiffWorkflow/spiff/serializer/__init__.py
+index 4ba82d6..364c3eb 100644
+--- a/SpiffWorkflow/spiff/serializer/__init__.py
++++ b/SpiffWorkflow/spiff/serializer/__init__.py
+@@ -1,4 +1,4 @@
+-from .task_spec_converters import NoneTaskConverter, ManualTaskConverter, UserTaskConverter
++from .task_spec_converters import NoneTaskConverter, ManualTaskConverter, UserTaskConverter, ScriptTaskConverter
+ from .task_spec_converters import TransactionSubprocessConverter, CallActivityTaskConverter, SubWorkflowTaskConverter
+ from .task_spec_converters import StartEventConverter, EndEventConverter, IntermediateCatchEventConverter, IntermediateThrowEventConverter, \
+     BoundaryEventConverter, SendTaskConverter, ReceiveTaskConverter, ServiceTaskConverter
+diff --git a/SpiffWorkflow/spiff/serializer/task_spec_converters.py b/SpiffWorkflow/spiff/serializer/task_spec_converters.py
+index 8c25970..5b24278 100644
+--- a/SpiffWorkflow/spiff/serializer/task_spec_converters.py
++++ b/SpiffWorkflow/spiff/serializer/task_spec_converters.py
+@@ -2,7 +2,7 @@ from functools import partial
+ 
+ from SpiffWorkflow.bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
+ from SpiffWorkflow.bpmn.specs.events import EndEvent, StartEvent, IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
+-from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, ServiceTask, SubWorkflowTask, TransactionSubprocess, CallActivity
++from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, ScriptTask, ServiceTask, SubWorkflowTask, TransactionSubprocess, CallActivity
+ from SpiffWorkflow.spiff.specs.events import SendTask, ReceiveTask
+ from SpiffWorkflow.spiff.specs.events.event_definitions import MessageEventDefinition
+ 
+@@ -35,6 +35,16 @@ class UserTaskConverter(SpiffBpmnTaskConverter):
+         super().__init__(UserTask, data_converter)
+ 
+ 
++class ScriptTaskConverter(SpiffBpmnTaskConverter):
++    def __init__(self, data_converter=None):
++        super().__init__(ScriptTask, data_converter)
++
++    def to_dict(self, spec):
++        dct = super().to_dict(spec)
++        dct['script'] = spec.script
++        return dct
++
++
+ class ServiceTaskConverter(SpiffBpmnTaskConverter):
+     def __init__(self, data_converter=None):
+         super().__init__(ServiceTask, data_converter)
+diff --git a/SpiffWorkflow/spiff/specs/__init__.py b/SpiffWorkflow/spiff/specs/__init__.py
+index 5378a5b..1e18b63 100644
+--- a/SpiffWorkflow/spiff/specs/__init__.py
++++ b/SpiffWorkflow/spiff/specs/__init__.py
+@@ -2,4 +2,5 @@ from .manual_task import ManualTask
+ from .none_task import NoneTask
+ from .subworkflow_task import SubWorkflowTask, TransactionSubprocess, CallActivity
+ from .user_task import UserTask
++from .script_task import ScriptTask
+ from .service_task import ServiceTask
+diff --git a/SpiffWorkflow/spiff/specs/script_task.py b/SpiffWorkflow/spiff/specs/script_task.py
+new file mode 100644
+index 0000000..c56e7e8
+--- /dev/null
++++ b/SpiffWorkflow/spiff/specs/script_task.py
+@@ -0,0 +1,6 @@
++from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
++from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask as BpmnScriptTask
++
++
++class ScriptTask(BpmnScriptTask, SpiffBpmnTask):
++    pass
+diff --git a/tests/SpiffWorkflow/spiff/BaseTestCase.py b/tests/SpiffWorkflow/spiff/BaseTestCase.py
+index 92c23eb..248f84a 100644
+--- a/tests/SpiffWorkflow/spiff/BaseTestCase.py
++++ b/tests/SpiffWorkflow/spiff/BaseTestCase.py
+@@ -3,7 +3,7 @@ import os
+ 
+ from SpiffWorkflow.spiff.parser import SpiffBpmnParser
+ from SpiffWorkflow.spiff.serializer import NoneTaskConverter, \
+-    ManualTaskConverter, UserTaskConverter, \
++    ManualTaskConverter, UserTaskConverter, ScriptTaskConverter, \
+     SubWorkflowTaskConverter, TransactionSubprocessConverter, \
+     CallActivityTaskConverter, \
+     StartEventConverter, EndEventConverter, BoundaryEventConverter, \
+@@ -16,7 +16,7 @@ from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+ 
+ wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([
+-    NoneTaskConverter, ManualTaskConverter, UserTaskConverter,
++    NoneTaskConverter, ManualTaskConverter, UserTaskConverter, ScriptTaskConverter,
+     SubWorkflowTaskConverter, TransactionSubprocessConverter, CallActivityTaskConverter,
+     StartEventConverter, EndEventConverter, BoundaryEventConverter, SendTaskConverter, ReceiveTaskConverter,
+     IntermediateCatchEventConverter, IntermediateThrowEventConverter, BusinessRuleTaskConverter,
+diff --git a/tests/SpiffWorkflow/spiff/ScriptUnitTestExtensionsTest.py b/tests/SpiffWorkflow/spiff/ScriptUnitTestExtensionsTest.py
+new file mode 100644
+index 0000000..87c8335
+--- /dev/null
++++ b/tests/SpiffWorkflow/spiff/ScriptUnitTestExtensionsTest.py
+@@ -0,0 +1,46 @@
++from SpiffWorkflow.task import TaskState
++from .BaseTestCase import BaseTestCase
++from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
++
++# Assure we correctly parse and pass on the Spiffworkflow properties in
++# an extension.
++class ScriptUnitTestExtensionsTest(BaseTestCase):
++
++    def testTask(self):
++        self.task_test()
++
++    def testTaskSaveRestore(self):
++        self.task_test(True)
++
++    def task_test(self, save_restore=False):
++
++        spec, subprocesses = self.load_workflow_spec('script_task_with_unit_tests.bpmn', 'Process_ScriptTaskWithUnitTests')
++        self.workflow = BpmnWorkflow(spec, subprocesses)
++        self.workflow.do_engine_steps()
++        if save_restore:
++            self.save_restore()
++
++        # unitTests should be a list of dicts
++        expected_unit_tests_wrapper_class_name = 'list'
++        expected_unit_test_class_name = 'dict'
++
++        script_with_unit_tests = [t for t in self.workflow.get_tasks() if
++                t.task_spec.name == 'script_with_unit_test_id'][0]
++        print(f"script_with_unit_tests.task_spec.extensions: {script_with_unit_tests.task_spec.extensions}")
++        extensions = script_with_unit_tests.task_spec.extensions
++        unit_test_extensions = extensions['unitTests']
++        print(f"unit_test_extensions: {unit_test_extensions}")
++        print(f"unit_test_extensions.class: {unit_test_extensions.__class__.__name__}")
++        unit_test_extensions_class_name = unit_test_extensions.__class__.__name__
++        self.assertEqual(unit_test_extensions_class_name, expected_unit_tests_wrapper_class_name)
++        self.assertEqual(len(unit_test_extensions), 2)
++        first_unit_test = unit_test_extensions[0]
++        self.assertEqual(first_unit_test.__class__.__name__, expected_unit_test_class_name)
++        expected_first_unit_test = {'id': 'sets_hey_to_true_if_hey_is_false',
++                'inputJson': '{"hey": false}', 'expectedOutputJson': '{"hey": true}'}
++        self.assertDictEqual(first_unit_test, expected_first_unit_test)
++        # self.assertEqual(len(unit_test_extensions), 2)
++        # self.assertDictEqual({'formJsonSchemaFilename': 'my_json_jschema.json',
++        #                       'formUiSchemaFilename': 'my_ui_jschema.json'},
++        # task.task_spec.extensions)
++
+diff --git a/tests/SpiffWorkflow/spiff/SpiffPropertiesTest.py b/tests/SpiffWorkflow/spiff/SpiffPropertiesTest.py
+index d029f35..9087aae 100644
+--- a/tests/SpiffWorkflow/spiff/SpiffPropertiesTest.py
++++ b/tests/SpiffWorkflow/spiff/SpiffPropertiesTest.py
+@@ -4,7 +4,7 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+ 
+ # Assure we correctly parse and pass on the Spiffworkflow properties in
+ # an extension.
+-class SpiffWorkflowProperties(BaseTestCase):
++class SpiffPropertiesTest(BaseTestCase):
+ 
+     def testTask(self):
+         self.task_test()
+diff --git a/tests/SpiffWorkflow/spiff/data/script_task_with_unit_tests.bpmn b/tests/SpiffWorkflow/spiff/data/script_task_with_unit_tests.bpmn
+new file mode 100644
+index 0000000..d2873b8
+--- /dev/null
++++ b/tests/SpiffWorkflow/spiff/data/script_task_with_unit_tests.bpmn
+@@ -0,0 +1,69 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1ny7jp4" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
++  <bpmn:process id="Process_ScriptTaskWithUnitTests" isExecutable="true">
++    <bpmn:startEvent id="StartEvent_1">
++      <bpmn:outgoing>Flow_10jwwqy</bpmn:outgoing>
++    </bpmn:startEvent>
++    <bpmn:sequenceFlow id="Flow_10jwwqy" sourceRef="StartEvent_1" targetRef="Activity_03fldr6" />
++    <bpmn:endEvent id="Event_1qb1u6a">
++      <bpmn:incoming>Flow_0htxke7</bpmn:incoming>
++    </bpmn:endEvent>
++    <bpmn:sequenceFlow id="Flow_0htxke7" sourceRef="script_with_unit_test_id" targetRef="Event_1qb1u6a" />
++    <bpmn:scriptTask id="script_with_unit_test_id" name="Script with unit test">
++      <bpmn:extensionElements>
++        <spiffworkflow:unitTests>
++          <spiffworkflow:unitTest id="sets_hey_to_true_if_hey_is_false">
++            <spiffworkflow:inputJson>{"hey": false}</spiffworkflow:inputJson>
++            <spiffworkflow:expectedOutputJson>{"hey": true}</spiffworkflow:expectedOutputJson>
++          </spiffworkflow:unitTest>
++          <spiffworkflow:unitTest id="sets_something_else_if_no_hey">
++            <spiffworkflow:inputJson>{}</spiffworkflow:inputJson>
++            <spiffworkflow:expectedOutputJson>{"something_else": true}</spiffworkflow:expectedOutputJson>
++          </spiffworkflow:unitTest>
++        </spiffworkflow:unitTests>
++      </bpmn:extensionElements>
++      <bpmn:incoming>Flow_0niwe1y</bpmn:incoming>
++      <bpmn:outgoing>Flow_0htxke7</bpmn:outgoing>
++      <bpmn:script>if 'hey' in locals():
++  hey = True
++else:
++  something_else = True</bpmn:script>
++    </bpmn:scriptTask>
++    <bpmn:sequenceFlow id="Flow_0niwe1y" sourceRef="Activity_03fldr6" targetRef="script_with_unit_test_id" />
++    <bpmn:scriptTask id="Activity_03fldr6" name="Set var">
++      <bpmn:incoming>Flow_10jwwqy</bpmn:incoming>
++      <bpmn:outgoing>Flow_0niwe1y</bpmn:outgoing>
++      <bpmn:script>hey = False</bpmn:script>
++    </bpmn:scriptTask>
++  </bpmn:process>
++  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
++    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="sample">
++      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
++        <dc:Bounds x="132" y="102" width="36" height="36" />
++      </bpmndi:BPMNShape>
++      <bpmndi:BPMNShape id="Event_1qb1u6a_di" bpmnElement="Event_1qb1u6a">
++        <dc:Bounds x="642" y="102" width="36" height="36" />
++      </bpmndi:BPMNShape>
++      <bpmndi:BPMNShape id="Activity_17ohe7r_di" bpmnElement="script_with_unit_test_id">
++        <dc:Bounds x="440" y="80" width="100" height="80" />
++        <bpmndi:BPMNLabel />
++      </bpmndi:BPMNShape>
++      <bpmndi:BPMNShape id="Activity_1fab1y2_di" bpmnElement="Activity_03fldr6">
++        <dc:Bounds x="250" y="80" width="100" height="80" />
++        <bpmndi:BPMNLabel />
++      </bpmndi:BPMNShape>
++      <bpmndi:BPMNEdge id="Flow_10jwwqy_di" bpmnElement="Flow_10jwwqy">
++        <di:waypoint x="168" y="120" />
++        <di:waypoint x="250" y="120" />
++      </bpmndi:BPMNEdge>
++      <bpmndi:BPMNEdge id="Flow_0htxke7_di" bpmnElement="Flow_0htxke7">
++        <di:waypoint x="540" y="120" />
++        <di:waypoint x="642" y="120" />
++      </bpmndi:BPMNEdge>
++      <bpmndi:BPMNEdge id="Flow_0niwe1y_di" bpmnElement="Flow_0niwe1y">
++        <di:waypoint x="350" y="120" />
++        <di:waypoint x="440" y="120" />
++      </bpmndi:BPMNEdge>
++    </bpmndi:BPMNPlane>
++  </bpmndi:BPMNDiagram>
++</bpmn:definitions>
