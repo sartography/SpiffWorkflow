@@ -4,6 +4,7 @@ python:
   - 3.7
   - 3.8
   - 3.9
+  - 3.10
 
 addons:
   sonarcloud:
@@ -30,4 +31,5 @@ jobs:
   - python: 3.7
   - python: 3.8
   - python: 3.9
+  - python: 3.10
     env: RUN_QUALITY_GATES=true
