@@ -11,6 +11,15 @@ import pytz
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from ..operators import Operator
 
+# Would love to get rid of this altogether, as it rightly belongs in the
+# backend, but leaving it here because that's the path of least resistance.
+DEFAULT_GLOBALS = {
+    'timedelta': datetime.timedelta,
+    'datetime': datetime,
+    'dateparser': dateparser,
+    'pytz': pytz,
+}
+
 
 # Copyright (C) 2020 Kelly McDonald
 #
@@ -101,14 +110,9 @@ class PythonScriptEngine(object):
     expressions in a different way.
     """
 
-    def __init__(self, scripting_additions=None):
+    def __init__(self, default_globals=None, scripting_additions=None):
 
-        self.globals = {'timedelta': datetime.timedelta,
-                        'datetime': datetime,
-                        'dateparser': dateparser,
-                        'pytz': pytz,
-                        'Box': Box,
-                        }
+        self.globals = default_globals or DEFAULT_GLOBALS
         self.globals.update(scripting_additions or {})
         self.error_tasks = {}
 
@@ -147,8 +151,7 @@ class PythonScriptEngine(object):
         called from service tasks."""
         return None
 
-    def evaluate_service_task_script(self, task, script, data,
-            external_methods=None):
+    def evaluate_service_task_script(self, task, script, data, external_methods=None):
         """Evaluates the script, within the context of the specified task. Task
         is assumed to be a service task. service_task_external_methods are
         merged with the supplied external_methods before execution."""
@@ -197,34 +200,25 @@ class PythonScriptEngine(object):
 
     def convert_to_box(self, data):
         if isinstance(data, dict):
-            for x in data.keys():
-                if isinstance(data[x], dict):
-                    data[x] = self.convert_to_box(data[x])
+            for key, value in data.items():
+                if isinstance(value, Box):
+                    pass
+                else:
+                    data[key] = self.convert_to_box(value)
             return Box(data)
         if isinstance(data, list):
-            for x in range(len(data)):
-                data[x] = self.convert_to_box(data[x])
+            for idx, value in enumerate(data):
+                data[idx] = self.convert_to_box(value)
             return data
         return data
 
     def _evaluate(self, expression, context, external_methods=None):
-        """
-        Evaluate the given expression, within the context of the given task and
-        return the result.
-        """
-        lcls = {}
-        if isinstance(context, dict):
-            lcls.update(context)
 
         globals = copy.copy(self.globals)  # else we pollute all later evals.
-        for key in lcls.keys():
-            if isinstance(lcls[key], Box):
-                pass # Stunning performance improvement with this line.
-            elif isinstance(lcls[key], dict):
-                lcls[key] = Box(lcls[key])
-        globals.update(lcls)
+        self.convert_to_box(context)
         globals.update(external_methods or {})
-        return eval(expression, globals, lcls)
+        globals.update(context)
+        return eval(expression, globals)
 
     def _execute(self, script, context, external_methods=None):
 
@@ -232,8 +226,10 @@ class PythonScriptEngine(object):
         self.convert_to_box(context)
         my_globals.update(external_methods or {})
         context.update(my_globals)
-        exec(script, context)
-        self.remove_globals_and_functions_from_context(context, external_methods)
+        try:
+            exec(script, context)
+        finally:
+            self.remove_globals_and_functions_from_context(context, external_methods)
 
     def remove_globals_and_functions_from_context(self, context,
                                                   external_methods = None):
