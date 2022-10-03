@@ -6,8 +6,8 @@ import os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from SpiffWorkflow import Workflow
-from SpiffWorkflow.specs import *
-from SpiffWorkflow.operators import *
+from SpiffWorkflow.specs import Join, MultiChoice, WorkflowSpec
+from SpiffWorkflow.operators import Attrib, Equal, PathAttrib
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.serializer.dict import DictionarySerializer
