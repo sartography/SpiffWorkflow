@@ -147,6 +147,7 @@ class ServiceTaskParser(SpiffTaskParser):
                 self.spec, self.get_task_spec_name(),
                 operator['name'], operator['parameters'],
                 operator['resultVariable'],
+                description=self.node.get('name', None),
                 lane=self.lane, position=self.position)
 
 class BusinessRuleTaskParser(SpiffTaskParser):
