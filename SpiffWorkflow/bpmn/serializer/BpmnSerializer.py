@@ -24,7 +24,7 @@ from lxml import etree
 import zipfile
 import os
 
-from SpiffWorkflow import TaskState
+from SpiffWorkflow.task import TaskState
 from ...bpmn.specs.SubWorkflowTask import SubWorkflowTask
 from ...bpmn.workflow import BpmnWorkflow
 from ...bpmn.serializer.json import BPMNJSONSerializer

@@ -6,7 +6,7 @@ import os
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from SpiffWorkflow import Workflow
+from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.specs import Cancel, Simple, WorkflowSpec
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer

@@ -14,7 +14,7 @@ try:
     from util import track_workflow
 except ImportError as e:
     from tests.SpiffWorkflow.util import track_workflow
-from SpiffWorkflow import Workflow
+from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.specs import Join, WorkflowSpec
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 

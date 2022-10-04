@@ -2,7 +2,7 @@ import os
 import unittest
 
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
-from SpiffWorkflow import TaskState
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from .BaseTestCase import BaseTestCase

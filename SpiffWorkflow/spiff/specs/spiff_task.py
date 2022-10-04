@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from SpiffWorkflow import TaskState
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.specs .BpmnSpecMixin import BpmnSpecMixin
 
 class SpiffBpmnTask(BpmnSpecMixin):
