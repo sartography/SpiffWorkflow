@@ -19,7 +19,8 @@ import re
 import warnings
 from lxml import etree
 from lxml.etree import SubElement
-from .. import Workflow, specs, operators
+from ..workflow import Workflow
+from .. import specs, operators
 from ..task import Task, TaskStateNames
 from ..operators import (Attrib, Assign, PathAttrib, Equal, NotEqual,
                          GreaterThan, LessThan, Match)

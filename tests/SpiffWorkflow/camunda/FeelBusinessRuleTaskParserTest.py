@@ -1,6 +1,6 @@
 import unittest
 
-from SpiffWorkflow import TaskState
+from SpiffWorkflow.task import TaskState
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 

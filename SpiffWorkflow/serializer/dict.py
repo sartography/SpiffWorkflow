@@ -19,7 +19,7 @@ from builtins import str
 # 02110-1301  USA
 import pickle
 from base64 import b64encode, b64decode
-from .. import Workflow
+from ..workflow import Workflow
 from ..util.impl import get_class
 from ..task import Task
 from ..operators import (Attrib, PathAttrib, Equal, NotEqual,

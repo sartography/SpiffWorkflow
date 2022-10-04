@@ -6,8 +6,7 @@ import re
 import os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from SpiffWorkflow import Task, TaskState
-from SpiffWorkflow.task import updateDotDict
+from SpiffWorkflow.task import Task, TaskState, updateDotDict
 from SpiffWorkflow.specs import WorkflowSpec, Simple
 
 

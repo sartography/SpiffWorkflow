@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from SpiffWorkflow import TaskState
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException

@@ -3,7 +3,8 @@
 from builtins import str
 from builtins import range
 import time
-from SpiffWorkflow import Workflow, Task, TaskState
+from SpiffWorkflow.task import Task, TaskState
+from SpiffWorkflow.workflow import Workflow
 
 
 def on_reached_cb(workflow, task, taken_path):
