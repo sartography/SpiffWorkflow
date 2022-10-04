@@ -24,12 +24,7 @@ class ServiceTask(SpiffBpmnTask, ServiceTask):
 
     def _execute(self, task):
         def evaluate(param):
-            try:
-                param['value'] = task.workflow.script_engine.evaluate(task,
-                        param['value'])
-            except:
-                pass
-
+            param['value'] = task.workflow.script_engine.evaluate(task, param['value'])
             return param
 
         operation_params_var_name = 'spiff__operation_params'
