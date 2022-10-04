@@ -1,5 +1,4 @@
 dist: focal
-arch: arm64
 language: python
 
 python:
