@@ -8,7 +8,6 @@ from ...specs import TaskSpec
 
 
 class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
-
     """
     Task Spec for a bpmn node containing a subworkflow.
     """
@@ -59,7 +58,6 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
 
-        super(SubWorkflowTask, self)._on_subworkflow_completed(subworkflow, my_task)
         # Shouldn't this always be true?
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
             my_task.parent.task_spec._child_complete_hook(my_task)
