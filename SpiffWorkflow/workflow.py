@@ -62,11 +62,10 @@ class Workflow(object):
                 root = workflow_spec.task_specs['Root']
             else:
                 root = specs.Simple(workflow_spec, 'Root')
+            logger.info('Initialize', extra=self.log_info())
         self.task_tree = Task(self, root)
         self.success = True
         self.debug = False
-
-        logger.info('Initialize', extra=self.log_info())
 
         # Events.
         self.completed_event = Event()

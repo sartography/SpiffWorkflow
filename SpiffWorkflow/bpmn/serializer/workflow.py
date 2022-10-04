@@ -195,7 +195,7 @@ class BpmnWorkflowSerializer:
             subprocess_specs[name] = self.spec_converter.restore(wf_dct)
 
         # Create the top-level workflow
-        workflow = self.wf_class(spec, subprocess_specs, read_only=read_only)
+        workflow = self.wf_class(spec, subprocess_specs, read_only=read_only, deserializing=True)
         
         # Restore any unretrieve messages
         workflow.bpmn_messages = [ self.message_from_dict(msg) for msg in dct.get('bpmn_messages', []) ]
@@ -223,9 +223,8 @@ class BpmnWorkflowSerializer:
 
     def task_from_dict(self, dct, workflow, task_spec, parent):
 
-        task = Task(workflow, task_spec, parent)
+        task = Task(workflow, task_spec, parent, dct['state'])
         task.id = UUID(dct['id'])
-        task.state = dct['state']
         task.last_state_change = dct['last_state_change']
         task.triggered = dct['triggered']
         task.internal_data = self.data_converter.restore(dct['internal_data'])
