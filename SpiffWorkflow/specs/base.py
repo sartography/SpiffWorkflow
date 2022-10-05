@@ -277,6 +277,8 @@ class TaskSpec(object):
         state of this task in the workflow. For example, if a predecessor
         completes it makes sure to call this method so we can react.
         """
+        # EACH OF THE THE FOLLOWING TWO LINES THROWS ONE LOG DURING BpmnWorkflow.__init__.
+        # it gets in here because: 'parent' not in kwargs
         my_task._inherit_data()
         self._update_hook(my_task)
 

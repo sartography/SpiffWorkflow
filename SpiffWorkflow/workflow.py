@@ -63,19 +63,20 @@ class Workflow(object):
             else:
                 root = specs.Simple(workflow_spec, 'Root')
             logger.info('Initialize', extra=self.log_info())
-        self.task_tree = Task(self, root)
+
+        # Setting TaskState.COMPLETED prevents the root task from being executed.
+        self.task_tree = Task(self, root, state=TaskState.COMPLETED)
         self.success = True
         self.debug = False
 
         # Events.
         self.completed_event = Event()
 
-        # Prevent the root task from being executed.
-        self.task_tree.state = TaskState.COMPLETED
         start = self.task_tree._add_child(self.spec.start, state=TaskState.FUTURE)
 
         self.spec.start._predict(start)
         if 'parent' not in kwargs:
+            # _update is found in specs/base.py and THIS IS THE LINE THAT LOGS
             start.task_spec._update(start)
 
         self.task_mapping = self._get_task_mapping()

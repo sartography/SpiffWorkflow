@@ -195,8 +195,10 @@ class BpmnWorkflowSerializer:
             subprocess_specs[name] = self.spec_converter.restore(wf_dct)
 
         # Create the top-level workflow
+        # BpmnWorkflow.__init__
+        # THIS IS THE LINE THAT LOGS
         workflow = self.wf_class(spec, subprocess_specs, read_only=read_only, deserializing=True)
-        
+
         # Restore any unretrieve messages
         workflow.bpmn_messages = [ self.message_from_dict(msg) for msg in dct.get('bpmn_messages', []) ]
 

@@ -56,6 +56,7 @@ class BpmnWorkflow(Workflow):
         to provide read only access to a previously saved workflow.
         """
         self._busy_with_restore = False
+        # THIS IS THE LINE THAT LOGS
         super(BpmnWorkflow, self).__init__(top_level_spec, **kwargs)
         self.name = name or top_level_spec.name
         self.subprocess_specs = subprocess_specs or {}
