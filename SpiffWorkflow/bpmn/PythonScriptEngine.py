@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import ast
+import ast, code
 import copy
 import sys
 import traceback
@@ -99,7 +99,7 @@ class Box(dict):
         del self.__dict__[key]
 
 
-class PythonScriptEngine(object):
+class BaseScriptEngine(object):
     """
     This should serve as a base for all scripting & expression evaluation
     operations that are done within both BPMN and BMN. Eventually it will also
@@ -245,3 +245,49 @@ class PythonScriptEngine(object):
             elif external_methods and k in external_methods:
                 context.pop(k)
 
+
+class PythonScriptEngine(BaseScriptEngine):
+
+    def _execute(self, script, context, external_methods=None):
+        env = copy.copy(self.globals)
+        env.update(external_methods or {})
+        self.convert_to_box(env)
+        # statements will contain single execution statements
+        # current will be used to aggregate potentially incomplete commands
+        statements, current = [], []
+        for line in script.split('\n'):
+            try:
+                # This will either add a statement to the list of detected statements or append it to
+                # the aggregation if it's valid but incomplete
+                self._parse_line(line, current, statements)
+            except:
+                # If a line is not parseable as a single statement, we'll attempt to aggregate it.
+                current.append(line)
+        # Then we'll just assume any remaining text should be aggregated with any incomplete lines
+        statements.append('\n'.join(current))
+
+        for stmt in statements:
+            # Here we execute the script statement by statement, updating the globals as we go along
+            exec(stmt, env, context)
+            env.update(context)
+
+    def _evaluate(self, expression, context, external_methods=None):
+        env = copy.copy(self.globals)
+        env.update(external_methods or {})
+        env.update(context)
+        self.convert_to_box(env)
+        return eval(expression, env)
+
+    def _parse_line(self, line, current, statements):
+        result = code.compile_command(line)
+        if result is not None:
+            # This means the line is a valid single execution statement
+            # If we've aggregated any preceding incomplete input, we'll assume the aggregated input is a
+            # statement that should be executed before this one
+            if len(current) > 0:
+                statements.append('\n'.join(current))
+                current.clear()
+            statements.append(line)
+        else:
+            # This means no detectable syntax errors have taken place but the line cannot be executed as-is
+            current.append(line)
