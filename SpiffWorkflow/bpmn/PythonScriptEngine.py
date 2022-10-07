@@ -119,7 +119,7 @@ class PythonScriptEngine(object):
     def validate(self, expression):
         ast.parse(expression)
 
-    def evaluate(self, task, expression):
+    def evaluate(self, task, expression, external_methods=None):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
@@ -130,7 +130,7 @@ class PythonScriptEngine(object):
                 # expression judging from the contents of operators.py
                 return expression._matches(task)
             else:
-                return self._evaluate(expression, task.data)
+                return self._evaluate(expression, task.data, external_methods)
         except Exception as e:
             raise WorkflowTaskExecException(task, f"Error evaluating expression {expression}", e)
 
@@ -234,7 +234,7 @@ class PythonScriptEngine(object):
     def remove_globals_and_functions_from_context(self, context,
                                                   external_methods = None):
         """When executing a script, don't leave the globals, functions
-        and external methods in the context that we return."""
+        and external methods in the context that we have modified."""
         for k in list(context):
             if k == "__builtins__":
                 context.pop(k)

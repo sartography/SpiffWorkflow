@@ -31,13 +31,12 @@ class DMNEngine:
                     if not self.evaluate(input_val, lhs, task):
                         return False
                 except NameError as e:
-                    bad_variable = re.match("name '(.+)' is not defined", str(e)).group(1)
-                    most_similar = levenshtein.most_similar(bad_variable, task.data.keys(), 3)
-                    raise NameError("Failed to execute "
+                    # Add a bit of info, re-raise as Name Error
+                    raise NameError(str(e) + "Failed to execute "
                                     "expression: '%s' is '%s' in the "
-                                    "Row with annotation '%s'.  The following "
-                                    "value does not exist: %s - did you mean one of %s?" % (
-                                        input_val, lhs, rule.description, str(e),str(most_similar)))
+                                    "Row with annotation '%s'")
+                except WorkflowException as we:
+                    raise we
                 except Exception as e:
                     raise Exception("Failed to execute "
                                     "expression: '%s' is '%s' in the "
@@ -54,8 +53,8 @@ class DMNEngine:
             script_engine.validate(text)
             return True
         except SyntaxError:
-            # if we have problems parsing, then we introduce a variable on the left hand side 
-            # and try that and see if that parses. If so, then we know that we do not need to 
+            # if we have problems parsing, then we introduce a variable on the left hand side
+            # and try that and see if that parses. If so, then we know that we do not need to
             # introduce an equality operator later in the dmn
             script_engine.validate(f'v {text}')
             return False
@@ -73,7 +72,6 @@ class DMNEngine:
             return True
 
         script_engine = task.workflow.script_engine
-        context = task.data
         # NB - the question mark allows us to do a double ended test - for
         # example - our input expr is 5 and the match expr is 4 < ? < 6  -
         # this should evaluate as 4  < 5 < 6 and it should evaluate as 'True'
@@ -83,9 +81,10 @@ class DMNEngine:
         match_expr = re.sub('(\?)(?=(?:[^\'"]|[\'"][^\'"]*[\'"])*$)', 'dmninputexpr', match_expr)
         if 'dmninputexpr' in match_expr:
             external_methods = {
-                'dmninputexpr': script_engine._evaluate(input_expr, context)
+                'dmninputexpr': script_engine.evaluate(task, input_expr)
             }
-            return script_engine._evaluate(match_expr, context, external_methods=external_methods)
+            return script_engine.evaluate(task, match_expr,
+                                          external_methods=external_methods)
 
         # The input expression just has to be something that can be parsed as is by the engine.
         try:
@@ -97,7 +96,7 @@ class DMNEngine:
         # an operator or if can use '=='
         needs_eq = self.needs_eq(script_engine, match_expr)
         expr = input_expr + ' == ' + match_expr if needs_eq else input_expr + match_expr
-        return script_engine._evaluate(expr, context)
+        return script_engine.evaluate(task, expr)
 
     @staticmethod
     def __getInputVal(input_entry, context):
