@@ -41,8 +41,9 @@ class ServiceTaskDelegate:
         return json.dumps(sample_response)
 
 class ExampleCustomScriptEngine(PythonScriptEngine):
-    def available_service_task_external_methods(self):
-        return { 'ServiceTaskDelegate': ServiceTaskDelegate }
+    def call_service(self, operation_name, operation_params, task_data):
+        return ServiceTaskDelegate.call_connector(operation_name, operation_params,
+                task_data)
 
 class ServiceTaskTest(BaseTestCase):
 

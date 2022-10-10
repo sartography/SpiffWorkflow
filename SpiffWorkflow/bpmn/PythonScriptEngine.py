@@ -146,24 +146,11 @@ class PythonScriptEngine(object):
             self.error_tasks[task.id] = wte
             raise wte
 
-    def available_service_task_external_methods(self):
-        """Allows consumers a hook to specify external methods that can be
-        called from service tasks."""
-        return None
+    def call_service(self, operation_name, operation_params, task_data):
+        """Override to control how external services are called from service
+        tasks."""
 
-    def evaluate_service_task_script(self, task, script, data, external_methods=None):
-        """Evaluates the script, within the context of the specified task. Task
-        is assumed to be a service task. service_task_external_methods are
-        merged with the supplied external_methods before execution."""
-
-        additions = self.available_service_task_external_methods()
-
-        if external_methods is None:
-            external_methods = {}
-
-        external_methods.update(additions)
-
-        return self._evaluate(script, task.data, external_methods=external_methods)
+        raise Exception("To call external services override the script engine and implement `call_service`.")
 
     def create_task_exec_exception(self, task, err):
 
