@@ -10,7 +10,7 @@ class InvalidBusinessRuleNameErrorTest(unittest.TestCase):
         try:
             res = runner.decide({'spam': 1})
         except Exception as e:
-            self.assertRegexpMatches(str(e), "did you mean one of \['spam'\]")
+            self.assertRegexpMatches(str(e), "Did you mean 'spam'")
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(InvalidBusinessRuleNameErrorTest)

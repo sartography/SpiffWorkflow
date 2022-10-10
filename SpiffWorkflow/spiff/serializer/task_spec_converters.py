@@ -57,8 +57,7 @@ class ServiceTaskConverter(SpiffBpmnTaskConverter):
         return dct
 
     def from_dict(self, dct):
-        newDct = self.task_spec_from_dict(dct)
-        return newDct
+        return self.task_spec_from_dict(dct)
 
 
 class SubprocessTaskConverter(SpiffBpmnTaskConverter):

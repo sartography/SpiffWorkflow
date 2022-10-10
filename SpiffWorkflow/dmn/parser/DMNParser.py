@@ -5,6 +5,7 @@ from ...bpmn.parser.util import xpath_eval
 from ...dmn.specs.model import Decision, DecisionTable, InputEntry, \
     OutputEntry, Input, Output, Rule
 
+
 def get_dmn_ns(node):
     """
     Returns the namespace definition for the current DMN
@@ -64,86 +65,84 @@ class DMNParser(object):
         return self.node.findall('{*}decision[1]')[0].get('name')
 
     def _parse_decision(self, root):
-        decisionElements = list(root)
-        if len(decisionElements) == 0:
+        decision_elements = list(root)
+        if len(decision_elements) == 0:
             raise Exception('No decisions found')
 
-        if len(decisionElements) > 1:
+        if len(decision_elements) > 1:
             raise Exception('Multiple decisions found')
 
-        decisionElement = decisionElements[0]
-        assert decisionElement.tag.endswith(
+        decision_element = decision_elements[0]
+        assert decision_element.tag.endswith(
             'decision'), 'Element %r is not of type "decision"' % (
-            decisionElement.tag)
+            decision_element.tag)
 
-        decision = Decision(decisionElement.attrib['id'],
-                            decisionElement.attrib.get('name', ''))
+        decision = Decision(decision_element.attrib['id'],
+                            decision_element.attrib.get('name', ''))
 
         # Parse decision tables
         try:
-            self._parseDecisionTables(decision, decisionElement)
+            self._parse_decision_tables(decision, decision_element)
         except Exception as e:
-            raise Exception("Error in Decision '%s': %s" % (decision.name, str(e)))
+            raise Exception(
+                "Error in Decision '%s': %s" % (decision.name, str(e)))
 
         return decision
 
-    def _parseDecisionTables(self, decision, decisionElement):
-        for decisionTableElement in decisionElement.findall('{*}decisionTable'):
-            decisionTable = DecisionTable(decisionTableElement.attrib['id'],
-                                          decisionTableElement.attrib.get(
-                                              'name', ''))
-            decision.decisionTables.append(decisionTable)
+    def _parse_decision_tables(self, decision, decisionElement):
+        for decision_table_element in decisionElement.findall('{*}decisionTable'):
+            decision_table = DecisionTable(decision_table_element.attrib['id'],
+                                           decision_table_element.attrib.get(
+                                               'name', ''))
+            decision.decisionTables.append(decision_table)
 
             # parse inputs
-            self._parseInputsOutputs(decision, decisionTable,
-                                     decisionTableElement)
+            self._parse_inputs_outputs(decision_table, decision_table_element)
 
-    def _parseInputsOutputs(self, decision, decisionTable, decisionTableElement):
+    def _parse_inputs_outputs(self, decisionTable,
+                              decisionTableElement):
         for element in decisionTableElement:
             if element.tag.endswith('input'):
-                input = self._parseInput(element)
-                decisionTable.inputs.append(input)
+                e_input = self._parse_input(element)
+                decisionTable.inputs.append(e_input)
             elif element.tag.endswith('output'):
-                output = self._parseOutput(element)
+                output = self._parse_output(element)
                 decisionTable.outputs.append(output)
             elif element.tag.endswith('rule'):
-                rule = self._parseRule(decision, decisionTable, element)
+                rule = self._parse_rule(decisionTable, element)
                 decisionTable.rules.append(rule)
             else:
                 raise Exception(
-                    'Unknown type in decision table: %r' % (element.tag))
+                    'Unknown type in decision table: %r' % element.tag)
 
-    def _parseInput(self, inputElement):
-        typeRef = None
-        xpath = xpath_eval(inputElement, {'dmn': self.dmn_ns})
-        for inputExpression in xpath('dmn:inputExpression'):
+    def _parse_input(self, input_element):
+        type_ref = None
+        xpath = xpath_eval(input_element, {'dmn': self.dmn_ns})
+        expression = None
+        for input_expression in xpath('dmn:inputExpression'):
+            type_ref = input_expression.attrib.get('typeRef', '')
+            expression_node = input_expression.find('{' + self.dmn_ns + '}text')
+            if expression_node is not None:
+                expression = expression_node.text
 
-            typeRef = inputExpression.attrib.get('typeRef', '')
-            expressionNode = inputExpression.find('{' + self.dmn_ns + '}text')
-            if expressionNode is not None:
-                expression = expressionNode.text
-            else:
-                expression = None
+        return Input(input_element.attrib['id'],
+                     input_element.attrib.get('label', ''),
+                     input_element.attrib.get('name', ''),
+                     expression,
+                     type_ref)
 
-        input = Input(inputElement.attrib['id'],
-                      inputElement.attrib.get('label', ''),
-                      inputElement.attrib.get('name', ''),
-                      expression,
-                      typeRef)
-        return input
-
-    def _parseOutput(self, outputElement):
+    def _parse_output(self, outputElement):
         output = Output(outputElement.attrib['id'],
                         outputElement.attrib.get('label', ''),
                         outputElement.attrib.get('name', ''),
                         outputElement.attrib.get('typeRef', ''))
         return output
 
-    def _parseRule(self, decision, decisionTable, ruleElement):
+    def _parse_rule(self, decisionTable, ruleElement):
         rule = Rule(ruleElement.attrib['id'])
 
-        inputIdx = 0
-        outputIdx = 0
+        input_idx = 0
+        output_idx = 0
         for child in ruleElement:
             # Load description
             if child.tag.endswith('description'):
@@ -151,29 +150,29 @@ class DMNParser(object):
 
             # Load input entries
             elif child.tag.endswith('inputEntry'):
-                inputEntry = self._parseInputOutputElement(decisionTable,
-                                                           child,
-                                                           InputEntry,
-                                                           inputIdx)
-                rule.inputEntries.append(inputEntry)
-                inputIdx += 1
+                input_entry = self._parse_input_output_element(decisionTable,
+                                                               child,
+                                                               InputEntry,
+                                                               input_idx)
+                rule.inputEntries.append(input_entry)
+                input_idx += 1
 
             # Load output entries
             elif child.tag.endswith('outputEntry'):
-                outputEntry = self._parseInputOutputElement(decisionTable,
-                                                            child,
-                                                            OutputEntry,
-                                                            outputIdx)
-                rule.outputEntries.append(outputEntry)
-                outputIdx += 1
+                output_entry = self._parse_input_output_element(decisionTable,
+                                                                child,
+                                                                OutputEntry,
+                                                                output_idx)
+                rule.outputEntries.append(output_entry)
+                output_idx += 1
 
         return rule
 
-    def _parseInputOutputElement(self, decision_table, element, cls, idx):
-        inputOrOutput = (
+    def _parse_input_output_element(self, decision_table, element, cls, idx):
+        input_or_output = (
             decision_table.inputs if cls == InputEntry else decision_table.outputs if cls == OutputEntry else None)[
             idx]
-        entry = cls(element.attrib['id'], inputOrOutput)
+        entry = cls(element.attrib['id'], input_or_output)
         for child in element:
             if child.tag.endswith('description'):
                 entry.description = child.text
@@ -185,6 +184,7 @@ class DMNParser(object):
             if entry.text and entry.text != '':
                 try:
                     ast.parse(entry.text)
-                except:
-                    raise Exception("Malformed Output Expression '%s' " % entry.text)
+                except Exception as e:
+                    raise Exception(
+                        "Malformed Output Expression '%s'. %s " % (entry.text, str(e)))
         return entry

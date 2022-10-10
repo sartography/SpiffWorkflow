@@ -107,7 +107,7 @@ class InclusiveGatewayParser(TaskParser):
 
 class SubprocessParser:
 
-    # Not really a fan of this, but I need a way of calling these methods from a task 
+    # Not really a fan of this, but I need a way of calling these methods from a task
     # parser that extends the base parser to override extension parsing.  I can't inherit
     # from my extended task parser AND the original subworkflow parsers because they
     # both inherit from the same base.
@@ -115,14 +115,14 @@ class SubprocessParser:
     @staticmethod
     def get_subprocess_spec(task_parser):
 
-        workflowStartEvent = task_parser.xpath('./bpmn:startEvent')
-        workflowEndEvent = task_parser.xpath('./bpmn:endEvent')
-        if len(workflowStartEvent) != 1:
+        workflow_start_event = task_parser.xpath('./bpmn:startEvent')
+        workflow_end_event = task_parser.xpath('./bpmn:endEvent')
+        if len(workflow_start_event) != 1:
             raise ValidationException(
                 'Multiple Start points are not allowed in SubWorkflow Task',
                 node=task_parser.node,
                 filename=task_parser.filename)
-        if len(workflowEndEvent) == 0:
+        if len(workflow_end_event) == 0:
             raise ValidationException(
                 'A SubWorkflow Must contain an End event',
                 node=task_parser.node,
@@ -161,7 +161,7 @@ class SubprocessParser:
                 node=task_parser.node,
                 filename=task_parser.filename)
         return called_element
-        
+
 
 class SubWorkflowParser(TaskParser):
 
@@ -206,7 +206,7 @@ class ScriptTaskParser(TaskParser):
             return one(self.xpath('.//bpmn:script')).text
         except AssertionError as ae:
             raise ValidationException(
-                f"Invalid Script Task.  No Script Provided. ",
+                f"Invalid Script Task.  No Script Provided. " + str(ae),
                 node=self.node, filename=self.filename)
 
 

@@ -1,6 +1,6 @@
 import re
 
-from  SpiffWorkflow.exceptions import WorkflowException, WorkflowTaskException
+from SpiffWorkflow.exceptions import WorkflowException, WorkflowTaskException
 from SpiffWorkflow.util import levenshtein
 
 class WorkflowTaskExecException(WorkflowTaskException):
@@ -37,7 +37,11 @@ class WorkflowTaskExecException(WorkflowTaskException):
                 most_similar = levenshtein.most_similar(bad_variable, task.data.keys(), 3)
                 error_msg = f'something you are referencing does not exist: ' \
                             f'"{exception}".'
-                error_msg += f' Did you mean \'{most_similar}\'?'
+                if len(most_similar) == 1:
+                    error_msg += f' Did you mean \'{most_similar[0]}\'?'
+                if len(most_similar) > 1:
+                    error_msg += f' Did you mean one of \'{most_similar}\'?'
+
             else:
                 error_msg = str(exception)
         super().__init__(task, error_msg, exception)

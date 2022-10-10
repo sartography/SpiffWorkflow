@@ -12,32 +12,31 @@ class DMNEngine:
     Handles the processing of a decision table.
     """
 
-    def __init__(self, decisionTable):
-        self.decisionTable = decisionTable
+    def __init__(self, decision_table):
+        self.decision_table = decision_table
 
     def decide(self, task):
-        for rule in self.decisionTable.rules:
-            if self.__checkRule(rule, task):
+        for rule in self.decision_table.rules:
+            if self.__check_rule(rule, task):
                 return rule
 
-    def __checkRule(self, rule, task):
+    def __check_rule(self, rule, task):
         for input_entry in rule.inputEntries:
             for lhs in input_entry.lhs:
                 if lhs is not None:
-                    input_val = DMNEngine.__getInputVal(input_entry, task.data)
+                    input_val = DMNEngine.__get_input_val(input_entry, task.data)
                 else:
                     input_val = None
                 try:
                     if not self.evaluate(input_val, lhs, task):
                         return False
                 except NameError as e:
-                    bad_variable = re.match("name '(.+)' is not defined", str(e)).group(1)
-                    most_similar = levenshtein.most_similar(bad_variable, task.data.keys(), 3)
-                    raise NameError("Failed to execute "
+                    # Add a bit of info, re-raise as Name Error
+                    raise NameError(str(e) + "Failed to execute "
                                     "expression: '%s' is '%s' in the "
-                                    "Row with annotation '%s'.  The following "
-                                    "value does not exist: %s - did you mean one of %s?" % (
-                                        input_val, lhs, rule.description, str(e),str(most_similar)))
+                                    "Row with annotation '%s'")
+                except WorkflowException as we:
+                    raise we
                 except Exception as e:
                     raise Exception("Failed to execute "
                                     "expression: '%s' is '%s' in the "
@@ -54,8 +53,8 @@ class DMNEngine:
             script_engine.validate(text)
             return True
         except SyntaxError:
-            # if we have problems parsing, then we introduce a variable on the left hand side 
-            # and try that and see if that parses. If so, then we know that we do not need to 
+            # if we have problems parsing, then we introduce a variable on the left hand side
+            # and try that and see if that parses. If so, then we know that we do not need to
             # introduce an equality operator later in the dmn
             script_engine.validate(f'v {text}')
             return False
@@ -73,7 +72,6 @@ class DMNEngine:
             return True
 
         script_engine = task.workflow.script_engine
-        context = task.data
         # NB - the question mark allows us to do a double ended test - for
         # example - our input expr is 5 and the match expr is 4 < ? < 6  -
         # this should evaluate as 4  < 5 < 6 and it should evaluate as 'True'
@@ -83,24 +81,25 @@ class DMNEngine:
         match_expr = re.sub('(\?)(?=(?:[^\'"]|[\'"][^\'"]*[\'"])*$)', 'dmninputexpr', match_expr)
         if 'dmninputexpr' in match_expr:
             external_methods = {
-                'dmninputexpr': script_engine._evaluate(input_expr, context)
+                'dmninputexpr': script_engine.evaluate(task, input_expr)
             }
-            return script_engine._evaluate(match_expr, context, external_methods=external_methods)
+            return script_engine.evaluate(task, match_expr,
+                                          external_methods=external_methods)
 
         # The input expression just has to be something that can be parsed as is by the engine.
         try:
             script_engine.validate(input_expr)
-        except:
-            raise WorkflowException(f"Input Expression '{input_expr}' is malformed")
+        except Exception as e:
+            raise WorkflowException(f"Input Expression '{input_expr}' is malformed. " + str(e))
 
         # If we get here, we need to check whether the match expression includes
         # an operator or if can use '=='
         needs_eq = self.needs_eq(script_engine, match_expr)
         expr = input_expr + ' == ' + match_expr if needs_eq else input_expr + match_expr
-        return script_engine._evaluate(expr, context)
+        return script_engine.evaluate(task, expr)
 
     @staticmethod
-    def __getInputVal(input_entry, context):
+    def __get_input_val(input_entry, context):
         """
         The input of the decision method should be an expression,  but will
         fallback to the likely very bad idea of trying to use the label.

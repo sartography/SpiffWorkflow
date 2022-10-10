@@ -81,9 +81,11 @@ class MultiInstanceTask(TaskSpec):
 
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
 
-    @property
-    def spec_type(self):
-        return 'MultiInstance Task'
+
+# DO NOT OVERRIDE THE SPEC TYPE.
+#    @property
+#    def spec_type(self):
+#        return 'MultiInstance Task'
 
     def _find_my_task(self, task):
         for thetask in task.workflow.task_tree:
@@ -457,12 +459,10 @@ class MultiInstanceTask(TaskSpec):
         if not self.isSequential:
             for task in my_task.parent.children:
                 task.data = DeepMerge.merge(
-                    task.data, 
+                    task.data,
                     gendict(colvarname.split('/'),
                     collect)
                 )
-                pass
-
         return element_var_data
 
     def _on_complete_hook(self, my_task):

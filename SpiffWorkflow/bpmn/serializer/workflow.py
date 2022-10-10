@@ -66,8 +66,8 @@ class BpmnWorkflowSerializer:
     # using the configure_workflow_spec_converter.
     VERSION = "1.0"
     VERSION_KEY = "serializer_version"
-    JSON_ENCODER_CLS = None
-    JSON_DECODER_CLS = None
+    DEFAULT_JSON_ENCODER_CLS = None
+    DEFAULT_JSON_DECODER_CLS = None
 
     @staticmethod
     def configure_workflow_spec_converter(task_spec_overrides=None, data_converter=None, version=VERSION):
@@ -99,7 +99,7 @@ class BpmnWorkflowSerializer:
         return BpmnProcessSpecConverter(converters, version)
 
 
-    def __init__(self, spec_converter=None, data_converter=None, wf_class=None, version=VERSION, json_encoder_cls=JSON_ENCODER_CLS, json_decoder_cls=JSON_DECODER_CLS):
+    def __init__(self, spec_converter=None, data_converter=None, wf_class=None, version=VERSION, json_encoder_cls=DEFAULT_JSON_ENCODER_CLS, json_decoder_cls=DEFAULT_JSON_DECODER_CLS):
         """Intializes a Workflow Serializer with the given Workflow, Task and Data Converters.
 
         :param spec_converter: the workflow spec converter
@@ -196,7 +196,7 @@ class BpmnWorkflowSerializer:
 
         # Create the top-level workflow
         workflow = self.wf_class(spec, subprocess_specs, read_only=read_only)
-        
+
         # Restore any unretrieve messages
         workflow.bpmn_messages = [ self.message_from_dict(msg) for msg in dct.get('bpmn_messages', []) ]
 

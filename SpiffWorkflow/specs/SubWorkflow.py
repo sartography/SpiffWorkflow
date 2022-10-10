@@ -89,12 +89,12 @@ class SubWorkflow(TaskSpec):
         from ..serializer.prettyxml import XmlSerializer
         from ..specs import WorkflowSpec
         from ..workflow import Workflow
-        file = valueof(my_task, self.file)
+        file_name = valueof(my_task, self.file)
         serializer = XmlSerializer()
-        with open(file) as fp:
+        with open(file_name) as fp:
             xml = fp.read()
         wf_spec = WorkflowSpec.deserialize(
-            serializer, xml, filename=file)
+            serializer, xml, filename=file_name)
         outer_workflow = my_task.workflow.outer_workflow
         return Workflow(wf_spec, parent=outer_workflow)
 

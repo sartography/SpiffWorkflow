@@ -31,7 +31,7 @@ class ServiceTask(SpiffBpmnTask, ServiceTask):
         evaluated_params = {k: evaluate(v) for k, v in self.operation_params.items()}
         script = f'ServiceTaskDelegate.call_connector("{self.operation_name}", {operation_params_var_name})'
 
-        result = task.workflow.script_engine.evaluate_service_task_script(task, script, task.data,
+        result = task.workflow.script_engine.evaluate_service_task_script(task, script,
                 external_methods={ operation_params_var_name: evaluated_params })
 
         parsed_result = json.loads(result)

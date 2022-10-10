@@ -25,11 +25,7 @@ class BusinessRuleTaskParserTest(BaseTestCase):
             self.assertTrue(True, "An error was raised..")
             self.assertEquals("InvalidDecisionTaskId", we.sender.name)
             self.maxDiff  = 1000
-            self.assertEquals("InvalidDecisionTaskId: Failed to execute "
-                              "expression: 'spam' is '= 1' in the Row with "
-                              "annotation 'This is complletely wrong.'"
-                              ", invalid syntax (<string>, line 1)",
-                              str(we))
+            self.assertEquals("Error evaluating expression spam= 1", str(we))
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(BusinessRuleTaskParserTest)

@@ -113,7 +113,7 @@ class CallActivity(SubWorkflowTask):
         return 'Call Activity'
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
+    def deserialize(cls, serializer, wf_spec, s_state):
         return serializer.deserialize_subworkflow_task(wf_spec, s_state, CallActivity)
 
 class TransactionSubprocess(SubWorkflowTask):
@@ -126,5 +126,5 @@ class TransactionSubprocess(SubWorkflowTask):
         return 'Transactional Subprocess'
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
+    def deserialize(cls, serializer, wf_spec, s_state):
         return serializer.deserialize_subworkflow_task(wf_spec, s_state, TransactionSubprocess)
