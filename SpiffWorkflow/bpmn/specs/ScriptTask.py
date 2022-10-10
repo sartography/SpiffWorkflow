@@ -26,6 +26,7 @@ class ScriptEngineTask(Simple, BpmnSpecMixin):
     """Task Spec for a bpmn:scriptTask node"""
 
     def _execute(self, task):
+        """Please override for specific Implementations, see ScriptTask below for an example"""
         pass
 
     def _on_complete_hook(self, task):
@@ -34,7 +35,7 @@ class ScriptEngineTask(Simple, BpmnSpecMixin):
             super(ScriptEngineTask, self)._on_complete_hook(task)
         except Exception as exc:
             task._set_state(TaskState.WAITING)
-            raise
+            raise exc
 
     def serialize(self, serializer):
         return serializer.serialize_script_task(self)

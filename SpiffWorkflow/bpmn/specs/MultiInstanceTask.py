@@ -463,8 +463,6 @@ class MultiInstanceTask(TaskSpec):
                     gendict(colvarname.split('/'),
                     collect)
                 )
-                pass
-
         return element_var_data
 
     def _on_complete_hook(self, my_task):

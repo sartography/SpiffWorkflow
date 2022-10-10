@@ -348,10 +348,10 @@ class DictionarySerializer(Serializer):
         #
 
         if isinstance(spec, SubWorkflow):
-            brState = self.serialize_sub_workflow(spec)
-            s_state['file'] = brState['file']
-            s_state['in_assign'] = brState['in_assign']
-            s_state['out_assign'] = brState['out_assign']
+            br_state = self.serialize_sub_workflow(spec)
+            s_state['file'] = br_state['file']
+            s_state['in_assign'] = br_state['in_assign']
+            s_state['out_assign'] = br_state['out_assign']
 
         s_state['times'] = self.serialize_arg(spec.times)
         s_state['prevtaskclass'] = spec.prevtaskclass

@@ -12,19 +12,19 @@ class DMNEngine:
     Handles the processing of a decision table.
     """
 
-    def __init__(self, decisionTable):
-        self.decisionTable = decisionTable
+    def __init__(self, decision_table):
+        self.decision_table = decision_table
 
     def decide(self, task):
-        for rule in self.decisionTable.rules:
-            if self.__checkRule(rule, task):
+        for rule in self.decision_table.rules:
+            if self.__check_rule(rule, task):
                 return rule
 
-    def __checkRule(self, rule, task):
+    def __check_rule(self, rule, task):
         for input_entry in rule.inputEntries:
             for lhs in input_entry.lhs:
                 if lhs is not None:
-                    input_val = DMNEngine.__getInputVal(input_entry, task.data)
+                    input_val = DMNEngine.__get_input_val(input_entry, task.data)
                 else:
                     input_val = None
                 try:
@@ -89,8 +89,8 @@ class DMNEngine:
         # The input expression just has to be something that can be parsed as is by the engine.
         try:
             script_engine.validate(input_expr)
-        except:
-            raise WorkflowException(f"Input Expression '{input_expr}' is malformed")
+        except Exception as e:
+            raise WorkflowException(f"Input Expression '{input_expr}' is malformed. " + str(e))
 
         # If we get here, we need to check whether the match expression includes
         # an operator or if can use '=='
@@ -99,7 +99,7 @@ class DMNEngine:
         return script_engine.evaluate(task, expr)
 
     @staticmethod
-    def __getInputVal(input_entry, context):
+    def __get_input_val(input_entry, context):
         """
         The input of the decision method should be an expression,  but will
         fallback to the likely very bad idea of trying to use the label.

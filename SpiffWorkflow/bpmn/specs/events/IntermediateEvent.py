@@ -62,7 +62,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
 
         super(_BoundaryEventParent, self).__init__(wf_spec, name)
         self.main_child_task_spec = main_child_task_spec
-    
+
     @property
     def spec_type(self):
         return 'Boundary Event Parent'
@@ -84,9 +84,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
             for sibling in child_task.parent.children:
                 if sibling == child_task:
                     continue
-                if sibling.task_spec == self.main_child_task_spec:
-                    sibling.cancel()
-                elif not sibling._is_finished():
+                if sibling.task_spec == self.main_child_task_spec or not sibling._is_finished():
                     sibling.cancel()
             for t in child_task.workflow._get_waiting_tasks():
                 t.task_spec._update(t)

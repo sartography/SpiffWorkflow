@@ -114,7 +114,6 @@ class SubWorkflowParser(SpiffTaskParser):
 
 class ScriptTaskParser(SpiffTaskParser):
     def create_task(self):
-        extensions = self.parse_extensions()
         script = None
         for child_node in self.node:
             if child_node.tag.endswith('script'):
@@ -155,12 +154,12 @@ class BusinessRuleTaskParser(SpiffTaskParser):
     def create_task(self):
         decision_ref = self.get_decision_ref(self.node)
         return BusinessRuleTask(self.spec,
-            self.get_task_spec_name(),
-            dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
-            lane=self.lane,
-            position=self.position,
-            description=self.node.get('name', None)
-        )
+                                self.get_task_spec_name(),
+                                dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
+                                lane=self.lane,
+                                position=self.position,
+                                description=self.node.get('name', None)
+                                )
 
     @staticmethod
     def get_decision_ref(node):
