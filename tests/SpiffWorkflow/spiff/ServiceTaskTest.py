@@ -12,11 +12,9 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from .BaseTestCase import BaseTestCase
 
-#assertEqual = None
-
 class ServiceTaskDelegate:
     @staticmethod
-    def call_connector(name, params):
+    def call_connector(name, params, task_data):
         if name == 'bamboohr/GetPayRate':
             assertEqual(len(params), 3)
             assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')

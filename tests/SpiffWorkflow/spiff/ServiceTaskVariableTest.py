@@ -14,7 +14,7 @@ from .BaseTestCase import BaseTestCase
 
 class ServiceTaskDelegate:
     @staticmethod
-    def call_connector(name, params):
+    def call_connector(name, params, task_data):
         assertEqual(name, 'bamboohr/GetPayRate')
         assertEqual(len(params), 3)
         assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
