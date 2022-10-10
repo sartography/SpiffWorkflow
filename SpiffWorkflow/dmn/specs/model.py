@@ -46,7 +46,7 @@ class Input:
         self.label = label
         self.name = name
         self.expression = expression
-        self.type_ref = typeRef
+        self.typeRef = typeRef
 
     def serialize(self):
         out = {}
@@ -54,7 +54,7 @@ class Input:
         out['label'] = self.label
         out['name'] = self.name
         out['expression'] = self.expression
-        out['typeRef'] = self.type_ref
+        out['typeRef'] = self.typeRef
         return out
 
     def deserialize(self,indict):
