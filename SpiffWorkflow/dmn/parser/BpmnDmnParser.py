@@ -21,9 +21,9 @@ class BpmnDmnParser(BpmnParser):
             raise ValidationException(
                 'No DMN Diagram available with id "%s", Available DMN ids are: %s' %(decision_ref, options),
                 node=node, filename='')
-        dmnParser = self.dmn_parsers[decision_ref]
-        dmnParser.parse()
-        decision = dmnParser.decision
+        dmn_parser = self.dmn_parsers[decision_ref]
+        dmn_parser.parse()
+        decision = dmn_parser.decision
         return DMNEngine(decision.decisionTables[0])
 
     def add_dmn_xml(self, node, filename=None):

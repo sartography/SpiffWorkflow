@@ -40,8 +40,8 @@ class FeelNearMissTestClass(unittest.TestCase):
         cls.runner = FeelDecisionRunner('exclusive_feel.dmn')
 
     def test_string_decision_string_output1(self):
-        self.assertRaisesRegex(NameError,
-                               ".+\['Exclusive', 'eXclusive', 'EXCLUSIVE'\]\?",
+        self.assertRaisesRegex(Exception,
+                               ".+\['Exclusive', 'eXclusive', 'EXCLUSIVE'\].+",
                                self.runner.decide,
                                self.data)
 

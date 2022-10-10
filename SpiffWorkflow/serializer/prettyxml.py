@@ -180,7 +180,7 @@ class XmlSerializer(Serializer):
         times_field = start_node.getAttribute('times-field').lower()
         threshold = start_node.getAttribute('threshold').lower()
         threshold_field = start_node.getAttribute('threshold-field').lower()
-        file = start_node.getAttribute('file').lower()
+        file_name = start_node.getAttribute('file').lower()
         file_field = start_node.getAttribute('file-field').lower()
         kwargs = {'lock':        [],
                   'data':        {},
@@ -207,8 +207,8 @@ class XmlSerializer(Serializer):
             kwargs['threshold'] = int(threshold)
         if threshold_field != '':
             kwargs['threshold'] = operators.Attrib(threshold_field)
-        if file != '':
-            kwargs['file'] = file
+        if file_name != '':
+            kwargs['file'] = file_name
         if file_field != '':
             kwargs['file'] = operators.Attrib(file_field)
         if nodetype == 'choose':

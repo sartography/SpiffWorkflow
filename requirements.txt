@@ -1,4 +1,6 @@
-celery
+# Celery locked to 5.2.3 due to https://github.com/celery/celery/issues/7409
+# Can remove this limitation when bug is resolved, or we drop support for python 3.7
+celery==5.2.3
 coverage
 lxml
 dateparser

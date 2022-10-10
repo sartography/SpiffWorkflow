@@ -17,5 +17,5 @@ def distance(str1, str2):
 def most_similar(value, item_list, limit):
     distances = [(key, distance(value, key)) for key in item_list]
     distances.sort(key=lambda x: x[1])
-    return str([x[0] for x in distances[:limit]])
+    return [x[0] for x in distances[:limit]]
 

@@ -89,40 +89,40 @@ class BpmnSerializer(BPMNJSONSerializer):
         back into the sub-workflow after generating it from the base spec"""
         if not isinstance(task.task_spec, SubWorkflowTask):
             return super()._deserialize_task_children(task, s_state)
-        else:
-            sub_workflow = task.task_spec.create_sub_workflow(task)
-            children = []
-            for c in s_state['children']:
-                # One child belongs to the parent workflow (The path back
-                # out of the subworkflow) the other children belong to the
-                # sub-workflow.
 
-                # We need to determine if we are still in the same workflow,
-                # Ideally we can just check:  if c['workflow_name'] == sub_workflow.name
-                # however, we need to support deserialization of workflows without this
-                # critical property, at least temporarily, so people can migrate.
-                if 'workflow_name' in c:
-                    same_workflow = c['workflow_name'] == sub_workflow.name
-                else:
-                    same_workflow = sub_workflow.get_tasks_from_spec_name(c['task_spec'])
+        sub_workflow = task.task_spec.create_sub_workflow(task)
+        children = []
+        for c in s_state['children']:
+            # One child belongs to the parent workflow (The path back
+            # out of the subworkflow) the other children belong to the
+            # sub-workflow.
 
-                if same_workflow:
-                    start_task = self.deserialize_task(sub_workflow, c)
-                    children.append(start_task)
-                    start_task.parent = task.id
-                    sub_workflow.task_tree = start_task
-                    # get a list of tasks in reverse order of change
-                    # our last task should be on the top.
-                    tasks = sub_workflow.get_tasks(TaskState.COMPLETED)
-                    tasks.sort(key=lambda x: x.last_state_change,reverse=True)
-                    if len(tasks)>0:
-                        last_task = tasks[0]
-                        sub_workflow.last_task = last_task
-                else:
-                    resume_task = self.deserialize_task(task.workflow, c)
-                    resume_task.parent = task.id
-                    children.append(resume_task)
-            return children
+            # We need to determine if we are still in the same workflow,
+            # Ideally we can just check:  if c['workflow_name'] == sub_workflow.name
+            # however, we need to support deserialization of workflows without this
+            # critical property, at least temporarily, so people can migrate.
+            if 'workflow_name' in c:
+                same_workflow = c['workflow_name'] == sub_workflow.name
+            else:
+                same_workflow = sub_workflow.get_tasks_from_spec_name(c['task_spec'])
+
+            if same_workflow:
+                start_task = self.deserialize_task(sub_workflow, c)
+                children.append(start_task)
+                start_task.parent = task.id
+                sub_workflow.task_tree = start_task
+                # get a list of tasks in reverse order of change
+                # our last task should be on the top.
+                tasks = sub_workflow.get_tasks(TaskState.COMPLETED)
+                tasks.sort(key=lambda x: x.last_state_change,reverse=True)
+                if len(tasks)>0:
+                    last_task = tasks[0]
+                    sub_workflow.last_task = last_task
+            else:
+                resume_task = self.deserialize_task(task.workflow, c)
+                resume_task.parent = task.id
+                children.append(resume_task)
+        return children
 
     def deserialize_task(self, workflow, s_state):
         assert isinstance(workflow, BpmnWorkflow)

@@ -35,11 +35,11 @@ class CallActivityParser(TaskParser):
         name of the process - not its ID, in our interpretation) in an
         extension tag.
         """
-        signavioMetaData = xpath_eval(self.node, extra_ns={
+        signavio_meta_data = xpath_eval(self.node, extra_ns={
             'signavio': SIGNAVIO_NS})(
             './/signavio:signavioMetaData[@metaKey="entry"]')
-        if not signavioMetaData:
+        if not signavio_meta_data:
             raise ValidationException(
                 'No Signavio "Subprocess reference" specified.',
                 node=self.node, filename=self.filename)
-        return one(signavioMetaData).get('metaValue')
+        return one(signavio_meta_data).get('metaValue')

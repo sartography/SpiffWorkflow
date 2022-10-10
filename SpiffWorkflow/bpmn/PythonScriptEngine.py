@@ -119,7 +119,7 @@ class PythonScriptEngine(object):
     def validate(self, expression):
         ast.parse(expression)
 
-    def evaluate(self, task, expression):
+    def evaluate(self, task, expression, external_methods=None):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
@@ -130,9 +130,11 @@ class PythonScriptEngine(object):
                 # expression judging from the contents of operators.py
                 return expression._matches(task)
             else:
-                return self._evaluate(expression, task.data)
+                return self._evaluate(expression, task.data, external_methods)
         except Exception as e:
-            raise WorkflowTaskExecException(task, f"Error evaluating expression {expression}", e)
+            raise WorkflowTaskExecException(task,
+                                            f"Error evaluating expression {expression}",
+                                            e)
 
     def execute(self, task, script, external_methods=None):
         """
@@ -149,7 +151,6 @@ class PythonScriptEngine(object):
     def call_service(self, operation_name, operation_params, task_data):
         """Override to control how external services are called from service
         tasks."""
-
         raise Exception("To call external services override the script engine and implement `call_service`.")
 
     def create_task_exec_exception(self, task, err):
@@ -169,8 +170,10 @@ class PythonScriptEngine(object):
         for frame_summary in traceback.extract_tb(tb):
             if frame_summary.filename == '<string>':
                 line_number = frame_summary.lineno
-                error_line = task.task_spec.script.splitlines()[line_number - 1]
-        return WorkflowTaskExecException(task, detail, err, line_number, error_line)
+                error_line = task.task_spec.script.splitlines()[
+                    line_number - 1]
+        return WorkflowTaskExecException(task, detail, err, line_number,
+                                         error_line)
 
     def check_for_overwrite(self, task, external_methods):
         """It's possible that someone will define a variable with the
@@ -188,9 +191,7 @@ class PythonScriptEngine(object):
     def convert_to_box(self, data):
         if isinstance(data, dict):
             for key, value in data.items():
-                if isinstance(value, Box):
-                    pass
-                else:
+                if not isinstance(value, Box):
                     data[key] = self.convert_to_box(value)
             return Box(data)
         if isinstance(data, list):
@@ -216,19 +217,16 @@ class PythonScriptEngine(object):
         try:
             exec(script, context)
         finally:
-            self.remove_globals_and_functions_from_context(context, external_methods)
+            self.remove_globals_and_functions_from_context(context,
+                                                           external_methods)
 
     def remove_globals_and_functions_from_context(self, context,
-                                                  external_methods = None):
+                                                  external_methods=None):
         """When executing a script, don't leave the globals, functions
-        and external methods in the context that we return."""
+        and external methods in the context that we have modified."""
         for k in list(context):
-            if k == "__builtins__":
+            if k == "__builtins__" or \
+                    hasattr(context[k], '__call__') or \
+                    k in self.globals or \
+                    external_methods and k in external_methods:
                 context.pop(k)
-            elif hasattr(context[k], '__call__'):
-                context.pop(k)
-            elif k in self.globals:
-                context.pop(k)
-            elif external_methods and k in external_methods:
-                context.pop(k)
-

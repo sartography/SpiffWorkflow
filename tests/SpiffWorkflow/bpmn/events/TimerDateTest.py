@@ -55,7 +55,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
         self.assertEqual(self.workflow.last_task.data['futuredate2'],testdate)
         self.assertTrue('completed' in self.workflow.last_task.data)
         self.assertTrue(self.workflow.last_task.data['completed'])
-        self.assertTrue((endtime-starttime) > datetime.timedelta(seconds=.04))
+        self.assertTrue((endtime-starttime) > datetime.timedelta(seconds=.02))
 
 
 

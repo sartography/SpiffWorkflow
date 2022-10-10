@@ -2,6 +2,7 @@ import os
 
 from lxml import etree
 
+from SpiffWorkflow.bpmn.PythonScriptEngine import Box
 from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
 from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
 
@@ -9,12 +10,19 @@ from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
 class Workflow:
     def __init__(self, script_engine):
         self.script_engine = script_engine
+        self.outer_workflow = self
+        self.spec = Box({'file': 'my_mock_file'})
+
+class TaskSpec:
+    def __init__(self):
+        self.name = "MockTestSpec"
+        self.description = "Mock Test Spec"
 
 class Task:
     def __init__(self, script_engine, data):
         self.data = data
         self.workflow = Workflow(script_engine)
-
+        self.task_spec = TaskSpec()
 
 class DecisionRunner:
 
@@ -22,7 +30,7 @@ class DecisionRunner:
         self.script_engine = script_engine
         fn = os.path.join(os.path.dirname(__file__), path, 'data', filename)
 
-        with open(fn) as fh:    
+        with open(fn) as fh:
             node = etree.parse(fh)
 
         self.dmnParser = DMNParser(None, node.getroot())

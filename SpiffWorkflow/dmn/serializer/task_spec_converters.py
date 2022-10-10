@@ -14,7 +14,7 @@ class BusinessRuleTaskConverter(BpmnTaskSpecConverter):
         dct = self.get_default_attributes(spec)
         dct.update(self.get_bpmn_attributes(spec))
         # We only ever use one decision table
-        dct['decision_table'] = self.decision_table_to_dict(spec.dmnEngine.decisionTable)
+        dct['decision_table'] = self.decision_table_to_dict(spec.dmnEngine.decision_table)
         return dct
 
     def decision_table_to_dict(self, table):

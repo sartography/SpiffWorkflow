@@ -31,7 +31,7 @@ class WorkflowException(Exception):
         :param error: a human readable error message
         :type error: string
         """
-        Exception.__init__(self, '%s: %s' % (sender.name, error))
+        Exception.__init__(self, str(error))
         # Points to the TaskSpec that generated the exception.
         self.sender = sender
 
