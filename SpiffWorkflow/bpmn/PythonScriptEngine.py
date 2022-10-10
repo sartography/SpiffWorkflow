@@ -151,7 +151,7 @@ class PythonScriptEngine(object):
     def call_service(self, operation_name, operation_params, task_data):
         """Override to control how external services are called from service
         tasks."""
-        raise Exception("To call external services override the script engine and implement `call_service`.")
+        raise NotImplementedError("To call external services override the script engine and implement `call_service`.")
 
     def create_task_exec_exception(self, task, err):
 
