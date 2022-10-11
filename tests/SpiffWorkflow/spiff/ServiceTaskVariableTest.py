@@ -14,7 +14,7 @@ from .BaseTestCase import BaseTestCase
 
 class ServiceTaskDelegate:
     @staticmethod
-    def call_connector(name, params):
+    def call_connector(name, params, task_data):
         assertEqual(name, 'bamboohr/GetPayRate')
         assertEqual(len(params), 3)
         assertEqual(params['api_key']['value'], 'secret:BAMBOOHR_API_KEY')
@@ -31,8 +31,9 @@ class ServiceTaskDelegate:
         return json.dumps(sample_response)
 
 class ExampleCustomScriptEngine(PythonScriptEngine):
-    def available_service_task_external_methods(self):
-        return { 'ServiceTaskDelegate': ServiceTaskDelegate }
+    def call_service(self, operation_name, operation_params, task_data):
+        return ServiceTaskDelegate.call_connector(operation_name, operation_params,
+                task_data)
 
 class ServiceTaskVariableTest(BaseTestCase):
 
