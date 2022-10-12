@@ -59,6 +59,7 @@ Supported BPMN Elements
    organization
    events
    multiinstance
+   spiff-extensions
 
 Putting it All Together
 -----------------------

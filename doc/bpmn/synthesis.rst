@@ -4,83 +4,112 @@ Putting it All Together
 In this section we'll be discussing the overall structure of the workflow
 runner we developed in `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
+Our example application contains two different workflow runners, one that uses tasks with 
+Camunda extensions
+(`run.py <https://github.com/sartography/spiff-example-cli/blob/main/run.py>`_) and one
+that uses tasks with Spiff extensions 
+(`run-spiff.py <https://github.com/sartography/spiff-example-cli/blob/main/run.py>`_).
+
+Most of the workflow operations will not change, so shared functions are defined in 
+`utils.py <https://github.com/sartography/spiff-example-cli/blob/main/utils.py>`_.
+
+The primary difference is handling user tasks.  Spiff User Tasks define an extensions
+property that stores a filename containing a JSON schema used to define a web form.  We
+use `react-jsonschema-form <https://react-jsonschema-form.readthedocs.io/en/latest/>`_
+to define our forms.  This doesn't necessarily make a lot of sense in terms of a command
+line UI, so we'll focus on the Camunda workflow runner in this document.
+
 Loading a Workflow
 -------------------
 
-We'll need the following imports:
+The :code:`CamundaParser` extends the base :code:`BpmnParser`, adding functionality for
+parsing forms defined in Camunda User Tasks and decision tables defined in Camunda 
+Business Rule Tasks. (There is a similar :code:`SpiffBpmnParser` used by the alternate
+runner.)
+
+We create the parser and use it to load our workflow.
 
 .. code:: python
 
-    from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-    from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
-    from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
+    parser = CamundaParser()
+    wf = parse_workflow(parser, args.process, args.bpmn, args.dmn)
 
-    from custom_script_engine import CustomScriptEngine
-
-We need to create a parser.  We could have imported :code:`BpmnParser`, which
-these parsers inherit from, but we need some additional features that the base
-parser does not provide.
+Our workflow parser looks like this;
 
 .. code:: python
 
-    class Parser(BpmnDmnParser):
-        OVERRIDE_PARSER_CLASSES = BpmnDmnParser.OVERRIDE_PARSER_CLASSES
-        OVERRIDE_PARSER_CLASSES.update(CamundaParser.OVERRIDE_PARSER_CLASSES)
-
-We'll use :code:`BpmnDmnParser` as our base class, because we would like the ability
-to use DMN tables in our application.  The :code:`BpmnDmnParser` provides a task
-parser for Business Rule Tasks, which the underlying :code:`BpmnParser` it inherits from
-does not contain.
-
-We also imported the :code:`CamundaParser` so that we can parse some Camunda
-specific features we'll use (forms in User Tasks).  The :code:`CamundaParser` User
-Task parser will override the default parser.
-
-In general, any task parser can be replaced with a custom parser of your
-own design if you have a BPMN modeller that produces XML not handled by the
-BPMN parsers in SpiffWorkflow.
-
-.. code:: python
-
-    def parse(process, bpmn_files, dmn_files):
-        parser = Parser()
+    def parse_workflow(parser, process, bpmn_files, dmn_files, load_all=True):
         parser.add_bpmn_files(bpmn_files)
         if dmn_files:
             parser.add_dmn_files(dmn_files)
         top_level = parser.get_spec(process)
-        subprocesses = parser.get_process_specs()
+        if load_all:
+            subprocesses = parser.find_all_specs()
+        else:
+            subprocesses = parser.get_subprocess_specs(process)
         return BpmnWorkflow(top_level, subprocesses, script_engine=CustomScriptEngine)
-
-We create an instance of our previously defined parser, add the BPMN files to it, and
-optionally add any DMN files, if they were supplied.
 
 We'll obtain the workflow specification from the parser for the top level process
 using :code:`parser.get_spec()`.
 
-We'll get the specs of all the processes that were parsed with :code:`parser.get_process_specs()`
-and provide these to the workflow as well.  If your entire workflow is contained in your
-top-level process, you can omit this argument, but if your workflow contains call activities,
-you'll need to include it.
+We have two options for finding subprocess specs.  The method :code:`parser.find_all_specs()` 
+will create specs for all executable processes found in every file supplied.  The method 
+:code:`parser.get_subprocess_specs(process)` will create specs only for processes used by 
+the specified process.  Both search recursively for subprocesses; the only difference is 
+the latter method limits the search start to the specified process.
+
+Our examples are pretty simple and we're not loading any extraneous stuff, so we'll
+just always load everything. If your entire workflow is contained in your top-level
+process, you can omit the :code:`subprocess` argument, but if your workflow contains 
+call activities, you'll need to use one of these methods to find the models for any 
+called processes.
 
 We also provide an enhanced script engine to our workflow.  More information about how and
 why you might want to do this is covered in :doc:`advanced`.  The :code:`script_engine`
 argument is optional and the default will be used if none is supplied.
 
-We return a :code:`BpmnWorkflow` based on the specs that uses the our custom script engine
-to execute script tasks and evaluate expressions.
+We return :code:`BpmnWorkflow` that runs our top-level workflow and contains specs for any 
+subprocesses defined by that workflow.
+
+Defining Task Handlers
+----------------------
+
+In :code:`run.py`, we define the function :code:`complete_user_task`.  This has code specific
+to Camunda User Task specs (in :code:`run-spiff.py`, we do something different).
+
+We also import the shared function :code:`complete_manual_task` for handling Manual
+Tasks as there is no difference.
+
+We create a mapping of task type to handler, which we'll pass to our workflow runner.
+
+.. code:: python
+
+    handlers = {
+        ManualTask: complete_manual_task,
+        UserTask: complete_user_task,
+    }
+
+This might not be a step you would need to do in an application you build, since
+you would likely have only one set of task specs that need to be parsed, handled, and
+serialized; however our `run` method is an awful lot of code to maintain in two separate
+files.
 
 Running a Workflow
 ------------------
 
-This is our application's :code:`run()` method.
+This is our application's :code:`run` method.
+
+We pass our workflow, the task handlers, a serializer (creating a serializer is covered in
+more depth in :doc:`advanced`).
 
 The :code:`step` argument is a boolean that indicates whether we want the option of seeing
 a more detailed representation of the state at each step, which we'll discuss in the
-section following this one.
+section following this one.  The :code:`display_types` argument controls what types of
+tasks should be included in a detailed list when stepping through a process.
 
 .. code:: python
 
-    def run(workflow, step):
+    def run(workflow, task_handlers, serializer, step, display_types):
 
         workflow.do_engine_steps()
 
@@ -105,19 +134,15 @@ section following this one.
                     dump.write(state)
             elif selected != '':
                 next_task = options[selected]
-                if isinstance(next_task.task_spec, UserTask):
-                    complete_user_task(next_task)
-                    next_task.complete()
-                elif isinstance(next_task.task_spec, ManualTask):
-                    complete_manual_task(next_task)
-                    next_task.complete()
-                else:
-                    next_task.complete()
+                handler = task_handlers.get(type(next_task.task_spec))
+                if handler is not None:
+                    handler(next_task)
+                next_task.complete()
 
             workflow.refresh_waiting_tasks()
             workflow.do_engine_steps()
             if step:
-                print_state(workflow)
+                print_state(workflow, next_task, display_types)
 
         print('\nWorkflow Data')
         print(json.dumps(workflow.data, indent=2, separators=[ ', ', ': ' ]))
@@ -186,16 +211,14 @@ Here is the code we use for examining the workflow state.
 
 .. code:: python
 
-    def print_state(workflow):
+    def print_state(workflow, task, display_types):
 
-        task = workflow.last_task
         print('\nLast Task')
         print(format_task(task))
         print(json.dumps(task.data, indent=2, separators=[ ', ', ': ' ]))
 
-        display_types = (UserTask, ManualTask, ScriptTask, ThrowingEvent, CatchingEvent)
         all_tasks = [ task for task in workflow.get_tasks() if isinstance(task.task_spec, display_types) ]
-        upcoming_tasks = [ task for task in all_tasks if task.state in [Task.READY, Task.WAITING] ]
+        upcoming_tasks = [ task for task in all_tasks if task.state in [TaskState.READY, TaskState.WAITING] ]
 
         print('\nUpcoming Tasks')
         for idx, task in enumerate(upcoming_tasks):
@@ -205,8 +228,7 @@ Here is the code we use for examining the workflow state.
             for idx, task in enumerate(all_tasks):
                 print(format_task(task))
 
-We can find out what the last task was with :code:`workflow.last_task`.  We'll print
-its information as described above, as well as a dump of its data.
+We'll print information about our task as described above, as well as a dump of its data.
 
 We can get a list of all tasks regardless of type or state with :code:`workflow.get_tasks()`.
 
@@ -216,8 +238,3 @@ the tasks to only display the ones that would have salience to a user here.
 
 We'll further filter those tasks for :code:`READY` and :code:`WAITING` tasks for a more
 compact display, and only show all tasks when explicitly called for.
-
-This is a very simple application, so our interactions with tasks are very basic.  You will
-definitely want to see the 'Navigation List' section of :doc:`advanced` for more sophisticated
-ways of managing workflow state.
-
