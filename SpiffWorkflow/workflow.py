@@ -62,17 +62,16 @@ class Workflow(object):
                 root = workflow_spec.task_specs['Root']
             else:
                 root = specs.Simple(workflow_spec, 'Root')
-        self.task_tree = Task(self, root)
+            logger.info('Initialize', extra=self.log_info())
+
+        # Setting TaskState.COMPLETED prevents the root task from being executed.
+        self.task_tree = Task(self, root, state=TaskState.COMPLETED)
         self.success = True
         self.debug = False
-
-        logger.info('Initialize', extra=self.log_info())
 
         # Events.
         self.completed_event = Event()
 
-        # Prevent the root task from being executed.
-        self.task_tree.state = TaskState.COMPLETED
         start = self.task_tree._add_child(self.spec.start, state=TaskState.FUTURE)
 
         self.spec.start._predict(start)
