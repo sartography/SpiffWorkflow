@@ -76,7 +76,6 @@ class Workflow(object):
 
         self.spec.start._predict(start)
         if 'parent' not in kwargs:
-            # _update is found in specs/base.py and THIS IS THE LINE THAT LOGS
             start.task_spec._update(start)
 
         self.task_mapping = self._get_task_mapping()
