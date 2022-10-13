@@ -1,11 +1,8 @@
 A More In-Depth Look at Some of SpiffWorkflow's Features
 ========================================================
 
-Displaying Workflow State
--------------------------
-
 Filtering Tasks
-^^^^^^^^^^^^^^^
+---------------
 
 In our earlier example, all we did was check the lane a task was in and display
 it along with the task name and state.
@@ -36,203 +33,49 @@ correspond to which states).
 
 .. code:: python
 
-    from SpiffWorkflow.task import Task
+    from SpiffWorkflow.task import TaskState
 
 To get a list of completed tasks
 
 .. code:: python
 
-    tasks = workflow.get_tasks(Task.COMPLETED)
+    tasks = workflow.get_tasks(TaskState.COMPLETED)
 
 The tasks themselves are not particularly intuitive to work with.  So SpiffWorkflow
 provides some facilities for obtaining a more user-friendly version of upcoming tasks.
 
-Nav(igation) List
-^^^^^^^^^^^^^^^^^
+Logging
+-------
 
-In order to get the navigation list, we can call the workflow.get_nav_list() function. This
-will return a list of dictionaries with information about each task and decision point in the
-workflow. Each item in this list returns some information about the tasks that are in the workflow,
-and how it relates to the other tasks.
+Spiff provides several loggers:
+ - the :code:`spiff` logger, which emits messages when a workflow is initialized and when tasks change state
+ - the :code:`spiff.metrics` logger, which emits messages containing the elapsed duration of tasks
+ - the :code:`spiff.data` logger, which emits message when task or workflow data is updated.
 
-To give you an idea of what is in the list I'll include a segment from the documentation::
+Log level :code:`INFO` will provide reasonably detailed information about state changes.
 
-               id               -   TaskSpec or Sequence flow id
-               task_id          -   The uuid of the actual task instance, if it exists.
-               name             -   The name of the task spec (or sequence)
-               description      -   Text description
-               backtracks       -   Boolean, if this backtracks back up the list or not
-               level            -   Depth in the tree - probably not needed
-               indent           -   A hint for indentation
-               child_count      -   The number of children that should be associated with
-                                    this item.
-               lane             -   This is the swimlane for the task if indicated.
-               state            -   Text based state (may be half baked in the case that we have
-                                    more than one state for a task spec - but I don't think those
-                                    are being reported in the list, so it may not matter)
-                Any task with a blank or None as the description are excluded from the list (i.e. gateways)
+As usual, log level :code:`DEBUG` will probably provide more logs than you really want
+to see, but the logs will contain the task and task internal data.
 
-
-Because the output from this list may be used in a variety of contexts, the implementation is left to the user.
-
-MultiInstance Notes
--------------------
-
-**loopCardinality** - This variable can be a text representation of a
-number - for example '2' or it can be the name of a variable in
-task.data that resolves to a text representation of a number.
-It can also be a collection such as a list or a dictionary. In the
-case that it is a list, the loop cardinality is equal to the length of
-the list and in the case of a dictionary, it is equal to the list of
-the keys of the dictionary.
-
-If loopCardinality is left blank and the Collection is defined, or if
-loopCardinality and Collection are the same collection, then the
-MultiInstance will loop over the collection and update each element of
-that collection with the new information. In this case, it is assumed
-that the incoming collection is a dictionary, currently behavior for
-working with a list in this manner is not defined and will raise an error.
-
-**Collection** This is the name of the collection that is created from
-the data generated when the task is run. Examples of this would be
-form data that is generated from a UserTask or data that is generated
-from a script that is run. Currently the collection is built up to be
-a dictionary with a numeric key that corresponds to the place in the
-loopCardinality. For example, if we set the loopCardinality to be a
-list such as ['a','b','c] the resulting collection would be {1:'result
-from a',2:'result from b',3:'result from c'} - and this would be true
-even if it is a parallel MultiInstance where it was filled out in a
-different order.
-
-**Element Variable** This is the variable name for the current
-iteration of the MultiInstance. In the case of the loopCardinality
-being just a number, this would be 1,2,3, . . .  If the
-loopCardinality variable is mapped to a collection it would be either
-the list value from that position, or it would be the value from the
-dictionary where the keys are in sorted order.  It is the content of the
-element variable that should be updated in the task.data. This content
-will then be added to the collection each time the task is completed.
-
-Example:
-  In a sequential MultiInstance, loop cardinality is ['a','b','c'] and elementVariable is 'myvar'
-  then in the case of a sequential multiinstance the first call would
-  have 'myvar':'a' in the first run of the task and 'myvar':'b' in the
-  second.
-
-Example:
-  In a Parallel MultiInstance, Loop cardinality is a variable that contains
-  {'a':'A','b':'B','c':'C'} and elementVariable is 'myvar' - when the multiinstance is ready, there
-  will be 3 tasks. If we choose the second task, the task.data will
-  contain 'myvar':'B'.
-
-Custom Script Engines
----------------------
-
-You may need to modify the default script engine, whether because you need to make additional
-functionality available to it, or because you might want to restrict its capabilities for
-security reasons.
-
-.. warning::
-
-   The default script engine does little to no sanitization and uses :code:`eval`
-   and :code:`exec`!  If you have security concerns, you should definitely investigate
-   replacing the default with your own implementation.
-
-The default script engine imports the following objects:
-
-- :code:`timedelta`
-- :code:`datetime`
-- :code:`dateparser`
-- :code:`pytz`
-
-You could add other functions or classes from the standard python modules or any code you've
-implemented yourself.
-
-In our example models so far, we've been using DMN tables to obtain product information.  DMN
-tables have a **lot** of uses so we wanted to feature them prominently, but in a simple way.
-
-If a customer was selecting a product, we would surely have information about how the product
-could be customized in a database somewhere.  We would not hard code product information in
-our diagram (although it is much easier to modify the BPMN diagram than to change the code
-itself!).  Our shipping costs would not be static, but would depend on the size of the order and
-where it was being shipped -- maybe we'd query an API provided by our shipper.
-
-SpiffWorkflow is obviously **not** going to know how to make a call to **your** database or
-make API calls to **your** vendors.  However, you can implement the calls yourself and make them
-available as a method that can be used within a script task.
-
-We are not going to actually include a database or API and write code for connecting to and querying
-it, but we can model our database with a simple dictionary lookup since we only have 7 products
-and just return the same static info for shipping for the purposes of the tutorial.
+Data can be included at any level less than :code:`INFO`.  In our exmple application,
+we define a custom log level
 
 .. code:: python
 
-    from collections import namedtuple
+    logging.addLevelName(15, 'DATA_LOG')
 
-    from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+so that we can see the task data in the logs without fully enabling debugging.
 
-    ProductInfo = namedtuple('ProductInfo', ['color', 'size', 'style', 'price'])
-
-    INVENTORY = {
-        'product_a': ProductInfo(False, False, False, 15.00),
-        'product_b': ProductInfo(False, False, False, 15.00),
-        'product_c': ProductInfo(True, False, False, 25.00),
-        'product_d': ProductInfo(True, True, False, 20.00),
-        'product_e': ProductInfo(True, True, True, 25.00),
-        'product_f': ProductInfo(True, True, True, 30.00),
-        'product_g': ProductInfo(False, False, True, 25.00),
-    }
-
-    def lookup_product_info(product_name):
-        return INVENTORY[product_name]
-
-    def lookup_shipping_cost(shipping_method):
-        return 25.00 if shipping_method == 'Overnight' else 5.00
-
-    additions = {
-        'lookup_product_info': lookup_product_info,
-        'lookup_shipping_cost': lookup_shipping_cost
-    }
-
-    CustomScriptEngine = PythonScriptEngine(scriptingAdditions=additions)
-
-We pass the script engine we created to the workflow when we load it.
-
-.. code:: python
-
-    return BpmnWorkflow(parser.get_spec(process), script_engine=CustomScriptEngine)
-
-We can use the custom functions in script tasks like any normal function:
-
-.. figure:: figures/custom_script_usage.png
-   :scale: 30%
-   :align: center
-
-   Workflow with lanes
-
-And we can simplify our 'Call Activity' flows:
-
-.. figure:: figures/call_activity_script_flow.png
-   :scale: 30%
-   :align: center
-
-   Workflow with lanes
-
-To run this workflow:
-
-.. code-block:: console
-
-    ./run.py -p order_product -b bpmn/call_activity_script.bpmn bpmn/top_level_script.bpmn
-
-We have also done some work using `Restricted Python <https://restrictedpython.readthedocs.io/en/latest/>`_
-to provide more secure alternatives to standard python functions.
+The workflow runners take an `-l` argument that can be used to specify the logging level used
+when running the example workflows.
 
 Serialization
 -------------
 
 .. warning::
 
-   Serialization Changed in Version 1.1.7.  Support for pre-1.1.7 serialization will be dropped in 1.2.
+   Serialization Changed in Version 1.1.7.  
+   Support for pre-1.1.7 serialization will be dropped in a future release.
    The old serialization method still works but it is deprecated.
    To migrate your system to the new version, see "Migrating between
    serialization versions" below.
@@ -242,37 +85,32 @@ setting. This may not always be the case, we may be executing the workflow in th
 may have a user request a web page where we open a specific workflow that we may be in the middle of, do one step of
 that workflow and then the user may be back in a few minutes, or maybe a few hours depending on the application.
 
-To accomplish this, we can import the serializer
-
-.. code:: python
-
-    from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
-
-This class contains a serializer for a workflow containing only standard BPMN Tasks.  Since we are using custom task
-classes (the Camunda :code:`UserTask` and the DMN :code:`BusinessRuleTask`), we'll need to import serializers for those task s
-pecs as well.
-
-.. code:: python
-
-    from SpiffWorkflow.camunda.serializer import UserTaskConverter
-    from SpiffWorkflow.dmn.serializer import BusinessRuleTaskConverter
+The :code:`BpmnWorkflowSerializer` class contains a serializer for a workflow containing only standard BPMN Tasks.  
+Since we are using custom task classes (the Camunda :code:`UserTask` and the DMN :code:`BusinessRuleTask`), 
+we'll need to supply serializers for those task specs as well.
 
 Strictly speaking, these are not serializers per se: they actually convert the tasks into dictionaries of
 JSON-serializable objects.  Conversion to JSON is done only as the last step and could easily be replaced with some
 other output format.
 
-We'll need to configure a Workflow Spec Converter with our custom classes:
+We'll need to configure a Workflow Spec Converter with our custom classes, as well as an optional
+custom data converter.
 
 .. code:: python
 
-    wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter(
-        [ UserTaskConverter, BusinessRuleTaskConverter ])
+    def create_serializer(task_types, data_converter=None):
 
-We create a serializer that can handle our extended task specs:
+        wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter(task_types)
+        return BpmnWorkflowSerializer(wf_spec_converter, data_converter)
+
+We'll call this from our main script:
 
 .. code:: python
 
-    serializer = BpmnWorkflowSerializer(wf_spec_converter)
+    serializer = create_serializer([ UserTaskConverter, BusinessRuleTaskConverter ], custom_data_converter)
+
+We first configure a workflow spec converter that uses our custom task converters, and then we create
+a :code:`BpmnWorkflowSerializer` from our workflow spec and data converters.
 
 We'll give the user the option of dumping the workflow at any time.
 
@@ -300,15 +138,15 @@ two components:
 - a data converter (which handles workflow and task data).
 
 The default workflow spec converter likely to meet your needs, either on its own, or with the inclusion of
-:code:`UserTask` and :code:`BusinessRuleTask` in the :code:`camnuda` and :code:`dmn` subpackages of this
-library, and all you'll need to do is add them to the list of task converters, as we did above.
+:code:`UserTask` and :code:`BusinessRuleTask` in the :code:`camnuda` or :code:`spiff` and :code:`dmn` subpackages 
+of this library, and all you'll need to do is add them to the list of task converters, as we did above.
 
 However, he default data converter is very simple, adding only JSON-serializable conversions of :code:`datetime`
 and :code:`timedelta` objects (we make these available in our default script engine) and UUIDs.  If your
 workflow or task data contains objects that are not JSON-serializable, you'll need to extend ours, or extend
 its base class to create one of your own.
 
-To do extend ours:
+To extend ours:
 
 1.  Subclass the base data converter
 2.  Register classes along with functions for converting them to and from dictionaries
@@ -421,3 +259,163 @@ new 1.1 format.
 If you've overridden the serializer version, you may need to incorporate our serialization changes with
 your own.  You can find our conversions in 
 `version_migrations.py <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/version_migration.py>`_
+
+Custom Script Engines
+---------------------
+
+You may need to modify the default script engine, whether because you need to make additional
+functionality available to it, or because you might want to restrict its capabilities for
+security reasons.
+
+.. warning::
+
+   The default script engine does little to no sanitization and uses :code:`eval`
+   and :code:`exec`!  If you have security concerns, you should definitely investigate
+   replacing the default with your own implementation.
+
+We'll cover a simple extension of custom script engine here.  There is also an examples of
+a similar engine based on `RestrictedPython <https://restrictedpython.readthedocs.io/en/latest/>`_
+included alongside this example.
+
+The default script engine imports the following objects:
+
+- :code:`timedelta`
+- :code:`datetime`
+- :code:`dateparser`
+- :code:`pytz`
+
+You could add other functions or classes from the standard python modules or any code you've
+implemented yourself.  Your global environment can be passed in using the `default_globals`
+argument when initializing the script engine.  In our RestrictedPython example, we use their
+`safe_globals` which prevents users from executing some potentially unsafe operations.
+
+In our example models so far, we've been using DMN tables to obtain product information.  DMN
+tables have a **lot** of uses so we wanted to feature them prominently, but in a simple way.
+
+If a customer was selecting a product, we would surely have information about how the product
+could be customized in a database somewhere.  We would not hard code product information in
+our diagram (although it is much easier to modify the BPMN diagram than to change the code
+itself!).  Our shipping costs would not be static, but would depend on the size of the order and
+where it was being shipped -- maybe we'd query an API provided by our shipper.
+
+SpiffWorkflow is obviously **not** going to know how to make a call to **your** database or
+make API calls to **your** vendors.  However, you can implement the calls yourself and make them
+available as a method that can be used within a script task.
+
+We are not going to actually include a database or API and write code for connecting to and querying
+it, but we can model our database with a simple dictionary lookup since we only have 7 products
+and just return the same static info for shipping for the purposes of the tutorial.
+
+.. code:: python
+
+    from collections import namedtuple
+
+    from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+
+    ProductInfo = namedtuple('ProductInfo', ['color', 'size', 'style', 'price'])
+
+    INVENTORY = {
+        'product_a': ProductInfo(False, False, False, 15.00),
+        'product_b': ProductInfo(False, False, False, 15.00),
+        'product_c': ProductInfo(True, False, False, 25.00),
+        'product_d': ProductInfo(True, True, False, 20.00),
+        'product_e': ProductInfo(True, True, True, 25.00),
+        'product_f': ProductInfo(True, True, True, 30.00),
+        'product_g': ProductInfo(False, False, True, 25.00),
+    }
+
+    def lookup_product_info(product_name):
+        return INVENTORY[product_name]
+
+    def lookup_shipping_cost(shipping_method):
+        return 25.00 if shipping_method == 'Overnight' else 5.00
+
+    additions = {
+        'lookup_product_info': lookup_product_info,
+        'lookup_shipping_cost': lookup_shipping_cost
+    }
+
+    CustomScriptEngine = PythonScriptEngine(scripting_additions=additions)
+
+We pass the script engine we created to the workflow when we load it.
+
+.. code:: python
+
+    return BpmnWorkflow(parser.get_spec(process), script_engine=CustomScriptEngine)
+
+We can use the custom functions in script tasks like any normal function:
+
+.. figure:: figures/custom_script_usage.png
+   :scale: 30%
+   :align: center
+
+   Workflow with lanes
+
+And we can simplify our 'Call Activity' flows:
+
+.. figure:: figures/call_activity_script_flow.png
+   :scale: 30%
+   :align: center
+
+   Workflow with lanes
+
+To run this workflow:
+
+.. code-block:: console
+
+    ./run.py -p order_product -b bpmn/call_activity_script.bpmn bpmn/top_level_script.bpmn
+
+It is also possible to completely replace `exec` and `eval` with something else, or to
+execute or evaluate statements in a completely separate environment by subclassing the
+:code:`PythonScriptEngine` and overriding `_execute` and `_evaluate`.  We have examples of
+executing code inside a docker container or in a celery task i this repo.
+
+MultiInstance Notes
+-------------------
+
+**loopCardinality** - This variable can be a text representation of a
+number - for example '2' or it can be the name of a variable in
+task.data that resolves to a text representation of a number.
+It can also be a collection such as a list or a dictionary. In the
+case that it is a list, the loop cardinality is equal to the length of
+the list and in the case of a dictionary, it is equal to the list of
+the keys of the dictionary.
+
+If loopCardinality is left blank and the Collection is defined, or if
+loopCardinality and Collection are the same collection, then the
+MultiInstance will loop over the collection and update each element of
+that collection with the new information. In this case, it is assumed
+that the incoming collection is a dictionary, currently behavior for
+working with a list in this manner is not defined and will raise an error.
+
+**Collection** This is the name of the collection that is created from
+the data generated when the task is run. Examples of this would be
+form data that is generated from a UserTask or data that is generated
+from a script that is run. Currently the collection is built up to be
+a dictionary with a numeric key that corresponds to the place in the
+loopCardinality. For example, if we set the loopCardinality to be a
+list such as ['a','b','c] the resulting collection would be {1:'result
+from a',2:'result from b',3:'result from c'} - and this would be true
+even if it is a parallel MultiInstance where it was filled out in a
+different order.
+
+**Element Variable** This is the variable name for the current
+iteration of the MultiInstance. In the case of the loopCardinality
+being just a number, this would be 1,2,3, . . .  If the
+loopCardinality variable is mapped to a collection it would be either
+the list value from that position, or it would be the value from the
+dictionary where the keys are in sorted order.  It is the content of the
+element variable that should be updated in the task.data. This content
+will then be added to the collection each time the task is completed.
+
+Example:
+  In a sequential MultiInstance, loop cardinality is ['a','b','c'] and elementVariable is 'myvar'
+  then in the case of a sequential multiinstance the first call would
+  have 'myvar':'a' in the first run of the task and 'myvar':'b' in the
+  second.
+
+Example:
+  In a Parallel MultiInstance, Loop cardinality is a variable that contains
+  {'a':'A','b':'B','c':'C'} and elementVariable is 'myvar' - when the multiinstance is ready, there
+  will be 3 tasks. If we choose the second task, the task.data will
+  contain 'myvar':'B'.

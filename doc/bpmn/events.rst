@@ -209,27 +209,20 @@ reach the event.
 Message Events
 ^^^^^^^^^^^^^^
 
-.. sidebar:: QA Lane
-
-   Ideally, this lane would be a process independent from the ordering process (we don't want
-   it to be cancelled just because an order eventually completes).  However, limitations of how
-   SpiffWorkflow handles processes precludes multiple top-level processes.
-
-In BPMN, Messages are used to communicate across processes and cannot be used within a
-workflow, but SpiffWorkflow allows message communication between lanes as well as between
-parent and child workflows.  We'll use the first scenario in our example.
-
-We've added a QA lane to out ordering process, whose job is investigating order order delays
-and recommending improvements.  This portion of our process will only be started when an
-appropriate message is received.
+In BPMN, Messages are used to communicate across processes.  Technically, Messages are not
+intended to be used inside a single process, but Spiff does support this use.
 
 Messages are similar to signals, in that they are referenced by name, but they have the
 additional property that they may contain a payload.
 
+We've added a QA process to our model, which will be initiated whenever an order takes to long
+to fulfill.  We'll send the reason for the delay in the message.
+
 .. note::
 
-   We currently depend on some Camunda-specific features in our implementation, but we
-   intend to replace this with our own.
+   This example depends on some Camunda-specific features in our implementation; there is
+   an alternate messaging implementation in the Spiff extensions package, described in
+   :doc:`spiff-extensions`.
 
 .. figure:: figures/throw_message_event.png
    :scale: 30%
