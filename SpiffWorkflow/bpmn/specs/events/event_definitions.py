@@ -34,6 +34,9 @@ class EventDefinition(object):
     Default catch behavior is to set the event to fired
     """
 
+    # Format to use for specifying dates for time based events
+    TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+
     def __init__(self):
         # Ideally I'd mke these parameters, but I don't want to them to be parameters
         # for any subclasses (as they are based on event type, not user choice) and
@@ -201,7 +204,7 @@ class MessageEventDefinition(NamedEventDefinition):
     def event_type(self):
         return 'Message'
 
-    def catch(self, my_task, event_definition):
+    def catch(self, my_task, event_definition = None):
         self.update_internal_data(my_task, event_definition)
         super(MessageEventDefinition, self).catch(my_task, event_definition)
 
@@ -249,9 +252,11 @@ class NoneEventDefinition(EventDefinition):
         return 'Default'
 
     def throw(self, my_task):
+        """It's a 'none' event, so nothing to throw."""
         pass
 
     def reset(self, my_task):
+        """It's a 'none' event, so nothing to reset."""
         pass
 
 
@@ -305,12 +310,11 @@ class TimerEventDefinition(EventDefinition):
         dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
         if isinstance(dt,datetime.timedelta):
             if my_task._get_internal_data('start_time',None) is not None:
-                start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time',None),'%Y-%m-%d '
-                                                                                                   '%H:%M:%S.%f')
+                start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time',None), self.TIME_FORMAT)
                 elapsed = datetime.datetime.now() - start_time
                 return elapsed > dt
             else:
-                my_task.internal_data['start_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+                my_task.internal_data['start_time'] = datetime.datetime.now().strftime(self.TIME_FORMAT)
                 return False
 
         if dt is None:
@@ -371,16 +375,11 @@ class CycleTimerEventDefinition(EventDefinition):
         now = datetime.datetime.now()
         if my_task._get_internal_data('start_time') is None:
             start_time = now
-            my_task.internal_data['start_time'] = now.strftime('%Y-%m-%d %H:%M:%S.%f')
+            my_task.internal_data['start_time'] = now.strftime(self.TIME_FORMAT)
         else:
-            start_time = datetime.datetime.strptime(
-                my_task._get_internal_data('start_time'),
-                '%Y-%m-%d %H:%M:%S.%f'
-            )
+            start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time'),self.TIME_FORMAT)
 
-        if my_task.get_data('repeat_count') >= repeat:
-            return False
-        elif (now - start_time) < delta:
+        if my_task.get_data('repeat_count') >= repeat or (now - start_time) < delta:
             return False
         return True
 

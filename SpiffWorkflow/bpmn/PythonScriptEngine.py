@@ -11,6 +11,15 @@ import pytz
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from ..operators import Operator
 
+# Would love to get rid of this altogether, as it rightly belongs in the
+# backend, but leaving it here because that's the path of least resistance.
+DEFAULT_GLOBALS = {
+    'timedelta': datetime.timedelta,
+    'datetime': datetime,
+    'dateparser': dateparser,
+    'pytz': pytz,
+}
+
 
 # Copyright (C) 2020 Kelly McDonald
 #
@@ -101,21 +110,16 @@ class PythonScriptEngine(object):
     expressions in a different way.
     """
 
-    def __init__(self, scripting_additions=None):
+    def __init__(self, default_globals=None, scripting_additions=None):
 
-        self.globals = {'timedelta': datetime.timedelta,
-                        'datetime': datetime,
-                        'dateparser': dateparser,
-                        'pytz': pytz,
-                        'Box': Box,
-                        }
+        self.globals = default_globals or DEFAULT_GLOBALS
         self.globals.update(scripting_additions or {})
         self.error_tasks = {}
 
     def validate(self, expression):
         ast.parse(expression)
 
-    def evaluate(self, task, expression):
+    def evaluate(self, task, expression, external_methods=None):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
@@ -126,9 +130,11 @@ class PythonScriptEngine(object):
                 # expression judging from the contents of operators.py
                 return expression._matches(task)
             else:
-                return self._evaluate(expression, task.data)
+                return self._evaluate(expression, task.data, external_methods)
         except Exception as e:
-            raise WorkflowTaskExecException(task, f"Error evaluating expression {expression}", e)
+            raise WorkflowTaskExecException(task,
+                                            f"Error evaluating expression {expression}",
+                                            e)
 
     def execute(self, task, script, external_methods=None):
         """
@@ -142,25 +148,10 @@ class PythonScriptEngine(object):
             self.error_tasks[task.id] = wte
             raise wte
 
-    def available_service_task_external_methods(self):
-        """Allows consumers a hook to specify external methods that can be
-        called from service tasks."""
-        return None
-
-    def evaluate_service_task_script(self, task, script, data,
-            external_methods=None):
-        """Evaluates the script, within the context of the specified task. Task
-        is assumed to be a service task. service_task_external_methods are
-        merged with the supplied external_methods before execution."""
-
-        additions = self.available_service_task_external_methods()
-
-        if external_methods is None:
-            external_methods = {}
-
-        external_methods.update(additions)
-
-        return self._evaluate(script, task.data, external_methods=external_methods)
+    def call_service(self, operation_name, operation_params, task_data):
+        """Override to control how external services are called from service
+        tasks."""
+        raise NotImplementedError("To call external services override the script engine and implement `call_service`.")
 
     def create_task_exec_exception(self, task, err):
 
@@ -179,8 +170,10 @@ class PythonScriptEngine(object):
         for frame_summary in traceback.extract_tb(tb):
             if frame_summary.filename == '<string>':
                 line_number = frame_summary.lineno
-                error_line = task.task_spec.script.splitlines()[line_number - 1]
-        return WorkflowTaskExecException(task, detail, err, line_number, error_line)
+                error_line = task.task_spec.script.splitlines()[
+                    line_number - 1]
+        return WorkflowTaskExecException(task, detail, err, line_number,
+                                         error_line)
 
     def check_for_overwrite(self, task, external_methods):
         """It's possible that someone will define a variable with the
@@ -197,34 +190,23 @@ class PythonScriptEngine(object):
 
     def convert_to_box(self, data):
         if isinstance(data, dict):
-            for x in data.keys():
-                if isinstance(data[x], dict):
-                    data[x] = self.convert_to_box(data[x])
+            for key, value in data.items():
+                if not isinstance(value, Box):
+                    data[key] = self.convert_to_box(value)
             return Box(data)
         if isinstance(data, list):
-            for x in range(len(data)):
-                data[x] = self.convert_to_box(data[x])
+            for idx, value in enumerate(data):
+                data[idx] = self.convert_to_box(value)
             return data
         return data
 
     def _evaluate(self, expression, context, external_methods=None):
-        """
-        Evaluate the given expression, within the context of the given task and
-        return the result.
-        """
-        lcls = {}
-        if isinstance(context, dict):
-            lcls.update(context)
 
         globals = copy.copy(self.globals)  # else we pollute all later evals.
-        for key in lcls.keys():
-            if isinstance(lcls[key], Box):
-                pass # Stunning performance improvement with this line.
-            elif isinstance(lcls[key], dict):
-                lcls[key] = Box(lcls[key])
-        globals.update(lcls)
+        self.convert_to_box(context)
         globals.update(external_methods or {})
-        return eval(expression, globals, lcls)
+        globals.update(context)
+        return eval(expression, globals)
 
     def _execute(self, script, context, external_methods=None):
 
@@ -232,20 +214,19 @@ class PythonScriptEngine(object):
         self.convert_to_box(context)
         my_globals.update(external_methods or {})
         context.update(my_globals)
-        exec(script, context)
-        self.remove_globals_and_functions_from_context(context, external_methods)
+        try:
+            exec(script, context)
+        finally:
+            self.remove_globals_and_functions_from_context(context,
+                                                           external_methods)
 
     def remove_globals_and_functions_from_context(self, context,
-                                                  external_methods = None):
+                                                  external_methods=None):
         """When executing a script, don't leave the globals, functions
-        and external methods in the context that we return."""
+        and external methods in the context that we have modified."""
         for k in list(context):
-            if k == "__builtins__":
+            if k == "__builtins__" or \
+                    hasattr(context[k], '__call__') or \
+                    k in self.globals or \
+                    external_methods and k in external_methods:
                 context.pop(k)
-            elif hasattr(context[k], '__call__'):
-                context.pop(k)
-            elif k in self.globals:
-                context.pop(k)
-            elif external_methods and k in external_methods:
-                context.pop(k)
-

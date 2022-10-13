@@ -47,7 +47,7 @@ class EndEvent(ThrowingEvent):
 
     @property
     def spec_type(self):
-        return f'{self.event_definition.event_type} End Event'
+        return 'End Event'
 
     def _on_complete_hook(self, my_task):
 

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from SpiffWorkflow import TaskState
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from .BaseTestCase import BaseTestCase

@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.join(dirname, '..', '..', '..', '..'))
 import uuid
 from SpiffWorkflow.bpmn.serializer.dict import BPMNDictionarySerializer
 from tests.SpiffWorkflow.serializer.baseTest import SerializerTest
-from SpiffWorkflow import Workflow
+from SpiffWorkflow.workflow import Workflow
 
 
 class BPMNDictionarySerializerTest(SerializerTest):

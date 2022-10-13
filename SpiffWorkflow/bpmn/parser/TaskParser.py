@@ -62,8 +62,8 @@ class TaskParser(NodeParser):
         self.spec_class = spec_class
         self.spec = self.process_parser.spec
 
-    def _set_multiinstance_attributes(self, isSequential, expanded, loopcount,
-            loopTask=False, elementVar=None, collection=None, completioncondition=None):
+    def _set_multiinstance_attributes(self, is_sequential, expanded, loop_count,
+                                      loop_task=False, element_var=None, collection=None, completion_condition=None):
         # This should be replaced with its own task parser (though I'm not sure how feasible this is given
         # the current parser achitecture).  We should also consider separate classes for loop vs
         # multiinstance because having all these optional attributes is a nightmare
@@ -74,14 +74,14 @@ class TaskParser(NodeParser):
                 node=self.node,
                 filename=self.filename)
 
-        self.task.loopTask = loopTask
-        self.task.isSequential = isSequential
+        self.task.loopTask = loop_task
+        self.task.isSequential = is_sequential
         self.task.expanded = expanded
         # make dot notation compatible with bmpmn path notation.
-        self.task.times = PathAttrib(loopcount.replace('.', '/')) if loopcount.find('.') > 0 else Attrib(loopcount)
-        self.task.elementVar = elementVar
+        self.task.times = PathAttrib(loop_count.replace('.', '/')) if loop_count.find('.') > 0 else Attrib(loop_count)
+        self.task.elementVar = element_var
         self.task.collection = collection
-        self.task.completioncondition = completioncondition
+        self.task.completioncondition = completion_condition
 
         self.task.prevtaskclass = self.task.__module__ + "." + self.task.__class__.__name__
         newtaskclass = getDynamicMIClass(self.get_id(),self.task.__class__)
@@ -89,23 +89,23 @@ class TaskParser(NodeParser):
 
     def _detect_multiinstance(self):
 
-        multiinstanceElement = first(self.xpath('./bpmn:multiInstanceLoopCharacteristics'))
-        if multiinstanceElement is not None:
-            isSequential = multiinstanceElement.get('isSequential') == 'true'
+        multiinstance_element = first(self.xpath('./bpmn:multiInstanceLoopCharacteristics'))
+        if multiinstance_element is not None:
+            is_sequential = multiinstance_element.get('isSequential') == 'true'
 
-            elementVarText = multiinstanceElement.attrib.get('{' + CAMUNDA_MODEL_NS + '}elementVariable')
-            collectionText = multiinstanceElement.attrib.get('{' + CAMUNDA_MODEL_NS + '}collection')
+            element_var_text = multiinstance_element.attrib.get('{' + CAMUNDA_MODEL_NS + '}elementVariable')
+            collection_text = multiinstance_element.attrib.get('{' + CAMUNDA_MODEL_NS + '}collection')
 
             loop_cardinality = first(self.xpath('./bpmn:multiInstanceLoopCharacteristics/bpmn:loopCardinality'))
             if loop_cardinality is not None:
-                loopcount = loop_cardinality.text
-            elif collectionText is not None:
-                loopcount = collectionText
+                loop_count = loop_cardinality.text
+            elif collection_text is not None:
+                loop_count = collection_text
             else:
-                loopcount = '1'
+                loop_count = '1'
 
-            if collectionText is not None:
-                collection = PathAttrib(collectionText.replace('.', '/')) if collectionText.find('.') > 0 else Attrib(collectionText)
+            if collection_text is not None:
+                collection = PathAttrib(collection_text.replace('.', '/')) if collection_text.find('.') > 0 else Attrib(collection_text)
             else:
                 collection = None
 
@@ -113,13 +113,13 @@ class TaskParser(NodeParser):
             if completion_condition is not None:
                 completion_condition = completion_condition.text
 
-            self._set_multiinstance_attributes(isSequential, 1, loopcount,
-                elementVar=elementVarText,
-                collection=collection,
-                completioncondition=completion_condition)
+            self._set_multiinstance_attributes(is_sequential, 1, loop_count,
+                                               element_var=element_var_text,
+                                               collection=collection,
+                                               completion_condition=completion_condition)
 
         elif len(self.xpath('./bpmn:standardLoopCharacteristics')) > 0:
-            self._set_multiinstance_attributes(True, 25, STANDARDLOOPCOUNT, loopTask=True)
+            self._set_multiinstance_attributes(True, 25, STANDARDLOOPCOUNT, loop_task=True)
 
     def parse_node(self):
         """

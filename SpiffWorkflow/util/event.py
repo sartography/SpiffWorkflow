@@ -193,10 +193,10 @@ class Event(object):
                 # not work, because other threads may be trying to do
                 # the same, causing yet another race condition.
                 # So the only solution is to skip such functions.
-                function = callback.get_function()
-                if function is None:
+                cb_func = callback.get_function()
+                if cb_func is None:
                     continue
-                result = function(*args + user_args, **kwargs)
+                result = cb_func(*args + user_args, **kwargs)
                 if result is not None:
                     return result
 

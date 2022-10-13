@@ -9,9 +9,9 @@
       <bpmn:extensionElements>
         <spiffworkflow:serviceTaskOperator id="bamboohr/GetPayRate">
           <spiffworkflow:parameters>
-            <spiffworkflow:parameter id="api_key" type="string" value="secret:BAMBOOHR_API_KEY" />
+            <spiffworkflow:parameter id="api_key" type="string" value="'secret:BAMBOOHR_API_KEY'" />
             <spiffworkflow:parameter id="employee_id" type="string" value="4" />
-            <spiffworkflow:parameter id="subdomain" type="string" value="ServiceTask" />
+            <spiffworkflow:parameter id="subdomain" type="string" value="'ServiceTask'" />
           </spiffworkflow:parameters>
         </spiffworkflow:serviceTaskOperator>
       </bpmn:extensionElements>

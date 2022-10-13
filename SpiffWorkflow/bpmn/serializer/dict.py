@@ -171,7 +171,7 @@ class BPMNDictionarySerializer(DictionarySerializer):
 
     def serialize_business_rule_task(self, spec):
         s_state = self.serialize_task_spec(spec)
-        dictrep = spec.dmnEngine.decisionTable.serialize()
+        dictrep = spec.dmnEngine.decision_table.serialize()
         # future
         s_state['dmn'] = dictrep
         return s_state
@@ -179,8 +179,8 @@ class BPMNDictionarySerializer(DictionarySerializer):
     def deserialize_business_rule_task(self, wf_spec, s_state):
         dt = DecisionTable(None,None)
         dt.deserialize(s_state['dmn'])
-        dmnEngine = DMNEngine(dt)
-        spec = BusinessRuleTask(wf_spec, s_state['name'], dmnEngine)
+        dmn_engine = DMNEngine(dt)
+        spec = BusinessRuleTask(wf_spec, s_state['name'], dmn_engine)
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
@@ -201,15 +201,15 @@ class BPMNDictionarySerializer(DictionarySerializer):
             if (hasattr(spec,'expanded')):
                 s_state['expanded'] = self.serialize_arg(spec.expanded)
         if isinstance(spec,BusinessRuleTask):
-            brState = self.serialize_business_rule_task(spec)
-            s_state['dmn'] = brState['dmn']
+            br_state = self.serialize_business_rule_task(spec)
+            s_state['dmn'] = br_state['dmn']
         if isinstance(spec, ScriptTask):
-            brState = self.serialize_script_task(spec)
-            s_state['script'] = brState['script']
+            br_state = self.serialize_script_task(spec)
+            s_state['script'] = br_state['script']
         if isinstance(spec, SubWorkflowTask):
-            brState = self.serialize_subworkflow(spec)
-            s_state['wf_class'] = brState['wf_class']
-            s_state['spec'] = brState['spec']
+            br_state = self.serialize_subworkflow(spec)
+            s_state['wf_class'] = br_state['wf_class']
+            s_state['spec'] = br_state['spec']
 
         return s_state
 
@@ -226,8 +226,8 @@ class BPMNDictionarySerializer(DictionarySerializer):
         if isinstance(cls,BusinessRuleTask):
             dt = DecisionTable(None,None)
             dt.deserialize(s_state['dmn'])
-            dmnEngine = DMNEngine(dt)
-            cls.dmnEngine=dmnEngine
+            dmn_engine = DMNEngine(dt)
+            cls.dmnEngine=dmn_engine
         if isinstance(cls, ScriptTask):
             cls.script = s_state['script']
         if isinstance(cls, SubWorkflowTask):

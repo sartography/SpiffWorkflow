@@ -24,20 +24,13 @@ class ServiceTask(SpiffBpmnTask, ServiceTask):
 
     def _execute(self, task):
         def evaluate(param):
-            try:
-                param['value'] = task.workflow.script_engine.evaluate(task,
-                        param['value'])
-            except:
-                pass
-
+            param['value'] = task.workflow.script_engine.evaluate(task, param['value'])
             return param
 
-        operation_params_var_name = 'spiff__operation_params'
         evaluated_params = {k: evaluate(v) for k, v in self.operation_params.items()}
-        script = f'ServiceTaskDelegate.call_connector("{self.operation_name}", {operation_params_var_name})'
 
-        result = task.workflow.script_engine.evaluate_service_task_script(task, script, task.data,
-                external_methods={ operation_params_var_name: evaluated_params })
+        result = task.workflow.script_engine.call_service(self.operation_name,
+                evaluated_params, task.data)
 
         parsed_result = json.loads(result)
 

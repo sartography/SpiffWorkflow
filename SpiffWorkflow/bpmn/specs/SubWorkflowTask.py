@@ -8,7 +8,6 @@ from ...specs import TaskSpec
 
 
 class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
-
     """
     Task Spec for a bpmn node containing a subworkflow.
     """
@@ -59,7 +58,6 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
 
-        super(SubWorkflowTask, self)._on_subworkflow_completed(subworkflow, my_task)
         # Shouldn't this always be true?
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
             my_task.parent.task_spec._child_complete_hook(my_task)
@@ -115,7 +113,7 @@ class CallActivity(SubWorkflowTask):
         return 'Call Activity'
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
+    def deserialize(cls, serializer, wf_spec, s_state):
         return serializer.deserialize_subworkflow_task(wf_spec, s_state, CallActivity)
 
 class TransactionSubprocess(SubWorkflowTask):
@@ -128,5 +126,5 @@ class TransactionSubprocess(SubWorkflowTask):
         return 'Transactional Subprocess'
 
     @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
+    def deserialize(cls, serializer, wf_spec, s_state):
         return serializer.deserialize_subworkflow_task(wf_spec, s_state, TransactionSubprocess)

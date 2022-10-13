@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.join(dirname, '..'))
 from PatternTest import run_workflow, PatternTest
 from SpiffWorkflow.serializer.base import Serializer
 from SpiffWorkflow.specs import WorkflowSpec
-from SpiffWorkflow import Workflow
+from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.serializer.exceptions import TaskNotSupportedError
 
 
