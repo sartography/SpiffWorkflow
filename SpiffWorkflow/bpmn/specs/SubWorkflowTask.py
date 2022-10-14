@@ -3,11 +3,10 @@ from copy import deepcopy
 
 from SpiffWorkflow.task import TaskState
 from .BpmnSpecMixin import BpmnSpecMixin
-from ...specs.SubWorkflow import SubWorkflow
 from ...specs import TaskSpec
 
 
-class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
+class SubWorkflowTask(BpmnSpecMixin):
     """
     Task Spec for a bpmn node containing a subworkflow.
     """
@@ -18,7 +17,7 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
         :param bpmn_wf_spec: the BpmnProcessSpec for the sub process.
         :param bpmn_wf_class: the BpmnWorkflow class to instantiate
         """
-        super(SubWorkflowTask, self).__init__(wf_spec, name, None, **kwargs)
+        super(SubWorkflowTask, self).__init__(wf_spec, name, **kwargs)
         self.spec = subworkflow_spec
         self.transaction = transaction
 
@@ -36,25 +35,8 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
 
     def _on_ready_hook(self, my_task):
 
-        for obj in self.data_input_associations:
-            obj.get(my_task)
-
-        subworkflow = my_task.workflow.get_subprocess(my_task)
-        start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
-
-        if len(subworkflow.spec.data_inputs) == 0:
-            # Copy all task data into start task if no inputs specified
-            start[0].set_data(**my_task.data)
-        else:
-            # Otherwise copy only task data with the specified names
-            for var in subworkflow.spec.data_inputs:
-                var.copy(my_task, start[0], data_input=True)
-
-        self._predict(my_task)
-        for child in subworkflow.task_tree.children:
-            child.task_spec._update(child)
-
-        my_task._set_state(TaskState.WAITING)
+        super()._on_ready_hook(my_task)
+        self.start_workflow(my_task)
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
 
@@ -91,6 +73,24 @@ class SubWorkflowTask(SubWorkflow, BpmnSpecMixin):
         subworkflow = my_task.workflow.get_subprocess(my_task)
         if subworkflow is not None:
             subworkflow.cancel()
+
+    def start_workflow(self, my_task):
+
+        subworkflow = my_task.workflow.get_subprocess(my_task)
+        start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
+
+        if len(subworkflow.spec.data_inputs) == 0:
+            # Copy all task data into start task if no inputs specified
+            start[0].set_data(**my_task.data)
+        else:
+            # Otherwise copy only task data with the specified names
+            for var in subworkflow.spec.data_inputs:
+                var.copy(my_task, start[0], data_input=True)
+
+        for child in subworkflow.task_tree.children:
+            child.task_spec._update(child)
+
+        my_task._set_state(TaskState.WAITING)
 
     def serialize(self, serializer):
         return serializer.serialize_subworkflow_task(self)
