@@ -141,7 +141,12 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
         # Add the data specs
         spec.data_inputs = [ self.restore(obj_dct) for obj_dct in dct.pop('data_inputs', []) ]
         spec.data_outputs = [ self.restore(obj_dct) for obj_dct in dct.pop('data_outputs', []) ]
-        spec.data_objects = dict([ (name, self.restore(obj_dct)) for name, obj_dct in dct.pop('data_objects', {}).items() ])
+        # fixme:  This conditional can be removed in the next release, just avoiding invalid a potential
+        #  serialization issue for some users caught between official releases.
+        if (isinstance(dct['data_objects'], dict)):
+            spec.data_objects = dict([ (name, self.restore(obj_dct)) for name, obj_dct in dct.pop('data_objects', {}).items() ])
+        else:
+            spec.data_objects = {}
 
         # Add messaging related stuff
         spec.correlation_keys = dct.pop('correlation_keys', {})
