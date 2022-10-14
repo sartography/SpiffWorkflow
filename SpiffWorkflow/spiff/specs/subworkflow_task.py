@@ -1,7 +1,7 @@
 from SpiffWorkflow.bpmn.specs.SubWorkflowTask import SubWorkflowTask, TransactionSubprocess, CallActivity
 from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
 
-class SubWorkflowTask(SpiffBpmnTask, SubWorkflowTask):
+class SubWorkflowTask(SubWorkflowTask, SpiffBpmnTask):
 
     def __init__(self, wf_spec, name, subworkflow_spec, transaction=False, **kwargs):
 
@@ -13,11 +13,19 @@ class SubWorkflowTask(SpiffBpmnTask, SubWorkflowTask):
         self.in_assign = []
         self.out_assign = []
 
+    def _on_ready_hook(self, my_task):
+        SpiffBpmnTask._on_ready_hook(self, my_task)
+        self.start_workflow(my_task)
+
+    def _on_complete_hook(self, my_task):
+        SpiffBpmnTask._on_complete_hook(self, my_task)
+
     @property
     def spec_type(self):
         return 'Subprocess'
 
-class TransactionSubprocess(SpiffBpmnTask, TransactionSubprocess):
+
+class TransactionSubprocess(SubWorkflowTask, TransactionSubprocess):
 
     def __init__(self, wf_spec, name, subworkflow_spec, transaction=True, **kwargs):
 
@@ -31,7 +39,8 @@ class TransactionSubprocess(SpiffBpmnTask, TransactionSubprocess):
     def spec_type(self):
         return 'Transactional Subprocess'
 
-class CallActivity(SpiffBpmnTask, CallActivity):
+
+class CallActivity(SubWorkflowTask, CallActivity):
 
     def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
         

@@ -17,6 +17,19 @@ class PrescriptPostsciptTest(BaseTestCase):
     def testCallActivitySaveRestore(self):
         self.call_activity_test(True)
 
+    def testDataObject(self):
+        
+        spec, subprocesses = self.load_workflow_spec('prescript_postscript_data_object.bpmn', 'Process_1')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        # Set a on the workflow and b in the first task.
+        self.workflow.data['a'] = 1
+        self.set_process_data({'b': 2})
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        # This execute the same script as task_test
+        ready_tasks[0].complete()
+        # a should be removed, b should be unchanged, and c and z should be present (but not x & y)
+        self.assertDictEqual({'b': 2, 'c': 12, 'z': 6}, ready_tasks[0].data)
+
     def task_test(self, save_restore=False):
 
         spec, subprocesses = self.load_workflow_spec('prescript_postscript.bpmn', 'Process_1')

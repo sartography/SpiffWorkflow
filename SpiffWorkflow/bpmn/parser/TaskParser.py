@@ -25,13 +25,12 @@ from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
 from ..specs.events import _BoundaryEventParent, CancelEventDefinition
 from ..specs.MultiInstanceTask import getDynamicMIClass
-from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
+from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess, SubWorkflowTask
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...operators import Attrib, PathAttrib
 from .util import one, first
 from .node_parser import NodeParser
-from ...specs.SubWorkflow import SubWorkflow
 
 STANDARDLOOPCOUNT = '25'
 
@@ -68,7 +67,7 @@ class TaskParser(NodeParser):
         # the current parser achitecture).  We should also consider separate classes for loop vs
         # multiinstance because having all these optional attributes is a nightmare
 
-        if not isinstance(self.task, (NoneTask,UserTask,BusinessRuleTask,ScriptTask,CallActivity,SubWorkflow)):
+        if not isinstance(self.task, (NoneTask, UserTask, BusinessRuleTask, ScriptTask, CallActivity, SubWorkflowTask)):
             raise ValidationException(
                 f'Unsupported MultiInstance Task: {self.task.__class__}',
                 node=self.node,

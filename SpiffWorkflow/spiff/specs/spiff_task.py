@@ -34,9 +34,9 @@ class SpiffBpmnTask(BpmnSpecMixin):
             raise exc
 
     def _on_ready_hook(self, my_task):
+        super()._on_ready_hook(my_task)
         if self.prescript is not None:
             self.execute_script(my_task, self.prescript)
-        super()._on_ready_hook(my_task)
 
     def _on_complete_hook(self, my_task):
         if self.postscript is not None:
