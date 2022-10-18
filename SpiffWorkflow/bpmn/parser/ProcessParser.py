@@ -29,7 +29,7 @@ class ProcessParser(NodeParser):
     process.
     """
 
-    def __init__(self, p, node, filename=None, doc_xpath=None, lane=None):
+    def __init__(self, p, node, nsmap, filename=None, lane=None):
         """
         Constructor.
 
@@ -39,7 +39,7 @@ class ProcessParser(NodeParser):
         :param doc_xpath: an xpath evaluator for the document (optional)
         :param lane: the lane of a subprocess (optional)
         """
-        super().__init__(node, filename, doc_xpath, lane)
+        super().__init__(node, nsmap, filename=filename, lane=lane)
         self.parser = p
         self.parsed_nodes = {}
         self.lane = lane
@@ -58,7 +58,6 @@ class ProcessParser(NodeParser):
         can be called by a TaskParser instance, that is owned by this
         ProcessParser.
         """
-
         if node.get('id') in self.parsed_nodes:
             return self.parsed_nodes[node.get('id')]
 
@@ -66,7 +65,7 @@ class ProcessParser(NodeParser):
         if not node_parser or not spec_class:
             raise ValidationException("There is no support implemented for this task type.",
                 node=node, filename=self.filename)
-        np = node_parser(self, spec_class, node, self.lane)
+        np = node_parser(self, spec_class, node, lane=self.lane)
         task_spec = np.parse_node()
         return task_spec
 
@@ -82,12 +81,12 @@ class ProcessParser(NodeParser):
         # Check for an IO Specification.
         io_spec = first(self.xpath('./bpmn:ioSpecification'))
         if io_spec is not None:
-            data_parser = DataSpecificationParser(io_spec, self.filename, self.doc_xpath)
+            data_parser = DataSpecificationParser(io_spec, filename=self.filename)
             self.spec.data_inputs, self.spec.data_outputs = data_parser.parse_io_spec()
 
         # Get the data objects
         for obj in self.xpath('./bpmn:dataObject'):
-            data_parser = DataSpecificationParser(obj, self.filename, self.doc_xpath)
+            data_parser = DataSpecificationParser(obj, filename=self.filename)
             data_object = data_parser.parse_data_object()
             self.spec.data_objects[data_object.name] = data_object
 

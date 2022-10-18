@@ -1,10 +1,10 @@
 from ..specs.UserTask import UserTask
-from ..parser.UserTaskParser import UserTaskParser
+from ..parser.task_spec import UserTaskParser
 from ...bpmn.parser.BpmnParser import full_tag
 
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
-from SpiffWorkflow.camunda.parser.business_rule_task import BusinessRuleTaskParser
+from SpiffWorkflow.camunda.parser.task_spec import BusinessRuleTaskParser
 
 from SpiffWorkflow.bpmn.specs.events import EndEvent, IntermediateThrowEvent, StartEvent, IntermediateCatchEvent, BoundaryEvent
 from .event_parsers import CamundaStartEventParser, CamundaEndEventParser, \

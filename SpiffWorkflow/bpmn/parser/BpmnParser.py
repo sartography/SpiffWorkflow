@@ -37,6 +37,7 @@ from ..specs.ScriptTask import ScriptTask
 from ..specs.ServiceTask import ServiceTask
 from ..specs.UserTask import UserTask
 from .ProcessParser import ProcessParser
+from .node_parser import DEFAULT_NSMAP
 from .util import full_tag, xpath_eval, first
 from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
                            ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser,
@@ -83,15 +84,15 @@ class BpmnParser(object):
 
     PROCESS_PARSER_CLASS = ProcessParser
 
-    def __init__(self):
+    def __init__(self, namespaces=None):
         """
         Constructor.
         """
+        self.namespaces = namespaces or DEFAULT_NSMAP
         self.process_parsers = {}
         self.process_parsers_by_name = {}
         self.collaborations = {}
         self.process_dependencies = set()
-        self.dmn_dependencies = set()
 
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
@@ -146,46 +147,28 @@ class BpmnParser(object):
           file
         :param filename: Optionally, provide the source filename.
         """
-        xpath = xpath_eval(bpmn)
-        # do a check on our bpmn to ensure that no id appears twice
-        # this *should* be taken care of by our modeler - so this test
-        # should never fail.
-        ids = [x for x in xpath('.//bpmn:*[@id]')]
-        foundids = {}
-        for node in ids:
-            id = node.get('id')
-            if foundids.get(id,None) is not None:
-                raise ValidationException(
-                    'The bpmn document should have no repeating ids but (%s) repeats'%id,
-                    node=node,
-                    filename=filename)
-            else:
-                foundids[id] = 1
+        self._add_processes(bpmn, filename)
+        self._add_collaborations(bpmn, filename)
 
-        for process in xpath('.//bpmn:process'):
-            self.create_parser(process, xpath, filename)
+    def _add_processes(self, bpmn, filename=None):
+        for process in bpmn.xpath('.//bpmn:process', namespaces=self.namespaces):
+            self._find_dependencies(process)
+            self.create_parser(process, filename)
 
-        self._find_dependencies(xpath)
-
-        collaboration = first(xpath('.//bpmn:collaboration'))
+    def _add_collaborations(self, bpmn, filename=None):
+        collaboration = first(bpmn.xpath('.//bpmn:collaboration', namespaces=self.namespaces))
         if collaboration is not None:
             collaboration_xpath = xpath_eval(collaboration)
             name = collaboration.get('id')
             self.collaborations[name] = [ participant.get('processRef') for participant in collaboration_xpath('.//bpmn:participant') ]
 
-    def _find_dependencies(self, xpath):
-        """Locate all calls to external BPMN and DMN files, and store their
-        ids in our list of dependencies"""
-        for call_activity in xpath('.//bpmn:callActivity'):
+    def _find_dependencies(self, process):
+        """Locate all calls to external BPMN, and store their ids in our list of dependencies"""
+        for call_activity in process.xpath('.//bpmn:callActivity', namespaces=self.namespaces):
             self.process_dependencies.add(call_activity.get('calledElement'))
-        parser_cls, cls = self._get_parser_class(full_tag('businessRuleTask'))
-        if parser_cls:
-            for business_rule in xpath('.//bpmn:businessRuleTask'):
-                self.dmn_dependencies.add(parser_cls.get_decision_ref(business_rule))
 
-
-    def create_parser(self, node, doc_xpath, filename=None, lane=None):
-        parser = self.PROCESS_PARSER_CLASS(self, node, filename=filename, doc_xpath=doc_xpath, lane=lane)
+    def create_parser(self, node, filename=None, lane=None):
+        parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, filename=filename, lane=lane)
         if parser.get_id() in self.process_parsers:
             raise ValidationException('Duplicate process ID', node=node, filename=filename)
         if parser.get_name() in self.process_parsers_by_name:
@@ -194,13 +177,10 @@ class BpmnParser(object):
         self.process_parsers_by_name[parser.get_name()] = parser
 
     def get_dependencies(self):
-        return self.process_dependencies.union(self.dmn_dependencies)
+        return self.process_dependencies
 
     def get_process_dependencies(self):
         return self.process_dependencies
-
-    def get_dmn_dependencies(self):
-        return self.dmn_dependencies
 
     def get_spec(self, process_id_or_name):
         """

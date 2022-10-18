@@ -1,12 +1,14 @@
 import glob
 
-from ...bpmn.parser.util import xpath_eval
+from lxml import etree
+
+from ...bpmn.parser.util import xpath_eval, full_tag
 from ...bpmn.parser.ValidationException import ValidationException
 
 from ...bpmn.parser.BpmnParser import BpmnParser
 from ...dmn.parser.DMNParser import DMNParser
 from ..engine.DMNEngine import DMNEngine
-from lxml import etree
+
 
 class BpmnDmnParser(BpmnParser):
 
@@ -14,6 +16,7 @@ class BpmnDmnParser(BpmnParser):
         super().__init__()
         self.dmn_parsers = {}
         self.dmn_parsers_by_name = {}
+        self.dmn_dependencies = set()
 
     def get_engine(self, decision_ref, node):
         if decision_ref not in self.dmn_parsers:
@@ -31,8 +34,7 @@ class BpmnDmnParser(BpmnParser):
         Add the given lxml representation of the DMN file to the parser's set.
         """
         xpath = xpath_eval(node)
-        dmn_parser = DMNParser(
-            self, node, filename=filename, doc_xpath=xpath)
+        dmn_parser = DMNParser(self, node, filename=filename)
         self.dmn_parsers[dmn_parser.get_id()] = dmn_parser
         self.dmn_parsers_by_name[dmn_parser.get_name()] = dmn_parser
 
@@ -59,3 +61,15 @@ class BpmnDmnParser(BpmnParser):
                 self.add_dmn_xml(etree.parse(f).getroot(), filename=filename)
             finally:
                 f.close()
+
+    def get_dependencies(self):
+        return self.process_dependencies.union(self.dmn_dependencies)
+
+    def get_dmn_dependencies(self):
+        return self.dmn_dependencies
+
+    def _find_dependencies(self, process):
+        super()._find_dependencies(process)
+        parser_cls, cls = self._get_parser_class(full_tag('businessRuleTask'))
+        for business_rule in process.xpath('.//bpmn:businessRuleTask',namespaces=self.namespaces):
+            self.dmn_dependencies.add(parser_cls.get_decision_ref(business_rule))

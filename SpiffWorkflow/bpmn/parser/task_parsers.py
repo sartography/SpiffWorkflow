@@ -138,7 +138,6 @@ class SubprocessParser:
 
         task_parser.process_parser.parser.create_parser(
             task_parser.node,
-            doc_xpath=task_parser.doc_xpath,
             filename=task_parser.filename,
             lane=task_parser.lane
         )

@@ -1,5 +1,7 @@
 import ast
 
+from SpiffWorkflow.bpmn.parser.node_parser import NodeParser, DEFAULT_NSMAP
+
 from ...bpmn.parser.util import xpath_eval
 
 from ...dmn.specs.model import Decision, DecisionTable, InputEntry, \
@@ -19,7 +21,7 @@ def get_dmn_ns(node):
     return None
 
 
-class DMNParser(object):
+class DMNParser(NodeParser):
     """
     Please note this DMN Parser still needs a lot of work.  A few key areas
     that need to be addressed:
@@ -30,7 +32,7 @@ class DMNParser(object):
 
     DT_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
-    def __init__(self, p, node, svg=None, filename=None, doc_xpath=None):
+    def __init__(self, p, node, svg=None, filename=None):
         """
         Constructor.
 
@@ -40,14 +42,17 @@ class DMNParser(object):
           (optional)
         :param filename: the source BMN filename (optional)
         """
+        nsmap = DEFAULT_NSMAP.copy()
+        dmn_ns = get_dmn_ns(node)
+        if dmn_ns is not None:
+            nsmap['dmn'] = dmn_ns
+        super().__init__(node, nsmap, filename=filename)
+
         self.parser = p
         self.node = node
         self.decision = None
         self.svg = svg
         self.filename = filename
-        self.doc_xpath = doc_xpath
-        self.dmn_ns = get_dmn_ns(self.node)
-        self.xpath = xpath_eval(self.node, {'dmn': self.dmn_ns})
 
     def parse(self):
         self.decision = self._parse_decision(self.node.findall('{*}decision'))
@@ -117,11 +122,12 @@ class DMNParser(object):
 
     def _parse_input(self, input_element):
         type_ref = None
-        xpath = xpath_eval(input_element, {'dmn': self.dmn_ns})
+        prefix = self.nsmap['dmn']
+        xpath = xpath_eval(input_element, {'dmn': prefix})
         expression = None
         for input_expression in xpath('dmn:inputExpression'):
             type_ref = input_expression.attrib.get('typeRef', '')
-            expression_node = input_expression.find('{' + self.dmn_ns + '}text')
+            expression_node = input_expression.find('{' + prefix + '}text')
             if expression_node is not None:
                 expression = expression_node.text
 

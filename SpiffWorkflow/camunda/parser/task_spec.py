@@ -1,8 +1,43 @@
-from ...bpmn.parser.TaskParser import TaskParser
-from ...bpmn.parser.util import xpath_eval
 from ...camunda.specs.UserTask import Form, FormField, EnumFormField
 
+from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
+from SpiffWorkflow.bpmn.parser.node_parser import DEFAULT_NSMAP
+
+from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
+
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
+
+
+
+class BusinessRuleTaskParser(TaskParser):
+    dmn_debug = None
+
+    def __init__(self, process_parser, spec_class, node, lane=None):
+        nsmap = DEFAULT_NSMAP.copy()
+        nsmap.update({'camunda': CAMUNDA_MODEL_NS})
+        super(BusinessRuleTaskParser, self).__init__(process_parser, spec_class, node, nsmap, lane)
+
+    def create_task(self):
+        decision_ref = self.get_decision_ref(self.node)
+        return BusinessRuleTask(self.spec, self.get_task_spec_name(),
+                                dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
+                                lane=self.lane, position=self.position,
+                                description=self.node.get('name', None),
+                                )
+
+    @staticmethod
+    def get_decision_ref(node):
+        return node.attrib['{' + CAMUNDA_MODEL_NS + '}decisionRef']
+
+    def _on_trigger(self, my_task):
+        pass
+
+    def serialize(self, serializer, **kwargs):
+        pass
+
+    @classmethod
+    def deserialize(cls, serializer, wf_spec, s_state, **kwargs):
+        pass
 
 
 class UserTaskParser(TaskParser):
@@ -11,8 +46,9 @@ class UserTaskParser(TaskParser):
     """
     
     def __init__(self, process_parser, spec_class, node, lane=None):
-        super(UserTaskParser, self).__init__(process_parser, spec_class, node, lane)
-        self.xpath = xpath_eval(node, extra_ns={'camunda': CAMUNDA_MODEL_NS})
+        nsmap = DEFAULT_NSMAP.copy()
+        nsmap.update({'camunda': CAMUNDA_MODEL_NS})
+        super(UserTaskParser, self).__init__(process_parser, spec_class, node, nsmap, lane)
 
     def create_task(self):
         form = self.get_form()
