@@ -18,6 +18,7 @@
 # 02110-1301  USA
 
 import glob
+import os
 
 from lxml import etree
 
@@ -46,6 +47,18 @@ from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
 from .event_parsers import (StartEventParser, EndEventParser, BoundaryEventParser,
                            IntermediateCatchEventParser, IntermediateThrowEventParser,
                            SendTaskParser, ReceiveTaskParser)
+
+
+XSD_PATH = os.path.join(os.path.dirname(__file__), 'schema', 'BPMN20.xsd')
+
+class BpmnValidator:
+
+    def __init__(self, xsd_path=XSD_PATH):
+        schema = etree.parse(open(xsd_path))
+        self.validator = etree.XMLSchema(schema)
+
+    def validate(self, bpmn):
+        return self.validator.assertValid(bpmn)
 
 
 class BpmnParser(object):
@@ -84,11 +97,12 @@ class BpmnParser(object):
 
     PROCESS_PARSER_CLASS = ProcessParser
 
-    def __init__(self, namespaces=None):
+    def __init__(self, namespaces=None, validator=None):
         """
         Constructor.
         """
         self.namespaces = namespaces or DEFAULT_NSMAP
+        self.validator = validator or BpmnValidator()
         self.process_parsers = {}
         self.process_parsers_by_name = {}
         self.collaborations = {}
@@ -139,14 +153,19 @@ class BpmnParser(object):
             finally:
                 f.close()
 
-    def add_bpmn_xml(self, bpmn, filename=None):
+    def add_bpmn_xml(self, bpmn, filename=None, validate=False):
         """
         Add the given lxml representation of the BPMN file to the parser's set.
 
         :param svg: Optionally, provide the text data for the SVG of the BPMN
           file
         :param filename: Optionally, provide the source filename.
+        :param validate: validate the XML against the schema (optional)
         """
+        if validate:
+            # I'd like to default to True, but many of of test diagrams won't validate
+            self.validator.validate(bpmn)
+
         self._add_processes(bpmn, filename)
         self._add_collaborations(bpmn, filename)
 

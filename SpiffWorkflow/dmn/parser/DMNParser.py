@@ -7,19 +7,20 @@ from ...bpmn.parser.util import xpath_eval
 from ...dmn.specs.model import Decision, DecisionTable, InputEntry, \
     OutputEntry, Input, Output, Rule
 
-
 def get_dmn_ns(node):
     """
     Returns the namespace definition for the current DMN
 
     :param node: the XML node for the DMN document
     """
+    nsmap = DEFAULT_NSMAP.copy()
     if 'http://www.omg.org/spec/DMN/20151101/dmn.xsd' in node.nsmap.values():
-        return 'http://www.omg.org/spec/DMN/20151101/dmn.xsd'
+        nsmap['dmn'] = 'http://www.omg.org/spec/DMN/20151101/dmn.xsd'
+    elif 'http://www.omg.org/spec/DMN/20180521/DI/' in node.nsmap.values():
+        nsmap['dmn'] = 'http://www.omg.org/spec/DMN/20180521/DI/'
     elif 'https://www.omg.org/spec/DMN/20191111/MODEL/' in node.nsmap.values():
-        return 'https://www.omg.org/spec/DMN/20191111/MODEL/'
-    return None
-
+        nsmap['dmn'] = 'https://www.omg.org/spec/DMN/20191111/MODEL/'
+    return nsmap
 
 class DMNParser(NodeParser):
     """
@@ -32,7 +33,7 @@ class DMNParser(NodeParser):
 
     DT_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
-    def __init__(self, p, node, svg=None, filename=None):
+    def __init__(self, p, node, nsmap, svg=None, filename=None):
         """
         Constructor.
 
@@ -42,10 +43,6 @@ class DMNParser(NodeParser):
           (optional)
         :param filename: the source BMN filename (optional)
         """
-        nsmap = DEFAULT_NSMAP.copy()
-        dmn_ns = get_dmn_ns(node)
-        if dmn_ns is not None:
-            nsmap['dmn'] = dmn_ns
         super().__init__(node, nsmap, filename=filename)
 
         self.parser = p

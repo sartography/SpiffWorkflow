@@ -1,19 +1,22 @@
 import glob
+import os
 
 from lxml import etree
 
-from ...bpmn.parser.util import xpath_eval, full_tag
+from ...bpmn.parser.util import full_tag
 from ...bpmn.parser.ValidationException import ValidationException
 
-from ...bpmn.parser.BpmnParser import BpmnParser
-from ...dmn.parser.DMNParser import DMNParser
+from ...bpmn.parser.BpmnParser import BpmnParser, BpmnValidator
+from ...dmn.parser.DMNParser import DMNParser, get_dmn_ns
 from ..engine.DMNEngine import DMNEngine
+
+XSD_DIR = os.path.join(os.path.dirname(__file__), 'schema')
 
 
 class BpmnDmnParser(BpmnParser):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, namespaces=None, validator=None):
+        super().__init__(namespaces, validator)
         self.dmn_parsers = {}
         self.dmn_parsers_by_name = {}
         self.dmn_dependencies = set()
@@ -27,14 +30,21 @@ class BpmnDmnParser(BpmnParser):
         dmn_parser = self.dmn_parsers[decision_ref]
         dmn_parser.parse()
         decision = dmn_parser.decision
+
         return DMNEngine(decision.decisionTables[0])
 
-    def add_dmn_xml(self, node, filename=None):
+    def add_dmn_xml(self, node, filename=None, validate=False):
         """
         Add the given lxml representation of the DMN file to the parser's set.
         """
-        xpath = xpath_eval(node)
-        dmn_parser = DMNParser(self, node, filename=filename)
+        nsmap = get_dmn_ns(node)
+        schema = self._get_schema(nsmap)
+        if validate and schema is not None:
+            # One of our tests fails validation
+            validator = BpmnValidator(os.path.join(XSD_DIR, schema))
+            validator.validate(node)
+
+        dmn_parser = DMNParser(self, node, nsmap, filename=filename)
         self.dmn_parsers[dmn_parser.get_id()] = dmn_parser
         self.dmn_parsers_by_name[dmn_parser.get_name()] = dmn_parser
 
@@ -73,3 +83,11 @@ class BpmnDmnParser(BpmnParser):
         parser_cls, cls = self._get_parser_class(full_tag('businessRuleTask'))
         for business_rule in process.xpath('.//bpmn:businessRuleTask',namespaces=self.namespaces):
             self.dmn_dependencies.add(parser_cls.get_decision_ref(business_rule))
+
+    def _get_schema(self, nsmap):
+        schemas = {
+            'http://www.omg.org/spec/DMN/20151101/dmn.xsd': 'DMN.xsd',
+            'http://www.omg.org/spec/DMN/20180521/DI/': 'DMNDI12.xsd',
+            'https://www.omg.org/spec/DMN/20191111/MODEL/': 'DMNDI13.xsd',
+        }
+        return schemas.get(nsmap['dmn'])
