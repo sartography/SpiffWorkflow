@@ -102,7 +102,7 @@
   </model:process>
   <model:process id="First_Approval_Wins" name="First Approval Wins">
     <model:documentation></model:documentation>
-    <model:laneSet id="First_Approval_Wins.First Approval Wins_laneSet">
+    <model:laneSet id="First_Approval_Wins.First_Approval_Wins_laneSet">
       <model:lane id="First_Approval_Wins.Supervisor" name="Supervisor">
         <model:documentation></model:documentation>
         <model:flowNodeRef>Supervisor_Approval</model:flowNodeRef>
@@ -147,7 +147,7 @@
   </model:process>
   <model:process id="Parallel_Approvals_SP" name="Parallel Approvals SP">
     <model:documentation></model:documentation>
-    <model:laneSet id="Parallel_Approvals_SP.Parallel Approvals SP_laneSet">
+    <model:laneSet id="Parallel_Approvals_SP.Parallel_Approvals_SP_laneSet">
       <model:lane id="Parallel_Approvals_SP.Supervisor" name="Supervisor">
         <model:documentation></model:documentation>
         <model:flowNodeRef>Start3</model:flowNodeRef>

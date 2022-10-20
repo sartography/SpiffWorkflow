@@ -53,8 +53,16 @@ XSD_PATH = os.path.join(os.path.dirname(__file__), 'schema', 'BPMN20.xsd')
 
 class BpmnValidator:
 
-    def __init__(self, xsd_path=XSD_PATH):
+    def __init__(self, xsd_path=XSD_PATH, imports=None):
         schema = etree.parse(open(xsd_path))
+        if imports is not None:
+            for ns, fn in imports.items():
+                elem = etree.Element(
+                    '{http://www.w3.org/2001/XMLSchema}import',
+                    namespace=ns,
+                    schemaLocation=fn
+                )
+                schema.getroot().insert(1, elem)
         self.validator = etree.XMLSchema(schema)
 
     def validate(self, bpmn):
@@ -129,31 +137,31 @@ class BpmnParser(object):
         """Returns a list of process IDs"""
         return list(self.process_parsers.keys())
 
-    def add_bpmn_file(self, filename):
+    def add_bpmn_file(self, filename, validate=True):
         """
         Add the given BPMN filename to the parser's set.
         """
-        self.add_bpmn_files([filename])
+        self.add_bpmn_files([filename], validate)
 
-    def add_bpmn_files_by_glob(self, g):
+    def add_bpmn_files_by_glob(self, g, validate=True):
         """
         Add all filenames matching the provided pattern (e.g. *.bpmn) to the
         parser's set.
         """
-        self.add_bpmn_files(glob.glob(g))
+        self.add_bpmn_files(glob.glob(g), validate)
 
-    def add_bpmn_files(self, filenames):
+    def add_bpmn_files(self, filenames, validate=True):
         """
         Add all filenames in the given list to the parser's set.
         """
         for filename in filenames:
             f = open(filename, 'r')
             try:
-                self.add_bpmn_xml(etree.parse(f), filename=filename)
+                self.add_bpmn_xml(etree.parse(f), filename=filename, validate=validate)
             finally:
                 f.close()
 
-    def add_bpmn_xml(self, bpmn, filename=None, validate=False):
+    def add_bpmn_xml(self, bpmn, filename=None, validate=True):
         """
         Add the given lxml representation of the BPMN file to the parser's set.
 
@@ -163,7 +171,6 @@ class BpmnParser(object):
         :param validate: validate the XML against the schema (optional)
         """
         if validate:
-            # I'd like to default to True, but many of of test diagrams won't validate
             self.validator.validate(bpmn)
 
         self._add_processes(bpmn, filename)

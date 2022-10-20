@@ -4,7 +4,7 @@ from SpiffWorkflow.bpmn.parser.util import xpath_eval
 
 class SignavioBpmnParser(BpmnParser):
 
-    def add_bpmn_xml(self, bpmn, filename=None):
+    def add_bpmn_xml(self, bpmn, filename=None, validate=False):
         # signavio sometimes disconnects a BoundaryEvent from it's owning task
         # They then show up as intermediateCatchEvents without any incoming
         # sequence flows.  Check for this case before parsing the XML.
@@ -17,4 +17,4 @@ class SignavioBpmnParser(BpmnParser):
                     'This might be a Boundary Event that has been '
                     'disconnected.',
                     node=catch_event, filename=filename)
-        return super().add_bpmn_xml(bpmn, filename)
+        return super().add_bpmn_xml(bpmn, filename, validate)
