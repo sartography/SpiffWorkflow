@@ -33,7 +33,7 @@ class BpmnDmnParser(BpmnParser):
 
         return DMNEngine(decision.decisionTables[0])
 
-    def add_dmn_xml(self, node, filename=None, validate=False):
+    def add_dmn_xml(self, node, filename=None, validate=True):
         """
         Add the given lxml representation of the DMN file to the parser's set.
         """
@@ -87,7 +87,7 @@ class BpmnDmnParser(BpmnParser):
     def _get_schema(self, nsmap):
         schemas = {
             'http://www.omg.org/spec/DMN/20151101/dmn.xsd': 'DMN.xsd',
-            'http://www.omg.org/spec/DMN/20180521/DI/': 'DMNDI12.xsd',
-            'https://www.omg.org/spec/DMN/20191111/MODEL/': 'DMNDI13.xsd',
+            'http://www.omg.org/spec/DMN/20180521/MODEL/': 'DMN12.xsd',
+            'https://www.omg.org/spec/DMN/20191111/MODEL/': 'DMN13.xsd',
         }
         return schemas.get(nsmap['dmn'])

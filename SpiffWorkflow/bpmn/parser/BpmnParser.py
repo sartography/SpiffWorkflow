@@ -62,7 +62,7 @@ class BpmnValidator:
                     namespace=ns,
                     schemaLocation=fn
                 )
-                schema.getroot().insert(1, elem)
+                schema.getroot().insert(0, elem)
         self.validator = etree.XMLSchema(schema)
 
     def validate(self, bpmn):
