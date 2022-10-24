@@ -9,10 +9,10 @@
       <bpmn:incoming>Flow_0l8nhib</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0l8nhib" sourceRef="Activity_0ux7vpx" targetRef="Event_184erzz" />
-    <bpmn:businessRuleTask id="Activity_0ux7vpx" name="Business Rules" scriptFormat="python" script="question = &#34;X&#34;">
+    <bpmn:businessRuleTask id="Activity_0ux7vpx" name="Business Rules">
       <bpmn:extensionElements>
         <spiffworkflow:calledDecisionId>decision_1</spiffworkflow:calledDecisionId>
-        <spiffworkflow:preScript />
+        <spiffworkflow:preScript  scriptFormat="python" script="question = &#34;X&#34;"/>
         <spiffworkflow:postScript />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1109ldv</bpmn:incoming>

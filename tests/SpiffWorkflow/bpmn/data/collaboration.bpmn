@@ -2,31 +2,31 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0qmxumb" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
 
   <bpmn:collaboration id="my_collaboration">
-    
+
     <bpmn:participant id="buddy" name="Buddy" processRef="process_buddy" />
     <bpmn:participant id="Person" name="Person" processRef="random_person_process" />
-    
+
     <bpmn:messageFlow id="love_letter_flow" name="Love Letter Flow" sourceRef="ActivitySendLetter" targetRef="Person" />
     <bpmn:messageFlow id="response_flow" name="response flow" sourceRef="Person" targetRef="EventReceiveLetter" />
-    
+
     <bpmn:correlationKey name="lover">
       <bpmn:correlationPropertyRef>lover_name</bpmn:correlationPropertyRef>
     </bpmn:correlationKey>
-  
+
   </bpmn:collaboration>
-  
+
   <bpmn:message id="love_letter" name="Love Letter" />
   <bpmn:message id="love_letter_response" name="Love Letter Response" />
 
   <bpmn:correlationProperty id="lover_name" name="Lover&#39;s Name">
     <bpmn:correlationPropertyRetrievalExpression messageRef="love_letter">
-      <bpmn:formalExpression>lover_name</bpmn:formalExpression>
+      <bpmn:messagePath>lover_name</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
     <bpmn:correlationPropertyRetrievalExpression messageRef="love_letter_response">
-      <bpmn:formalExpression>from_name</bpmn:formalExpression>
+      <bpmn:messagePath>from_name</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
   </bpmn:correlationProperty>
-  
+
   <bpmn:process id="process_buddy" name="Process Buddy" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_1bl6jeh</bpmn:outgoing>
@@ -49,12 +49,12 @@
   </bpmn:process>
 
   <bpmn:process id="random_person_process" name="Process" isExecutable="false" />
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="my_collaboration">
       <bpmndi:BPMNShape id="Participant_12ffz3p_di" bpmnElement="buddy" isHorizontal="true">

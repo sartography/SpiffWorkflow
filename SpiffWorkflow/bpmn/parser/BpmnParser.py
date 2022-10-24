@@ -21,6 +21,7 @@ import glob
 import os
 
 from lxml import etree
+from lxml.etree import DocumentInvalid
 
 from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
 
@@ -65,9 +66,11 @@ class BpmnValidator:
                 schema.getroot().insert(0, elem)
         self.validator = etree.XMLSchema(schema)
 
-    def validate(self, bpmn):
-        return self.validator.assertValid(bpmn)
-
+    def validate(self, bpmn, filename=None):
+        try:
+            self.validator.assertValid(bpmn)
+        except DocumentInvalid as di:
+            raise DocumentInvalid(str(di) + "file: " + filename)
 
 class BpmnParser(object):
     """
@@ -171,7 +174,7 @@ class BpmnParser(object):
         :param validate: validate the XML against the schema (optional)
         """
         if validate:
-            self.validator.validate(bpmn)
+            self.validator.validate(bpmn, filename)
 
         self._add_processes(bpmn, filename)
         self._add_collaborations(bpmn, filename)

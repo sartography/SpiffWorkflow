@@ -42,7 +42,7 @@ class BpmnDmnParser(BpmnParser):
         if validate and schema is not None:
             # One of our tests fails validation
             validator = BpmnValidator(os.path.join(XSD_DIR, schema))
-            validator.validate(node)
+            validator.validate(node, filename)
 
         dmn_parser = DMNParser(self, node, nsmap, filename=filename)
         self.dmn_parsers[dmn_parser.get_id()] = dmn_parser
