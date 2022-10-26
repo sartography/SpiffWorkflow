@@ -142,12 +142,16 @@ class ServiceTaskParser(SpiffTaskParser):
     def create_task(self):
         extensions = self.parse_extensions()
         operator = extensions.get('serviceTaskOperator')
+        prescript = extensions.get('preScript')
+        postscript = extensions.get('postScript')
         return self.spec_class(
                 self.spec, self.get_task_spec_name(),
                 operator['name'], operator['parameters'],
                 operator['resultVariable'],
                 description=self.node.get('name', None),
-                lane=self.lane, position=self.position)
+                lane=self.lane, position=self.position,
+                prescript=prescript,
+                postscript=postscript)
 
 class BusinessRuleTaskParser(SpiffTaskParser):
 
