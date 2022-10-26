@@ -144,7 +144,7 @@ class PythonScriptEngine(object):
             self.check_for_overwrite(task, external_methods or {})
             self._execute(script, task.data, external_methods or {})
         except Exception as err:
-            wte = self.create_task_exec_exception(task, err)
+            wte = self.create_task_exec_exception(task, script, err)
             self.error_tasks[task.id] = wte
             raise wte
 
@@ -153,7 +153,7 @@ class PythonScriptEngine(object):
         tasks."""
         raise NotImplementedError("To call external services override the script engine and implement `call_service`.")
 
-    def create_task_exec_exception(self, task, err):
+    def create_task_exec_exception(self, task, script, err):
 
         if isinstance(err, WorkflowTaskExecException):
             return err
@@ -170,8 +170,7 @@ class PythonScriptEngine(object):
         for frame_summary in traceback.extract_tb(tb):
             if frame_summary.filename == '<string>':
                 line_number = frame_summary.lineno
-                error_line = task.task_spec.script.splitlines()[
-                    line_number - 1]
+                error_line = script.splitlines()[line_number - 1]
         return WorkflowTaskExecException(task, detail, err, line_number,
                                          error_line)
 
