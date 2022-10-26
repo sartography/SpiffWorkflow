@@ -1,0 +1,64 @@
+<xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://spiffworkflow.org/bpmn/schema/1.0/core" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:element name="calledDecisionId" type="xsd:string"/>
+  <xsd:element name="instructionsForEndUser" type="xsd:string"/>
+  <xsd:element name="messagePayload" type="xsd:string"/>
+  <xsd:element name="messageVariable" type="xsd:string"/>
+  <xsd:element name="preScript" type="xsd:string"/>
+  <xsd:element name="postScript" type="xsd:string"/>
+  <xsd:element name="properties">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="property" maxOccurs="unbounded" minOccurs="0">
+          <xsd:complexType>
+            <xsd:simpleContent>
+              <xsd:extension base="xsd:string">
+                <xsd:attribute type="xsd:string" name="name" use="optional"/>
+                <xsd:attribute type="xsd:string" name="value" use="optional"/>
+              </xsd:extension>
+            </xsd:simpleContent>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="unitTests">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="unitTest" maxOccurs="unbounded" minOccurs="0">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element type="xsd:string" name="inputJson"/>
+              <xsd:element type="xsd:string" name="expectedOutputJson"/>
+            </xsd:sequence>
+            <xsd:attribute type="xsd:string" name="id" use="optional"/>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="serviceTaskOperator">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="parameters">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="parameter" maxOccurs="unbounded" minOccurs="0">
+                <xsd:complexType>
+                  <xsd:simpleContent>
+                    <xsd:extension base="xsd:string">
+                      <xsd:attribute type="xsd:string" name="id" use="optional"/>
+                      <xsd:attribute type="xsd:string" name="type" use="optional"/>
+                      <xsd:attribute type="xsd:string" name="value" use="optional"/>
+                    </xsd:extension>
+                  </xsd:simpleContent>
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute type="xsd:string" name="id"/>
+      <xsd:attribute type="xsd:string" name="resultVariable" use="optional"/>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>
