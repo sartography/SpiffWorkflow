@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-from SpiffWorkflow.spiff.parser import SpiffBpmnParser
+from SpiffWorkflow.spiff.parser import SpiffBpmnParser, VALIDATOR
 from SpiffWorkflow.spiff.serializer import NoneTaskConverter, \
     ManualTaskConverter, UserTaskConverter, ScriptTaskConverter, \
     SubWorkflowTaskConverter, TransactionSubprocessConverter, \
@@ -28,9 +28,9 @@ class BaseTestCase(BpmnWorkflowTestCase):
 
     serializer = BpmnWorkflowSerializer(wf_spec_converter)
 
-    def load_workflow_spec(self, filename, process_name, dmn_filename=None):
+    def load_workflow_spec(self, filename, process_name, dmn_filename=None, validate=True):
         bpmn = os.path.join(os.path.dirname(__file__), 'data', filename)
-        parser = SpiffBpmnParser()
+        parser = SpiffBpmnParser(validator=VALIDATOR if validate else None)
         parser.add_bpmn_files_by_glob(bpmn)
         if dmn_filename is not None:
             dmn = os.path.join(os.path.dirname(__file__), 'data', 'dmn', dmn_filename)

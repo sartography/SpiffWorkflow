@@ -113,7 +113,7 @@ class BpmnParser(object):
         Constructor.
         """
         self.namespaces = namespaces or DEFAULT_NSMAP
-        self.validator = validator or BpmnValidator()
+        self.validator = validator
         self.process_parsers = {}
         self.process_parsers_by_name = {}
         self.collaborations = {}
@@ -140,51 +140,50 @@ class BpmnParser(object):
         """Returns a list of process IDs"""
         return list(self.process_parsers.keys())
 
-    def add_bpmn_file(self, filename, validate=True):
+    def add_bpmn_file(self, filename):
         """
         Add the given BPMN filename to the parser's set.
         """
-        self.add_bpmn_files([filename], validate)
+        self.add_bpmn_files([filename])
 
-    def add_bpmn_files_by_glob(self, g, validate=True):
+    def add_bpmn_files_by_glob(self, g):
         """
         Add all filenames matching the provided pattern (e.g. *.bpmn) to the
         parser's set.
         """
-        self.add_bpmn_files(glob.glob(g), validate)
+        self.add_bpmn_files(glob.glob(g))
 
-    def add_bpmn_files(self, filenames, validate=True):
+    def add_bpmn_files(self, filenames):
         """
         Add all filenames in the given list to the parser's set.
         """
         for filename in filenames:
             f = open(filename, 'r')
             try:
-                self.add_bpmn_xml(etree.parse(f), filename=filename, validate=validate)
+                self.add_bpmn_xml(etree.parse(f), filename=filename)
             finally:
                 f.close()
 
-    def add_bpmn_xml(self, bpmn, filename=None, validate=True):
+    def add_bpmn_xml(self, bpmn, filename=None):
         """
         Add the given lxml representation of the BPMN file to the parser's set.
 
         :param svg: Optionally, provide the text data for the SVG of the BPMN
           file
         :param filename: Optionally, provide the source filename.
-        :param validate: validate the XML against the schema (optional)
         """
-        if validate:
+        if self.validator:
             self.validator.validate(bpmn, filename)
 
         self._add_processes(bpmn, filename)
-        self._add_collaborations(bpmn, filename)
+        self._add_collaborations(bpmn)
 
     def _add_processes(self, bpmn, filename=None):
         for process in bpmn.xpath('.//bpmn:process', namespaces=self.namespaces):
             self._find_dependencies(process)
             self.create_parser(process, filename)
 
-    def _add_collaborations(self, bpmn, filename=None):
+    def _add_collaborations(self, bpmn):
         collaboration = first(bpmn.xpath('.//bpmn:collaboration', namespaces=self.namespaces))
         if collaboration is not None:
             collaboration_xpath = xpath_eval(collaboration)

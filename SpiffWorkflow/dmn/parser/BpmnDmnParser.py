@@ -11,12 +11,18 @@ from ...dmn.parser.DMNParser import DMNParser, get_dmn_ns
 from ..engine.DMNEngine import DMNEngine
 
 XSD_DIR = os.path.join(os.path.dirname(__file__), 'schema')
+SCHEMAS = {
+    'http://www.omg.org/spec/DMN/20151101/dmn.xsd': os.path.join(XSD_DIR, 'DMN.xsd'),
+    'http://www.omg.org/spec/DMN/20180521/MODEL/': os.path.join(XSD_DIR, 'DMN12.xsd'),
+    'https://www.omg.org/spec/DMN/20191111/MODEL/': os.path.join(XSD_DIR, 'DMN13.xsd'),
+}
 
 
 class BpmnDmnParser(BpmnParser):
 
-    def __init__(self, namespaces=None, validator=None):
+    def __init__(self, namespaces=None, validator=None, dmn_schemas=None):
         super().__init__(namespaces, validator)
+        self.dmn_schemas = dmn_schemas or SCHEMAS
         self.dmn_parsers = {}
         self.dmn_parsers_by_name = {}
         self.dmn_dependencies = set()
@@ -33,15 +39,17 @@ class BpmnDmnParser(BpmnParser):
 
         return DMNEngine(decision.decisionTables[0])
 
-    def add_dmn_xml(self, node, filename=None, validate=True):
+    def add_dmn_xml(self, node, filename=None):
         """
         Add the given lxml representation of the DMN file to the parser's set.
         """
         nsmap = get_dmn_ns(node)
-        schema = self._get_schema(nsmap)
-        if validate and schema is not None:
-            # One of our tests fails validation
-            validator = BpmnValidator(os.path.join(XSD_DIR, schema))
+        # We have to create a dmn validator on the fly, because we support multiple versions
+        # If we have a bpmn validator, assume DMN validation should be done as well.
+        # I don't like this, but I don't see a better solution.
+        schema = self.dmn_schemas.get(nsmap.get('dmn'))
+        if self.validator and schema is not None:
+            validator = BpmnValidator(schema)
             validator.validate(node, filename)
 
         dmn_parser = DMNParser(self, node, nsmap, filename=filename)
@@ -84,10 +92,3 @@ class BpmnDmnParser(BpmnParser):
         for business_rule in process.xpath('.//bpmn:businessRuleTask',namespaces=self.namespaces):
             self.dmn_dependencies.add(parser_cls.get_decision_ref(business_rule))
 
-    def _get_schema(self, nsmap):
-        schemas = {
-            'http://www.omg.org/spec/DMN/20151101/dmn.xsd': 'DMN.xsd',
-            'http://www.omg.org/spec/DMN/20180521/MODEL/': 'DMN12.xsd',
-            'https://www.omg.org/spec/DMN/20191111/MODEL/': 'DMN13.xsd',
-        }
-        return schemas.get(nsmap['dmn'])
