@@ -36,9 +36,3 @@ setup(name='SpiffWorkflow',
           'Topic :: Software Development :: Libraries',
           'Topic :: Software Development :: Libraries :: Python Modules'
       ])
-
-      # setup(...,
-      # packages=['mypkg'],
-      # package_dir={'mypkg': 'src/mypkg'},
-      # package_data={'mypkg': ['data/*.dat']},
-      # )
