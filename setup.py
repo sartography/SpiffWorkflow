@@ -21,6 +21,7 @@ setup(name='SpiffWorkflow',
       author_email='dan@sartography.com',
       license='lGPLv2',
       packages=find_packages(exclude=['tests', 'tests.*']),
+      package_data={'SpiffWorkflow.bpmn.parser.schema': ['*.xsd']},
       install_requires=['configparser', 'lxml', 'celery', 'dateparser', 'pytz',
           # required for python 3.7 - https://stackoverflow.com/a/73932581
           'importlib-metadata<5.0; python_version <= "3.7"'],
@@ -35,3 +36,9 @@ setup(name='SpiffWorkflow',
           'Topic :: Software Development :: Libraries',
           'Topic :: Software Development :: Libraries :: Python Modules'
       ])
+
+      # setup(...,
+      # packages=['mypkg'],
+      # package_dir={'mypkg': 'src/mypkg'},
+      # package_data={'mypkg': ['data/*.dat']},
+      # )
