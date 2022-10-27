@@ -46,7 +46,7 @@ class SubWorkflowTask(BpmnSpecMixin):
 
         if len(subworkflow.spec.data_outputs) == 0:
             # Copy all workflow data if no outputs are specified
-            my_task.data = deepcopy(subworkflow.data)
+            my_task.data = deepcopy(subworkflow.last_task.data)
         else:
             end = subworkflow.get_tasks_from_spec_name('End', workflow=subworkflow)
             # Otherwise only copy data with the specified names
