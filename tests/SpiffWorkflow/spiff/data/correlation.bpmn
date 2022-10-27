@@ -9,10 +9,10 @@
   </bpmn:collaboration>
   <bpmn:correlationProperty id="process_id" name="Test Correlation">
     <bpmn:correlationPropertyRetrievalExpression messageRef="Message_19nm5f5">
-      <bpmn:formalExpression>num</bpmn:formalExpression>
+      <bpmn:messagePath>num</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
     <bpmn:correlationPropertyRetrievalExpression messageRef="Message_0fc1gu7">
-      <bpmn:formalExpression>init_id</bpmn:formalExpression>
+      <bpmn:messagePath>init_id</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
   </bpmn:correlationProperty>
   <bpmn:message id="Message_19nm5f5" name="init_proc_2">

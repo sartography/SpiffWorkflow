@@ -1,5 +1,7 @@
+import os
+
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from SpiffWorkflow.bpmn.parser.BpmnParser import full_tag
+from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator, full_tag
 
 from SpiffWorkflow.bpmn.specs.events import StartEvent, EndEvent, IntermediateThrowEvent, BoundaryEvent, IntermediateCatchEvent
 from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, ScriptTask, SubWorkflowTask, TransactionSubprocess, CallActivity, ServiceTask
@@ -10,6 +12,10 @@ from SpiffWorkflow.spiff.parser.event_parsers import (SpiffStartEventParser, Spi
 from SpiffWorkflow.dmn.specs import BusinessRuleTask
 
 from SpiffWorkflow.spiff.parser.task_spec import BusinessRuleTaskParser
+
+SPIFF_XSD = os.path.join(os.path.dirname(__file__), 'schema', 'spiffworkflow.xsd')
+VALIDATOR = BpmnValidator(imports={'spiffworkflow': SPIFF_XSD})
+
 
 class SpiffBpmnParser(BpmnDmnParser):
 
@@ -31,3 +37,4 @@ class SpiffBpmnParser(BpmnDmnParser):
         full_tag('receiveTask'): (SpiffReceiveTaskParser, ReceiveTask),
         full_tag('businessRuleTask'): (BusinessRuleTaskParser, BusinessRuleTask)
     }
+

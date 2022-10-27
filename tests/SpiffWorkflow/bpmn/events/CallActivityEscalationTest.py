@@ -41,7 +41,7 @@ def track_workflow(wf_spec, completed_set):
 class CallActivityEscalationTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec, subprocesses = self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'CallActivity-Escalation-Test')
+        self.spec, subprocesses = self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'CallActivity-Escalation-Test', False)
         self.workflow = BpmnWorkflow(self.spec, subprocesses)
 
     def testShouldEscalate(self):

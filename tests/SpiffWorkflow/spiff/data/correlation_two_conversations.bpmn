@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" id="Definitions_96f6665" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.0.0-dev">
-  <bpmn:collaboration id="Collaboration_0oye1os" messages="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]">
+  <bpmn:collaboration id="Collaboration_0oye1os">
     <bpmn:participant id="message_initiator" name="Message Initiator" processRef="message_send_process" />
     <bpmn:participant id="message-receiver-one" name="Message Receiver One" />
     <bpmn:participant id="message-receiver-two" name="Message Receiver Two" />
@@ -19,18 +19,18 @@
   </bpmn:collaboration>
   <bpmn:correlationProperty id="mcp_topica_one" name="MCP TopicA One">
     <bpmn:correlationPropertyRetrievalExpression messageRef="message_send_one">
-      <bpmn:formalExpression>topica_one</bpmn:formalExpression>
+      <bpmn:messagePath>topica_one</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
     <bpmn:correlationPropertyRetrievalExpression messageRef="message_response_one">
-      <bpmn:formalExpression>payload_var_one.topica</bpmn:formalExpression>
+      <bpmn:messagePath>payload_var_one.topica</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
   </bpmn:correlationProperty>
   <bpmn:correlationProperty id="mcp_topicb_one" name="MCP TopicB_one">
     <bpmn:correlationPropertyRetrievalExpression messageRef="message_send_one">
-      <bpmn:formalExpression>topicb_one</bpmn:formalExpression>
+      <bpmn:messagePath>topicb_one</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
     <bpmn:correlationPropertyRetrievalExpression messageRef="message_response_one">
-      <bpmn:formalExpression>payload_var_one.topicb</bpmn:formalExpression>
+      <bpmn:messagePath>payload_var_one.topicb</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
   </bpmn:correlationProperty>
   <bpmn:process id="message_send_process" name="Message Send Process" isExecutable="true">
@@ -117,18 +117,18 @@ del time</bpmn:script>
   </bpmn:message>
   <bpmn:correlationProperty id="mcp_topica_two" name="MCP Topica Two">
     <bpmn:correlationPropertyRetrievalExpression messageRef="message_send_two">
-      <bpmn:formalExpression>topica_two</bpmn:formalExpression>
+      <bpmn:messagePath>topica_two</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
     <bpmn:correlationPropertyRetrievalExpression messageRef="message_response_two">
-      <bpmn:formalExpression>topica_two</bpmn:formalExpression>
+      <bpmn:messagePath>topica_two</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
   </bpmn:correlationProperty>
   <bpmn:correlationProperty id="mcp_topicb_two" name="MCP Topicb Two">
     <bpmn:correlationPropertyRetrievalExpression messageRef="message_send_two">
-      <bpmn:formalExpression>topicb_two</bpmn:formalExpression>
+      <bpmn:messagePath>topicb_two</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
     <bpmn:correlationPropertyRetrievalExpression messageRef="message_response_two">
-      <bpmn:formalExpression>topicb_two</bpmn:formalExpression>
+      <bpmn:messagePath>topicb_two</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
   </bpmn:correlationProperty>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">

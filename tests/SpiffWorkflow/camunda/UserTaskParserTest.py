@@ -1,6 +1,6 @@
 import unittest
 
-from SpiffWorkflow.camunda.parser.UserTaskParser import UserTaskParser
+from SpiffWorkflow.camunda.parser.task_spec import UserTaskParser
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
 

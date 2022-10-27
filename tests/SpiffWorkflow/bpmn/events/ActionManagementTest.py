@@ -11,8 +11,8 @@ __author__ = 'matth'
 
 
 class ActionManagementTest(BpmnWorkflowTestCase):
-    START_TIME_DELTA=0.01
-    FINISH_TIME_DELTA=0.02
+    START_TIME_DELTA=0.05
+    FINISH_TIME_DELTA=0.10
 
     def now_plus_seconds(self, seconds):
         return datetime.datetime.now() + datetime.timedelta(seconds=seconds)
@@ -27,7 +27,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.workflow.get_tasks(TaskState.READY)[0].set_data(
             start_time=start_time, finish_time=finish_time)
-    
+
     def testRunThroughHappy(self):
         self.do_next_exclusive_step("Review Action", choice='Approve')
         self.workflow.do_engine_steps()

@@ -3,6 +3,7 @@
 import json
 import os
 import unittest
+from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator
 
 from SpiffWorkflow.task import TaskState
 
@@ -18,9 +19,10 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     serializer = BpmnWorkflowSerializer(wf_spec_converter)
 
-    def load_workflow_spec(self, filename, process_name):
+    def load_workflow_spec(self, filename, process_name, validate=True):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
-        parser = TestBpmnParser()
+        validator = BpmnValidator() if validate else None
+        parser = TestBpmnParser(validator=validator)
         parser.add_bpmn_files_by_glob(f)
         top_level_spec = parser.get_spec(process_name)
         subprocesses = parser.get_subprocess_specs(process_name)

@@ -4,7 +4,7 @@ from lxml import etree
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import Box
 from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
-from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
+from SpiffWorkflow.dmn.parser.DMNParser import DMNParser, get_dmn_ns
 
 
 class Workflow:
@@ -33,7 +33,7 @@ class DecisionRunner:
         with open(fn) as fh:
             node = etree.parse(fh)
 
-        self.dmnParser = DMNParser(None, node.getroot())
+        self.dmnParser = DMNParser(None, node.getroot(), get_dmn_ns(node.getroot()))
         self.dmnParser.parse()
 
         decision = self.dmnParser.decision

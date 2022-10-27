@@ -4,6 +4,12 @@
     <bpmn:ioSpecification>
       <bpmn:dataInput id="in_data" name="Input" />
       <bpmn:dataOutput id="out_data" name="Output" />
+      <bpmn:inputSet>
+        <bpmn:dataInputRefs>in_data</bpmn:dataInputRefs>
+      </bpmn:inputSet>
+      <bpmn:outputSet>
+        <bpmn:dataOutputRefs>out_data</bpmn:dataOutputRefs>
+      </bpmn:outputSet>
     </bpmn:ioSpecification>
     <bpmn:startEvent id="Event_1ftsuzw">
       <bpmn:outgoing>Flow_1a4nkhi</bpmn:outgoing>

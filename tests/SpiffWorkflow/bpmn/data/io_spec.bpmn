@@ -9,6 +9,18 @@
       <dataInput id="in_2" name="input 2" />
       <dataOutput id="out_1" name="output 1" />
       <dataOutput id="out_2" name="output 2" />
+      <!-- creating input sets and output sets is way to define these
+           as a required set of inputs or outputs that must all
+           appear together -->
+      <inputSet name="Inputs" id="INS_1">
+            <dataInputRefs>id_1</dataInputRefs>
+            <dataInputRefs>id_2</dataInputRefs>
+       </inputSet>
+      <outputSet name="Outputs" id="OUTS_1">
+            <dataOutputRefs>out_1</dataOutputRefs>
+            <dataOutputRefs>out_2</dataOutputRefs>
+       </outputSet>
+      <outputSet name="Outputs" id="ID_8"/>
     </ioSpecification>
     <startEvent id="Event_1rtivo5">
       <outgoing>Flow_0n038fc</outgoing>

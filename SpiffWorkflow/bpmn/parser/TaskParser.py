@@ -46,7 +46,7 @@ class TaskParser(NodeParser):
     outgoing transitions, once the child tasks have all been parsed.
     """
 
-    def __init__(self, process_parser, spec_class, node, lane=None):
+    def __init__(self, process_parser, spec_class, node, nsmap=None, lane=None):
         """
         Constructor.
 
@@ -56,7 +56,7 @@ class TaskParser(NodeParser):
           extending the TaskParser.
         :param node: the XML node for this task
         """
-        super().__init__(node, process_parser.filename, process_parser.doc_xpath, lane)
+        super().__init__(node, nsmap, filename=process_parser.filename, lane=lane)
         self.process_parser = process_parser
         self.spec_class = spec_class
         self.spec = self.process_parser.spec

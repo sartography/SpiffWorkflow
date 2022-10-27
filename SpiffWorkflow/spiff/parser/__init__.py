@@ -1,1 +1,1 @@
-from .process import SpiffBpmnParser
+from .process import SpiffBpmnParser, VALIDATOR
