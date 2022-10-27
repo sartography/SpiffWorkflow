@@ -39,6 +39,6 @@ class SpiffBpmnTask(BpmnSpecMixin):
             self.execute_script(my_task, self.prescript)
 
     def _on_complete_hook(self, my_task):
+        super()._on_complete_hook(my_task)
         if self.postscript is not None:
             self.execute_script(my_task, self.postscript)
-        super()._on_complete_hook(my_task)
