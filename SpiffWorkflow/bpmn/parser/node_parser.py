@@ -25,7 +25,7 @@ class NodeParser:
 
     def xpath(self, xpath, extra_ns=None):
         return self._xpath(self.node, xpath, extra_ns)
-    
+
     def doc_xpath(self, xpath, extra_ns=None):
         root = self.node.getroottree().getroot()
         return self._xpath(root, xpath, extra_ns)
@@ -62,8 +62,8 @@ class NodeParser:
         extensions = {}
         extra_ns = {'camunda': CAMUNDA_MODEL_NS}
         extension_nodes = self.xpath('.//bpmn:extensionElements/camunda:properties/camunda:property', extra_ns)
-        for node in extension_nodes:
-            extensions[node.get('name')] = node.get('value')
+        for ex_node in extension_nodes:
+            extensions[ex_node.get('name')] = ex_node.get('value')
         return extensions
 
     def _get_lane(self):
