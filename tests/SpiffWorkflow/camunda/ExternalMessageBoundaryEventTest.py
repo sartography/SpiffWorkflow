@@ -24,7 +24,7 @@ class ExternalMessageBoundaryTest(BaseTestCase):
 
 
     def actual_test(self,save_restore = False):
-       
+
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks),'Expected to have only one ready task')

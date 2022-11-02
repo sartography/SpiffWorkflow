@@ -3,10 +3,10 @@
 import unittest
 import datetime
 import time
-import pytz
 
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'kellym'
@@ -15,8 +15,12 @@ __author__ = 'kellym'
 class TimerDateTest(BpmnWorkflowTestCase):
 
     def setUp(self):
+        self.script_engine = PythonScriptEngine(default_globals={
+            "datetime": datetime.datetime,
+            "timedelta": datetime.timedelta,
+        })
         self.spec, self.subprocesses = self.load_workflow_spec('timer-date-start.bpmn', 'date_timer')
-        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=self.script_engine)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -42,6 +46,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
                 break
             if save_restore:
                 self.save_restore()
+                self.workflow.script_engine = self.script_engine
 
 
             waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)
@@ -50,8 +55,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
             loopcount = loopcount +1
         endtime = datetime.datetime.now()
         self.workflow.do_engine_steps()
-        tz = pytz.timezone('US/Eastern')
-        testdate = tz.localize(datetime.datetime.strptime('2021-09-01 10:00','%Y-%m-%d %H:%M'))
+        testdate = datetime.datetime.strptime('2021-09-01 10:00','%Y-%m-%d %H:%M')
         self.assertEqual(self.workflow.last_task.data['futuredate2'],testdate)
         self.assertTrue('completed' in self.workflow.last_task.data)
         self.assertTrue(self.workflow.last_task.data['completed'])

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import unittest
 import time
 
@@ -21,7 +22,10 @@ class CustomScriptEngine(PythonScriptEngine):
     It will execute python code read in from the bpmn.  It will also make any scripts in the
      scripts directory available for execution. """
     def __init__(self):
-        augment_methods = {'custom_function': my_custom_function}
+        augment_methods = {
+            'custom_function': my_custom_function,
+            'timedelta': datetime.timedelta,
+        }
         super().__init__(scripting_additions=augment_methods)
 
 

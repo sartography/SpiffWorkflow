@@ -3,8 +3,10 @@
 
 import unittest
 import time
+from datetime import timedelta
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from .BaseTestCase import BaseTestCase
 
 __author__ = 'kellym'
@@ -13,8 +15,9 @@ __author__ = 'kellym'
 class MessageBoundaryTest(BaseTestCase):
 
     def setUp(self):
+        self.script_engine = PythonScriptEngine(default_globals={"timedelta": timedelta})
         self.spec, self.subprocesses = self.load_workflow_spec('MessageBoundary.bpmn', 'Process_1kjyavs')
-        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=self.script_engine)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -41,7 +44,9 @@ class MessageBoundaryTest(BaseTestCase):
                 self.workflow.do_engine_steps()
                 time.sleep(.01)
                 self.workflow.refresh_waiting_tasks()
-                if save_restore: self.save_restore()
+                if save_restore:
+                    self.save_restore()
+                    self.workflow.script_engine = self.script_engine
             ready_tasks = self.workflow.get_tasks(TaskState.READY)
         time.sleep(.01)
         self.workflow.refresh_waiting_tasks()

@@ -3,8 +3,10 @@
 import unittest
 import datetime
 import time
+from datetime import timedelta
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'kellym'
@@ -13,8 +15,9 @@ __author__ = 'kellym'
 class TimerDurationTest(BpmnWorkflowTestCase):
 
     def setUp(self):
+        self.script_engine = PythonScriptEngine(default_globals={"timedelta": timedelta})
         self.spec, self.subprocesses = self.load_workflow_spec('timer.bpmn', 'timer')
-        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=self.script_engine)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -40,7 +43,9 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         while loopcount < 10:
             if len(self.workflow.get_tasks(TaskState.READY)) >= 1:
                 break
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
+                self.workflow.script_engine = self.script_engine
             self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
             time.sleep(0.1)
             self.workflow.refresh_waiting_tasks()

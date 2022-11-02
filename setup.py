@@ -22,7 +22,7 @@ setup(name='SpiffWorkflow',
       license='lGPLv2',
       packages=find_packages(exclude=['tests', 'tests.*']),
       package_data={'SpiffWorkflow.bpmn.parser.schema': ['*.xsd']},
-      install_requires=['configparser', 'lxml', 'celery', 'dateparser', 'pytz',
+      install_requires=['configparser', 'lxml', 'celery',
           # required for python 3.7 - https://stackoverflow.com/a/73932581
           'importlib-metadata<5.0; python_version <= "3.7"'],
       keywords='spiff workflow bpmn engine',

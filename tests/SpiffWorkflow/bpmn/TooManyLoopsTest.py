@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import unittest
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
@@ -8,6 +9,15 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'sartography'
 
+class CustomScriptEngine(PythonScriptEngine):
+    """This is a custom script processor that can be easily injected into Spiff Workflow.
+    It will execute python code read in from the bpmn.  It will also make any scripts in the
+     scripts directory available for execution. """
+    def __init__(self):
+        augment_methods = {
+            'timedelta': datetime.timedelta,
+        }
+        super().__init__(scripting_additions=augment_methods)
 
 class TooManyLoopsTest(BpmnWorkflowTestCase):
 
@@ -23,7 +33,7 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         spec, subprocesses = self.load_workflow_spec('too_many_loops*.bpmn', 'loops')
-        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=PythonScriptEngine())
+        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=CustomScriptEngine())
         counter = 0
         data = {}
         while not self.workflow.is_completed():
@@ -34,6 +44,7 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
             counter += 1  # There is a 10 millisecond wait task.
             if save_restore:
                 self.save_restore()
+                self.workflow.script_engine = CustomScriptEngine()
         self.assertEqual(20, self.workflow.last_task.data['counter'])
 
     def test_with_sub_process(self):
@@ -41,7 +52,7 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
         # right after a sub-process.  So assuring this is fixed.
         counter = 0
         spec, subprocesses = self.load_workflow_spec('too_many_loops_sub_process.bpmn', 'loops_sub')
-        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=PythonScriptEngine())
+        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=CustomScriptEngine())
         data = {}
         while not self.workflow.is_completed():
             self.workflow.do_engine_steps()
@@ -57,7 +68,7 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
 
     def test_with_two_call_activities(self):
         spec, subprocess = self.load_workflow_spec('sub_in_loop*.bpmn', 'main')
-        self.workflow = BpmnWorkflow(spec, subprocess)
+        self.workflow = BpmnWorkflow(spec, subprocess, script_engine=CustomScriptEngine())
         self.workflow.do_engine_steps()
         for loop in range(3):
             ready = self.workflow.get_ready_user_tasks()
@@ -66,6 +77,7 @@ class TooManyLoopsTest(BpmnWorkflowTestCase):
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
             self.save_restore()
+            self.workflow.script_engine = CustomScriptEngine()
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TooManyLoopsTest)

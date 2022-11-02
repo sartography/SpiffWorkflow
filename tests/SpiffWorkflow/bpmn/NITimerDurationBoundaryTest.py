@@ -5,6 +5,7 @@ import datetime
 import time
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'kellym'
@@ -15,11 +16,12 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
     Non-Interrupting Timer boundary test
     """
     def setUp(self):
+        self.script_engine = PythonScriptEngine(default_globals={"timedelta": datetime.timedelta})
         spec, subprocesses = self.load_workflow_spec('timer-non-interrupt-boundary.bpmn', 'NonInterruptTimer')
-        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=self.script_engine)
 
     def load_spec(self):
-        return 
+        return
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -28,7 +30,7 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         self.actual_test(save_restore=True)
 
     def actual_test(self,save_restore = False):
-        
+
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         self.workflow.complete_task_from_id(ready_tasks[0].id)
@@ -47,7 +49,9 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
             ready_tasks = self.workflow.get_tasks(TaskState.READY)
             if len(ready_tasks) > 1:
                 break
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
+                self.workflow.script_engine = self.script_engine
             #self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
             time.sleep(0.1)
             self.workflow.complete_task_from_id(ready_tasks[0].id)

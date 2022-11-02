@@ -25,13 +25,6 @@ from .base import TaskSpec
 from ..operators import valueof, Attrib, PathAttrib
 from ..util.deep_merge import DeepMerge
 
-try:
-    from celery.app import default_app
-except ImportError:
-    have_celery = False
-else:
-    have_celery = True
-
 logger = logging.getLogger('spiff')
 
 
@@ -111,7 +104,10 @@ class Celery(TaskSpec):
         :type  kwargs: dict
         :param kwargs: kwargs to pass to celery task.
         """
-        if not have_celery:
+
+        try:
+            from celery.app import default_app
+        except ImportError:
             raise Exception("Unable to import python-celery imports.")
         assert wf_spec is not None
         assert name is not None

@@ -3,22 +3,9 @@ import ast
 import copy
 import sys
 import traceback
-import datetime
-
-import dateparser
-import pytz
 
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from ..operators import Operator
-
-# Would love to get rid of this altogether, as it rightly belongs in the
-# backend, but leaving it here because that's the path of least resistance.
-DEFAULT_GLOBALS = {
-    'timedelta': datetime.timedelta,
-    'datetime': datetime,
-    'dateparser': dateparser,
-    'pytz': pytz,
-}
 
 
 # Copyright (C) 2020 Kelly McDonald
@@ -112,7 +99,7 @@ class PythonScriptEngine(object):
 
     def __init__(self, default_globals=None, scripting_additions=None):
 
-        self.globals = default_globals or DEFAULT_GLOBALS
+        self.globals = default_globals or {}
         self.globals.update(scripting_additions or {})
         self.error_tasks = {}
 

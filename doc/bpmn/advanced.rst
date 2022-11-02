@@ -74,7 +74,7 @@ Serialization
 
 .. warning::
 
-   Serialization Changed in Version 1.1.7.  
+   Serialization Changed in Version 1.1.7.
    Support for pre-1.1.7 serialization will be dropped in a future release.
    The old serialization method still works but it is deprecated.
    To migrate your system to the new version, see "Migrating between
@@ -85,8 +85,8 @@ setting. This may not always be the case, we may be executing the workflow in th
 may have a user request a web page where we open a specific workflow that we may be in the middle of, do one step of
 that workflow and then the user may be back in a few minutes, or maybe a few hours depending on the application.
 
-The :code:`BpmnWorkflowSerializer` class contains a serializer for a workflow containing only standard BPMN Tasks.  
-Since we are using custom task classes (the Camunda :code:`UserTask` and the DMN :code:`BusinessRuleTask`), 
+The :code:`BpmnWorkflowSerializer` class contains a serializer for a workflow containing only standard BPMN Tasks.
+Since we are using custom task classes (the Camunda :code:`UserTask` and the DMN :code:`BusinessRuleTask`),
 we'll need to supply serializers for those task specs as well.
 
 Strictly speaking, these are not serializers per se: they actually convert the tasks into dictionaries of
@@ -138,7 +138,7 @@ two components:
 - a data converter (which handles workflow and task data).
 
 The default workflow spec converter likely to meet your needs, either on its own, or with the inclusion of
-:code:`UserTask` and :code:`BusinessRuleTask` in the :code:`camnuda` or :code:`spiff` and :code:`dmn` subpackages 
+:code:`UserTask` and :code:`BusinessRuleTask` in the :code:`camnuda` or :code:`spiff` and :code:`dmn` subpackages
 of this library, and all you'll need to do is add them to the list of task converters, as we did above.
 
 However, he default data converter is very simple, adding only JSON-serializable conversions of :code:`datetime`
@@ -180,7 +180,7 @@ If you have written any custom task specs, you'll need to implement task spec co
 
 Task Spec converters are also based on the :code:`DictionaryConverter`.  You should be able to use the
 `BpmnTaskSpecConverter <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/bpmn_converters.py>`_
-as a basis for your custom specs.  It provides some methods for extracting attributes from Spiff base classes as well as 
+as a basis for your custom specs.  It provides some methods for extracting attributes from Spiff base classes as well as
 standard BPNN attributes from tasks that inherit from :code:`BMPNSpecMixin`.
 
 The `Camunda User Task Converter <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/camunda/serializer/task_spec_converters.py>`_
@@ -221,7 +221,7 @@ serialize the workflow in the new format:
     new_json = serializer.serialize_json(workflow)
 
 However, if you use custom tasks or data serialization, you'll also need to specify workflow spec or data
-serializers, as in the examples in the previous section, before you'll be able to serialize with the new serializer.  
+serializers, as in the examples in the previous section, before you'll be able to serialize with the new serializer.
 The code would then look more like this:
 
 .. code:: python
@@ -244,7 +244,7 @@ The code would then look more like this:
     new_json = serializer.serialize_json(workflow)
 
 Because the serializer is highly customizable, we've made it possible for you to manage your own versions of the
-serialization.  You can do this by passing a version number into the serializer, which will be embedded in the 
+serialization.  You can do this by passing a version number into the serializer, which will be embedded in the
 json of all workflows.  This allow you to modify the serialization and customize it over time, and still manage
 the different forms as you make adjustments without leaving people behind.
 
@@ -253,11 +253,11 @@ Versioned Serializer
 
 As we make changes to Spiff, we may change the serialization format.  For example, in 1.1.8, we changed
 how subprocesses were handled interally in BPMN workflows and updated how they are serialized.   If you have
-not overridden our version number with one of your own, the serializer will transform the 1.0 format to the 
+not overridden our version number with one of your own, the serializer will transform the 1.0 format to the
 new 1.1 format.
 
 If you've overridden the serializer version, you may need to incorporate our serialization changes with
-your own.  You can find our conversions in 
+your own.  You can find our conversions in
 `version_migrations.py <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/version_migration.py>`_
 
 Custom Script Engines
@@ -277,14 +277,9 @@ We'll cover a simple extension of custom script engine here.  There is also an e
 a similar engine based on `RestrictedPython <https://restrictedpython.readthedocs.io/en/latest/>`_
 included alongside this example.
 
-The default script engine imports the following objects:
+The default script engine does not import any objects.
 
-- :code:`timedelta`
-- :code:`datetime`
-- :code:`dateparser`
-- :code:`pytz`
-
-You could add other functions or classes from the standard python modules or any code you've
+You could add functions or classes from the standard python modules or any code you've
 implemented yourself.  Your global environment can be passed in using the `default_globals`
 argument when initializing the script engine.  In our RestrictedPython example, we use their
 `safe_globals` which prevents users from executing some potentially unsafe operations.
