@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ..specs import StartTask
+from ..specs.StartTask import StartTask
 
 
 class WorkflowSpec(object):
@@ -82,7 +82,7 @@ class WorkflowSpec(object):
         :returns: empty list if valid, a list of errors if not
         """
         results = []
-        from ..specs import Join
+        from ..specs.Join import Join
 
         def recursive_find_loop(task, history):
             current = history[:]

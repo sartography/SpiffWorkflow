@@ -23,7 +23,7 @@ from builtins import object
 from collections import deque
 import json
 from ...task import TaskState
-from ...specs import SubWorkflow
+from ...specs.Subworkflow import SubWorkflow
 from ...serializer.base import Serializer
 from ..workflow import BpmnWorkflow
 

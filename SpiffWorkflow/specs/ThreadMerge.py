@@ -19,7 +19,7 @@
 from ..task import TaskState
 from ..exceptions import WorkflowException
 from ..operators import valueof
-from ..specs import Join
+from ..specs.Join import Join
 
 
 class ThreadMerge(Join):

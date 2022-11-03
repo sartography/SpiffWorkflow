@@ -6,7 +6,9 @@ from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
 from SpiffWorkflow.camunda.parser.task_spec import BusinessRuleTaskParser
 
-from SpiffWorkflow.bpmn.specs.events import EndEvent, IntermediateThrowEvent, StartEvent, IntermediateCatchEvent, BoundaryEvent
+from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
+from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
+from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
 from .event_parsers import CamundaStartEventParser, CamundaEndEventParser, \
     CamundaIntermediateCatchEventParser, CamundaIntermediateThrowEventParser, CamundaBoundaryEventParser
 

@@ -5,7 +5,7 @@ from SpiffWorkflow.bpmn.specs.events.event_definitions import CorrelationPropert
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
 from .util import first, one
-from ..specs.events import (TimerEventDefinition, MessageEventDefinition,
+from ..specs.events.event_definitions import (TimerEventDefinition, MessageEventDefinition,
                             ErrorEventDefinition, EscalationEventDefinition,
                             SignalEventDefinition,
                             CancelEventDefinition, CycleTimerEventDefinition,

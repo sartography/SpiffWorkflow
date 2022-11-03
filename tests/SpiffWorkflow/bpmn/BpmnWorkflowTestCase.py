@@ -7,7 +7,7 @@ from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator
 
 from SpiffWorkflow.task import TaskState
 
-from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 from .BpmnLoaderForTests import TestUserTaskConverter, TestBpmnParser
 
 __author__ = 'matth'

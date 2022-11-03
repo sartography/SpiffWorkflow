@@ -2,7 +2,7 @@
 
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.specs.events import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'

@@ -18,7 +18,7 @@
 # 02110-1301  USA
 from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 
-from ...specs import Simple
+from ...specs.Simple import Simple
 
 
 class ManualTask(Simple, BpmnSpecMixin):

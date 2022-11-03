@@ -29,7 +29,7 @@ from .ScriptTask import ScriptTask
 from .ExclusiveGateway import ExclusiveGateway
 from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...operators import valueof, is_number
-from ...specs import SubWorkflow
+from ...specs.SubWorkflow import SubWorkflow
 from ...specs.base import TaskSpec
 from ...util.impl import get_class
 from ...task import Task, TaskState

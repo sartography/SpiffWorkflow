@@ -10,7 +10,7 @@ from SpiffWorkflow.bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
 
 # Many of our tests relied on the Packager to set the calledElement attribute on
 # Call Activities.  I've moved that code to a customized parser.
-from SpiffWorkflow.signavio.parser import CallActivityParser
+from SpiffWorkflow.signavio.parser.tasks import CallActivityParser
 from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity
 
 __author__ = 'matth'

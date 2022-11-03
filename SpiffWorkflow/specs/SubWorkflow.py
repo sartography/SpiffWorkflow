@@ -18,7 +18,7 @@
 # 02110-1301  USA
 import os
 
-from . import StartTask
+from .StartTask import StartTask
 from .base import TaskSpec
 from ..task import TaskState
 from ..exceptions import WorkflowException
@@ -87,7 +87,7 @@ class SubWorkflow(TaskSpec):
 
     def _create_subworkflow(self, my_task):
         from ..serializer.prettyxml import XmlSerializer
-        from ..specs import WorkflowSpec
+        from ..specs.WorkflowSpec import WorkflowSpec
         from ..workflow import Workflow
         file_name = valueof(my_task, self.file)
         serializer = XmlSerializer()

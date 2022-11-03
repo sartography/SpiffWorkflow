@@ -23,7 +23,8 @@ from .ValidationException import ValidationException
 from ..specs.NoneTask import NoneTask
 from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
-from ..specs.events import _BoundaryEventParent, CancelEventDefinition
+from ..specs.events.IntermediateEvent import _BoundaryEventParent
+from ..specs.events.event_definitions import CancelEventDefinition
 from ..specs.MultiInstanceTask import getDynamicMIClass
 from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess, SubWorkflowTask
 from ..specs.ExclusiveGateway import ExclusiveGateway

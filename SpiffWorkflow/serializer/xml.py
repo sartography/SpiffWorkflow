@@ -24,29 +24,35 @@ from .. import specs, operators
 from ..task import Task, TaskStateNames
 from ..operators import (Attrib, Assign, PathAttrib, Equal, NotEqual,
                          GreaterThan, LessThan, Match)
-from ..specs import (Cancel, AcquireMutex, CancelTask, Celery, Choose,
-                     ExclusiveChoice, Execute, Gate, Join, MultiChoice,
-                     MultiInstance, ReleaseMutex, Simple, WorkflowSpec,
-                     SubWorkflow, StartTask, ThreadMerge,
-                     ThreadSplit, ThreadStart, Merge, Trigger, LoopResetTask)
-from .base import Serializer
+from ..specs.AcquireMutex import AcquireMutex
+from ..specs.Cancel import Cancel
+from ..specs.CancelTask import CancelTask
+from ..specs.Celery import Celery
+from ..specs.Choose import Choose
+from ..specs.ExclusiveChoice import ExclusiveChoice
+from ..specs.Execute import Execute
+from ..specs.Gate import Gate
+from ..specs.Join import Join
+from ..specs.Merge import Merge
+from ..specs.MultiChoice import MultiChoice
+from ..specs.MultiInstance import MultiInstance
+from ..specs.ReleaseMutex import ReleaseMutex
+from ..specs.Simple import Simple
+from ..specs.StartTask import StartTask
+from ..specs.SubWorkflow import SubWorkflow
+from ..specs.ThreadStart import ThreadStart
+from ..specs.ThreadMerge import ThreadMerge
+from ..specs.ThreadSplit import ThreadSplit
+from ..specs.Transform import Transform
+from ..specs.Trigger import Trigger
+from ..specs.WorkflowSpec import WorkflowSpec
+from ..specs.LoopResetTask import LoopResetTask
+from .base import Serializer, spec_map, op_map
 from .exceptions import TaskNotSupportedError
 
 # Create a list of tag names out of the spec names.
-_spec_map = dict()
-for name in dir(specs):
-    if name.startswith('_'):
-        continue
-    module = specs.__dict__[name]
-    name = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
-    _spec_map[name] = module
-_spec_map['task'] = specs.Simple
-
-_op_map = {'equals':       operators.Equal,
-           'not-equals':   operators.NotEqual,
-           'less-than':    operators.LessThan,
-           'greater-than': operators.GreaterThan,
-           'matches':      operators.Match}
+_spec_map = spec_map()
+_op_map = op_map()
 
 
 class XmlSerializer(Serializer):

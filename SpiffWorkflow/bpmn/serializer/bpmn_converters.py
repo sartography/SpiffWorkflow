@@ -7,9 +7,9 @@ from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataSpecification
 
 from .dictionary import DictionaryConverter
 
-from ..specs.events import SignalEventDefinition, MessageEventDefinition, NoneEventDefinition
-from ..specs.events import TimerEventDefinition, CycleTimerEventDefinition, TerminateEventDefinition
-from ..specs.events import ErrorEventDefinition, EscalationEventDefinition, CancelEventDefinition
+from ..specs.events.event_definitions import SignalEventDefinition, MessageEventDefinition, NoneEventDefinition
+from ..specs.events.event_definitions import TimerEventDefinition, CycleTimerEventDefinition, TerminateEventDefinition
+from ..specs.events.event_definitions import ErrorEventDefinition, EscalationEventDefinition, CancelEventDefinition
 from ..specs.events.event_definitions import CorrelationProperty, NamedEventDefinition
 
 from ..specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow

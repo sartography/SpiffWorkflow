@@ -1,9 +1,16 @@
 from functools import partial
 
 from SpiffWorkflow.bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
-from SpiffWorkflow.bpmn.specs.events import EndEvent, StartEvent, IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
-from SpiffWorkflow.spiff.specs import NoneTask, ManualTask, UserTask, ScriptTask, ServiceTask, SubWorkflowTask, TransactionSubprocess, CallActivity
-from SpiffWorkflow.spiff.specs.events import SendTask, ReceiveTask
+from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
+from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
+from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
+from SpiffWorkflow.spiff.specs.none_task import NoneTask
+from SpiffWorkflow.spiff.specs.manual_task import ManualTask
+from SpiffWorkflow.spiff.specs.user_task import UserTask
+from SpiffWorkflow.spiff.specs.script_task import ScriptTask
+from SpiffWorkflow.spiff.specs.service_task import ServiceTask
+from SpiffWorkflow.spiff.specs.subworkflow_task import SubWorkflowTask, TransactionSubprocess, CallActivity
+from SpiffWorkflow.spiff.specs.events.event_types import SendTask, ReceiveTask
 from SpiffWorkflow.spiff.specs.events.event_definitions import MessageEventDefinition
 
 

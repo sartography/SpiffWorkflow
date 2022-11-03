@@ -3,7 +3,8 @@ import unittest
 
 from SpiffWorkflow.camunda.specs.UserTask import FormField, UserTask, Form, \
     EnumFormField
-from SpiffWorkflow.specs import WorkflowSpec, TaskSpec
+from SpiffWorkflow.specs.base import TaskSpec
+from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 
 
 class UserTaskSpecTest(unittest.TestCase):

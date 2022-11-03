@@ -6,7 +6,7 @@ from uuid import uuid4
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnLoaderForTests import TestUserTaskConverter

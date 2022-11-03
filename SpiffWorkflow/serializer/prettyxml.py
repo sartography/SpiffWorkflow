@@ -18,25 +18,15 @@
 # 02110-1301  USA
 import re
 import xml.dom.minidom as minidom
-from .. import operators, specs
+from .. import operators
+from ..specs.Simple import Simple
+from ..specs.WorkflowSpec import WorkflowSpec
 from ..exceptions import StorageException
-from .base import Serializer
+from .base import Serializer, spec_map, op_map
 
 # Create a list of tag names out of the spec names.
-_spec_map = dict()
-for name in dir(specs):
-    if name.startswith('_'):
-        continue
-    module = specs.__dict__[name]
-    name = re.sub(r'(.)([A-Z])', r'\1-\2', name).lower()
-    _spec_map[name] = module
-_spec_map['task'] = specs.Simple
-
-_op_map = {'equals':       operators.Equal,
-           'not-equals':   operators.NotEqual,
-           'less-than':    operators.LessThan,
-           'greater-than': operators.GreaterThan,
-           'matches':      operators.Match}
+_spec_map = spec_map()
+_op_map = op_map()
 
 _exc = StorageException
 
@@ -299,9 +289,9 @@ class XmlSerializer(Serializer):
             _exc('%s without a name attribute' % node.nodeName)
 
         # Read all task specs and create a list of successors.
-        workflow_spec = specs.WorkflowSpec(name, filename)
+        workflow_spec = WorkflowSpec(name, filename)
         del workflow_spec.task_specs['Start']
-        end = specs.Simple(workflow_spec, 'End'), []
+        end = Simple(workflow_spec, 'End'), []
         read_specs = dict(end=end)
         for child_node in node.childNodes:
             if child_node.nodeType != minidom.Node.ELEMENT_NODE:

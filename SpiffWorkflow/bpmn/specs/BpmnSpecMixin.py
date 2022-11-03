@@ -19,7 +19,7 @@
 
 from ...task import TaskState
 from ...operators import Operator
-from ...specs import TaskSpec
+from ...specs.base import TaskSpec
 
 
 class _BpmnCondition(Operator):

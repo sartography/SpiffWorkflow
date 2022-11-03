@@ -8,7 +8,9 @@ import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from .JoinTest import JoinTest
-from SpiffWorkflow.specs import Merge, WorkflowSpec, Simple
+from SpiffWorkflow.specs.Merge import Merge
+from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
+from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.workflow import Workflow
 
 

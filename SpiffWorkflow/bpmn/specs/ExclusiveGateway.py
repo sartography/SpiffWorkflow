@@ -19,7 +19,7 @@
 from ...exceptions import WorkflowException
 
 from .BpmnSpecMixin import BpmnSpecMixin
-from ...specs import TaskSpec
+from ...specs.base import TaskSpec
 from ...specs.ExclusiveChoice import ExclusiveChoice
 
 

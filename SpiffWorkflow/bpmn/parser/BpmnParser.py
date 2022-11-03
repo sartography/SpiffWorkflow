@@ -27,8 +27,10 @@ from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinitio
 
 from .ValidationException import ValidationException
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
-from ..specs.events import StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
-from ..specs.events import SendTask, ReceiveTask
+from ..specs.events.EndEvent import EndEvent
+from ..specs.events.StartEvent import StartEvent
+from ..specs.events.IntermediateEvent import BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
+from ..specs.events.IntermediateEvent import SendTask, ReceiveTask
 from ..specs.SubWorkflowTask import CallActivity, SubWorkflowTask, TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway

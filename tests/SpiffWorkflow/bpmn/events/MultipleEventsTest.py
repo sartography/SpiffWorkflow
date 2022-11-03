@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from SpiffWorkflow.bpmn.specs.events import CancelEventDefinition, SignalEventDefinition
+from SpiffWorkflow.bpmn.specs.events.event_definitions import CancelEventDefinition, SignalEventDefinition
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase

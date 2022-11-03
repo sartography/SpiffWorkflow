@@ -7,7 +7,8 @@ import os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from SpiffWorkflow.task import Task, TaskState, updateDotDict
-from SpiffWorkflow.specs import WorkflowSpec, Simple
+from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
+from SpiffWorkflow.specs.Simple import Simple
 
 
 class MockWorkflow(object):

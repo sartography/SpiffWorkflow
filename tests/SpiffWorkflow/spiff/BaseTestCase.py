@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 
-from SpiffWorkflow.spiff.parser import SpiffBpmnParser, VALIDATOR
-from SpiffWorkflow.spiff.serializer import NoneTaskConverter, \
+from SpiffWorkflow.spiff.parser.process import SpiffBpmnParser, VALIDATOR
+from SpiffWorkflow.spiff.serializer.task_spec_converters import NoneTaskConverter, \
     ManualTaskConverter, UserTaskConverter, ScriptTaskConverter, \
     SubWorkflowTaskConverter, TransactionSubprocessConverter, \
     CallActivityTaskConverter, \
@@ -11,7 +11,7 @@ from SpiffWorkflow.spiff.serializer import NoneTaskConverter, \
     IntermediateCatchEventConverter, IntermediateThrowEventConverter, \
     ServiceTaskConverter
 from SpiffWorkflow.dmn.serializer.task_spec_converters import BusinessRuleTaskConverter
-from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

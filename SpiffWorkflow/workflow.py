@@ -19,7 +19,7 @@
 
 import logging
 
-from . import specs
+from .specs.Simple import Simple
 from .specs.LoopResetTask import LoopResetTask
 from .task import Task, TaskState
 from .util.compat import mutex
@@ -61,7 +61,7 @@ class Workflow(object):
             if 'Root' in workflow_spec.task_specs:
                 root = workflow_spec.task_specs['Root']
             else:
-                root = specs.Simple(workflow_spec, 'Root')
+                root = Simple(workflow_spec, 'Root')
             logger.info('Initialize', extra=self.log_info())
 
         # Setting TaskState.COMPLETED prevents the root task from being executed.

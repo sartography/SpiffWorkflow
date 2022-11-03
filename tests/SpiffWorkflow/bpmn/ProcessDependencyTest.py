@@ -3,7 +3,7 @@ import os
 import unittest
 
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
-from SpiffWorkflow.spiff.parser import SpiffBpmnParser
+from SpiffWorkflow.spiff.parser.process import SpiffBpmnParser
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

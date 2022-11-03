@@ -6,7 +6,8 @@ import unittest
 import pickle
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from .TaskSpecTest import TaskSpecTest
-from SpiffWorkflow.specs import Celery, WorkflowSpec
+from SpiffWorkflow.specs.Celery import Celery
+from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.operators import Attrib
 from SpiffWorkflow.serializer.dict import DictionarySerializer
 from base64 import b64encode

@@ -5,9 +5,11 @@ import unittest
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
-from SpiffWorkflow.specs import WorkflowSpec, Simple, Join
+from SpiffWorkflow.specs.Join import Join
+from SpiffWorkflow.specs.Simple import Simple
+from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.specs import TaskSpec
+from SpiffWorkflow.specs.base import TaskSpec
 from SpiffWorkflow.serializer.dict import DictionarySerializer
 
 

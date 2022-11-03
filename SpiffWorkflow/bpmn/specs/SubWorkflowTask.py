@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from SpiffWorkflow.task import TaskState
 from .BpmnSpecMixin import BpmnSpecMixin
-from ...specs import TaskSpec
+from ...specs.base import TaskSpec
 
 
 class SubWorkflowTask(BpmnSpecMixin):

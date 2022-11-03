@@ -2,7 +2,7 @@ from uuid import UUID
 
 from .bpmn_converters import BpmnTaskSpecConverter
 
-from ...specs import StartTask
+from ...specs.StartTask import StartTask
 from ...specs.Simple import Simple
 from ...specs.LoopResetTask import LoopResetTask
 
@@ -19,7 +19,9 @@ from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
 from ..specs.ParallelGateway import ParallelGateway
 
-from ..specs.events import StartEvent, EndEvent, BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
+from ..specs.events.StartEvent import StartEvent
+from ..specs.events.EndEvent import EndEvent
+from ..specs.events.IntermediateEvent import BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
 from ..specs.events.IntermediateEvent import _BoundaryEventParent, SendTask, ReceiveTask
 
 from ..workflow import BpmnWorkflow
