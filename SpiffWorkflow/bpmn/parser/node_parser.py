@@ -35,7 +35,8 @@ class NodeParser:
         return expression.text if expression is not None else None
 
     def parse_documentation(self, sequence_flow=None):
-        documentation_node = first(self._xpath(sequence_flow or self.node, './/bpmn:documentation'))
+        node = sequence_flow if sequence_flow is not None else self.node
+        documentation_node = first(self._xpath(node, './/bpmn:documentation'))
         return None if documentation_node is None else documentation_node.text
 
     def parse_incoming_data_references(self):
