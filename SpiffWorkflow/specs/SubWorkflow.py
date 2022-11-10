@@ -108,12 +108,10 @@ class SubWorkflow(TaskSpec):
     def _integrate_subworkflow_tree(self, my_task, subworkflow):
         # Integrate the tree of the subworkflow into the tree of this workflow.
         my_task._sync_children(self.outputs, TaskState.FUTURE)
-        for child in my_task.children:
-            child.task_spec._update(child)
-            child._inherit_data()
         for child in subworkflow.task_tree.children:
             my_task.children.insert(0, child)
             child.parent = my_task
+        self._predict(my_task)
 
     def _on_ready_hook(self, my_task):
         # Assign variables, if so requested.
@@ -121,10 +119,6 @@ class SubWorkflow(TaskSpec):
         for child in subworkflow.task_tree.children:
             for assignment in self.in_assign:
                 assignment.assign(my_task, child)
-
-        self._predict(my_task)
-        for child in subworkflow.task_tree.children:
-            child.task_spec._update(child)
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
         # Assign variables, if so requested.

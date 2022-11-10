@@ -242,18 +242,19 @@ class TaskSpec(object):
         :type  looked_ahead: integer
         :param looked_ahead: The depth of the predicted path so far.
         """
-        if my_task._is_finished():
-            return
         if seen is None:
             seen = []
-        elif self in seen:
+
+        if my_task._is_finished() or self in seen:
             return
-        if not my_task._is_finished():
-            self._predict_hook(my_task)
+
+        self._predict_hook(my_task)
+        
         if not my_task._is_definite():
             if looked_ahead + 1 >= self.lookahead:
                 return
             seen.append(self)
+
         for child in my_task.children:
             child.task_spec._predict(child, seen[:], looked_ahead + 1)
 
@@ -387,20 +388,11 @@ class TaskSpec(object):
         """
         assert my_task is not None
 
-        if my_task.workflow.debug:
-            print("Executing %s: %s (%s)" % (
-                my_task.task_spec.__class__.__name__,
-                my_task.get_name(), my_task.get_description()))
-
         # We have to set the last task here, because the on_complete_hook
         # of a loopback task may overwrite what the last_task will be.
         my_task.workflow.last_task = my_task
         self._on_complete_hook(my_task)
         my_task.workflow._task_completed_notify(my_task)
-
-        if my_task.workflow.debug:
-            if hasattr(my_task.workflow, "outer_workflow"):
-                my_task.workflow.outer_workflow.task_tree.dump()
 
         self.completed_event.emit(my_task.workflow, my_task)
         return True
