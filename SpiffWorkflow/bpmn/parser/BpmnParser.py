@@ -120,6 +120,8 @@ class BpmnParser(object):
         self.process_parsers_by_name = {}
         self.collaborations = {}
         self.process_dependencies = set()
+        self.messages = {}
+        self.correlations = {}
 
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
@@ -179,6 +181,8 @@ class BpmnParser(object):
 
         self._add_processes(bpmn, filename)
         self._add_collaborations(bpmn)
+        self._add_messages(bpmn)
+        self._add_correlations(bpmn)
 
     def _add_processes(self, bpmn, filename=None):
         for process in bpmn.xpath('.//bpmn:process', namespaces=self.namespaces):
@@ -191,6 +195,43 @@ class BpmnParser(object):
             collaboration_xpath = xpath_eval(collaboration)
             name = collaboration.get('id')
             self.collaborations[name] = [ participant.get('processRef') for participant in collaboration_xpath('.//bpmn:participant') ]
+
+    def _add_messages(self, bpmn):
+        for message in bpmn.xpath('.//bpmn:message', namespaces=self.namespaces):
+            if message.attrib.get("id") is None:
+                raise ValidationException(
+                    "Message identifier is missing from bpmn xml"
+                )
+            self.messages[message.attrib.get("id")] = message.attrib.get("name")
+
+    def _add_correlations(self, bpmn):
+        for correlation in bpmn.xpath('.//bpmn:correlationProperty', namespaces=self.namespaces):
+            correlation_identifier = correlation.attrib.get("id")
+            if correlation_identifier is None:
+                raise ValidationException(
+                    "Correlation identifier is missing from bpmn xml"
+                )
+            correlation_property_retrieval_expressions = correlation.xpath(
+                "//bpmn:correlationPropertyRetrievalExpression", namespaces = self.namespaces)
+            if not correlation_property_retrieval_expressions:
+                raise ValidationException(
+                    f"Correlation is missing correlation property retrieval expressions: {correlation_identifier}"
+                )
+            retrieval_expressions = []
+            for cpre in correlation_property_retrieval_expressions:
+                message_model_identifier = cpre.attrib.get("messageRef")
+                if message_model_identifier is None:
+                    raise ValidationException(
+                        f"Message identifier is missing from correlation property: {correlation_identifier}"
+                    )
+                children = cpre.getchildren()
+                expression = children[0].text if len(children) > 0 else None
+                retrieval_expressions.append({"messageRef": message_model_identifier,
+                                             "expression": expression})
+            self.correlations[correlation_identifier] = {
+                "name": correlation.attrib.get("name"),
+                "retrieval_expressions": retrieval_expressions
+            }
 
     def _find_dependencies(self, process):
         """Locate all calls to external BPMN, and store their ids in our list of dependencies"""

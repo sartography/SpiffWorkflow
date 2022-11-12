@@ -6,10 +6,22 @@ from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 class CollaborationTest(BpmnWorkflowTestCase):
 
+    def testParserProvidesInfoOnMessagesAndCorrelations(self):
+        parser = self.get_parser('collaboration.bpmn')
+        self.assertEqual(list(parser.messages.keys()), ['love_letter', 'love_letter_response'])
+        self.assertEqual(parser.correlations,
+                         {'lover_name': {'name': "Lover's Name",
+                                         'retrieval_expressions': [
+                                             {'expression': 'lover_name',
+                                              'messageRef': 'love_letter'},
+                                             {'expression': 'from_name',
+                                              'messageRef': 'love_letter_response'}]}}
+                         )
+
     def testCollaboration(self):
 
         spec, subprocesses = self.load_collaboration('collaboration.bpmn', 'my_collaboration')
-        
+
         # Only executable processes should be started
         self.assertIn('process_buddy', subprocesses)
         self.assertNotIn('random_person_process', subprocesses)
