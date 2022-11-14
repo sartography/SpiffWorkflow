@@ -293,9 +293,9 @@ class TaskSpec(object):
         """
         if my_task._is_predicted():
             self._predict(my_task)
-        if not my_task.parent._is_finished():
-            return
         self.entered_event.emit(my_task.workflow, my_task)
+        # If this actually did what the documentation said (returned a value indicating
+        # that the task was ready), then a lot of things might be easier.
         my_task._ready()
 
     def _on_ready(self, my_task):
@@ -392,6 +392,8 @@ class TaskSpec(object):
         # of a loopback task may overwrite what the last_task will be.
         my_task.workflow.last_task = my_task
         self._on_complete_hook(my_task)
+        for child in my_task.children:
+            child.task_spec._update(child)
         my_task.workflow._task_completed_notify(my_task)
 
         self.completed_event.emit(my_task.workflow, my_task)
@@ -406,9 +408,7 @@ class TaskSpec(object):
         :rtype:  bool
         :returns: True on success, False otherwise.
         """
-        # If we have more than one output, implicitly split.
-        for child in my_task.children:
-            child.task_spec._update(child)
+        pass
 
     @abstractmethod
     def serialize(self, serializer, **kwargs):

@@ -1,10 +1,10 @@
 Start
   first
-    sub_workflow_1
       Start
         first
           last
             End
+    sub_workflow_1
     second
       join
         last

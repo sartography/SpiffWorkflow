@@ -70,11 +70,9 @@ class MultiInstanceParallelArrayTest(BaseTestCase):
                 {"CurrentFamilyMember": {"Birthdate": "10/05/1985" + str(x)}})
             self.workflow.do_engine_steps()
             self.workflow.complete_task_from_id(task.id)
-            # The data should still be available on the current task.
-            self.assertEqual({'FirstName': "The Funk #%i" % x,
-                               'Birthdate': '10/05/1985' + str(x)},
-                              self.workflow.get_task(task.id)
-                              .data['CurrentFamilyMember'])
+            # We used to check that the current data variable was available in the task,
+            # but there's no reason to preserve it after the task completes.  We removed it
+            # in some cases and left it in others, which just adds to the confusion.
             self.workflow.do_engine_steps()
             if save_restore:
                 self.reload_save_restore()
