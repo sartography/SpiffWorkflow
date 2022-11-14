@@ -14,6 +14,16 @@ class StartMessageTest(BaseTestCase):
         self.spec, self.subprocesses = self.load_workflow_spec('message_test.bpmn', 'ThrowCatch')
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
+    def testParserCanReturnStartMessages(self):
+        parser = self.get_parser('message_test.bpmn')
+        self.assertEqual(
+            parser.process_parsers['ThrowCatch'].start_messages(), ['Message_1rkbi27'])
+
+        parser = self.get_parser('random_fact.bpmn')
+        self.assertEqual(
+            parser.process_parsers['random_fact'].start_messages(), [])
+
+
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
 
