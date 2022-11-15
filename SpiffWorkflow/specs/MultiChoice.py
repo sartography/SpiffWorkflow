@@ -134,8 +134,6 @@ class MultiChoice(TaskSpec):
             outputs.append(self._wf_spec.get_task_spec_from_name(output))
 
         my_task._sync_children(outputs, TaskState.FUTURE)
-        for child in my_task.children:
-            child.task_spec._update(child)
 
     def serialize(self, serializer):
         return serializer.serialize_multi_choice(self)

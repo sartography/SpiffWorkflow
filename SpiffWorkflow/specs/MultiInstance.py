@@ -102,8 +102,6 @@ class MultiInstance(TaskSpec):
     def _on_complete_hook(self, my_task):
         outputs = self._get_predicted_outputs(my_task)
         my_task._sync_children(outputs, TaskState.FUTURE)
-        for child in my_task.children:
-            child.task_spec._update(child)
 
     def serialize(self, serializer):
         return serializer.serialize_multi_instance(self)

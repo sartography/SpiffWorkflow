@@ -66,8 +66,6 @@ class SubWorkflowTask(BpmnSpecMixin):
 
     def _on_complete_hook(self, my_task):
         BpmnSpecMixin._on_complete_hook(self, my_task)
-        for child in my_task.children:
-            child.task_spec._update(child)
 
     def _on_cancel(self, my_task):
         subworkflow = my_task.workflow.get_subprocess(my_task)
