@@ -146,8 +146,6 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
 
     def _update_hook(self, my_task):
 
-        if my_task._is_predicted():
-            self._predict(my_task)
         if not my_task.parent._is_finished():
             return
 

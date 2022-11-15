@@ -549,7 +549,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
                 # We should set the state here but that breaks everything
                 continue
 
-            # Non-predicted tasks must not be removed, so they HAVE to be in the given task spec list.
+            # Definite tasks must not be removed, so they HAVE to be in the given task spec list.
             if child._is_definite():
                 raise WorkflowException(self.task_spec, f'removal of non-predicted child {child}')
             unneeded_children.append(child)

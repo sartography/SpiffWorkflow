@@ -113,7 +113,6 @@ class SubWorkflow(TaskSpec):
         for child in subworkflow.task_tree.children:
             my_task.children.insert(0, child)
             child.parent = my_task
-        self._predict(my_task)
 
     def _on_ready_hook(self, my_task):
         # Assign variables, if so requested.
