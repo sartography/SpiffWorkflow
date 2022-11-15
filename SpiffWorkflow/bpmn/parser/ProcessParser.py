@@ -44,7 +44,7 @@ class ProcessParser(NodeParser):
         self.parsed_nodes = {}
         self.lane = lane
         self.spec = None
-        self.process_executable = True
+        self.process_executable = self.is_executable()
 
     def get_name(self):
         """
@@ -59,6 +59,9 @@ class ProcessParser(NodeParser):
             if el.get("name"):
                 return True
         return False
+
+    def is_executable(self) -> bool:
+        return self.node.get('isExecutable', 'true') == 'true'
 
     def start_messages(self):
         """ This returns a list of messages that would cause this
@@ -98,7 +101,6 @@ class ProcessParser(NodeParser):
     def _parse(self):
         # here we only look in the top level, We will have another
         # bpmn:startEvent if we have a subworkflow task
-        self.process_executable = self.node.get('isExecutable', 'true') == 'true'
         start_node_list = self.xpath('./bpmn:startEvent')
         if not start_node_list and self.process_executable:
             raise ValidationException("No start event found", node=self.node, filename=self.filename)
