@@ -242,24 +242,19 @@ class TaskSpec(object):
         :type  looked_ahead: integer
         :param looked_ahead: The depth of the predicted path so far.
         """
-        if my_task._is_finished():
-            return
         if seen is None:
             seen = []
-        elif self in seen:
-            return
-        if not my_task._is_finished():
-            self._predict_hook(my_task)
+
+        self._predict_hook(my_task)
         if not my_task._is_definite():
-            if looked_ahead + 1 >= self.lookahead:
-                return
             seen.append(self)
+        look_ahead = my_task._is_definite() or looked_ahead + 1 < self.lookahead
         for child in my_task.children:
-            child.task_spec._predict(child, seen[:], looked_ahead + 1)
+            if not child._is_finished() and child not in seen and look_ahead:
+                child.task_spec._predict(child, seen[:], looked_ahead + 1)
 
     def _predict_hook(self, my_task):
-        # If the task's status is not predicted, we default to FUTURE
-        # for all it's outputs.
+        # If the task's status is not predicted, we default to FUTURE for all it's outputs.
         # Otherwise, copy my own state to the children.
         if my_task._is_definite():
             best_state = TaskState.FUTURE
@@ -278,6 +273,12 @@ class TaskSpec(object):
         completes it makes sure to call this method so we can react.
         """
         my_task._inherit_data()
+        # We were doing this in _update_hook, but to me that seems inconsistent with the spirit
+        # of the hook functions.  Moving it here allows removal of some repeated calls (overridden
+        # hook methods still need to do these things)
+        if my_task._is_predicted():
+            self._predict(my_task)
+        self.entered_event.emit(my_task.workflow, my_task)
         self._update_hook(my_task)
 
     def _update_hook(self, my_task):
@@ -290,11 +291,8 @@ class TaskSpec(object):
         Returning non-False will cause the task to go into READY.
         Returning any other value will cause no action.
         """
-        if my_task._is_predicted():
-            self._predict(my_task)
-        if not my_task.parent._is_finished():
-            return
-        self.entered_event.emit(my_task.workflow, my_task)
+        # If this actually did what the documentation said (returned a value indicating
+        # that the task was ready), then a lot of things might be easier.
         my_task._ready()
 
     def _on_ready(self, my_task):
@@ -387,20 +385,13 @@ class TaskSpec(object):
         """
         assert my_task is not None
 
-        if my_task.workflow.debug:
-            print("Executing %s: %s (%s)" % (
-                my_task.task_spec.__class__.__name__,
-                my_task.get_name(), my_task.get_description()))
-
         # We have to set the last task here, because the on_complete_hook
         # of a loopback task may overwrite what the last_task will be.
         my_task.workflow.last_task = my_task
         self._on_complete_hook(my_task)
+        for child in my_task.children:
+            child.task_spec._update(child)
         my_task.workflow._task_completed_notify(my_task)
-
-        if my_task.workflow.debug:
-            if hasattr(my_task.workflow, "outer_workflow"):
-                my_task.workflow.outer_workflow.task_tree.dump()
 
         self.completed_event.emit(my_task.workflow, my_task)
         return True
@@ -414,9 +405,7 @@ class TaskSpec(object):
         :rtype:  bool
         :returns: True on success, False otherwise.
         """
-        # If we have more than one output, implicitly split.
-        for child in my_task.children:
-            child.task_spec._update(child)
+        pass
 
     @abstractmethod
     def serialize(self, serializer, **kwargs):
@@ -478,8 +467,6 @@ class TaskSpec(object):
         :rtype:  TaskSpec
         :returns: The task specification instance.
         """
-        print(s_state)
-        print(wf_spec)
         out = cls(wf_spec,s_state.get('name'))
         out.id = s_state.get('id')
         out.name = s_state.get('name')

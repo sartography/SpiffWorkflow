@@ -522,46 +522,42 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         """
         if task_specs is None:
             raise ValueError('"task_specs" argument is None')
-        add = task_specs[:]
+        new_children = task_specs[:]
 
         # If a child task_spec is also an ancestor, we are looping back,
         # replace those specs with a loopReset task.
         root_task = self._get_root()
-        for index, task_spec in enumerate(add):
+        for index, task_spec in enumerate(new_children):
             ancestor_task = self._find_ancestor(task_spec)
             if ancestor_task and ancestor_task != root_task:
                 destination = ancestor_task
                 new_spec = self.workflow.get_reset_task_spec(destination)
                 new_spec.outputs = []
                 new_spec.inputs = task_spec.inputs
-                add[index] = new_spec
+                new_children[index] = new_spec
 
         # Create a list of all children that are no longer needed.
-        remove = []
+        unneeded_children = []
         for child in self.children:
             # Triggered tasks are never removed.
             if child.triggered:
                 continue
 
-            # Check whether the task needs to be removed.
-            if child.task_spec in add:
-                add.remove(child.task_spec)
+            # If the task already exists, remove it from to-be-added
+            if child.task_spec in new_children:
+                new_children.remove(child.task_spec)
+                # We should set the state here but that breaks everything
                 continue
 
-            # Non-predicted tasks must not be removed, so they HAVE to be in
-            # the given task spec list.
+            # Definite tasks must not be removed, so they HAVE to be in the given task spec list.
             if child._is_definite():
-                raise WorkflowException(self.task_spec,
-                                        'removal of non-predicted child %s' %
-                                        repr(child))
-            remove.append(child)
-
-
+                raise WorkflowException(self.task_spec, f'removal of non-predicted child {child}')
+            unneeded_children.append(child)
 
         # Remove and add the children accordingly.
-        for child in remove:
+        for child in unneeded_children:
             self.children.remove(child)
-        for task_spec in add:
+        for task_spec in new_children:
             self._add_child(task_spec, state)
 
     def _set_likely_task(self, task_specs):
@@ -574,7 +570,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
                 if child._is_definite():
                     continue
                 child._set_state(TaskState.LIKELY)
-                return
 
     def _is_descendant_of(self, parent):
         """

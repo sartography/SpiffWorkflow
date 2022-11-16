@@ -88,8 +88,6 @@ class ExclusiveChoice(MultiChoice):
                 f'No conditions satisfied for {my_task.task_spec.name}')
 
         my_task._sync_children([output], TaskState.FUTURE)
-        for child in my_task.children:
-            child.task_spec._update(child)
 
     def serialize(self, serializer):
         return serializer.serialize_exclusive_choice(self)

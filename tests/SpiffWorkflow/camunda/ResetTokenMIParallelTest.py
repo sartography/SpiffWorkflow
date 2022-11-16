@@ -44,8 +44,7 @@ class ResetTokenTestMIParallel(BaseTestCase):
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 
-        self.assertEqual({'current': {'A': 'y'},
-                          'do_step': 'Yes',
+        self.assertEqual({'do_step': 'Yes',
                           'output': {'1': {'A': 'x'}, '2': {'A': 'y'}, '3': {'A': 'z'}}},
                          self.workflow.last_task.data)
 
@@ -66,18 +65,12 @@ class ResetTokenTestMIParallel(BaseTestCase):
 
         self.assertTrue(self.workflow.is_completed())
 
-        self.assertEqual({'current': {'A': 'x'},
-                          'do_step': 'Yes',
+        self.assertEqual({'do_step': 'Yes',
                           'C': 'c',
                           'output': {'1': {'A': 'a1'},
                                      '2': {'A': 'y'},
                                      '3': {'A': 'z'}}},
                          self.workflow.last_task.data)
-
-
-
-
-
 
 
 def suite():

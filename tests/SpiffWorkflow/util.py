@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import str
-from builtins import range
 import time
 from SpiffWorkflow.task import Task, TaskState
 from SpiffWorkflow.workflow import Workflow
@@ -33,7 +31,6 @@ def on_reached_cb(workflow, task, taken_path):
     props = []
     for key, value in list(task.task_spec.data.items()):
         props.append('='.join((key, str(value))))
-    # print "REACHED:", task.get_name(), atts, props
 
     # Store the list of data in the workflow.
     atts = ';'.join(atts)

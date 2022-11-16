@@ -76,12 +76,14 @@ class SubWorkflow(TaskSpec):
                 self, 'File does not exist: %s' % self.file)
 
     def _predict_hook(self, my_task):
+        # Modifying the task spec is a TERRIBLE idea, but if we don't do it, sync_children won't work
         outputs = [task.task_spec for task in my_task.children]
         for output in self.outputs:
             if output not in outputs:
                 outputs.insert(0, output)
         if my_task._is_definite():
-            my_task._sync_children(outputs, TaskState.FUTURE)
+            # This prevents errors with sync children
+            my_task._sync_children(outputs, TaskState.LIKELY)
         else:
             my_task._sync_children(outputs, my_task.state)
 
@@ -107,10 +109,7 @@ class SubWorkflow(TaskSpec):
 
     def _integrate_subworkflow_tree(self, my_task, subworkflow):
         # Integrate the tree of the subworkflow into the tree of this workflow.
-        my_task._sync_children(self.outputs, TaskState.FUTURE)
-        for child in my_task.children:
-            child.task_spec._update(child)
-            child._inherit_data()
+        my_task._sync_children(self.outputs, TaskState.LIKELY)
         for child in subworkflow.task_tree.children:
             my_task.children.insert(0, child)
             child.parent = my_task
@@ -121,10 +120,18 @@ class SubWorkflow(TaskSpec):
         for child in subworkflow.task_tree.children:
             for assignment in self.in_assign:
                 assignment.assign(my_task, child)
-
-        self._predict(my_task)
-        for child in subworkflow.task_tree.children:
             child.task_spec._update(child)
+        # Instead of completing immediately, we'll wait for the subworkflow to complete
+        my_task._set_state(TaskState.WAITING)
+
+    def _update_hook(self, my_task):
+        subworkflow = my_task._get_internal_data('subworkflow')
+        if subworkflow is None:
+            # On the first update, we have to create the subworkflow
+            super()._update_hook(my_task)
+        elif subworkflow.is_completed():
+            # Then wait until it finishes to complete
+            my_task.complete()
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
         # Assign variables, if so requested.
@@ -137,11 +144,6 @@ class SubWorkflow(TaskSpec):
 
                 # Alright, abusing that hook is just evil but it works.
                 child.task_spec._update_hook(child)
-
-    def _on_complete_hook(self, my_task):
-        for child in my_task.children:
-            if isinstance(child.task_spec, StartTask):
-                child.task_spec._update(child)
 
     def serialize(self, serializer):
         return serializer.serialize_sub_workflow(self)

@@ -81,12 +81,6 @@ class MultiInstanceTask(TaskSpec):
 
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
 
-
-# DO NOT OVERRIDE THE SPEC TYPE.
-#    @property
-#    def spec_type(self):
-#        return 'MultiInstance Task'
-
     def _find_my_task(self, task):
         for thetask in task.workflow.task_tree:
             if thetask.thread_id != task.thread_id:
@@ -112,17 +106,6 @@ class MultiInstanceTask(TaskSpec):
             new_task = my_task._add_child(output, state)
             new_task.triggered = True
             output._predict(new_task)
-
-    def _check_inputs(self, my_task):
-        if self.collection is None:
-            return
-        # look for variable in context, if we don't find it, default to 1
-        variable = valueof(my_task, self.times, 1)
-        if self.times.name == self.collection.name and type(variable) == type([]):
-            raise WorkflowTaskExecException(my_task,
-                                            'If we are updating a collection,'
-                                            ' then the collection must be a '
-                                            'dictionary.')
 
     def _get_loop_completion(self,my_task):
         if not self.completioncondition == None:
@@ -153,17 +136,6 @@ class MultiInstanceTask(TaskSpec):
         if isinstance(variable,dict):
             return len(variable.keys())
         return 1  # we shouldn't ever get here, but just in case return a sane value.
-
-    def _get_current_var(self, my_task, pos):
-        variable = valueof(my_task, self.times, 1)
-        if is_number(variable):
-            return pos
-        if isinstance(variable,list) and len(variable) >= pos:
-            return variable[pos - 1]
-        elif isinstance(variable,dict) and len(list(variable.keys())) >= pos:
-            return variable[list(variable.keys())[pos - 1]]
-        else:
-            return pos
 
     def _get_predicted_outputs(self, my_task):
         split_n = self._get_count(my_task)
@@ -418,52 +390,60 @@ class MultiInstanceTask(TaskSpec):
         if my_task.task_spec.prevtaskclass in classes.keys() and not terminate:
             super()._on_complete_hook(my_task)
 
-    def _merge_element_variable(self,my_task,collect,runtimes,colvarname):
-        # if we are updating the same collection as was our loopcardinality
-        # then all the keys should be there and we can use the sorted keylist
-        # if not, we use an integer - we should be guaranteed that the
-        # collection is a dictionary
+    def _check_inputs(self, my_task):
+        if self.collection is None:
+            return
+        # look for variable in context, if we don't find it, default to 1
+        variable = valueof(my_task, self.times, 1)
+        if self.times.name == self.collection.name and type(variable) == type([]):
+            raise WorkflowTaskExecException(my_task,
+                'If we are updating a collection, then the collection must be a dictionary.')
+    
+    def _get_current_var(self, my_task, pos):
+        variable = valueof(my_task, self.times, 1)
+        if is_number(variable):
+            return pos
+        if isinstance(variable,list) and len(variable) >= pos:
+            return variable[pos - 1]
+        elif isinstance(variable,dict) and len(list(variable.keys())) >= pos:
+            return variable[list(variable.keys())[pos - 1]]
+        else:
+            return pos
+
+    def _merge_element_variable(self, my_task, collect, runtimes):
         if self.collection is not None and self.times.name == self.collection.name:
+            # Update an existing collection (we used the collection as the cardinality)
             keys = list(collect.keys())
             if len(keys) < runtimes:
                 msg = f"There is a mismatch between runtimes and the number " \
                       f"items in the collection, please check for empty " \
                       f"collection {self.collection.name}."
                 raise WorkflowTaskExecException(my_task, msg)
-
             runtimesvar = keys[runtimes - 1]
         else:
+            # Use an integer (for arrays)
             runtimesvar = runtimes
 
         if self.elementVar in my_task.data and isinstance(my_task.data[self.elementVar], dict):
-            collect[str(runtimesvar)] = DeepMerge.merge(collect.get(runtimesvar, {}),
-                                                   copy.copy(my_task.data[self.elementVar]))
+            collect[str(runtimesvar)] = DeepMerge.merge(
+                collect.get(runtimesvar, {}),
+                copy.copy(my_task.data[self.elementVar])
+            )
 
-        my_task.data = DeepMerge.merge(my_task.data,
-                                       gendict(colvarname.split('/'), collect))
+    def _update_sibling_data(self, my_task, runtimes, runcount, colvarname, collect):
 
-
-    def _update_sibling_data(self,my_task,runtimes,runcount,colvarname,collect):
         if (runtimes < runcount) and not my_task.terminate_current_loop and self.loopTask:
             my_task._set_state(TaskState.READY)
             my_task._set_internal_data(runtimes=runtimes + 1)
             my_task.data[self.elementVar] = self._get_current_var(my_task, runtimes + 1)
-            element_var_data = None
         else:
-            # The element var data should not be passed on to children
-            # but will add this back onto this task later.
-            element_var_data = my_task.data.pop(self.elementVar, None)
+            my_task.data.pop(self.elementVar, None)
 
-        # if this is a parallel mi - then update all siblings with the
-        # current data
-        if not self.isSequential:
-            for task in my_task.parent.children:
-                task.data = DeepMerge.merge(
-                    task.data,
-                    gendict(colvarname.split('/'),
-                    collect)
-                )
-        return element_var_data
+        for task in my_task.parent.children:
+            task.data = DeepMerge.merge(
+                task.data,
+                gendict(colvarname.split('/'), collect)
+            )
 
     def _on_complete_hook(self, my_task):
         # do special stuff for non-user tasks
@@ -486,9 +466,9 @@ class MultiInstanceTask(TaskSpec):
 
         collect = valueof(my_task, self.collection, {})
 
-        self._merge_element_variable(my_task,collect,runtimes,colvarname)
+        self._merge_element_variable(my_task, collect, runtimes)
 
-        element_var_data = self._update_sibling_data(my_task,runtimes,runcount,colvarname,collect)
+        self._update_sibling_data(my_task, runtimes, runcount, colvarname, collect)
 
         # please see MultiInstance code for previous version
         outputs = []
@@ -496,14 +476,6 @@ class MultiInstanceTask(TaskSpec):
 
         if not isinstance(my_task.task_spec,SubWorkflowTask):
             my_task._sync_children(outputs, TaskState.FUTURE)
-
-        for child in my_task.children:
-            child.task_spec._update(child)
-
-        # If removed, add the element_var_data back onto this task, after
-        # updating the children.
-        if(element_var_data):
-            my_task.data[self.elementVar] = element_var_data
 
     def serialize(self, serializer):
 
