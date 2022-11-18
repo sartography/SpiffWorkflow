@@ -23,7 +23,7 @@ class SpiffTaskParser(TaskParser):
         extensions = {}
         extra_ns = {SPIFFWORKFLOW_MODEL_PREFIX: SPIFFWORKFLOW_MODEL_NS}
         xpath = xpath_eval(node, extra_ns)
-        extension_nodes = xpath(f'.//bpmn:extensionElements/{SPIFFWORKFLOW_MODEL_PREFIX}:*')
+        extension_nodes = xpath(f'./bpmn:extensionElements/{SPIFFWORKFLOW_MODEL_PREFIX}:*')
         for node in extension_nodes:
             name = etree.QName(node).localname
             if name == 'properties':
