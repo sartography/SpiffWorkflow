@@ -95,7 +95,8 @@ class DMNEngine:
         # If we get here, we need to check whether the match expression includes
         # an operator or if can use '=='
         needs_eq = self.needs_eq(script_engine, match_expr)
-        expr = input_expr + ' == ' + match_expr if needs_eq else input_expr + match_expr
+        # Disambiguate cases like a == 0 == True when we add '=='
+        expr = f'({input_expr}) == ({match_expr})' if needs_eq else input_expr + match_expr
         return script_engine.evaluate(task, expr)
 
     @staticmethod
