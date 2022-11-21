@@ -1,7 +1,7 @@
 from ...bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
 
 from ..specs.BusinessRuleTask import BusinessRuleTask
-from ..specs.model import DecisionTable, Rule
+from ..specs.model import DecisionTable, Rule, HitPolicy
 from ..specs.model import Input, InputEntry, Output, OutputEntry
 from ..engine.DMNEngine import DMNEngine
 
@@ -57,7 +57,8 @@ class BusinessRuleTaskConverter(BpmnTaskSpecConverter):
         return self.task_spec_from_dict(dct)
 
     def decision_table_from_dict(self, dct):
-        table = DecisionTable(dct['id'], dct['name'])
+        hit_policy = dct.get('hit_policy', HitPolicy.UNIQUE.value)
+        table = DecisionTable(dct['id'], dct['name'], hit_policy)
         table.inputs = [ Input(**val) for val in dct['inputs'] ]
         table.outputs = [ Output(**val) for val in dct['outputs'] ]
         table.rules = [ self.rule_from_dict(rule, table.inputs, table.outputs)

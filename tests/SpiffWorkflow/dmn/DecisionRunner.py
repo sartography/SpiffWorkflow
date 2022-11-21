@@ -41,11 +41,17 @@ class DecisionRunner:
             'Exactly one decision table should exist! (%s)' \
             % (len(decision.decisionTables))
 
-        self.dmnEngine = DMNEngine(decision.decisionTables[0])
+        self.decision_table = decision.decisionTables[0]
+        self.dmnEngine = DMNEngine(self.decision_table)
 
     def decide(self, context):
-
+        """Makes the rather ugly assumption that there is only one
+         rule match for a decision - which was previously the case"""
         if not isinstance(context, dict):
             context = {'input': context}
         task = Task(self.script_engine, context)
-        return self.dmnEngine.decide(task)
+        return self.dmnEngine.decide(task)[0]
+
+    def result(self, context):
+        task = Task(self.script_engine, context)
+        return self.dmnEngine.result(task)

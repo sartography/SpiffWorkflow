@@ -1,6 +1,7 @@
 import logging
 import re
 
+from ..specs.model import HitPolicy
 from ...util import levenshtein
 from ...workflow import WorkflowException
 
@@ -16,9 +17,32 @@ class DMNEngine:
         self.decision_table = decision_table
 
     def decide(self, task):
+        rules = []
         for rule in self.decision_table.rules:
             if self.__check_rule(rule, task):
-                return rule
+                rules.append(rule)
+                if self.decision_table.hit_policy == HitPolicy.UNIQUE.value:
+                    return rules
+        return rules
+
+    def result(self, task):
+        """Returns the results of running this decision table against
+        a given task."""
+        result = {}
+        matched_rules = self.decide(task)
+        if len(matched_rules) == 1:
+            result = matched_rules[0].output_as_dict(task)
+        elif len(matched_rules) > 1:  # This must be a multi-output
+            # each output will be an array of values, all outputs will
+            # be placed in a dict, which we will then merge.
+            for rule in matched_rules:
+                rule_output = rule.output_as_dict(task)
+                for key in rule_output.keys():
+                    if not key in result:
+                        result[key] = []
+                    result[key].append(rule_output[key])
+        return result
+
 
     def __check_rule(self, rule, task):
         for input_entry in rule.inputEntries:

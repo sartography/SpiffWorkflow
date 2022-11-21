@@ -18,7 +18,6 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
         super().__init__(wf_spec, name, **kwargs)
 
         self.dmnEngine = dmnEngine
-        self.res = None
         self.resDict = None
 
     @property
@@ -27,10 +26,8 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
 
     def _on_complete_hook(self, my_task):
         try:
-            self.res = self.dmnEngine.decide(my_task)
-            if self.res is not None:  # it is conceivable that no rules fire.
-                self.resDict = self.res.output_as_dict(my_task)
-                my_task.data = DeepMerge.merge(my_task.data,self.resDict)
+            my_task.data = DeepMerge.merge(my_task.data,
+                                           self.dmnEngine.result(my_task))
             super(BusinessRuleTask, self)._on_complete_hook(my_task)
         except Exception as e:
             raise WorkflowTaskExecException(my_task, str(e))

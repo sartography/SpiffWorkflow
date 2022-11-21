@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/2.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="Definitions_06veek1" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.0.0">
+  <decision id="Decision_ExclusiveAMCheck" name="UniqueHit">
+    <decisionTable id="decisionTable_1">
+      <input id="input_1" label="Input &#34;name&#34;" biodi:width="192">
+        <inputExpression id="inputExpression_1" typeRef="string" expressionLanguage="python">
+          <text>name</text>
+        </inputExpression>
+      </input>
+      <output id="output_1" label="Output &#34;result&#34;" name="result" typeRef="integer" />
+      <rule id="DecisionRule_07162mr">
+        <description></description>
+        <inputEntry id="UnaryTests_1jqxc3u">
+          <text>"Larry"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_16l50ps">
+          <text>1</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0ifa4wu">
+        <description></description>
+        <inputEntry id="UnaryTests_0szbwxc">
+          <text>"Mo"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0td8sa6">
+          <text>2</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0x9z2jm">
+        <inputEntry id="UnaryTests_1ul57lx">
+          <text>"Curly"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_04v8i8e">
+          <text>3</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_16ur1y7">
+        <inputEntry id="UnaryTests_09q92u9">
+          <text>"Shemp"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0yc7vs6">
+          <text>4</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1vu8ul5">
+      <dmndi:DMNShape id="DMNShape_0sl8kie" dmnElementRef="Decision_ExclusiveAMCheck">
+        <dc:Bounds height="80" width="180" x="150" y="150" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

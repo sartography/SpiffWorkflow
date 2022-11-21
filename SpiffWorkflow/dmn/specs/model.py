@@ -1,7 +1,23 @@
 from collections import OrderedDict
+from enum import Enum
 
 from ...util.deep_merge import DeepMerge
 
+
+class HitPolicy(Enum):
+    UNIQUE = "UNIQUE"
+    COLLECT = "COLLECT"
+    # ANY = "ANY"
+    # PRIORITY = "PRIORITY"
+    # FIRST = "FIRST"
+    # OUTPUT_ORDER = "OUTPUT ORDER"
+    # RULE_ORDER = "RULE ORDER"
+
+# class Aggregation(Enum):
+    # SUM = "SUM"
+    # COUNT = "COUNT"
+    # MIN = "MIN"
+    # MAX = "MAX"
 
 class Decision:
     def __init__(self, id, name):
@@ -11,9 +27,10 @@ class Decision:
         self.decisionTables = []
 
 class DecisionTable:
-    def __init__(self, id, name):
+    def __init__(self, id, name, hit_policy):
         self.id = id
         self.name = name
+        self.hit_policy = hit_policy
 
         self.inputs = []
         self.outputs = []
@@ -23,6 +40,7 @@ class DecisionTable:
         out = {}
         out['id'] = self.id
         out['name'] = self.name
+        out['hit_policy'] = self.hit_policy
         out['inputs'] = [x.serialize() for x in self.inputs]
         out['outputs'] = [x.serialize() for x in self.outputs]
         out['rules'] = [x.serialize() for x in self.rules]
@@ -31,6 +49,10 @@ class DecisionTable:
     def deserialize(self,indict):
         self.id = indict['id']
         self.name = indict['name']
+        if 'hit_policy' in indict:
+            self.hit_policy = indict['hit_policy']
+        else:
+            self.hit_policy = HitPolicy.UNIQUE.value
         self.inputs = [Input(**x) for x in indict['inputs']]
         list(map(lambda x, y: x.deserialize(y), self.inputs, indict['inputs']))
         self.outputs = [Output(**x) for x in indict['outputs']]
