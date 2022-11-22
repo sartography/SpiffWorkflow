@@ -177,7 +177,7 @@ class BPMNDictionarySerializer(DictionarySerializer):
         return s_state
 
     def deserialize_business_rule_task(self, wf_spec, s_state):
-        dt = DecisionTable(None,None)
+        dt = DecisionTable(None, None, None)
         dt.deserialize(s_state['dmn'])
         dmn_engine = DMNEngine(dt)
         spec = BusinessRuleTask(wf_spec, s_state['name'], dmn_engine)
@@ -224,7 +224,7 @@ class BPMNDictionarySerializer(DictionarySerializer):
             if s_state.get('expanded',None):
                 cls.expanded = self.deserialize_arg(s_state['expanded'])
         if isinstance(cls,BusinessRuleTask):
-            dt = DecisionTable(None,None)
+            dt = DecisionTable(None,None,None)
             dt.deserialize(s_state['dmn'])
             dmn_engine = DMNEngine(dt)
             cls.dmnEngine=dmn_engine

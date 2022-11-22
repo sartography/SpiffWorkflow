@@ -93,9 +93,10 @@ class DMNParser(NodeParser):
 
     def _parse_decision_tables(self, decision, decisionElement):
         for decision_table_element in decisionElement.findall('{*}decisionTable'):
+            name = decision_table_element.attrib.get('name', '')
+            hitPolicy = decision_table_element.attrib.get('hitPolicy', 'UNIQUE').upper()
             decision_table = DecisionTable(decision_table_element.attrib['id'],
-                                           decision_table_element.attrib.get(
-                                               'name', ''))
+                                           name, hitPolicy)
             decision.decisionTables.append(decision_table)
 
             # parse inputs
