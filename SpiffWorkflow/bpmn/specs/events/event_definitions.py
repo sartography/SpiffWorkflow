@@ -19,6 +19,7 @@
 
 import datetime
 from copy import deepcopy
+from tkinter import W
 
 
 class EventDefinition(object):
@@ -92,6 +93,7 @@ class EventDefinition(object):
         obj.internal, obj.external = internal, external
         return obj
 
+
 class NamedEventDefinition(EventDefinition):
     """
     Extend the base event class to provide a name for the event.  Most throw/catch events
@@ -114,7 +116,6 @@ class NamedEventDefinition(EventDefinition):
         retdict = super(NamedEventDefinition, self).serialize()
         retdict['name'] = self.name
         return retdict
-
 
 class CancelEventDefinition(EventDefinition):
     """
@@ -398,3 +399,19 @@ class CycleTimerEventDefinition(EventDefinition):
         retdict['label'] = self.label
         retdict['cycle_definition'] = self.cycle_definition
         return retdict
+
+
+class MultipleEventDefinition(EventDefinition):
+
+    def __init__(self, event_definitions=None, parallel=False):
+        super().__init__()
+        self.event_definitions = event_definitions or []
+        self.parallel = False
+
+    def __eq__(self, other):
+        # This event can catch any of the events associated with it
+        for event in self.event_definitions:
+            if event == other:
+                return True        
+        else:
+            return False
