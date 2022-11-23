@@ -109,7 +109,7 @@ class EventDefinitionParser(TaskParser):
                 correlations.append(CorrelationProperty(key, expression, used_by))
         return correlations
 
-    def _create_task(self, event_definition, cancel_activity=None):
+    def _create_task(self, event_definition, cancel_activity=None, parallel=None):
 
         if isinstance(event_definition, MessageEventDefinition):
             for prop in event_definition.correlation_properties:
@@ -126,9 +126,11 @@ class EventDefinitionParser(TaskParser):
         }
         if cancel_activity is not None:
             kwargs['cancel_activity'] = cancel_activity
+        if parallel is not None:
+            kwargs['parallel'] = parallel
         return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
 
-    def get_event_definition(self, xpaths, parallel=False):
+    def get_event_definition(self, xpaths):
         """Returns all event definitions it can find in given list of xpaths"""
 
         event_definitions = []
@@ -148,6 +150,8 @@ class EventDefinitionParser(TaskParser):
                     event_definitions.append(self.parse_escalation_event(event))
                 elif path == TERMINATION_EVENT_XPATH:
                     event_definitions.append(self.parse_terminate_event())
+
+        parallel = self.node.get('parallelMultiple') == 'true'
 
         if len(event_definitions) == 0:
             return NoneEventDefinition()

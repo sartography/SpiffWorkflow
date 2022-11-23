@@ -406,7 +406,22 @@ class MultipleEventDefinition(EventDefinition):
     def __init__(self, event_definitions=None, parallel=False):
         super().__init__()
         self.event_definitions = event_definitions or []
-        self.parallel = False
+        self.parallel = parallel
+
+    def catch(self, my_task, event_definition=None):
+        if self.parallel:
+            # Parallel multiple need to match all events
+            seen_events = my_task.internal_data.get('seen_events', []) + [event_definition]
+            my_task._set_internal_data(seen_events=seen_events)
+            if all(event in seen_events for event in self.event_definitions):
+                my_task._set_internal_data(event_fired=True)
+        else:
+            # Otherwise, matching one is sufficient
+            my_task._set_internal_data(event_fired=True)
+
+    def reset(self, my_task):
+        my_task.internal_data.pop('seen_events', None)
+        super().reset(my_task)
 
     def __eq__(self, other):
         # This event can catch any of the events associated with it

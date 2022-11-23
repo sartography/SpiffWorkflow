@@ -35,3 +35,12 @@ class EventBsedGatewayTest(BpmnWorkflowTestCase):
         self.assertEqual(self.workflow.get_tasks_from_spec_name('message_1_event')[0].state, TaskState.COMPLETED)
         self.assertEqual(self.workflow.get_tasks_from_spec_name('message_2_event')[0].state, TaskState.CANCELLED)
         self.assertEqual(self.workflow.get_tasks_from_spec_name('timer_event')[0].state, TaskState.CANCELLED)
+
+    def testMultipleStart(self):
+        spec, subprocess = self.load_workflow_spec('multiple-start-parallel.bpmn', 'main')
+        workflow = BpmnWorkflow(spec)
+        workflow.do_engine_steps()
+        workflow.catch(MessageEventDefinition('message_1'))
+        workflow.catch(MessageEventDefinition('message_2'))
+        workflow.refresh_waiting_tasks()
+        workflow.do_engine_steps()
