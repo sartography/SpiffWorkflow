@@ -17,7 +17,7 @@ from .task_spec_converters import SimpleTaskConverter, StartTaskConverter, EndJo
 from .task_spec_converters import NoneTaskConverter, UserTaskConverter, ManualTaskConverter, ScriptTaskConverter
 from .task_spec_converters import CallActivityTaskConverter, TransactionSubprocessTaskConverter
 from .task_spec_converters import StartEventConverter, EndEventConverter
-from .task_spec_converters import IntermediateCatchEventConverter, IntermediateThrowEventConverter
+from .task_spec_converters import IntermediateCatchEventConverter, IntermediateThrowEventConverter, EventBasedGatewayConverter
 from .task_spec_converters import SendTaskConverter, ReceiveTaskConverter
 from .task_spec_converters import BoundaryEventConverter, BoundaryEventParentConverter
 from .task_spec_converters import ParallelGatewayConverter, ExclusiveGatewayConverter, InclusiveGatewayConverter
@@ -27,7 +27,7 @@ DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
     NoneTaskConverter, UserTaskConverter, ManualTaskConverter, ScriptTaskConverter,
     CallActivityTaskConverter, TransactionSubprocessTaskConverter,
     StartEventConverter, EndEventConverter, SendTaskConverter, ReceiveTaskConverter,
-    IntermediateCatchEventConverter, IntermediateThrowEventConverter,
+    IntermediateCatchEventConverter, IntermediateThrowEventConverter, EventBasedGatewayConverter,
     BoundaryEventConverter, BoundaryEventParentConverter,
     ParallelGatewayConverter, ExclusiveGatewayConverter, InclusiveGatewayConverter
 ]

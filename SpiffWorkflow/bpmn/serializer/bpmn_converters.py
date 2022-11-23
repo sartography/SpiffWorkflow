@@ -7,7 +7,7 @@ from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataSpecification
 
 from .dictionary import DictionaryConverter
 
-from ..specs.events.event_definitions import SignalEventDefinition, MessageEventDefinition, NoneEventDefinition
+from ..specs.events.event_definitions import MultipleEventDefinition, SignalEventDefinition, MessageEventDefinition, NoneEventDefinition
 from ..specs.events.event_definitions import TimerEventDefinition, CycleTimerEventDefinition, TerminateEventDefinition
 from ..specs.events.event_definitions import ErrorEventDefinition, EscalationEventDefinition, CancelEventDefinition
 from ..specs.events.event_definitions import CorrelationProperty, NamedEventDefinition
@@ -91,7 +91,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
 
         event_definitions = [ NoneEventDefinition, CancelEventDefinition, TerminateEventDefinition,
             SignalEventDefinition, MessageEventDefinition, ErrorEventDefinition, EscalationEventDefinition,
-            TimerEventDefinition, CycleTimerEventDefinition ]
+            TimerEventDefinition, CycleTimerEventDefinition , MultipleEventDefinition]
 
         for event_definition in event_definitions:
             self.register(
@@ -257,6 +257,9 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             dct['error_code'] = event_definition.error_code
         if isinstance(event_definition, EscalationEventDefinition):
             dct['escalation_code'] = event_definition.escalation_code
+        if isinstance(event_definition, MultipleEventDefinition):
+            dct['event_definitions'] = [self.convert(e) for e in event_definition.event_definitions]
+            dct['parallel'] = event_definition.parallel
 
         return dct
 
@@ -273,6 +276,8 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         internal, external = dct.pop('internal'), dct.pop('external')
         if 'correlation_properties' in dct:
             dct['correlation_properties'] = [CorrelationProperty(**prop) for prop in dct['correlation_properties']]
+        if 'event_definitions' in dct:
+            dct['event_definitions'] = [self.restore(d) for d in dct['event_definitions']]
         event_definition = definition_class(**dct)
         event_definition.internal = internal
         event_definition.external = external

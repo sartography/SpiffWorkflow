@@ -237,3 +237,21 @@ class BoundaryEventParser(EventDefinitionParser):
             raise NotImplementedError('Unsupported Catch Event: %r', etree.tostring(self.node))
         return self._create_task(event_definition, cancel_activity)
 
+
+class EventBasedGatewayParser(EventDefinitionParser):
+
+    def create_task(self):
+        return self._create_task(MultipleEventDefinition())
+
+    def handles_multiple_outgoing(self):
+        return True
+
+    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
+        self.task.event_definition.event_definitions.append(outgoing_task.event_definition)
+        self.task.connect_outgoing(
+            outgoing_task, 
+            sequence_flow_node.get('id'),
+            sequence_flow_node.get('name', None),
+            self.parse_documentation(sequence_flow_node)
+        )
+    

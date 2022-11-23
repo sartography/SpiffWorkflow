@@ -21,7 +21,7 @@ from ..specs.ParallelGateway import ParallelGateway
 
 from ..specs.events.StartEvent import StartEvent
 from ..specs.events.EndEvent import EndEvent
-from ..specs.events.IntermediateEvent import BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent
+from ..specs.events.IntermediateEvent import BoundaryEvent, EventBasedGateway, IntermediateCatchEvent, IntermediateThrowEvent
 from ..specs.events.IntermediateEvent import _BoundaryEventParent, SendTask, ReceiveTask
 
 from ..workflow import BpmnWorkflow
@@ -52,6 +52,7 @@ class StartTaskConverter(BpmnTaskSpecConverter):
     def from_dict(self, dct):
         return self.task_spec_from_dict(dct)
 
+
 class LoopResetTaskConverter(BpmnTaskSpecConverter):
 
     def __init__(self, data_converter=None, typename=None):
@@ -69,6 +70,7 @@ class LoopResetTaskConverter(BpmnTaskSpecConverter):
         spec = self.task_spec_from_dict(dct)
         spec.destination_id = UUID(spec.destination_id)
         return spec
+
 
 class EndJoinConverter(BpmnTaskSpecConverter):
 
@@ -310,3 +312,9 @@ class BoundaryEventParentConverter(BpmnTaskSpecConverter):
 
     def from_dict(self, dct):
         return self.task_spec_from_dict(dct)
+
+
+class EventBasedGatewayConverter(EventConverter):
+
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(EventBasedGateway, data_converter, typename)
