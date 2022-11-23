@@ -19,7 +19,6 @@
 
 import datetime
 from copy import deepcopy
-from tkinter import W
 
 
 class EventDefinition(object):
@@ -434,9 +433,8 @@ class MultipleEventDefinition(EventDefinition):
         # This event can catch any of the events associated with it
         for event in self.event_definitions:
             if event == other:
-                return True        
-        else:
-            return False
+                return True
+        return False
     
     def throw(self, my_task):
         # Mutiple events throw all associated events when they fire
