@@ -70,10 +70,10 @@ class EventDefinition(object):
         # We also don't have a more sophisticated method for addressing events to
         # a particular process, but this at least provides a mechanism for distinguishing
         # between processes and subprocesses.
-        if self.internal:
-            workflow.catch(event)
         if self.external:
             outer_workflow.catch(event, correlations)
+        if self.internal and (self.external and workflow != outer_workflow):
+            workflow.catch(event)
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__
@@ -413,12 +413,15 @@ class MultipleEventDefinition(EventDefinition):
         return 'Multiple'
 
     def catch(self, my_task, event_definition=None):
+        event_definition.catch(my_task, event_definition)
         if self.parallel:
             # Parallel multiple need to match all events
             seen_events = my_task.internal_data.get('seen_events', []) + [event_definition]
             my_task._set_internal_data(seen_events=seen_events)
             if all(event in seen_events for event in self.event_definitions):
                 my_task._set_internal_data(event_fired=True)
+            else:
+                my_task._set_internal_data(event_fired=False)
         else:
             # Otherwise, matching one is sufficient
             my_task._set_internal_data(event_fired=True)
