@@ -408,6 +408,10 @@ class MultipleEventDefinition(EventDefinition):
         self.event_definitions = event_definitions or []
         self.parallel = parallel
 
+    @property
+    def event_type(self):
+        return 'Multiple'
+
     def catch(self, my_task, event_definition=None):
         if self.parallel:
             # Parallel multiple need to match all events
@@ -430,3 +434,12 @@ class MultipleEventDefinition(EventDefinition):
                 return True        
         else:
             return False
+    
+    def throw(self, my_task):
+        # Mutiple events throw all associated events when they fire
+        for event_definition in self.event_definitions:
+            self._throw(
+                event=event_definition,
+                workflow=my_task.workflow,
+                outer_workflow=my_task.workflow.outer_workflow
+            )
