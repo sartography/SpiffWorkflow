@@ -121,6 +121,25 @@ class TaskParser(NodeParser):
         elif len(self.xpath('./bpmn:standardLoopCharacteristics')) > 0:
             self._set_multiinstance_attributes(True, 25, STANDARDLOOPCOUNT, loop_task=True)
 
+    def _add_boundary_event(self, children):
+
+        parent = _BoundaryEventParent(
+            self.spec, '%s.BoundaryEventParent' % self.get_id(),
+            self.task, lane=self.task.lane)
+        self.process_parser.parsed_nodes[self.node.get('id')] = parent
+        parent.connect_outgoing(self.task, '%s.FromBoundaryEventParent' % self.get_id(), None, None)
+        for event in children:
+            child = self.process_parser.parse_node(event)
+            if isinstance(child.event_definition, CancelEventDefinition) \
+              and not isinstance(self.task, TransactionSubprocess):
+                raise ValidationException('Cancel Events may only be used with transactions',
+                    node=self.node,
+                    filename=self.filename)
+            parent.connect_outgoing(child,
+                '%s.FromBoundaryEventParent' % event.get('id'),
+                None, None)
+        return parent
+
     def parse_node(self):
         """
         Parse this node, and all children, returning the connected task spec.
@@ -139,30 +158,9 @@ class TaskParser(NodeParser):
 
             boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
             if boundary_event_nodes:
-                parent_task = _BoundaryEventParent(
-                    self.spec, '%s.BoundaryEventParent' % self.get_id(),
-                    self.task, lane=self.task.lane)
-                self.process_parser.parsed_nodes[
-                    self.node.get('id')] = parent_task
-                parent_task.connect_outgoing(
-                    self.task, '%s.FromBoundaryEventParent' % self.get_id(),
-                    None, None)
-                for boundary_event in boundary_event_nodes:
-                    b = self.process_parser.parse_node(boundary_event)
-                    if isinstance(b.event_definition, CancelEventDefinition) \
-                      and not isinstance(self.task, TransactionSubprocess):
-                        raise ValidationException(
-                            'Cancel Events may only be used with transactions',
-                            node=self.node,
-                            filename=self.filename)
-                    parent_task.connect_outgoing(
-                        b,
-                        '%s.FromBoundaryEventParent' % boundary_event.get(
-                            'id'),
-                        None, None)
+                parent = self._add_boundary_event(boundary_event_nodes)
             else:
-                self.process_parser.parsed_nodes[
-                    self.node.get('id')] = self.task
+                self.process_parser.parsed_nodes[self.node.get('id')] = self.task
 
             children = []
             outgoing = self.doc_xpath('.//bpmn:sequenceFlow[@sourceRef="%s"]' % self.get_id())
@@ -202,7 +200,7 @@ class TaskParser(NodeParser):
                         c, target_node, sequence_flow,
                         sequence_flow.get('id') == default_outgoing)
 
-            return parent_task if boundary_event_nodes else self.task
+            return parent if boundary_event_nodes else self.task
         except ValidationException:
             raise
         except Exception as ex:

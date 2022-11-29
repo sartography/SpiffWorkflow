@@ -111,6 +111,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
     def deserialize(cls, serializer, wf_spec, s_state):
         return serializer.deserialize_boundary_event_parent(wf_spec, s_state, cls)
 
+
 class BoundaryEvent(CatchingEvent):
     """Task Spec for a bpmn:boundaryEvent node."""
 
@@ -127,7 +128,6 @@ class BoundaryEvent(CatchingEvent):
     def spec_type(self):
         interrupting = 'Interrupting' if self.cancel_activity else 'Non-Interrupting'
         return f'{interrupting} {self.event_definition.event_type} Event'
-
 
     def catches(self, my_task, event_definition, correlations=None):
         # Boundary events should only be caught while waiting
@@ -148,3 +148,16 @@ class BoundaryEvent(CatchingEvent):
     @classmethod
     def deserialize(cls, serializer, wf_spec, s_state):
         return serializer.deserialize_boundary_event(wf_spec, s_state, cls)
+
+
+class EventBasedGateway(CatchingEvent):
+
+    @property
+    def spec_type(self):
+        return 'Event Based Gateway'
+
+    def _on_complete_hook(self, my_task):
+        for child in my_task.children:
+            if not child.task_spec.event_definition.has_fired(child):
+                child.cancel()
+        return super()._on_complete_hook(my_task)

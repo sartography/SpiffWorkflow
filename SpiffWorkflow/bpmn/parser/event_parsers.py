@@ -5,7 +5,7 @@ from SpiffWorkflow.bpmn.specs.events.event_definitions import CorrelationPropert
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
 from .util import first, one
-from ..specs.events.event_definitions import (TimerEventDefinition, MessageEventDefinition,
+from ..specs.events.event_definitions import (MultipleEventDefinition, TimerEventDefinition, MessageEventDefinition,
                             ErrorEventDefinition, EscalationEventDefinition,
                             SignalEventDefinition,
                             CancelEventDefinition, CycleTimerEventDefinition,
@@ -109,7 +109,7 @@ class EventDefinitionParser(TaskParser):
                 correlations.append(CorrelationProperty(key, expression, used_by))
         return correlations
 
-    def _create_task(self, event_definition, cancel_activity=None):
+    def _create_task(self, event_definition, cancel_activity=None, parallel=None):
 
         if isinstance(event_definition, MessageEventDefinition):
             for prop in event_definition.correlation_properties:
@@ -126,28 +126,40 @@ class EventDefinitionParser(TaskParser):
         }
         if cancel_activity is not None:
             kwargs['cancel_activity'] = cancel_activity
+        if parallel is not None:
+            kwargs['parallel'] = parallel
         return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
 
     def get_event_definition(self, xpaths):
-        """Returns the first event definition it can find in given list of xpaths"""
+        """Returns all event definitions it can find in given list of xpaths"""
+
+        event_definitions = []
         for path in xpaths:
-            event = first(self.xpath(path))
-            if event is not None:
+            for event in self.xpath(path):
                 if path == MESSAGE_EVENT_XPATH:
-                    return self.parse_message_event(event)
+                    event_definitions.append(self.parse_message_event(event))
                 elif path == SIGNAL_EVENT_XPATH:
-                    return self.parse_signal_event(event)
+                    event_definitions.append(self.parse_signal_event(event))
                 elif path == TIMER_EVENT_XPATH:
-                    return self.parse_timer_event()
+                    event_definitions.append(self.parse_timer_event())
                 elif path == CANCEL_EVENT_XPATH:
-                    return self.parse_cancel_event()
+                    event_definitions.append(self.parse_cancel_event())
                 elif path == ERROR_EVENT_XPATH:
-                    return self.parse_error_event(event)
+                    event_definitions.append(self.parse_error_event(event))
                 elif path == ESCALATION_EVENT_XPATH:
-                    return self.parse_escalation_event(event)
+                    event_definitions.append(self.parse_escalation_event(event))
                 elif path == TERMINATION_EVENT_XPATH:
-                    return self.parse_terminate_event()
-        return NoneEventDefinition()
+                    event_definitions.append(self.parse_terminate_event())
+
+        parallel = self.node.get('parallelMultiple') == 'true'
+
+        if len(event_definitions) == 0:
+            return NoneEventDefinition()
+        elif len(event_definitions) == 1:
+            return event_definitions[0]
+        else:
+            return MultipleEventDefinition(event_definitions, parallel)
+
 
 class StartEventParser(EventDefinitionParser):
     """Parses a Start Event, and connects it to the internal spec.start task.
@@ -158,8 +170,7 @@ class StartEventParser(EventDefinitionParser):
         task = self._create_task(event_definition)
         self.spec.start.connect(task)
         if isinstance(event_definition, CycleTimerEventDefinition):
-            # We are misusing cycle timers, so this is a hack whereby we will
-            # revisit ourselves if we fire.
+            # We are misusing cycle timers, so this is a hack whereby we will revisit ourselves if we fire.
             task.connect(task)
         return task
 
@@ -229,3 +240,22 @@ class BoundaryEventParser(EventDefinitionParser):
         if isinstance(event_definition, NoneEventDefinition):
             raise NotImplementedError('Unsupported Catch Event: %r', etree.tostring(self.node))
         return self._create_task(event_definition, cancel_activity)
+
+
+class EventBasedGatewayParser(EventDefinitionParser):
+
+    def create_task(self):
+        return self._create_task(MultipleEventDefinition())
+
+    def handles_multiple_outgoing(self):
+        return True
+
+    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
+        self.task.event_definition.event_definitions.append(outgoing_task.event_definition)
+        self.task.connect_outgoing(
+            outgoing_task, 
+            sequence_flow_node.get('id'),
+            sequence_flow_node.get('name', None),
+            self.parse_documentation(sequence_flow_node)
+        )
+    

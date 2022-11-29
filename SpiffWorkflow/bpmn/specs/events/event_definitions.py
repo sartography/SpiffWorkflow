@@ -69,10 +69,10 @@ class EventDefinition(object):
         # We also don't have a more sophisticated method for addressing events to
         # a particular process, but this at least provides a mechanism for distinguishing
         # between processes and subprocesses.
-        if self.internal:
-            workflow.catch(event)
         if self.external:
             outer_workflow.catch(event, correlations)
+        if self.internal and (self.external and workflow != outer_workflow):
+            workflow.catch(event)
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__
@@ -91,6 +91,7 @@ class EventDefinition(object):
         obj = cls(**dct)
         obj.internal, obj.external = internal, external
         return obj
+
 
 class NamedEventDefinition(EventDefinition):
     """
@@ -114,7 +115,6 @@ class NamedEventDefinition(EventDefinition):
         retdict = super(NamedEventDefinition, self).serialize()
         retdict['name'] = self.name
         return retdict
-
 
 class CancelEventDefinition(EventDefinition):
     """
@@ -398,3 +398,49 @@ class CycleTimerEventDefinition(EventDefinition):
         retdict['label'] = self.label
         retdict['cycle_definition'] = self.cycle_definition
         return retdict
+
+
+class MultipleEventDefinition(EventDefinition):
+
+    def __init__(self, event_definitions=None, parallel=False):
+        super().__init__()
+        self.event_definitions = event_definitions or []
+        self.parallel = parallel
+
+    @property
+    def event_type(self):
+        return 'Multiple'
+
+    def catch(self, my_task, event_definition=None):
+        event_definition.catch(my_task, event_definition)
+        if self.parallel:
+            # Parallel multiple need to match all events
+            seen_events = my_task.internal_data.get('seen_events', []) + [event_definition]
+            my_task._set_internal_data(seen_events=seen_events)
+            if all(event in seen_events for event in self.event_definitions):
+                my_task._set_internal_data(event_fired=True)
+            else:
+                my_task._set_internal_data(event_fired=False)
+        else:
+            # Otherwise, matching one is sufficient
+            my_task._set_internal_data(event_fired=True)
+
+    def reset(self, my_task):
+        my_task.internal_data.pop('seen_events', None)
+        super().reset(my_task)
+
+    def __eq__(self, other):
+        # This event can catch any of the events associated with it
+        for event in self.event_definitions:
+            if event == other:
+                return True
+        return False
+    
+    def throw(self, my_task):
+        # Mutiple events throw all associated events when they fire
+        for event_definition in self.event_definitions:
+            self._throw(
+                event=event_definition,
+                workflow=my_task.workflow,
+                outer_workflow=my_task.workflow.outer_workflow
+            )

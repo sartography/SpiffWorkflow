@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition, MultipleEventDefinition
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
 from .specs.events.StartEvent import StartEvent
@@ -113,6 +113,14 @@ class BpmnWorkflow(Workflow):
             workflow = workflow.outer_workflow
         return workflow
 
+    def _get_or_create_subprocess(self, task_spec, wf_spec):
+        if isinstance(task_spec.event_definition, MultipleEventDefinition):
+            for sp in self.subprocesses.values():
+                start = sp.get_tasks_from_spec_name(task_spec.name)
+                if len(start) and start[0].state == TaskState.WAITING:
+                    return sp
+        return self.add_subprocess(wf_spec.name, f'{wf_spec.name}_{len(self.subprocesses)}')
+
     def catch(self, event_definition, correlations=None):
         """
         Send an event definition to any tasks that catch it.
@@ -134,10 +142,8 @@ class BpmnWorkflow(Workflow):
         for name, spec in self.subprocess_specs.items():
             for task_spec in list(spec.task_specs.values()):
                 if isinstance(task_spec, StartEvent) and task_spec.event_definition == event_definition:
-                    subprocess = self.add_subprocess(spec.name, f'{spec.name}_{len(self.subprocesses)}')
-                    subprocess.correlations = correlations or {}
-                    start = self.get_tasks_from_spec_name(task_spec.name, workflow=subprocess)[0]
-                    task_spec.event_definition.catch(start, event_definition)
+                    subprocess = self._get_or_create_subprocess(task_spec, spec)
+                    subprocess.correlations.update(correlations or {})
 
         # We need to get all the tasks that catch an event before completing any of them
         # in order to prevent the scenario where multiple boundary events catch the
