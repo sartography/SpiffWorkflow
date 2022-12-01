@@ -57,7 +57,8 @@ XSD_PATH = os.path.join(os.path.dirname(__file__), 'schema', 'BPMN20.xsd')
 class BpmnValidator:
 
     def __init__(self, xsd_path=XSD_PATH, imports=None):
-        schema = etree.parse(open(xsd_path))
+        with open(xsd_path) as xsd:
+            schema = etree.parse(xsd)
         if imports is not None:
             for ns, fn in imports.items():
                 elem = etree.Element(
