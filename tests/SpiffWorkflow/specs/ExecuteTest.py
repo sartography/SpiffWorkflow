@@ -3,9 +3,7 @@
 
 
 import os
-import sys
 import unittest
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from tests.SpiffWorkflow.util import run_workflow
 from .TaskSpecTest import TaskSpecTest
@@ -25,7 +23,8 @@ class ExecuteTest(TaskSpecTest):
                        args=self.cmd_args)
 
     def setUp(self):
-        self.cmd_args = ["python", "ExecuteProcessMock.py"]
+        script_path = os.path.join(os.path.dirname(__file__), '..', 'ExecuteProcessMock.py')
+        self.cmd_args = ["python", script_path]
         TaskSpecTest.setUp(self)
 
     def testConstructor(self):

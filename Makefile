@@ -36,8 +36,11 @@ uninstall:
 
 .PHONY : tests
 tests:
-	cd tests/$(NAME)
-	PYTHONPATH=../.. python -m unittest discover -v . "*Test.py"
+	python -m unittest discover -vs tests/SpiffWorkflow -p \*Test.py -t .
+
+.PHONY : tests-par
+tests-par:
+	unittest-parallel --module-fixtures -vs tests/SpiffWorkflow -p \*Test.py -t .
 
 .PHONY : tests-cov
 tests-cov:
