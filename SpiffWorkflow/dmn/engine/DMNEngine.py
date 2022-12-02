@@ -30,9 +30,7 @@ class DMNEngine:
         a given task."""
         result = {}
         matched_rules = self.decide(task)
-        if len(matched_rules) == 1:
-            result = matched_rules[0].output_as_dict(task)
-        elif len(matched_rules) > 1:  # This must be a multi-output
+        if self.decision_table.hit_policy == HitPolicy.COLLECT.value:
             # each output will be an array of values, all outputs will
             # be placed in a dict, which we will then merge.
             for rule in matched_rules:
@@ -41,6 +39,8 @@ class DMNEngine:
                     if not key in result:
                         result[key] = []
                     result[key].append(rule_output[key])
+        elif len(matched_rules) > 0:
+            result = matched_rules[0].output_as_dict(task)
         return result
 
 

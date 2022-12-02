@@ -28,6 +28,9 @@ class HitPolicyTest(BpmnWorkflowTestCase):
         res = runner.result({'type': 'stooge'})
         self.assertEqual(4, len(res['name']))
 
+        res = runner.result({'type': 'farmer'})
+        self.assertEqual(1, len(res['name']))
+        self.assertEqual('Elmer Fudd', res['name'][0])
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(HitPolicyTest)
