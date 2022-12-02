@@ -21,6 +21,7 @@ class BusinessRuleTaskConverter(BpmnTaskSpecConverter):
         return {
             'id': table.id,
             'name': table.name,
+            'hit_policy': table.hit_policy,
             'inputs': [val.__dict__ for val in table.inputs],
             'outputs': [val.__dict__ for val in table.outputs],
             'rules': [self.rule_to_dict(rule) for rule in table.rules],
