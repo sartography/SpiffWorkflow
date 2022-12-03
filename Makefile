@@ -40,7 +40,7 @@ tests:
 
 .PHONY : tests-par
 tests-par:
-	if ! command -v unittest-parallel >/dev/null 2>&1; then \
+	@if ! command -v unittest-parallel >/dev/null 2>&1; then \
 		echo "unittest-parallel not found. Please install it with:"; \
 		echo "  pip install unittest-parallel"; \
 		exit 1; \
