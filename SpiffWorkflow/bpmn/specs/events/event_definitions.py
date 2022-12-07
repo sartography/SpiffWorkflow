@@ -20,6 +20,7 @@
 import datetime
 from copy import deepcopy
 
+from SpiffWorkflow.task import TaskState
 
 class EventDefinition(object):
     """
@@ -307,6 +308,11 @@ class TimerEventDefinition(EventDefinition):
         The Timer is considered to have fired if the evaluated dateTime
         expression is before datetime.datetime.now()
         """
+
+        if my_task.internal_data.get('event_fired'):
+            # If we manually send this event, this will be set
+            return True
+
         dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
         if isinstance(dt,datetime.timedelta):
             if my_task._get_internal_data('start_time',None) is not None:
@@ -329,6 +335,9 @@ class TimerEventDefinition(EventDefinition):
             # assume type is a date, not datetime
             now = datetime.date.today()
         return now > dt
+
+    def __eq__(self, other):
+        return self.__class__.__name__ == other.__class__.__name__ and self.label == other.label
 
     def serialize(self):
         retdict = super(TimerEventDefinition, self).serialize()
@@ -363,6 +372,10 @@ class CycleTimerEventDefinition(EventDefinition):
         # We will fire this timer whenever a cycle completes
         # The task itself will manage counting how many times it fires
 
+        if my_task.internal_data.get('event_fired'):
+            # If we manually send this event, this will be set
+            return True
+
         repeat, delta = my_task.workflow.script_engine.evaluate(my_task, self.cycle_definition)
 
         # This is the first time we've entered this event
@@ -393,6 +406,9 @@ class CycleTimerEventDefinition(EventDefinition):
         my_task.internal_data['start_time'] = None
         super(CycleTimerEventDefinition, self).reset(my_task)
 
+    def __eq__(self, other):
+        return self.__class__.__name__ == other.__class__.__name__ and self.label == other.label
+
     def serialize(self):
         retdict = super(CycleTimerEventDefinition, self).serialize()
         retdict['label'] = self.label
@@ -411,19 +427,27 @@ class MultipleEventDefinition(EventDefinition):
     def event_type(self):
         return 'Multiple'
 
-    def catch(self, my_task, event_definition=None):
-        event_definition.catch(my_task, event_definition)
+    def has_fired(self, my_task):
+
+        seen_events = my_task.internal_data.get('seen_events', [])
+        for event in self.event_definitions:
+            if isinstance(event, (TimerEventDefinition, CycleTimerEventDefinition)):
+                child = [c for c in my_task.children if c.task_spec.event_definition == event]
+                child[0].task_spec._update_hook(child[0])
+                child[0]._set_state(TaskState.MAYBE)
+                if event.has_fired(my_task):
+                    seen_events.append(event)
+
         if self.parallel:
             # Parallel multiple need to match all events
-            seen_events = my_task.internal_data.get('seen_events', []) + [event_definition]
-            my_task._set_internal_data(seen_events=seen_events)
-            if all(event in seen_events for event in self.event_definitions):
-                my_task._set_internal_data(event_fired=True)
-            else:
-                my_task._set_internal_data(event_fired=False)
+            return all(event in seen_events for event in self.event_definitions)
         else:
-            # Otherwise, matching one is sufficient
-            my_task._set_internal_data(event_fired=True)
+            return len(seen_events) > 0
+
+    def catch(self, my_task, event_definition=None):
+        event_definition.catch(my_task, event_definition)
+        seen_events = my_task.internal_data.get('seen_events', []) + [event_definition]
+        my_task._set_internal_data(seen_events=seen_events)
 
     def reset(self, my_task):
         my_task.internal_data.pop('seen_events', None)

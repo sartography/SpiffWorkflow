@@ -156,6 +156,9 @@ class EventBasedGateway(CatchingEvent):
     def spec_type(self):
         return 'Event Based Gateway'
 
+    def _predict_hook(self, my_task):
+        my_task._sync_children(self.outputs, state=TaskState.MAYBE)
+
     def _on_complete_hook(self, my_task):
         for child in my_task.children:
             if not child.task_spec.event_definition.has_fired(child):

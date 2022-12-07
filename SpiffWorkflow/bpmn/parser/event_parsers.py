@@ -81,17 +81,18 @@ class EventDefinitionParser(TaskParser):
         """Parse the timerEventDefinition node and return an instance of TimerEventDefinition."""
 
         try:
+            label = self.node.get('name', self.node.get('id'))
             time_date = first(self.xpath('.//bpmn:timeDate'))
             if time_date is not None:
-                return TimerEventDefinition(self.node.get('name'), time_date.text)
+                return TimerEventDefinition(label, time_date.text)
 
             time_duration = first(self.xpath('.//bpmn:timeDuration'))
             if time_duration is not None:
-                return TimerEventDefinition(self.node.get('name'), time_duration.text)
+                return TimerEventDefinition(label, time_duration.text)
 
             time_cycle = first(self.xpath('.//bpmn:timeCycle'))
             if time_cycle is not None:
-                return CycleTimerEventDefinition(self.node.get('name'), time_cycle.text)
+                return CycleTimerEventDefinition(label, time_cycle.text)
             raise ValidationException("Unknown Time Specification", node=self.node, filename=self.filename)
         except Exception as e:
             raise ValidationException("Time Specification Error. " + str(e), node=self.node, filename=self.filename)
