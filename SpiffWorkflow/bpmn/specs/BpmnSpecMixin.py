@@ -200,7 +200,7 @@ class BpmnSpecMixin(TaskSpec):
 
         for obj in self.data_input_associations:
             # Remove the any copied input variables that might not have already been removed
-            my_task.data.pop(obj.name)
+            my_task.data.pop(obj.name, None)
 
         super(BpmnSpecMixin, self)._on_complete_hook(my_task)
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
