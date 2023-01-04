@@ -3,7 +3,7 @@ from functools import partial
 from SpiffWorkflow.bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
 from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
 from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
-from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
+from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent, EventBasedGateway
 from SpiffWorkflow.spiff.specs.none_task import NoneTask
 from SpiffWorkflow.spiff.specs.manual_task import ManualTask
 from SpiffWorkflow.spiff.specs.user_task import UserTask
@@ -164,3 +164,7 @@ class ReceiveTaskConverter(SpiffEventConverter):
         dct['prescript'] = spec.prescript
         dct['postscript'] = spec.postscript
         return dct
+
+class EventBasedGatewayConverter(SpiffEventConverter):
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(EventBasedGateway, data_converter, typename)

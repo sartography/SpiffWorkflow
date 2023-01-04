@@ -72,7 +72,7 @@ coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
 ```
 
 ## Support
-You can find us on Discord at https://discord.gg/zDEBEnrF
+You can find us on Discord at https://discord.gg/BYHcc7PpUC
 
 Commercial support for SpiffWorkflow is available from
 [Sartography](https://sartography.com)

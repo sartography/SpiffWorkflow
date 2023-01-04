@@ -36,8 +36,16 @@ uninstall:
 
 .PHONY : tests
 tests:
-	cd tests/$(NAME)
-	PYTHONPATH=../.. python -m unittest discover -v . "*Test.py"
+	python -m unittest discover -vs tests/SpiffWorkflow -p \*Test.py -t .
+
+.PHONY : tests-par
+tests-par:
+	@if ! command -v unittest-parallel >/dev/null 2>&1; then \
+		echo "unittest-parallel not found. Please install it with:"; \
+		echo "  pip install unittest-parallel"; \
+		exit 1; \
+	fi
+	unittest-parallel --module-fixtures -vs tests/SpiffWorkflow -p \*Test.py -t .
 
 .PHONY : tests-cov
 tests-cov:
