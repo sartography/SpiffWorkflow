@@ -64,7 +64,7 @@ class BpmnWorkflowSerializer:
 
     # This is the default version set on the workflow, it can be overwritten
     # using the configure_workflow_spec_converter.
-    VERSION = "1.0"
+    VERSION = "1.1"
     VERSION_KEY = "serializer_version"
     DEFAULT_JSON_ENCODER_CLS = None
     DEFAULT_JSON_DECODER_CLS = None
