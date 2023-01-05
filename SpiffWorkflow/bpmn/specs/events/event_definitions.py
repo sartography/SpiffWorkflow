@@ -78,21 +78,6 @@ class EventDefinition(object):
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__
 
-    def serialize(self):
-        return {
-            'classname': self.__class__.__module__ + '.' + self.__class__.__name__,
-            'internal': self.internal,
-            'external': self.external,
-        }
-
-    @classmethod
-    def deserialize(cls, dct):
-        dct.pop('classname')
-        internal, external = dct.pop('internal'), dct.pop('external')
-        obj = cls(**dct)
-        obj.internal, obj.external = internal, external
-        return obj
-
 
 class NamedEventDefinition(EventDefinition):
     """
@@ -112,10 +97,6 @@ class NamedEventDefinition(EventDefinition):
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__ and self.name == other.name
 
-    def serialize(self):
-        retdict = super(NamedEventDefinition, self).serialize()
-        retdict['name'] = self.name
-        return retdict
 
 class CancelEventDefinition(EventDefinition):
     """
@@ -149,10 +130,6 @@ class ErrorEventDefinition(NamedEventDefinition):
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__ and self.error_code in [ None, other.error_code ]
 
-    def serialize(self):
-        retdict = super(ErrorEventDefinition, self).serialize()
-        retdict['error_code'] = self.error_code
-        return retdict
 
 class EscalationEventDefinition(NamedEventDefinition):
     """
@@ -176,11 +153,6 @@ class EscalationEventDefinition(NamedEventDefinition):
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__ and self.escalation_code in [ None, other.escalation_code ]
-
-    def serialize(self):
-        retdict = super(EscalationEventDefinition, self).serialize()
-        retdict['escalation_code'] = self.escalation_code
-        return retdict
 
 
 class CorrelationProperty:
@@ -339,12 +311,6 @@ class TimerEventDefinition(EventDefinition):
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__ and self.label == other.label
 
-    def serialize(self):
-        retdict = super(TimerEventDefinition, self).serialize()
-        retdict['label'] = self.label
-        retdict['dateTime'] = self.dateTime
-        return retdict
-
 
 class CycleTimerEventDefinition(EventDefinition):
     """
@@ -408,12 +374,6 @@ class CycleTimerEventDefinition(EventDefinition):
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__ and self.label == other.label
-
-    def serialize(self):
-        retdict = super(CycleTimerEventDefinition, self).serialize()
-        retdict['label'] = self.label
-        retdict['cycle_definition'] = self.cycle_definition
-        return retdict
 
 
 class MultipleEventDefinition(EventDefinition):

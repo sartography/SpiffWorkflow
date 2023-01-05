@@ -53,14 +53,6 @@ class JSONSerializer(DictionarySerializer):
 
         return dct
 
-    def _jsonableHandler(self, obj):
-        if hasattr(obj, 'jsonable'):
-            return obj.jsonable()
-
-        raise 'Object of type %s with value of %s is not JSON serializable' % (
-            type(obj), repr(obj))
-
-
     def _default(self, obj):
         if isinstance(obj, uuid.UUID):
             return {'__uuid__': obj.hex}

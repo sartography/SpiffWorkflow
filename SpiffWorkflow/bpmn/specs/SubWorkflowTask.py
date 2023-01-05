@@ -90,13 +90,6 @@ class SubWorkflowTask(BpmnSpecMixin):
 
         my_task._set_state(TaskState.WAITING)
 
-    def serialize(self, serializer):
-        return serializer.serialize_subworkflow_task(self)
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_subworkflow_task(wf_spec, s_state, SubWorkflowTask)
-
     def task_will_set_children_future(self, my_task):
         my_task.workflow.delete_subprocess(my_task)
 
@@ -110,9 +103,6 @@ class CallActivity(SubWorkflowTask):
     def spec_type(self):
         return 'Call Activity'
 
-    @classmethod
-    def deserialize(cls, serializer, wf_spec, s_state):
-        return serializer.deserialize_subworkflow_task(wf_spec, s_state, CallActivity)
 
 class TransactionSubprocess(SubWorkflowTask):
 
@@ -123,6 +113,3 @@ class TransactionSubprocess(SubWorkflowTask):
     def spec_type(self):
         return 'Transactional Subprocess'
 
-    @classmethod
-    def deserialize(cls, serializer, wf_spec, s_state):
-        return serializer.deserialize_subworkflow_task(wf_spec, s_state, TransactionSubprocess)

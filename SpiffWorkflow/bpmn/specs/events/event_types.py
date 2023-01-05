@@ -72,13 +72,6 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         self.event_definition.reset(my_task)
         super(CatchingEvent, self)._on_complete_hook(my_task)
 
-    def serialize(self, serializer):
-        return serializer.serialize_generic_event(self)
-
-    @classmethod
-    def deserialize(cls, serializer, wf_spec, s_state):
-        return serializer.deserialize_generic_event(wf_spec, s_state, cls)
-
 
 class ThrowingEvent(Simple, BpmnSpecMixin):
     """Base Task Spec for Throwing Event nodes."""
@@ -95,10 +88,3 @@ class ThrowingEvent(Simple, BpmnSpecMixin):
     def _on_complete_hook(self, my_task):
         super(ThrowingEvent, self)._on_complete_hook(my_task)
         self.event_definition.throw(my_task)
-
-    def serialize(self, serializer):
-        return serializer.serialize_generic_event(self)
-
-    @classmethod
-    def deserialize(cls, serializer, wf_spec, s_state):
-        return serializer.deserialize_generic_event(wf_spec, s_state, cls)

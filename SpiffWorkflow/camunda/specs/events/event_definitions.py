@@ -46,9 +46,3 @@ class MessageEventDefinition(MessageEventDefinition):
     def reset(self, my_task):
         my_task.internal_data.pop('result_var', None)
         super(MessageEventDefinition, self).reset(my_task)
-
-    def serialize(self):
-        retdict = super().serialize()
-        retdict['payload'] = self.payload
-        retdict['result_var'] = self.result_var
-        return retdict

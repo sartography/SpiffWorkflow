@@ -40,11 +40,3 @@ class StartEvent(CatchingEvent):
             my_task._set_state(TaskState.WAITING)
 
         super(StartEvent, self).catch(my_task, event_definition)
-
-    def serialize(self, serializer):
-        return serializer.serialize_generic_event(self)
-
-    @classmethod
-    def deserialize(cls, serializer, wf_spec, s_state):
-        return serializer.deserialize_generic_event(wf_spec, s_state, StartEvent)
-

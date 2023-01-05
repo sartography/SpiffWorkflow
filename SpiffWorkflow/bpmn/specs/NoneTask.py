@@ -29,7 +29,3 @@ class NoneTask(Simple, BpmnSpecMixin):
     @property
     def spec_type(self):
         return 'Task'
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_generic(wf_spec, s_state, NoneTask)

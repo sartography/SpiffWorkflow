@@ -62,10 +62,3 @@ class EndEvent(ThrowingEvent):
 
         elif isinstance(self.event_definition, CancelEventDefinition):
             my_task.workflow.cancel()
-
-    def serialize(self, serializer):
-        return serializer.serialize_generic_event(self)
-
-    @classmethod
-    def deserialize(cls, serializer, wf_spec, s_state):
-        return serializer.deserialize_generic_event(wf_spec, s_state, EndEvent)
