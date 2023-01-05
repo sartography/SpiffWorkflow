@@ -60,6 +60,15 @@ class ServiceTaskTest(BaseTestCase):
         self.workflow.do_engine_steps()
         self._assert_service_tasks()
 
+    def testRunSameServiceTaskActivityMultipleTimes(self):
+        self.workflow.do_engine_steps()
+        service_task_activity = [t for t in self.workflow.get_tasks() if
+                                 t.task_spec.name == 'Activity-1inxqgx'][0]
+
+        service_task_activity.task_spec._execute(service_task_activity)
+        service_task_activity.task_spec._execute(service_task_activity)
+        service_task_activity.task_spec._execute(service_task_activity)
+
     def testRunThroughSaveRestore(self):
         self.save_restore()
         # Engine isn't preserved through save/restore, so we have to reset it.

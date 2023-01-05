@@ -1,3 +1,4 @@
+from copy import deepcopy
 import json
 from SpiffWorkflow.bpmn.specs.ServiceTask import ServiceTask
 from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
@@ -27,7 +28,8 @@ class ServiceTask(SpiffBpmnTask, ServiceTask):
             param['value'] = task.workflow.script_engine.evaluate(task, param['value'])
             return param
 
-        evaluated_params = {k: evaluate(v) for k, v in self.operation_params.items()}
+        operation_params_copy = deepcopy(self.operation_params)
+        evaluated_params = {k: evaluate(v) for k, v in operation_params_copy.items()}
 
         result = task.workflow.script_engine.call_service(self.operation_name,
                 evaluated_params, task.data)
