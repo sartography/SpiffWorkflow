@@ -199,26 +199,21 @@ class BpmnSpecMixin(TaskSpec):
         super(BpmnSpecMixin, self)._on_complete_hook(my_task)
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
             my_task.parent.task_spec._child_complete_hook(my_task)
-        if not my_task.workflow._is_busy_with_restore():
-            self.entering_complete_state(my_task)
+        self.entering_complete_state(my_task)
 
     def _child_complete_hook(self, child_task):
         pass
 
     def _on_cancel(self, my_task):
         super(BpmnSpecMixin, self)._on_cancel(my_task)
-        my_task.workflow._task_cancelled_notify(my_task)
-        if not my_task.workflow._is_busy_with_restore():
-            self.entering_cancelled_state(my_task)
+        self.entering_cancelled_state(my_task)
 
     def _update_hook(self, my_task):
         prev_state = my_task.state
         super(BpmnSpecMixin, self)._update_hook(my_task)
-        if (prev_state != TaskState.WAITING and my_task.state == TaskState.WAITING and
-                not my_task.workflow._is_busy_with_restore()):
+        if prev_state != TaskState.WAITING and my_task.state == TaskState.WAITING:
             self.entering_waiting_state(my_task)
 
     def _on_ready_before_hook(self, my_task):
         super(BpmnSpecMixin, self)._on_ready_before_hook(my_task)
-        if not my_task.workflow._is_busy_with_restore():
-            self.entering_ready_state(my_task)
+        self.entering_ready_state(my_task)
