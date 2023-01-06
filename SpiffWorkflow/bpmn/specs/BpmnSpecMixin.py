@@ -17,7 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...task import TaskState
 from ...operators import Operator
 from ...specs.base import TaskSpec
 
@@ -73,40 +72,6 @@ class BpmnSpecMixin(TaskSpec):
         """
         self.connect_if(_BpmnCondition(condition), taskspec)
 
-    # Hooks for Custom BPMN tasks ##########
-
-    def entering_waiting_state(self, my_task):
-        """
-        Called when a task enters the WAITING state.
-
-        A subclass may override this method to do work when this happens.
-        """
-        pass
-
-    def entering_ready_state(self, my_task):
-        """
-        Called when a task enters the READY state.
-
-        A subclass may override this method to do work when this happens.
-        """
-        pass
-
-    def entering_complete_state(self, my_task):
-        """
-        Called when a task enters the COMPLETE state.
-
-        A subclass may override this method to do work when this happens.
-        """
-        pass
-
-    def entering_cancelled_state(self, my_task):
-        """
-        Called when a task enters the CANCELLED state.
-
-        A subclass may override this method to do work when this happens.
-        """
-        pass
-
     def _on_ready_hook(self, my_task):
         super()._on_ready_hook(my_task)
         for obj in self.data_input_associations:
@@ -124,21 +89,6 @@ class BpmnSpecMixin(TaskSpec):
         super(BpmnSpecMixin, self)._on_complete_hook(my_task)
         if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
             my_task.parent.task_spec._child_complete_hook(my_task)
-        self.entering_complete_state(my_task)
 
     def _child_complete_hook(self, child_task):
         pass
-
-    def _on_cancel(self, my_task):
-        super(BpmnSpecMixin, self)._on_cancel(my_task)
-        self.entering_cancelled_state(my_task)
-
-    def _update_hook(self, my_task):
-        prev_state = my_task.state
-        super(BpmnSpecMixin, self)._update_hook(my_task)
-        if prev_state != TaskState.WAITING and my_task.state == TaskState.WAITING:
-            self.entering_waiting_state(my_task)
-
-    def _on_ready_before_hook(self, my_task):
-        super(BpmnSpecMixin, self)._on_ready_before_hook(my_task)
-        self.entering_ready_state(my_task)

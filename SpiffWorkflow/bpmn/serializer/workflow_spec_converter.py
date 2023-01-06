@@ -2,7 +2,6 @@ from .bpmn_converters import BpmnWorkflowSpecConverter
 
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
 from ..specs.MultiInstanceTask import MultiInstanceTask, getDynamicMIClass
-from ..specs.BpmnSpecMixin import BpmnSpecMixin
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
 
 from ...operators import Attrib, PathAttrib
