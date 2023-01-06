@@ -12,7 +12,7 @@ from ..specs.events.event_definitions import TimerEventDefinition, CycleTimerEve
 from ..specs.events.event_definitions import ErrorEventDefinition, EscalationEventDefinition, CancelEventDefinition
 from ..specs.events.event_definitions import CorrelationProperty, NamedEventDefinition
 
-from ..specs.BpmnSpecMixin import BpmnSpecMixin, SequenceFlow
+from ..specs.BpmnSpecMixin import BpmnSpecMixin
 from ...operators import Attrib, PathAttrib
 
 
@@ -100,7 +100,6 @@ class BpmnTaskSpecConverter(DictionaryConverter):
                 partial(self.event_defintion_from_dict, event_definition)
             )
 
-        self.register(SequenceFlow, self.sequence_flow_to_dict, self.sequence_flow_from_dict)
         self.register(Attrib, self.attrib_to_dict, partial(self.attrib_from_dict, Attrib))
         self.register(PathAttrib, self.attrib_to_dict, partial(self.attrib_from_dict, PathAttrib))
         self.register(BpmnDataSpecification, BpmnDataSpecificationConverter.to_dict, BpmnDataSpecificationConverter.from_dict)
@@ -160,12 +159,6 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             'documentation': spec.documentation,
             'loopTask': spec.loopTask,
             'position': spec.position,
-            'outgoing_sequence_flows': dict(
-                (k, self.convert(v)) for k, v in spec.outgoing_sequence_flows.items()
-            ),
-            'outgoing_sequence_flows_by_id': dict(
-                (k, self.convert(v)) for k, v in spec.outgoing_sequence_flows_by_id.items()
-            ),
             'data_input_associations': [ self.convert(obj) for obj in spec.data_input_associations ],
             'data_output_associations': [ self.convert(obj) for obj in spec.data_output_associations ],
         }
@@ -224,8 +217,6 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             spec.documentation = dct.pop('documentation', None)
             spec.lane = dct.pop('lane', None)
             spec.loopTask = dct.pop('loopTask', False)
-            spec.outgoing_sequence_flows = self.restore(dct.pop('outgoing_sequence_flows', {}))
-            spec.outgoing_sequence_flows_by_id = self.restore(dct.pop('outgoing_sequence_flows_by_id', {}))
             spec.data_input_associations = self.restore(dct.pop('data_input_associations', []))
             spec.data_output_associations = self.restore(dct.pop('data_output_associations', []))
 
@@ -282,17 +273,6 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         event_definition.internal = internal
         event_definition.external = external
         return event_definition
-
-    def sequence_flow_to_dict(self, flow):
-        return {
-            'id': flow.id,
-            'name': flow.name,
-            'documentation': flow.documentation,
-            'target_task_spec': flow.target_task_spec.name
-        }
-
-    def sequence_flow_from_dict(self, dct):
-        return SequenceFlow(**dct)
 
     def attrib_to_dict(self, attrib):
         return { 'name': attrib.name }

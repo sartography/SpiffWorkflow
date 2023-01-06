@@ -57,25 +57,17 @@ class ExclusiveGatewayParser(TaskParser):
     appropriately.
     """
 
-    def connect_outgoing(self, outgoing_task, outgoing_task_node,
-                         sequence_flow_node, is_default):
+    def connect_outgoing(self, outgoing_task, sequence_flow_node, is_default):
         if is_default:
-            super(ExclusiveGatewayParser, self).connect_outgoing(
-                outgoing_task, outgoing_task_node, sequence_flow_node,
-                is_default)
+            super(ExclusiveGatewayParser, self).connect_outgoing(outgoing_task, sequence_flow_node, is_default)
         else:
             cond = self.parse_condition(sequence_flow_node)
             if cond is None:
                 raise ValidationException(
-                    'Non-default exclusive outgoing sequence flow '
-                    ' without condition',
+                    'Non-default exclusive outgoing sequence flow without condition',
                     sequence_flow_node,
                     self.filename)
-            self.task.connect_outgoing_if(
-                cond, outgoing_task,
-                sequence_flow_node.get('id'),
-                sequence_flow_node.get('name', None),
-                self.parse_documentation(sequence_flow_node))
+            self.task.connect_outgoing_if(cond, outgoing_task)
 
     def handles_multiple_outgoing(self):
         return True
