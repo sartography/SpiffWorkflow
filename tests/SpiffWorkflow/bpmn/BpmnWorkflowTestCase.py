@@ -122,7 +122,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         before_dump = self.workflow.get_dump()
         # Check that we can actully convert this to JSON
         json_str = json.dumps(before_state)
-        after = self.serializer.workflow_from_dict(json.loads(json_str), read_only=False)
+        after = self.serializer.workflow_from_dict(json.loads(json_str))
         # Check that serializing and deserializing results in the same workflow
         after_state = self.serializer.workflow_to_dict(after)
         after_dump = after.get_dump()
@@ -132,11 +132,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         self.workflow = after
 
     def restore(self, state):
-        self.workflow = self.serializer.workflow_from_dict(state, read_only=False)
-
-    def get_read_only_workflow(self):
-        state = self._get_workflow_state()
-        return self.serializer.workflow_from_dict(state, read_only=True)
+        self.workflow = self.serializer.workflow_from_dict(state)
 
     def _get_workflow_state(self, do_steps=True):
         if do_steps:

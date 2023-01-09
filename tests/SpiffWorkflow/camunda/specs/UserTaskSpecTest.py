@@ -1,9 +1,7 @@
-import json
 import unittest
 
-from SpiffWorkflow.camunda.specs.UserTask import FormField, UserTask, Form, \
-    EnumFormField
-from SpiffWorkflow.specs.base import TaskSpec
+from SpiffWorkflow.camunda.specs.UserTask import FormField, UserTask, Form, EnumFormField
+from SpiffWorkflow.camunda.serializer.task_spec_converters import UserTaskConverter
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 
 
@@ -13,7 +11,6 @@ class UserTaskSpecTest(unittest.TestCase):
     def create_instance(self):
         if 'testtask' in self.wf_spec.task_specs:
             del self.wf_spec.task_specs['testtask']
-        task_spec = TaskSpec(self.wf_spec, 'testtask', description='foo')
         self.form = Form()
         return UserTask(self.wf_spec, 'userTask', self.form)
 
@@ -33,43 +30,6 @@ class UserTaskSpecTest(unittest.TestCase):
         self.assertEqual(self.form, self.user_spec.form)
 
     def testSerialize(self):
-        pass
-
-    def test_text_field(self):
-        form_field = FormField(form_type="text")
-        form_field.id = "1234"
-        self.form.add_field(form_field)
-        self.assertEqual(form_field, self.user_spec.form.fields[0])
-
-    def test_enum_field(self):
-        enum_field = EnumFormField()
-        enum_field.label = "Which kind of fool are you"
-        enum_field.add_option('old fool', 'This is old, therefor it is good.')
-        enum_field.add_option('new fool',
-                              'This is new, therefor it is better.')
-        self.form.add_field(enum_field)
-        self.assertEqual(enum_field, self.user_spec.form.fields[-1])
-
-    def test_properties(self):
-        form_field = FormField(form_type="text")
-        self.assertFalse(form_field.has_property("wilma"))
-        form_field.add_property("wilma", "flintstone")
-        self.assertTrue(form_field.has_property("wilma"))
-        self.assertEquals("flintstone", form_field.get_property("wilma"))
-
-    def test_validations(self):
-        form_field = FormField(form_type="text")
-        self.assertFalse(form_field.has_validation("barney"))
-        form_field.add_validation("barney", "rubble")
-        self.assertTrue(form_field.has_validation("barney"))
-        self.assertEquals("rubble", form_field.get_validation("barney"))
-
-    def testIsEngineTask(self):
-        self.assertFalse(self.user_spec.is_engine_task())
-
-    def test_convert_to_dict(self):
-        form = Form()
-
         field1 = FormField(form_type="text")
         field1.id = "quest"
         field1.label = "What is your quest?"
@@ -89,21 +49,14 @@ class UserTaskSpecTest(unittest.TestCase):
         field2.add_property("description", "You know what to do.")
         field2.add_validation("maxlength", "25")
 
-        form.key = "formKey"
-        form.add_field(field1)
-        form.add_field(field2)
+        self.form.key = "formKey"
+        self.form.add_field(field1)
+        self.form.add_field(field2)
 
-        def JsonableHandler(Obj):
-            if hasattr(Obj, 'jsonable'):
-                return Obj.jsonable()
-            else:
-                raise 'Object of type %s with value of %s is not JSON serializable' % (
-                    type(Obj), repr(Obj))
-
-        json_form = json.dumps(form, default=JsonableHandler)
-        actual = json.loads(json_form)
-
-        expected = {
+        converter = UserTaskConverter()
+        dct = converter.to_dict(self.user_spec)
+        self.assertEqual(dct['name'], 'userTask')
+        self.assertEqual(dct['form'], {
             "fields": [
                 {
                     "default_value": "I seek the grail!",
@@ -137,12 +90,39 @@ class UserTaskSpecTest(unittest.TestCase):
                 }
             ],
             "key": "formKey",
-        }
+        })
 
-        expected_parsed = json.loads(json.dumps(expected))
+    def test_text_field(self):
+        form_field = FormField(form_type="text")
+        form_field.id = "1234"
+        self.form.add_field(form_field)
+        self.assertEqual(form_field, self.user_spec.form.fields[0])
 
-        self.maxDiff = None
-        self.assertDictEqual(actual, expected_parsed)
+    def test_enum_field(self):
+        enum_field = EnumFormField()
+        enum_field.label = "Which kind of fool are you"
+        enum_field.add_option('old fool', 'This is old, therefor it is good.')
+        enum_field.add_option('new fool',
+                              'This is new, therefor it is better.')
+        self.form.add_field(enum_field)
+        self.assertEqual(enum_field, self.user_spec.form.fields[-1])
+
+    def test_properties(self):
+        form_field = FormField(form_type="text")
+        self.assertFalse(form_field.has_property("wilma"))
+        form_field.add_property("wilma", "flintstone")
+        self.assertTrue(form_field.has_property("wilma"))
+        self.assertEquals("flintstone", form_field.get_property("wilma"))
+
+    def test_validations(self):
+        form_field = FormField(form_type="text")
+        self.assertFalse(form_field.has_validation("barney"))
+        form_field.add_validation("barney", "rubble")
+        self.assertTrue(form_field.has_validation("barney"))
+        self.assertEquals("rubble", form_field.get_validation("barney"))
+
+    def testIsEngineTask(self):
+        self.assertFalse(self.user_spec.is_engine_task())
 
 
 def suite():

@@ -586,29 +586,17 @@ class DictionarySerializer(Serializer):
         assert isinstance(workflow, Workflow)
         s_state = dict()
         if include_spec:
-            s_state['wf_spec'] = self.serialize_workflow_spec(workflow.spec,
-                                                              **kwargs)
+            s_state['wf_spec'] = self.serialize_workflow_spec(workflow.spec, **kwargs)
 
-        # data
         s_state['data'] = self.serialize_dict(workflow.data)
-
-        # last_node
         value = workflow.last_task
         s_state['last_task'] = value.id if value is not None else None
-
-        # outer_workflow
-        # s_state['outer_workflow'] = workflow.outer_workflow.id
-
-        # success
         s_state['success'] = workflow.success
-
-        # task_tree
         s_state['task_tree'] = self.serialize_task(workflow.task_tree)
 
         return s_state
 
-    def deserialize_workflow(self, s_state, wf_class=Workflow,
-                             read_only=False, wf_spec=None, **kwargs):
+    def deserialize_workflow(self, s_state, wf_class=Workflow, wf_spec=None, **kwargs):
         """It is possible to override the workflow class, and specify a
         workflow_spec, otherwise the spec is assumed to be serialized in the
         s_state['wf_spec']"""
@@ -616,23 +604,9 @@ class DictionarySerializer(Serializer):
         if wf_spec is None:
             wf_spec = self.deserialize_workflow_spec(s_state['wf_spec'], **kwargs)
         workflow = wf_class(wf_spec)
-
-        workflow.read_only = read_only
-
-        # data
         workflow.data = self.deserialize_dict(s_state['data'])
-
-        # outer_workflow
-        # workflow.outer_workflow =
-        # find_workflow_by_id(remap_workflow_id(s_state['outer_workflow']))
-
-        # success
         workflow.success = s_state['success']
-
-        # workflow
         workflow.spec = wf_spec
-
-        # task_tree
         workflow.task_tree = self.deserialize_task(
             workflow, s_state['task_tree'])
 
@@ -641,14 +615,10 @@ class DictionarySerializer(Serializer):
         for task in tasklist:
             task.parent = workflow.get_task(task.parent,tasklist)
 
-        # last_task
         workflow.last_task = workflow.get_task(s_state['last_task'],tasklist)
-
-        # task_mapping
         workflow.update_task_mapping()
 
         return workflow
-
 
     def serialize_task(self, task, skip_children=False, allow_subs=False):
         """

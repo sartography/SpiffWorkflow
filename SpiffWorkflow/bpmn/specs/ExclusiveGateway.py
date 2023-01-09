@@ -52,11 +52,3 @@ class ExclusiveGateway(ExclusiveChoice, BpmnSpecMixin):
     @property
     def spec_type(self):
         return 'Exclusive Gateway'
-
-    def serialize(self, serializer):
-        return serializer.serialize_exclusive_gateway(self)
-
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_exclusive_gateway(wf_spec, s_state)

@@ -104,12 +104,6 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
             if child.task_spec == self.main_child_task_spec:
                 child._set_state(state)
 
-    def serialize(self, serializer):
-        return serializer.serialize_boundary_event_parent(self)
-
-    @classmethod
-    def deserialize(cls, serializer, wf_spec, s_state):
-        return serializer.deserialize_boundary_event_parent(wf_spec, s_state, cls)
 
 
 class BoundaryEvent(CatchingEvent):
@@ -141,13 +135,6 @@ class BoundaryEvent(CatchingEvent):
         super(BoundaryEvent, self)._on_complete_hook(my_task)
         # Notify the boundary event parent as well.
         my_task.parent.task_spec._child_complete_hook(my_task)
-
-    def serialize(self, serializer):
-        return serializer.serialize_boundary_event(self)
-
-    @classmethod
-    def deserialize(cls, serializer, wf_spec, s_state):
-        return serializer.deserialize_boundary_event(wf_spec, s_state, cls)
 
 
 class EventBasedGateway(CatchingEvent):

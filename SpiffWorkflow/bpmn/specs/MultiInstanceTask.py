@@ -477,18 +477,6 @@ class MultiInstanceTask(TaskSpec):
         if not isinstance(my_task.task_spec,SubWorkflowTask):
             my_task._sync_children(outputs, TaskState.FUTURE)
 
-    def serialize(self, serializer):
-
-        return serializer.serialize_multi_instance(self)
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        prevclass = get_class(s_state['prevtaskclass'])
-        spec = getDynamicMIClass(s_state['name'], prevclass)(wf_spec,s_state['name'],s_state['times'])
-        spec.prevtaskclass = s_state['prevtaskclass']
-
-        return serializer.deserialize_multi_instance(wf_spec, s_state, spec)
-
 
 def getDynamicMIClass(id,prevclass):
     id = re.sub('(.+)_[0-9]$','\\1',id)

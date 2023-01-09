@@ -2,7 +2,6 @@
 
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
@@ -86,8 +85,7 @@ class ApprovalsTest(BpmnWorkflowTestCase):
         self.save_restore()
         self.do_next_named_step('Parallel_Approvals_SP.Manager_Approval')
         self.do_next_exclusive_step('Parallel_Approvals_SP.Step1')
-        self.do_next_exclusive_step(
-            'Parallel_Approvals_SP.Supervisor_Approval')
+        self.do_next_exclusive_step('Parallel_Approvals_SP.Supervisor_Approval')
         self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
 
     def testSaveRestoreWaiting(self):
@@ -108,92 +106,9 @@ class ApprovalsTest(BpmnWorkflowTestCase):
         self.save_restore()
         self.do_next_exclusive_step('Parallel_Approvals_SP.Step1')
         self.save_restore()
-        self.do_next_exclusive_step(
-            'Parallel_Approvals_SP.Supervisor_Approval')
+        self.do_next_exclusive_step('Parallel_Approvals_SP.Supervisor_Approval')
         self.save_restore()
         self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
-
-    def testReadonlyWaiting(self):
-
-        self.do_next_named_step('First_Approval_Wins.Manager_Approval')
-
-        readonly = self.get_read_only_workflow()
-        self.assertEqual(1, len(readonly.get_ready_user_tasks()))
-        self.assertEqual('Approvals.First_Approval_Wins_Done',
-                          readonly.get_ready_user_tasks()[0].task_spec.name)
-        self.assertRaises(AssertionError, readonly.do_engine_steps)
-        self.assertRaises(AssertionError, readonly.refresh_waiting_tasks)
-        self.assertRaises(AssertionError, readonly.catch, MessageEventDefinition('Cheese'))
-        self.assertRaises(
-            AssertionError, readonly.get_ready_user_tasks()[0].complete)
-
-        self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
-
-        readonly = self.get_read_only_workflow()
-        self.assertEqual(2, len(readonly.get_ready_user_tasks()))
-        self.assertEqual(
-            ['Approvals.Manager_Approval__P_',
-                'Approvals.Supervisor_Approval__P_'],
-                          sorted(t.task_spec.name for t in readonly.get_ready_user_tasks()))
-        self.assertRaises(
-            AssertionError, readonly.get_ready_user_tasks()[0].complete)
-
-        self.do_next_named_step('Approvals.Supervisor_Approval__P_')
-
-        readonly = self.get_read_only_workflow()
-        self.assertEqual(1, len(readonly.get_ready_user_tasks()))
-        self.assertEqual('Approvals.Manager_Approval__P_',
-                          readonly.get_ready_user_tasks()[0].task_spec.name)
-        self.assertRaises(
-            AssertionError, readonly.get_ready_user_tasks()[0].complete)
-        self.do_next_named_step('Approvals.Manager_Approval__P_')
-
-        readonly = self.get_read_only_workflow()
-        self.assertEqual(1, len(readonly.get_ready_user_tasks()))
-        self.assertEqual('Approvals.Parallel_Approvals_Done',
-                          readonly.get_ready_user_tasks()[0].task_spec.name)
-        self.assertRaises(
-            AssertionError, readonly.get_ready_user_tasks()[0].complete)
-        self.do_next_exclusive_step('Approvals.Parallel_Approvals_Done')
-
-        readonly = self.get_read_only_workflow()
-        self.assertEqual(2, len(readonly.get_ready_user_tasks()))
-        self.assertEqual(
-            ['Parallel_Approvals_SP.Manager_Approval',
-                'Parallel_Approvals_SP.Step1'],
-                          sorted(t.task_spec.name for t in readonly.get_ready_user_tasks()))
-        self.assertRaises(
-            AssertionError, readonly.get_ready_user_tasks()[0].complete)
-        self.do_next_named_step('Parallel_Approvals_SP.Manager_Approval')
-
-        readonly = self.get_read_only_workflow()
-        self.assertEqual(1, len(readonly.get_ready_user_tasks()))
-        self.assertEqual('Parallel_Approvals_SP.Step1',
-                          readonly.get_ready_user_tasks()[0].task_spec.name)
-        self.assertRaises(
-            AssertionError, readonly.get_ready_user_tasks()[0].complete)
-        self.do_next_exclusive_step('Parallel_Approvals_SP.Step1')
-
-        readonly = self.get_read_only_workflow()
-        self.assertEqual(1, len(readonly.get_ready_user_tasks()))
-        self.assertEqual('Parallel_Approvals_SP.Supervisor_Approval',
-                          readonly.get_ready_user_tasks()[0].task_spec.name)
-        self.assertRaises(
-            AssertionError, readonly.get_ready_user_tasks()[0].complete)
-        self.do_next_exclusive_step(
-            'Parallel_Approvals_SP.Supervisor_Approval')
-
-        readonly = self.get_read_only_workflow()
-        self.assertEqual(1, len(readonly.get_ready_user_tasks()))
-        self.assertEqual('Approvals.Parallel_SP_Done',
-                          readonly.get_ready_user_tasks()[0].task_spec.name)
-        self.assertRaises(
-            AssertionError, readonly.get_ready_user_tasks()[0].complete)
-        self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
-
-        readonly = self.get_read_only_workflow()
-        self.assertEqual(0, len(readonly.get_ready_user_tasks()))
-        self.assertEqual(0, len(readonly.get_waiting_tasks()))
 
 
 def suite():

@@ -1,13 +1,11 @@
 import os
 import unittest
 import json
-from uuid import uuid4
 
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
-from SpiffWorkflow.bpmn.serializer.BpmnSerializer import BpmnSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnLoaderForTests import TestUserTaskConverter
 
@@ -47,13 +45,6 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         spec_serialized = self.serializer.serialize_json(self.workflow)
         version = self.serializer.get_version(spec_serialized)
         self.assertEqual(version, self.SERIALIZER_VERSION)
-
-    def testSerializeToOldSerializerThenNewSerializer(self):
-        old_serializer = BpmnSerializer()
-        old_json = old_serializer.serialize_workflow(self.workflow)
-        new_workflow = old_serializer.deserialize_workflow(old_json)
-        new_json = self.serializer.serialize_json(new_workflow)
-        new_workflow_2 = self.serializer.deserialize_json(new_json)
 
     def testSerializeWorkflow(self):
         serialized = self.serializer.serialize_json(self.workflow)

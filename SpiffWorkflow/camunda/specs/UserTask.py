@@ -6,6 +6,7 @@ from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 
 
 class UserTask(UserTask, BpmnSpecMixin):
+    """Task Spec for a bpmn:userTask node with Camunda forms."""
 
     def __init__(self, wf_spec, name, form, **kwargs):
         """
@@ -16,23 +17,11 @@ class UserTask(UserTask, BpmnSpecMixin):
         super(UserTask, self).__init__(wf_spec, name, **kwargs)
         self.form = form
 
-
-    """
-    Task Spec for a bpmn:userTask node.
-    """
-
     def _on_trigger(self, my_task):
         pass
 
     def is_engine_task(self):
         return False
-
-    def serialize(self, serializer):
-        return serializer.serialize_user_task(self)
-
-    @classmethod
-    def deserialize(self, serializer, wf_spec, s_state):
-        return serializer.deserialize_user_task(wf_spec, s_state)
 
 
 class FormField(object):
@@ -66,8 +55,6 @@ class FormField(object):
     def has_validation(self, name):
         return self.get_validation(name) is not None
 
-    def jsonable(self):
-        return self.__dict__
 
 class EnumFormField(FormField):
     def __init__(self):
@@ -77,17 +64,12 @@ class EnumFormField(FormField):
     def add_option(self, option_id, name):
         self.options.append(EnumFormFieldOption(option_id, name))
 
-    def jsonable(self):
-        return self.__dict__
-
 
 class EnumFormFieldOption:
     def __init__(self, option_id, name):
         self.id = option_id
         self.name = name
 
-    def jsonable(self):
-        return self.__dict__
 
 
 class FormFieldProperty:
@@ -95,17 +77,11 @@ class FormFieldProperty:
         self.id = property_id
         self.value = value
 
-    def jsonable(self):
-        return self.__dict__
-
 
 class FormFieldValidation:
     def __init__(self, name, config):
         self.name = name
         self.config = config
-
-    def jsonable(self):
-        return self.__dict__
 
 
 class Form:
@@ -117,9 +93,6 @@ class Form:
 
     def add_field(self, field):
         self.fields.append(field)
-
-    def jsonable(self):
-        return self.__dict__
 
     def from_dict(self,formdict):
         self.key = formdict['key']

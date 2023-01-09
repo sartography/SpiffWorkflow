@@ -138,9 +138,9 @@ class BpmnWorkflowSerializer:
             dct = json.loads(serialization, cls=self.json_decoder_cls)
         return dct
 
-    def deserialize_json(self, serialization, read_only=False, use_gzip=False):
+    def deserialize_json(self, serialization, use_gzip=False):
         dct = self.__get_dict(serialization, use_gzip)
-        return self.workflow_from_dict(dct, read_only)
+        return self.workflow_from_dict(dct)
 
     def get_version(self, serialization, use_gzip=False):
         try:
@@ -171,11 +171,10 @@ class BpmnWorkflowSerializer:
         dct['bpmn_messages'] = [self.message_to_dict(msg) for msg in workflow.bpmn_messages]
         return dct
 
-    def workflow_from_dict(self, dct, read_only=False):
+    def workflow_from_dict(self, dct):
         """Create a workflow based on a dictionary representation.
 
         :param dct: the dictionary representation
-        :param read_only: optionally disable modifying the workflow
 
         Returns:
             a BPMN Workflow object
@@ -195,7 +194,7 @@ class BpmnWorkflowSerializer:
             subprocess_specs[name] = self.spec_converter.restore(wf_dct)
 
         # Create the top-level workflow
-        workflow = self.wf_class(spec, subprocess_specs, read_only=read_only, deserializing=True)
+        workflow = self.wf_class(spec, subprocess_specs, deserializing=True)
 
         # Restore any unretrieve messages
         workflow.bpmn_messages = [ self.message_from_dict(msg) for msg in dct.get('bpmn_messages', []) ]
@@ -256,7 +255,7 @@ class BpmnWorkflowSerializer:
 
         if isinstance(task_spec, SubWorkflowTask) and task_id in top_dct.get('subprocesses', {}):
             subprocess_spec = top.subprocess_specs[task_spec.spec]
-            subprocess = self.wf_class(subprocess_spec, {}, name=task_spec.name, parent=process, read_only=top.read_only)
+            subprocess = self.wf_class(subprocess_spec, {}, name=task_spec.name, parent=process)
             subprocess_dct = top_dct['subprocesses'].get(task_id, {})
             subprocess.data = self.data_converter.restore(subprocess_dct.pop('data'))
             subprocess.success = subprocess_dct.pop('success')
