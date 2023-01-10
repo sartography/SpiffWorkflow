@@ -127,7 +127,7 @@ class TaskParser(NodeParser):
             self.spec, '%s.BoundaryEventParent' % self.get_id(),
             self.task, lane=self.task.lane)
         self.process_parser.parsed_nodes[self.node.get('id')] = parent
-        parent.connect_outgoing(self.task, '%s.FromBoundaryEventParent' % self.get_id(), None, None)
+        parent.connect(self.task)
         for event in children:
             child = self.process_parser.parse_node(event)
             if isinstance(child.event_definition, CancelEventDefinition) \
@@ -135,9 +135,7 @@ class TaskParser(NodeParser):
                 raise ValidationException('Cancel Events may only be used with transactions',
                     node=self.node,
                     filename=self.filename)
-            parent.connect_outgoing(child,
-                '%s.FromBoundaryEventParent' % event.get('id'),
-                None, None)
+            parent.connect(child)
         return parent
 
     def parse_node(self):
@@ -196,9 +194,7 @@ class TaskParser(NodeParser):
                         default_outgoing = sequence_flow.get('id')
 
                 for (position, c, target_node, sequence_flow) in children:
-                    self.connect_outgoing(
-                        c, target_node, sequence_flow,
-                        sequence_flow.get('id') == default_outgoing)
+                    self.connect_outgoing(c, sequence_flow, sequence_flow.get('id') == default_outgoing)
 
             return parent if boundary_event_nodes else self.task
         except ValidationException:
@@ -225,18 +221,13 @@ class TaskParser(NodeParser):
                                description=self.node.get('name', None),
                                position=self.position)
 
-    def connect_outgoing(self, outgoing_task, outgoing_task_node,
-                         sequence_flow_node, is_default):
+    def connect_outgoing(self, outgoing_task, sequence_flow_node, is_default):
         """
         Connects this task to the indicating outgoing task, with the details in
         the sequence flow. A subclass can override this method to get extra
         information from the node.
         """
-        self.task.connect_outgoing(
-            outgoing_task, sequence_flow_node.get('id'),
-            sequence_flow_node.get(
-                'name', None),
-            self.parse_documentation(sequence_flow_node))
+        self.task.connect(outgoing_task)
 
     def handles_multiple_outgoing(self):
         """

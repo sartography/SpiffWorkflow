@@ -186,7 +186,7 @@ class EndEventParser(EventDefinitionParser):
         event_definition = self.get_event_definition([MESSAGE_EVENT_XPATH, CANCEL_EVENT_XPATH, ERROR_EVENT_XPATH,
                                                       ESCALATION_EVENT_XPATH, TERMINATION_EVENT_XPATH])
         task = self._create_task(event_definition)
-        task.connect_outgoing(self.spec.end, '%s.ToEndJoin' % self.node.get('id'), None, None)
+        task.connect(self.spec.end)
         return task
 
 
@@ -251,12 +251,7 @@ class EventBasedGatewayParser(EventDefinitionParser):
     def handles_multiple_outgoing(self):
         return True
 
-    def connect_outgoing(self, outgoing_task, outgoing_task_node, sequence_flow_node, is_default):
+    def connect_outgoing(self, outgoing_task, sequence_flow_node, is_default):
         self.task.event_definition.event_definitions.append(outgoing_task.event_definition)
-        self.task.connect_outgoing(
-            outgoing_task, 
-            sequence_flow_node.get('id'),
-            sequence_flow_node.get('name', None),
-            self.parse_documentation(sequence_flow_node)
-        )
+        self.task.connect(outgoing_task)
     

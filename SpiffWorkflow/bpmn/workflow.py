@@ -49,7 +49,6 @@ class BpmnWorkflow(Workflow):
         need a specialised version. Defaults to the script engine of the top
         most workflow, or to the PythonScriptEngine if none is provided.
         """
-        self._busy_with_restore = False
         super(BpmnWorkflow, self).__init__(top_level_spec, **kwargs)
         self.name = name or top_level_spec.name
         self.subprocess_specs = subprocess_specs or {}
