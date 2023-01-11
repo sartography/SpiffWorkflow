@@ -256,6 +256,3 @@ class BpmnWorkflow(Workflow):
 
     def _is_engine_task(self, task_spec):
         return (not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task())
-
-    def _task_completed_notify(self, task):
-        super(BpmnWorkflow, self)._task_completed_notify(task)
