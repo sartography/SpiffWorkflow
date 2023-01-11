@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ilr8m3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ilr8m3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1">
   <bpmn:process id="date_timer" isExecutable="false">
     <bpmn:startEvent id="Event_0u1rmur">
       <bpmn:outgoing>Flow_1i73q45</bpmn:outgoing>
@@ -7,8 +7,7 @@
     <bpmn:scriptTask id="Activity_1q1wged" name="Set Future Date">
       <bpmn:incoming>Flow_1i73q45</bpmn:incoming>
       <bpmn:outgoing>Flow_00e79cz</bpmn:outgoing>
-      <bpmn:script>futuredate = datetime.now() + timedelta(0, 1) - timedelta(seconds=.95)
-futuredate2 = datetime.strptime('2021-09-01 10:00','%Y-%m-%d %H:%M')</bpmn:script>
+      <bpmn:script>futuredate = datetime.now() + timedelta(seconds=0.05)</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_1i73q45" sourceRef="Event_0u1rmur" targetRef="Activity_1q1wged" />
     <bpmn:sequenceFlow id="Flow_00e79cz" sourceRef="Activity_1q1wged" targetRef="Event_0eb0w95" />
@@ -19,54 +18,40 @@ futuredate2 = datetime.strptime('2021-09-01 10:00','%Y-%m-%d %H:%M')</bpmn:scrip
         <bpmn:timeDate xsi:type="bpmn:tFormalExpression">futuredate</bpmn:timeDate>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_1bdrcxy" sourceRef="Event_0eb0w95" targetRef="Activity_0pbdlyu" />
-    <bpmn:scriptTask id="Activity_0pbdlyu" name="Do something">
-      <bpmn:incoming>Flow_1bdrcxy</bpmn:incoming>
-      <bpmn:outgoing>Flow_0bjksyv</bpmn:outgoing>
-      <bpmn:script>print('yay!')
-completed = True</bpmn:script>
-    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_1bdrcxy" sourceRef="Event_0eb0w95" targetRef="Event_19cfzir" />
     <bpmn:endEvent id="Event_19cfzir">
-      <bpmn:incoming>Flow_0bjksyv</bpmn:incoming>
+      <bpmn:incoming>Flow_1bdrcxy</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0bjksyv" sourceRef="Activity_0pbdlyu" targetRef="Event_19cfzir" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="date_timer">
+      <bpmndi:BPMNEdge id="Flow_1bdrcxy_di" bpmnElement="Flow_1bdrcxy">
+        <di:waypoint x="408" y="120" />
+        <di:waypoint x="492" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00e79cz_di" bpmnElement="Flow_00e79cz">
+        <di:waypoint x="320" y="120" />
+        <di:waypoint x="372" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1i73q45_di" bpmnElement="Flow_1i73q45">
+        <di:waypoint x="168" y="120" />
+        <di:waypoint x="220" y="120" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0u1rmur_di" bpmnElement="Event_0u1rmur">
         <dc:Bounds x="132" y="102" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0dxzed7_di" bpmnElement="Activity_1q1wged">
         <dc:Bounds x="220" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1i73q45_di" bpmnElement="Flow_1i73q45">
-        <di:waypoint x="168" y="120" />
-        <di:waypoint x="220" y="120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_00e79cz_di" bpmnElement="Flow_00e79cz">
-        <di:waypoint x="320" y="120" />
-        <di:waypoint x="372" y="120" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0et6lvm_di" bpmnElement="Event_0eb0w95">
         <dc:Bounds x="372" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="361" y="145" width="60" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1bdrcxy_di" bpmnElement="Flow_1bdrcxy">
-        <di:waypoint x="408" y="120" />
-        <di:waypoint x="460" y="120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Activity_1g6jb6j_di" bpmnElement="Activity_0pbdlyu">
-        <dc:Bounds x="460" y="80" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_19cfzir_di" bpmnElement="Event_19cfzir">
-        <dc:Bounds x="612" y="102" width="36" height="36" />
+        <dc:Bounds x="492" y="102" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_0bjksyv_di" bpmnElement="Flow_0bjksyv">
-        <di:waypoint x="560" y="120" />
-        <di:waypoint x="612" y="120" />
-      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

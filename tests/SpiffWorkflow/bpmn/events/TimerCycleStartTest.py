@@ -44,9 +44,6 @@ class TimerCycleStartTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         global counter
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        self.assertEqual(1, len(ready_tasks)) # Start Event
-        self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
 
         # the data doesn't really propagate to the end as in a 'normal' workflow, so I call a

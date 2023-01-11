@@ -30,7 +30,7 @@ class CustomScriptEngine(PythonScriptEngine):
 
 
 
-class TimerDurationTest(BpmnWorkflowTestCase):
+class TimerCycleTest(BpmnWorkflowTestCase):
 
     def setUp(self):
         self.spec, self.subprocesses = self.load_workflow_spec('timer-cycle.bpmn', 'timer')
@@ -42,31 +42,27 @@ class TimerDurationTest(BpmnWorkflowTestCase):
     def testThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
-
     def actual_test(self,save_restore = False):
         global counter
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        self.assertEqual(1, len(ready_tasks)) # Start Event
-        self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks)) # GetCoffee
 
-        # See comments in timer cycle test for more context
+        # See comments in timer cycle test start for more context
         counter = 0
         for loopcount in range(5):
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = CustomScriptEngine()
-            time.sleep(0.01)
+            time.sleep(0.1)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
 
-        pass
+        # FIX ME (if possible)
         #self.assertEqual(counter, 2)
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TimerDurationTest)
+    return unittest.TestLoader().loadTestsFromTestCase(TimerCycleTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

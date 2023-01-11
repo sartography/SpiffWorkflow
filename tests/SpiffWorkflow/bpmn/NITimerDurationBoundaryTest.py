@@ -31,57 +31,45 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
 
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        self.assertEqual(1, len(ready_tasks))
-        self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        self.assertEqual(1, len(ready_tasks))
-        ready_tasks[0].data['work_done'] = 'No'
-        self.workflow.complete_task_from_id(ready_tasks[0].id)
-        self.workflow.do_engine_steps()
+        event = self.workflow.get_tasks_from_spec_name('Event_0jyy8ao')[0]
+        self.assertEqual(event.state, TaskState.WAITING)
 
         loopcount = 0
-        # test bpmn has a timeout of .25s
-        # we should terminate loop before that.
         starttime = datetime.datetime.now()
-        while loopcount < 10:
-            ready_tasks = self.workflow.get_tasks(TaskState.READY)
-            if len(ready_tasks) > 1:
-                break
+        # test bpmn has a timeout of .2s; we should terminate loop before that.
+        # The subprocess will also wait
+        while len(self.workflow.get_waiting_tasks()) == 2 and loopcount < 10:
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = self.script_engine
-            #self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
             time.sleep(0.1)
-            self.workflow.complete_task_from_id(ready_tasks[0].id)
+            ready_tasks = self.workflow.get_tasks(TaskState.READY)
+            # There should be one ready task until the boundary event fires
+            self.assertEqual(len(self.workflow.get_ready_user_tasks()), 1)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
-            loopcount = loopcount +1
+            loopcount += 1
+    
         endtime = datetime.datetime.now()
-        duration = endtime-starttime
-        # appropriate time here is .5 seconds
-        # due to the .3 seconds that we loop and then
-        # the two conditions that we complete after the timer completes.
-        self.assertEqual(duration<datetime.timedelta(seconds=.5),True)
-        self.assertEqual(duration>datetime.timedelta(seconds=.2),True)
+        duration = endtime - starttime
+        # appropriate time here is .5 seconds due to the .3 seconds that we loop and then
+        self.assertEqual(duration < datetime.timedelta(seconds=.5), True)
+        self.assertEqual(duration > datetime.timedelta(seconds=.2), True)
+        ready_tasks = self.workflow.get_ready_user_tasks()
+        # Now there should be two.
+        self.assertEqual(len(ready_tasks), 2)
         for task in ready_tasks:
-            if task.task_spec == 'GetReason':
+            if task.task_spec.name == 'GetReason':
                 task.data['delay_reason'] = 'Just Because'
-            else:
+            elif task.task_spec.name == 'Activity_Work':
                 task.data['work_done'] = 'Yes'
-            self.workflow.complete_task_from_id(task.id)
+            task.complete()
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        self.assertEqual(1, len(ready_tasks))
-        ready_tasks[0].data['experience'] = 'Great!'
-        self.workflow.complete_task_from_id(ready_tasks[0].id)
-        self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.is_completed(),True)
-        self.assertEqual(self.workflow.last_task.data,{'work_done': 'Yes', 'experience': 'Great!'})
-        print (self.workflow.last_task.data)
-        print(duration)
+        self.assertEqual(self.workflow.last_task.data, {'work_done': 'Yes', 'delay_reason': 'Just Because'})
 
 
 def suite():
