@@ -74,7 +74,6 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
         for child in my_task.children:
             if isinstance(child.task_spec, BoundaryEvent):
                 child.task_spec.event_definition.reset(child)
-                child._set_state(TaskState.WAITING)
 
     def _child_complete_hook(self, child_task):
 
@@ -92,7 +91,6 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
         # If our event is a cycle timer, we need to set it back to waiting so it can fire again
         elif isinstance(child_task.task_spec.event_definition, CycleTimerEventDefinition):
             child_task._set_state(TaskState.WAITING)
-            child_task.task_spec._update_hook(child_task)
 
     def _predict_hook(self, my_task):
 
@@ -103,7 +101,6 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
         for child in my_task.children:
             if child.task_spec == self.main_child_task_spec:
                 child._set_state(state)
-
 
 
 class BoundaryEvent(CatchingEvent):
