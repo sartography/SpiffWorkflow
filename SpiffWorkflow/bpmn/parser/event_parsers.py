@@ -5,11 +5,19 @@ from SpiffWorkflow.bpmn.specs.events.event_definitions import CorrelationPropert
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
 from .util import first, one
-from ..specs.events.event_definitions import (MultipleEventDefinition, TimerEventDefinition, MessageEventDefinition,
-                            ErrorEventDefinition, EscalationEventDefinition,
-                            SignalEventDefinition,
-                            CancelEventDefinition, CycleTimerEventDefinition,
-                            TerminateEventDefinition, NoneEventDefinition)
+from ..specs.events.event_definitions import (
+    MultipleEventDefinition, 
+    TimeDateEventDefinition, 
+    DurationTimerEventDefinition,
+    CycleTimerEventDefinition,
+    MessageEventDefinition,
+    ErrorEventDefinition,
+    EscalationEventDefinition,
+    SignalEventDefinition,
+    CancelEventDefinition,
+    TerminateEventDefinition,
+    NoneEventDefinition
+)
 
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
@@ -81,18 +89,16 @@ class EventDefinitionParser(TaskParser):
         """Parse the timerEventDefinition node and return an instance of TimerEventDefinition."""
 
         try:
-            label = self.node.get('name', self.node.get('id'))
+            name = self.node.get('name', self.node.get('id'))
             time_date = first(self.xpath('.//bpmn:timeDate'))
             if time_date is not None:
-                return TimerEventDefinition(label, time_date.text)
-
+                return TimeDateEventDefinition(name, time_date.text)
             time_duration = first(self.xpath('.//bpmn:timeDuration'))
             if time_duration is not None:
-                return TimerEventDefinition(label, time_duration.text)
-
+                return DurationTimerEventDefinition(name, time_duration.text)
             time_cycle = first(self.xpath('.//bpmn:timeCycle'))
             if time_cycle is not None:
-                return CycleTimerEventDefinition(label, time_cycle.text)
+                return CycleTimerEventDefinition(name, time_cycle.text)
             raise ValidationException("Unknown Time Specification", node=self.node, filename=self.filename)
         except Exception as e:
             raise ValidationException("Time Specification Error. " + str(e), node=self.node, filename=self.filename)
@@ -170,9 +176,6 @@ class StartEventParser(EventDefinitionParser):
         event_definition = self.get_event_definition([MESSAGE_EVENT_XPATH, SIGNAL_EVENT_XPATH, TIMER_EVENT_XPATH])
         task = self._create_task(event_definition)
         self.spec.start.connect(task)
-        if isinstance(event_definition, CycleTimerEventDefinition):
-            # We are misusing cycle timers, so this is a hack whereby we will revisit ourselves if we fire.
-            task.connect(task)
         return task
 
     def handles_multiple_outgoing(self):

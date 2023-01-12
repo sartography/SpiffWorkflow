@@ -155,9 +155,7 @@ class BpmnWorkflow(Workflow):
         event_definition.payload = payload
         self.catch(event_definition, correlations=correlations)
 
-    def do_engine_steps(self, exit_at = None,
-        will_complete_task=None,
-        did_complete_task=None):
+    def do_engine_steps(self, exit_at = None, will_complete_task=None, did_complete_task=None):
         """
         Execute any READY tasks that are engine specific (for example, gateways
         or script tasks). This is done in a loop, so it will keep completing
@@ -168,9 +166,7 @@ class BpmnWorkflow(Workflow):
         :param will_complete_task: Callback that will be called prior to completing a task
         :param did_complete_task: Callback that will be called after completing a task
         """
-        engine_steps = list(
-            [t for t in self.get_tasks(TaskState.READY)
-             if self._is_engine_task(t.task_spec)])
+        engine_steps = list([t for t in self.get_tasks(TaskState.READY) if self._is_engine_task(t.task_spec)])
         while engine_steps:
             for task in engine_steps:
                 if will_complete_task is not None:
@@ -180,9 +176,7 @@ class BpmnWorkflow(Workflow):
                     did_complete_task(task)
                 if task.task_spec.name == exit_at:
                     return task
-            engine_steps = list(
-                [t for t in self.get_tasks(TaskState.READY)
-                 if self._is_engine_task(t.task_spec)])
+            engine_steps = list([t for t in self.get_tasks(TaskState.READY) if self._is_engine_task(t.task_spec)])
 
     def refresh_waiting_tasks(self,
         will_refresh_task=None,

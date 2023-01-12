@@ -8,7 +8,7 @@
       <bpmn:incoming>Flow_1pahvlr</bpmn:incoming>
       <bpmn:outgoing>Flow_1elbn9u</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_1jrn73k">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=.25)</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">"PT0.25S"</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:endEvent id="Event_03w65sk">

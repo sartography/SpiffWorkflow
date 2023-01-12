@@ -18,7 +18,7 @@ class TimerIntermediateTest(BpmnWorkflowTestCase):
 
     def testRunThroughHappy(self):
 
-        due_time = datetime.datetime.now() + datetime.timedelta(seconds=0.01)
+        due_time = (datetime.datetime.now() + datetime.timedelta(seconds=0.01)).isoformat()
 
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.workflow.get_tasks(TaskState.READY)[0].set_data(due_time=due_time)

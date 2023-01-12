@@ -17,10 +17,16 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import datetime
+import re
+from datetime import datetime, timedelta, timezone
+from calendar import monthrange
+from time import timezone as tzoffset
 from copy import deepcopy
 
 from SpiffWorkflow.task import TaskState
+
+LOCALTZ = timezone(timedelta(seconds=-1 * tzoffset))
+
 
 class EventDefinition(object):
     """
@@ -34,10 +40,6 @@ class EventDefinition(object):
     and external flags.
     Default catch behavior is to set the event to fired
     """
-
-    # Format to use for specifying dates for time based events
-    TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
-
     def __init__(self):
         # Ideally I'd mke these parameters, but I don't want to them to be parameters
         # for any subclasses (as they are based on event type, not user choice) and
@@ -251,129 +253,203 @@ class TerminateEventDefinition(EventDefinition):
     def event_type(self):
         return 'Terminate'
 
-class TimerEventDefinition(EventDefinition):
-    """
-    The TimerEventDefinition is the implementation of event definition used for
-    Catching Timer Events (Timer events aren't thrown).
-    """
 
-    def __init__(self, label, dateTime):
+class TimerEventDefinition(EventDefinition):
+
+    def __init__(self, name, expression):
         """
         Constructor.
 
-        :param label: The label of the event. Used for the description.
+        :param name: The description of the timer.
 
-        :param dateTime: The dateTime expression for the expiry time. This is
-        passed to the Script Engine and must evaluate to a datetime (in the case of
-        a time-date event) or a timedelta (in the case of a duration event).
+        :param expression: An ISO 8601 datetime or interval expression.
         """
-        super(TimerEventDefinition, self).__init__()
-        self.label = label
-        self.dateTime = dateTime
+        super().__init__()
+        self.name = name
+        self.expression = expression
+
+    @staticmethod
+    def get_datetime(expression):
+        dt = datetime.fromisoformat(expression)
+        if dt.tzinfo is None:
+            dt = datetime.combine(dt.date(), dt.time(), LOCALTZ)
+        return dt.astimezone(timezone.utc)
+
+    @staticmethod
+    def get_timedelta_from_start(parsed_duration, start=None):
+
+        start = start or datetime.now(timezone.utc)
+        years, months, days = parsed_duration.pop('years', 0), parsed_duration.pop('months', 0), parsed_duration.pop('days', 0)
+        months += years * 12
+
+        for idx in range(int(months)):
+            year, month = start.year + idx // 12, start.month + idx % 12
+            days += monthrange(year, month)[1]
+
+        year, month = start.year + months // 12, start.month + months % 12
+        days += (months - int(months)) * monthrange(year, month)[1]
+        parsed_duration['days'] = days
+        return timedelta(**parsed_duration)
+
+    @staticmethod
+    def get_timedelta_from_end(parsed_duration, end):
+
+        years, months, days = parsed_duration.pop('years', 0), parsed_duration.pop('months', 0), parsed_duration.pop('days', 0)
+        months += years * 12
+
+        for idx in range(1, int(months) + 1):
+            year = end.year - (1 + (idx - end.month) // 12)
+            month = 1 + (end.month - idx - 1) % 12
+            days += monthrange(year, month)[1]
+
+        days += (months - int(months)) * monthrange(
+            end.year - (1 + (int(months)- end.month) // 12),
+            1 + (end.month - months - 1) % 12)[1]
+        parsed_duration['days'] = days
+        return timedelta(**parsed_duration)
+
+    @staticmethod
+    def parse_iso_duration(expression):
+
+        # Based on https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+        parsed, expr_t, current = {}, False, expression.lower().strip('p').replace(',', '.')
+        for designator in ['years', 'months', 'weeks', 'days', 't', 'hours', 'minutes', 'seconds']:
+            value = current.split(designator[0], 1)
+            if len(value) == 2:
+                duration, remainder = value
+                if duration.isdigit():
+                    parsed[designator] = int(duration)
+                elif duration.replace('.', '').isdigit() and not remainder:
+                    parsed[designator] = float(duration)
+                if designator in parsed or designator == 't':
+                    current = remainder
+                if designator == 't':
+                    expr_t = True
+
+        date_specs, time_specs = ['years', 'months', 'days'], ['hours', 'minutes', 'seconds']
+        parsed_t = len([d for d in parsed if d in time_specs]) > 0
+
+        if len(current) or parsed_t != expr_t or ('weeks' in parsed and any(v for v in parsed if v in date_specs)):
+            raise Exception('Invalid duration')
+        # The actual timedelta will have to be computed based on a start or end date, to account for
+        # months lengths, leap days, etc.  This returns a dict of the parsed elements
+        return parsed
+
+    @staticmethod
+    def parse_iso_week(expression):
+        # https://en.wikipedia.org/wiki/ISO_8601#Week_dates
+        m = re.match('(\d{4})W(\d{2})(\d)(T.+)?', expression.upper().replace('-', ''))
+        year, month, day, ts = m.groups()
+        ds = datetime.fromisocalendar(int(year), int(month), int(day)).strftime('%Y-%m-%d')
+        return TimerEventDefinition.get_datetime(ds + (ts or ''))
+
+    @staticmethod
+    def parse_time_or_duration(expression):
+        if expression.upper().startswith('P'):
+            return TimerEventDefinition.parse_iso_duration(expression)
+        elif 'W' in expression.upper():
+            return TimerEventDefinition.parse_iso_week(expression)
+        else:
+            return TimerEventDefinition.get_datetime(expression)
+ 
+    @staticmethod
+    def parse_iso_recurring_interval(expression):
+        components = expression.upper().replace('--', '/').strip('R').split('/')
+        cycles = int(components[0]) if components[0] else -1
+        start_or_duration = TimerEventDefinition.parse_time_or_duration(components[1])
+        if len(components) == 3:
+            end_or_duration = TimerEventDefinition.parse_time_or_duration(components[2])
+        else:
+            end_or_duration = None
+
+        if isinstance(start_or_duration, datetime):
+            # Start time + interval duration
+            start = start_or_duration
+            duration = TimerEventDefinition.get_timedelta_from_start(end_or_duration, start_or_duration)
+        elif isinstance(end_or_duration, datetime):
+            # End time + interval duration
+            duration = TimerEventDefinition.get_timedelta_from_end(start_or_duration, end_or_duration)
+            start = end_or_duration - duration
+        elif end_or_duration is None:
+            # Just an interval duration, assume a start time of now
+            start = datetime.now(timezone.utc)
+            duration = TimeDateEventDefinition.get_timedelta_from_start(start_or_duration, start)
+        else:
+            raise Exception("Invalid recurring interval")
+        return cycles, start, duration
+
+    def __eq__(self, other):
+        return self.__class__.__name__ == other.__class__.__name__ and self.name == other.name
+
+
+class TimeDateEventDefinition(TimerEventDefinition):
+    """A Timer event represented by a specific date/time."""
 
     @property
     def event_type(self):
-        return 'Timer'
+        return 'Time Date Timer'
 
     def has_fired(self, my_task):
-        """
-        The Timer is considered to have fired if the evaluated dateTime
-        expression is before datetime.datetime.now()
-        """
-
-        if my_task.internal_data.get('event_fired'):
-            # If we manually send this event, this will be set
-            return True
-
-        dt = my_task.workflow.script_engine.evaluate(my_task, self.dateTime)
-        if isinstance(dt,datetime.timedelta):
-            if my_task._get_internal_data('start_time',None) is not None:
-                start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time',None), self.TIME_FORMAT)
-                elapsed = datetime.datetime.now() - start_time
-                return elapsed > dt
-            else:
-                my_task.internal_data['start_time'] = datetime.datetime.now().strftime(self.TIME_FORMAT)
-                return False
-
-        if dt is None:
-            return False
-        if isinstance(dt, datetime.datetime):
-            if dt.tzinfo:
-                tz = dt.tzinfo
-                now = tz.fromutc(datetime.datetime.utcnow().replace(tzinfo=tz))
-            else:
-                now = datetime.datetime.now()
-        else:
-            # assume type is a date, not datetime
-            now = datetime.date.today()
-        return now > dt
-
-    def __eq__(self, other):
-        return self.__class__.__name__ == other.__class__.__name__ and self.label == other.label
+        event_value = my_task._get_internal_data('event_value')
+        if event_value is None:
+            event_value = my_task.workflow.script_engine.evaluate(my_task, self.expression)
+            my_task._set_internal_data(event_value=event_value)
+        if TimerEventDefinition.parse_time_or_duration(event_value) < datetime.now(timezone.utc):
+            my_task._set_internal_data(event_fired=True)
+        return my_task._get_internal_data('event_fired', False)
 
 
-class CycleTimerEventDefinition(EventDefinition):
-    """
-    The TimerEventDefinition is the implementation of event definition used for
-    Catching Timer Events (Timer events aren't thrown).
+class DurationTimerEventDefinition(TimerEventDefinition):
+    """A timer event represented by a duration"""
 
-    The cycle definition should evaluate to a tuple of
-    (n repetitions, repetition duration)
-    """
-    def __init__(self, label, cycle_definition):
+    @property
+    def event_type(self):
+        return 'Duration Timer'
 
-        super(CycleTimerEventDefinition, self).__init__()
-        self.label = label
-        # The way we're using cycle timers doesn't really align with how the BPMN spec
-        # describes is (the example of "every monday at 9am")
-        # I am not sure why this isn't a subprocess with a repeat count that starts
-        # with a duration timer
-        self.cycle_definition = cycle_definition
+    def has_fired(self, my_task):
+        event_value = my_task._get_internal_data("event_value")
+        if event_value is None:
+            expression = my_task.workflow.script_engine.evaluate(my_task, self.expression)
+            parsed_duration = TimerEventDefinition.parse_iso_duration(expression)
+            event_value = (datetime.now(timezone.utc) + TimerEventDefinition.get_timedelta_from_start(parsed_duration)).isoformat()
+            my_task._set_internal_data(event_value=event_value)
+        if TimerEventDefinition.get_datetime(event_value) < datetime.now(timezone.utc):
+            my_task._set_internal_data(event_fired=True)
+        return my_task._get_internal_data('event_fired', False)
+
+
+class CycleTimerEventDefinition(TimerEventDefinition):
 
     @property
     def event_type(self):
         return 'Cycle Timer'
 
     def has_fired(self, my_task):
-        # We will fire this timer whenever a cycle completes
-        # The task itself will manage counting how many times it fires
 
-        if my_task.internal_data.get('event_fired'):
-            # If we manually send this event, this will be set
-            return True
+        if not my_task._get_internal_data('event_fired'):
+            # Only check for the next cycle when the event has not fired to prevent cycles from being skipped.
+            event_value = my_task._get_internal_data('event_value')
+            if event_value is None:
+                expression = my_task.workflow.script_engine.evaluate(my_task, self.expression)
+                cycles, start, duration = TimerEventDefinition.parse_iso_recurring_interval(expression)
+                event_value = {'cycles': cycles, 'next': start, 'duration': duration}
 
-        repeat, delta = my_task.workflow.script_engine.evaluate(my_task, self.cycle_definition)
+            if event_value['cycles'] > 0 and event_value['next'] < datetime.now(timezone.utc):
+                my_task._set_internal_data(event_fired=True)
+                event_value['next'] = event_value['next'] + event_value['duration']
 
-        # This is the first time we've entered this event
-        if my_task.internal_data.get('repeat') is None:
-            my_task.internal_data['repeat'] = repeat
-        if my_task.get_data('repeat_count') is None:
-            # This is now a looping task, and if we use internal data, the repeat count won't persist
-            my_task.set_data(repeat_count=0)
+            my_task._set_internal_data(event_value=event_value)
 
-        now = datetime.datetime.now()
-        if my_task._get_internal_data('start_time') is None:
-            start_time = now
-            my_task.internal_data['start_time'] = now.strftime(self.TIME_FORMAT)
-        else:
-            start_time = datetime.datetime.strptime(my_task._get_internal_data('start_time'),self.TIME_FORMAT)
+        return my_task._get_internal_data('event_fired', False)
 
-        if my_task.get_data('repeat_count') >= repeat or (now - start_time) < delta:
-            return False
-        return True
+    def complete(self, my_task):
+        event_value = my_task._get_internal_data('event_value')
+        return event_value is not None and event_value['cycles'] == 0
 
-    def reset(self, my_task):
-        repeat_count = my_task.get_data('repeat_count')
-        if repeat_count is None:
-            # If this is a boundary event, then repeat count will not have been set
-            my_task.set_data(repeat_count=0)
-        else:
-            my_task.set_data(repeat_count=repeat_count + 1)
-        my_task.internal_data['start_time'] = None
-        super(CycleTimerEventDefinition, self).reset(my_task)
-
-    def __eq__(self, other):
-        return self.__class__.__name__ == other.__class__.__name__ and self.label == other.label
+    def complete_cycle(self, my_task):
+        # Only increment when the task completes
+        if my_task._get_internal_data('event_value') is not None:
+            my_task.internal_data['event_value']['cycles'] -= 1
 
 
 class MultipleEventDefinition(EventDefinition):

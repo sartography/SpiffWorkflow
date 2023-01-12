@@ -40,3 +40,6 @@ class StartEvent(CatchingEvent):
             my_task._set_state(TaskState.WAITING)
 
         super(StartEvent, self).catch(my_task, event_definition)
+
+    def _on_ready_hook(self, my_task):
+        return super()._on_ready_hook(my_task)

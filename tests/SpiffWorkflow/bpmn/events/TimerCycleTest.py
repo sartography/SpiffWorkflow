@@ -44,23 +44,23 @@ class TimerCycleTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         global counter
-        self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        self.assertEqual(1, len(ready_tasks)) # GetCoffee
-
-        # See comments in timer cycle test start for more context
         counter = 0
+        # See comments in timer cycle test start for more context
         for loopcount in range(5):
+            self.workflow.do_engine_steps()
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = CustomScriptEngine()
             time.sleep(0.1)
             self.workflow.refresh_waiting_tasks()
-            self.workflow.do_engine_steps()
 
-        # FIX ME (if possible)
-        #self.assertEqual(counter, 2)
-
+        # Get coffee still ready
+        coffee = self.workflow.get_tasks_from_spec_name('Get_Coffee')[0]
+        self.assertEqual(coffee.state, TaskState.READY)
+        # Timer completed
+        timer = self.workflow.get_tasks_from_spec_name('CatchMessage')[0]
+        self.assertEqual(timer.state, TaskState.COMPLETED)
+        self.assertEqual(counter, 2)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TimerCycleTest)

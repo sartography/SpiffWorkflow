@@ -8,7 +8,7 @@
     <bpmn:boundaryEvent id="Event_0y4hbl0" cancelActivity="false" attachedToRef="user_task">
       <bpmn:outgoing>Flow_0ac4lx5</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_1w16uhl">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(milliseconds=2)</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">"PT0.002S"</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="Flow_0ac4lx5" sourceRef="Event_0y4hbl0" targetRef="set_variable" />

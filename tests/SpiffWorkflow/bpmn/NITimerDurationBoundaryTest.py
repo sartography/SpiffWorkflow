@@ -5,7 +5,6 @@ import datetime
 import time
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'kellym'
@@ -16,9 +15,8 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
     Non-Interrupting Timer boundary test
     """
     def setUp(self):
-        self.script_engine = PythonScriptEngine(default_globals={"timedelta": datetime.timedelta})
         spec, subprocesses = self.load_workflow_spec('timer-non-interrupt-boundary.bpmn', 'NonInterruptTimer')
-        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=self.script_engine)
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def load_spec(self):
         return
@@ -43,7 +41,6 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         while len(self.workflow.get_waiting_tasks()) == 2 and loopcount < 10:
             if save_restore:
                 self.save_restore()
-                self.workflow.script_engine = self.script_engine
             time.sleep(0.1)
             ready_tasks = self.workflow.get_tasks(TaskState.READY)
             # There should be one ready task until the boundary event fires

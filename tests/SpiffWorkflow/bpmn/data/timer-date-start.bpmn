@@ -4,13 +4,7 @@
     <bpmn:startEvent id="Event_0u1rmur">
       <bpmn:outgoing>Flow_1i73q45</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:scriptTask id="Activity_1q1wged" name="Set Future Date">
-      <bpmn:incoming>Flow_1i73q45</bpmn:incoming>
-      <bpmn:outgoing>Flow_00e79cz</bpmn:outgoing>
-      <bpmn:script>futuredate = datetime.now() + timedelta(seconds=0.05)</bpmn:script>
-    </bpmn:scriptTask>
     <bpmn:sequenceFlow id="Flow_1i73q45" sourceRef="Event_0u1rmur" targetRef="Activity_1q1wged" />
-    <bpmn:sequenceFlow id="Flow_00e79cz" sourceRef="Activity_1q1wged" targetRef="Event_0eb0w95" />
     <bpmn:intermediateCatchEvent id="Event_0eb0w95" name="Wait till date">
       <bpmn:incoming>Flow_00e79cz</bpmn:incoming>
       <bpmn:outgoing>Flow_1bdrcxy</bpmn:outgoing>
@@ -22,6 +16,12 @@
     <bpmn:endEvent id="Event_19cfzir">
       <bpmn:incoming>Flow_1bdrcxy</bpmn:incoming>
     </bpmn:endEvent>
+    <bpmn:scriptTask id="Activity_1q1wged" name="Set Future Date">
+      <bpmn:incoming>Flow_1i73q45</bpmn:incoming>
+      <bpmn:outgoing>Flow_00e79cz</bpmn:outgoing>
+      <bpmn:script>futuredate = (datetime.now() + timedelta(seconds=0.05)).isoformat()</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_00e79cz" sourceRef="Activity_1q1wged" targetRef="Event_0eb0w95" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="date_timer">

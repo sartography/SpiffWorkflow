@@ -3,7 +3,6 @@
 import unittest
 import time
 
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -23,7 +22,6 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         self.actual_test(save_restore=True)
 
     def actual_test(self,save_restore = False):
-        self.workflow.script_engine = FeelLikeScriptEngine()
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].complete()
@@ -34,7 +32,6 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         while len(self.workflow.get_waiting_tasks()) == 2 and loopcount < 11:
             if save_restore:
                 self.save_restore()
-                self.workflow.script_engine = FeelLikeScriptEngine()
             time.sleep(0.01)
             self.assertEqual(len(self.workflow.get_tasks(TaskState.READY)), 1)
             self.workflow.refresh_waiting_tasks()
