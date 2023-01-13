@@ -432,11 +432,13 @@ class CycleTimerEventDefinition(TimerEventDefinition):
             if event_value is None:
                 expression = my_task.workflow.script_engine.evaluate(my_task, self.expression)
                 cycles, start, duration = TimerEventDefinition.parse_iso_recurring_interval(expression)
-                event_value = {'cycles': cycles, 'next': start, 'duration': duration}
+                event_value = {'cycles': cycles, 'next': start.isoformat(), 'duration': duration.total_seconds()}
 
-            if event_value['cycles'] > 0 and event_value['next'] < datetime.now(timezone.utc):
-                my_task._set_internal_data(event_fired=True)
-                event_value['next'] = event_value['next'] + event_value['duration']
+            if event_value['cycles'] > 0:
+                next_event = datetime.fromisoformat(event_value['next'])
+                if next_event < datetime.now(timezone.utc):
+                    my_task._set_internal_data(event_fired=True)
+                    event_value['next'] = (next_event + timedelta(seconds=event_value['duration'])).isoformat()
 
             my_task._set_internal_data(event_value=event_value)
 
