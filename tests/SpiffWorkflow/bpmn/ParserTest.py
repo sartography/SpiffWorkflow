@@ -1,7 +1,8 @@
 import unittest
 import os
 
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
+from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser, BpmnValidator
+from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 
 
 class ParserTest(unittest.TestCase):
@@ -27,3 +28,17 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(generate.data_output_associations[0].name, 'obj_1')
         self.assertEqual(len(read.data_input_associations), 1)
         self.assertEqual(read.data_input_associations[0].name, 'obj_1')
+
+    def testValidatorError(self):
+        parser = BpmnParser(validator=BpmnValidator())
+        bpmn_file = os.path.join(os.path.dirname(__file__), 'data',
+                                 'data_object_invalid.bpmn')
+        errored = False
+        try:
+            parser.add_bpmn_file(bpmn_file)
+        except ValidationException as ex:
+            errored = True
+            self.assertEqual(ex.filename, bpmn_file)
+            self.assertEqual(14, ex.sourceline)
+            self.assertIn('DataObjectReference_0cm8dnh', str(ex))
+        assert(errored, "This should have errored out with a validation exception.")

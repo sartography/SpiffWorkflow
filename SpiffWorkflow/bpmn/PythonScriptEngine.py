@@ -4,7 +4,7 @@ import copy
 import sys
 import traceback
 
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
+from ..exceptions import SpiffWorkflowException, WorkflowTaskException
 from ..operators import Operator
 
 
@@ -118,10 +118,11 @@ class PythonScriptEngine(object):
                 return expression._matches(task)
             else:
                 return self._evaluate(expression, task.data, external_methods)
+        except SpiffWorkflowException as se:
+            se.add_note(f"Error evaluating expression '{expression}'")
+            raise se
         except Exception as e:
-            raise WorkflowTaskExecException(task,
-                                            f"Error evaluating expression {expression}",
-                                            e)
+            raise WorkflowTaskException(f"Error evaluating expression '{expression}'", task=task, exception=e)
 
     def execute(self, task, script, external_methods=None):
         """
@@ -141,13 +142,17 @@ class PythonScriptEngine(object):
         raise NotImplementedError("To call external services override the script engine and implement `call_service`.")
 
     def create_task_exec_exception(self, task, script, err):
-
-        if isinstance(err, WorkflowTaskExecException):
+        if isinstance(err, SpiffWorkflowException):
+            line_number, error_line = self.get_error_line_number_and_content(script)
+            err.add_note(f"Python script error on line {line_number}: '{error_line}'")
             return err
-
         detail = err.__class__.__name__
         if len(err.args) > 0:
             detail += ":" + err.args[0]
+        line_number, error_line = self.get_error_line_number_and_content(script)
+        return WorkflowTaskException(detail, task=task, line_number=line_number, error_line=error_line)
+
+    def get_error_line_number_and_content(self, script):
         line_number = 0
         error_line = ''
         cl, exc, tb = sys.exc_info()
@@ -158,8 +163,7 @@ class PythonScriptEngine(object):
             if frame_summary.filename == '<string>':
                 line_number = frame_summary.lineno
                 error_line = script.splitlines()[line_number - 1]
-        return WorkflowTaskExecException(task, detail, err, line_number,
-                                         error_line)
+        return line_number, error_line
 
     def check_for_overwrite(self, task, external_methods):
         """It's possible that someone will define a variable with the
@@ -172,7 +176,7 @@ class PythonScriptEngine(object):
             msg = f"You have task data that overwrites a predefined " \
                   f"function(s). Please change the following variable or " \
                   f"field name(s) to something else: {func_overwrites}"
-            raise WorkflowTaskExecException(task, msg)
+            raise WorkflowTaskException(msg, task=task)
 
     def convert_to_box(self, data):
         if isinstance(data, dict):

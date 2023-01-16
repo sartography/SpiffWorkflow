@@ -47,6 +47,7 @@ class BusinessRuleTaskConverter(BpmnTaskSpecConverter):
     def rule_to_dict(self, rule):
         return {
             'id': rule.id,
+            'row_number': rule.row_number,
             'description': rule.description,
             'input_entries': [self.input_entry_to_dict(entry) for entry in rule.inputEntries],
             'output_entries': [self.output_entry_to_dict(entry) for entry in rule.outputEntries],
@@ -91,6 +92,7 @@ class BusinessRuleTaskConverter(BpmnTaskSpecConverter):
     def rule_from_dict(self, dct, inputs, outputs):
         rule = Rule(dct['id'])
         rule.description = dct['description']
+        rule.row_number = dct['row_number']
         rule.inputEntries = [self.input_entry_from_dict(entry, inputs)
                              for entry in dct['input_entries']]
         rule.outputEntries = [self.output_entry_from_dict(entry, outputs)

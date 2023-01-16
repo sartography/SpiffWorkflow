@@ -2,6 +2,7 @@ import logging
 import re
 
 from ..specs.model import HitPolicy
+from ...exceptions import SpiffWorkflowException, WorkflowTaskException
 from ...util import levenshtein
 from ...workflow import WorkflowException
 
@@ -54,18 +55,11 @@ class DMNEngine:
                 try:
                     if not self.evaluate(input_val, lhs, task):
                         return False
-                except NameError as e:
-                    # Add a bit of info, re-raise as Name Error
-                    raise NameError(str(e) + "Failed to execute "
-                                    "expression: '%s' is '%s' in the "
-                                    "Row with annotation '%s'")
-                except WorkflowException as we:
-                    raise we
+                except SpiffWorkflowException as se:
+                    se.add_note(f"Rule failed on row {rule.row_number}")
+                    raise se
                 except Exception as e:
-                    raise Exception("Failed to execute "
-                                    "expression: '%s' is '%s' in the "
-                                    "Row with annotation '%s', %s" % (
-                                        input_val, lhs, rule.description, str(e)))
+                    raise WorkflowTaskException(f"Failed to execute DMN Rule on row {rule.row_number}", task=task, exception=e)
                 else:
                     # Empty means ignore decision value
                     continue  # Check the other operators/columns
@@ -111,10 +105,7 @@ class DMNEngine:
                                           external_methods=external_methods)
 
         # The input expression just has to be something that can be parsed as is by the engine.
-        try:
-            script_engine.validate(input_expr)
-        except Exception as e:
-            raise WorkflowException(f"Input Expression '{input_expr}' is malformed. " + str(e))
+        script_engine.validate(input_expr)
 
         # If we get here, we need to check whether the match expression includes
         # an operator or if can use '=='

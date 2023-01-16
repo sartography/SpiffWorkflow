@@ -197,8 +197,12 @@ class TaskParser(NodeParser):
                     self.connect_outgoing(c, sequence_flow, sequence_flow.get('id') == default_outgoing)
 
             return parent if boundary_event_nodes else self.task
-        except ValidationException:
-            raise
+        except ValidationException as ve:
+            exc_info = sys.exc_info()
+            tb = "".join(traceback.format_exception(
+                exc_info[0], exc_info[1], exc_info[2]))
+            ve.add_note(tb)
+            raise ve
         except Exception as ex:
             exc_info = sys.exc_info()
             tb = "".join(traceback.format_exception(

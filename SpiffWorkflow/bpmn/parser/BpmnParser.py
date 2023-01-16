@@ -21,7 +21,7 @@ import glob
 import os
 
 from lxml import etree
-from lxml.etree import DocumentInvalid
+from lxml.etree import DocumentInvalid, LxmlError
 
 from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
 
@@ -72,8 +72,10 @@ class BpmnValidator:
     def validate(self, bpmn, filename=None):
         try:
             self.validator.assertValid(bpmn)
-        except DocumentInvalid as di:
-            raise DocumentInvalid(str(di) + "file: " + filename)
+        except LxmlError as le:
+            last_error = self.validator.error_log.last_error
+            raise ValidationException(last_error.message, filename=filename,
+                                      sourceline=last_error.line)
 
 class BpmnParser(object):
     """
