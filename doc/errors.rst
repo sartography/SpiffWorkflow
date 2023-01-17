@@ -91,9 +91,6 @@ Unused / Deprecated errors
 Deprecated -- Used only by the PrettyXmlSerializer - which is not under active
 support.
 
-** UnrecoverableWorkflowChange **
-Only in use by the outdated CompactWorkflowSerializer
-
 ** DeadMethodCalled **
 Something related to WeakMethod -- which doesn't look to be utilized anymore.
 

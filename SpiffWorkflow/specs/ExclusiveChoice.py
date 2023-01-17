@@ -64,7 +64,7 @@ class ExclusiveChoice(MultiChoice):
         """
         MultiChoice.test(self)
         if self.default_task_spec is None:
-            raise WorkflowException('A default output is required.', sender=self)
+            raise WorkflowException('A default output is required.', task_spec=self)
 
     def _predict_hook(self, my_task):
         # If the task's status is not predicted, we default to MAYBE
@@ -84,7 +84,7 @@ class ExclusiveChoice(MultiChoice):
                 break
 
         if output is None:
-            raise WorkflowException(f'No conditions satisfied for {my_task.task_spec.name}', sender=self)
+            raise WorkflowException(f'No conditions satisfied for {my_task.task_spec.name}', task_spec=self)
 
         my_task._sync_children([output], TaskState.FUTURE)
 

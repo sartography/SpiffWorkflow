@@ -42,18 +42,18 @@ class WorkflowException(SpiffWorkflowException):
     Base class for all SpiffWorkflow-generated exceptions.
     """
 
-    def __init__(self, message, sender=None):
+    def __init__(self, message, task_spec=None):
         """
         Standard exception class.
 
-        :param sender: the task spec that threw the exception
-        :type sender: TaskSpec
+        :param task_spec: the task spec that threw the exception
+        :type task_spec: TaskSpec
         :param error: a human-readable error message
         :type error: string
         """
         super().__init__(str(message))
         # Points to the TaskSpec that generated the exception.
-        self.sender = sender
+        self.task_spec = task_spec
 
     @staticmethod
     def get_task_trace(task):
@@ -106,7 +106,7 @@ class WorkflowTaskException(WorkflowException):
         self.line_number = line_number
         self.offset = offset
         self.error_line = error_line
-        super().__init__(error_msg, sender=task.task_spec)
+        super().__init__(error_msg, task_spec=task.task_spec)
 
         if isinstance(exception, SyntaxError):
             # Prefer line number from syntax error if available.

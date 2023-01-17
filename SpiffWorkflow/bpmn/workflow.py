@@ -218,11 +218,11 @@ class BpmnWorkflow(Workflow):
 
     def _find_task(self, task_id):
         if task_id is None:
-            raise WorkflowException('task_id is None', sender=self.spec)
+            raise WorkflowException('task_id is None', task_spec=self.spec)
         for task in self.get_tasks():
             if task.id == task_id:
                 return task
-        raise WorkflowException(f'A task with the given task_id ({task_id}) was not found', sender=self.spec)
+        raise WorkflowException(f'A task with the given task_id ({task_id}) was not found', task_spec=self.spec)
 
     def complete_task_from_id(self, task_id):
         # I don't even know why we use this stupid function instead of calling task.complete,

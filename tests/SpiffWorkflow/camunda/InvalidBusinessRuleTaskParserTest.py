@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from SpiffWorkflow.exceptions import SpiffWorkflowException
+from SpiffWorkflow.exceptions import SpiffWorkflowException, WorkflowException
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
@@ -27,10 +27,10 @@ class BusinessRuleTaskParserTest(BaseTestCase):
         try:
             self.workflow.do_engine_steps()
             self.assertTrue(False, "An error should have been raised.")
-        except SpiffWorkflowException as we:
+        except WorkflowException as we:
             self.assertTrue(True, "An error was raised..")
-            self.assertEqual("InvalidDecisionTaskId", we.sender.name)
-            self.maxDiff  = 1000
+            self.assertEqual("InvalidDecisionTaskId", we.task_spec.name)
+            self.maxDiff = 1000
             self.assertEquals("Error evaluating expression 'spam= 1'. Rule failed on row 1. Business Rule Task 'Invalid Decision'.", str(we))
 
 def suite():
