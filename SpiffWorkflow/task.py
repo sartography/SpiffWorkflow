@@ -708,18 +708,22 @@ class Task(object,  metaclass=DeprecatedMetaTask):
     def _get_internal_data(self, name, default=None):
         return self.internal_data.get(name, default)
 
-    def set_data(self, **kwargs):
+    def set_data(self, write_to_log=True, **kwargs):
         """
         Defines the given attribute/value pairs.
         """
         self.data.update(kwargs)
-        data_log.info('Set data', extra=self.log_info())
+
+        if write_to_log:
+            data_log.info('Set data', extra=self.log_info())
 
     def _inherit_data(self):
         """
         Inherits the data from the parent.
         """
-        self.set_data(**self.parent.data)
+
+        # no need to write to a log when we are just inheriting data
+        self.set_data(**self.parent.data, write_to_log=False)
 
     def get_data(self, name, default=None):
         """
