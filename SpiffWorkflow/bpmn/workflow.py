@@ -16,7 +16,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition, MultipleEventDefinition
+from SpiffWorkflow.bpmn.specs.events.event_definitions import (
+    MessageEventDefinition, 
+    MultipleEventDefinition, 
+    NamedEventDefinition,
+    TimerEventDefinition,
+)
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
 from .specs.events.StartEvent import StartEvent
@@ -154,6 +159,20 @@ class BpmnWorkflow(Workflow):
         event_definition = MessageEventDefinition(name)
         event_definition.payload = payload
         self.catch(event_definition, correlations=correlations)
+
+    def waiting_events(self):
+        # Ultimately I'd like to add an event class so that EventDefinitions would not so double duty as both specs
+        # and instantiations, and this method would return that.  However, I think that's beyond the scope of the
+        # current request.
+        events = []
+        for task in [t for t in self.get_waiting_tasks() if isinstance(t.task_spec, CatchingEvent)]:
+            event_definition = task.task_spec.event_definition
+            events.append({
+                'event_type': event_definition.event_type,
+                'name': event_definition.name if isinstance(event_definition, NamedEventDefinition) else None,
+                'value': event_definition.timer_value(task) if isinstance(event_definition, TimerEventDefinition) else None,
+            })
+        return events
 
     def do_engine_steps(self, exit_at = None, will_complete_task=None, did_complete_task=None):
         """

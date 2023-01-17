@@ -51,8 +51,15 @@ class TimerCycleTest(BpmnWorkflowTestCase):
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = CustomScriptEngine()
-            time.sleep(0.1)
+            time.sleep(0.05)
             self.workflow.refresh_waiting_tasks()
+            events = self.workflow.waiting_events()
+            if loopcount == 0:
+                # Wait time is 0.1s, so the first time through, there should still be a waiting event
+                self.assertEqual(len(events), 1)
+            else:
+                # By the second iteration, both should be complete
+                self.assertEqual(len(events), 0)
 
         # Get coffee still ready
         coffee = self.workflow.get_tasks_from_spec_name('Get_Coffee')[0]

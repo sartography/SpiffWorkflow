@@ -29,6 +29,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         self.workflow.do_engine_steps()
+        self.assertEqual(len(self.workflow.waiting_events()), 1)
         loopcount = 0
         starttime = datetime.datetime.now()
         # test bpmn has a timeout of .05s; we should terminate loop before that.

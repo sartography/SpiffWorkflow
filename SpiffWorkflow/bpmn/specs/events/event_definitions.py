@@ -398,6 +398,9 @@ class TimeDateEventDefinition(TimerEventDefinition):
             my_task._set_internal_data(event_fired=True)
         return my_task._get_internal_data('event_fired', False)
 
+    def timer_value(self, my_task):
+        return my_task._get_internal_data('event_value')
+
 
 class DurationTimerEventDefinition(TimerEventDefinition):
     """A timer event represented by a duration"""
@@ -416,6 +419,9 @@ class DurationTimerEventDefinition(TimerEventDefinition):
         if TimerEventDefinition.get_datetime(event_value) < datetime.now(timezone.utc):
             my_task._set_internal_data(event_fired=True)
         return my_task._get_internal_data('event_fired', False)
+
+    def timer_value(self, my_task):
+        return my_task._get_internal_data("event_value")
 
 
 class CycleTimerEventDefinition(TimerEventDefinition):
@@ -444,9 +450,16 @@ class CycleTimerEventDefinition(TimerEventDefinition):
 
         return my_task._get_internal_data('event_fired', False)
 
+    def timer_value(self, my_task):
+        event_value = my_task._get_internal_data('event_value')
+        if event_value is not None and event_value['cycles'] > 0:
+            return event_value['next']
+
     def complete(self, my_task):
         event_value = my_task._get_internal_data('event_value')
-        return event_value is not None and event_value['cycles'] == 0
+        if event_value is not None and event_value['cycles'] == 0:
+            my_task.internal_data.pop('event_value')
+            return True
 
     def complete_cycle(self, my_task):
         # Only increment when the task completes

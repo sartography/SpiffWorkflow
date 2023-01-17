@@ -25,6 +25,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         self.workflow.do_engine_steps()
+        self.assertEqual(len(self.workflow.waiting_events()), 1)
 
         loopcount = 0
         starttime = datetime.now()
@@ -40,6 +41,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         duration = endtime - starttime
         self.assertEqual(duration < timedelta(seconds=.5), True)
         self.assertEqual(duration > timedelta(seconds=.2), True)
+        self.assertEqual(len(self.workflow.waiting_events()), 0)
 
 
 def suite():
