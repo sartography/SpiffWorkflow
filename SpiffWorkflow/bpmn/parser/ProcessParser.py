@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from .ValidationException import ValidationException
-from ..specs.BpmnProcessSpec import BpmnProcessSpec, BpmnDataSpecification
+from ..specs.BpmnProcessSpec import BpmnProcessSpec, BpmnDataSpecification, BpmnDataStoreSpecification
 from .node_parser import NodeParser
 from .util import first
 
@@ -118,6 +118,12 @@ class ProcessParser(NodeParser):
             data_object = data_parser.parse_data_object()
             self.spec.data_objects[data_object.name] = data_object
 
+        # Get the data store references
+        for obj in self.xpath('./bpmn:dataStoreReference'):
+            data_parser = DataSpecificationParser(obj, filename=self.filename)
+            data_object = data_parser.parse_data_store_reference()
+            self.spec.data_objects[data_object.name] = data_object
+
         for node in start_node_list:
             self.parse_node(node)
 
@@ -143,3 +149,6 @@ class DataSpecificationParser(NodeParser):
 
     def parse_data_object(self):
         return BpmnDataSpecification(self.node.get('id'), self.node.get('name'))
+
+    def parse_data_store_reference(self):
+        return BpmnDataStoreSpecification(self.node.get('id'), self.node.get('name'))

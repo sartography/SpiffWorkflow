@@ -90,13 +90,15 @@ class BpmnDataSpecification:
         if self.name not in source.data:
             message = f"Unable to copy {self.name}"
             raise WorkflowDataException(
-                source, 
+                source,
                 data_input=self if data_input else None,
                 data_output=self if data_output else None,
                 message=message
             )
         destination.data[self.name] = deepcopy(source.data[self.name])
 
+class BpmnDataStoreSpecification(BpmnDataSpecification):
+    pass
 
 class BpmnProcessSpec(WorkflowSpec):
     """
