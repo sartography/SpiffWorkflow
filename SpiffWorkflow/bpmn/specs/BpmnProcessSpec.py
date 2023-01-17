@@ -123,6 +123,7 @@ class BpmnProcessSpec(WorkflowSpec):
         self.data_inputs = []
         self.data_outputs = []
         self.data_objects = {}
+        self.data_stores = {}
         self.correlation_keys = {}
 
     def get_all_lanes(self):
