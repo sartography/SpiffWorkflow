@@ -53,9 +53,8 @@ class ExclusiveChoice(MultiChoice):
         :param task_spec: The following task spec.
         """
         assert self.default_task_spec is None
-        self.outputs.append(task_spec)
         self.default_task_spec = task_spec.name
-        task_spec._connect_notify(self)
+        super().connect(task_spec)
 
     def test(self):
         """
@@ -77,9 +76,10 @@ class ExclusiveChoice(MultiChoice):
 
     def _on_complete_hook(self, my_task):
         # Find the first matching condition.
+
         output = self._wf_spec.get_task_spec_from_name(self.default_task_spec)
         for condition, spec_name in self.cond_task_specs:
-            if condition is None or condition._matches(my_task):
+            if condition is not None and condition._matches(my_task):
                 output = self._wf_spec.get_task_spec_from_name(spec_name)
                 break
 

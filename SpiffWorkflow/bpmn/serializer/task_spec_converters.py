@@ -198,13 +198,13 @@ class ExclusiveGatewayConverter(BpmnTaskSpecConverter):
         return spec
 
     def bpmn_condition_from_dict(self, dct):
-        return (_BpmnCondition(dct['condition']), dct['task_spec'])
+        return (_BpmnCondition(dct['condition']) if dct['condition'] is not None else None, dct['task_spec'])
 
     def bpmn_condition_to_dict(self, condition):
 
         expr, task_spec = condition
         return {
-            'condition': expr.args[0],
+            'condition': expr.args[0] if expr is not None else None,
             'task_spec': task_spec
         }
 
