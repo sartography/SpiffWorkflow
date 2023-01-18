@@ -31,7 +31,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
         except ValidationException as ex:
             self.assertTrue('No start event found' in ('%r' % ex),
                             '\'No start event found\' should be a substring of error message: \'%r\'' % ex)
-            self.assertTrue('No-Start-Event.bpmn20.xml' in ex.filename,
+            self.assertTrue('No-Start-Event.bpmn20.xml' in ex.file_name,
                             '\'No-Start-Event.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
 
     def testSubprocessNotFound(self):
@@ -53,7 +53,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
                 'There is no support implemented for this task type' in (
                     '%r' % ex),
                 '\'There is no support implemented for this task type\' should be a substring of error message: \'%r\'' % ex)
-            self.assertTrue('Unsupported-Task.bpmn20.xml' in ex.filename,
+            self.assertTrue('Unsupported-Task.bpmn20.xml' in ex.file_name,
                             '\'Unsupported-Task.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
             self.assertTrue('businessRuleTask' in ex.tag,
                             '\'businessRuleTask\' should be a substring of the tag: \'%r\'' % ex)

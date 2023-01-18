@@ -28,31 +28,20 @@ class ValidationException(SpiffWorkflowException):
     If available, please provide the offending XML node and filename.
     """
 
-    def __init__(self, msg, node=None, filename=None, *args, **kwargs):
+    def __init__(self, msg, node=None, file_name=None, *args, **kwargs):
         if node is not None:
             self.tag = self._shorten_tag(node.tag)
             self.id = node.get('id', '')
             self.name = node.get('name', '')
-            self.sourceline = getattr(node, 'sourceline', '')
+            self.line_number = getattr(node, 'line_number', '')
         else:
             self.tag = kwargs.get('tag', '')
             self.id = kwargs.get('id', '')
             self.name = kwargs.get('name', '')
-            self.sourceline = kwargs.get('sourceline', '')
-        self.filename = filename or ''
-        message = msg
-        if self.tag:
-            msg += f", tag: {self.tag}"
-        if self.id:
-            msg += f", id: {self.id}"
-        if self.name:
-            msg += f", name: {self.name}"
-        if self.sourceline:
-            msg += f", line #: {self.sourceline}"
-        if self.filename:
-            msg += f", file: {self.filename}"
+            self.line_number = kwargs.get('line_number', '')
+        self.file_name = file_name or ''
 
-        super(ValidationException, self).__init__(message, *args)
+        super(ValidationException, self).__init__(msg, *args)
 
     @classmethod
     def _shorten_tag(cls, tag):

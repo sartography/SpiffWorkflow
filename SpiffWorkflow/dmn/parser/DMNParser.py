@@ -70,12 +70,12 @@ class DMNParser(NodeParser):
     def _parse_decision(self, root):
         decision_elements = list(root)
         if len(decision_elements) == 0:
-            raise ValidationException('No decisions found', filename=self.filename,
+            raise ValidationException('No decisions found', file_name=self.filename,
                                       node=root)
 
         if len(decision_elements) > 1:
             raise ValidationException('Multiple decision tables are not current supported.',
-                                      filename=self.filename, node=root)
+                                      file_name=self.filename, node=root)
 
         decision_element = decision_elements[0]
 
@@ -115,7 +115,7 @@ class DMNParser(NodeParser):
             else:
                 raise ValidationException(
                     'Unknown type in decision table: %r' % element.tag,
-                    node=element, filename=self.filename)
+                    node=element, file_name=self.filename)
 
     def _parse_input(self, input_element):
         type_ref = None
@@ -190,5 +190,5 @@ class DMNParser(NodeParser):
                 except Exception as e:
                     raise ValidationException(
                         "Malformed Output Expression '%s'. %s " % (entry.text, str(e)),
-                        node=element, filename=self.filename)
+                        node=element, file_name=self.filename)
         return entry

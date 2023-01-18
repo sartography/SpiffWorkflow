@@ -19,8 +19,8 @@ Thrown during the parsing of a workflow.
 - **tag**:  The type of xml tag being parsed
 - **id**:  the id attribute of the xml tag, if available.
 - **name**:  the name attribute of the xml tag, if available.
-- **sourceline**:  the line number where the tag occurs.
-- **filename**: The name of the file where the error occurred.
+- **line_number**:  the line number where the tag occurs.
+- **file_name**: The name of the file where the error occurred.
 - **message**:  a human readable error message.
 
 
@@ -67,13 +67,6 @@ WorkflowException
  - **task**:  The specific task (not the task spec, but the actual executing task)
  - **error_msg**: The detailed human readable message.  (conflicts with error above)
  - **exception**: The original exception this wraps around.
-
-WorkflowTaskExecException
-------------------
-**Extends**
-WorkflowTaskException
-
-(in addition to the values in a WorkflowTaskException)
  - **line_number** The line number that contains the error
  - **offset** The point in the line that caused the error
  - **error_line** The content of the line that caused the error.

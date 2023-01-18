@@ -38,7 +38,7 @@ class ParserTest(unittest.TestCase):
             parser.add_bpmn_file(bpmn_file)
         except ValidationException as ex:
             errored = True
-            self.assertEqual(ex.filename, bpmn_file)
-            self.assertEqual(14, ex.sourceline)
+            self.assertEqual(ex.file_name, bpmn_file)
+            self.assertEqual(14, ex.line_number)
             self.assertIn('DataObjectReference_0cm8dnh', str(ex))
         assert(errored, "This should have errored out with a validation exception.")

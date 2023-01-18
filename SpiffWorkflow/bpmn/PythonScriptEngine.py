@@ -150,7 +150,7 @@ class PythonScriptEngine(object):
         if len(err.args) > 0:
             detail += ":" + err.args[0]
         line_number, error_line = self.get_error_line_number_and_content(script)
-        return WorkflowTaskException(detail, task=task, line_number=line_number, error_line=error_line)
+        return WorkflowTaskException(detail, task=task, exception=err, line_number=line_number, error_line=error_line)
 
     def get_error_line_number_and_content(self, script):
         line_number = 0

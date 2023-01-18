@@ -106,11 +106,15 @@ class WorkflowTaskException(WorkflowException):
         self.line_number = line_number
         self.offset = offset
         self.error_line = error_line
+        if exception:
+            self.error_type = exception.__class__.__name__
+        else:
+            self.error_type = "unknown"
         super().__init__(error_msg, task_spec=task.task_spec)
 
-        if isinstance(exception, SyntaxError):
-            # Prefer line number from syntax error if available.
-            self.error_msg = f"Python syntax error.  {str(exception)}"
+        if isinstance(exception, SyntaxError) and not line_number:
+            # Line number and offset can be recovered directly from syntax errors,
+            # otherwise they must be passed in.
             self.line_number = exception.lineno
             self.offset = exception.offset
         elif isinstance(exception, NameError):
