@@ -43,13 +43,23 @@ from ..specs.UserTask import UserTask
 from .ProcessParser import ProcessParser
 from .node_parser import DEFAULT_NSMAP
 from .util import full_tag, xpath_eval, first
-from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
-                           ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser,
-                           CallActivityParser, ScriptTaskParser, SubWorkflowParser,
-                           ServiceTaskParser)
-from .event_parsers import (EventBasedGatewayParser, StartEventParser, EndEventParser, BoundaryEventParser,
-                           IntermediateCatchEventParser, IntermediateThrowEventParser,
-                           SendTaskParser, ReceiveTaskParser)
+from .TaskParser import TaskParser
+from .task_parsers import (
+    GatewayParser,
+    ConditionalGatewayParser,
+    CallActivityParser,
+    ScriptTaskParser, 
+    SubWorkflowParser,
+)
+from .event_parsers import (
+    EventBasedGatewayParser,
+    StartEventParser, EndEventParser,
+    BoundaryEventParser,
+    IntermediateCatchEventParser,
+    IntermediateThrowEventParser,
+    SendTaskParser,
+    ReceiveTaskParser
+)
 
 
 XSD_PATH = os.path.join(os.path.dirname(__file__), 'schema', 'BPMN20.xsd')
@@ -89,17 +99,17 @@ class BpmnParser(object):
     PARSER_CLASSES = {
         full_tag('startEvent'): (StartEventParser, StartEvent),
         full_tag('endEvent'): (EndEventParser, EndEvent),
-        full_tag('userTask'): (UserTaskParser, UserTask),
-        full_tag('task'): (NoneTaskParser, NoneTask),
+        full_tag('userTask'): (TaskParser, UserTask),
+        full_tag('task'): (TaskParser, NoneTask),
         full_tag('subProcess'): (SubWorkflowParser, CallActivity),
-        full_tag('manualTask'): (ManualTaskParser, ManualTask),
-        full_tag('exclusiveGateway'): (ExclusiveGatewayParser, ExclusiveGateway),
-        full_tag('parallelGateway'): (ParallelGatewayParser, ParallelGateway),
-        full_tag('inclusiveGateway'): (InclusiveGatewayParser, InclusiveGateway),
+        full_tag('manualTask'): (TaskParser, ManualTask),
+        full_tag('exclusiveGateway'): (ConditionalGatewayParser, ExclusiveGateway),
+        full_tag('parallelGateway'): (GatewayParser, ParallelGateway),
+        full_tag('inclusiveGateway'): (ConditionalGatewayParser, InclusiveGateway),
         full_tag('callActivity'): (CallActivityParser, CallActivity),
         full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
-        full_tag('serviceTask'): (ServiceTaskParser, ServiceTask),
+        full_tag('serviceTask'): (TaskParser, ServiceTask),
         full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser, IntermediateCatchEvent),
         full_tag('intermediateThrowEvent'): (IntermediateThrowEventParser, IntermediateThrowEvent),
         full_tag('boundaryEvent'): (BoundaryEventParser, BoundaryEvent),
