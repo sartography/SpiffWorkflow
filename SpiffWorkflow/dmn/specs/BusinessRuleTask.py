@@ -34,4 +34,7 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
             we.add_note(f"Business Rule Task '{my_task.task_spec.description}'.")
             raise we
         except Exception as e:
-            raise WorkflowTaskExecException("Unexpected error in Business Rule", task=my_task) from e
+            error = WorkflowTaskException(str(e), task=my_task)
+            error.add_note(f"Business Rule Task '{my_task.task_spec.description}'.")
+            raise error
+

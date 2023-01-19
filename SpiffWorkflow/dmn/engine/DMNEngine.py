@@ -59,7 +59,9 @@ class DMNEngine:
                     se.add_note(f"Rule failed on row {rule.row_number}")
                     raise se
                 except Exception as e:
-                    raise WorkflowTaskException(f"Failed to execute DMN Rule on row {rule.row_number}", task=task, exception=e)
+                    error = WorkflowTaskException(str(e), task=task, exception=e)
+                    error.add_note(f"Failed to execute DMN Rule on row {rule.row_number}")
+                    raise error
                 else:
                     # Empty means ignore decision value
                     continue  # Check the other operators/columns

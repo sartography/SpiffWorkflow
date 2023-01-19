@@ -77,8 +77,7 @@ class WorkflowException(SpiffWorkflowException):
                                         str(name_exception)).group(1)
                 most_similar = levenshtein.most_similar(bad_variable,
                                                         options, 3)
-                error_msg = f'This variable or function does not exist: ' \
-                            f'"{bad_variable}".'
+                error_msg = ""
                 if len(most_similar) == 1:
                     error_msg += f' Did you mean \'{most_similar[0]}\'?'
                 if len(most_similar) > 1:
