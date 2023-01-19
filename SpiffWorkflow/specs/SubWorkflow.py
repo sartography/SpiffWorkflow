@@ -72,8 +72,7 @@ class SubWorkflow(TaskSpec):
     def test(self):
         TaskSpec.test(self)
         if self.file is not None and not os.path.exists(self.file):
-            raise WorkflowException(
-                self, 'File does not exist: %s' % self.file)
+            raise WorkflowException('File does not exist: %s' % self.file, task_spec=self)
 
     def _predict_hook(self, my_task):
         # Modifying the task spec is a TERRIBLE idea, but if we don't do it, sync_children won't work

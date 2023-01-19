@@ -56,9 +56,8 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
                     task._has_state(TaskState.WAITING) or task == my_task):
                 if task.parent.task_spec in completed_inputs:
                     raise(WorkflowException
-                          (task.task_spec,
-                           "Unsupported looping behaviour: two threads waiting"
-                           " on the same sequence flow."))
+                          ("Unsupported looping behaviour: two threads waiting"
+                           " on the same sequence flow.", task_spec=self))
                 completed_inputs.add(task.parent.task_spec)
             else:
                 waiting_tasks.append(task.parent)

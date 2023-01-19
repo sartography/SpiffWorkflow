@@ -113,12 +113,12 @@ class SubprocessParser:
             raise ValidationException(
                 'Multiple Start points are not allowed in SubWorkflow Task',
                 node=task_parser.node,
-                filename=task_parser.filename)
+                file_name=task_parser.filename)
         if len(workflow_end_event) == 0:
             raise ValidationException(
                 'A SubWorkflow Must contain an End event',
                 node=task_parser.node,
-                filename=task_parser.filename)
+                file_name=task_parser.filename)
 
         nsmap = DEFAULT_NSMAP.copy()
         nsmap['camunda'] = "http://camunda.org/schema/1.0/bpmn"
@@ -143,14 +143,14 @@ class SubprocessParser:
             raise ValidationException(
                 'No "calledElement" attribute for Call Activity.',
                 node=task_parser.node,
-                filename=task_parser.filename)
+                file_name=task_parser.filename)
         parser = task_parser.process_parser.parser.get_process_parser(called_element)
         if parser is None:
             raise ValidationException(
                 f"The process '{called_element}' was not found. Did you mean one of the following: "
                 f"{', '.join(task_parser.process_parser.parser.get_process_ids())}?",
                 node=task_parser.node,
-                filename=task_parser.filename)
+                file_name=task_parser.filename)
         return called_element
 
 
@@ -198,7 +198,7 @@ class ScriptTaskParser(TaskParser):
         except AssertionError as ae:
             raise ValidationException(
                 f"Invalid Script Task.  No Script Provided. " + str(ae),
-                node=self.node, filename=self.filename)
+                node=self.node, file_name=self.filename)
 
 
 class ServiceTaskParser(TaskParser):

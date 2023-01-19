@@ -1,4 +1,5 @@
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
+from SpiffWorkflow.exceptions import WorkflowTaskException, WorkflowException, \
+    SpiffWorkflowException
 
 from ...specs.Simple import Simple
 
@@ -29,5 +30,11 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
             my_task.data = DeepMerge.merge(my_task.data,
                                            self.dmnEngine.result(my_task))
             super(BusinessRuleTask, self)._on_complete_hook(my_task)
+        except SpiffWorkflowException as we:
+            we.add_note(f"Business Rule Task '{my_task.task_spec.description}'.")
+            raise we
         except Exception as e:
-            raise WorkflowTaskExecException(my_task, str(e))
+            error = WorkflowTaskException(str(e), task=my_task)
+            error.add_note(f"Business Rule Task '{my_task.task_spec.description}'.")
+            raise error
+

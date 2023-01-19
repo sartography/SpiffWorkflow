@@ -93,9 +93,9 @@ class EventDefinitionParser(TaskParser):
             time_cycle = first(self.xpath('.//bpmn:timeCycle'))
             if time_cycle is not None:
                 return CycleTimerEventDefinition(label, time_cycle.text)
-            raise ValidationException("Unknown Time Specification", node=self.node, filename=self.filename)
+            raise ValidationException("Unknown Time Specification", node=self.node, file_name=self.filename)
         except Exception as e:
-            raise ValidationException("Time Specification Error. " + str(e), node=self.node, filename=self.filename)
+            raise ValidationException("Time Specification Error. " + str(e), node=self.node, file_name=self.filename)
 
     def get_message_correlations(self, message_ref):
 
@@ -254,4 +254,3 @@ class EventBasedGatewayParser(EventDefinitionParser):
     def connect_outgoing(self, outgoing_task, sequence_flow_node, is_default):
         self.task.event_definition.event_definitions.append(outgoing_task.event_definition)
         self.task.connect(outgoing_task)
-    
