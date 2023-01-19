@@ -712,7 +712,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         Defines the given attribute/value pairs.
         """
         self.data.update(kwargs)
-        data_log.info('Set data', extra=self.log_info())
 
     def _inherit_data(self):
         """
