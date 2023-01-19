@@ -1,6 +1,7 @@
 import ast
 
 from SpiffWorkflow.bpmn.parser.node_parser import NodeParser, DEFAULT_NSMAP
+from ...bpmn.parser.ValidationException import ValidationException
 
 from ...bpmn.parser.util import xpath_eval
 
@@ -69,25 +70,20 @@ class DMNParser(NodeParser):
     def _parse_decision(self, root):
         decision_elements = list(root)
         if len(decision_elements) == 0:
-            raise Exception('No decisions found')
+            raise ValidationException('No decisions found', file_name=self.filename,
+                                      node=root)
 
         if len(decision_elements) > 1:
-            raise Exception('Multiple decisions found')
+            raise ValidationException('Multiple decision tables are not current supported.',
+                                      file_name=self.filename, node=root)
 
         decision_element = decision_elements[0]
-        assert decision_element.tag.endswith(
-            'decision'), 'Element %r is not of type "decision"' % (
-            decision_element.tag)
 
         decision = Decision(decision_element.attrib['id'],
                             decision_element.attrib.get('name', ''))
 
         # Parse decision tables
-        try:
-            self._parse_decision_tables(decision, decision_element)
-        except Exception as e:
-            raise Exception(
-                "Error in Decision '%s': %s" % (decision.name, str(e)))
+        self._parse_decision_tables(decision, decision_element)
 
         return decision
 
@@ -104,6 +100,7 @@ class DMNParser(NodeParser):
 
     def _parse_inputs_outputs(self, decisionTable,
                               decisionTableElement):
+        rule_counter = 0
         for element in decisionTableElement:
             if element.tag.endswith('input'):
                 e_input = self._parse_input(element)
@@ -112,11 +109,13 @@ class DMNParser(NodeParser):
                 output = self._parse_output(element)
                 decisionTable.outputs.append(output)
             elif element.tag.endswith('rule'):
-                rule = self._parse_rule(decisionTable, element)
+                rule_counter += 1
+                rule = self._parse_rule(decisionTable, element, rule_counter)
                 decisionTable.rules.append(rule)
             else:
-                raise Exception(
-                    'Unknown type in decision table: %r' % element.tag)
+                raise ValidationException(
+                    'Unknown type in decision table: %r' % element.tag,
+                    node=element, file_name=self.filename)
 
     def _parse_input(self, input_element):
         type_ref = None
@@ -142,9 +141,9 @@ class DMNParser(NodeParser):
                         outputElement.attrib.get('typeRef', ''))
         return output
 
-    def _parse_rule(self, decisionTable, ruleElement):
+    def _parse_rule(self, decisionTable, ruleElement, rowNumber):
         rule = Rule(ruleElement.attrib['id'])
-
+        rule.row_number = rowNumber
         input_idx = 0
         output_idx = 0
         for child in ruleElement:
@@ -189,6 +188,7 @@ class DMNParser(NodeParser):
                 try:
                     ast.parse(entry.text)
                 except Exception as e:
-                    raise Exception(
-                        "Malformed Output Expression '%s'. %s " % (entry.text, str(e)))
+                    raise ValidationException(
+                        "Malformed Output Expression '%s'. %s " % (entry.text, str(e)),
+                        node=element, file_name=self.filename)
         return entry

@@ -257,7 +257,7 @@ class Workflow(object):
         :param task_id: The id of the Task object.
         """
         if task_id is None:
-            raise WorkflowException(self.spec, 'task_id is None')
+            raise WorkflowException('task_id is None', task_spec=self.spec)
         data = {}
         if self.last_task and self.last_task.data:
             data = self.last_task.data
@@ -265,7 +265,7 @@ class Workflow(object):
             if task.id == task_id:
                 return task.reset_token(data)
         msg = 'A task with the given task_id (%s) was not found' % task_id
-        raise WorkflowException(self.spec, msg)
+        raise WorkflowException(msg, task_spec=self.spec)
 
     def get_reset_task_spec(self, destination):
         """
@@ -300,12 +300,12 @@ class Workflow(object):
         :param task_id: The id of the Task object.
         """
         if task_id is None:
-            raise WorkflowException(self.spec, 'task_id is None')
+            raise WorkflowException('task_id is None', task_spec=self.spec)
         for task in self.task_tree:
             if task.id == task_id:
                 return task.complete()
         msg = 'A task with the given task_id (%s) was not found' % task_id
-        raise WorkflowException(self.spec, msg)
+        raise WorkflowException(msg, task_spec=self.spec)
 
     def complete_next(self, pick_up=True, halt_on_manual=True):
         """

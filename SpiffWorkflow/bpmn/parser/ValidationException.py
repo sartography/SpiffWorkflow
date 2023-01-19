@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012 Matthew Hampton
+# Copyright (C) 2012 Matthew Hampton, 2023 Dan Funk
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,10 +17,10 @@
 # 02110-1301  USA
 
 from .util import BPMN_MODEL_NS
+from ...exceptions import SpiffWorkflowException
 
 
-class ValidationException(Exception):
-
+class ValidationException(SpiffWorkflowException):
     """
     A ValidationException should be thrown with enough information for the user
     to diagnose the problem and sort it out.
@@ -28,23 +28,20 @@ class ValidationException(Exception):
     If available, please provide the offending XML node and filename.
     """
 
-    def __init__(self, msg, node=None, filename=None, *args, **kwargs):
+    def __init__(self, msg, node=None, file_name=None, *args, **kwargs):
         if node is not None:
             self.tag = self._shorten_tag(node.tag)
-            self.id = node.get('id', '<Unknown>')
-            self.name = node.get('name', '<Unknown>')
-            self.sourceline = getattr(node, 'sourceline', '<Unknown>')
+            self.id = node.get('id', '')
+            self.name = node.get('name', '')
+            self.line_number = getattr(node, 'line_number', '')
         else:
-            self.tag = '<Unknown>'
-            self.id = '<Unknown>'
-            self.name = '<Unknown>'
-            self.sourceline = '<Unknown>'
-        self.filename = filename or '<Unknown File>'
-        message = ('%s\nSource Details: '
-                   '%s (id:%s), name \'%s\', line %s in %s') % (
-            msg, self.tag, self.id, self.name, self.sourceline, self.filename)
+            self.tag = kwargs.get('tag', '')
+            self.id = kwargs.get('id', '')
+            self.name = kwargs.get('name', '')
+            self.line_number = kwargs.get('line_number', '')
+        self.file_name = file_name or ''
 
-        super(ValidationException, self).__init__(message, *args, **kwargs)
+        super(ValidationException, self).__init__(msg, *args)
 
     @classmethod
     def _shorten_tag(cls, tag):

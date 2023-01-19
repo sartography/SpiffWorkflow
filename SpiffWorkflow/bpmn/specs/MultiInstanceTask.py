@@ -22,12 +22,12 @@ from builtins import range
 from uuid import uuid4
 import re
 
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from .SubWorkflowTask import SubWorkflowTask, CallActivity
 from .ParallelGateway import ParallelGateway
 from .ScriptTask import ScriptTask
 from .ExclusiveGateway import ExclusiveGateway
 from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
+from ...exceptions import WorkflowTaskException
 from ...operators import valueof, is_number
 from ...specs.SubWorkflow import SubWorkflow
 from ...specs.base import TaskSpec
@@ -396,9 +396,10 @@ class MultiInstanceTask(TaskSpec):
         # look for variable in context, if we don't find it, default to 1
         variable = valueof(my_task, self.times, 1)
         if self.times.name == self.collection.name and type(variable) == type([]):
-            raise WorkflowTaskExecException(my_task,
-                'If we are updating a collection, then the collection must be a dictionary.')
-    
+            raise WorkflowTaskException(
+                'If we are updating a collection, then the collection must be a dictionary.',
+                task=my_task)
+
     def _get_current_var(self, my_task, pos):
         variable = valueof(my_task, self.times, 1)
         if is_number(variable):
@@ -418,7 +419,7 @@ class MultiInstanceTask(TaskSpec):
                 msg = f"There is a mismatch between runtimes and the number " \
                       f"items in the collection, please check for empty " \
                       f"collection {self.collection.name}."
-                raise WorkflowTaskExecException(my_task, msg)
+                raise WorkflowTaskException(msg, task=my_task)
             runtimesvar = keys[runtimes - 1]
         else:
             # Use an integer (for arrays)

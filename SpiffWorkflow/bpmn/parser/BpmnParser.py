@@ -21,7 +21,7 @@ import glob
 import os
 
 from lxml import etree
-from lxml.etree import DocumentInvalid
+from lxml.etree import DocumentInvalid, LxmlError
 
 from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
 
@@ -72,8 +72,13 @@ class BpmnValidator:
     def validate(self, bpmn, filename=None):
         try:
             self.validator.assertValid(bpmn)
-        except DocumentInvalid as di:
-            raise DocumentInvalid(str(di) + "file: " + filename)
+        except ValidationException as ve:
+            ve.file_name = filename
+            ve.line_number = self.validator.error_log.last_error.line
+        except LxmlError as le:
+            last_error = self.validator.error_log.last_error
+            raise ValidationException(last_error.message, file_name=filename,
+                                      line_number=last_error.line)
 
 class BpmnParser(object):
     """
@@ -211,8 +216,7 @@ class BpmnParser(object):
             correlation_identifier = correlation.attrib.get("id")
             if correlation_identifier is None:
                 raise ValidationException(
-                    "Correlation identifier is missing from bpmn xml"
-                )
+                    "Correlation identifier is missing from bpmn xml"                )
             correlation_property_retrieval_expressions = correlation.xpath(
                 "//bpmn:correlationPropertyRetrievalExpression", namespaces = self.namespaces)
             if not correlation_property_retrieval_expressions:
@@ -243,9 +247,9 @@ class BpmnParser(object):
     def create_parser(self, node, filename=None, lane=None):
         parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, filename=filename, lane=lane)
         if parser.get_id() in self.process_parsers:
-            raise ValidationException('Duplicate process ID', node=node, filename=filename)
+            raise ValidationException('Duplicate process ID', node=node, file_name=filename)
         if parser.get_name() in self.process_parsers_by_name:
-            raise ValidationException('Duplicate process name', node=node, filename=filename)
+            raise ValidationException('Duplicate process name', node=node, file_name=filename)
         self.process_parsers[parser.get_id()] = parser
         self.process_parsers_by_name[parser.get_name()] = parser
 

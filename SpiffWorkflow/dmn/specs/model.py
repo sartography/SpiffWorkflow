@@ -75,7 +75,7 @@ class OutputEntry:
 class Rule:
     def __init__(self, id):
         self.id = id
-
+        self.row_number = 0
         self.description = ''
         self.inputEntries = []
         self.outputEntries = []

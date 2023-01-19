@@ -3,9 +3,9 @@
 import unittest
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.exceptions import WorkflowTaskException
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'kellym'
@@ -60,7 +60,7 @@ class CallActivityTest(BpmnWorkflowTestCase):
     def test_call_acitivity_errors_include_task_trace(self):
         error_spec = self.subprocesses.get('ErroringBPMN')
         error_spec, subprocesses = self.load_workflow_spec('call_activity_*.bpmn', 'ErroringBPMN')
-        with self.assertRaises(WorkflowTaskExecException) as context:
+        with self.assertRaises(WorkflowTaskException) as context:
             self.workflow = BpmnWorkflow(error_spec, subprocesses)
             self.workflow.do_engine_steps()
         self.assertEquals(2, len(context.exception.task_trace))

@@ -225,7 +225,7 @@ class Operator(Term):
         return values
 
     def _matches(self, task):
-        raise Exception("Abstract class, do not call")
+        raise NotImplementedError("Abstract class, do not call")
 
     def serialize(self, serializer):
         """

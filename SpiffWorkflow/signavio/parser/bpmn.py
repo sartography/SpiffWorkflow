@@ -16,5 +16,5 @@ class SignavioBpmnParser(BpmnParser):
                     'Intermediate Catch Event has no incoming sequences. '
                     'This might be a Boundary Event that has been '
                     'disconnected.',
-                    node=catch_event, filename=filename)
+                    node=catch_event, file_name=filename)
         return super().add_bpmn_xml(bpmn, filename)
