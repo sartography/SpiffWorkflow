@@ -93,4 +93,4 @@ class UserTaskConverter(CamundaEventConverter):
 class CallActivityTaskConverter(CallActivityTaskConverter):
 
     def __init__(self, data_converter=None, typename=None):
-        super().__init__(CamundaCallActivityA,, data_converter, typename)
+        super().__init__(CamundaCallActivity, data_converter, typename)
