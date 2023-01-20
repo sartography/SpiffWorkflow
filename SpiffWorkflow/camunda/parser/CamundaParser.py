@@ -11,7 +11,7 @@ from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
 from .event_parsers import CamundaStartEventParser, CamundaEndEventParser, \
     CamundaIntermediateCatchEventParser, CamundaIntermediateThrowEventParser, CamundaBoundaryEventParser
-
+from .task_parsers import CamundaCallActivityParser
 
 class CamundaParser(BpmnDmnParser):
 
@@ -23,4 +23,5 @@ class CamundaParser(BpmnDmnParser):
         full_tag('intermediateThrowEvent'): (CamundaIntermediateThrowEventParser, IntermediateThrowEvent),
         full_tag('boundaryEvent'): (CamundaBoundaryEventParser, BoundaryEvent),
         full_tag('businessRuleTask'): (BusinessRuleTaskParser, BusinessRuleTask),
+        full_tag('callActivity'): (CamundaCallActivityParser, CustomCallActivity),
     }
