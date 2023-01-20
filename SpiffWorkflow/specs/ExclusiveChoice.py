@@ -56,6 +56,11 @@ class ExclusiveChoice(MultiChoice):
         self.default_task_spec = task_spec.name
         super().connect(task_spec)
 
+    def test(self):
+        super().test()
+        if self.default_task_spec is None:
+            raise WorkflowException(self, 'A default output is required.')
+
     def _predict_hook(self, my_task):
         # If the task's status is not predicted, we default to MAYBE
         # for all it's outputs except the default choice, which is

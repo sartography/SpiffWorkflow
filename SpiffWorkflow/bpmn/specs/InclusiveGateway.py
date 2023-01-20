@@ -63,6 +63,10 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
     specified, the Inclusive Gateway throws an exception.
     """
 
+    def test(self):
+        MultiChoice.test(self)
+        UnstructuredJoin.test(self)
+
     def _check_threshold_unstructured(self, my_task, force=False):
 
         completed_inputs, waiting_tasks = self._get_inputs_with_tokens(my_task)
