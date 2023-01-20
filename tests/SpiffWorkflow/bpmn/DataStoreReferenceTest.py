@@ -9,6 +9,10 @@ class DataStoreReferenceTest(BpmnWorkflowTestCase):
         spec, subprocesses = self.load_workflow_spec('just_data_store_reference.bpmn', 'JustDataStoreRef')
         workflow = BpmnWorkflow(spec, subprocesses)
 
+    def testParsesDataStoreReferenceWithInputsAndOutputs(self):
+        spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
+        workflow = BpmnWorkflow(spec, subprocesses)
+
 
 #    def setUp(self):
 #        self.spec, self.subprocesses = self.load_workflow_spec('data_object.bpmn', 'Process')

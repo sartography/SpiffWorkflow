@@ -98,6 +98,7 @@ class BpmnDataSpecification:
         destination.data[self.name] = deepcopy(source.data[self.name])
 
 class BpmnDataStoreSpecification(BpmnDataSpecification):
+    # TODO: capactity, isUnlimitied
     pass
 
 class BpmnProcessSpec(WorkflowSpec):
