@@ -27,7 +27,7 @@
       <bpmn:incoming>Flow_1rfbrlf</bpmn:incoming>
       <bpmn:outgoing>Flow_0mppjk9</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0reo0gl">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=1)</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">"PT1S"</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_1rfbrlf" sourceRef="Gateway_1434v9l" targetRef="timer_event" />

@@ -1,33 +1,18 @@
-import os
 import unittest
+import os
 import json
 
-from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnLoaderForTests import TestUserTaskConverter
 
+from .BaseTestCase import BaseTestCase
 
-class BpmnWorkflowSerializerTest(unittest.TestCase):
-    """Please note that the BpmnSerializer is Deprecated."""
+class BpmnWorkflowSerializerTest(BaseTestCase):
+
     SERIALIZER_VERSION = "100.1.ANY"
-
-    def load_workflow_spec(self, filename, process_name):
-        f = os.path.join(os.path.dirname(__file__), 'data', filename)
-        parser = BpmnParser()
-        parser.add_bpmn_files_by_glob(f)
-        top_level_spec = parser.get_spec(process_name)
-        subprocesses = parser.get_subprocess_specs(process_name)
-        return top_level_spec, subprocesses
-
-    def setUp(self):
-        super(BpmnWorkflowSerializerTest, self).setUp()
-        wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([TestUserTaskConverter])
-        self.serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION)
-        spec, subprocesses = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
-        self.workflow = BpmnWorkflow(spec, subprocesses)
+    DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
 
     def testSerializeWorkflowSpec(self):
         spec_serialized = self.serializer.serialize_json(self.workflow)
@@ -102,12 +87,6 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
     def testDeserializeWorkflow(self):
         self._compare_with_deserialized_copy(self.workflow)
 
-    def testSerializeTask(self):
-        self.serializer.serialize_json(self.workflow)
-
-    def testDeserializeTask(self):
-        self._compare_with_deserialized_copy(self.workflow)
-
     def testDeserializeActiveWorkflow(self):
         self.workflow.do_engine_steps()
         self._compare_with_deserialized_copy(self.workflow)
@@ -160,17 +139,6 @@ class BpmnWorkflowSerializerTest(unittest.TestCase):
         self.assertIsNotNone(self.workflow.last_task)
         self.assertIsNotNone(wf2.last_task)
         self._compare_workflows(self.workflow, wf2)
-
-    def test_convert_1_0_to_1_1(self):
-        # The serialization used here comes from NestedSubprocessTest saved at line 25 with version 1.0
-        fn = os.path.join(os.path.dirname(__file__), 'data', 'serialization', 'v1.0.json')
-        wf = self.serializer.deserialize_json(open(fn).read())
-        # We should be able to finish the workflow from this point
-        ready_tasks = wf.get_tasks(TaskState.READY)
-        self.assertEqual('Action3', ready_tasks[0].task_spec.description)
-        ready_tasks[0].complete()
-        wf.do_engine_steps()
-        self.assertEqual(True, wf.is_completed())
 
     def test_serialize_workflow_where_script_task_includes_function(self):
         self.workflow.do_engine_steps()

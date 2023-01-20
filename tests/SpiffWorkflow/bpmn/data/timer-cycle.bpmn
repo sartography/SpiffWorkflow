@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ilr8m3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ilr8m3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1">
   <bpmn:process id="timer" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_1pahvlr</bpmn:outgoing>
@@ -32,12 +32,32 @@
     <bpmn:boundaryEvent id="CatchMessage" cancelActivity="false" attachedToRef="Get_Coffee">
       <bpmn:outgoing>Flow_1pzc4jz</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_180fybf">
-        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">(2,timedelta(seconds=0.01))</bpmn:timeCycle>
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">"R2/PT0.1S"</bpmn:timeCycle>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="timer">
+      <bpmndi:BPMNEdge id="Flow_09d7dp2_di" bpmnElement="Flow_09d7dp2">
+        <di:waypoint x="320" y="117" />
+        <di:waypoint x="370" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pzc4jz_di" bpmnElement="Flow_1pzc4jz">
+        <di:waypoint x="440" y="175" />
+        <di:waypoint x="440" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pahvlr_di" bpmnElement="Flow_1pahvlr">
+        <di:waypoint x="188" y="117" />
+        <di:waypoint x="220" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pvkgnu_di" bpmnElement="Flow_1pvkgnu">
+        <di:waypoint x="470" y="117" />
+        <di:waypoint x="500" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ekgt3x_di" bpmnElement="Flow_1ekgt3x">
+        <di:waypoint x="600" y="117" />
+        <di:waypoint x="632" y="117" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -50,29 +70,9 @@
       <bpmndi:BPMNShape id="Event_03w65sk_di" bpmnElement="Event_03w65sk">
         <dc:Bounds x="632" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1ekgt3x_di" bpmnElement="Flow_1ekgt3x">
-        <di:waypoint x="600" y="117" />
-        <di:waypoint x="632" y="117" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1pvkgnu_di" bpmnElement="Flow_1pvkgnu">
-        <di:waypoint x="470" y="117" />
-        <di:waypoint x="500" y="117" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1pahvlr_di" bpmnElement="Flow_1pahvlr">
-        <di:waypoint x="188" y="117" />
-        <di:waypoint x="220" y="117" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1pzc4jz_di" bpmnElement="Flow_1pzc4jz">
-        <di:waypoint x="440" y="175" />
-        <di:waypoint x="440" y="210" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_0xk1ts7_di" bpmnElement="Refill_Coffee">
         <dc:Bounds x="390" y="210" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_09d7dp2_di" bpmnElement="Flow_09d7dp2">
-        <di:waypoint x="320" y="117" />
-        <di:waypoint x="370" y="117" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1tk82xi_di" bpmnElement="Activity_1swqq74">
         <dc:Bounds x="220" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>

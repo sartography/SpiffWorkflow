@@ -16,7 +16,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition, MultipleEventDefinition
+from SpiffWorkflow.bpmn.specs.events.event_definitions import (
+    MessageEventDefinition, 
+    MultipleEventDefinition, 
+    NamedEventDefinition,
+    TimerEventDefinition,
+)
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
 from .specs.events.StartEvent import StartEvent
@@ -155,9 +160,21 @@ class BpmnWorkflow(Workflow):
         event_definition.payload = payload
         self.catch(event_definition, correlations=correlations)
 
-    def do_engine_steps(self, exit_at = None,
-        will_complete_task=None,
-        did_complete_task=None):
+    def waiting_events(self):
+        # Ultimately I'd like to add an event class so that EventDefinitions would not so double duty as both specs
+        # and instantiations, and this method would return that.  However, I think that's beyond the scope of the
+        # current request.
+        events = []
+        for task in [t for t in self.get_waiting_tasks() if isinstance(t.task_spec, CatchingEvent)]:
+            event_definition = task.task_spec.event_definition
+            events.append({
+                'event_type': event_definition.event_type,
+                'name': event_definition.name if isinstance(event_definition, NamedEventDefinition) else None,
+                'value': event_definition.timer_value(task) if isinstance(event_definition, TimerEventDefinition) else None,
+            })
+        return events
+
+    def do_engine_steps(self, exit_at = None, will_complete_task=None, did_complete_task=None):
         """
         Execute any READY tasks that are engine specific (for example, gateways
         or script tasks). This is done in a loop, so it will keep completing
@@ -168,9 +185,7 @@ class BpmnWorkflow(Workflow):
         :param will_complete_task: Callback that will be called prior to completing a task
         :param did_complete_task: Callback that will be called after completing a task
         """
-        engine_steps = list(
-            [t for t in self.get_tasks(TaskState.READY)
-             if self._is_engine_task(t.task_spec)])
+        engine_steps = list([t for t in self.get_tasks(TaskState.READY) if self._is_engine_task(t.task_spec)])
         while engine_steps:
             for task in engine_steps:
                 if will_complete_task is not None:
@@ -180,9 +195,7 @@ class BpmnWorkflow(Workflow):
                     did_complete_task(task)
                 if task.task_spec.name == exit_at:
                     return task
-            engine_steps = list(
-                [t for t in self.get_tasks(TaskState.READY)
-                 if self._is_engine_task(t.task_spec)])
+            engine_steps = list([t for t in self.get_tasks(TaskState.READY) if self._is_engine_task(t.task_spec)])
 
     def refresh_waiting_tasks(self,
         will_refresh_task=None,
@@ -255,6 +268,3 @@ class BpmnWorkflow(Workflow):
 
     def _is_engine_task(self, task_spec):
         return (not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task())
-
-    def _task_completed_notify(self, task):
-        super(BpmnWorkflow, self)._task_completed_notify(task)
