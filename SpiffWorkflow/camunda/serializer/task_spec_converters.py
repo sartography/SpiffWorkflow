@@ -3,9 +3,10 @@ from functools import partial
 from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
 from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
+from ..parser.task_spec import CamundaCallActivity
 from ..specs.events.event_definitions import MessageEventDefinition
 from ...bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
-
+from ...bpmn.serializer.tasl_spec_converters import CallActivityTaskConverter
 from ..specs.UserTask import UserTask, Form
 
 class CamundaEventConverter(BpmnTaskSpecConverter):
@@ -88,3 +89,8 @@ class UserTaskConverter(CamundaEventConverter):
                 new['options'] = [ opt.__dict__ for opt in field.options ]
             dct['fields'].append(new)
         return dct
+
+class CallActivityTaskConverter(CallActivityTaskConverter):
+
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(CamundaCallActivityA,, data_converter, typename)
