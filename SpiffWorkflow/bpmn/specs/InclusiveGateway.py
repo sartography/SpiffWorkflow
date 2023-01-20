@@ -17,11 +17,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from SpiffWorkflow.exceptions import WorkflowException
 from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
+from ...specs.MultiChoice import MultiChoice
 
 
-class InclusiveGateway(UnstructuredJoin):
+class InclusiveGateway(MultiChoice, UnstructuredJoin):
     """
     Task Spec for a bpmn:parallelGateway node. From the specification of BPMN
     (http://www.omg.org/spec/BPMN/2.0/PDF - document number:formal/2011-01-03):
@@ -100,6 +102,12 @@ class InclusiveGateway(UnstructuredJoin):
             complete = False
 
         return force or complete, waiting_tasks
+
+    def _on_complete_hook(self, my_task):
+        outputs = self._get_matching_outputs(my_task)
+        if len(outputs) == 0:
+            raise WorkflowException(self, f'No conditions satisfied for {my_task.task_spec.name}')
+        my_task._sync_children(outputs, TaskState.FUTURE)
 
     @property
     def spec_type(self):
