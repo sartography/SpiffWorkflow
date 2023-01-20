@@ -24,7 +24,7 @@ class CallActivityParser(TaskParser):
                 f"The process '{called_element}' was not found. Did you mean one of the following: "
                 f"{', '.join(self.process_parser.parser.get_process_ids())}?",
                 node=self.node,
-                filename=self.process_parser.filename)
+                file_name=self.process_parser.filename)
         return parser.get_id()
 
     def _fix_call_activities(self):
@@ -41,5 +41,5 @@ class CallActivityParser(TaskParser):
         if not signavio_meta_data:
             raise ValidationException(
                 'No Signavio "Subprocess reference" specified.',
-                node=self.node, filename=self.filename)
+                node=self.node, file_name=self.filename)
         return one(signavio_meta_data).get('metaValue')

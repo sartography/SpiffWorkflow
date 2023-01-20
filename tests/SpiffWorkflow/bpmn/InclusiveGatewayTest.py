@@ -1,5 +1,5 @@
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.exceptions import WorkflowException
+from SpiffWorkflow.exceptions import WorkflowTaskException
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -25,7 +25,7 @@ class InclusiveGatewayTest(BpmnWorkflowTestCase):
 
     def testNoPathFromSecondGateway(self):
         self.set_data({'v': 0, 'u': -1, 'w': -1})
-        self.assertRaises(WorkflowException, self.workflow.do_engine_steps)
+        self.assertRaises(WorkflowTaskException, self.workflow.do_engine_steps)
 
     def testParallelCondition(self):
         self.set_data({'v': 0, 'u': 1, 'w': 1})

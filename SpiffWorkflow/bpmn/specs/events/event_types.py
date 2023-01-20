@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .event_definitions import MessageEventDefinition, NoneEventDefinition
+from .event_definitions import MessageEventDefinition, NoneEventDefinition, CycleTimerEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
 from ....task import TaskState
@@ -69,6 +69,12 @@ class CatchingEvent(Simple, BpmnSpecMixin):
 
         if isinstance(self.event_definition, MessageEventDefinition):
             self.event_definition.update_task_data(my_task)
+        elif isinstance(self.event_definition, CycleTimerEventDefinition):
+            self.event_definition.complete_cycle(my_task)
+            if not self.event_definition.complete(my_task):
+                for output in self.outputs:
+                    my_task._add_child(output)
+                my_task._set_state(TaskState.WAITING)
         self.event_definition.reset(my_task)
         super(CatchingEvent, self)._on_complete_hook(my_task)
 

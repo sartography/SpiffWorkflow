@@ -3,7 +3,6 @@
 import unittest
 import time
 
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -23,35 +22,31 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         self.actual_test(save_restore=True)
 
     def actual_test(self,save_restore = False):
-        self.workflow.script_engine = FeelLikeScriptEngine()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        self.assertEqual(1, len(ready_tasks))
-        self.workflow.complete_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        self.assertEqual(1, len(ready_tasks))
-        ready_tasks[0].data['answer']='No'
-        self.workflow.complete_task_from_id(ready_tasks[0].id)
+        ready_tasks[0].complete()
         self.workflow.do_engine_steps()
 
         loopcount = 0
-        # test bpmn has a timeout of .03s
-        # we should terminate loop before that.
-
-        while loopcount < 11:
-            ready_tasks = self.workflow.get_tasks(TaskState.READY)
-            if len(ready_tasks) < 1:
-                break
+        # test bpmn has a timeout of .03s; we should terminate loop before that.
+        while len(self.workflow.get_waiting_tasks()) == 2 and loopcount < 11:
             if save_restore:
                 self.save_restore()
-                self.workflow.script_engine = FeelLikeScriptEngine()
-            #self.assertEqual(1, len(self.workflow.get_tasks(Task.WAITING)))
             time.sleep(0.01)
-            self.workflow.complete_task_from_id(ready_tasks[0].id)
+            self.assertEqual(len(self.workflow.get_tasks(TaskState.READY)), 1)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
-            loopcount = loopcount +1
+            loopcount += 1
 
+        self.workflow.do_engine_steps()
+        subworkflow = self.workflow.get_tasks_from_spec_name('Subworkflow')[0]
+        self.assertEqual(subworkflow.state, TaskState.CANCELLED)
+        ready_tasks = self.workflow.get_ready_user_tasks()
+        while len(ready_tasks) > 0:
+            ready_tasks[0].complete()
+            ready_tasks = self.workflow.get_ready_user_tasks()
+            self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.is_completed())
         # Assure that the loopcount is less than 10, and the timer interrupt fired, rather
         # than allowing us to continue to loop the full 10 times.
         self.assertTrue(loopcount < 10)

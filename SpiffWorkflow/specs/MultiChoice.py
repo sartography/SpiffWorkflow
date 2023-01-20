@@ -70,14 +70,14 @@ class MultiChoice(TaskSpec):
         """
         TaskSpec.test(self)
         if len(self.cond_task_specs) < 1:
-            raise WorkflowException(self, 'At least one output required.')
+            raise WorkflowException('At least one output required.', task_spec=self)
         for condition, name in self.cond_task_specs:
             if name is None:
-                raise WorkflowException(self, 'Condition with no task spec.')
+                raise WorkflowException('Condition with no task spec.', task_spec=self)
             task_spec = self._wf_spec.get_task_spec_from_name(name)
             if task_spec is None:
                 msg = 'Condition leads to non-existent task ' + repr(name)
-                raise WorkflowException(self, msg)
+                raise WorkflowException(msg, task_spec=self)
             if condition is None:
                 continue
 

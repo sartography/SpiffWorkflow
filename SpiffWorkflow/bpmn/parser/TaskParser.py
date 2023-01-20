@@ -71,7 +71,7 @@ class TaskParser(NodeParser):
             raise ValidationException(
                 f'Unsupported MultiInstance Task: {self.task.__class__}',
                 node=self.node,
-                filename=self.filename)
+                file_name=self.filename)
 
         self.task.loopTask = loop_task
         self.task.isSequential = is_sequential
@@ -132,8 +132,8 @@ class TaskParser(NodeParser):
             if isinstance(child.event_definition, CancelEventDefinition) \
               and not isinstance(self.task, TransactionSubprocess):
                 raise ValidationException('Cancel Events may only be used with transactions',
-                    node=self.node,
-                    filename=self.filename)
+                                          node=self.node,
+                                          file_name=self.filename)
             parent.connect(child)
         return parent
 
@@ -166,7 +166,7 @@ class TaskParser(NodeParser):
                     'Multiple outgoing flows are not supported for '
                     'tasks of type',
                     node=self.node,
-                    filename=self.filename)
+                    file_name=self.filename)
             for sequence_flow in outgoing:
                 target_ref = sequence_flow.get('targetRef')
                 try:
@@ -176,7 +176,7 @@ class TaskParser(NodeParser):
                         'When looking for a task spec, we found two items, '
                         'perhaps a form has the same ID? (%s)' % target_ref,
                         node=self.node,
-                        filename=self.filename)
+                        file_name=self.filename)
 
                 c = self.process_parser.parse_node(target_node)
                 position = c.position
@@ -191,13 +191,10 @@ class TaskParser(NodeParser):
                     self.connect_outgoing(c, sequence_flow, sequence_flow.get('id') == default_outgoing)
 
             return parent if boundary_event_nodes else self.task
-        except ValidationException:
-            raise
+        except ValidationException as ve:
+            raise ve
         except Exception as ex:
-            exc_info = sys.exc_info()
-            tb = "".join(traceback.format_exception(
-                exc_info[0], exc_info[1], exc_info[2]))
-            raise ValidationException("%r" % (ex), node=self.node, filename=self.filename)
+            raise ValidationException("%r" % (ex), node=self.node, file_name=self.filename)
 
     def get_task_spec_name(self, target_ref=None):
         """

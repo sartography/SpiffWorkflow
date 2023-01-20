@@ -44,7 +44,7 @@ class StartTask(TaskSpec):
         """
         Called by the previous task to let us know that it exists.
         """
-        raise WorkflowException(self, 'StartTask can not have any inputs.')
+        raise WorkflowException('StartTask can not have any inputs.', task_spec=self)
 
     def test(self):
         """
@@ -52,9 +52,9 @@ class StartTask(TaskSpec):
         if an error was detected.
         """
         if len(self.inputs) != 0:
-            raise WorkflowException(self, 'StartTask with an input.')
+            raise WorkflowException('StartTask with an input.', task_spec=self)
         elif len(self.outputs) < 1:
-            raise WorkflowException(self, 'No output task connected.')
+            raise WorkflowException('No output task connected.', task_spec=self)
 
     def serialize(self, serializer):
         return serializer.serialize_start_task(self)

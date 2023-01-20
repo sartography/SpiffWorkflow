@@ -30,7 +30,7 @@ class CustomScriptEngine(PythonScriptEngine):
 
 
 
-class TimerDurationTest(BpmnWorkflowTestCase):
+class TimerCycleTest(BpmnWorkflowTestCase):
 
     def setUp(self):
         self.spec, self.subprocesses = self.load_workflow_spec('timer-cycle.bpmn', 'timer')
@@ -42,31 +42,34 @@ class TimerDurationTest(BpmnWorkflowTestCase):
     def testThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
-
     def actual_test(self,save_restore = False):
         global counter
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        self.assertEqual(1, len(ready_tasks)) # Start Event
-        self.workflow.complete_task_from_id(ready_tasks[0].id)
-        self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        self.assertEqual(1, len(ready_tasks)) # GetCoffee
-
-        # See comments in timer cycle test for more context
         counter = 0
+        # See comments in timer cycle test start for more context
         for loopcount in range(5):
+            self.workflow.do_engine_steps()
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = CustomScriptEngine()
-            time.sleep(0.01)
+            time.sleep(0.05)
             self.workflow.refresh_waiting_tasks()
-            self.workflow.do_engine_steps()
+            events = self.workflow.waiting_events()
+            if loopcount == 0:
+                # Wait time is 0.1s, so the first time through, there should still be a waiting event
+                self.assertEqual(len(events), 1)
+            else:
+                # By the second iteration, both should be complete
+                self.assertEqual(len(events), 0)
 
-        pass
-        #self.assertEqual(counter, 2)
-
+        # Get coffee still ready
+        coffee = self.workflow.get_tasks_from_spec_name('Get_Coffee')[0]
+        self.assertEqual(coffee.state, TaskState.READY)
+        # Timer completed
+        timer = self.workflow.get_tasks_from_spec_name('CatchMessage')[0]
+        self.assertEqual(timer.state, TaskState.COMPLETED)
+        self.assertEqual(counter, 2)
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TimerDurationTest)
+    return unittest.TestLoader().loadTestsFromTestCase(TimerCycleTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())

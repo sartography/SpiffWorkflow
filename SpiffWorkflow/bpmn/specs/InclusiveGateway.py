@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.exceptions import WorkflowException
+from SpiffWorkflow.exceptions import WorkflowTaskException
 from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
 from ...specs.MultiChoice import MultiChoice
@@ -110,7 +110,7 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
     def _on_complete_hook(self, my_task):
         outputs = self._get_matching_outputs(my_task)
         if len(outputs) == 0:
-            raise WorkflowException(self, f'No conditions satisfied for {my_task.task_spec.name}')
+            raise WorkflowTaskException(f'No conditions satisfied on gateway', task=my_task)
         my_task._sync_children(outputs, TaskState.FUTURE)
 
     @property

@@ -168,7 +168,7 @@ def feelParseISODuration(input):
 
     """
     if input[0] != 'P':
-        raise Exception("Oh Crap!")
+        raise Exception("ISO Duration format must begin with the letter P")
     input = input[1:]
     days, time = input.split("T")
     lookups = [("Y",days,timedelta(days=365)),
@@ -239,7 +239,7 @@ fixes = [(r'string\s+length\((.+?)\)','len(\\1)'),
          ('true','True'),
          ('false','False')
     ]
-         
+
 externalFuncs = {
     'feelConvertTime':feelConvertTime,
     'FeelInterval':FeelInterval,
