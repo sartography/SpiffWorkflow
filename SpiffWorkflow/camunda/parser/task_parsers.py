@@ -66,7 +66,7 @@ class CamundaCallActivityParser(SpiffTaskParser):
     def parse_extensions(self, node=None):
         if node is None:
             node = self.node
-        return CustomCallActivityParser._parse_extensions(node)
+        return CamundaCallActivityParser._parse_extensions(node)
 
     @classmethod
     def _node_children_by_tag_name(cls, node, tag_name):
