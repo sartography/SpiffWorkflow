@@ -3,7 +3,7 @@ from functools import partial
 from uuid import UUID
 from datetime import datetime, timedelta
 
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataSpecification
+from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataSpecification, BpmnDataStoreSpecification
 
 from .dictionary import DictionaryConverter
 
@@ -56,6 +56,16 @@ class BpmnDataSpecificationConverter:
         return BpmnDataSpecification(**dct)
 
 
+class BpmnDataStoreSpecificationConverter:
+
+    @staticmethod
+    def to_dict(data_store_spec):
+        return { 'name': data_store_spec.name, 'description': data_store_spec.description }
+
+    @staticmethod
+    def from_dict(dct):
+        return BpmnDataStoreSpecification(**dct)
+
 
 class BpmnTaskSpecConverter(DictionaryConverter):
     """
@@ -103,6 +113,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         self.register(Attrib, self.attrib_to_dict, partial(self.attrib_from_dict, Attrib))
         self.register(PathAttrib, self.attrib_to_dict, partial(self.attrib_from_dict, PathAttrib))
         self.register(BpmnDataSpecification, BpmnDataSpecificationConverter.to_dict, BpmnDataSpecificationConverter.from_dict)
+        self.register(BpmnDataStoreSpecification, BpmnDataStoreSpecificationConverter.to_dict, BpmnDataStoreSpecificationConverter.from_dict)
 
     def to_dict(self, spec):
         """

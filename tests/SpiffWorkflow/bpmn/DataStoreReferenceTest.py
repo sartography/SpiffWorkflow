@@ -7,11 +7,16 @@ class DataStoreReferenceTest(BpmnWorkflowTestCase):
 
     def testParsesDataStoreReference(self):
         spec, subprocesses = self.load_workflow_spec('just_data_store_reference.bpmn', 'JustDataStoreRef')
-        workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testParsesDataStoreReferenceWithInputsAndOutputs(self):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
-        workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+
+    def testCanSaveRestoreDataStoreReferenceWithInputsAndOutputs(self):
+        spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.save_restore()
 
 
 #    def setUp(self):
