@@ -185,6 +185,6 @@ class CamundaSubWorkflowTask(SubWorkflowTask):
         my_task._set_state(TaskState.WAITING)
 
 
-class CamundaCallActivity(CamundaSubWorkflowTask):
+class CamundaCallActivity(CamundaSubWorkflowTask, TaskParser):
     def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
         super(CamundaCallActivity, self).__init__(wf_spec, name, subworkflow_spec, False, **kwargs)
