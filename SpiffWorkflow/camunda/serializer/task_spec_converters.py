@@ -6,7 +6,7 @@ from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowE
 from ..parser.task_spec import CamundaCallActivity
 from ..specs.events.event_definitions import MessageEventDefinition
 from ...bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
-from ...bpmn.serializer.tasl_spec_converters import CallActivityTaskConverter
+from ...bpmn.serializer.task_spec_converters import CallActivityTaskConverter
 from ..specs.UserTask import UserTask, Form
 
 class CamundaEventConverter(BpmnTaskSpecConverter):

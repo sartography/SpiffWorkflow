@@ -1,6 +1,7 @@
 from SpiffWorkflow.bpmn.specs.SubWorkflowTask import SubWorkflowTask, TransactionSubprocess, CallActivity
 from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
 
+
 class SubWorkflowTask(SubWorkflowTask, SpiffBpmnTask):
 
     def __init__(self, wf_spec, name, subworkflow_spec, transaction=False, **kwargs):

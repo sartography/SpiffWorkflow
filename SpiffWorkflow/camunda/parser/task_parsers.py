@@ -1,8 +1,7 @@
 from lxml import etree
 
-from SpiffWorkflow.bpmn.parser.task_parsers import TaskParser
-from SpiffWorkflow.bpmn.parser.util import xpath_eval
 from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser
+from SpiffWorkflow.bpmn.parser.util import xpath_eval
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.parser.node_parser import DEFAULT_NSMAP
 from .task_spec import CAMUNDA_MODEL_NS
@@ -61,13 +60,13 @@ class CallActivitySubprocessParser:
         return called_element
 
 
-class CamundaCallActivityParser(TaskParser):
+class CamundaCallActivityParser(SpiffTaskParser):
     """Parses a CallActivity node."""
 
     def parse_extensions(self, node=None):
         if node is None:
             node = self.node
-        return CamundaCallActivityParser._parse_extensions(node)
+        return CustomCallActivityParser._parse_extensions(node)
 
     @classmethod
     def _node_children_by_tag_name(cls, node, tag_name):
@@ -92,11 +91,16 @@ class CamundaCallActivityParser(TaskParser):
             if name == 'in':
                 if not extensions.get('inputs'):
                     extensions['inputs'] = []
-                extensions['inputs'].append(CamundaCallActivityParser._parse_inputs_outputs(node))
+                extensions['inputs'].append(CustomCallActivityParser._parse_inputs_outputs(node))
             elif name == "out":
                 if not extensions.get('outputs'):
                     extensions['outputs'] = []
-                extensions['outputs'].append(CamundaCallActivityParser._parse_inputs_outputs(node))
+                extensions['outputs'].append(CustomCallActivityParser._parse_inputs_outputs(node))
+            elif name == "executionListener":
+                if node.attrib.get('event') == "start":
+                    extensions['pre_script'] = CustomCallActivityParser._parse_execution_listener(node)
+                if node.attrib.get('event') == "end":
+                    extensions['post_script'] = CustomCallActivityParser._parse_execution_listener(node)
 
         return extensions
 
@@ -104,17 +108,30 @@ class CamundaCallActivityParser(TaskParser):
     def _parse_inputs_outputs(node):
         if node.attrib.get('variables'):
             return {"all": None}
-        return {node.attrib['source']: node.attrib['target']}
+        if node.attrib.get('source'):
+            return {node.attrib['source']: node.attrib['target']}
+
+        return {}
+
+    @staticmethod
+    def _parse_execution_listener(node):
+        script_node = CustomCallActivityParser._node_children_by_tag_name(node, "script")[0]
+        return script_node.text
 
     def create_task(self):
-        subworkflow_spec = CallActivitySubprocessParser.get_call_activity_spec(self)
+        extensions = self.parse_extensions()
+        subworkflow_spec = CustomSubprocessParser.get_call_activity_spec(self)
         return self.spec_class(
-            self.spec, self.get_task_spec_name(), subworkflow_spec,
+            self.spec,
+            self.get_task_spec_name(),
+            subworkflow_spec,
             lane=self.lane, position=self.position,
-            description=self.node.get('name', None))
+            description=self.node.get('name', None),
+            prescript=extensions.get('pre_script'),
+            postscript=extensions.get('post_script'))
 
 
-class CallActivitySubWorkflowParser(TaskParser):
+class CallActivitySubWorkflowParser(SpiffTaskParser):
 
     def create_task(self):
         extensions = self.parse_extensions()
