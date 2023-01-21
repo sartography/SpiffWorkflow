@@ -3,7 +3,7 @@ from functools import partial
 from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
 from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
-from ..parser.task_spec import CamundaCallActivity
+from ...spiff.serializer.task_spec_converters import CallActivityTaskConverter
 from ..specs.events.event_definitions import MessageEventDefinition
 from ...bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
 from ...bpmn.serializer.task_spec_converters import CallActivityTaskConverter
@@ -93,4 +93,4 @@ class UserTaskConverter(CamundaEventConverter):
 class CallActivityTaskConverter(CallActivityTaskConverter):
 
     def __init__(self, data_converter=None, typename=None):
-        super().__init__(CamundaCallActivity, data_converter, typename)
+        super().__init__(CallActivityTaskConverter, data_converter)
