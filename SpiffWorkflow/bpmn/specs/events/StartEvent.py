@@ -40,3 +40,4 @@ class StartEvent(CatchingEvent):
             my_task._set_state(TaskState.WAITING)
 
         super(StartEvent, self).catch(my_task, event_definition)
+

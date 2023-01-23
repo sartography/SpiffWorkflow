@@ -182,8 +182,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             # Assure we don't recurse forever.
             self.count += 1
             if self.count > self.MAX_ITERATIONS:
-                raise WorkflowException(current,
-                "Task Iterator entered infinite recursion loop" )
+                raise WorkflowException("Task Iterator entered infinite recursion loop", task_spec=current)
 
 
             # If the current task has children, the first child is the next
@@ -266,8 +265,8 @@ class Task(object,  metaclass=DeprecatedMetaTask):
     def state(self, value):
         if value < self._state:
             raise WorkflowException(
-                self.task_spec,
-                'state went from %s to %s!' % (self.get_state_name(), TaskStateNames[value])
+                'state went from %s to %s!' % (self.get_state_name(), TaskStateNames[value]),
+                task_spec=self.task_spec
             )
         self._set_state(value)
 
@@ -345,8 +344,8 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         if self.is_looping():
             self.terminate_current_loop = True
         else:
-            raise WorkflowException(self.task_spec,
-                                    'The method terminate_loop should only be called in the case of a BPMN Loop Task')
+            raise WorkflowException('The method terminate_loop should only be called in the case of a BPMN Loop Task',
+                                    task_spec=self)
 
     def is_looping(self):
         """Returns true if this is a looping task."""
@@ -475,7 +474,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             raise ValueError(self, '_add_child() requires a TaskSpec')
         if self._is_predicted() and state & TaskState.PREDICTED_MASK == 0:
             msg = 'Attempt to add non-predicted child to predicted task'
-            raise WorkflowException(self.task_spec, msg)
+            raise WorkflowException(msg, task_spec=self.task_spec)
         task = Task(self.workflow, task_spec, self, state=state)
         task.thread_id = self.thread_id
         if state == TaskState.READY:
@@ -551,7 +550,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
 
             # Definite tasks must not be removed, so they HAVE to be in the given task spec list.
             if child._is_definite():
-                raise WorkflowException(self.task_spec, f'removal of non-predicted child {child}')
+                raise WorkflowException(f'removal of non-predicted child {child}', task_spec=self.task_spec)
             unneeded_children.append(child)
 
         # Remove and add the children accordingly.
@@ -713,7 +712,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         Defines the given attribute/value pairs.
         """
         self.data.update(kwargs)
-        data_log.info('Set data', extra=self.log_info())
 
     def _inherit_data(self):
         """

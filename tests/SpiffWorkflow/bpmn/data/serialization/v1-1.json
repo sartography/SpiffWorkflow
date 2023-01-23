@@ -1,0 +1,590 @@
+{
+  "serializer_version": "1.1",
+  "data": {}, 
+  "last_task": "6bd75ef7-d765-4d0b-83ba-1158d2e9ed0a", 
+  "success": true, 
+  "tasks": {
+    "ccca8dcf-e833-494a-9281-ec133223ab75": {
+      "id": "ccca8dcf-e833-494a-9281-ec133223ab75", 
+      "parent": null, 
+      "children": [
+        "6bd75ef7-d765-4d0b-83ba-1158d2e9ed0a"
+      ], 
+      "last_state_change": 1673895963.536834, 
+      "state": 32, 
+      "task_spec": "Root", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "6bd75ef7-d765-4d0b-83ba-1158d2e9ed0a": {
+      "id": "6bd75ef7-d765-4d0b-83ba-1158d2e9ed0a", 
+      "parent": "ccca8dcf-e833-494a-9281-ec133223ab75", 
+      "children": [
+        "34a70bb5-88f7-4a71-9dea-da6893437633"
+      ], 
+      "last_state_change": 1673896001.8471706, 
+      "state": 32, 
+      "task_spec": "Start", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "34a70bb5-88f7-4a71-9dea-da6893437633": {
+      "id": "34a70bb5-88f7-4a71-9dea-da6893437633", 
+      "parent": "6bd75ef7-d765-4d0b-83ba-1158d2e9ed0a", 
+      "children": [
+        "28d6b82b-64e9-41ad-9620-cc00497c859f", 
+        "deb1eb94-6537-4cb8-a7e6-ea28c4983732"
+      ], 
+      "last_state_change": 1673896001.8511543, 
+      "state": 8, 
+      "task_spec": "StartEvent_1", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {
+        "repeat": 2, 
+        "start_time": "2023-01-16 14:06:41.847524"
+      }, 
+      "data": {
+        "repeat_count": 0
+      }
+    }, 
+    "28d6b82b-64e9-41ad-9620-cc00497c859f": {
+      "id": "28d6b82b-64e9-41ad-9620-cc00497c859f", 
+      "parent": "34a70bb5-88f7-4a71-9dea-da6893437633", 
+      "children": [
+        "a07abe4c-8122-494f-8b43-b3c44d3f7e34", 
+        "975c49d4-dceb-4137-829c-64c657894701"
+      ], 
+      "last_state_change": 1673895963.5375524, 
+      "state": 4, 
+      "task_spec": "StartEvent_1", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "a07abe4c-8122-494f-8b43-b3c44d3f7e34": {
+      "id": "a07abe4c-8122-494f-8b43-b3c44d3f7e34", 
+      "parent": "28d6b82b-64e9-41ad-9620-cc00497c859f", 
+      "children": [], 
+      "last_state_change": 1673895963.5380332, 
+      "state": 4, 
+      "task_spec": "return_to_StartEvent_1", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "975c49d4-dceb-4137-829c-64c657894701": {
+      "id": "975c49d4-dceb-4137-829c-64c657894701", 
+      "parent": "28d6b82b-64e9-41ad-9620-cc00497c859f", 
+      "children": [
+        "e937e37e-04a7-45b6-b6a4-7615876ae19f"
+      ], 
+      "last_state_change": 1673895963.5380924, 
+      "state": 4, 
+      "task_spec": "task_1", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "e937e37e-04a7-45b6-b6a4-7615876ae19f": {
+      "id": "e937e37e-04a7-45b6-b6a4-7615876ae19f", 
+      "parent": "975c49d4-dceb-4137-829c-64c657894701", 
+      "children": [
+        "42036b41-f934-457a-86e7-cc3b65882073"
+      ], 
+      "last_state_change": 1673895963.5384276, 
+      "state": 4, 
+      "task_spec": "Event_1uhhxu1", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "42036b41-f934-457a-86e7-cc3b65882073": {
+      "id": "42036b41-f934-457a-86e7-cc3b65882073", 
+      "parent": "e937e37e-04a7-45b6-b6a4-7615876ae19f", 
+      "children": [
+        "583f99df-db90-4237-8718-c1cf638c4391", 
+        "24f73965-e218-4f94-8ca9-5267cbf635ad"
+      ], 
+      "last_state_change": 1673895963.5386448, 
+      "state": 4, 
+      "task_spec": "task_2.BoundaryEventParent", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "583f99df-db90-4237-8718-c1cf638c4391": {
+      "id": "583f99df-db90-4237-8718-c1cf638c4391", 
+      "parent": "42036b41-f934-457a-86e7-cc3b65882073", 
+      "children": [
+        "825b0a7b-b33e-4692-a11c-9c0fb49e20c0"
+      ], 
+      "last_state_change": 1673895963.5391376, 
+      "state": 4, 
+      "task_spec": "task_2", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "825b0a7b-b33e-4692-a11c-9c0fb49e20c0": {
+      "id": "825b0a7b-b33e-4692-a11c-9c0fb49e20c0", 
+      "parent": "583f99df-db90-4237-8718-c1cf638c4391", 
+      "children": [
+        "e5b6e43e-2ba9-42a2-90c0-25202f096273"
+      ], 
+      "last_state_change": 1673895963.5393665, 
+      "state": 4, 
+      "task_spec": "Event_1vzwq7p", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "e5b6e43e-2ba9-42a2-90c0-25202f096273": {
+      "id": "e5b6e43e-2ba9-42a2-90c0-25202f096273", 
+      "parent": "825b0a7b-b33e-4692-a11c-9c0fb49e20c0", 
+      "children": [
+        "0a5fbc15-2807-463d-9762-b7b724835a40"
+      ], 
+      "last_state_change": 1673895963.5396175, 
+      "state": 4, 
+      "task_spec": "migration_test.EndJoin", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "0a5fbc15-2807-463d-9762-b7b724835a40": {
+      "id": "0a5fbc15-2807-463d-9762-b7b724835a40", 
+      "parent": "e5b6e43e-2ba9-42a2-90c0-25202f096273", 
+      "children": [], 
+      "last_state_change": 1673895963.5398767, 
+      "state": 4, 
+      "task_spec": "End", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "24f73965-e218-4f94-8ca9-5267cbf635ad": {
+      "id": "24f73965-e218-4f94-8ca9-5267cbf635ad", 
+      "parent": "42036b41-f934-457a-86e7-cc3b65882073", 
+      "children": [], 
+      "last_state_change": 1673895963.5390024, 
+      "state": 1, 
+      "task_spec": "Event_1bkh7yi", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "deb1eb94-6537-4cb8-a7e6-ea28c4983732": {
+      "id": "deb1eb94-6537-4cb8-a7e6-ea28c4983732", 
+      "parent": "34a70bb5-88f7-4a71-9dea-da6893437633", 
+      "children": [
+        "56045c5b-9400-4fea-ae82-b357268672f8"
+      ], 
+      "last_state_change": 1673895963.5376105, 
+      "state": 4, 
+      "task_spec": "task_1", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "56045c5b-9400-4fea-ae82-b357268672f8": {
+      "id": "56045c5b-9400-4fea-ae82-b357268672f8", 
+      "parent": "deb1eb94-6537-4cb8-a7e6-ea28c4983732", 
+      "children": [
+        "fd71446e-d8b4-42dd-980b-624a82848853"
+      ], 
+      "last_state_change": 1673895963.540343, 
+      "state": 4, 
+      "task_spec": "Event_1uhhxu1", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "fd71446e-d8b4-42dd-980b-624a82848853": {
+      "id": "fd71446e-d8b4-42dd-980b-624a82848853", 
+      "parent": "56045c5b-9400-4fea-ae82-b357268672f8", 
+      "children": [
+        "8960300d-28c1-463d-b7a1-29e872c02d98", 
+        "a6bca2b5-7064-49c9-a172-18c1435d173d"
+      ], 
+      "last_state_change": 1673895963.5405483, 
+      "state": 4, 
+      "task_spec": "task_2.BoundaryEventParent", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "8960300d-28c1-463d-b7a1-29e872c02d98": {
+      "id": "8960300d-28c1-463d-b7a1-29e872c02d98", 
+      "parent": "fd71446e-d8b4-42dd-980b-624a82848853", 
+      "children": [
+        "6b33df30-07fd-4572-abfd-f29eb9906f0b"
+      ], 
+      "last_state_change": 1673895963.540891, 
+      "state": 4, 
+      "task_spec": "task_2", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "6b33df30-07fd-4572-abfd-f29eb9906f0b": {
+      "id": "6b33df30-07fd-4572-abfd-f29eb9906f0b", 
+      "parent": "8960300d-28c1-463d-b7a1-29e872c02d98", 
+      "children": [
+        "0d571ca2-ffb1-4d8b-9dda-4e8cbd8b8ae1"
+      ], 
+      "last_state_change": 1673895963.5411036, 
+      "state": 4, 
+      "task_spec": "Event_1vzwq7p", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "0d571ca2-ffb1-4d8b-9dda-4e8cbd8b8ae1": {
+      "id": "0d571ca2-ffb1-4d8b-9dda-4e8cbd8b8ae1", 
+      "parent": "6b33df30-07fd-4572-abfd-f29eb9906f0b", 
+      "children": [
+        "1e8fc80a-1968-4411-a10b-16cb4261f3b8"
+      ], 
+      "last_state_change": 1673895963.5413618, 
+      "state": 4, 
+      "task_spec": "migration_test.EndJoin", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "1e8fc80a-1968-4411-a10b-16cb4261f3b8": {
+      "id": "1e8fc80a-1968-4411-a10b-16cb4261f3b8", 
+      "parent": "0d571ca2-ffb1-4d8b-9dda-4e8cbd8b8ae1", 
+      "children": [], 
+      "last_state_change": 1673895963.541654, 
+      "state": 4, 
+      "task_spec": "End", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "a6bca2b5-7064-49c9-a172-18c1435d173d": {
+      "id": "a6bca2b5-7064-49c9-a172-18c1435d173d", 
+      "parent": "fd71446e-d8b4-42dd-980b-624a82848853", 
+      "children": [], 
+      "last_state_change": 1673895963.5408392, 
+      "state": 1, 
+      "task_spec": "Event_1bkh7yi", 
+      "triggered": false, 
+      "workflow_name": "migration_test", 
+      "internal_data": {}, 
+      "data": {}
+    }
+  }, 
+  "root": "ccca8dcf-e833-494a-9281-ec133223ab75", 
+  "spec": {
+    "name": "migration_test", 
+    "description": "migration_test", 
+    "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/serialization/v1-1.bpmn", 
+    "task_specs": {
+      "Start": {
+        "id": "migration_test_1", 
+        "name": "Start", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [
+          "StartEvent_1"
+        ], 
+        "typename": "StartTask"
+      }, 
+      "migration_test.EndJoin": {
+        "id": "migration_test_2", 
+        "name": "migration_test.EndJoin", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Event_1vzwq7p"
+        ], 
+        "outputs": [
+          "End"
+        ], 
+        "typename": "_EndJoin"
+      }, 
+      "End": {
+        "id": "migration_test_3", 
+        "name": "End", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "migration_test.EndJoin"
+        ], 
+        "outputs": [], 
+        "typename": "Simple"
+      }, 
+      "StartEvent_1": {
+        "id": "migration_test_4", 
+        "name": "StartEvent_1", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Start", 
+          "StartEvent_1"
+        ], 
+        "outputs": [
+          "StartEvent_1", 
+          "task_1"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 179.0, 
+          "y": 79.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "event_definition": {
+          "internal": true, 
+          "external": true, 
+          "label": "StartEvent_1", 
+          "cycle_definition": "(2,timedelta(seconds=0.1))", 
+          "typename": "CycleTimerEventDefinition"
+        }, 
+        "typename": "StartEvent", 
+        "extensions": {}
+      }, 
+      "task_1": {
+        "id": "migration_test_5", 
+        "name": "task_1", 
+        "description": "Task 1", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "StartEvent_1"
+        ], 
+        "outputs": [
+          "Event_1uhhxu1"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 290.0, 
+          "y": 57.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "script": "pass", 
+        "typename": "ScriptTask", 
+        "extensions": {}
+      }, 
+      "Event_1uhhxu1": {
+        "id": "migration_test_6", 
+        "name": "Event_1uhhxu1", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "task_1"
+        ], 
+        "outputs": [
+          "task_2.BoundaryEventParent"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 452.0, 
+          "y": 79.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "event_definition": {
+          "internal": true, 
+          "external": true, 
+          "label": "Event_1uhhxu1", 
+          "dateTime": "datetime(2023, 1, 1)", 
+          "typename": "TimerEventDefinition"
+        }, 
+        "typename": "IntermediateCatchEvent", 
+        "extensions": {}
+      }, 
+      "task_2": {
+        "id": "migration_test_7", 
+        "name": "task_2", 
+        "description": "Task 2", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "task_2.BoundaryEventParent"
+        ], 
+        "outputs": [
+          "Event_1vzwq7p"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 560.0, 
+          "y": 57.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "script": "time.sleep(0.5)", 
+        "typename": "ScriptTask", 
+        "extensions": {}
+      }, 
+      "task_2.BoundaryEventParent": {
+        "id": "migration_test_8", 
+        "name": "task_2.BoundaryEventParent", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Event_1uhhxu1"
+        ], 
+        "outputs": [
+          "task_2", 
+          "Event_1bkh7yi"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 0, 
+          "y": 0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "main_child_task_spec": "task_2", 
+        "typename": "_BoundaryEventParent"
+      }, 
+      "Event_1bkh7yi": {
+        "id": "migration_test_9", 
+        "name": "Event_1bkh7yi", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "task_2.BoundaryEventParent"
+        ], 
+        "outputs": [], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 592.0, 
+          "y": 119.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "event_definition": {
+          "internal": true, 
+          "external": true, 
+          "label": "Event_1bkh7yi", 
+          "dateTime": "timedelta(seconds=0.1)", 
+          "typename": "TimerEventDefinition"
+        }, 
+        "cancel_activity": true, 
+        "typename": "BoundaryEvent", 
+        "extensions": {}
+      }, 
+      "Event_1vzwq7p": {
+        "id": "migration_test_10", 
+        "name": "Event_1vzwq7p", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "task_2"
+        ], 
+        "outputs": [
+          "migration_test.EndJoin"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 742.0, 
+          "y": 79.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "EndEvent", 
+        "extensions": {}
+      }, 
+      "Root": {
+        "id": "migration_test_11", 
+        "name": "Root", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [], 
+        "typename": "Simple"
+      }, 
+      "return_to_StartEvent_1": {
+        "id": "migration_test_12", 
+        "name": "return_to_StartEvent_1", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Start", 
+          "StartEvent_1"
+        ], 
+        "outputs": [], 
+        "destination_id": "34a70bb5-88f7-4a71-9dea-da6893437633", 
+        "destination_spec_name": "StartEvent_1", 
+        "typename": "LoopResetTask"
+      }
+    }, 
+    "data_inputs": [], 
+    "data_outputs": [], 
+    "data_objects": {}, 
+    "correlation_keys": {}, 
+    "typename": "BpmnProcessSpec"
+  }, 
+  "subprocess_specs": {}, 
+  "subprocesses": {}, 
+  "bpmn_messages": []
+}

@@ -93,7 +93,7 @@ class ProcessParser(NodeParser):
         (node_parser, spec_class) = self.parser._get_parser_class(node.tag)
         if not node_parser or not spec_class:
             raise ValidationException("There is no support implemented for this task type.",
-                node=node, filename=self.filename)
+                                      node=node, file_name=self.filename)
         np = node_parser(self, spec_class, node, lane=self.lane)
         task_spec = np.parse_node()
         return task_spec
@@ -103,7 +103,7 @@ class ProcessParser(NodeParser):
         # bpmn:startEvent if we have a subworkflow task
         start_node_list = self.xpath('./bpmn:startEvent')
         if not start_node_list and self.process_executable:
-            raise ValidationException("No start event found", node=self.node, filename=self.filename)
+            raise ValidationException("No start event found", node=self.node, file_name=self.filename)
         self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), filename=self.filename)
 
         # Check for an IO Specification.

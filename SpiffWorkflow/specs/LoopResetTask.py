@@ -57,10 +57,11 @@ class LoopResetTask(TaskSpec):
             # maybe upstream someone will be able to handle this situation
             task._set_state(TaskState.WAITING)
             if isinstance(e, WorkflowTaskException):
+                e.add_note('Error occurred during a loop back to a previous step.')
                 raise e
             else:
                 raise WorkflowTaskException(
-                    task, 'Error during loop back:' + str(e), e)
+                    'Error during loop back:' + str(e), task=task, exception=e)
         super(LoopResetTask, self)._on_complete_hook(task)
 
     def serialize(self, serializer):

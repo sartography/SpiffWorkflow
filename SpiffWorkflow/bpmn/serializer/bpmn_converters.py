@@ -7,10 +7,21 @@ from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataSpecification, Bpmn
 
 from .dictionary import DictionaryConverter
 
-from ..specs.events.event_definitions import MultipleEventDefinition, SignalEventDefinition, MessageEventDefinition, NoneEventDefinition
-from ..specs.events.event_definitions import TimerEventDefinition, CycleTimerEventDefinition, TerminateEventDefinition
-from ..specs.events.event_definitions import ErrorEventDefinition, EscalationEventDefinition, CancelEventDefinition
-from ..specs.events.event_definitions import CorrelationProperty, NamedEventDefinition
+from ..specs.events.event_definitions import (
+    NoneEventDefinition,
+    MultipleEventDefinition, 
+    SignalEventDefinition, 
+    MessageEventDefinition,
+    CorrelationProperty,
+    TimeDateEventDefinition,
+    DurationTimerEventDefinition,
+    CycleTimerEventDefinition,
+    ErrorEventDefinition,
+    EscalationEventDefinition,
+    CancelEventDefinition,
+    TerminateEventDefinition,
+    NamedEventDefinition
+)
 
 from ..specs.BpmnSpecMixin import BpmnSpecMixin
 from ...operators import Attrib, PathAttrib
@@ -99,9 +110,19 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         self.data_converter = data_converter
         self.typename = typename if typename is not None else spec_class.__name__
 
-        event_definitions = [ NoneEventDefinition, CancelEventDefinition, TerminateEventDefinition,
-            SignalEventDefinition, MessageEventDefinition, ErrorEventDefinition, EscalationEventDefinition,
-            TimerEventDefinition, CycleTimerEventDefinition , MultipleEventDefinition]
+        event_definitions = [
+            NoneEventDefinition,
+            CancelEventDefinition,
+            TerminateEventDefinition,
+            SignalEventDefinition,
+            MessageEventDefinition,
+            ErrorEventDefinition,
+            EscalationEventDefinition,
+            TimeDateEventDefinition, 
+            DurationTimerEventDefinition, 
+            CycleTimerEventDefinition,
+            MultipleEventDefinition
+        ]
 
         for event_definition in event_definitions:
             self.register(
@@ -249,12 +270,9 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             dct['name'] = event_definition.name
         if isinstance(event_definition, MessageEventDefinition):
             dct['correlation_properties'] = [prop.__dict__ for prop in event_definition.correlation_properties]
-        if isinstance(event_definition, TimerEventDefinition):
-            dct['label'] = event_definition.label
-            dct['dateTime'] = event_definition.dateTime
-        if isinstance(event_definition, CycleTimerEventDefinition):
-            dct['label'] = event_definition.label
-            dct['cycle_definition'] = event_definition.cycle_definition
+        if isinstance(event_definition, (TimeDateEventDefinition, DurationTimerEventDefinition, CycleTimerEventDefinition)):
+            dct['name'] = event_definition.name
+            dct['expression'] = event_definition.expression
         if isinstance(event_definition, ErrorEventDefinition):
             dct['error_code'] = event_definition.error_code
         if isinstance(event_definition, EscalationEventDefinition):
