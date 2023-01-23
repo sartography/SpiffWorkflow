@@ -27,6 +27,8 @@ from ..specs.events.IntermediateEvent import _BoundaryEventParent
 from ..specs.events.event_definitions import CancelEventDefinition
 from ..specs.MultiInstanceTask import getDynamicMIClass
 from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess, SubWorkflowTask
+from ..specs.ExclusiveGateway import ExclusiveGateway
+from ..specs.InclusiveGateway import InclusiveGateway
 from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...operators import Attrib, PathAttrib
 from .util import one, first
@@ -187,6 +189,11 @@ class TaskParser(NodeParser):
                 children = sorted(children, key=lambda tup: float(tup[0]["y"]))
 
                 default_outgoing = self.node.get('default')
+                if len(children) == 1 and isinstance(self.task, (ExclusiveGateway, InclusiveGateway)):
+                    (position, c, target_node, sequence_flow) = children[0]
+                    if self.parse_condition(sequence_flow) is None:
+                        default_outgoing = sequence_flow.get('id')
+
                 for (position, c, target_node, sequence_flow) in children:
                     self.connect_outgoing(c, sequence_flow, sequence_flow.get('id') == default_outgoing)
 

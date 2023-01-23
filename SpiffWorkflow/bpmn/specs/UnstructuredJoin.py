@@ -29,7 +29,7 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
     """
     def _get_inputs_with_tokens(self, my_task):
         # Look at the tree to find all places where this task is used.
-        tasks = [ t for t in my_task.workflow.get_tasks_from_spec_name(self.name) ]
+        tasks = [ t for t in my_task.workflow.get_tasks_from_spec_name(self.name) if t.workflow == my_task.workflow ]
 
         # Look up which tasks have parents completed.
         waiting_tasks = []

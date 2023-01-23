@@ -35,7 +35,6 @@ class ConditionalGatewayParser(GatewayParser):
     Parses an Exclusive Gateway, setting up the outgoing conditions
     appropriately.
     """
-
     def connect_outgoing(self, outgoing_task, sequence_flow_node, is_default):
         if is_default:
             super().connect_outgoing(outgoing_task, sequence_flow_node, is_default)
