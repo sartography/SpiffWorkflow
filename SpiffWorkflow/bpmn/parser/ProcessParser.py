@@ -151,4 +151,7 @@ class DataSpecificationParser(NodeParser):
         return BpmnDataSpecification(self.node.get('id'), self.node.get('name'))
 
     def parse_data_store(self):
-        return BpmnDataStoreSpecification(self.node.get('id'), self.node.get('name'))
+        return BpmnDataStoreSpecification(self.node.get('id'),
+            self.node.get('name'),
+            self.node.get('capacity'),
+            self.node.get('isUnlimited'))

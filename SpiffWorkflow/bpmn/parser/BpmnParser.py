@@ -26,7 +26,7 @@ from lxml.etree import DocumentInvalid
 from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
 
 from .ValidationException import ValidationException
-from ..specs.BpmnProcessSpec import BpmnProcessSpec
+from ..specs.BpmnProcessSpec import BpmnProcessSpec, BpmnDataStoreSpecification
 from ..specs.events.EndEvent import EndEvent
 from ..specs.events.StartEvent import StartEvent
 from ..specs.events.IntermediateEvent import BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent, EventBasedGateway
@@ -185,6 +185,7 @@ class BpmnParser(object):
         self._add_collaborations(bpmn)
         self._add_messages(bpmn)
         self._add_correlations(bpmn)
+        self._add_data_stores(bpmn)
 
     def _add_processes(self, bpmn, filename=None):
         for process in bpmn.xpath('.//bpmn:process', namespaces=self.namespaces):
@@ -234,6 +235,19 @@ class BpmnParser(object):
                 "name": correlation.attrib.get("name"),
                 "retrieval_expressions": retrieval_expressions
             }
+
+    def _add_data_stores(self, bpmn):
+        for data_store in bpmn.xpath('.//bpmn:dataStore', namespaces=self.namespaces):
+            data_store_id = data_store.attrib.get("id")
+            if data_store_id is None:
+                raise ValidationException(
+                    "Data Store identifier is missing from bpmn xml"
+                )
+                data_store_spec = BpmnDataStoreSpecification(data_store_id,
+                    data_store.attrib.get('name'),
+                    data_store.attrib.get('capacity'),
+                    data_store.attrib.get('isUnlimited'))
+                self.data_stores[data_store_id] = data_store_spec
 
     def _find_dependencies(self, process):
         """Locate all calls to external BPMN, and store their ids in our list of dependencies"""

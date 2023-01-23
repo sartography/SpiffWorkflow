@@ -97,9 +97,29 @@ class BpmnDataSpecification:
             )
         destination.data[self.name] = deepcopy(source.data[self.name])
 
-class BpmnDataStoreSpecification(BpmnDataSpecification):
-    # TODO: capactity, isUnlimitied
-    pass
+class BpmnDataStoreSpecification:
+    def __init__(self, name, description=None, capacity=0, is_unlimited=True):
+        """
+        :param name: the name of the task (the BPMN ID)
+        :param description: the task description (the BPMN name)
+        """
+        self.name = name
+        self.description = description or name
+        self.capacity = capacity
+        self.is_unlimited = is_unlimited
+        # In the future, we can add schemas defining the objects here.
+
+    def get(self, my_task):
+        """Copy a value from a data store into task data."""
+        raise NotImplementedError("A Data Store implementation must override the get method.")
+
+    def set(self, my_task):
+        """Copy a value from the task data to the data store"""
+        raise NotImplementedError("A Data Store implementation must override the set method.")
+
+    def copy(self, source, destination, data_input=False, data_output=False):
+        """Copy a value from one task to another."""
+        raise NotImplementedError("A Data Store implementation must override the copy method.")
 
 class BpmnProcessSpec(WorkflowSpec):
     """
