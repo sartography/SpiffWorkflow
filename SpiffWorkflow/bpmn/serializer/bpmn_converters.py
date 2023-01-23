@@ -9,8 +9,8 @@ from .dictionary import DictionaryConverter
 
 from ..specs.events.event_definitions import (
     NoneEventDefinition,
-    MultipleEventDefinition, 
-    SignalEventDefinition, 
+    MultipleEventDefinition,
+    SignalEventDefinition,
     MessageEventDefinition,
     CorrelationProperty,
     TimeDateEventDefinition,
@@ -71,7 +71,12 @@ class BpmnDataStoreSpecificationConverter:
 
     @staticmethod
     def to_dict(data_store_spec):
-        return { 'name': data_store_spec.name, 'description': data_store_spec.description }
+        return {
+            'name': data_store_spec.name,
+            'description': data_store_spec.description,
+            'capacity': data_store_spec.capacity,
+            'is_unlimited': data_store_spec.is_unlimited,
+        }
 
     @staticmethod
     def from_dict(dct):
@@ -118,8 +123,8 @@ class BpmnTaskSpecConverter(DictionaryConverter):
             MessageEventDefinition,
             ErrorEventDefinition,
             EscalationEventDefinition,
-            TimeDateEventDefinition, 
-            DurationTimerEventDefinition, 
+            TimeDateEventDefinition,
+            DurationTimerEventDefinition,
             CycleTimerEventDefinition,
             MultipleEventDefinition
         ]
