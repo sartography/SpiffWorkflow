@@ -77,10 +77,14 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
             if task.task_spec in completed_inputs:
                 waiting_tasks.remove(task)
 
-        # If we have waiting tasks, we're obviously not done
-        # However we have to handle the case where there are paths from active tasks that must go through uncompleted inputs
-        if len(waiting_tasks) == 0:
-
+        if force:
+            # If force is true, complete the task
+            complete = True
+        elif len(waiting_tasks) > 0:
+            # If we have waiting tasks, we're obviously not done
+            complete = False
+        else:
+            # Handle the case where there are paths from active tasks that must go through uncompleted inputs
             tasks = my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING, workflow=my_task.workflow)
             sources = [t.task_spec for t in tasks]
 
@@ -89,7 +93,7 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
                 for parent in spec.inputs:
                     return parent if parent in sources else check(parent)
 
-            # If we can get to a completed input, from this task, we don't have to wait for it
+            # If we can get to a completed input from this task, we don't have to wait for it
             for spec in completed_inputs:
                 source = check(spec)
                 if source is not None:
@@ -100,12 +104,11 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
             for spec in uncompleted_inputs:
                 if check(spec) is not None:
                     unfinished_paths.append(spec)
+                    break
 
             complete = len(unfinished_paths) == 0
-        else:
-            complete = False
 
-        return force or complete, waiting_tasks
+        return complete, waiting_tasks
 
     def _on_complete_hook(self, my_task):
         outputs = self._get_matching_outputs(my_task)
