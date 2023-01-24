@@ -98,7 +98,7 @@ class BpmnParser(object):
 
     Extension points: OVERRIDE_PARSER_CLASSES provides a map from full BPMN tag
     name to a TaskParser and Task class. PROCESS_PARSER_CLASS provides a
-    subclass of ProcessParser. DATA_STORE_CLASSES provides a mapping of ids to
+    subclass of ProcessParser. DATA_STORE_CLASSES provides a mapping of names to
     subclasses of BpmnDataStoreSpecification that provide a data store
     implementation.
     """
