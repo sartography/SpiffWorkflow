@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_96f6665" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.0.0-dev">
-  <bpmn:dataStore name="SomeDataStore" id="myDataStore" />
+  <bpmn:dataStore name="TestDataStore" id="variableTiedToDataStore" />
   <bpmn:process id="JustDataStoreRef" name="Just DataStoreRef" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0oekyeq</bpmn:outgoing>
@@ -16,9 +16,9 @@
       <bpmn:incoming>Flow_0oekyeq</bpmn:incoming>
       <bpmn:outgoing>Flow_0ah5fbf</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_0oiimg8">
-        <bpmn:targetRef>DataObjectReference_0lt3pxa</bpmn:targetRef>
+        <bpmn:targetRef>referenceToDataStore</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
-      <bpmn:script>DataObject_1faj8fd = "Sue"</bpmn:script>
+      <bpmn:script>referenceToDataStore = "Sue"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Activity_1k5hvvp">
       <bpmn:incoming>Flow_0ah5fbf</bpmn:incoming>
@@ -30,12 +30,12 @@
       <bpmn:outgoing>Flow_0mc5gib</bpmn:outgoing>
       <bpmn:property id="Property_1k6jy2l" name="__targetRef_placeholder" />
       <bpmn:dataInputAssociation id="DataInputAssociation_1n1g2f7">
-        <bpmn:sourceRef>DataObjectReference_0lt3pxa</bpmn:sourceRef>
+        <bpmn:sourceRef>referenceToDataStore</bpmn:sourceRef>
         <bpmn:targetRef>Property_1k6jy2l</bpmn:targetRef>
       </bpmn:dataInputAssociation>
-      <bpmn:script>x=DataObject_1faj8fd</bpmn:script>
+      <bpmn:script>x=referenceToDataStore</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:dataStoreReference id="DataObjectReference_0lt3pxa" name="Data Object Faj Fd" dataStoreRef="myDataStore" />
+    <bpmn:dataStoreReference id="referenceToDataStore" name="Data Object Faj Fd" dataStoreRef="variableTiedToDataStore" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="JustDataStoreRef">
@@ -54,7 +54,7 @@
       <bpmndi:BPMNShape id="Activity_1f0avql_di" bpmnElement="Activity_1skgyn9">
         <dc:Bounds x="570" y="137" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="DataStoreReference_1drvstg_di" bpmnElement="DataObjectReference_0lt3pxa">
+      <bpmndi:BPMNShape id="DataStoreReference_1drvstg_di" bpmnElement="referenceToDataStore">
         <dc:Bounds x="435" y="335" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="422" y="392" width="77" height="27" />

@@ -40,12 +40,13 @@ class ProcessParser(NodeParser):
         :param doc_xpath: an xpath evaluator for the document (optional)
         :param lane: the lane of a subprocess (optional)
         """
-        super().__init__(node, nsmap, data_stores=data_stores, filename=filename, lane=lane)
+        super().__init__(node, nsmap, filename=filename, lane=lane)
         self.parser = p
         self.parsed_nodes = {}
         self.lane = lane
         self.spec = None
         self.process_executable = self.is_executable()
+        self.data_stores = data_stores
 
     def get_name(self):
         """

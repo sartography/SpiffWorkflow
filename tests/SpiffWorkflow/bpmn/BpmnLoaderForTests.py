@@ -63,13 +63,16 @@ class TestUserTaskConverter(BpmnTaskSpecConverter):
 
 class TestDataStore(BpmnDataStoreSpecification):
 
+    VALUE = None
+
     def get(self, my_task):
         """Copy a value from a data store into task data."""
-        raise NotImplementedError("test get...")
+        my_task.data[self.name] = VALUE
 
     def set(self, my_task):
         """Copy a value from the task data to the data store"""
-        raise NotImplementedError("test set...")
+        VALUE = my_task.data[self.name]
+        del my_task.data[self.name]
 
     def copy(self, source, destination, data_input=False, data_output=False):
         """Copy a value from one task to another."""
