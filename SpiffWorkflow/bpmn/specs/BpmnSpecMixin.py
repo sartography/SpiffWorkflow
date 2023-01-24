@@ -32,7 +32,6 @@ class _BpmnCondition(Operator):
         return task.workflow.script_engine.evaluate(task, self.args[0])
 
 
-
 class BpmnSpecMixin(TaskSpec):
     """
     All BPMN spec classes should mix this superclass in. It adds a number of
@@ -70,7 +69,10 @@ class BpmnSpecMixin(TaskSpec):
         evaluates to true. This should only be called if the task has a
         connect_if method (e.g. ExclusiveGateway).
         """
-        self.connect_if(_BpmnCondition(condition), taskspec)
+        if condition is None:
+            self.connect(taskspec)
+        else:
+            self.connect_if(_BpmnCondition(condition), taskspec)
 
     def _on_ready_hook(self, my_task):
         super()._on_ready_hook(my_task)

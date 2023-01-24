@@ -17,6 +17,8 @@ def version_1_1_to_1_2(old):
 
     Cycle timers no longer connect back to themselves.  New children are created from a single
     tasks rather than reusing previously executed tasks.
+
+    All conditions (including the default) are included in the conditions for gateways.
     """
     new = deepcopy(old)
 
@@ -81,6 +83,10 @@ def version_1_1_to_1_2(old):
                             task['children'].append(task_id)
                     task['children'].remove(remove['id'])
                     new['tasks'].pop(remove['id'])
+
+    for spec in [ts for ts in new['spec']['task_specs'].values() if ts['typename'] == 'ExclusiveGateway']:
+        if (None, spec['default_task_spec']) not in spec['cond_task_specs']:
+            spec['cond_task_specs'].append((None, spec['default_task_spec']))
 
     new['VERSION'] = "1.2"
     return new

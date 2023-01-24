@@ -176,51 +176,54 @@ class TransactionSubprocessTaskConverter(BpmnTaskSpecConverter):
         return self.task_spec_from_dict(dct)
 
 
-class ExclusiveGatewayConverter(BpmnTaskSpecConverter):
-
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(ExclusiveGateway, data_converter, typename)
+class ConditionalGatewayConverter(BpmnTaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
         dct.update(self.get_bpmn_attributes(spec))
-        dct['default_task_spec'] = spec.default_task_spec
         dct['cond_task_specs'] = [ self.bpmn_condition_to_dict(cond) for cond in spec.cond_task_specs ]
         dct['choice'] = spec.choice
         return dct
 
     def from_dict(self, dct):
         conditions = dct.pop('cond_task_specs')
-        default_task_spec = dct.pop('default_task_spec')
         spec = self.task_spec_from_dict(dct)
         spec.cond_task_specs = [ self.bpmn_condition_from_dict(cond) for cond in conditions ]
-        spec.default_task_spec = default_task_spec
         return spec
 
     def bpmn_condition_from_dict(self, dct):
-        return (_BpmnCondition(dct['condition']), dct['task_spec'])
+        return (_BpmnCondition(dct['condition']) if dct['condition'] is not None else None, dct['task_spec'])
 
     def bpmn_condition_to_dict(self, condition):
 
         expr, task_spec = condition
         return {
-            'condition': expr.args[0],
+            'condition': expr.args[0] if expr is not None else None,
             'task_spec': task_spec
         }
 
-class InclusiveGatewayConverter(BpmnTaskSpecConverter):
+
+class ExclusiveGatewayConverter(ConditionalGatewayConverter):
 
     def __init__(self, data_converter=None, typename=None):
-        super().__init__(InclusiveGateway, data_converter, typename)
+        super().__init__(ExclusiveGateway, data_converter, typename)
 
     def to_dict(self, spec):
-        dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
-        dct.update(self.get_join_attributes(spec))
+        dct = super().to_dict(spec)
+        dct['default_task_spec'] = spec.default_task_spec
         return dct
 
     def from_dict(self, dct):
-        return self.task_spec_from_dict(dct)
+        default_task_spec = dct.pop('default_task_spec')
+        spec = super().from_dict(dct)
+        spec.default_task_spec = default_task_spec
+        return spec
+
+
+class InclusiveGatewayConverter(ConditionalGatewayConverter):
+
+    def __init__(self, data_converter=None, typename=None):
+        super().__init__(InclusiveGateway, data_converter, typename)
 
 
 class ParallelGatewayConverter(BpmnTaskSpecConverter):

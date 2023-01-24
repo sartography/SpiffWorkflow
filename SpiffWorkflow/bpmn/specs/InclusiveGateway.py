@@ -16,13 +16,14 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from collections import deque
 
+from SpiffWorkflow.exceptions import WorkflowTaskException
 from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
+from ...specs.MultiChoice import MultiChoice
 
 
-class InclusiveGateway(UnstructuredJoin):
+class InclusiveGateway(MultiChoice, UnstructuredJoin):
     """
     Task Spec for a bpmn:parallelGateway node. From the specification of BPMN
     (http://www.omg.org/spec/BPMN/2.0/PDF - document number:formal/2011-01-03):
@@ -62,58 +63,59 @@ class InclusiveGateway(UnstructuredJoin):
     specified, the Inclusive Gateway throws an exception.
     """
 
-    @property
-    def spec_type(self):
-        return 'Inclusive Gateway'
+    def test(self):
+        MultiChoice.test(self)
+        UnstructuredJoin.test(self)
 
     def _check_threshold_unstructured(self, my_task, force=False):
 
-        # Look at the tree to find all ready and waiting tasks (excluding ones
-        # that are our completed inputs).
-        tasks = []
-        for task in my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING):
-            if task.thread_id != my_task.thread_id:
-                continue
-            if task.workflow != my_task.workflow:
-                continue
-            if task.task_spec == my_task.task_spec:
-                continue
-            tasks.append(task)
+        completed_inputs, waiting_tasks = self._get_inputs_with_tokens(my_task)
+        uncompleted_inputs = [i for i in self.inputs if i not in completed_inputs]
 
-        inputs_with_tokens, waiting_tasks = self._get_inputs_with_tokens(
-            my_task)
-        inputs_without_tokens = [
-            i for i in self.inputs if i not in inputs_with_tokens]
+        # We only have to complete a task once for it to count, even if's on multiple paths
+        for task in waiting_tasks:
+            if task.task_spec in completed_inputs:
+                waiting_tasks.remove(task)
 
-        waiting_tasks = []
-        for task in tasks:
-            if (self._has_directed_path_to(
-                    task, self,
-                    without_using_sequence_flow_from=inputs_with_tokens) and
-                not self._has_directed_path_to(
-                    task, self,
-                    without_using_sequence_flow_from=inputs_without_tokens)):
-                waiting_tasks.append(task)
+        if force:
+            # If force is true, complete the task
+            complete = True
+        elif len(waiting_tasks) > 0:
+            # If we have waiting tasks, we're obviously not done
+            complete = False
+        else:
+            # Handle the case where there are paths from active tasks that must go through uncompleted inputs
+            tasks = my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING, workflow=my_task.workflow)
+            sources = [t.task_spec for t in tasks]
 
-        return force or len(waiting_tasks) == 0, waiting_tasks
+            # This will go back through a task spec's ancestors and return the source, if applicable
+            def check(spec): 
+                for parent in spec.inputs:
+                    return parent if parent in sources else check(parent)
 
-    def _has_directed_path_to(self, task, task_spec,
-                              without_using_sequence_flow_from=None):
-        q = deque()
-        done = set()
+            # If we can get to a completed input from this task, we don't have to wait for it
+            for spec in completed_inputs:
+                source = check(spec)
+                if source is not None:
+                    sources.remove(source)
 
-        without_using_sequence_flow_from = set(
-            without_using_sequence_flow_from or [])
+            # Now check the rest of the uncompleted inputs and see if they can be reached from any of the remaining tasks
+            unfinished_paths = []
+            for spec in uncompleted_inputs:
+                if check(spec) is not None:
+                    unfinished_paths.append(spec)
+                    break
 
-        q.append(task.task_spec)
-        while q:
-            n = q.popleft()
-            if n == task_spec:
-                return True
-            for child in n.outputs:
-                if child not in done and not (
-                        n in without_using_sequence_flow_from and
-                        child == task_spec):
-                    done.add(child)
-                    q.append(child)
-        return False
+            complete = len(unfinished_paths) == 0
+
+        return complete, waiting_tasks
+
+    def _on_complete_hook(self, my_task):
+        outputs = self._get_matching_outputs(my_task)
+        if len(outputs) == 0:
+            raise WorkflowTaskException(f'No conditions satisfied on gateway', task=my_task)
+        my_task._sync_children(outputs, TaskState.FUTURE)
+
+    @property
+    def spec_type(self):
+        return 'Inclusive Gateway'
