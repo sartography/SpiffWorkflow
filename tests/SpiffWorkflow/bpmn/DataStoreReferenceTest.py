@@ -4,10 +4,10 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 class DataStoreReferenceTest(BpmnWorkflowTestCase):
 
-    # TODO: drop this test
-    def testParsesDataStoreReference(self):
-        spec, subprocesses = self.load_workflow_spec('just_data_store_reference.bpmn', 'JustDataStoreRef')
-        self.workflow = BpmnWorkflow(spec, subprocesses)
+    # TODO: drop this test/bpmn file
+    #def testParsesDataStoreReference(self):
+    #    spec, subprocesses = self.load_workflow_spec('just_data_store_reference.bpmn', 'JustDataStoreRef')
+    #    self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testParsesDataStoreReferenceWithInputsAndOutputs(self):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')

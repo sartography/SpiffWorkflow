@@ -50,7 +50,7 @@ class NodeParser:
                 if ref is not None and ref.get('dataStoreRef') in self.process_parser.data_stores:
                     specs.append(self.process_parser.data_stores[ref.get('dataStoreRef')])
                 else:
-                    raise ValidationException(f'Cannot resolve dataInputAssociation {name}', self.node, self.file_name)
+                    raise ValidationException(f'Cannot resolve dataInputAssociation {name}', self.node, self.filename)
         return specs
 
     def parse_outgoing_data_references(self):
@@ -64,7 +64,7 @@ class NodeParser:
                 if ref is not None and ref.get('dataStoreRef') in self.process_parser.data_stores:
                     specs.append(self.process_parser.data_stores[ref.get('dataStoreRef')])
                 else:
-                    raise ValidationException(f'Cannot resolve dataOutputAssociation {name}', self.node, self.file_name)
+                    raise ValidationException(f'Cannot resolve dataOutputAssociation {name}', self.node, self.filename)
         return specs
 
     def parse_extensions(self, node=None):

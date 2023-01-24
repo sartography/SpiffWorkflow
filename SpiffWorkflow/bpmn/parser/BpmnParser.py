@@ -131,6 +131,7 @@ class BpmnParser(object):
         self.process_dependencies = set()
         self.messages = {}
         self.correlations = {}
+        self.data_stores = {}
 
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
