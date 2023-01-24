@@ -48,7 +48,7 @@ from .task_parsers import (
     GatewayParser,
     ConditionalGatewayParser,
     CallActivityParser,
-    ScriptTaskParser, 
+    ScriptTaskParser,
     SubWorkflowParser,
 )
 from .event_parsers import (
@@ -98,7 +98,9 @@ class BpmnParser(object):
 
     Extension points: OVERRIDE_PARSER_CLASSES provides a map from full BPMN tag
     name to a TaskParser and Task class. PROCESS_PARSER_CLASS provides a
-    subclass of ProcessParser
+    subclass of ProcessParser. DATA_STORE_CLASSES provides a mapping of ids to
+    subclasses of BpmnDataStoreSpecification that provide a data store
+    implementation.
     """
 
     PARSER_CLASSES = {
@@ -127,7 +129,7 @@ class BpmnParser(object):
 
     PROCESS_PARSER_CLASS = ProcessParser
 
-    DATA_STORE_PARSER_CLASS = None
+    DATA_STORE_CLASSES = {}
 
     def __init__(self, namespaces=None, validator=None):
         """
@@ -260,12 +262,12 @@ class BpmnParser(object):
                 raise ValidationException(
                     "Data Store identifier is missing from bpmn xml"
                 )
-            # TODO: raise exception if None or stub impl that works like data object?
-            data_store_spec = self.DATA_STORE_PARSER_CLASS(data_store, self.namespaces)
-            #BpmnDataStoreSpecification(data_store_id,
-            #    data_store.attrib.get('name'),
-            #    data_store.attrib.get('capacity'),
-            #    data_store.attrib.get('isUnlimited'))
+            # TODO: raise exception if data store implementation is not provided
+            data_store_spec = self.DATA_STORE_CLASSES[data_store_id](
+                data_store_id,
+                data_store.attrib.get('name'),
+                data_store.attrib.get('capacity'),
+                data_store.attrib.get('isUnlimited'))
             self.data_stores[data_store_id] = data_store_spec
 
     def _find_dependencies(self, process):
