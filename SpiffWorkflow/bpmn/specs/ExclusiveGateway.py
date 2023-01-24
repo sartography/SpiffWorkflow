@@ -16,38 +16,20 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from ...exceptions import WorkflowException
 
 from .BpmnSpecMixin import BpmnSpecMixin
-from ...specs.base import TaskSpec
 from ...specs.ExclusiveChoice import ExclusiveChoice
+from ...specs.MultiChoice import MultiChoice
 
 
 class ExclusiveGateway(ExclusiveChoice, BpmnSpecMixin):
-
     """
     Task Spec for a bpmn:exclusiveGateway node.
     """
 
     def test(self):
-        """
-        Checks whether all required attributes are set. Throws an exception
-        if an error was detected.
-        """
-        # This has been overridden to allow a single default flow out (without a
-        # condition) - useful for the converging type
-        TaskSpec.test(self)
-#        if len(self.cond_task_specs) < 1:
-#            raise WorkflowException(self, 'At least one output required.')
-        for condition, name in self.cond_task_specs:
-            if name is None:
-                raise WorkflowException('Condition with no task spec.', task_spec=self)
-            task_spec = self._wf_spec.get_task_spec_from_name(name)
-            if task_spec is None:
-                msg = 'Condition leads to non-existent task ' + repr(name)
-                raise WorkflowException(msg, task_spec=self)
-            if condition is None:
-                continue
+        # Bypass the check for no default output -- this is not required in BPMN
+        MultiChoice.test(self)
 
     @property
     def spec_type(self):

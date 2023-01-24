@@ -4,8 +4,10 @@ from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataStoreSpecification
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
+# TODO: remove
 from SpiffWorkflow.bpmn.parser.node_parser import NodeParser
-from SpiffWorkflow.bpmn.parser.task_parsers import ExclusiveGatewayParser, UserTaskParser
+from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
+from SpiffWorkflow.bpmn.parser.task_parsers import ConditionalGatewayParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 
 from SpiffWorkflow.bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
@@ -40,7 +42,7 @@ class TestUserTask(UserTask):
     def deserialize(self, serializer, wf_spec, s_state):
         return serializer.deserialize_generic(wf_spec, s_state, TestUserTask)
 
-class TestExclusiveGatewayParser(ExclusiveGatewayParser):
+class TestExclusiveGatewayParser(ConditionalGatewayParser):
 
     def parse_condition(self, sequence_flow_node):
         cond = super().parse_condition(sequence_flow_node)
@@ -83,12 +85,13 @@ class TestDataStore(BpmnDataStoreSpecification):
         """Copy a value from one task to another."""
         raise NotImplementedError("test copy...")
 
+# TODO: remove, map expected id to data store class instead
 class TestDataStoreParser(NodeParser):
     pass
 
 class TestBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
-        full_tag('userTask'): (UserTaskParser, TestUserTask),
+        full_tag('userTask'): (TaskParser, TestUserTask),
         full_tag('exclusiveGateway'): (TestExclusiveGatewayParser, ExclusiveGateway),
         full_tag('callActivity'): (CallActivityParser, CallActivity)
     }

@@ -17,12 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...exceptions import WorkflowException
-
 from ...task import TaskState
 from .BpmnSpecMixin import BpmnSpecMixin
 from ...specs.Join import Join
-
 
 
 class UnstructuredJoin(Join, BpmnSpecMixin):
@@ -30,62 +27,24 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
     A helper subclass of Join that makes it work in a slightly friendlier way
     for the BPMN style threading
     """
-
-    def _check_threshold_unstructured(self, my_task, force=False):
-        raise NotImplementedError("Please implement this in the subclass")
-
     def _get_inputs_with_tokens(self, my_task):
         # Look at the tree to find all places where this task is used.
-        tasks = []
-        for task in my_task.workflow.task_tree:
-            if task.thread_id != my_task.thread_id:
-                continue
-            if task.workflow != my_task.workflow:
-                continue
-            if task.task_spec != self:
-                continue
-            if task._is_finished():
-                continue
-            tasks.append(task)
+        tasks = [ t for t in my_task.workflow.get_tasks_from_spec_name(self.name) if t.workflow == my_task.workflow ]
 
-        # Look up which tasks have parent's completed.
+        # Look up which tasks have parents completed.
         waiting_tasks = []
         completed_inputs = set()
         for task in tasks:
-            if task.parent._has_state(TaskState.COMPLETED) and (
-                    task._has_state(TaskState.WAITING) or task == my_task):
-                if task.parent.task_spec in completed_inputs:
-                    raise(WorkflowException
-                          ("Unsupported looping behaviour: two threads waiting"
-                           " on the same sequence flow.", task_spec=self))
+            if task.parent.state == TaskState.COMPLETED:
                 completed_inputs.add(task.parent.task_spec)
-            else:
+            # Ignore predicted tasks; we don't care about anything not definite
+            elif task.parent._has_state(TaskState.READY | TaskState.FUTURE | TaskState.WAITING):
                 waiting_tasks.append(task.parent)
 
         return completed_inputs, waiting_tasks
 
     def _do_join(self, my_task):
-        # Copied from Join parent class
-        #  This has some minor changes
-
-        # One Join spec may have multiple corresponding Task objects::
-        #
-        #     - Due to the MultiInstance pattern.
-        #     - Due to the ThreadSplit pattern.
-        #
-        # When using the MultiInstance pattern, we want to join across
-        # the resulting task instances. When using the ThreadSplit
-        # pattern, we only join within the same thread. (Both patterns
-        # may also be mixed.)
-        #
-        # We are looking for all task instances that must be joined.
-        # We limit our search by starting at the split point.
-        if self.split_task:
-            split_task = my_task.workflow.get_task_spec_from_name(
-                self.split_task)
-            split_task = my_task._find_ancestor(split_task)
-        else:
-            split_task = my_task.workflow.task_tree
+        split_task = self._get_split_task(my_task)
 
         # Identify all corresponding task instances within the thread.
         # Also remember which of those instances was most recently changed,
@@ -98,35 +57,25 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
             # Ignore tasks from other threads.
             if task.thread_id != my_task.thread_id:
                 continue
-            # Ignore tasks from other subprocesses:
-            if task.workflow != my_task.workflow:
-                continue
-
             # Ignore my outgoing branches.
-            if task._is_descendant_of(my_task):
+            if self.split_task and task._is_descendant_of(my_task):
                 continue
-            # Ignore completed tasks (this is for loop handling)
-            if task._is_finished():
-                continue
-
             # For an inclusive join, this can happen - it's a future join
             if not task.parent._is_finished():
                 continue
-
             # We have found a matching instance.
             thread_tasks.append(task)
 
-            # Check whether the state of the instance was recently
-            # changed.
+            # Check whether the state of the instance was recently changed.
             changed = task.parent.last_state_change
-            if last_changed is None\
-                    or changed > last_changed.parent.last_state_change:
+            if last_changed is None or changed > last_changed.parent.last_state_change:
                 last_changed = task
 
         # Update data from all the same thread tasks.
         thread_tasks.sort(key=lambda t: t.parent.last_state_change)
+        collected_data = {}
         for task in thread_tasks:
-            self.data.update(task.data)
+            collected_data.update(task.data)
 
         # Mark the identified task instances as COMPLETED. The exception
         # is the most recently changed task, for which we assume READY.
@@ -135,25 +84,12 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
         # (re)built underneath the node.
         for task in thread_tasks:
             if task == last_changed:
-                task.data.update(self.data)
+                task.data.update(collected_data)
                 self.entered_event.emit(my_task.workflow, my_task)
                 task._ready()
             else:
                 task._set_state(TaskState.COMPLETED)
                 task._drop_children()
-
-
-    def _update_hook(self, my_task):
-
-        if not my_task.parent._is_finished():
-            return
-
-        target_state = getattr(my_task, '_bpmn_load_target_state', None)
-        if target_state == TaskState.WAITING:
-            my_task._set_state(TaskState.WAITING)
-            return
-
-        super(UnstructuredJoin, self)._update_hook(my_task)
 
     def task_should_set_children_future(self, my_task):
         return True

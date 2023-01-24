@@ -25,41 +25,19 @@ from .util import one, DEFAULT_NSMAP
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 
-class UserTaskParser(TaskParser):
-
-    """
-    Base class for parsing User Tasks
-    """
-    pass
+class GatewayParser(TaskParser):
+    def handles_multiple_outgoing(self):
+        return True
 
 
-class ManualTaskParser(UserTaskParser):
-
-    """
-    Base class for parsing Manual Tasks. Currently assumes that Manual Tasks
-    should be treated the same way as User Tasks.
-    """
-    pass
-
-
-class NoneTaskParser(UserTaskParser):
-
-    """
-    Base class for parsing unspecified Tasks. Currently assumes that such Tasks
-    should be treated the same way as User Tasks.
-    """
-    pass
-
-
-class ExclusiveGatewayParser(TaskParser):
+class ConditionalGatewayParser(GatewayParser):
     """
     Parses an Exclusive Gateway, setting up the outgoing conditions
     appropriately.
     """
-
     def connect_outgoing(self, outgoing_task, sequence_flow_node, is_default):
         if is_default:
-            super(ExclusiveGatewayParser, self).connect_outgoing(outgoing_task, sequence_flow_node, is_default)
+            super().connect_outgoing(outgoing_task, sequence_flow_node, is_default)
         else:
             cond = self.parse_condition(sequence_flow_node)
             if cond is None:
@@ -68,33 +46,6 @@ class ExclusiveGatewayParser(TaskParser):
                     sequence_flow_node,
                     self.filename)
             self.task.connect_outgoing_if(cond, outgoing_task)
-
-    def handles_multiple_outgoing(self):
-        return True
-
-
-class ParallelGatewayParser(TaskParser):
-
-    """
-    Parses a Parallel Gateway.
-    """
-
-    def handles_multiple_outgoing(self):
-        return True
-
-
-class InclusiveGatewayParser(TaskParser):
-
-    """
-    Parses an Inclusive Gateway.
-    """
-
-    def handles_multiple_outgoing(self):
-        """
-        At the moment I haven't implemented support for diverging inclusive
-        gateways
-        """
-        return False
 
 
 class SubprocessParser:
@@ -199,12 +150,4 @@ class ScriptTaskParser(TaskParser):
             raise ValidationException(
                 f"Invalid Script Task.  No Script Provided. " + str(ae),
                 node=self.node, file_name=self.filename)
-
-
-class ServiceTaskParser(TaskParser):
-
-    """
-    Parses a ServiceTask node.
-    """
-    pass
 
