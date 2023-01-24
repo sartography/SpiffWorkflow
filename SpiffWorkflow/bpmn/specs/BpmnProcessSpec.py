@@ -97,16 +97,19 @@ class BpmnDataSpecification:
             )
         destination.data[self.name] = deepcopy(source.data[self.name])
 
+# TODO: better location for this since the nodes live outside of the process?
 class BpmnDataStoreSpecification:
-    def __init__(self, name, description=None, capacity=0, is_unlimited=True):
+    def __init__(self, name, description, capacity=None, is_unlimited=None):
         """
-        :param name: the name of the task (the BPMN ID)
+        :param name: the name of the task data variable and data store key (the BPMN ID)
         :param description: the task description (the BPMN name)
+        :param capacity: the capacity of the data store
+        :param is_unlimited: if true capacity is ignored
         """
         self.name = name
-        self.description = description or name
-        self.capacity = capacity
-        self.is_unlimited = is_unlimited
+        self.description = description
+        self.capacity = capacity or 0
+        self.is_unlimited = is_unlimited or True
         # In the future, we can add schemas defining the objects here.
 
     def get(self, my_task):

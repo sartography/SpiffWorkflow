@@ -67,11 +67,11 @@ class TestDataStore(BpmnDataStoreSpecification):
 
     def get(self, my_task):
         """Copy a value from a data store into task data."""
-        my_task.data[self.name] = VALUE
+        my_task.data[self.name] = self.VALUE
 
     def set(self, my_task):
         """Copy a value from the task data to the data store"""
-        VALUE = my_task.data[self.name]
+        self.VALUE = my_task.data[self.name]
         del my_task.data[self.name]
 
     def copy(self, source, destination, data_input=False, data_output=False):
@@ -86,5 +86,5 @@ class TestBpmnParser(BpmnParser):
     }
 
     DATA_STORE_CLASSES = {
-        "myDataStore": TestDataStore,
+        "TestDataStore": TestDataStore,
     }

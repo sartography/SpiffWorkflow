@@ -266,13 +266,18 @@ class BpmnParser(object):
                 raise ValidationException(
                     "Data Store identifier is missing from bpmn xml"
                 )
-            if data_store_id not in self.DATA_STORE_CLASSES:
+            data_store_name = data_store.attrib.get("name")
+            if data_store_name is None:
                 raise ValidationException(
-                    f"Data Store with id {data_store_id} has no implementation"
+                    "Data Store name is missing from bpmn xml"
                 )
-            data_store_spec = self.DATA_STORE_CLASSES[data_store_id](
+            if data_store_name not in self.DATA_STORE_CLASSES:
+                raise ValidationException(
+                    f"Data Store with name {data_store_name} has no implementation"
+                )
+            data_store_spec = self.DATA_STORE_CLASSES[data_store_name](
                 data_store_id,
-                data_store.attrib.get('name'),
+                data_store_name,
                 data_store.attrib.get('capacity'),
                 data_store.attrib.get('isUnlimited'))
             self.data_stores[data_store_id] = data_store_spec

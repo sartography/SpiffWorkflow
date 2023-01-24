@@ -18,7 +18,7 @@
       <bpmn:dataOutputAssociation id="DataOutputAssociation_0oiimg8">
         <bpmn:targetRef>referenceToDataStore</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
-      <bpmn:script>referenceToDataStore = "Sue"</bpmn:script>
+      <bpmn:script>variableTiedToDataStore = "Sue"</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Activity_1k5hvvp">
       <bpmn:incoming>Flow_0ah5fbf</bpmn:incoming>
@@ -33,7 +33,7 @@
         <bpmn:sourceRef>referenceToDataStore</bpmn:sourceRef>
         <bpmn:targetRef>Property_1k6jy2l</bpmn:targetRef>
       </bpmn:dataInputAssociation>
-      <bpmn:script>x=referenceToDataStore</bpmn:script>
+      <bpmn:script>x=variableTiedToDataStore</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:dataStoreReference id="referenceToDataStore" name="Data Object Faj Fd" dataStoreRef="variableTiedToDataStore" />
   </bpmn:process>
