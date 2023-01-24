@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataStoreSpecification
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
+from SpiffWorkflow.bpmn.parser.node_parser import NodeParser
 from SpiffWorkflow.bpmn.parser.task_parsers import ExclusiveGatewayParser, UserTaskParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 
@@ -59,6 +61,30 @@ class TestUserTaskConverter(BpmnTaskSpecConverter):
     def from_dict(self, dct):
         return self.task_spec_from_dict(dct)
 
+class TestDataStore(BpmnDataStoreSpecification):
+
+    # TODO: remove in favor of custom node parser
+    @staticmethod
+    def create_from_spec(data_store_spec):
+        return MyDataStore(data_store_spec.name,
+            data_store_spec.description,
+            data_store_spec.capacity,
+            data_store_spec.is_unlimited)
+
+    def get(self, my_task):
+        """Copy a value from a data store into task data."""
+        raise NotImplementedError("test get...")
+
+    def set(self, my_task):
+        """Copy a value from the task data to the data store"""
+        raise NotImplementedError("test set...")
+
+    def copy(self, source, destination, data_input=False, data_output=False):
+        """Copy a value from one task to another."""
+        raise NotImplementedError("test copy...")
+
+class TestDataStoreParser(NodeParser):
+    pass
 
 class TestBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
@@ -67,3 +93,4 @@ class TestBpmnParser(BpmnParser):
         full_tag('callActivity'): (CallActivityParser, CallActivity)
     }
 
+    DATA_STORE_PARSER_CLASS = TestDataStoreParser

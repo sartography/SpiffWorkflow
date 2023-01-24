@@ -117,6 +117,8 @@ class BpmnParser(object):
 
     PROCESS_PARSER_CLASS = ProcessParser
 
+    DATA_STORE_PARSER_CLASS = None
+
     def __init__(self, namespaces=None, validator=None):
         """
         Constructor.
@@ -247,11 +249,13 @@ class BpmnParser(object):
                 raise ValidationException(
                     "Data Store identifier is missing from bpmn xml"
                 )
-                data_store_spec = BpmnDataStoreSpecification(data_store_id,
-                    data_store.attrib.get('name'),
-                    data_store.attrib.get('capacity'),
-                    data_store.attrib.get('isUnlimited'))
-                self.data_stores[data_store_id] = data_store_spec
+            # TODO: raise exception if None or stub impl that works like data object?
+            data_store_spec = self.DATA_STORE_PARSER_CLASS(data_store, self.namespaces)
+            #BpmnDataStoreSpecification(data_store_id,
+            #    data_store.attrib.get('name'),
+            #    data_store.attrib.get('capacity'),
+            #    data_store.attrib.get('isUnlimited'))
+            self.data_stores[data_store_id] = data_store_spec
 
     def _find_dependencies(self, process):
         """Locate all calls to external BPMN, and store their ids in our list of dependencies"""
@@ -259,6 +263,7 @@ class BpmnParser(object):
             self.process_dependencies.add(call_activity.get('calledElement'))
 
     def create_parser(self, node, filename=None, lane=None):
+        # TODO: pass in data stores
         parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, filename=filename, lane=lane)
         if parser.get_id() in self.process_parsers:
             raise ValidationException('Duplicate process ID', node=node, file_name=filename)

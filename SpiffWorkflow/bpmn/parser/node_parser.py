@@ -47,8 +47,8 @@ class NodeParser:
                 specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
             else:
                 ref = first(self.doc_xpath(f".//bpmn:dataStoreReference[@id='{name.text}']"))
-                if ref is not None and ref.get('dataStoreRef') in self.process_parser.spec.data_stores:
-                    specs.append(self.process_parser.spec.data_stores[ref.get('dataStoreRef')])
+                if ref is not None and ref.get('dataStoreRef') in self.process_parser.data_stores:
+                    specs.append(self.process_parser.data_stores[ref.get('dataStoreRef')])
                 else:
                     raise ValidationException(f'Cannot resolve dataInputAssociation {name}', self.node, self.file_name)
         return specs
@@ -61,8 +61,8 @@ class NodeParser:
                 specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
             else:
                 ref = first(self.doc_xpath(f".//bpmn:dataStoreReference[@id='{name.text}']"))
-                if ref is not None and ref.get('dataStoreRef') in self.process_parser.spec.data_stores:
-                    specs.append(self.process_parser.spec.data_stores[ref.get('dataStoreRef')])
+                if ref is not None and ref.get('dataStoreRef') in self.process_parser.data_stores:
+                    specs.append(self.process_parser.data_stores[ref.get('dataStoreRef')])
                 else:
                     raise ValidationException(f'Cannot resolve dataOutputAssociation {name}', self.node, self.file_name)
         return specs

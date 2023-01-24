@@ -1,28 +1,6 @@
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataStoreSpecification
-
-class MyDataStore(BpmnDataStoreSpecification):
-
-    @staticmethod
-    def create_from_spec(data_store_spec):
-        return MyDataStore(data_store_spec.name,
-            data_store_spec.description,
-            data_store_spec.capacity,
-            data_store_spec.is_unlimited)
-
-    def get(self, my_task):
-        """Copy a value from a data store into task data."""
-        raise NotImplementedError("test get...")
-
-    def set(self, my_task):
-        """Copy a value from the task data to the data store"""
-        raise NotImplementedError("test set...")
-
-    def copy(self, source, destination, data_input=False, data_output=False):
-        """Copy a value from one task to another."""
-        raise NotImplementedError("test copy...")
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 class DataStoreReferenceTest(BpmnWorkflowTestCase):
 

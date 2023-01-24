@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from .ValidationException import ValidationException
-from ..specs.BpmnProcessSpec import BpmnProcessSpec, BpmnDataSpecification, BpmnDataStoreSpecification
+from ..specs.BpmnProcessSpec import BpmnProcessSpec, BpmnDataSpecification
 from .node_parser import NodeParser
 from .util import first
 
@@ -45,6 +45,7 @@ class ProcessParser(NodeParser):
         self.lane = lane
         self.spec = None
         self.process_executable = self.is_executable()
+        self.data_stores = {}
 
     def get_name(self):
         """
@@ -118,12 +119,6 @@ class ProcessParser(NodeParser):
             data_object = data_parser.parse_data_object()
             self.spec.data_objects[data_object.name] = data_object
 
-        # Get the data stores
-        for obj in self.xpath('//bpmn:dataStore'):
-            data_parser = DataSpecificationParser(obj, filename=self.filename)
-            data_store = data_parser.parse_data_store()
-            self.spec.data_stores[data_store.name] = data_store
-
         for node in start_node_list:
             self.parse_node(node)
 
@@ -149,9 +144,3 @@ class DataSpecificationParser(NodeParser):
 
     def parse_data_object(self):
         return BpmnDataSpecification(self.node.get('id'), self.node.get('name'))
-
-    def parse_data_store(self):
-        return BpmnDataStoreSpecification(self.node.get('id'),
-            self.node.get('name'),
-            self.node.get('capacity'),
-            self.node.get('isUnlimited'))
