@@ -4,11 +4,6 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 class DataStoreReferenceTest(BpmnWorkflowTestCase):
 
-    # TODO: drop this test/bpmn file
-    #def testParsesDataStoreReference(self):
-    #    spec, subprocesses = self.load_workflow_spec('just_data_store_reference.bpmn', 'JustDataStoreRef')
-    #    self.workflow = BpmnWorkflow(spec, subprocesses)
-
     def testParsesDataStoreReferenceWithInputsAndOutputs(self):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
         self.workflow = BpmnWorkflow(spec, subprocesses)
@@ -17,15 +12,16 @@ class DataStoreReferenceTest(BpmnWorkflowTestCase):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         self.save_restore()
+        # TODO: need to handle serialization
+        #self.workflow.do_engine_steps()
 
     def testCanInterpretDataStoreReferenceWithInputsAndOutputs(self):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
         self.workflow = BpmnWorkflow(spec, subprocesses)
-        data_store_spec = self.workflow.data_stores["myDataStore"]
-        data_store = MyDataStore.create_from_spec(data_store_spec)
-        self.workflow.spec.data_stores["myDataStore"] = data_store
         self.workflow.do_engine_steps()
 
+
+# TODO: see if we need to handle any more of the cases below
 
 #    def setUp(self):
 #        self.spec, self.subprocesses = self.load_workflow_spec('data_object.bpmn', 'Process')
