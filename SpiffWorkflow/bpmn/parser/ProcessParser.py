@@ -29,23 +29,23 @@ class ProcessParser(NodeParser):
     process.
     """
 
-    def __init__(self, p, node, nsmap, filename=None, lane=None):
+    def __init__(self, p, node, nsmap, data_stores, filename=None, lane=None):
         """
         Constructor.
 
         :param p: the owning BpmnParser instance
         :param node: the XML node for the process
+        :param data_stores: map of ids to data store implementations
         :param filename: the source BPMN filename (optional)
         :param doc_xpath: an xpath evaluator for the document (optional)
         :param lane: the lane of a subprocess (optional)
         """
-        super().__init__(node, nsmap, filename=filename, lane=lane)
+        super().__init__(node, nsmap, data_stores=data_stores, filename=filename, lane=lane)
         self.parser = p
         self.parsed_nodes = {}
         self.lane = lane
         self.spec = None
         self.process_executable = self.is_executable()
-        self.data_stores = {}
 
     def get_name(self):
         """

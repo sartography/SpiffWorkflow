@@ -12,10 +12,11 @@ CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class NodeParser:
 
-    def __init__(self, node, nsmap=None, filename=None, lane=None):
+    def __init__(self, node, nsmap=None, data_stores=None, filename=None, lane=None):
 
         self.node = node
         self.nsmap = nsmap or DEFAULT_NSMAP
+        self.data_stores = data_stores or {}
         self.filename = filename
         self.lane = self._get_lane() or lane
         self.position = self._get_position() or {'x': 0.0, 'y': 0.0}

@@ -201,11 +201,15 @@ class BpmnParser(object):
         if self.validator:
             self.validator.validate(bpmn, filename)
 
+        # we need to parse the data stores before _add_process since it creates
+        # the parser instances, which need to know about the data stores to
+        # resolve data references.
+        self._add_data_stores(bpmn)
+
         self._add_processes(bpmn, filename)
         self._add_collaborations(bpmn)
         self._add_messages(bpmn)
         self._add_correlations(bpmn)
-        self._add_data_stores(bpmn)
 
     def _add_processes(self, bpmn, filename=None):
         for process in bpmn.xpath('.//bpmn:process', namespaces=self.namespaces):
@@ -262,7 +266,10 @@ class BpmnParser(object):
                 raise ValidationException(
                     "Data Store identifier is missing from bpmn xml"
                 )
-            # TODO: raise exception if data store implementation is not provided
+            if data_store_id not in self.DATA_STORE_CLASSES:
+                raise ValidationException(
+                    f"Data Store with id {data_store_id} has no implementation"
+                )
             data_store_spec = self.DATA_STORE_CLASSES[data_store_id](
                 data_store_id,
                 data_store.attrib.get('name'),
@@ -276,8 +283,7 @@ class BpmnParser(object):
             self.process_dependencies.add(call_activity.get('calledElement'))
 
     def create_parser(self, node, filename=None, lane=None):
-        # TODO: pass in data stores
-        parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, filename=filename, lane=lane)
+        parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, self.data_stores, filename=filename, lane=lane)
         if parser.get_id() in self.process_parsers:
             raise ValidationException('Duplicate process ID', node=node, file_name=filename)
         if parser.get_name() in self.process_parsers_by_name:
