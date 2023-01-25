@@ -19,6 +19,10 @@ class DataStoreReferenceTest(BpmnWorkflowTestCase):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
+        last_script_task_data = self.workflow.get_tasks_from_spec_name("Activity_1skgyn9")[0].data
+
+        self.assertEqual(len(last_script_task_data), 1)
+        self.assertEqual(last_script_task_data["x"], "Sue")
 
 
 # TODO: see if we need to handle any more of the cases below
