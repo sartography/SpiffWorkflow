@@ -115,6 +115,7 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
             'data_objects': dict([ (name, self.convert(obj)) for name, obj in spec.data_objects .items() ]),
             'correlation_keys': spec.correlation_keys,
         }
+        # TODO: data_stores
         for name, task_spec in spec.task_specs.items():
             if isinstance(task_spec, MultiInstanceTask):
                 task_dict = self.multi_instance_to_dict(task_spec)
@@ -149,6 +150,8 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
 
         # Add messaging related stuff
         spec.correlation_keys = dct.pop('correlation_keys', {})
+
+        # TODO: data_stores
 
         for name, task_dict in dct['task_specs'].items():
             # I hate this, but I need to pass in the workflow spec when I create the task.

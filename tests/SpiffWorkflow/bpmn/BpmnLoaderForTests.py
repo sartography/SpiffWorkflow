@@ -63,20 +63,42 @@ class TestUserTaskConverter(BpmnTaskSpecConverter):
 
 class TestDataStore(BpmnDataStoreSpecification):
 
-    VALUE = None
+    _value = None
 
     def get(self, my_task):
         """Copy a value from a data store into task data."""
-        my_task.data[self.name] = self.VALUE
+        my_task.data[self.name] = self._value
 
     def set(self, my_task):
         """Copy a value from the task data to the data store"""
-        self.VALUE = my_task.data[self.name]
+        self._value = my_task.data[self.name]
         del my_task.data[self.name]
 
     def copy(self, source, destination, data_input=False, data_output=False):
         """Copy a value from one task to another."""
         raise NotImplementedError("test copy...")
+
+class TestDataStoreConverter:
+
+    def __init__(self, data_converter=None):
+        self.data_converter = data_converter
+        self.spec_class = TestDataStore
+        self.typename = "TestDataStore"
+
+    def to_dict(self, spec):
+        return {
+            "name": spec.name,
+            "description": spec.description,
+            "capacity": spec.capacity,
+            "is_unlimited": spec.is_unlimited,
+            "_value": spec._value,
+        }
+
+    def from_dict(self, dct):
+        _value = pop(dct, "_value")
+        data_store = TestDataStore(**dct)
+        data_store._value = _value
+        return data_store
 
 class TestBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {

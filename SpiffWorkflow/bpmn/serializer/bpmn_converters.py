@@ -348,6 +348,7 @@ class BpmnWorkflowSpecConverter(DictionaryConverter):
         for converter in task_spec_converters:
             self.register(converter.spec_class, converter.to_dict, converter.from_dict, converter.typename)
         self.register(BpmnDataSpecification, BpmnDataSpecificationConverter.to_dict, BpmnDataSpecificationConverter.from_dict)
+        self.register(BpmnDataStoreSpecification, BpmnDataStoreSpecificationConverter.to_dict, BpmnDataStoreSpecificationConverter.from_dict)
 
     def to_dict(self, spec):
         """

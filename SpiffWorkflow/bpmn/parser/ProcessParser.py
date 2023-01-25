@@ -120,6 +120,10 @@ class ProcessParser(NodeParser):
             data_object = data_parser.parse_data_object()
             self.spec.data_objects[data_object.name] = data_object
 
+        # set the data stores on the process spec so they can survive
+        # serialization
+        self.spec.data_stores = self.data_stores
+
         for node in start_node_list:
             self.parse_node(node)
 
