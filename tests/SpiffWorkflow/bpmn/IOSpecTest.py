@@ -18,14 +18,17 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         self.actual_test(True)
 
     def testCallActivityMissingInput(self):
-        
+
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         set_data = self.workflow.spec.task_specs['Activity_0haob58']
         set_data.script = """in_1, unused = 1, True"""
 
         with self.assertRaises(WorkflowDataException) as exc:
             self.advance_to_subprocess()
-            self.assertEqual(exc.var.name,'in_2')
+        self.assertEqual("'in_2' was not found in the task data. "
+                         "You are missing a required Data Input for a call activity.",
+                         str(exc.exception))
+        self.assertEqual(exc.exception.data_input.name,'in_2')
 
     def testCallActivityMissingOutput(self):
 
@@ -40,7 +43,10 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
 
         with self.assertRaises(WorkflowDataException) as exc:
             self.complete_subprocess()
-            self.assertEqual(exc.var.name,'out_2')
+
+        self.assertEqual("'out_2' was not found in the task data. A Data Output was not provided as promised.",
+                         str(exc.exception))
+        self.assertEqual(exc.exception.data_output.name,'out_2')
 
     def actual_test(self, save_restore=False):
 
