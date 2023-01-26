@@ -197,11 +197,11 @@ class PythonScriptEngine(object):
 
     def _evaluate(self, expression, context, external_methods=None):
 
-        globals = copy.copy(self.globals)  # else we pollute all later evals.
+        my_globals = copy.copy(self.globals)  # else we pollute all later evals.
         self.convert_to_box(context)
-        globals.update(external_methods or {})
-        globals.update(context)
-        return eval(expression, globals)
+        my_globals.update(external_methods or {})
+        my_globals.update(context)
+        return eval(expression, my_globals)
 
     def _execute(self, script, context, external_methods=None):
 
