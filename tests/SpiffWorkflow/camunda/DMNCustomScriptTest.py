@@ -1,5 +1,6 @@
 import unittest
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from .BaseTestCase import BaseTestCase
@@ -12,8 +13,8 @@ def my_custom_function(txt):
 class CustomScriptEngine(PythonScriptEngine):
 
     def __init__(self):
-        augment_methods = {'my_custom_function': my_custom_function}
-        super().__init__(scripting_additions=augment_methods)
+        environment = TaskDataEnvironment({'my_custom_function': my_custom_function})
+        super().__init__(environment=environment)
 
 
 class DMNCustomScriptTest(BaseTestCase):

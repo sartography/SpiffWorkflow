@@ -3,6 +3,7 @@ import ast
 import copy
 import sys
 import traceback
+import warnings
 
 from .PythonScriptEngineEnvironment import TaskDataEnvironment
 from ..exceptions import SpiffWorkflowException, WorkflowTaskException
@@ -39,6 +40,10 @@ class PythonScriptEngine(object):
     """
 
     def __init__(self, default_globals=None, scripting_additions=None, environment=None):
+        if default_globals is not None or scripting_additions is not None:
+            warnings.warn(f'default_globals and scripting_additions are deprecated.  '
+                          f'Please provide an environment such as TaskDataEnvrionment',
+                          DeprecationWarning, stacklevel=2)
         if environment is None:
             environment_globals = {}
             environment_globals.update(default_globals or {})

@@ -7,6 +7,7 @@ from datetime import timedelta
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from .BaseTestCase import BaseTestCase
 
 __author__ = 'kellym'
@@ -15,7 +16,7 @@ __author__ = 'kellym'
 class MessageBoundaryTest(BaseTestCase):
 
     def setUp(self):
-        self.script_engine = PythonScriptEngine(default_globals={"timedelta": timedelta})
+        self.script_engine = PythonScriptEngine(environment=TaskDataEnvironment({"timedelta": timedelta}))
         self.spec, self.subprocesses = self.load_workflow_spec('MessageBoundary.bpmn', 'Process_1kjyavs')
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=self.script_engine)
 

@@ -4,6 +4,7 @@ import datetime
 import unittest
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -14,10 +15,10 @@ class CustomScriptEngine(PythonScriptEngine):
     It will execute python code read in from the bpmn.  It will also make any scripts in the
      scripts directory available for execution. """
     def __init__(self):
-        augment_methods = {
+        environment = TaskDataEnvironment({
             'timedelta': datetime.timedelta,
-        }
-        super().__init__(scripting_additions=augment_methods)
+        })
+        super().__init__(environment=environment)
 
 class TooManyLoopsTest(BpmnWorkflowTestCase):
 
