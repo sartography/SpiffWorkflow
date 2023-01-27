@@ -1,6 +1,9 @@
 import copy
 
 class BasePythonScriptEngineEnvironment:
+    def __init__(self, environment_globals):
+        self.globals = environment_globals
+
     def evaluate(self, expression, context, external_methods=None):
         raise NotImplementedError("Subclass must implement this method")
 
@@ -80,9 +83,6 @@ class Box(dict):
         return data
 
 class TaskDataEnvironment(BasePythonScriptEngineEnvironment):
-    def __init__(self, environment_globals):
-        self.globals = environment_globals
-
     def evaluate(self, expression, context, external_methods=None):
         my_globals = copy.copy(self.globals)  # else we pollute all later evals.
         Box.convert_to_box(context)
