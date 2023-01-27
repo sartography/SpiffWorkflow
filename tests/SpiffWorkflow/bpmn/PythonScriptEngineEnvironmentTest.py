@@ -67,13 +67,14 @@ class PythonScriptEngineEnvironmentTest(BpmnWorkflowTestCase):
         d_uniques = set(self.workflow.data["d"])
         d_len = len(self.workflow.data["d"])
 
-        self.assertLess(task_data_len, 50)
+        self.assertEqual(task_data_len, 2)
         self.assertEqual(d_len, 512*3)
         self.assertEqual(d_uniques, {"a", "b", "c"})
 
     def _get_task_data_len(self):
         tasks_to_check = self.workflow.get_tasks(TaskState.FINISHED_MASK)
         task_data = [task.data for task in tasks_to_check]
-        task_data_len = len(json.dumps(task_data))
+        task_data_to_check = list(filter(len, task_data))
+        task_data_len = len(json.dumps(task_data_to_check))
         return task_data_len
 
