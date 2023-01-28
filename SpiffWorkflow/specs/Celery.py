@@ -248,8 +248,8 @@ class Celery(TaskSpec):
         if not self._start(my_task):
             if not my_task._has_state(TaskState.WAITING):
                 my_task._set_state(TaskState.WAITING)
-            return
-        super(Celery, self)._update_hook(my_task)
+        else:
+            return True
 
     def serialize(self, serializer):
         return serializer.serialize_celery(self)

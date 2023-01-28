@@ -121,12 +121,9 @@ class BoundaryEvent(CatchingEvent):
 
     def catch(self, my_task, event_definition):
         super(BoundaryEvent, self).catch(my_task, event_definition)
+        # Would love to get rid of this statement and manage in the workflow
+        # However, it is not really compatible with how boundary events work.
         my_task.complete()
-
-    def _on_complete_hook(self, my_task):
-        super(BoundaryEvent, self)._on_complete_hook(my_task)
-        # Notify the boundary event parent as well.
-        my_task.parent.task_spec._child_complete_hook(my_task)
 
 
 class EventBasedGateway(CatchingEvent):

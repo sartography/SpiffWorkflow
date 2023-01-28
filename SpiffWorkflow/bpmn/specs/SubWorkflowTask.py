@@ -3,7 +3,6 @@ from copy import deepcopy
 
 from SpiffWorkflow.task import TaskState
 from .BpmnSpecMixin import BpmnSpecMixin
-from ...specs.base import TaskSpec
 
 
 class SubWorkflowTask(BpmnSpecMixin):
@@ -25,9 +24,6 @@ class SubWorkflowTask(BpmnSpecMixin):
     def spec_type(self):
         return 'Subprocess'
 
-    def test(self):
-        TaskSpec.test(self)
-
     def _on_ready_before_hook(self, my_task):
         subworkflow = my_task.workflow.create_subprocess(my_task, self.spec, self.name)
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
@@ -39,10 +35,6 @@ class SubWorkflowTask(BpmnSpecMixin):
         self.start_workflow(my_task)
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
-
-        # Shouldn't this always be true?
-        if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
-            my_task.parent.task_spec._child_complete_hook(my_task)
 
         if len(subworkflow.spec.data_outputs) == 0:
             # Copy all workflow data if no outputs are specified
@@ -58,14 +50,7 @@ class SubWorkflowTask(BpmnSpecMixin):
     def _update_hook(self, my_task):
         wf = my_task.workflow._get_outermost_workflow(my_task)
         if my_task.id not in wf.subprocesses:
-            super()._update_hook(my_task)
-
-    def _predict_hook(self, my_task):
-        # The base Subworkflow task predict doesn't work with the loop reset task
-        BpmnSpecMixin._predict_hook(self, my_task)
-
-    def _on_complete_hook(self, my_task):
-        BpmnSpecMixin._on_complete_hook(self, my_task)
+            return super()._update_hook(my_task)
 
     def _on_cancel(self, my_task):
         subworkflow = my_task.workflow.get_subprocess(my_task)
