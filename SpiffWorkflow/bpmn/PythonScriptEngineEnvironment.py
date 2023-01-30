@@ -1,14 +1,47 @@
 import copy
+import warnings
 
 class BasePythonScriptEngineEnvironment:
-    def __init__(self, environment_globals):
-        self.globals = environment_globals
+    def __init__(self, environment_globals=None):
+        self.globals = environment_globals or {}
 
     def evaluate(self, expression, context, external_methods=None):
         raise NotImplementedError("Subclass must implement this method")
 
     def execute(self, script, context, external_methods=None):
         raise NotImplementedError("Subclass must implement this method")
+
+class TaskDataEnvironment(BasePythonScriptEngineEnvironment):
+    def evaluate(self, expression, context, external_methods=None):
+        my_globals = copy.copy(self.globals)  # else we pollute all later evals.
+        self._prepare_context(context)
+        my_globals.update(external_methods or {})
+        my_globals.update(context)
+        return eval(expression, my_globals)
+
+    def execute(self, script, context, external_methods=None):
+        my_globals = copy.copy(self.globals)
+        self._prepare_context(context)
+        my_globals.update(external_methods or {})
+        context.update(my_globals)
+        try:
+            exec(script, context)
+        finally:
+            self._remove_globals_and_functions_from_context(context, external_methods)
+
+    def _prepare_context(self, context):
+        pass
+
+    def _remove_globals_and_functions_from_context(self, context,
+                                                  external_methods=None):
+        """When executing a script, don't leave the globals, functions
+        and external methods in the context that we have modified."""
+        for k in list(context):
+            if k == "__builtins__" or \
+                    hasattr(context[k], '__call__') or \
+                    k in self.globals or \
+                    external_methods and k in external_methods:
+                context.pop(k)
 
 class Box(dict):
     """
@@ -17,6 +50,7 @@ class Box(dict):
     """
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('The usage of Box has been deprecated.', DeprecationWarning, stacklevel=2)
         super(Box, self).__init__(*args, **kwargs)
         for arg in args:
             if isinstance(arg, dict):
@@ -82,31 +116,7 @@ class Box(dict):
             return data
         return data
 
-class TaskDataEnvironment(BasePythonScriptEngineEnvironment):
-    def evaluate(self, expression, context, external_methods=None):
-        my_globals = copy.copy(self.globals)  # else we pollute all later evals.
+class BoxedTaskDataEnvironment(TaskDataEnvironment):
+    def _prepare_context(self, context):
         Box.convert_to_box(context)
-        my_globals.update(external_methods or {})
-        my_globals.update(context)
-        return eval(expression, my_globals)
 
-    def execute(self, script, context, external_methods=None):
-        my_globals = copy.copy(self.globals)
-        Box.convert_to_box(context)
-        my_globals.update(external_methods or {})
-        context.update(my_globals)
-        try:
-            exec(script, context)
-        finally:
-            self._remove_globals_and_functions_from_context(context, external_methods)
-
-    def _remove_globals_and_functions_from_context(self, context,
-                                                  external_methods=None):
-        """When executing a script, don't leave the globals, functions
-        and external methods in the context that we have modified."""
-        for k in list(context):
-            if k == "__builtins__" or \
-                    hasattr(context[k], '__call__') or \
-                    k in self.globals or \
-                    external_methods and k in external_methods:
-                context.pop(k)

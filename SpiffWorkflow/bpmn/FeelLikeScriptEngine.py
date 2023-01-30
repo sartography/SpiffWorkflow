@@ -266,8 +266,8 @@ class FeelLikeScriptEngine(PythonScriptEngine):
     provide a specialised subclass that parses and executes the scripts /
     expressions in a mini-language of your own.
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self, environment=None):
+        super().__init__(environment=environment)
 
     def validate(self, expression):
         super().validate(self.patch_expression(expression))
