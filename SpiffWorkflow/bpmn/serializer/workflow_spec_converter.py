@@ -1,4 +1,4 @@
-from .bpmn_converters import WorkflowSpecConverter
+from .helpers.workflow_spec import WorkflowSpecConverter
 
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
 from ..specs.MultiInstanceTask import MultiInstanceTask, getDynamicMIClass

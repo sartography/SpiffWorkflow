@@ -1,4 +1,4 @@
-from ...bpmn.serializer.bpmn_converters import TaskSpecConverter
+from ...bpmn.serializer.helpers.task_spec import TaskSpecConverter
 
 from ..specs.BusinessRuleTask import BusinessRuleTask
 from ..specs.model import DecisionTable, Rule, HitPolicy

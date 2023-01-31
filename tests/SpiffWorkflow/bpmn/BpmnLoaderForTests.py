@@ -7,7 +7,7 @@ from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import ConditionalGatewayParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 
-from SpiffWorkflow.bpmn.serializer.bpmn_converters import TaskSpecConverter
+from SpiffWorkflow.bpmn.serializer.helpers.task_spec import TaskSpecConverter
 
 # Many of our tests relied on the Packager to set the calledElement attribute on
 # Call Activities.  I've moved that code to a customized parser.

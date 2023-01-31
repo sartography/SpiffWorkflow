@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from .bpmn_converters import TaskSpecConverter
+from .helpers.task_spec import TaskSpecConverter
 
 from ...specs.StartTask import StartTask
 from ...specs.Simple import Simple

@@ -5,7 +5,7 @@ from uuid import UUID
 
 from .version_migration import MIGRATIONS
 
-from .bpmn_converters import BpmnDataConverter
+from .helpers.custom_data import BpmnDataConverter
 
 from ..workflow import BpmnMessage, BpmnWorkflow
 from ..specs.SubWorkflowTask import SubWorkflowTask

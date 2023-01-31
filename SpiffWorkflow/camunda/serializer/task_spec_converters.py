@@ -4,7 +4,7 @@ from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
 from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
 from ..specs.events.event_definitions import MessageEventDefinition
-from ...bpmn.serializer.bpmn_converters import TaskSpecConverter
+from ...bpmn.serializer.helpers.task_spec import TaskSpecConverter
 
 from ..specs.UserTask import UserTask, Form
 
