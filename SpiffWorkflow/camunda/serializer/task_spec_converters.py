@@ -4,11 +4,11 @@ from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
 from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
 from ..specs.events.event_definitions import MessageEventDefinition
-from ...bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
+from ...bpmn.serializer.bpmn_converters import TaskSpecConverter
 
 from ..specs.UserTask import UserTask, Form
 
-class CamundaEventConverter(BpmnTaskSpecConverter):
+class CamundaEventConverter(TaskSpecConverter):
 
     def __init__(self, spec_class, data_converter, typename):
         super().__init__(spec_class, data_converter, typename)

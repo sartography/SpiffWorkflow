@@ -1,4 +1,4 @@
-from .bpmn_converters import BpmnWorkflowSpecConverter
+from .bpmn_converters import WorkflowSpecConverter
 
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
 from ..specs.MultiInstanceTask import MultiInstanceTask, getDynamicMIClass
@@ -8,7 +8,7 @@ from ...operators import Attrib, PathAttrib
 from ...specs.WorkflowSpec import WorkflowSpec
 
 
-class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
+class BpmnProcessSpecConverter(WorkflowSpecConverter):
 
     def __init__(self, task_spec_converters, data_converter=None):
         super().__init__(BpmnProcessSpec, task_spec_converters, data_converter)
@@ -112,7 +112,7 @@ class BpmnProcessSpecConverter(BpmnWorkflowSpecConverter):
             'task_specs': {},
             'data_inputs': [ self.convert(obj) for obj in spec.data_inputs ],
             'data_outputs': [ self.convert(obj) for obj in spec.data_outputs ],
-            'data_objects': dict([ (name, self.convert(obj)) for name, obj in spec.data_objects .items() ]),
+            'data_objects': dict([ (name, self.convert(obj)) for name, obj in spec.data_objects.items() ]),
             'correlation_keys': spec.correlation_keys,
         }
         for name, task_spec in spec.task_specs.items():

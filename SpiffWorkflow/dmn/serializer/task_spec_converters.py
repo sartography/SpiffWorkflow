@@ -1,11 +1,11 @@
-from ...bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
+from ...bpmn.serializer.bpmn_converters import TaskSpecConverter
 
 from ..specs.BusinessRuleTask import BusinessRuleTask
 from ..specs.model import DecisionTable, Rule, HitPolicy
 from ..specs.model import Input, InputEntry, Output, OutputEntry
 from ..engine.DMNEngine import DMNEngine
 
-class BusinessRuleTaskConverter(BpmnTaskSpecConverter):
+class BusinessRuleTaskConverter(TaskSpecConverter):
 
     def __init__(self, data_converter=None, typename=None):
         super().__init__(BusinessRuleTask, data_converter, typename)

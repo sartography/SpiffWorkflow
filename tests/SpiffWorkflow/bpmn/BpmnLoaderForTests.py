@@ -7,7 +7,7 @@ from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import ConditionalGatewayParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 
-from SpiffWorkflow.bpmn.serializer.bpmn_converters import BpmnTaskSpecConverter
+from SpiffWorkflow.bpmn.serializer.bpmn_converters import TaskSpecConverter
 
 # Many of our tests relied on the Packager to set the calledElement attribute on
 # Call Activities.  I've moved that code to a customized parser.
@@ -47,7 +47,7 @@ class TestExclusiveGatewayParser(ConditionalGatewayParser):
             return cond
         return "choice == '%s'" % sequence_flow_node.get('name', None)
 
-class TestUserTaskConverter(BpmnTaskSpecConverter):
+class TestUserTaskConverter(TaskSpecConverter):
 
     def __init__(self, data_converter=None):
         super().__init__(TestUserTask, data_converter)

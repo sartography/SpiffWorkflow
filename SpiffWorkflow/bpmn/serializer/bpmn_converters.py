@@ -56,6 +56,7 @@ class BpmnDataConverter(DictionaryConverter):
                 if callable(value):
                     del obj[key]
 
+
 class BpmnDataSpecificationConverter:
 
     @staticmethod
@@ -68,7 +69,7 @@ class BpmnDataSpecificationConverter:
 
 
 
-class BpmnTaskSpecConverter(DictionaryConverter):
+class TaskSpecConverter(DictionaryConverter):
     """
     This the base Task Spec Converter.
 
@@ -299,7 +300,7 @@ class BpmnTaskSpecConverter(DictionaryConverter):
         return attrib_class(dct['name'])
 
 
-class BpmnWorkflowSpecConverter(DictionaryConverter):
+class WorkflowSpecConverter(DictionaryConverter):
     """
     This is the base converter for a BPMN workflow spec.
 
