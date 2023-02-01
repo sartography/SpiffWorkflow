@@ -30,21 +30,18 @@ class BpmnWorkflowSerializer:
 
     The goal is to provide modular serialization capabilities.
 
-    You'll need to configure a Workflow Spec Converter with Task Spec Converters for any task types
-    present in your workflows.  Because the Task Spec Converters also require initialization, the process
-    of building a Workflow Spec Converter is a little tedious; therefore, this class provides a static
-    method `configure_workflow_spec_converter` that can extend and/or override the default Task Spec
-    Converter list and return a Workflow Spec Converter that will recognize the overridden specs.
+    You'll need to configure a Workflow Spec Converter with converters for any task, data, or event types
+    present in your workflows. 
 
-    If you have implemented any custom task specs, you'll need to write a converter to handle them and
-    provide it to this method; if you using only the defaults, you can call this with no arguments.
+    If you have implemented any custom specs, you'll need to write a converter to handle them and
+    replace the converter from the default confiuration with your own.
 
     If your workflow contains non-JSON-serializable objects, you'll need to extend or replace the
     default data converter with one that will handle them.  This converter needs to implement
     `convert` and `restore` methods.
 
     Serialization occurs in two phases: the first is to convert everything in the workflow to a
-    dictionary containins only JSON-serializable objects and the second is dumping to JSON.
+    dictionary containing only JSON-serializable objects and the second is dumping to JSON.
 
     This means that you can call the `workflow_to_dict` or `workflow_from_dict` methods separately from
     conversion to JSON for further manipulation of the state, or selective serialization of only certain
@@ -65,12 +62,20 @@ class BpmnWorkflowSerializer:
         """
         This method can be used to create a spec converter that uses custom specs.
 
-        The task specs may contain arbitrary data, though none of the default task specs use it.  If
-        you are storing data on the task specs, you'll need to make sure any types that may be
-        encountered have conversions in the registry.
+        The task specs may contain arbitrary data, though none of the default task specs use it.  We don't 
+        recommend that you do this, as we may disallow it in the future.  However, if you have task spec data, 
+        then you'll also need to make sure it can be serialized.
+
+        The workflow spec serializer is based on the DictionaryConverter in the `helpers` package.  You can
+        create one of your own and add custom data serializtion to that.  The conversion classes in the
+        spec_config will be added this "registry" and any classes with entries there will be 
+        serialized/deserialized.
+
+        See the documentation for `helpers.spec.BpmnSpecConverter` for more information about what's going
+        on here.
 
         :param spec_config: a dictionary specifying how to save and restore any classes used by the spec
-        :param registry: a DictionaryConverter with conversions for custom data
+        :param registry: a `DictionaryConverter` with conversions for custom data (if applicable)
         """
         config = spec_config or DEFAULT_SPEC_CONFIG
         spec_converter = registry or DictionaryConverter()

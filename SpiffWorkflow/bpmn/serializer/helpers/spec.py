@@ -7,9 +7,37 @@ from ....operators import Attrib, PathAttrib
 
 
 class BpmnSpecConverter:
+    """The base class for conversion of BPMN spec classes.
 
+    In general, most classes that extend this would simply take an existing reistry as an
+    argument and automatically supply the class along with the implementations of the
+    conversion functions `to_dict` and `from_dict`.
+
+    The operation of the spec converter is a little opaque, but hopefully makes sense with a
+    little explanation.
+
+    The registry is a DictionaryConverter that registers conversion methods by class.  It can be
+    pre-populated with methods for custom data (thought this is not required) and is passed into
+    each of these sublclasses.  When a subclass of this one gets instantiated, we add ourselves 
+    to this registry.  
+    
+    This seems a little bit backwards -- the registry is using the subclass, so it seems like we 
+    ought to pass the subclass to the registry.  However, there is a lot of interdependence across 
+    the spec classes, so this doesn't work that well in practice -- most classes need to know about
+    all the other classes, and this was the most concise way I could think of to make that happen.
+
+    The goal is to be able to replace almost any spec class at the top level with another without
+    classes that use it to reimplement conversion mechanisms.  So for example, it is not
+    necessary to re-implemnent all event-based task spec conversions because, eg, the
+    MessageEventDefintion was modified.
+    """
     def __init__(self, spec_class, registry, typename=None):
+        """Constructor for a BPMN spec.
 
+        :param spec_class: the class of the spec the subclass provides conversions for
+        :param registry: a registry of conversions to which this one should be added
+        :param typename: the name of the class as it will appear in the serialization
+        """
         self.spec_class = spec_class
         self.registry = registry
         self.typename = typename if typename is not None else spec_class.__name__     
@@ -23,6 +51,10 @@ class BpmnSpecConverter:
 
 
 class BpmnDataSpecificationConverter(BpmnSpecConverter):
+    """This is the base dDta Spec converter.
+
+    Currently the only use is Data Objects.
+    """
 
     def to_dict(self, data_spec):
         return { 'name': data_spec.name, 'description': data_spec.description }
@@ -32,6 +64,12 @@ class BpmnDataSpecificationConverter(BpmnSpecConverter):
 
 
 class EventDefinitionConverter(BpmnSpecConverter):
+    """This is the base Event Defintiion Converter.
+
+    It provides conversions for the great majority of BPMN events as-is, and contains
+    one custom method for serializing Correlation Properties (as Messae Event Defintiions
+    are likely to the most commonly extended event definition spec).
+    """
 
     def to_dict(self, event_definition):
         dct = {'internal': event_definition.internal, 'external': event_definition.external}
@@ -63,8 +101,9 @@ class TaskSpecConverter(BpmnSpecConverter):
     implement a converter for those task spec types.  You'll need to implement the `to_dict` and
     `from_dict` methods on any inheriting classes.
 
-    The default task spec converters are in `task_converters`; the `camunda` and `dmn`
-    serialization packages contain other examples.
+    The default task spec converters are in the `task`, 'process_spec`, and 'event_definitions`
+    modules of this package; the `camunda`,`dmn`, and `spiff` serialization packages contain other 
+    examples.
     """
     def get_default_attributes(self, spec, include_data=False):
         """Extracts the default Spiff attributes from a task spec.
@@ -141,6 +180,7 @@ class TaskSpecConverter(BpmnSpecConverter):
         task spec attributes as well as attributes added by `BpmnSpecMixin`.
 
         :param dct: the dictionary to create the task spec from
+        :param include_data: whether or not to include task spec data attributes
 
         Returns:
             a restored task spec
