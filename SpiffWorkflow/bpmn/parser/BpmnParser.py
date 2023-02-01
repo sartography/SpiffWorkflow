@@ -179,11 +179,11 @@ class BpmnParser(object):
         Add all filenames in the given list to the parser's set.
         """
         for filename in filenames:
-            f = open(filename, 'r')
-            try:
-                self.add_bpmn_xml(etree.parse(f), filename=filename)
-            finally:
-                f.close()
+            with open(filename, 'r') as f:
+                try:
+                    self.add_bpmn_xml(etree.parse(f), filename=filename)
+                finally:
+                    f.close()
 
     def add_bpmn_xml(self, bpmn, filename=None):
         """
