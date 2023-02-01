@@ -142,7 +142,7 @@
             "typename":"SequenceFlow"
           }
         },
-        "typename":"TestUserTask",
+        "typename":"UserTask",
         "extensions":{}
       },
       "sid-C014B4B9-889F-4EE9-9949-C89502C35CF0":{
@@ -697,7 +697,7 @@
               "typename":"SequenceFlow"
             }
           },
-          "typename":"TestUserTask",
+          "typename":"UserTask",
           "extensions":{}
         },
         "sid-2EDAD784-7F15-486C-B805-D26EE25F8087":{
@@ -906,7 +906,7 @@
               "typename":"SequenceFlow"
             }
           },
-          "typename":"TestUserTask",
+          "typename":"UserTask",
           "extensions":{}
         },
         "sid-BC014079-199F-4720-95CD-244B0ACB6DE1":{

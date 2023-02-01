@@ -16,7 +16,7 @@ class CallActivityMessageTest(BaseTestCase):
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
 
-    def testThroughSaveRestore(self):
+    def testRunThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
     def actual_test(self, save_restore=False):

@@ -1,27 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
+from copy import deepcopy
 
 from SpiffWorkflow.spiff.parser.process import SpiffBpmnParser, VALIDATOR
-from SpiffWorkflow.spiff.serializer.task_spec_converters import NoneTaskConverter, \
-    ManualTaskConverter, UserTaskConverter, ScriptTaskConverter, \
-    SubWorkflowTaskConverter, TransactionSubprocessConverter, \
-    CallActivityTaskConverter, \
-    StartEventConverter, EndEventConverter, BoundaryEventConverter, \
-    SendTaskConverter, ReceiveTaskConverter, \
-    IntermediateCatchEventConverter, IntermediateThrowEventConverter, \
-    ServiceTaskConverter
-from SpiffWorkflow.dmn.serializer.task_spec_converters import BusinessRuleTaskConverter
+from SpiffWorkflow.spiff.serializer.config import SPIFF_SPEC_CONFIG
+from SpiffWorkflow.dmn.serializer.task_spec import BusinessRuleTaskConverter
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([
-    NoneTaskConverter, ManualTaskConverter, UserTaskConverter, ScriptTaskConverter,
-    SubWorkflowTaskConverter, TransactionSubprocessConverter, CallActivityTaskConverter,
-    StartEventConverter, EndEventConverter, BoundaryEventConverter, SendTaskConverter, ReceiveTaskConverter,
-    IntermediateCatchEventConverter, IntermediateThrowEventConverter, BusinessRuleTaskConverter,
-    ServiceTaskConverter
-])
+SPIFF_SPEC_CONFIG['task_specs'].append(BusinessRuleTaskConverter)
+
+wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter(SPIFF_SPEC_CONFIG)
 
 class BaseTestCase(BpmnWorkflowTestCase):
     """ Provides some basic tools for loading up and parsing Spiff extensions"""

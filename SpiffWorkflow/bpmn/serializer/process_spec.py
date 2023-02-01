@@ -1,16 +1,20 @@
-from .helpers.workflow_spec import WorkflowSpecConverter
+from .helpers.spec import WorkflowSpecConverter, BpmnDataSpecificationConverter
 
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
 from ..specs.MultiInstanceTask import MultiInstanceTask, getDynamicMIClass
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
+from ..specs.BpmnProcessSpec import BpmnDataSpecification
 
-from ...operators import Attrib, PathAttrib
+
+class BpmnDataObjectConverter(BpmnDataSpecificationConverter):
+    def __init__(self, registry, typename=None):
+        super().__init__(BpmnDataSpecification, registry, typename)
 
 
 class BpmnProcessSpecConverter(WorkflowSpecConverter):
 
-    def __init__(self, task_spec_converters, data_converter=None):
-        super().__init__(BpmnProcessSpec, task_spec_converters, data_converter)
+    def __init__(self, registry):
+        super().__init__(BpmnProcessSpec, registry)
 
     def multi_instance_to_dict(self, spec):
 
@@ -20,18 +24,15 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
         # Bypass the automatic selection of a conversion function
         # This returns the partial function that was created on register for the original task type.
         # The second argument is the function that would be called by `convert`.
-        conversion = self.convert_to_dict[classname]
+        conversion = self.registry.convert_to_dict[classname]
         func = conversion.args[1]
         # We can just call it directly and add the typename manually
         dct = func(spec)
         dct['typename'] = classname
-        # And we have to do this here, rather than in a converter
-        # We also have to manually apply the Attrib conversions
-        convert_attrib = lambda v: { 'name': v.name, 'typename': v.__class__.__name__ }
         dct.update({
-            'times': convert_attrib(spec.times) if spec.times is not None else None,
+            'times': self.registry.convert(spec.times) if spec.times is not None else None,
             'elementVar': spec.elementVar,
-            'collection': convert_attrib(spec.collection) if spec.collection is not None else None,
+            'collection': self.registry.convert(spec.collection) if spec.collection is not None else None,
             # These are not defined in the constructor, but added by the parser, or somewhere else inappropriate
             'completioncondition': spec.completioncondition,
             'prevtaskclass': spec.prevtaskclass,
@@ -60,28 +61,26 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
             attrs.append('dmnEngine')
 
         # Terrible ugly hack
-        registered = dict((name, c) for c, name in self.typenames.items())
+        registered = dict((name, c) for c, name in self.registry.typenames.items())
         # First get the dynamic class
         cls = getDynamicMIClass(dct['name'], registered[dct['typename']])
         # Restore the task according to the original task spec, so that its attributes can be converted
         # recursively
-        original = self.restore(dct.copy())
+        original = self.registry.restore(dct.copy())
         # But this task has the wrong class, so delete it from the spec
         del dct['wf_spec'].task_specs[original.name]
 
         # Create a new class using the dynamic class
         task_spec = cls(**dct)
-        # Restore the attributes that weren't recognized by the original converter
-        restore_attrib = lambda v: Attrib(v['name']) if v['typename'] == 'Attrib' else PathAttrib(v['name'])
-        task_spec.times = restore_attrib(dct['times']) if dct['times'] is not None else None
-        task_spec.collection = restore_attrib(dct['collection']) if dct['collection'] is not None else None
+        task_spec.times = self.registry.restore(dct['times']) if dct['times'] is not None else None
+        task_spec.collection = self.registry.restore(dct['collection']) if dct['collection'] is not None else None
         # Now copy everything else, from the temporary task spec if possible, otherwise the dict
         for attr in attrs:
             # If the original task has the attr, use the converted value
             if hasattr(original, attr):
                 task_spec.__dict__[attr] = original.__dict__[attr]
             else:
-                task_spec.__dict__[attr] = self.restore(dct[attr])
+                task_spec.__dict__[attr] = self.registry.restore(dct[attr])
 
         # Handle adding any remaining attributes from the original task type that might not be
         # present in the restored version (for example attributes added since last serialized)
@@ -108,16 +107,16 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
             'description': spec.description,
             'file': spec.file,
             'task_specs': {},
-            'data_inputs': [ self.convert(obj) for obj in spec.data_inputs ],
-            'data_outputs': [ self.convert(obj) for obj in spec.data_outputs ],
-            'data_objects': dict([ (name, self.convert(obj)) for name, obj in spec.data_objects.items() ]),
+            'data_inputs': [ self.registry.convert(obj) for obj in spec.data_inputs ],
+            'data_outputs': [ self.registry.convert(obj) for obj in spec.data_outputs ],
+            'data_objects': dict([ (name, self.registry.convert(obj)) for name, obj in spec.data_objects.items() ]),
             'correlation_keys': spec.correlation_keys,
         }
         for name, task_spec in spec.task_specs.items():
             if isinstance(task_spec, MultiInstanceTask):
                 task_dict = self.multi_instance_to_dict(task_spec)
             else:
-                task_dict = self.convert(task_spec)
+                task_dict = self.registry.convert(task_spec)
             self.convert_task_spec_extensions(task_spec, task_dict)
             dct['task_specs'][name] = task_dict
 
@@ -136,12 +135,12 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
         del spec.task_specs[f'{spec.name}.EndJoin']
 
         # Add the data specs
-        spec.data_inputs = [ self.restore(obj_dct) for obj_dct in dct.pop('data_inputs', []) ]
-        spec.data_outputs = [ self.restore(obj_dct) for obj_dct in dct.pop('data_outputs', []) ]
+        spec.data_inputs = [ self.registry.restore(obj_dct) for obj_dct in dct.pop('data_inputs', []) ]
+        spec.data_outputs = [ self.registry.restore(obj_dct) for obj_dct in dct.pop('data_outputs', []) ]
         # fixme:  This conditional can be removed in the next release, just avoiding invalid a potential
         #  serialization issue for some users caught between official releases.
         if isinstance(dct.get('data_objects', {}), dict):
-            spec.data_objects = dict([ (name, self.restore(obj_dct)) for name, obj_dct in dct.pop('data_objects', {}).items() ])
+            spec.data_objects = dict([ (name, self.registry.restore(obj_dct)) for name, obj_dct in dct.pop('data_objects', {}).items() ])
         else:
             spec.data_objects = {}
 
@@ -157,7 +156,7 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
             if 'prevtaskclass' in task_dict:
                 task_spec = self.multiinstance_from_dict(task_dict)
             else:
-                task_spec = self.restore(task_dict)
+                task_spec = self.registry.restore(task_dict)
             if name == 'Start':
                 spec.start = task_spec
             self.restore_task_spec_extensions(task_dict, task_spec)

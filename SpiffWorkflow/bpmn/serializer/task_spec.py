@@ -1,6 +1,4 @@
-from uuid import UUID
-
-from .helpers.task_spec import TaskSpecConverter
+from .helpers.spec import TaskSpecConverter
 
 from ...specs.StartTask import StartTask
 from ...specs.Simple import Simple
@@ -8,17 +6,14 @@ from ...specs.LoopResetTask import LoopResetTask
 
 from ..specs.BpmnProcessSpec import _EndJoin
 from ..specs.BpmnSpecMixin import _BpmnCondition
-
 from ..specs.NoneTask import NoneTask
 from ..specs.UserTask import UserTask
 from ..specs.ManualTask import ManualTask
 from ..specs.ScriptTask import ScriptTask
 from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess
-
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
 from ..specs.ParallelGateway import ParallelGateway
-
 from ..specs.events.StartEvent import StartEvent
 from ..specs.events.EndEvent import EndEvent
 from ..specs.events.IntermediateEvent import (
@@ -45,19 +40,19 @@ class DefaultTaskSpecConverter(TaskSpecConverter):
 
 
 class SimpleTaskConverter(DefaultTaskSpecConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(Simple, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(Simple, registry)
 
 
 class StartTaskConverter(DefaultTaskSpecConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(StartTask, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(StartTask, registry)
 
 
 class LoopResetTaskConverter(DefaultTaskSpecConverter):
 
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(LoopResetTask, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(LoopResetTask, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -67,13 +62,13 @@ class LoopResetTaskConverter(DefaultTaskSpecConverter):
 
     def from_dict(self, dct):
         spec = self.task_spec_from_dict(dct)
-        spec.destination_id = UUID(spec.destination_id)
+        spec.destination_id = self.registry.convert(spec.destination_id)
         return spec
 
 
 class EndJoinConverter(DefaultTaskSpecConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(_EndJoin, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(_EndJoin, registry)
 
 
 class BpmnTaskSpecConverter(TaskSpecConverter):
@@ -88,24 +83,24 @@ class BpmnTaskSpecConverter(TaskSpecConverter):
 
 
 class NoneTaskConverter(BpmnTaskSpecConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(NoneTask, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(NoneTask, registry)
 
 
 class UserTaskConverter(BpmnTaskSpecConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(UserTask, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(UserTask, registry)
 
 
 class ManualTaskConverter(BpmnTaskSpecConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(ManualTask, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(ManualTask, registry)
 
 
 class ScriptTaskConverter(BpmnTaskSpecConverter):
 
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(ScriptTask, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(ScriptTask, registry)
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
@@ -116,8 +111,8 @@ class ScriptTaskConverter(BpmnTaskSpecConverter):
 
 class BoundaryEventParentConverter(BpmnTaskSpecConverter):
 
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(_BoundaryEventParent, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(_BoundaryEventParent, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -138,14 +133,14 @@ class SubprocessConverter(BpmnTaskSpecConverter):
 
 
 class CallActivityTaskConverter(SubprocessConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(CallActivity, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(CallActivity, registry)
         self.wf_class = BpmnWorkflow
 
 
 class TransactionSubprocessTaskConverter(SubprocessConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(TransactionSubprocess, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(TransactionSubprocess, registry)
         self.wf_class = BpmnWorkflow
 
 
@@ -176,8 +171,8 @@ class ConditionalGatewayConverter(BpmnTaskSpecConverter):
 
 class ExclusiveGatewayConverter(ConditionalGatewayConverter):
 
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(ExclusiveGateway, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(ExclusiveGateway, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -192,14 +187,14 @@ class ExclusiveGatewayConverter(ConditionalGatewayConverter):
 
 
 class InclusiveGatewayConverter(ConditionalGatewayConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(InclusiveGateway, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(InclusiveGateway, registry)
 
 
 class ParallelGatewayConverter(BpmnTaskSpecConverter):
 
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(ParallelGateway, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(ParallelGateway, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -212,53 +207,53 @@ class ParallelGatewayConverter(BpmnTaskSpecConverter):
 
 class EventConverter(BpmnTaskSpecConverter):
 
-    def __init__(self, spec_class, data_converter, typename):
-        super().__init__(spec_class, data_converter, typename)
+    def __init__(self, spec_class, registry):
+        super().__init__(spec_class, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
-        dct['event_definition'] = self.convert(spec.event_definition)
+        dct['event_definition'] = self.registry.convert(spec.event_definition)
         return dct
 
     def from_dict(self, dct):
-        dct['event_definition'] = self.restore(dct['event_definition'])
+        dct['event_definition'] = self.registry.restore(dct['event_definition'])
         return self.task_spec_from_dict(dct)
 
 
 class StartEventConverter(EventConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(StartEvent, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(StartEvent, registry)
 
 
 class EndEventConverter(EventConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(EndEvent, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(EndEvent, registry)
 
 
 class IntermediateCatchEventConverter(EventConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(IntermediateCatchEvent, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(IntermediateCatchEvent, registry)
 
 
 class ReceiveTaskConverter(EventConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(ReceiveTask, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(ReceiveTask, registry)
 
 
 class IntermediateThrowEventConverter(EventConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(IntermediateThrowEvent, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(IntermediateThrowEvent, registry)
 
 
 class SendTaskConverter(EventConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(SendTask, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(SendTask, registry)
 
 
 class BoundaryEventConverter(EventConverter):
 
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(BoundaryEvent, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(BoundaryEvent, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -267,7 +262,31 @@ class BoundaryEventConverter(EventConverter):
 
 
 class EventBasedGatewayConverter(EventConverter):
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(EventBasedGateway, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(EventBasedGateway, registry)
 
 
+DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
+    SimpleTaskConverter,
+    StartTaskConverter,
+    EndJoinConverter,
+    LoopResetTaskConverter,
+    NoneTaskConverter,
+    UserTaskConverter,
+    ManualTaskConverter,
+    ScriptTaskConverter,
+    CallActivityTaskConverter,
+    TransactionSubprocessTaskConverter,
+    StartEventConverter,
+    EndEventConverter, 
+    SendTaskConverter,
+    ReceiveTaskConverter,
+    IntermediateCatchEventConverter,
+    IntermediateThrowEventConverter,
+    EventBasedGatewayConverter,
+    BoundaryEventConverter,
+    BoundaryEventParentConverter,
+    ParallelGatewayConverter,
+    ExclusiveGatewayConverter,
+    InclusiveGatewayConverter,
+]

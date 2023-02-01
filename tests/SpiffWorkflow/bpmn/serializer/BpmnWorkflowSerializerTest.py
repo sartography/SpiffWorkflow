@@ -5,7 +5,6 @@ import json
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnLoaderForTests import TestUserTaskConverter
 
 from .BaseTestCase import BaseTestCase
 
@@ -71,7 +70,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
 
         try:
             self.assertRaises(TypeError, self.serializer.serialize_json, self.workflow)
-            wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([TestUserTaskConverter])
+            wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter()
             custom_serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION,json_encoder_cls=MyJsonEncoder, json_decoder_cls=MyJsonDecoder)
             serialized_workflow = custom_serializer.serialize_json(self.workflow)
         finally:

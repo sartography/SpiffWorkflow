@@ -1,4 +1,4 @@
-from ...bpmn.serializer.helpers.task_spec import TaskSpecConverter
+from ...bpmn.serializer.helpers.spec import TaskSpecConverter
 
 from ..specs.BusinessRuleTask import BusinessRuleTask
 from ..specs.model import DecisionTable, Rule, HitPolicy
@@ -7,8 +7,8 @@ from ..engine.DMNEngine import DMNEngine
 
 class BusinessRuleTaskConverter(TaskSpecConverter):
 
-    def __init__(self, data_converter=None, typename=None):
-        super().__init__(BusinessRuleTask, data_converter, typename)
+    def __init__(self, registry):
+        super().__init__(BusinessRuleTask, registry)
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)

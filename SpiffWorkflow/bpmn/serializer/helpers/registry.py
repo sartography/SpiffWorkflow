@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from .dictionary import DictionaryConverter
 
-class BpmnDataConverter(DictionaryConverter):
+class DefaultRegistry(DictionaryConverter):
     """
     The default converter for task and workflow data.  It allows some commonly used python objects
     to be converted to a form that can be serialized with JSOM
