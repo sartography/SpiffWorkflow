@@ -75,10 +75,7 @@ class BpmnDmnParser(BpmnParser):
         """
         for filename in filenames:
             with open(filename, 'r') as f:
-                try:
-                    self.add_dmn_xml(etree.parse(f).getroot(), filename=filename)
-                finally:
-                    f.close()
+                self.add_dmn_xml(etree.parse(f).getroot(), filename=filename)
 
     def get_dependencies(self):
         return self.process_dependencies.union(self.dmn_dependencies)

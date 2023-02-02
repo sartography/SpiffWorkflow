@@ -180,10 +180,7 @@ class BpmnParser(object):
         """
         for filename in filenames:
             with open(filename, 'r') as f:
-                try:
-                    self.add_bpmn_xml(etree.parse(f), filename=filename)
-                finally:
-                    f.close()
+                self.add_bpmn_xml(etree.parse(f), filename=filename)
 
     def add_bpmn_xml(self, bpmn, filename=None):
         """

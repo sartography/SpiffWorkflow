@@ -14,17 +14,15 @@ from ..specs.events.event_definitions import (
     MultipleEventDefinition,
 )
 
-from ..specs.events.event_definitions import CorrelationProperty
-
 class CancelEventDefinitionConverter(EventDefinitionConverter):
-    def __init__(self, registry, typename=None):
-        super().__init__(CancelEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(CancelEventDefinition, registry)
 
 
 class ErrorEventDefinitionConverter(EventDefinitionConverter):
 
-    def __init__(self, registry, typename=None):
-        super().__init__(ErrorEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(ErrorEventDefinition, registry)
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
@@ -34,8 +32,8 @@ class ErrorEventDefinitionConverter(EventDefinitionConverter):
 
 class EscalationEventDefinitionConverter(EventDefinitionConverter):
 
-    def __init__(self, registry, typename=None):
-        super().__init__(EscalationEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(EscalationEventDefinition, registry)
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
@@ -45,33 +43,33 @@ class EscalationEventDefinitionConverter(EventDefinitionConverter):
 
 class MessageEventDefinitionConverter(EventDefinitionConverter):
 
-    def __init__(self, registry, typename=None):
-        super().__init__(MessageEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(MessageEventDefinition, registry)
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
-        dct['correlation_properties'] = [prop.__dict__ for prop in event_definition.correlation_properties]
+        dct['correlation_properties'] = self.correlation_properties_to_dict(event_definition.correlation_properties)
         return dct
 
     def from_dict(self, dct):
-        dct['correlation_properties'] = [CorrelationProperty(**prop) for prop in dct['correlation_properties']]
+        dct['correlation_properties'] = self.correlation_properties_from_dict(dct['correlation_properties'])
         event_definition = super().from_dict(dct)
         return event_definition
 
 
 class NoneEventDefinitionConverter(EventDefinitionConverter):
-    def __init__(self, registry, typename=None):
-        super().__init__(NoneEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(NoneEventDefinition, registry)
 
 
 class SignalEventDefinitionConverter(EventDefinitionConverter):
-    def __init__(self, registry, typename=None):
-        super().__init__(SignalEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(SignalEventDefinition, registry)
 
 
 class TerminateEventDefinitionConverter(EventDefinitionConverter):
-    def __init__(self, registry, typename=None):
-        super().__init__(TerminateEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(TerminateEventDefinition, registry)
 
 
 class TimerEventDefinitionConverter(EventDefinitionConverter):
@@ -82,24 +80,24 @@ class TimerEventDefinitionConverter(EventDefinitionConverter):
         return dct
 
 class TimeDateEventDefinitionConverter(TimerEventDefinitionConverter):
-    def __init__(self, registry, typename=None):
-        super().__init__(TimeDateEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(TimeDateEventDefinition, registry)
 
 
 class DurationTimerEventDefinitionConverter(TimerEventDefinitionConverter):
-    def __init__(self, registry, typename=None):
-        super().__init__(DurationTimerEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(DurationTimerEventDefinition, registry)
 
 
 class CycleTimerEventDefinitionConverter(TimerEventDefinitionConverter):
-    def __init__(self, registry, typename=None):
-        super().__init__(CycleTimerEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(CycleTimerEventDefinition, registry)
 
 
 class MultipleEventDefinitionConverter(EventDefinitionConverter):
 
-    def __init__(self, registry, typename=None):
-        super().__init__(MultipleEventDefinition, registry, typename)
+    def __init__(self, registry):
+        super().__init__(MultipleEventDefinition, registry)
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
