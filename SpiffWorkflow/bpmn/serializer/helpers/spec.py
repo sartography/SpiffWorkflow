@@ -148,6 +148,7 @@ class TaskSpecConverter(BpmnSpecConverter):
             'position': spec.position,
             'data_input_associations': [ self.registry.convert(obj) for obj in spec.data_input_associations ],
             'data_output_associations': [ self.registry.convert(obj) for obj in spec.data_output_associations ],
+            'io_specification': self.registry.convert(spec.io_specification),
         }
 
     def get_join_attributes(self, spec):
@@ -207,6 +208,7 @@ class TaskSpecConverter(BpmnSpecConverter):
             spec.loopTask = dct.pop('loopTask', False)
             spec.data_input_associations = self.registry.restore(dct.pop('data_input_associations', []))
             spec.data_output_associations = self.registry.restore(dct.pop('data_output_associations', []))
+            spec.io_specification = self.registry.restore(dct.pop('io_specification', None))
 
         return spec
 

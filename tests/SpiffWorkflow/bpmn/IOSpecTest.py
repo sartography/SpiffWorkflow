@@ -25,9 +25,6 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
 
         with self.assertRaises(WorkflowDataException) as exc:
             self.advance_to_subprocess()
-        self.assertEqual("'in_2' was not found in the task data. "
-                         "You are missing a required Data Input for a call activity.",
-                         str(exc.exception))
         self.assertEqual(exc.exception.data_input.name,'in_2')
 
     def testCallActivityMissingOutput(self):
@@ -43,10 +40,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
 
         with self.assertRaises(WorkflowDataException) as exc:
             self.complete_subprocess()
-
-        self.assertEqual("'out_2' was not found in the task data. A Data Output was not provided as promised.",
-                         str(exc.exception))
-        self.assertEqual(exc.exception.data_output.name,'out_2')
+        self.assertEqual(exc.exception.data_output.name, 'out_2')
 
     def actual_test(self, save_restore=False):
 
@@ -92,3 +86,44 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
             next_task = self.workflow.get_tasks(TaskState.READY)[0]
             next_task.complete()
             waiting = self.workflow.get_tasks(TaskState.WAITING)
+
+
+class IOSpecOnTaskTest(BpmnWorkflowTestCase):
+
+    def setUp(self):
+        self.spec, self.subprocesses = self.load_workflow_spec('io_spec_on_task.bpmn', 'main')
+
+    def testIOSpecOnTask(self):
+        self.actual_test()
+
+    def testIOSpecOnTaskSaveRestore(self):
+        self.actual_test(True)
+
+    def testIOSpecOnTaskMissingInput(self):
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        set_data = self.workflow.spec.task_specs['set_data']
+        set_data.script = """in_1, unused = 1, True"""
+        with self.assertRaises(WorkflowDataException) as exc:
+            self.workflow.do_engine_steps()
+        self.assertEqual(exc.exception.data_input.name, 'in_2')
+
+    def testIOSpecOnTaskMissingOutput(self):
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        self.workflow.do_engine_steps()
+        task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        task.data.update({'out_1': 1})
+        with self.assertRaises(WorkflowDataException) as exc:
+            task.complete()
+        self.assertEqual(exc.exception.data_output.name, 'out_2')
+
+    def actual_test(self, save_restore=False):
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        self.workflow.do_engine_steps()
+        if save_restore:
+            self.save_restore()
+        task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        self.assertDictEqual(task.data, {'in_1': 1, 'in_2': 'hello world'})
+        task.data.update({'out_1': 1, 'out_2': 'bye', 'extra': True})
+        task.complete()
+        self.workflow.do_engine_steps()
+        self.assertDictEqual(self.workflow.last_task.data, {'out_1': 1, 'out_2': 'bye'})

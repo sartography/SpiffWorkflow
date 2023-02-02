@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from ..exceptions import WorkflowDataException
 from ...operators import Operator
 from ...specs.base import TaskSpec
 
@@ -52,6 +53,7 @@ class BpmnSpecMixin(TaskSpec):
         self.documentation = None
         self.data_input_associations = []
         self.data_output_associations = []
+        self.io_specification = None
 
     @property
     def spec_type(self):
@@ -76,10 +78,29 @@ class BpmnSpecMixin(TaskSpec):
 
     def _on_ready_hook(self, my_task):
         super()._on_ready_hook(my_task)
+
+        # This copies data from data objects
         for obj in self.data_input_associations:
             obj.get(my_task)
 
+        # If an IO spec was given, require all inputs are present, and remove all other inputs.
+        if self.io_specification is not None:
+            data = {}
+            for var in self.io_specification.data_inputs:
+                if var.name not in my_task.data:
+                    raise WorkflowDataException(f"Missing data input", task=my_task, data_input=var)
+                data[var.name] = my_task.data[var.name]
+            my_task.data = data
+
     def _on_complete_hook(self, my_task):
+
+        if self.io_specification is not None:
+            data = {}
+            for var in self.io_specification.data_outputs:
+                if var.name not in my_task.data:
+                    raise WorkflowDataException(f"Missing data ouput", task=my_task, data_output=var)
+                data[var.name] = my_task.data[var.name]
+            my_task.data = data
 
         for obj in self.data_output_associations:
             obj.set(my_task)

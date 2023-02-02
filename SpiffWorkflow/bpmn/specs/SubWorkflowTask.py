@@ -37,18 +37,20 @@ class SubWorkflowTask(BpmnSpecMixin):
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
 
-        if len(subworkflow.spec.data_outputs) == 0:
+        if subworkflow.spec.io_specification is None:
             # Copy all workflow data if no outputs are specified
             my_task.data = deepcopy(subworkflow.last_task.data)
         else:
             end = subworkflow.get_tasks_from_spec_name('End', workflow=subworkflow)
             # Otherwise only copy data with the specified names
-            for var in subworkflow.spec.data_outputs:
-                try:
-                    var.copy(end[0], my_task, data_output=True)
-                except WorkflowDataException as wde:
-                    wde.add_note("A Data Output was not provided as promised.")
-                    raise wde
+            for var in subworkflow.spec.io_specification.data_outputs:
+                if var.name not in end[0].data:
+                    raise WorkflowDataException(
+                        f"The Data Output was not available in the subprocess output.",
+                        task=my_task,
+                        data_output=var,
+                    )
+                my_task.data[var.name] = end[0].data[var.name]
 
         my_task._set_state(TaskState.READY)
 
@@ -67,17 +69,20 @@ class SubWorkflowTask(BpmnSpecMixin):
         subworkflow = my_task.workflow.get_subprocess(my_task)
         start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
 
-        if len(subworkflow.spec.data_inputs) == 0:
+        if subworkflow.spec.io_specification is None:
             # Copy all task data into start task if no inputs specified
             start[0].set_data(**my_task.data)
         else:
             # Otherwise copy only task data with the specified names
-            for var in subworkflow.spec.data_inputs:
-                try:
-                    var.copy(my_task, start[0], data_input=True)
-                except WorkflowDataException as wde:
-                    wde.add_note("You are missing a required Data Input for a call activity.")
-                    raise wde
+            for var in subworkflow.spec.io_specification.data_inputs:
+                if var.name not in my_task.data:
+                    raise WorkflowDataException(
+                        "You are missing a required Data Input for a call activity.",
+                        task=my_task,
+                        data_input=var,
+                    )
+                start[0].data[var.name] = my_task.data[var.name]
+
         for child in subworkflow.task_tree.children:
             child.task_spec._update(child)
 

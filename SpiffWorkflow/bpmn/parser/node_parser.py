@@ -1,4 +1,5 @@
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
+from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference, BpmnIoSpecification
 from .util import first
 
 DEFAULT_NSMAP = {
@@ -58,6 +59,14 @@ class NodeParser:
             else:
                 raise ValidationException(f'Cannot resolve dataOutputAssociation {name}', self.node, self.file_name)
         return specs
+
+    def parse_io_spec(self):
+        inputs, outputs = [], []
+        for elem in self.xpath('./bpmn:ioSpecification/bpmn:dataInput'):
+            inputs.append(TaskDataReference(elem.get('id'), elem.get('name')))
+        for elem in self.xpath('./bpmn:ioSpecification/bpmn:dataOutput'):
+            outputs.append(TaskDataReference(elem.get('id'), elem.get('name')))
+        return BpmnIoSpecification(inputs, outputs)
 
     def parse_extensions(self, node=None):
         extensions = {}

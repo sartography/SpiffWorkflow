@@ -7,17 +7,18 @@ from ..workflow import BpmnMessage, BpmnWorkflow
 from ..specs.SubWorkflowTask import SubWorkflowTask
 from ...task import Task
 
-from .version_migration import MIGRATIONS
+from .migration.version_migration import MIGRATIONS
 from .helpers.registry import DefaultRegistry
 from .helpers.dictionary import DictionaryConverter
 
-from .process_spec import BpmnProcessSpecConverter, BpmnDataObjectConverter
+from .process_spec import BpmnProcessSpecConverter
+from .data_spec import BpmnDataObjectConverter, TaskDataReferenceConverter, IOSpecificationConverter
 from .task_spec import DEFAULT_TASK_SPEC_CONVERTER_CLASSES
 from .event_definition import DEFAULT_EVENT_CONVERTERS
 
 DEFAULT_SPEC_CONFIG = {
     'process': BpmnProcessSpecConverter,
-    'data_specs': [BpmnDataObjectConverter],
+    'data_specs': [IOSpecificationConverter, BpmnDataObjectConverter, TaskDataReferenceConverter],
     'task_specs': DEFAULT_TASK_SPEC_CONVERTER_CLASSES,
     'event_definitions': DEFAULT_EVENT_CONVERTERS,
 }

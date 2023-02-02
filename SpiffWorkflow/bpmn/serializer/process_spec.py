@@ -1,15 +1,8 @@
-from .helpers.spec import WorkflowSpecConverter, BpmnDataSpecificationConverter
-
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
 from ..specs.MultiInstanceTask import MultiInstanceTask, getDynamicMIClass
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
-from ..specs.BpmnProcessSpec import BpmnDataSpecification
 
-
-class BpmnDataObjectConverter(BpmnDataSpecificationConverter):
-    def __init__(self, registry, typename=None):
-        super().__init__(BpmnDataSpecification, registry, typename)
-
+from .helpers.spec import WorkflowSpecConverter
 
 class BpmnProcessSpecConverter(WorkflowSpecConverter):
 
@@ -107,8 +100,7 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
             'description': spec.description,
             'file': spec.file,
             'task_specs': {},
-            'data_inputs': [ self.registry.convert(obj) for obj in spec.data_inputs ],
-            'data_outputs': [ self.registry.convert(obj) for obj in spec.data_outputs ],
+            'io_specification': self.registry.convert(spec.io_specification),
             'data_objects': dict([ (name, self.registry.convert(obj)) for name, obj in spec.data_objects.items() ]),
             'correlation_keys': spec.correlation_keys,
         }
@@ -135,8 +127,7 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
         del spec.task_specs[f'{spec.name}.EndJoin']
 
         # Add the data specs
-        spec.data_inputs = [ self.registry.restore(obj_dct) for obj_dct in dct.pop('data_inputs', []) ]
-        spec.data_outputs = [ self.registry.restore(obj_dct) for obj_dct in dct.pop('data_outputs', []) ]
+        spec.io_specification = self.registry.restore(dct.pop('io_specification', None))
         # fixme:  This conditional can be removed in the next release, just avoiding invalid a potential
         #  serialization issue for some users caught between official releases.
         if isinstance(dct.get('data_objects', {}), dict):

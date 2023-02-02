@@ -172,6 +172,10 @@ class TaskParser(NodeParser):
             self.task.data_input_associations = self.parse_incoming_data_references()
             self.task.data_output_associations = self.parse_outgoing_data_references()
 
+            io_spec = self.xpath('./bpmn:ioSpecification')
+            if len(io_spec) > 0:
+                self.task.io_specification = self.parse_io_spec()
+
             loop_characteristics = self.xpath('./bpmn:standardLoopCharacteristics')
             if len(loop_characteristics) > 0:
                 self._add_loop_task(loop_characteristics[0])
