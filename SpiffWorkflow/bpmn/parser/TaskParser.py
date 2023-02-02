@@ -17,15 +17,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import sys
-import traceback
 from .ValidationException import ValidationException
 from ..specs.NoneTask import NoneTask
 from ..specs.ScriptTask import ScriptTask
 from ..specs.UserTask import UserTask
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
 from ..specs.events.event_definitions import CancelEventDefinition
-from ..specs.MultiInstanceTask import getDynamicMIClass
+from ..specs.MultiInstanceTask import getDynamicMIClass, StandardLoopTask
 from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess, SubWorkflowTask
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
@@ -33,8 +31,6 @@ from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
 from ...operators import Attrib, PathAttrib
 from .util import one, first
 from .node_parser import NodeParser
-
-STANDARDLOOPCOUNT = '25'
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
@@ -62,6 +58,32 @@ class TaskParser(NodeParser):
         self.process_parser = process_parser
         self.spec_class = spec_class
         self.spec = self.process_parser.spec
+
+    def _add_loop_task(self, loop_characteristics):
+
+        maximum = loop_characteristics.attrib.get('loopMaximum')
+        if maximum is not None:
+            maximum = int(maximum)
+        condition = self.xpath('./bpmn:standardLoopCharacteristics/bpmn:loopCondition')
+        condition = condition[0].text if len(condition) > 0 else None
+        test_before = loop_characteristics.get('testBefore', 'false') == 'true'
+        if maximum is None and condition is None:
+            raise ValidationException(
+                'A loopMaximum or loopCondition must be specified for Loop Tasks',
+                node=self.node,
+                file_name=self.filename
+            )
+
+        original = self.spec.task_specs.pop(self.task.name)
+
+        self.task = StandardLoopTask(self.spec, original.name, original, maximum, condition, test_before)
+        self.task.inputs = original.inputs
+        self.task.outputs = original.outputs
+
+        original.inputs = [self.task]
+        original.outputs = []
+        original.name = f'{original.name} [child]'
+        self.spec.task_specs[original.name] = original
 
     def _set_multiinstance_attributes(self, is_sequential, expanded, loop_count,
                                       loop_task=False, element_var=None, collection=None, completion_condition=None):
@@ -119,9 +141,6 @@ class TaskParser(NodeParser):
                                                collection=collection,
                                                completion_condition=completion_condition)
 
-        elif len(self.xpath('./bpmn:standardLoopCharacteristics')) > 0:
-            self._set_multiinstance_attributes(True, 25, STANDARDLOOPCOUNT, loop_task=True)
-
     def _add_boundary_event(self, children):
 
         parent = _BoundaryEventParent(
@@ -152,6 +171,10 @@ class TaskParser(NodeParser):
             # And now I have to add more of the same crappy thing.
             self.task.data_input_associations = self.parse_incoming_data_references()
             self.task.data_output_associations = self.parse_outgoing_data_references()
+
+            loop_characteristics = self.xpath('./bpmn:standardLoopCharacteristics')
+            if len(loop_characteristics) > 0:
+                self._add_loop_task(loop_characteristics[0])
 
             self._detect_multiinstance()
 

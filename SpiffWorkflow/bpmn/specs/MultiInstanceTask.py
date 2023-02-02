@@ -35,6 +35,56 @@ from ...util.impl import get_class
 from ...task import Task, TaskState
 from ...util.deep_merge import DeepMerge
 
+from .BpmnSpecMixin import BpmnSpecMixin
+
+
+class StandardLoopTask(BpmnSpecMixin):
+
+    def __init__(self, wf_spec, name, task_spec, maximum, condition, test_before, **kwargs):
+        super().__init__(wf_spec, name, **kwargs)
+        self.task_spec = task_spec
+        self.maximum = maximum
+        self.condition = condition
+        self.test_before = test_before
+
+    def _update_hook(self, my_task):
+
+        # First handle any completed children and check for running children
+        merged = my_task.internal_data.get('merged') or []
+        child_running = False
+        for child in my_task.children:
+            if child.task_spec == self.task_spec and child._has_state(TaskState.FINISHED_MASK) and str(child.id) not in merged:
+                DeepMerge.merge(my_task.data, child.data)
+                merged.append(str(child.id))
+            elif child.task_spec == self.task_spec and not child._has_state(TaskState.FINISHED_MASK):
+                child_running = True
+        my_task.internal_data['merged'] = merged
+
+        if child_running:
+            # We're in the middle of an iteration; we're not done and we can't create a new task
+            # (we should only have one at a time)
+            return False
+        elif self.loop_complete(my_task):
+            # No children running and one of the completion conditions has been met
+            return True
+        else:
+            # Execute again
+            my_task._set_state(TaskState.WAITING)
+            child = my_task._add_child(self.task_spec, TaskState.READY)
+            child.data = copy.deepcopy(my_task.data)
+
+    def loop_complete(self, my_task):
+
+        merged = my_task.internal_data.get('merged') or []
+        if not self.test_before and len(merged) == 0:
+            # "test before" isn't really applicable to our execution model
+            # This guarantees that the task will run at least once if test_before is False
+            return False
+        else:
+            max_complete = self.maximum is not None and len(merged) >= self.maximum
+            cond_complete = self.condition is not None and my_task.workflow.script_engine.evaluate(my_task, self.condition)
+            return max_complete or cond_complete
+
 
 def gendict(path, d):
     if len(path) == 0:
