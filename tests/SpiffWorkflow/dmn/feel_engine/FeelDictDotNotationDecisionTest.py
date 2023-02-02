@@ -1,6 +1,6 @@
 import unittest
 
-from SpiffWorkflow.bpmn.PythonScriptEngine import Box
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import Box
 
 from .FeelDecisionRunner import FeelDecisionRunner
 

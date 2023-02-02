@@ -3,6 +3,7 @@
 import unittest
 
 from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine, FeelInterval
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import BoxedTaskDataEnvironment
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 import datetime
 
@@ -12,7 +13,7 @@ __author__ = 'matth'
 class FeelExpressionTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.expressionEngine = FeelLikeScriptEngine()
+        self.expressionEngine = FeelLikeScriptEngine(environment=BoxedTaskDataEnvironment())
 
     def testRunThroughExpressions(self):
         tests = [("string length('abcd')", 4, {}),
@@ -62,7 +63,7 @@ class FeelExpressionTest(BpmnWorkflowTestCase):
             ]
         }
         x = self.expressionEngine._evaluate(
-            """sum([1 for x in exclusive if x.get('ExclusiveSpaceAMComputingID',None)==None])""", 
+            """sum([1 for x in exclusive if x.get('ExclusiveSpaceAMComputingID',None)==None])""",
             data
         )
         self.assertEqual(x, 1)

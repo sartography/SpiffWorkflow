@@ -72,15 +72,17 @@ class BpmnDataSpecification:
     def get(self, my_task):
         """Copy a value form the workflow data to the task data."""
         if self.name not in my_task.workflow.data:
-            message = f"Workflow variable {self.name} not found"
-            raise WorkflowDataException(my_task, data_input=self, message=message)
+            message = f"Data object '{self.name}' " \
+                      f"does not exist and can not be read."
+            raise WorkflowDataException(message, my_task, data_input=self)
         my_task.data[self.name] = deepcopy(my_task.workflow.data[self.name])
 
     def set(self, my_task):
         """Copy a value from the task data to the workflow data"""
         if self.name not in my_task.data:
-            message = f"Task variable {self.name} not found"
-            raise WorkflowDataException(my_task, data_output=self, message=message)
+            message = f"A Data Object  '{self.name}' " \
+                      f"could not be set, it does not exist in the task data"
+            raise WorkflowDataException(message, my_task, data_output=self)
         my_task.workflow.data[self.name] = deepcopy(my_task.data[self.name])
         del my_task.data[self.name]
         data_log.info(f'Set workflow variable {self.name}', extra=my_task.log_info())
@@ -88,12 +90,12 @@ class BpmnDataSpecification:
     def copy(self, source, destination, data_input=False, data_output=False):
         """Copy a value from one task to another."""
         if self.name not in source.data:
-            message = f"Unable to copy {self.name}"
+            message = f"'{self.name}' was not found in the task data"
             raise WorkflowDataException(
-                source, 
+                message,
+                source,
                 data_input=self if data_input else None,
                 data_output=self if data_output else None,
-                message=message
             )
         destination.data[self.name] = deepcopy(source.data[self.name])
 

@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
 from SpiffWorkflow.task import TaskState
 
@@ -11,7 +12,7 @@ class EventBsedGatewayTest(BpmnWorkflowTestCase):
 
     def setUp(self):
         self.spec, self.subprocesses = self.load_workflow_spec('event-gateway.bpmn', 'Process_0pvx19v')
-        self.script_engine = PythonScriptEngine(default_globals={"timedelta": timedelta})
+        self.script_engine = PythonScriptEngine(environment=TaskDataEnvironment({"timedelta": timedelta}))
         self.workflow = BpmnWorkflow(self.spec, script_engine=self.script_engine)
 
     def testEventBasedGateway(self):

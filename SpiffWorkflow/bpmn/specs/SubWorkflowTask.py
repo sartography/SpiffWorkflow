@@ -3,6 +3,7 @@ from copy import deepcopy
 
 from SpiffWorkflow.task import TaskState
 from .BpmnSpecMixin import BpmnSpecMixin
+from ..exceptions import WorkflowDataException
 
 
 class SubWorkflowTask(BpmnSpecMixin):
@@ -43,7 +44,11 @@ class SubWorkflowTask(BpmnSpecMixin):
             end = subworkflow.get_tasks_from_spec_name('End', workflow=subworkflow)
             # Otherwise only copy data with the specified names
             for var in subworkflow.spec.data_outputs:
-                var.copy(end[0], my_task, data_output=True)
+                try:
+                    var.copy(end[0], my_task, data_output=True)
+                except WorkflowDataException as wde:
+                    wde.add_note("A Data Output was not provided as promised.")
+                    raise wde
 
         my_task._set_state(TaskState.READY)
 
@@ -68,8 +73,11 @@ class SubWorkflowTask(BpmnSpecMixin):
         else:
             # Otherwise copy only task data with the specified names
             for var in subworkflow.spec.data_inputs:
-                var.copy(my_task, start[0], data_input=True)
-
+                try:
+                    var.copy(my_task, start[0], data_input=True)
+                except WorkflowDataException as wde:
+                    wde.add_note("You are missing a required Data Input for a call activity.")
+                    raise wde
         for child in subworkflow.task_tree.children:
             child.task_spec._update(child)
 
