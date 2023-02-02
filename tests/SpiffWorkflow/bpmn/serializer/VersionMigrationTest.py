@@ -3,6 +3,7 @@ import time
 
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 
 from .BaseTestCase import BaseTestCase
 
@@ -24,7 +25,7 @@ class VersionMigrationTest(BaseTestCase):
     def test_convert_1_1_to_1_2(self):
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1-1.json')
         wf = self.serializer.deserialize_json(open(fn).read())
-        wf.script_engine = PythonScriptEngine(default_globals={"time": time})
+        wf.script_engine = PythonScriptEngine(environment=TaskDataEnvironment({"time": time}))
         wf.refresh_waiting_tasks()
         wf.do_engine_steps()
         self.assertTrue(wf.is_completed())
