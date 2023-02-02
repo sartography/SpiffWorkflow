@@ -9,16 +9,16 @@ from ....operators import Attrib, PathAttrib
 class BpmnSpecConverter:
     """The base class for conversion of BPMN spec classes.
 
-    In general, most classes that extend this would simply take an existing reistry as an
+    In general, most classes that extend this would simply take an existing registry as an
     argument and automatically supply the class along with the implementations of the
     conversion functions `to_dict` and `from_dict`.
 
     The operation of the spec converter is a little opaque, but hopefully makes sense with a
     little explanation.
 
-    The registry is a DictionaryConverter that registers conversion methods by class.  It can be
-    pre-populated with methods for custom data (thought this is not required) and is passed into
-    each of these sublclasses.  When a subclass of this one gets instantiated, we add ourselves 
+    The registry is a `DictionaryConverter` that registers conversion methods by class.  It can be
+    pre-populated with methods for custom data (though this is not required) and is passed into
+    each of these sublclasses.  When a subclass of this one gets instantiated, it adds itself 
     to this registry.  
     
     This seems a little bit backwards -- the registry is using the subclass, so it seems like we 
@@ -26,10 +26,10 @@ class BpmnSpecConverter:
     the spec classes, so this doesn't work that well in practice -- most classes need to know about
     all the other classes, and this was the most concise way I could think of to make that happen.
 
-    The goal is to be able to replace almost any spec class at the top level with another without
-    classes that use it to reimplement conversion mechanisms.  So for example, it is not
-    necessary to re-implemnent all event-based task spec conversions because, eg, the
-    MessageEventDefintion was modified.
+    The goal is to be able to replace almost any spec class at the top level without classes that 
+    use it to reimplement conversion mechanisms.  So for example, it is not necessary to 
+    re-implemnent all event-based task spec conversions because, eg, the
+    `MessageEventDefintion` was modified.
     """
     def __init__(self, spec_class, registry, typename=None):
         """Constructor for a BPMN spec.
@@ -51,7 +51,7 @@ class BpmnSpecConverter:
 
 
 class BpmnDataSpecificationConverter(BpmnSpecConverter):
-    """This is the base dDta Spec converter.
+    """This is the base Data Spec converter.
 
     Currently the only use is Data Objects.
     """
@@ -67,7 +67,7 @@ class EventDefinitionConverter(BpmnSpecConverter):
     """This is the base Event Defintiion Converter.
 
     It provides conversions for the great majority of BPMN events as-is, and contains
-    one custom method for serializing Correlation Properties (as Messae Event Defintiions
+    one custom method for serializing Correlation Properties (as Message Event Defintiions
     are likely to the most commonly extended event definition spec).
     """
 

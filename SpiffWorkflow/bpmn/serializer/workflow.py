@@ -66,10 +66,10 @@ class BpmnWorkflowSerializer:
         recommend that you do this, as we may disallow it in the future.  However, if you have task spec data, 
         then you'll also need to make sure it can be serialized.
 
-        The workflow spec serializer is based on the DictionaryConverter in the `helpers` package.  You can
-        create one of your own and add custom data serializtion to that.  The conversion classes in the
-        spec_config will be added this "registry" and any classes with entries there will be 
-        serialized/deserialized.
+        The workflow spec serializer is based on the `DictionaryConverter` in the `helpers` package.  You can
+        create one of your own, add custom data serializtion to that and pass that in as the `registry`.  The 
+        conversion classes in the spec_config will be added this "registry" and any classes with entries there 
+        will be serialized/deserialized.
 
         See the documentation for `helpers.spec.BpmnSpecConverter` for more information about what's going
         on here.
