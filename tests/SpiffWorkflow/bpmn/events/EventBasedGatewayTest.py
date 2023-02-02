@@ -30,8 +30,8 @@ class EventBsedGatewayTest(BpmnWorkflowTestCase):
             self.workflow.script_engine = self.script_engine
         self.assertEqual(len(waiting_tasks), 1)
         self.workflow.catch(MessageEventDefinition('message_1'))
-        self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
+        self.workflow.refresh_waiting_tasks()
         self.assertEqual(self.workflow.is_completed(), True)
         self.assertEqual(self.workflow.get_tasks_from_spec_name('message_1_event')[0].state, TaskState.COMPLETED)
         self.assertEqual(self.workflow.get_tasks_from_spec_name('message_2_event')[0].state, TaskState.CANCELLED)

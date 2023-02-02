@@ -127,7 +127,7 @@ class SubWorkflow(TaskSpec):
         subworkflow = my_task._get_internal_data('subworkflow')
         if subworkflow is None:
             # On the first update, we have to create the subworkflow
-            super()._update_hook(my_task)
+            return True
         elif subworkflow.is_completed():
             # Then wait until it finishes to complete
             my_task.complete()

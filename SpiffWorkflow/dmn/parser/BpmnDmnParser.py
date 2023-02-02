@@ -74,11 +74,8 @@ class BpmnDmnParser(BpmnParser):
         Add all filenames in the given list to the parser's set.
         """
         for filename in filenames:
-            f = open(filename, 'r')
-            try:
+            with open(filename, 'r') as f:
                 self.add_dmn_xml(etree.parse(f).getroot(), filename=filename)
-            finally:
-                f.close()
 
     def get_dependencies(self):
         return self.process_dependencies.union(self.dmn_dependencies)

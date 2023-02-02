@@ -273,27 +273,18 @@ class TaskSpec(object):
         completes it makes sure to call this method so we can react.
         """
         my_task._inherit_data()
-        # We were doing this in _update_hook, but to me that seems inconsistent with the spirit
-        # of the hook functions.  Moving it here allows removal of some repeated calls (overridden
-        # hook methods still need to do these things)
         if my_task._is_predicted():
             self._predict(my_task)
         self.entered_event.emit(my_task.workflow, my_task)
-        self._update_hook(my_task)
+        if self._update_hook(my_task):
+            my_task._ready()
 
     def _update_hook(self, my_task):
         """
-        Typically this method should perform the following actions::
-
-            - Update the state of the corresponding task.
-            - Update the predictions for its successors.
-
-        Returning non-False will cause the task to go into READY.
-        Returning any other value will cause no action.
+        This method should decide whether the task should run now or need to wait.
+        Returning True will cause the task to go into READY.
         """
-        # If this actually did what the documentation said (returned a value indicating
-        # that the task was ready), then a lot of things might be easier.
-        my_task._ready()
+        return True
 
     def _on_ready(self, my_task):
         """
@@ -390,7 +381,9 @@ class TaskSpec(object):
         my_task.workflow.last_task = my_task
         self._on_complete_hook(my_task)
         for child in my_task.children:
-            child.task_spec._update(child)
+            # Don't like this, but this is the most expedient way of preventing cancelled tasks from reactivation
+            if child.state != TaskState.CANCELLED:
+                child.task_spec._update(child)
         my_task.workflow._task_completed_notify(my_task)
 
         self.completed_event.emit(my_task.workflow, my_task)

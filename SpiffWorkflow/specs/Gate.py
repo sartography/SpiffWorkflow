@@ -60,7 +60,7 @@ class Gate(TaskSpec):
             if not task._has_state(TaskState.COMPLETED):
                 my_task._set_state(TaskState.WAITING)
                 return
-        super(Gate, self)._update_hook(my_task)
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_gate(self)

@@ -2,28 +2,28 @@ from functools import partial
 
 class DictionaryConverter:
     """
-    This is a base class used to convert BPMN specs, workflows, tasks, and data to
-    dictionaries of JSON-serializable objects.  Actual serialization is done as the
+    This is a base class used to convert BPMN specs, workflows, tasks, and (optonally)
+    data to dictionaries of JSON-serializable objects.  Actual serialization is done as the
     very last step by other classes.
 
-    This class allows you to register to_dict and from_dict functions for non-JSON-
+    This class allows you to register `to_dict` and `from_dict` functions for non-JSON-
     serializable objects.
 
-    When an object is passed into `convert`, it will call the supplied to_dict
+    When an object is passed into `convert`, it will call the supplied `to_dict`
     function on any classes that have been registered.  The supplied to_dict function
     must return a dictionary.  The object's `typename` will be added to this dictionary
     by the converter.
 
     The (unqualified) class name will be used as the `typename` if one is not supplied.
-    You can optionally supply our own names (you'll need to do this if you need to 
-    identically named classes in multiple packages).
+    You can optionally supply our own names (you'll need to do this if you use identically 
+    named classes in multiple packages).
 
     When a dictionary is passed into `restore`, it will be checked for a `typename` key.
-    If a registered `typename` is found, the supplied from_dict function will be 
+    If a registered `typename` is found, the supplied `from_dict` function will be 
     called.  Unrecognized objects will be returned as-is.
 
     For a simple example of how to use this class, see the `BpmnDataConverter` in
-    `bpmn_converters`.
+    `registry`.
     """
 
     def __init__(self):

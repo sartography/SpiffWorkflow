@@ -403,14 +403,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
     def __iter__(self):
         return Task.Iterator(self)
 
-    def __setstate__(self, dict):
-        self.__dict__.update(dict)
-        # If unpickled in the same Python process in which a workflow
-        # (Task) is built through the API, we need to make sure
-        # that there will not be any ID collisions.
-        if dict['thread_id'] >= self.__class__.thread_id_pool:
-            self.__class__.thread_id_pool = dict['thread_id']
-
     def _get_root(self):
         """
         Returns the top level parent.
@@ -752,10 +744,9 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         has changed (e.g. from FUTURE to COMPLETED.)
         """
         self._set_state(TaskState.COMPLETED)
-        # WHY on earth do we mark the task completed and THEN attempt to execute it.
-        # A sane model would have success and failure states and instead we return
-        # a boolean, with no systematic way of dealing with failures.  This is just
-        # crazy!
+        # I am taking back my previous comment about running the task after it's completed being "CRAZY"
+        # Turns out that tasks are in fact supposed to be complete at this point and I've been wrong all along
+        # about when tasks should actually be executed
         start = time.time()
         retval = self.task_spec._on_complete(self)
         extra = self.log_info({

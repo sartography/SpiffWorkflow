@@ -7,6 +7,7 @@ from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 
 from .BaseTestCase import BaseTestCase
 
+
 class VersionMigrationTest(BaseTestCase):
 
     SERIALIZER_VERSION = "1.2"

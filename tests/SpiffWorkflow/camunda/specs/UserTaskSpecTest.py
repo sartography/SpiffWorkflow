@@ -1,7 +1,8 @@
 import unittest
 
 from SpiffWorkflow.camunda.specs.UserTask import FormField, UserTask, Form, EnumFormField
-from SpiffWorkflow.camunda.serializer.task_spec_converters import UserTaskConverter
+from SpiffWorkflow.camunda.serializer.task_spec import UserTaskConverter
+from SpiffWorkflow.bpmn.serializer.helpers.dictionary import DictionaryConverter
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 
 
@@ -53,7 +54,7 @@ class UserTaskSpecTest(unittest.TestCase):
         self.form.add_field(field1)
         self.form.add_field(field2)
 
-        converter = UserTaskConverter()
+        converter = UserTaskConverter(DictionaryConverter())
         dct = converter.to_dict(self.user_spec)
         self.assertEqual(dct['name'], 'userTask')
         self.assertEqual(dct['form'], {
