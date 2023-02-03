@@ -1,12 +1,108 @@
 from lxml import etree
+from copy import deepcopy
 
+from ...camunda.specs.UserTask import Form, FormField, EnumFormField
+from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
+from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
+from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser
 from SpiffWorkflow.bpmn.parser.util import xpath_eval
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.parser.node_parser import DEFAULT_NSMAP
-from .task_spec import CAMUNDA_MODEL_NS
+from SpiffWorkflow.bpmn.parser.task_parsers import ScriptTaskParser
+
 
 CAMUNDA_MODEL_PREFIX = 'camunda'
+CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
+
+
+class BusinessRuleTaskParser(TaskParser):
+    dmn_debug = None
+
+    def __init__(self, process_parser, spec_class, node, lane=None):
+        nsmap = DEFAULT_NSMAP.copy()
+        nsmap.update({'camunda': CAMUNDA_MODEL_NS})
+        super(BusinessRuleTaskParser, self).__init__(process_parser, spec_class, node, nsmap, lane)
+
+    def create_task(self):
+        decision_ref = self.get_decision_ref(self.node)
+        return BusinessRuleTask(self.spec, self.get_task_spec_name(),
+                                dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
+                                lane=self.lane, position=self.position,
+                                description=self.node.get('name', None),
+                                )
+
+    @staticmethod
+    def get_decision_ref(node):
+        return node.attrib['{' + CAMUNDA_MODEL_NS + '}decisionRef']
+
+    def _on_trigger(self, my_task):
+        pass
+
+    def serialize(self, serializer, **kwargs):
+        pass
+
+    @classmethod
+    def deserialize(cls, serializer, wf_spec, s_state, **kwargs):
+        pass
+
+
+class UserTaskParser(TaskParser):
+    """
+    Base class for parsing User Tasks
+    """
+
+    def __init__(self, process_parser, spec_class, node, lane=None):
+        nsmap = DEFAULT_NSMAP.copy()
+        nsmap.update({'camunda': CAMUNDA_MODEL_NS})
+        super(UserTaskParser, self).__init__(process_parser, spec_class, node, nsmap, lane)
+
+    def create_task(self):
+        form = self.get_form()
+        return self.spec_class(self.spec, self.get_task_spec_name(), form,
+                               lane=self.lane,
+                               position=self.position,
+                               description=self.node.get('name', None))
+
+    def get_form(self):
+        """Camunda provides a simple form builder, this will extract the
+        details from that form and construct a form model from it. """
+        form = Form()
+        try:
+            form.key = self.node.attrib['{' + CAMUNDA_MODEL_NS + '}formKey']
+        except KeyError:
+            return form
+        for xml_field in self.xpath('.//camunda:formData/camunda:formField'):
+            if xml_field.get('type') == 'enum':
+                field = self.get_enum_field(xml_field)
+            else:
+                field = FormField()
+
+            field.id = xml_field.get('id')
+            field.type = xml_field.get('type')
+            field.label = xml_field.get('label')
+            field.default_value = xml_field.get('defaultValue')
+
+            for child in xml_field:
+                if child.tag == '{' + CAMUNDA_MODEL_NS + '}properties':
+                    for p in child:
+                        field.add_property(p.get('id'), p.get('value'))
+
+                if child.tag == '{' + CAMUNDA_MODEL_NS + '}validation':
+                    for v in child:
+                        field.add_validation(v.get('name'), v.get('config'))
+
+            form.add_field(field)
+        return form
+
+    def get_enum_field(self, xml_field):
+        field = EnumFormField()
+
+        for child in xml_field:
+            if child.tag == '{' + CAMUNDA_MODEL_NS + '}value':
+                field.add_option(child.get('id'), child.get('name'))
+        return field
 
 
 class CallActivitySubprocessParser:
@@ -145,3 +241,51 @@ class CallActivitySubWorkflowParser(SpiffTaskParser):
             description=self.node.get('name', None),
             inputs=inputs,
             outputs=outputs)
+
+
+class CustomScriptTaskParser(ScriptTaskParser):
+    """
+    Parses a script task
+    """
+    def create_task(self):
+        script = None
+        extensions = {}
+        try:
+            script = self.get_script()
+        except Exception:
+            script = self.get_resource_script()
+            extensions = CamundaCallActivityParser._parse_extensions(self.node)
+
+        if not script:
+            raise ValidationException("Invalid Script Task.  No Script Provided. ",
+                                      node=self.node, file_name=self.filename)
+
+        return self.spec_class(self.spec, self.get_task_spec_name(), script,
+                               lane=self.lane,
+                               position=self.position,
+                               description=self.node.get('name', None),
+                               prescript=extensions.get('pre_script'),
+                               postscript=extensions.get('post_script'))
+
+    def get_resource_script(self):
+        """
+        Gets the script content from the node. A subclass can override this
+        method, if the script needs to be pre-parsed. The result of this call
+        will be passed to the Script Engine for execution.
+        """
+        script = None
+        try:
+            self.node.get("{%s}resource" % CAMUNDA_MODEL_NS)
+            method = self.node.get("{%s}resource" % CAMUNDA_MODEL_NS)
+            result_var = self.node.get("{%s}resultVariable" % CAMUNDA_MODEL_NS, "_")
+
+            script = """def _temp(task):
+                    from %s import %s
+                    return %s(task) \n\n""" % (".".join(method.split(".")[:-1]),
+                                               method.split(".")[-1], method.split(".")[-1])
+            script += "%s = _temp(task)" % result_var
+
+        except AssertionError as ae:
+            raise ValidationException("Invalid Script Task.  No Script Provided. " + str(ae),
+                                      node=self.node, file_name=self.filename)
+        return script

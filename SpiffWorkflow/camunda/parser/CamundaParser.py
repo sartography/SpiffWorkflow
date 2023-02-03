@@ -4,15 +4,17 @@ from ...bpmn.parser.BpmnParser import full_tag
 
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
-from SpiffWorkflow.camunda.parser.task_spec import BusinessRuleTaskParser
+from SpiffWorkflow.camunda.parser.task_parsers import BusinessRuleTaskParser
 
 from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
 from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
 from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
 from .event_parsers import CamundaStartEventParser, CamundaEndEventParser, \
     CamundaIntermediateCatchEventParser, CamundaIntermediateThrowEventParser, CamundaBoundaryEventParser
-from .task_parsers import CamundaCallActivityParser
-from .task_spec import CamundaCallActivity
+from .task_parsers import CamundaCallActivityParser, CamundaScriptTaskParser
+from SpiffWorkflow.camunda.specs.call_activity_task import CamundaCallActivity
+from SpiffWorkflow.spiff.specs.script_task import ScriptTask
+
 
 class CamundaParser(BpmnDmnParser):
 
@@ -25,4 +27,5 @@ class CamundaParser(BpmnDmnParser):
         full_tag('boundaryEvent'): (CamundaBoundaryEventParser, BoundaryEvent),
         full_tag('businessRuleTask'): (BusinessRuleTaskParser, BusinessRuleTask),
         full_tag('callActivity'): (CamundaCallActivityParser, CamundaCallActivity),
+        full_tag('scriptTask'): (CamundaScriptTaskParser, ScriptTask),
     }
