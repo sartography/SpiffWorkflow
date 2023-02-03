@@ -39,3 +39,16 @@ class Version_1_1_Test(BaseTestCase):
         wf = self.serializer.deserialize_json(open(fn).read())
         wf.do_engine_steps()
         self.assertTrue(wf.is_completed())
+
+    def test_convert_exclusive_gateway(self):
+        fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.1-gateways.json')
+        wf = self.serializer.deserialize_json(open(fn).read())
+        wf.do_engine_steps()
+        task = wf.get_tasks_from_spec_name('Gateway_askQuestion')[0]
+        self.assertEqual(len(task.task_spec.cond_task_specs), 2)
+        ready_task = wf.get_ready_user_tasks()[0]
+        ready_task.data['NeedClarification'] = 'Yes'
+        ready_task.complete()
+        wf.do_engine_steps()
+        ready_task = wf.get_ready_user_tasks()[0]
+        self.assertEqual(ready_task.task_spec.name, 'Activity_A2')

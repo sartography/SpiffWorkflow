@@ -70,9 +70,10 @@ def convert_timer_expressions(dct):
                     dct['tasks'].pop(remove['id'])
 
 def add_default_condition_to_cond_task_specs(dct):
+
     for spec in [ts for ts in dct['spec']['task_specs'].values() if ts['typename'] == 'ExclusiveGateway']:
         if (None, spec['default_task_spec']) not in spec['cond_task_specs']:
-            spec['cond_task_specs'].append((None, spec['default_task_spec']))
+            spec['cond_task_specs'].append({'condition': None, 'task_spec': spec['default_task_spec']})
 
 def create_data_objects_and_io_specs(dct):
 
