@@ -18,18 +18,15 @@
 # 02110-1301  USA
 
 from .ValidationException import ValidationException
-from ..specs.NoneTask import NoneTask
-from ..specs.ScriptTask import ScriptTask
-from ..specs.UserTask import UserTask
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
 from ..specs.events.event_definitions import CancelEventDefinition
-from ..specs.MultiInstanceTask import getDynamicMIClass, StandardLoopTask
-from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess, SubWorkflowTask
+from ..specs.MultiInstanceTask import StandardLoopTask, SequentialMultiInstanceTask, ParallelMultiInstanceTask
+from ..specs.SubWorkflowTask import TransactionSubprocess
 from ..specs.ExclusiveGateway import ExclusiveGateway
 from ..specs.InclusiveGateway import InclusiveGateway
-from ...dmn.specs.BusinessRuleTask import BusinessRuleTask
-from ...operators import Attrib, PathAttrib
-from .util import one, first
+from ..specs.data_spec import TaskDataReference
+
+from .util import one
 from .node_parser import NodeParser
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
@@ -59,6 +56,23 @@ class TaskParser(NodeParser):
         self.spec_class = spec_class
         self.spec = self.process_parser.spec
 
+    def _copy_task_attrs(self, original):
+
+        self.task.inputs = original.inputs
+        self.task.outputs = original.outputs
+        self.task.io_specification = original.io_specification
+        self.task.data_input_associations = original.data_input_associations
+        self.task.data_output_associations = original.data_output_associations
+        self.task.description = original.description
+
+        original.inputs = [self.task]
+        original.outputs = []
+        original.io_specification = None
+        original.data_input_associations = []
+        original.data_output_associations = []
+        original.name = f'{original.name} [child]'
+        self.spec.task_specs[original.name] = original
+
     def _add_loop_task(self, loop_characteristics):
 
         maximum = loop_characteristics.attrib.get('loopMaximum')
@@ -68,78 +82,64 @@ class TaskParser(NodeParser):
         condition = condition[0].text if len(condition) > 0 else None
         test_before = loop_characteristics.get('testBefore', 'false') == 'true'
         if maximum is None and condition is None:
-            raise ValidationException(
-                'A loopMaximum or loopCondition must be specified for Loop Tasks',
-                node=self.node,
-                file_name=self.filename
-            )
+            self.raise_validation_exception('A loopMaximum or loopCondition must be specified for Loop Tasks')
 
         original = self.spec.task_specs.pop(self.task.name)
-
         self.task = StandardLoopTask(self.spec, original.name, original, maximum, condition, test_before)
-        self.task.inputs = original.inputs
-        self.task.outputs = original.outputs
+        self._copy_task_attrs(original)
 
-        original.inputs = [self.task]
-        original.outputs = []
-        original.name = f'{original.name} [child]'
-        self.spec.task_specs[original.name] = original
+    def _add_multiinstance_task(self, loop_characteristics):
+        
+        sequential = loop_characteristics.get('isSequential') == 'true'
+        prefix = 'bpmn:multiInstanceLoopCharacteristics'
+        cardinality = self.xpath(f'./{prefix}/bpmn:loopCardinality')
+        loop_input = self.xpath(f'./{prefix}/bpmn:loopDataInputRef')
+        if len(cardinality) == 0 and len(loop_input) == 0:
+            self.raise_validation_exception("A multiinstance task must specify a cardinality or a loop input data reference")
+        elif len(cardinality) > 0 and len(loop_input) > 0:
+            self.raise_validation_exception("A multiinstance task must specify exactly one of cardinality or loop input data reference")
+        cardinality = int(cardinality[0].text) if len(cardinality) > 0 else None
 
-    def _set_multiinstance_attributes(self, is_sequential, expanded, loop_count,
-                                      loop_task=False, element_var=None, collection=None, completion_condition=None):
-        # This should be replaced with its own task parser (though I'm not sure how feasible this is given
-        # the current parser achitecture).  We should also consider separate classes for loop vs
-        # multiinstance because having all these optional attributes is a nightmare
+        loop_input = loop_input[0].text if len(loop_input) > 0 else None
+        if loop_input is not None:
+            try:
+                loop_input = [v for v in self.task.io_specification.data_inputs if v.name == loop_input][0]
+            except:
+                self.raise_validation_exception('The loop input data reference is missing from the IO specification')
 
-        if not isinstance(self.task, (NoneTask, UserTask, BusinessRuleTask, ScriptTask, CallActivity, SubWorkflowTask)):
-            raise ValidationException(
-                f'Unsupported MultiInstance Task: {self.task.__class__}',
-                node=self.node,
-                file_name=self.filename)
+        input_item = self.xpath(f'./{prefix}/bpmn:inputDataItem')
+        input_item = self.create_data_spec(input_item[0], TaskDataReference) if len(input_item) > 0 else None
 
-        self.task.loopTask = loop_task
-        self.task.isSequential = is_sequential
-        self.task.expanded = expanded
-        # make dot notation compatible with bmpmn path notation.
-        self.task.times = PathAttrib(loop_count.replace('.', '/')) if loop_count.find('.') > 0 else Attrib(loop_count)
-        self.task.elementVar = element_var
-        self.task.collection = collection
-        self.task.completioncondition = completion_condition
+        loop_output = self.xpath(f'./{prefix}/bpmn:loopDataOutputRef')
+        loop_output = loop_output[0].text if len(loop_output) > 0 else None
+        if loop_output is not None:
+            try:
+                refs = set(self.task.io_specification.data_inputs + self.task.io_specification.data_outputs)
+                loop_output = [v for v in refs if v.name == loop_output][0]
+            except:
+                self.raise_validation_exception('The loop output data reference is missing from the IO specification')
 
-        self.task.prevtaskclass = self.task.__module__ + "." + self.task.__class__.__name__
-        newtaskclass = getDynamicMIClass(self.get_id(),self.task.__class__)
-        self.task.__class__ = newtaskclass
+        output_item = self.xpath(f'./{prefix}/bpmn:outputDataItem')
+        output_item = self.create_data_spec(output_item[0], TaskDataReference) if len(output_item) > 0 else None
 
-    def _detect_multiinstance(self):
+        condition = self.xpath(f'./{prefix}/bpmn:completionCondition')
+        condition = condition[0].text if len(condition) > 0 else None
 
-        multiinstance_element = first(self.xpath('./bpmn:multiInstanceLoopCharacteristics'))
-        if multiinstance_element is not None:
-            is_sequential = multiinstance_element.get('isSequential') == 'true'
-
-            element_var_text = multiinstance_element.attrib.get('{' + CAMUNDA_MODEL_NS + '}elementVariable')
-            collection_text = multiinstance_element.attrib.get('{' + CAMUNDA_MODEL_NS + '}collection')
-
-            loop_cardinality = first(self.xpath('./bpmn:multiInstanceLoopCharacteristics/bpmn:loopCardinality'))
-            if loop_cardinality is not None:
-                loop_count = loop_cardinality.text
-            elif collection_text is not None:
-                loop_count = collection_text
-            else:
-                loop_count = '1'
-
-            if collection_text is not None:
-                collection = PathAttrib(collection_text.replace('.', '/')) if collection_text.find('.') > 0 else Attrib(collection_text)
-            else:
-                collection = None
-
-            completion_condition = first(self.xpath('./bpmn:multiInstanceLoopCharacteristics/bpmn:completionCondition'))
-            if completion_condition is not None:
-                completion_condition = completion_condition.text
-
-            self._set_multiinstance_attributes(is_sequential, 1, loop_count,
-                                               element_var=element_var_text,
-                                               collection=collection,
-                                               completion_condition=completion_condition)
+        original = self.spec.task_specs.pop(self.task.name)
+        params = {
+            'task_spec': original, 
+            'cardinality': cardinality, 
+            'data_input': loop_input,
+            'data_output':loop_output,
+            'input_item': input_item,
+            'output_item': output_item,
+            'condition': condition,
+        }
+        if sequential:
+            self.task = SequentialMultiInstanceTask(self.spec, original.name, **params)
+        else:
+            self.task = ParallelMultiInstanceTask(self.spec, original.name, **params)
+        self._copy_task_attrs(original)
 
     def _add_boundary_event(self, children):
 
@@ -180,7 +180,11 @@ class TaskParser(NodeParser):
             if len(loop_characteristics) > 0:
                 self._add_loop_task(loop_characteristics[0])
 
-            self._detect_multiinstance()
+            mi_loop_characteristics = self.xpath('./bpmn:multiInstanceLoopCharacteristics')
+            if len(mi_loop_characteristics) > 0:
+                if self.task.io_specification is None:
+                    self.raise_validation_exception('An IO Specification is required for multiinstance tasks')
+                self._add_multiinstance_task(mi_loop_characteristics[0])
 
             boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
             if boundary_event_nodes:
@@ -260,3 +264,4 @@ class TaskParser(NodeParser):
         outgoing sequence flows.
         """
         return False
+

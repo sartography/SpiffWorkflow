@@ -61,12 +61,25 @@ class NodeParser:
         return specs
 
     def parse_io_spec(self):
-        inputs, outputs = [], []
+        data_refs = {}
         for elem in self.xpath('./bpmn:ioSpecification/bpmn:dataInput'):
-            inputs.append(TaskDataReference(elem.get('id'), elem.get('name')))
+            ref = self.create_data_spec(elem, TaskDataReference)
+            data_refs[ref.name] = ref
         for elem in self.xpath('./bpmn:ioSpecification/bpmn:dataOutput'):
-            outputs.append(TaskDataReference(elem.get('id'), elem.get('name')))
+            ref = self.create_data_spec(elem, TaskDataReference)
+            data_refs[ref.name] = ref
+
+        inputs, outputs = [], []
+        for ref in self.xpath('./bpmn:ioSpecification/bpmn:inputSet/bpmn:dataInputRefs'):
+            if ref.text in data_refs:
+                inputs.append(data_refs[ref.text])
+        for ref in self.xpath('./bpmn:ioSpecification/bpmn:outputSet/bpmn:dataOutputRefs'):
+            if ref.text in data_refs:
+                outputs.append(data_refs[ref.text])
         return BpmnIoSpecification(inputs, outputs)
+
+    def create_data_spec(self, item, cls):
+        return cls(item.attrib.get('id'), item.attrib.get('name'))
 
     def parse_extensions(self, node=None):
         extensions = {}
@@ -93,3 +106,6 @@ class NodeParser:
         else:
             nsmap = self.nsmap
         return node.xpath(xpath, namespaces=nsmap)
+
+    def raise_validation_exception(self, message):
+        raise ValidationException(message, self.node, self.filename)
