@@ -272,7 +272,6 @@ class TaskSpec(object):
         state of this task in the workflow. For example, if a predecessor
         completes it makes sure to call this method so we can react.
         """
-        my_task._inherit_data()
         if my_task._is_predicted():
             self._predict(my_task)
         self.entered_event.emit(my_task.workflow, my_task)
@@ -282,8 +281,10 @@ class TaskSpec(object):
     def _update_hook(self, my_task):
         """
         This method should decide whether the task should run now or need to wait.
+        Tasks can also optionally choose not to inherit data.
         Returning True will cause the task to go into READY.
         """
+        my_task._inherit_data()
         return True
 
     def _on_ready(self, my_task):

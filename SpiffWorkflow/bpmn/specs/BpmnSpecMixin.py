@@ -76,9 +76,9 @@ class BpmnSpecMixin(TaskSpec):
         else:
             self.connect_if(_BpmnCondition(condition), taskspec)
 
-    def _on_ready_hook(self, my_task):
-        super()._on_ready_hook(my_task)
+    def _update_hook(self, my_task):
 
+        super()._update_hook(my_task)
         # This copies data from data objects
         for obj in self.data_input_associations:
             obj.get(my_task)
@@ -91,6 +91,8 @@ class BpmnSpecMixin(TaskSpec):
                     raise WorkflowDataException(f"Missing data input", task=my_task, data_input=var)
                 data[var.name] = my_task.data[var.name]
             my_task.data = data
+
+        return True
 
     def _on_complete_hook(self, my_task):
 

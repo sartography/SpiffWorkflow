@@ -49,6 +49,7 @@ class StandardLoopTask(BpmnSpecMixin):
 
     def _update_hook(self, my_task):
 
+        super()._update_hook(my_task)
         # First handle any completed children and check for running children
         merged = my_task.internal_data.get('merged') or []
         child_running = False
@@ -92,7 +93,7 @@ def gendict(path, d):
     else:
         return gendict(path[:-1], {path[-1]: d})
 
-class MultiInstanceTask(TaskSpec):
+class MultiInstanceTask(BpmnSpecMixin):
     """
     When executed, this task performs a split on the current task.
     The number of outgoing tasks depends on the runtime value of a
@@ -129,7 +130,7 @@ class MultiInstanceTask(TaskSpec):
 
         self.multiInstance = True
 
-        TaskSpec.__init__(self, wf_spec, name, **kwargs)
+        BpmnSpecMixin.__init__(self, wf_spec, name, **kwargs)
 
     def _find_my_task(self, task):
         for thetask in task.workflow.task_tree:
@@ -316,12 +317,10 @@ class MultiInstanceTask(TaskSpec):
         # variables correct
         new_child.internal_data = copy.deepcopy(my_task.internal_data)
 
-        new_child.internal_data[
-            'runtimes'] = x + 2  # working with base 1 and we already have one done
+        new_child.internal_data['runtimes'] = x + 2  # working with base 1 and we already have one done
 
         new_child.data = copy.deepcopy(my_task.data)
-        new_child.data[self.elementVar] = self._get_current_var(my_task,
-                                                                x + 2)
+        new_child.data[self.elementVar] = self._get_current_var(my_task, x + 2)
 
         new_child.children = []  # these will be updated later
         # in the case of parallel, the children list will get updated during the predict loop

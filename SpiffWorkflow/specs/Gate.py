@@ -52,6 +52,7 @@ class Gate(TaskSpec):
         self.context = context
 
     def _update_hook(self, my_task):
+        super()._update_hook(my_task)
         context_task = my_task.workflow.get_task_spec_from_name(self.context)
         root_task = my_task.workflow.task_tree
         for task in root_task._find_any(context_task):
