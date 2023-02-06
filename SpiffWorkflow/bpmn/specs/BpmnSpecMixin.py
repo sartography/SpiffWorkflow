@@ -49,7 +49,6 @@ class BpmnSpecMixin(TaskSpec):
         super(BpmnSpecMixin, self).__init__(wf_spec, name, **kwargs)
         self.lane = lane
         self.position = position or {'x': 0, 'y': 0}
-        self.loopTask = False
         self.documentation = None
         self.data_input_associations = []
         self.data_output_associations = []
@@ -58,12 +57,6 @@ class BpmnSpecMixin(TaskSpec):
     @property
     def spec_type(self):
         return 'BPMN Task'
-
-    def is_loop_task(self):
-        """
-        Returns true if this task is a BPMN looping task
-        """
-        return self.loopTask
 
     def connect_outgoing_if(self, condition, taskspec):
         """

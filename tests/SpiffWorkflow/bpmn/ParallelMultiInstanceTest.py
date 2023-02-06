@@ -64,6 +64,14 @@ class ParallelMultiInstanceNewOutputTest(BaseTestCase):
         self.set_data_and_run_workflow("""input_data = set([1, 2, 3])""")
         self.assertDictEqual(self.workflow.data, {'output_data': [2, 4, 6]})
 
+    def testEmptyCollection(self):
+
+        set_data = self.workflow.get_tasks_from_spec_name('set_data')[0]
+        set_data.task_spec.script = """input_data = []"""
+        self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.is_completed())
+        self.assertDictEqual(self.workflow.data, {'output_data': []})
+
     def testCondition(self):
 
         set_data = self.workflow.get_tasks_from_spec_name('set_data')[0]

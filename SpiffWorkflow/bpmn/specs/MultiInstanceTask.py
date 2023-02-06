@@ -251,7 +251,13 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
             if self.data_output is not None:
                 self.init_data_output_with_cardinality(my_task)
 
-        if current < self.cardinality:
+        cardinality = my_task.internal_data.get('cardinality')
+        if cardinality is None:
+            # In case the evaluated expression changes during execution
+            cardinality = my_task.workflow.script_engine.evaluate(my_task, self.cardinality)
+            my_task.internal_data['cardinality'] = cardinality
+
+        if current < cardinality:
             # If using loop cardinalty, if a data input was specified, use the index as the "item"
             my_task.internal_data['current'] = current + 1
             return None, current
@@ -289,7 +295,8 @@ class ParallelMultiInstanceTask(MultiInstanceTask):
                 children = ((None, item) for item in data_input)
         else:
             # For tasks specifying the cardinality, use the index as the "item"
-            children = ((None, idx) for idx in range(self.cardinality))
+            cardinality = my_task.workflow.script_engine.evaluate(my_task, self.cardinality)
+            children = ((None, idx) for idx in range(cardinality))
 
         if not my_task.internal_data.get('started', False):
 
