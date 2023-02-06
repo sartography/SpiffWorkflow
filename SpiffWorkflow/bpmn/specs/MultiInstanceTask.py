@@ -22,8 +22,7 @@ from collections.abc import Iterable, Sequence, Mapping, MutableSequence, Mutabl
 
 from ...task import TaskState
 from ...util.deep_merge import DeepMerge
-
-from ..exceptions import WorkflowDataException, WorkflowTaskException
+from ..exceptions import WorkflowDataException
 from .BpmnSpecMixin import BpmnSpecMixin
 
 
@@ -32,7 +31,7 @@ class LoopTask(BpmnSpecMixin):
     def process_children(self, my_task):
         """
         Handle any newly completed children and update merged tasks. 
-        Returns a boolean indicating whether these is a child currently running
+        Returns a boolean indicating whether there is a child currently running
         """
         merged = my_task.internal_data.get('merged') or []
         child_running = False
@@ -64,10 +63,9 @@ class StandardLoopTask(LoopTask):
         child_running = self.process_children(my_task)
         if child_running:
             # We're in the middle of an iteration; we're not done and we can't create a new task
-            # (we should only have one at a time)
             return False
         elif self.loop_complete(my_task):
-            # No children running and one of the completion conditions has been met
+            # No children running and one of the completion conditions has been met; done
             return True
         else:
             # Execute again
@@ -82,7 +80,7 @@ class StandardLoopTask(LoopTask):
     def loop_complete(self, my_task):
         merged = my_task.internal_data.get('merged') or []
         if not self.test_before and len(merged) == 0:
-            # "test before" isn't really applicable to our execution model
+            # "test before" isn't really compatible our execution model in a transparent way
             # This guarantees that the task will run at least once if test_before is False
             return False
         else:
@@ -106,22 +104,38 @@ class MultiInstanceTask(LoopTask):
         self.output_item = output_item
         self.condition = condition
 
-    def check_completion_condition(self, my_task):
-        if my_task.state == TaskState.WAITING:
-            # It is unclear whether the condition should apply to the parent or the child
-            # Either could be valid in different contexts, so merge the data before evaluation
-            merged = my_task.internal_data.get('merged', [])
-            if len(merged) > 0:
-                last_child = [c for c in my_task.children if str(c.id) == merged[-1]][0]
-                context = deepcopy(last_child.data)
-                DeepMerge.merge(context, my_task.data)
-            else:
-                context = my_task.data
-            try:
-                return my_task.workflow.script_engine._evaluate(self.condition, context)
-            except:
-                raise WorkflowTaskException("Error evaluating multiinstance condition", my_task)
+    def child_completed_action(self, my_task, child):
+        """This merges child data into this task's data."""
 
+        if self.data_output is not None and self.output_item is not None:
+            if self.output_item.name not in child.data:
+                self.raise_data_exception("Expected an output item", child)
+            item = child.data[self.output_item.name]
+            key_or_index = child.internal_data.get('key_or_index')
+            data_output = my_task.data[self.data_output.name]
+            data_input = my_task.data[self.data_input.name] if self.data_input is not None else None
+            if isinstance(data_output, Mapping) or data_input is data_output:
+                data_output[key_or_index] = item
+            else:
+                data_output.append(item)
+        else:
+            DeepMerge.merge(my_task.data, child.data)
+
+    def create_child(self, my_task, item, key_or_index=None):
+
+        child = my_task._add_child(self.task_spec, TaskState.READY)
+        child.data = deepcopy(my_task.data)
+        if self.input_item is not None:
+            child.data[self.input_item.name] = deepcopy(item)
+        if key_or_index is not None:
+            child.internal_data['key_or_index'] = key_or_index
+
+    def check_completion_condition(self, my_task):
+
+        merged = my_task.internal_data.get('merged', [])
+        if len(merged) > 0:
+            last_child = [c for c in my_task.children if str(c.id) == merged[-1]][0]
+            return my_task.workflow.script_engine.evaluate(last_child, self.condition)
 
     def init_data_output_with_input_data(self, my_task, input_data):
 
@@ -140,31 +154,17 @@ class MultiInstanceTask(LoopTask):
             output_data = my_task.data[self.data_output.name]
             if not isinstance(output_data, (MutableSequence, MutableMapping)):
                 self.raise_data_exception("Only a mutable map (dict) or sequence (list) can be used for output", my_task)
-            elif input_data is not output_data and len(output_data) > 0:
-                self.raise_data_exception("If the input is not being updated in place, the output must be empty", my_task)
+            if input_data is not output_data and not isinstance(output_data, Mapping) and len(output_data) > 0:
+                self.raise_data_exception(
+                    "If the input is not being updated in place, the output must be empty or it must be a map (dict)", my_task)
 
     def init_data_output_with_cardinality(self, my_task):
+
         name = self.data_output.name
         if name not in my_task.data:
             my_task.data[name] = list()
-        elif not isinstance(my_task.data[name], MutableSequence) and len(my_task.data[name]) > 0:
-            self.raise_data_exception("If loop cardinality is specificied, the output must be an empty list")
-  
-    def child_completed_action(self, my_task, child):
-
-        if self.data_output is not None and self.output_item is not None:
-            if self.output_item.name not in child.data:
-                self.raise_data_exception("Expected an output item", my_task)
-            item = child.data[self.output_item.name] # the value
-            current = my_task.internal_data.get('current') # index or the key
-            data_output = my_task.data[self.data_output.name]
-            data_input = my_task.data[self.data_input.name] if self.data_input is not None else None
-            if isinstance(data_output, Mapping) or data_input is data_output:
-                data_output[current] = item
-            else:
-                data_output.append(item)
-        else:
-            DeepMerge.merge(my_task.data, child.data)
+        elif not isinstance(my_task.data[name], MutableSequence) or len(my_task.data[name]) > 0:
+            self.raise_data_exception("If loop cardinality is specificied, the output must be a map (dict) or empty sequence (list)")
 
     def raise_data_exception(self, message, my_task):
         raise WorkflowDataException(message, my_task, data_input=self.data_input, data_output=self.data_output)
@@ -180,25 +180,22 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
         child_running = self.process_children(my_task)
         if child_running:
             return False
-        elif self.condition is not None and self.check_completion_condition(my_task):
+        if self.condition is not None and self.check_completion_condition(my_task):
             return True
         else:
-            return self.create_child(my_task)
+            return self.add_next_child(my_task)
 
-    def create_child(self, my_task):
+    def add_next_child(self, my_task):
 
         if self.data_input is not None:
-            next_child = self.get_next_input_item(my_task)
+            key_or_index, item = self.get_next_input_item(my_task)
         else:
-            next_child = self.get_next_index(my_task)
+            key_or_index, item = self.get_next_index(my_task)
 
-        if next_child is not None:
+        if item is not None:
             if my_task.state != TaskState.WAITING:
                 my_task._set_state(TaskState.WAITING)
-            child = my_task._add_child(self.task_spec, TaskState.READY)
-            child.data = deepcopy(my_task.data)
-            if self.input_item is not None:
-                child.data[self.input_item.name] = deepcopy(next_child)
+            self.create_child(my_task, item, key_or_index)
         else:
             return True
 
@@ -213,10 +210,16 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
                 self.init_data_output_with_input_data(my_task, input_data)
 
         if len(remaining) > 0:
-            current = remaining[0] # This is actually a reference (key or index) for dicts & lists
+            if isinstance(input_data, (Mapping, Sequence)):
+                # In this case, we want to preserve a key or index
+                # We definitely need it if the output is a map, or if we're udpating a sequence in place
+                key_or_index, item = remaining[0], input_data[remaining[0]]
+            else:
+                key_or_index, item = None, remaining[0]
             my_task.internal_data['remaining'] = remaining[1:]
-            my_task.internal_data['current'] = current
-            return input_data[current] if isinstance(input_data, (list, dict)) else current
+            return key_or_index, item
+        else:
+            return None, None
 
     def init_remaining_items(self, my_task):
 
@@ -224,6 +227,7 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
             self.raise_data_exception("Missing data input for multiinstance task", my_task)
         input_data = my_task.data[self.data_input.name]
 
+        # This is internal bookkeeping, so we know where we are; we get the actual items when we create the task
         if isinstance(input_data, Sequence):
             # For lists, keep track of the index
             remaining = [idx for idx in range(len(input_data))]
@@ -246,14 +250,59 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
                 self.init_data_output_with_cardinality(my_task)
 
         if current < self.cardinality:
+            # If using loop cardinalty, if a data input was specified, use the index as the "item"
             my_task.internal_data['current'] = current + 1
-            return current
+            return None, current
+        else:
+            return None, None
 
 
 class ParallelMultiInstanceTask(MultiInstanceTask):
     
     def _update_hook(self, my_task):
-        return super()._update_hook(my_task)
+
+        if my_task.state != TaskState.WAITING:
+            super()._update_hook(my_task)
+            self.create_children(my_task)
+
+        child_running = self.process_children(my_task)
+        if self.condition is not None and self.check_completion_condition(my_task):
+            for child in my_task.children:
+                if child.task_spec == self.task_spec and child.state != TaskState.COMPLETED:
+                    child.cancel()
+            return True
+        return not child_running
+
+    def create_children(self, my_task):
+
+        data_input = my_task.data[self.data_input.name] if self.data_input is not None else None
+        if data_input is not None:
+            # We have to preserve the key or index for maps/sequences, in case we're updating in place, or the output is a mapping
+            if isinstance(data_input, Mapping):
+                children = data_input.items()
+            elif isinstance(data_input, Sequence):
+                children = enumerate(data_input)
+            else:
+                # We can use other iterables as inputs, but key or index isn't meaningful
+                children = ((None, item) for item in data_input)
+        else:
+            # For tasks specifying the cardinality, use the index as the "item"
+            children = ((None, idx) for idx in range(self.cardinality))
+
+        if not my_task.internal_data.get('started', False):
+
+            if self.data_input is not None:
+                self.init_data_output_with_input_data(my_task, my_task.data[self.data_input.name])
+            else:
+                self.init_data_output_with_cardinality(my_task)
+
+            my_task._set_state(TaskState.WAITING)
+            for key_or_index, item in children:
+                self.create_child(my_task, item, key_or_index)
+
+            my_task.internal_data['started'] = True
+        else:
+            return len(my_task.internal_data.get('merged', [])) == len(children)
 
 
 def getDynamicMIClass():
