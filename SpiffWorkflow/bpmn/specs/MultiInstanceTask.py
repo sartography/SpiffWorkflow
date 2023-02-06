@@ -35,11 +35,11 @@ class LoopTask(BpmnSpecMixin):
         """
         merged = my_task.internal_data.get('merged') or []
         child_running = False
-        for child in my_task.children:
-            if child.task_spec == self.task_spec and child._has_state(TaskState.FINISHED_MASK) and str(child.id) not in merged:
+        for child in filter(lambda c: c.task_spec.name == self.task_spec, my_task.children):
+            if child._has_state(TaskState.FINISHED_MASK) and str(child.id) not in merged:
                 self.child_completed_action(my_task, child)
                 merged.append(str(child.id))
-            elif child.task_spec == self.task_spec and not child._has_state(TaskState.FINISHED_MASK):
+            elif not child._has_state(TaskState.FINISHED_MASK):
                 child_running = True
         my_task.internal_data['merged'] = merged
         return child_running    
@@ -71,7 +71,8 @@ class StandardLoopTask(LoopTask):
             # Execute again
             if my_task.state != TaskState.WAITING:
                 my_task._set_state(TaskState.WAITING)
-            child = my_task._add_child(self.task_spec, TaskState.READY)
+            task_spec = my_task.workflow.spec.task_specs[self.task_spec]
+            child = my_task._add_child(task_spec, TaskState.READY)
             child.data = deepcopy(my_task.data)
 
     def child_completed_action(self, my_task, child):
@@ -123,7 +124,8 @@ class MultiInstanceTask(LoopTask):
 
     def create_child(self, my_task, item, key_or_index=None):
 
-        child = my_task._add_child(self.task_spec, TaskState.READY)
+        task_spec = my_task.workflow.spec.task_specs[self.task_spec]
+        child = my_task._add_child(task_spec, TaskState.READY)
         child.data = deepcopy(my_task.data)
         if self.input_item is not None:
             child.data[self.input_item.name] = deepcopy(item)
@@ -268,7 +270,7 @@ class ParallelMultiInstanceTask(MultiInstanceTask):
         child_running = self.process_children(my_task)
         if self.condition is not None and self.check_completion_condition(my_task):
             for child in my_task.children:
-                if child.task_spec == self.task_spec and child.state != TaskState.COMPLETED:
+                if child.task_spec.name == self.task_spec and child.state != TaskState.COMPLETED:
                     child.cancel()
             return True
         return not child_running
@@ -291,10 +293,11 @@ class ParallelMultiInstanceTask(MultiInstanceTask):
 
         if not my_task.internal_data.get('started', False):
 
-            if self.data_input is not None:
-                self.init_data_output_with_input_data(my_task, my_task.data[self.data_input.name])
-            else:
-                self.init_data_output_with_cardinality(my_task)
+            if self.data_output is not None:
+                if self.data_input is not None:
+                    self.init_data_output_with_input_data(my_task, my_task.data[self.data_input.name])
+                else:
+                    self.init_data_output_with_cardinality(my_task)
 
             my_task._set_state(TaskState.WAITING)
             for key_or_index, item in children:
@@ -303,7 +306,3 @@ class ParallelMultiInstanceTask(MultiInstanceTask):
             my_task.internal_data['started'] = True
         else:
             return len(my_task.internal_data.get('merged', [])) == len(children)
-
-
-def getDynamicMIClass():
-    pass

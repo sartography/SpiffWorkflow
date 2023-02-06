@@ -71,6 +71,7 @@ class TaskParser(NodeParser):
         original.data_input_associations = []
         original.data_output_associations = []
         original.name = f'{original.name} [child]'
+        self.task.task_spec = original.name
         self.spec.task_specs[original.name] = original
 
     def _add_loop_task(self, loop_characteristics):
@@ -85,7 +86,7 @@ class TaskParser(NodeParser):
             self.raise_validation_exception('A loopMaximum or loopCondition must be specified for Loop Tasks')
 
         original = self.spec.task_specs.pop(self.task.name)
-        self.task = StandardLoopTask(self.spec, original.name, original, maximum, condition, test_before)
+        self.task = StandardLoopTask(self.spec, original.name, '', maximum, condition, test_before)
         self._copy_task_attrs(original)
 
     def _add_multiinstance_task(self, loop_characteristics):
@@ -101,7 +102,7 @@ class TaskParser(NodeParser):
         cardinality = int(cardinality[0].text) if len(cardinality) > 0 else None
 
         loop_input = loop_input[0].text if len(loop_input) > 0 else None
-        if loop_input is not None:
+        if loop_input is not None and self.task.io_specification is not None:
             try:
                 loop_input = [v for v in self.task.io_specification.data_inputs if v.name == loop_input][0]
             except:
@@ -112,7 +113,7 @@ class TaskParser(NodeParser):
 
         loop_output = self.xpath(f'./{prefix}/bpmn:loopDataOutputRef')
         loop_output = loop_output[0].text if len(loop_output) > 0 else None
-        if loop_output is not None:
+        if loop_output is not None and self.task.io_specification is not None:
             try:
                 refs = set(self.task.io_specification.data_inputs + self.task.io_specification.data_outputs)
                 loop_output = [v for v in refs if v.name == loop_output][0]
@@ -127,7 +128,7 @@ class TaskParser(NodeParser):
 
         original = self.spec.task_specs.pop(self.task.name)
         params = {
-            'task_spec': original, 
+            'task_spec': '', 
             'cardinality': cardinality, 
             'data_input': loop_input,
             'data_output':loop_output,
@@ -152,9 +153,7 @@ class TaskParser(NodeParser):
             child = self.process_parser.parse_node(event)
             if isinstance(child.event_definition, CancelEventDefinition) \
               and not isinstance(self.task, TransactionSubprocess):
-                raise ValidationException('Cancel Events may only be used with transactions',
-                                          node=self.node,
-                                          file_name=self.filename)
+                self.raise_validation_exception('Cancel Events may only be used with transactions')
             parent.connect(child)
         return parent
 
@@ -182,8 +181,6 @@ class TaskParser(NodeParser):
 
             mi_loop_characteristics = self.xpath('./bpmn:multiInstanceLoopCharacteristics')
             if len(mi_loop_characteristics) > 0:
-                if self.task.io_specification is None:
-                    self.raise_validation_exception('An IO Specification is required for multiinstance tasks')
                 self._add_multiinstance_task(mi_loop_characteristics[0])
 
             boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
@@ -195,21 +192,14 @@ class TaskParser(NodeParser):
             children = []
             outgoing = self.doc_xpath('.//bpmn:sequenceFlow[@sourceRef="%s"]' % self.get_id())
             if len(outgoing) > 1 and not self.handles_multiple_outgoing():
-                raise ValidationException(
-                    'Multiple outgoing flows are not supported for '
-                    'tasks of type',
-                    node=self.node,
-                    file_name=self.filename)
+                self.raise_validation_exception('Multiple outgoing flows are not supported for tasks of type')
             for sequence_flow in outgoing:
                 target_ref = sequence_flow.get('targetRef')
                 try:
                     target_node = one(self.doc_xpath('.//bpmn:*[@id="%s"]'% target_ref))
                 except:
-                    raise ValidationException(
-                        'When looking for a task spec, we found two items, '
-                        'perhaps a form has the same ID? (%s)' % target_ref,
-                        node=self.node,
-                        file_name=self.filename)
+                    self.raise_validation_exception('When looking for a task spec, we found two items, '
+                        'perhaps a form has the same ID? (%s)' % target_ref)
 
                 c = self.process_parser.parse_node(target_node)
                 position = c.position
