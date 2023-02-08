@@ -99,26 +99,32 @@ class TaskParser(NodeParser):
             self.raise_validation_exception("A multiinstance task must specify a cardinality or a loop input data reference")
         elif len(cardinality) > 0 and len(loop_input) > 0:
             self.raise_validation_exception("A multiinstance task must specify exactly one of cardinality or loop input data reference")
-        cardinality = int(cardinality[0].text) if len(cardinality) > 0 else None
+        cardinality = cardinality[0].text if len(cardinality) > 0 else None
 
         loop_input = loop_input[0].text if len(loop_input) > 0 else None
-        if loop_input is not None and self.task.io_specification is not None:
-            try:
-                loop_input = [v for v in self.task.io_specification.data_inputs if v.name == loop_input][0]
-            except:
-                self.raise_validation_exception('The loop input data reference is missing from the IO specification')
+        if loop_input is not None:
+            if self.task.io_specification is not None:
+                try:
+                    loop_input = [v for v in self.task.io_specification.data_inputs if v.name == loop_input][0]
+                except:
+                    self.raise_validation_exception('The loop input data reference is missing from the IO specification')
+            else:
+                loop_input = TaskDataReference(loop_input)
 
         input_item = self.xpath(f'./{prefix}/bpmn:inputDataItem')
         input_item = self.create_data_spec(input_item[0], TaskDataReference) if len(input_item) > 0 else None
 
         loop_output = self.xpath(f'./{prefix}/bpmn:loopDataOutputRef')
         loop_output = loop_output[0].text if len(loop_output) > 0 else None
-        if loop_output is not None and self.task.io_specification is not None:
-            try:
-                refs = set(self.task.io_specification.data_inputs + self.task.io_specification.data_outputs)
-                loop_output = [v for v in refs if v.name == loop_output][0]
-            except:
-                self.raise_validation_exception('The loop output data reference is missing from the IO specification')
+        if loop_output is not None:
+            if self.task.io_specification is not None:
+                try:
+                    refs = set(self.task.io_specification.data_inputs + self.task.io_specification.data_outputs)
+                    loop_output = [v for v in refs if v.name == loop_output][0]
+                except:
+                    self.raise_validation_exception('The loop output data reference is missing from the IO specification')
+            else:
+                loop_output = TaskDataReference(loop_output)
 
         output_item = self.xpath(f'./{prefix}/bpmn:outputDataItem')
         output_item = self.create_data_spec(output_item[0], TaskDataReference) if len(output_item) > 0 else None

@@ -1,108 +1,194 @@
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
+
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 
 class BaseTestCase(BpmnWorkflowTestCase):
 
-    def set_data_and_run_workflow(self, script):
-        set_data = self.workflow.get_tasks_from_spec_name('set_data')[0]
-        set_data.task_spec.script = script
-        for idx in range(3):
-            self.workflow.do_engine_steps()
-            self.workflow.refresh_waiting_tasks()
-            ready = self.workflow.get_ready_user_tasks()[0]
+    def set_io_and_run_workflow(self, data, data_input=None, data_output=None, save_restore=False):
+
+        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start.data = data
+
+        any_task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        any_task.task_spec.data_input = TaskDataReference(data_input) if data_input is not None else None
+        any_task.task_spec.data_output = TaskDataReference(data_output) if data_output is not None else None
+
+        self.workflow.do_engine_steps()
+        self.workflow.refresh_waiting_tasks()
+        ready_tasks = self.workflow.get_ready_user_tasks()
+
+        while len(ready_tasks) > 0:
+            self.assertEqual(len(ready_tasks), 1)
+            task = ready_tasks[0]
+            self.assertEqual(task.task_spec.name, 'any_task [child]')
+            self.assertIn('input_item', task.data)
+            task.data['output_item'] = task.data['input_item'] * 2
+            task.complete()
+            if save_restore:
+                self.save_restore()
+            ready_tasks = self.workflow.get_ready_user_tasks()
+
+        self.workflow.do_engine_steps()
+        children = self.workflow.get_tasks_from_spec_name('any_task [child]')
+        self.assertEqual(len(children), 3)
+        self.assertTrue(self.workflow.is_completed()) 
+
+    def run_workflow_with_condition(self, data, condition):
+
+        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start.data = data
+
+        task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        task.task_spec.condition = condition
+
+        self.workflow.do_engine_steps()
+        self.workflow.refresh_waiting_tasks()
+        ready_tasks = self.workflow.get_ready_user_tasks()
+
+        while len(ready_tasks) > 0:
+            ready = ready_tasks[0]
             self.assertEqual(ready.task_spec.name, 'any_task [child]')
             self.assertIn('input_item', ready.data)
             ready.data['output_item'] = ready.data['input_item'] * 2
             ready.complete()
+            self.workflow.do_engine_steps()
+            self.workflow.refresh_waiting_tasks()
+            ready_tasks = self.workflow.get_ready_user_tasks()
+
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed()) 
+        children = self.workflow.get_tasks_from_spec_name('any_task [child]')
+        self.assertEqual(len(children), 2)
+        self.assertTrue(self.workflow.is_completed())
 
 
 class SequentialMultiInstanceExistingOutputTest(BaseTestCase):
 
     def setUp(self):
-        self.spec, subprocess = self.load_workflow_spec('sequential_multiinstance_existing_output.bpmn', 'main')
+        self.spec, subprocess = self.load_workflow_spec('sequential_multiinstance_loop_input.bpmn', 'main')
         self.workflow = BpmnWorkflow(self.spec)
 
     def testListWithDictOutput(self):
-        self.set_data_and_run_workflow("""input_data = [1, 2, 3]\noutput_data = {}""")
-        self.assertDictEqual(self.workflow.data, {'output_data': {0: 2, 1: 4, 2: 6}})
+        data = {
+            'input_data': [1, 2, 3],
+            'output_data': {},
+        }
+        self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data')
+        self.assertDictEqual(self.workflow.data, {
+            'input_data': [1, 2, 3],
+            'output_data': {0: 2, 1: 4, 2: 6},
+        })
 
     def testDictWithListOutput(self):
-        self.set_data_and_run_workflow("""input_data = {'a': 1, 'b': 2, 'c': 3}\noutput_data = []""")
-        self.assertDictEqual(self.workflow.data, {'output_data': [2, 4, 6]})
+        data = {
+            'input_data': {'a': 1, 'b': 2, 'c': 3},
+            'output_data': [],
+        }
+        self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data')
+        self.assertDictEqual(self.workflow.data, {
+            'input_data': {'a': 1, 'b': 2, 'c': 3},
+            'output_data': [2, 4, 6],
+        })
 
     def testNonEmptyOutput(self):
         with self.assertRaises(WorkflowDataException) as exc:
-            self.set_data_and_run_workflow("""input_data = [1, 2, 3]\noutput_data = [1, 2, 3]""")
-            self.assertEqual(exc.exception.message, "If the input is not being updated in place, the output must be empty")
+            data = {
+                'input_data': [1, 2, 3],
+                'output_data': [1, 2, 3],
+            }
+            self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data')
+            self.assertEqual(exc.exception.message, 
+                "If the input is not being updated in place, the output must be empty or it must be a map (dict)")
 
     def testInvalidOutputType(self):
         with self.assertRaises(WorkflowDataException) as exc:
-            self.set_data_and_run_workflow("""input_data = set([1, 2, 3])\noutput_data = set([])""")
+            data = {
+                'input_data': set([1, 2, 3]),
+                'output_data': set(),
+            }
+            self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data')
             self.assertEqual(exc.exception.message, "Only a mutable map (dict) or sequence (list) can be used for output")
 
 
 class SequentialMultiInstanceNewOutputTest(BaseTestCase):
 
     def setUp(self):
-        self.spec, subprocess = self.load_workflow_spec('sequential_multiinstance_new_output.bpmn', 'main')
+        self.spec, subprocess = self.load_workflow_spec('sequential_multiinstance_loop_input.bpmn', 'main')
         self.workflow = BpmnWorkflow(self.spec)
 
     def testList(self):
-        self.set_data_and_run_workflow("""input_data = [1, 2, 3]""")
-        self.assertDictEqual(self.workflow.data, {'output_data': [2, 4, 6]})
+        data = {'input_data': [1, 2, 3]}
+        self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data')
+        self.assertDictEqual(self.workflow.data, {
+            'input_data': [1, 2, 3],
+            'output_data': [2, 4, 6]
+        })
+
+    def testListSaveRestore(self):
+        data = {'input_data': [1, 2, 3]}
+        self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data', save_restore=True)
+        self.assertDictEqual(self.workflow.data, {
+            'input_data': [1, 2, 3],
+            'output_data': [2, 4, 6]
+        })
 
     def testDict(self):
-        self.set_data_and_run_workflow("""input_data = {'a': 1, 'b': 2, 'c': 3}""")
-        self.assertDictEqual(self.workflow.data, {'output_data': {'a': 2, 'b': 4, 'c': 6}})        
+        data = {'input_data': {'a': 1, 'b': 2, 'c': 3} }
+        self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data')
+        self.assertDictEqual(self.workflow.data, {
+            'input_data': {'a': 1, 'b': 2, 'c': 3},
+            'output_data': {'a': 2, 'b': 4, 'c': 6}
+        })        
+
+    def testDictSaveRestore(self):
+        data = {'input_data': {'a': 1, 'b': 2, 'c': 3} }
+        self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data', save_restore=True)
+        self.assertDictEqual(self.workflow.data, {
+            'input_data': {'a': 1, 'b': 2, 'c': 3},
+            'output_data': {'a': 2, 'b': 4, 'c': 6}
+        })
 
     def testSet(self):
-        self.set_data_and_run_workflow("""input_data = set([1, 2, 3])""")
-        self.assertDictEqual(self.workflow.data, {'output_data': [2, 4, 6]})
+        data = {'input_data': set([1, 2, 3])}
+        self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data')
+        self.assertDictEqual(self.workflow.data, {
+            'input_data': set([1, 2, 3]),
+            'output_data': [2, 4, 6]
+        })
 
     def testEmptyCollection(self):
 
-        set_data = self.workflow.get_tasks_from_spec_name('set_data')[0]
-        set_data.task_spec.script = """input_data = []"""
+        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start.data = {'input_data': []}
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
-        self.assertDictEqual(self.workflow.data, {'output_data': []})
+        self.assertDictEqual(self.workflow.data, {'input_data': [], 'output_data': []})
 
     def testCondition(self):
-
-        set_data = self.workflow.get_tasks_from_spec_name('set_data')[0]
-        set_data.task_spec.script = """input_data = [1, 2, 3]"""
-
-        task = self.workflow.get_tasks_from_spec_name('any_task')[0]
-        task.task_spec.condition = "input_item == 2"
-        for idx in range(2):
-            self.workflow.do_engine_steps()
-            self.workflow.refresh_waiting_tasks()
-            ready = self.workflow.get_ready_user_tasks()[0]
-            self.assertEqual(ready.task_spec.name, 'any_task [child]')
-            self.assertIn('input_item', ready.data)
-            ready.data['output_item'] = ready.data['input_item'] * 2
-            ready.complete()
-        self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
-        self.assertDictEqual(self.workflow.data, {'output_data': [2, 4]})
+        self.run_workflow_with_condition({'input_data': [1, 2, 3]}, "input_item == 2")
+        self.assertDictEqual(self.workflow.data, {
+            'input_data': [1, 2, 3],
+            'output_data': [2, 4]
+        })
 
 
 class SequentialMultiInstanceUpdateInputTest(BaseTestCase):
 
     def setUp(self):
-        self.spec, subprocess = self.load_workflow_spec('sequential_multiinstance_update_input.bpmn', 'main')
+        self.spec, subprocess = self.load_workflow_spec('sequential_multiinstance_loop_input.bpmn', 'main')
         self.workflow = BpmnWorkflow(self.spec)
 
     def testList(self):
-        self.set_data_and_run_workflow("""input_data = [1, 2, 3]""")
+        data = { 'input_data': [1, 2, 3]}
+        self.set_io_and_run_workflow(data, data_input='input_data', data_output='input_data')
         self.assertDictEqual(self.workflow.data, {'input_data': [2, 4, 6]})
 
     def testDict(self):
-        self.set_data_and_run_workflow("""input_data = {'a': 1, 'b': 2, 'c': 3}""")
+        data = { 'input_data': {'a': 1, 'b': 2, 'c': 3}}
+        self.set_io_and_run_workflow(data, data_input='input_data', data_output='input_data')
         self.assertDictEqual(self.workflow.data, {'input_data': {'a': 2, 'b': 4, 'c': 6}})
 
 
@@ -112,21 +198,16 @@ class SequentialMultiInstanceWithCardinality(BaseTestCase):
         self.spec, subprocess = self.load_workflow_spec('sequential_multiinstance_cardinality.bpmn', 'main')
         self.workflow = BpmnWorkflow(self.spec)
 
-    def testCardinalityWithInputItem(self):
-        self.set_data_and_run_workflow("""pass""")
+    def testCardinality(self):
+        self.set_io_and_run_workflow({}, data_output='output_data')
+        self.assertDictEqual(self.workflow.data, {'output_data': [0, 2, 4]})
+
+    def testCardinalitySaveRestore(self):
+        self.set_io_and_run_workflow({}, data_output='output_data', save_restore=True)
         self.assertDictEqual(self.workflow.data, {'output_data': [0, 2, 4]})
 
     def testCondition(self):
-        task = self.workflow.get_tasks_from_spec_name('any_task')[0]
-        task.task_spec.condition = "input_item == 1"
-        for idx in range(2):
-            self.workflow.do_engine_steps()
-            self.workflow.refresh_waiting_tasks()
-            ready = self.workflow.get_ready_user_tasks()[0]
-            self.assertEqual(ready.task_spec.name, 'any_task [child]')
-            self.assertIn('input_item', ready.data)
-            ready.data['output_item'] = ready.data['input_item'] * 2
-            ready.complete()
-        self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
-        self.assertDictEqual(self.workflow.data, {'output_data': [0, 2]})
+        self.run_workflow_with_condition({}, "input_item == 1")
+        self.assertDictEqual(self.workflow.data, {
+            'output_data': [0, 2]
+        })

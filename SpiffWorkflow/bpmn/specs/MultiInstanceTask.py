@@ -165,7 +165,7 @@ class MultiInstanceTask(LoopTask):
         name = self.data_output.name
         if name not in my_task.data:
             my_task.data[name] = list()
-        elif not isinstance(my_task.data[name], MutableSequence) or len(my_task.data[name]) > 0:
+        elif not isinstance(my_task.data[name], MutableMapping) and len(my_task.data[name]) > 0:
             self.raise_data_exception("If loop cardinality is specificied, the output must be a map (dict) or empty sequence (list)")
 
     def raise_data_exception(self, message, my_task):
