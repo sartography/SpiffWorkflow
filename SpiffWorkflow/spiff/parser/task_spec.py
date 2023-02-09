@@ -5,11 +5,17 @@ from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import SubprocessParser
 from SpiffWorkflow.bpmn.parser.util import xpath_eval
 
+from SpiffWorkflow.spiff.specs.multiinstance_task import StandardLoopTask, ParallelMultiInstanceTask, SequentialMultiInstanceTask
+
 SPIFFWORKFLOW_MODEL_NS = 'http://spiffworkflow.org/bpmn/schema/1.0/core'
 SPIFFWORKFLOW_MODEL_PREFIX = 'spiffworkflow'
 
 
 class SpiffTaskParser(TaskParser):
+
+    STANDARD_LOOP_CLASS = StandardLoopTask
+    PARALLEL_MI_CLASS = ParallelMultiInstanceTask
+    SEQUENTIAL_MI_CLASS = SequentialMultiInstanceTask
 
     def parse_extensions(self, node=None):
         if node is None:
@@ -80,6 +86,12 @@ class SpiffTaskParser(TaskParser):
                 }
         operator['parameters'] = parameters
         return operator
+
+    def _copy_task_attrs(self, original):
+        # I am so disappointed I have to do this.
+        super()._copy_task_attrs(original)
+        self.task.prescript = original.prescript
+        self.task.postscript = original.postscript
 
     def create_task(self):
         # The main task parser already calls this, and even sets an attribute, but

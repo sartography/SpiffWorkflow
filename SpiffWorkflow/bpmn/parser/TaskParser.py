@@ -41,6 +41,12 @@ class TaskParser(NodeParser):
     outgoing transitions, once the child tasks have all been parsed.
     """
 
+    # I hate myself for this.  I wanted to at least relegate it to the top-level
+    # parser where the rest of the similar nonsense is, but it's inaccessible here.
+    STANDARD_LOOP_CLASS = StandardLoopTask
+    PARALLEL_MI_CLASS = ParallelMultiInstanceTask
+    SEQUENTIAL_MI_CLASS = SequentialMultiInstanceTask
+
     def __init__(self, process_parser, spec_class, node, nsmap=None, lane=None):
         """
         Constructor.
@@ -86,7 +92,7 @@ class TaskParser(NodeParser):
             self.raise_validation_exception('A loopMaximum or loopCondition must be specified for Loop Tasks')
 
         original = self.spec.task_specs.pop(self.task.name)
-        self.task = StandardLoopTask(self.spec, original.name, '', maximum, condition, test_before)
+        self.task = self.STANDARD_LOOP_CLASS(self.spec, original.name, '', maximum, condition, test_before)
         self._copy_task_attrs(original)
 
     def _add_multiinstance_task(self, loop_characteristics):
@@ -143,9 +149,9 @@ class TaskParser(NodeParser):
             'condition': condition,
         }
         if sequential:
-            self.task = SequentialMultiInstanceTask(self.spec, original.name, **params)
+            self.task = self.SEQUENTIAL_MI_CLASS(self.spec, original.name, **params)
         else:
-            self.task = ParallelMultiInstanceTask(self.spec, original.name, **params)
+            self.task = self.PARALLEL_MI_CLASS(self.spec, original.name, **params)
         self._copy_task_attrs(original)
 
     def _add_boundary_event(self, children):

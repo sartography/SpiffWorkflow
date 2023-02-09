@@ -118,10 +118,7 @@ class StandardLoopTaskConverter(BpmnTaskSpecConverter):
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
         dct.update(self.get_bpmn_attributes(spec))
-        dct['task_spec'] = spec.task_spec
-        dct['maximum'] = spec.maximum
-        dct['condition'] = spec.condition
-        dct['test_before'] = spec.test_before
+        dct.update(self.get_standard_loop_attributes(spec))
         return dct
 
 

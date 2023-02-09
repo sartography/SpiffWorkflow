@@ -174,6 +174,21 @@ class TaskSpecConverter(BpmnSpecConverter):
         """
         return {'spec': spec.spec}
 
+    def get_standard_loop_attributes(self, spec):
+        """Extracts attributes for standard loop tasks.
+        
+        :param spec: the task spec to be converted
+
+        Returns:
+            a dictionary of standard loop task spec attributes
+        """
+        return {
+            'task_spec': spec.task_spec,
+            'maximum': spec.maximum,
+            'condition': spec.condition,
+            'test_before': spec.test_before,
+        }
+    
     def task_spec_from_dict(self, dct, include_data=False):
         """
         Creates a task spec based on the supplied dictionary.  It handles setting the default

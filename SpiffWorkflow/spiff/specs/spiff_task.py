@@ -34,14 +34,15 @@ class SpiffBpmnTask(BpmnSpecMixin):
             my_task._set_state(TaskState.WAITING)
             raise exc
 
-    def _on_ready_hook(self, my_task):
-        super()._on_ready_hook(my_task)
+    def _update_hook(self, my_task):
+        super()._update_hook(my_task)
         if self.prescript is not None:
             try:
                 self.execute_script(my_task, self.prescript)
             except SpiffWorkflowException as se:
                 se.add_note("Error occurred in the Pre-Script")
                 raise se
+        return True
 
     def _on_complete_hook(self, my_task):
         if self.postscript is not None:

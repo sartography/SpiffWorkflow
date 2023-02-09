@@ -17,8 +17,6 @@ from SpiffWorkflow.bpmn.serializer.task_spec import (
     ExclusiveGatewayConverter,
     InclusiveGatewayConverter,
     StandardLoopTaskConverter,
-    ParallelMultiInstanceTaskConverter,
-    SequentialMultiInstanceTaskConverter,
 )
 
 from .task_spec import (
@@ -32,6 +30,8 @@ from .task_spec import (
     SubWorkflowTaskConverter,
     TransactionSubprocessConverter,
     CallActivityTaskConverter,
+    ParallelMultiInstanceTaskConverter,
+    SequentialMultiInstanceTaskConverter,
 )
 
 from SpiffWorkflow.bpmn.serializer.event_definition import MessageEventDefinitionConverter as DefaultMessageEventDefinitionConverter

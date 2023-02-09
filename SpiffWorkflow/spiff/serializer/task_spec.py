@@ -1,4 +1,5 @@
 from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
+from SpiffWorkflow.bpmn.serializer.task_spec import MultiInstanceTaskConverter
 
 from SpiffWorkflow.spiff.specs.none_task import NoneTask
 from SpiffWorkflow.spiff.specs.manual_task import ManualTask
@@ -7,6 +8,7 @@ from SpiffWorkflow.spiff.specs.script_task import ScriptTask
 from SpiffWorkflow.spiff.specs.service_task import ServiceTask
 from SpiffWorkflow.spiff.specs.subworkflow_task import SubWorkflowTask, TransactionSubprocess, CallActivity
 from SpiffWorkflow.spiff.specs.events.event_types import SendTask, ReceiveTask
+from SpiffWorkflow.spiff.specs.multiinstance_task import StandardLoopTask, ParallelMultiInstanceTask, SequentialMultiInstanceTask
 
 
 class SpiffBpmnTaskConverter(TaskSpecConverter):
@@ -113,3 +115,31 @@ class TransactionSubprocessConverter(SubprocessTaskConverter):
 class CallActivityTaskConverter(SubprocessTaskConverter):
     def __init__(self, registry):
         super().__init__(CallActivity, registry)
+
+
+class StandardLoopTaskConverter(SpiffBpmnTaskConverter):
+
+    def __init__(self, registry):
+        super().__init__(StandardLoopTask, registry)
+
+    def to_dict(self, spec):
+        dct = self.get_default_attributes(spec)
+        dct.update(self.get_bpmn_attributes(spec))
+        dct.update(self.get_standard_loop_attributes(spec))
+        return dct
+
+
+class SpiffMultiInstanceConverter(MultiInstanceTaskConverter, SpiffBpmnTaskConverter):
+
+    def to_dict(self, spec):
+        dct = MultiInstanceTaskConverter.to_dict(self, spec)
+        dct.update(SpiffBpmnTaskConverter.to_dict(self, spec))
+        return dct
+
+class ParallelMultiInstanceTaskConverter(SpiffMultiInstanceConverter):
+    def __init__(self, registry):
+        super().__init__(ParallelMultiInstanceTask, registry)
+
+class SequentialMultiInstanceTaskConverter(SpiffMultiInstanceConverter):
+    def __init__(self, registry):
+        super().__init__(SequentialMultiInstanceTask, registry)
