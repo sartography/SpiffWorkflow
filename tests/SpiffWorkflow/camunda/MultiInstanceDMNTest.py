@@ -15,32 +15,21 @@ class MultiInstanceDMNTest(BaseTestCase):
         self.script_engine = PythonScriptEngine(environment=BoxedTaskDataEnvironment())
         self.workflow.script_engine = self.script_engine
 
-    def testConstructor(self):
-        pass  # this is accomplished through setup.
-
     def testDmnHappy(self):
-        self.workflow.do_engine_steps()
-        self.workflow.complete_next()
-        self.workflow.do_engine_steps()
-        self.workflow.complete_next()
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.data['stuff']['E']['y'], 'D')
 
-
     def testDmnSaveRestore(self):
+        
         self.save_restore()
-        self.workflow.script_engine = self.script_engine
         self.workflow.do_engine_steps()
         self.workflow.complete_next()
         self.save_restore()
-        self.workflow.script_engine = self.script_engine
         self.workflow.do_engine_steps()
         self.workflow.complete_next()
         self.save_restore()
-        self.workflow.script_engine = self.script_engine
         self.workflow.do_engine_steps()
         self.save_restore()
-        self.workflow.script_engine = self.script_engine
         self.assertEqual(self.workflow.data['stuff']['E']['y'], 'D')
 
 
