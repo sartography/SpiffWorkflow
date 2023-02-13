@@ -28,7 +28,7 @@ selections in a collection.
 
    Selecting more than one product
 
-We'll also need to update our element docmentation to display all products.
+We'll also need to update our element documentation to display all products.
 
 .. figure:: figures/documentation_multi.png
    :scale: 30%

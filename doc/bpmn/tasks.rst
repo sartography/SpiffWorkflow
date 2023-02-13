@@ -171,7 +171,7 @@ Our :code:`select_option` function simply repeats the prompt until the user
 enters a value contained in the option list.
 
 For other fields, we'll just store whatever the user enters, although in the case
-where they data type was specified to be a :code:`long`, we'll convert it to a
+where the data type was specified to be a :code:`long`, we'll convert it to a
 number.
 
 Finally, we need to explicitly store the user-provided response in a variable
@@ -219,4 +219,3 @@ The template string can be obtained from :code:`task.task_spec.documentation`.
 
 As noted above, our template class comes from Jinja.  We render the template
 using the task data, which is just a dictionary.
-

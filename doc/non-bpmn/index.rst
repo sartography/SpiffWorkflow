@@ -1,7 +1,7 @@
 Non-BPMN support
 ================
 
-We have maintained support for legacy non-BPMN workflows, but we recommend using 
+We have maintained support for legacy non-BPMN workflows, but we recommend using
 SpiffWorkflow with BPMN, as this is where current development is focused.
 
 .. toctree::

@@ -31,7 +31,7 @@ We'll include examples of all of these types in this section.
 Transactions
 ^^^^^^^^^^^^
 
-We also need to introduce the concept of a Transaction, bceause certain events
+We also need to introduce the concept of a Transaction because certain events
 can only be used in that context.  A Transaction is essentially a subprocess, but
 it must fully complete before it affects its outer workflow.
 
@@ -147,7 +147,7 @@ this tutorial.
 
 We ask the Employee to verify that they were able to retrieve the product; if they
 were unable to do so, then we generate an Error End Event, which we will handle
-with an Interrupting Error Boundary Event (Error events are *always* Interrupting).
+with an Interrupting Error Boundary Event (Error events are *always* interrupting).
 
 If the product is unavailable, our Manager will notify the customer, issue a refund,
 and cancel the order.
@@ -161,7 +161,7 @@ Event, you'll have to use Escalation, because BPMN does not allow Intermediate E
 and that Error Events cannot be Non-Interrupting.
 
 In our example, we'll assume that if we failed to ship the product, we can try again later,
-so we will not end the Subprocess (Escalation events can be either Interrupting or
+so, we will not end the Subprocess (Escalation events can be either Interrupting or
 Non-Interrupting).
 
 However, we still want to notify our customer of a delay, so we use a Non-Interrupting
