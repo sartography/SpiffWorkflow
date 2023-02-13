@@ -17,7 +17,7 @@ instead of the `run.py <https://github.com/sartography/spiff-example-clie/blob/m
 Camunda's BPMN editor does not handle data objects in the expected way.  You can create data object
 references, but there is no way to re-use data objects.
 
-It also does not support Message Correlations, and the inteface for generating a message payload doesn't work
+It also does not support Message Correlations, and the interface for generating a message payload doesn't work
 well in a Python environment.
 
 We have extended BPMN.js to correct some of these issues.  The examples in this section were created using our
@@ -25,7 +25,7 @@ custom BPMN editor, `bpmn-js-spiffworkflow <https://github.com/sartography/bpmn-
 
 Data Objects
 ^^^^^^^^^^^^
- 
+
  Data objects exist at a process level and are not visible in the diagram, but when you create a data object
  reference, you can choose what data object it points to.
 
@@ -35,8 +35,8 @@ Data Objects
 
    Configuring a data object reference
 
-When a data output association (a line) is drawn from a task to a data object reference, the value is copied 
-from the task data to the workflow data and removed from the task.  If a data input association is created from 
+When a data output association (a line) is drawn from a task to a data object reference, the value is copied
+from the task data to the workflow data and removed from the task.  If a data input association is created from
 a data object reference, the value is temporarily copied into the task data while the task is being executed,
 and immediate removed afterwards.
 
@@ -59,7 +59,7 @@ the 'Enter Payment Info' has been completed.
 Configuring Messages
 ^^^^^^^^^^^^^^^^^^^^
 
-Messages are handled slightly differently in Spiff Message Events.  On an Message Throw Event or Send Task,
+Messages are handled slightly differently in Spiff Message Events.  On a Message Throw Event or Send Task,
 we define a payload, which is simply a bit of python code that will be evaluated against the task data and
 sent along with the message.  In the corresponding Message Catch Event or Receive Task, we define a
 variable name where we'll store the result.
