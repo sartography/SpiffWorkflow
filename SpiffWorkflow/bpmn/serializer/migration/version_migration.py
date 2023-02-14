@@ -5,6 +5,7 @@ from .version_1_2 import (
     convert_timer_expressions,
     add_default_condition_to_cond_task_specs,
     create_data_objects_and_io_specs,
+    check_multiinstance,
 )
 
 def from_version_1_1(old):
@@ -27,6 +28,7 @@ def from_version_1_1(old):
     convert_timer_expressions(new)
     add_default_condition_to_cond_task_specs(new)
     create_data_objects_and_io_specs(new)
+    check_multiinstance(new)
     new['VERSION'] = "1.2"
     return new
 

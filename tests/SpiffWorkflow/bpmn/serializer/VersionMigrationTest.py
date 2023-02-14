@@ -4,6 +4,7 @@ import time
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
+from SpiffWorkflow.bpmn.serializer.migration.exceptions import VersionMigrationError
 
 from .BaseTestCase import BaseTestCase
 
@@ -52,3 +53,9 @@ class Version_1_1_Test(BaseTestCase):
         wf.do_engine_steps()
         ready_task = wf.get_ready_user_tasks()[0]
         self.assertEqual(ready_task.task_spec.name, 'Activity_A2')
+
+    def test_check_multiinstance(self):
+        fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.1-multi.json')
+        with self.assertRaises(VersionMigrationError) as ctx:
+            wf = self.serializer.deserialize_json(open(fn).read())
+            self.assertEqual(ctx.exception.message, "This workflow cannot be migrated because it contains MultiInstance Tasks")

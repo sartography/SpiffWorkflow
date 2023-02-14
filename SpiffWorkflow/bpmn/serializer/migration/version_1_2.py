@@ -106,3 +106,8 @@ def create_data_objects_and_io_specs(dct):
         for item in spec.get('data_output_associations', {}):
             item['typename'] = 'DataObject'
 
+def check_multiinstance(dct):
+    
+    specs = [ spec for spec in dct['spec']['task_specs'].values() if 'prevtaskclass' in spec ]
+    if len(specs) > 0:
+        raise VersionMigrationError("This workflow cannot be migrated because it contains MultiInstance Tasks")
