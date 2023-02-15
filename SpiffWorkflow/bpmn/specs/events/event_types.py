@@ -73,6 +73,15 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         self.event_definition.reset(my_task)
         super(CatchingEvent, self)._on_complete_hook(my_task)
 
+    # This fixes the problem of boundary events remaining cancelled if the task is reused.
+    # It pains me to add these methods, but unless we can get rid of the loop reset task we're stuck
+
+    def task_should_set_children_future(self, my_task):
+        return True
+
+    def task_will_set_children_future(self, my_task):
+        my_task.internal_data = {}
+
 
 class ThrowingEvent(Simple, BpmnSpecMixin):
     """Base Task Spec for Throwing Event nodes."""
