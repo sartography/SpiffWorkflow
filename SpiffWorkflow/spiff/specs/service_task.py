@@ -1,6 +1,7 @@
 from copy import deepcopy
 import json
 from SpiffWorkflow.bpmn.specs.ServiceTask import ServiceTask
+from SpiffWorkflow.exceptions import WorkflowTaskException
 from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
 
 class ServiceTask(SpiffBpmnTask, ServiceTask):
@@ -31,9 +32,13 @@ class ServiceTask(SpiffBpmnTask, ServiceTask):
         operation_params_copy = deepcopy(self.operation_params)
         evaluated_params = {k: evaluate(v) for k, v in operation_params_copy.items()}
 
-        result = task.workflow.script_engine.call_service(self.operation_name,
-                evaluated_params, task.data)
-
+        try:
+            result = task.workflow.script_engine.call_service(self.operation_name,
+                    evaluated_params, task.data)
+        except Exception as e:
+            wte = WorkflowTaskException("Error executing Service Task",
+                                        task=task, exception=e)
+            wte.add_note(str(e))
+            raise wte
         parsed_result = json.loads(result)
-
         task.data[self._result_variable(task)] = parsed_result

@@ -5,6 +5,7 @@ import time
 from datetime import datetime, timedelta
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'kellym'
@@ -13,7 +14,7 @@ __author__ = 'kellym'
 class TimerDurationTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.script_engine = PythonScriptEngine(default_globals={"timedelta": timedelta})
+        self.script_engine = PythonScriptEngine(environment=TaskDataEnvironment({"timedelta": timedelta}))
         self.spec, self.subprocesses = self.load_workflow_spec('timer.bpmn', 'timer')
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=self.script_engine)
 

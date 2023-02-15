@@ -46,24 +46,19 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         definition, at which point we can update our task's state.
         """
         self.event_definition.catch(my_task, event_definition)
-        self._update_hook(my_task)
+        my_task._set_state(TaskState.WAITING)
 
     def _update_hook(self, my_task):
 
-        if my_task.state == TaskState.WAITING and self.event_definition.has_fired(my_task):
-            my_task._ready()
-        super(CatchingEvent, self)._update_hook(my_task)
-
-    def _on_ready_hook(self, my_task):
-
+        super()._update_hook(my_task)
         # None events don't propogate, so as soon as we're ready, we fire our event
         if isinstance(self.event_definition, NoneEventDefinition):
             my_task._set_internal_data(event_fired=True)
 
-        # If we have not seen the event we're waiting for, enter the waiting state
-        if not self.event_definition.has_fired(my_task):
+        if self.event_definition.has_fired(my_task):
+            return True
+        else:
             my_task._set_state(TaskState.WAITING)
-        super(CatchingEvent, self)._on_ready_hook(my_task)
 
     def _on_complete_hook(self, my_task):
 

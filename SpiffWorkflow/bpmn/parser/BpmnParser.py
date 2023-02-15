@@ -21,7 +21,7 @@ import glob
 import os
 
 from lxml import etree
-from lxml.etree import DocumentInvalid, LxmlError
+from lxml.etree import LxmlError
 
 from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
 
@@ -60,6 +60,7 @@ from .event_parsers import (
     SendTaskParser,
     ReceiveTaskParser
 )
+
 
 
 XSD_PATH = os.path.join(os.path.dirname(__file__), 'schema', 'BPMN20.xsd')
@@ -184,11 +185,8 @@ class BpmnParser(object):
         Add all filenames in the given list to the parser's set.
         """
         for filename in filenames:
-            f = open(filename, 'r')
-            try:
+            with open(filename, 'r') as f:
                 self.add_bpmn_xml(etree.parse(f), filename=filename)
-            finally:
-                f.close()
 
     def add_bpmn_xml(self, bpmn, filename=None):
         """
@@ -290,9 +288,9 @@ class BpmnParser(object):
     def create_parser(self, node, filename=None, lane=None):
         parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, self.data_stores, filename=filename, lane=lane)
         if parser.get_id() in self.process_parsers:
-            raise ValidationException('Duplicate process ID', node=node, file_name=filename)
+            raise ValidationException(f'Duplicate process ID: {parser.get_id()}', node=node, file_name=filename)
         if parser.get_name() in self.process_parsers_by_name:
-            raise ValidationException('Duplicate process name', node=node, file_name=filename)
+            raise ValidationException(f'Duplicate process name: {parser.get_name()}', node=node, file_name=filename)
         self.process_parsers[parser.get_id()] = parser
         self.process_parsers_by_name[parser.get_name()] = parser
 

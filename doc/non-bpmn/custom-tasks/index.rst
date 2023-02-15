@@ -4,7 +4,7 @@ Implementing Custom Tasks
 Introduction
 ------------
 
-In this second tutorial we are going to implement our own task, and
+In this second tutorial, we are going to implement our own task, and
 use serialization and deserialization to store and restore it.
 
 If you haven't already, you should complete the first

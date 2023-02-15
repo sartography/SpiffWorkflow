@@ -13,8 +13,8 @@
            as a required set of inputs or outputs that must all
            appear together -->
       <inputSet name="Inputs" id="INS_1">
-            <dataInputRefs>id_1</dataInputRefs>
-            <dataInputRefs>id_2</dataInputRefs>
+            <dataInputRefs>in_1</dataInputRefs>
+            <dataInputRefs>in_2</dataInputRefs>
        </inputSet>
       <outputSet name="Outputs" id="OUTS_1">
             <dataOutputRefs>out_1</dataOutputRefs>

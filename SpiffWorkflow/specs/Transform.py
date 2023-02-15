@@ -51,11 +51,14 @@ class Transform(TaskSpec):
         self.transforms = transforms
 
     def _update_hook(self, my_task):
+
+        super()._update_hook(my_task)
+
         if self.transforms:
             for transform in self.transforms:
                 logger.debug(f'Execute transform', extra=my_task.log_info({'transform': transform}))
                 exec(transform)
-        super(Transform, self)._update_hook(my_task)
+        return True
 
     def serialize(self, serializer):
         s_state = serializer.serialize_simple(self)

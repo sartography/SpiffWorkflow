@@ -145,6 +145,9 @@ class BpmnWorkflow(Workflow):
         for task in tasks:
             task.task_spec.catch(task, event_definition)
 
+        # Move any tasks that received message to READY
+        self.refresh_waiting_tasks()
+
         # Figure out if we need to create an extenal message
         if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
             self.bpmn_messages.append(

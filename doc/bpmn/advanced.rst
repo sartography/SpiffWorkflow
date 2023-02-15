@@ -7,7 +7,7 @@ Filtering Tasks
 In our earlier example, all we did was check the lane a task was in and display
 it along with the task name and state.
 
-Lets take a look at a sample workflow with lanes:
+Let's take a look at a sample workflow with lanes:
 
 .. figure:: figures/lanes.png
    :scale: 30%
@@ -15,7 +15,7 @@ Lets take a look at a sample workflow with lanes:
 
    Workflow with lanes
 
-To get all of the tasks that are ready for the 'Customer' workflow, we could
+To get all the tasks that are ready for the 'Customer' workflow, we could
 specify the lane when retrieving ready user tasks:
 
 .. code:: python
@@ -50,14 +50,14 @@ Logging
 Spiff provides several loggers:
  - the :code:`spiff` logger, which emits messages when a workflow is initialized and when tasks change state
  - the :code:`spiff.metrics` logger, which emits messages containing the elapsed duration of tasks
- - the :code:`spiff.data` logger, which emits message when task or workflow data is updated.
+ - the :code:`spiff.data` logger, which emits a message when task or workflow data is updated.
 
 Log level :code:`INFO` will provide reasonably detailed information about state changes.
 
 As usual, log level :code:`DEBUG` will probably provide more logs than you really want
 to see, but the logs will contain the task and task internal data.
 
-Data can be included at any level less than :code:`INFO`.  In our exmple application,
+Data can be included at any level less than :code:`INFO`.  In our example application,
 we define a custom log level
 
 .. code:: python
@@ -76,7 +76,7 @@ Serialization
 
    Serialization Changed in Version 1.1.7.
    Support for pre-1.1.7 serialization will be dropped in a future release.
-   The old serialization method still works but it is deprecated.
+   The old serialization method still works, but it is deprecated.
    To migrate your system to the new version, see "Migrating between
    serialization versions" below.
 
@@ -131,7 +131,7 @@ To restore the workflow:
         with open(args.restore) as state:
             wf = serializer.deserialize_json(state.read())
 
-The workflow serializer is designed to be flexible and modular and as such is a little complicated.  It has
+The workflow serializer is designed to be flexible and modular, and as such is a little complicated.  It has
 two components:
 
 - a workflow spec converter (which handles workflow and task specs)
@@ -141,7 +141,7 @@ The default workflow spec converter likely to meet your needs, either on its own
 :code:`UserTask` and :code:`BusinessRuleTask` in the :code:`camnuda` or :code:`spiff` and :code:`dmn` subpackages
 of this library, and all you'll need to do is add them to the list of task converters, as we did above.
 
-However, he default data converter is very simple, adding only JSON-serializable conversions of :code:`datetime`
+However, the default data converter is very simple, adding only JSON-serializable conversions of :code:`datetime`
 and :code:`timedelta` objects (we make these available in our default script engine) and UUIDs.  If your
 workflow or task data contains objects that are not JSON-serializable, you'll need to extend ours, or extend
 its base class to create one of your own.
@@ -245,7 +245,7 @@ The code would then look more like this:
 
 Because the serializer is highly customizable, we've made it possible for you to manage your own versions of the
 serialization.  You can do this by passing a version number into the serializer, which will be embedded in the
-json of all workflows.  This allow you to modify the serialization and customize it over time, and still manage
+json of all workflows.  This allows you to modify the serialization and customize it over time, and still manage
 the different forms as you make adjustments without leaving people behind.
 
 Versioned Serializer
@@ -273,7 +273,7 @@ security reasons.
    and :code:`exec`!  If you have security concerns, you should definitely investigate
    replacing the default with your own implementation.
 
-We'll cover a simple extension of custom script engine here.  There is also an examples of
+We'll cover a simple extension of custom script engine here.  There is also an example of
 a similar engine based on `RestrictedPython <https://restrictedpython.readthedocs.io/en/latest/>`_
 included alongside this example.
 

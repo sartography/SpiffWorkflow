@@ -1,4 +1,4 @@
-Organizing More Complex Workflows 
+Organizing More Complex Workflows
 =================================
 
 BPMN Model
@@ -43,20 +43,20 @@ For a simple code example of displaying a tasks lane, see `Handling Lanes`_
 Subprocesses
 ^^^^^^^^^^^^
 
-In general, subprocesses are a way of grouping work into smaller units. This, in 
-theory, will help us to re-use sections of business logic, but it will also allow 
+In general, subprocesses are a way of grouping work into smaller units. This, in
+theory, will help us to re-use sections of business logic, but it will also allow
 us to treat groups of work as a unit.
 
-Subprocesses come in two different flavors. In this workflow we see an Expanded 
-Subprocess.  Unfortunately, we can't collapse an expanded subprocess within BPMN.js, 
+Subprocesses come in two different flavors. In this workflow we see an Expanded
+Subprocess.  Unfortunately, we can't collapse an expanded subprocess within BPMN.js,
 so expanded subprocesses are mainly useful for conceptualizing a group of tasks as
-a unit.  
+a unit.
 
-It also possible to refer to external subprocesses via a Call Activity Task. This 
-allows us to 'call' a separate workflow in a different file by referencing the ID of 
+It also possible to refer to external subprocesses via a Call Activity Task. This
+allows us to 'call' a separate workflow in a different file by referencing the ID of
 the called workflow, which can simplify business logic and make it re-usable.
 
-We'll expand 'Fulfill Order' into sub tasks -- retrieving the product and shipping 
+We'll expand 'Fulfill Order' into sub tasks -- retrieving the product and shipping
 the order -- and create an Expanded Subprocess.
 
 We'll also expand our selection of products, adding several new products and the ability
@@ -68,14 +68,14 @@ to customize certain products by size and style in addition to color.
 
    Updated Product List
 
-.. note:: 
+.. note::
 
    I've added what customizations are available for each product in the 'Annotations'
    column of the DMN table.  This is not actually used by Spiff; it simply provides
    the option of documenting the decisions contained in the table.
 
-Since adding gateways for navigating the new options will add a certain amount of 
-clutter to our diagram, we'll create a separate workflow around selecting and 
+Since adding gateways for navigating the new options will add a certain amount of
+clutter to our diagram, we'll create a separate workflow around selecting and
 customizing products and refer to that in our main workflow.
 
 .. figure:: figures/call_activity.png
@@ -116,7 +116,7 @@ our sample application, we'll simply display which lane a task belongs to.
 .. code:: python
 
     if hasattr(task.task_spec, 'lane') and task.task_spec.lane is not None:
-        lane = f'[{task.task_spec.lane}]' 
+        lane = f'[{task.task_spec.lane}]'
     else:
         lane = ''
 

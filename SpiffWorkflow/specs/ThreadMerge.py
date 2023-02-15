@@ -99,6 +99,8 @@ class ThreadMerge(Join):
         return False
 
     def _update_hook(self, my_task):
+
+        my_task._inherit_data()
         if not self._start(my_task):
             my_task._set_state(TaskState.WAITING)
             return

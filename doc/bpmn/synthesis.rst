@@ -4,13 +4,13 @@ Putting it All Together
 In this section we'll be discussing the overall structure of the workflow
 runner we developed in `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
-Our example application contains two different workflow runners, one that uses tasks with 
+Our example application contains two different workflow runners, one that uses tasks with
 Camunda extensions
 (`run.py <https://github.com/sartography/spiff-example-cli/blob/main/run.py>`_) and one
-that uses tasks with Spiff extensions 
+that uses tasks with Spiff extensions
 (`run-spiff.py <https://github.com/sartography/spiff-example-cli/blob/main/run.py>`_).
 
-Most of the workflow operations will not change, so shared functions are defined in 
+Most of the workflow operations will not change, so shared functions are defined in
 `utils.py <https://github.com/sartography/spiff-example-cli/blob/main/utils.py>`_.
 
 The primary difference is handling user tasks.  Spiff User Tasks define an extensions
@@ -23,7 +23,7 @@ Loading a Workflow
 -------------------
 
 The :code:`CamundaParser` extends the base :code:`BpmnParser`, adding functionality for
-parsing forms defined in Camunda User Tasks and decision tables defined in Camunda 
+parsing forms defined in Camunda User Tasks and decision tables defined in Camunda
 Business Rule Tasks. (There is a similar :code:`SpiffBpmnParser` used by the alternate
 runner.)
 
@@ -52,23 +52,23 @@ Our workflow parser looks like this;
 We'll obtain the workflow specification from the parser for the top level process
 using :code:`parser.get_spec()`.
 
-We have two options for finding subprocess specs.  The method :code:`parser.find_all_specs()` 
-will create specs for all executable processes found in every file supplied.  The method 
-:code:`parser.get_subprocess_specs(process)` will create specs only for processes used by 
-the specified process.  Both search recursively for subprocesses; the only difference is 
+We have two options for finding subprocess specs.  The method :code:`parser.find_all_specs()`
+will create specs for all executable processes found in every file supplied.  The method
+:code:`parser.get_subprocess_specs(process)` will create specs only for processes used by
+the specified process.  Both search recursively for subprocesses; the only difference is
 the latter method limits the search start to the specified process.
 
-Our examples are pretty simple and we're not loading any extraneous stuff, so we'll
+Our examples are pretty simple, and we're not loading any extraneous stuff, so we'll
 just always load everything. If your entire workflow is contained in your top-level
-process, you can omit the :code:`subprocess` argument, but if your workflow contains 
-call activities, you'll need to use one of these methods to find the models for any 
+process, you can omit the :code:`subprocess` argument, but if your workflow contains
+call activities, you'll need to use one of these methods to find the models for any
 called processes.
 
 We also provide an enhanced script engine to our workflow.  More information about how and
 why you might want to do this is covered in :doc:`advanced`.  The :code:`script_engine`
 argument is optional and the default will be used if none is supplied.
 
-We return :code:`BpmnWorkflow` that runs our top-level workflow and contains specs for any 
+We return :code:`BpmnWorkflow` that runs our top-level workflow and contains specs for any
 subprocesses defined by that workflow.
 
 Defining Task Handlers
@@ -91,7 +91,7 @@ We create a mapping of task type to handler, which we'll pass to our workflow ru
 
 This might not be a step you would need to do in an application you build, since
 you would likely have only one set of task specs that need to be parsed, handled, and
-serialized; however our `run` method is an awful lot of code to maintain in two separate
+serialized; however, our `run` method is an awful lot of code to maintain in two separate
 files.
 
 Running a Workflow
@@ -180,10 +180,10 @@ Examining the Workflow State
 ----------------------------
 
 When this application is run and we want to present steps to the user, we'll need
-to be able to examine the workflow and task states and associated data.  We'll cover
+to be able to examine the workflow and task states and associated data. We'll cover
 the basics of this in this section.
 
-The code below is a simple method for displaying information about a task.  We use
+The code below is a simple method for displaying information about a task. We use
 this in two ways
 
 - presenting a list of tasks to a user (in this case the state will always be ready, so we won't include it)
@@ -233,7 +233,7 @@ We'll print information about our task as described above, as well as a dump of 
 We can get a list of all tasks regardless of type or state with :code:`workflow.get_tasks()`.
 
 The actual list of tasks will get quite long (some tasks are expanded internally by Spiff into
-multiple tasks, and all gateways and events are also treated as "tasks").  So we're filtering
+multiple tasks, and all gateways and events are also treated as "tasks"). So we're filtering
 the tasks to only display the ones that would have salience to a user here.
 
 We'll further filter those tasks for :code:`READY` and :code:`WAITING` tasks for a more
