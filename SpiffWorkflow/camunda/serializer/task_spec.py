@@ -1,6 +1,8 @@
-from ...bpmn.serializer.helpers.spec import TaskSpecConverter
+from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
+from SpiffWorkflow.bpmn.serializer.task_spec import MultiInstanceTaskConverter
 
-from ..specs.UserTask import UserTask, Form
+from SpiffWorkflow.camunda.specs.UserTask import UserTask, Form
+from SpiffWorkflow.camunda.specs.multiinstance_task import ParallelMultiInstanceTask, SequentialMultiInstanceTask
 
 class UserTaskConverter(TaskSpecConverter):
 
@@ -32,3 +34,12 @@ class UserTaskConverter(TaskSpecConverter):
                 new['options'] = [ opt.__dict__ for opt in field.options ]
             dct['fields'].append(new)
         return dct
+
+
+class ParallelMultiInstanceTaskConverter(MultiInstanceTaskConverter):
+    def __init__(self, registry):
+        super().__init__(ParallelMultiInstanceTask, registry)
+
+class SequentialMultiInstanceTaskConverter(MultiInstanceTaskConverter):
+    def __init__(self, registry):
+        super().__init__(SequentialMultiInstanceTask, registry)

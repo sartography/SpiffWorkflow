@@ -1,4 +1,5 @@
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
+from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference, BpmnIoSpecification
 from .util import first
 
 DEFAULT_NSMAP = {
@@ -59,6 +60,27 @@ class NodeParser:
                 raise ValidationException(f'Cannot resolve dataOutputAssociation {name}', self.node, self.filename)
         return specs
 
+    def parse_io_spec(self):
+        data_refs = {}
+        for elem in self.xpath('./bpmn:ioSpecification/bpmn:dataInput'):
+            ref = self.create_data_spec(elem, TaskDataReference)
+            data_refs[ref.name] = ref
+        for elem in self.xpath('./bpmn:ioSpecification/bpmn:dataOutput'):
+            ref = self.create_data_spec(elem, TaskDataReference)
+            data_refs[ref.name] = ref
+
+        inputs, outputs = [], []
+        for ref in self.xpath('./bpmn:ioSpecification/bpmn:inputSet/bpmn:dataInputRefs'):
+            if ref.text in data_refs:
+                inputs.append(data_refs[ref.text])
+        for ref in self.xpath('./bpmn:ioSpecification/bpmn:outputSet/bpmn:dataOutputRefs'):
+            if ref.text in data_refs:
+                outputs.append(data_refs[ref.text])
+        return BpmnIoSpecification(inputs, outputs)
+
+    def create_data_spec(self, item, cls):
+        return cls(item.attrib.get('id'), item.attrib.get('name'))
+
     def parse_extensions(self, node=None):
         extensions = {}
         extra_ns = {'camunda': CAMUNDA_MODEL_NS}
@@ -84,3 +106,6 @@ class NodeParser:
         else:
             nsmap = self.nsmap
         return node.xpath(xpath, namespaces=nsmap)
+
+    def raise_validation_exception(self, message):
+        raise ValidationException(message, self.node, self.filename)

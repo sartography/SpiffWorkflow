@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-from copy import deepcopy
 
 from SpiffWorkflow.spiff.parser.process import SpiffBpmnParser, VALIDATOR
 from SpiffWorkflow.spiff.serializer.config import SPIFF_SPEC_CONFIG

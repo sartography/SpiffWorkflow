@@ -217,6 +217,7 @@ class Join(TaskSpec):
 
     def _update_hook(self, my_task):
         # Check whether enough incoming branches have completed.
+        my_task._inherit_data()
         may_fire, waiting_tasks = self._start(my_task)
         if may_fire:
             # If this is a cancelling join, cancel all incoming branches except for the one that just completed.

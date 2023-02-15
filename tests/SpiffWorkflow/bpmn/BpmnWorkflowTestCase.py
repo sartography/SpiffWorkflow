@@ -8,7 +8,6 @@ from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator
 from SpiffWorkflow.task import TaskState
 
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer, DEFAULT_SPEC_CONFIG
-from SpiffWorkflow.bpmn.serializer.task_spec import UserTaskConverter
 from .BpmnLoaderForTests import TestUserTaskConverter, TestBpmnParser
 
 __author__ = 'matth'
@@ -121,6 +120,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     def save_restore(self):
 
+        script_engine = self.workflow.script_engine
         before_state = self._get_workflow_state(do_steps=False)
         before_dump = self.workflow.get_dump()
         # Check that we can actully convert this to JSON
@@ -133,6 +133,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         self.assertEqual(before_dump, after_dump)
         self.assertEqual(before_state, after_state)
         self.workflow = after
+        self.workflow.script_engine = script_engine
 
     def restore(self, state):
         self.workflow = self.serializer.workflow_from_dict(state)

@@ -8,7 +8,7 @@ from SpiffWorkflow.task import TaskState
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-class EventBsedGatewayTest(BpmnWorkflowTestCase):
+class EventBasedGatewayTest(BpmnWorkflowTestCase):
 
     def setUp(self):
         self.spec, self.subprocesses = self.load_workflow_spec('event-gateway.bpmn', 'Process_0pvx19v')

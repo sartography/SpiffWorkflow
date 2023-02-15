@@ -18,7 +18,8 @@
 # 02110-1301  USA
 
 from .ValidationException import ValidationException
-from ..specs.BpmnProcessSpec import BpmnProcessSpec, BpmnDataSpecification
+from ..specs.BpmnProcessSpec import BpmnProcessSpec
+from ..specs.data_spec import DataObject
 from .node_parser import NodeParser
 from .util import first
 
@@ -106,20 +107,21 @@ class ProcessParser(NodeParser):
             raise ValidationException("No start event found", node=self.node, file_name=self.filename)
         self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), filename=self.filename)
 
+        # Get the data objects
+        for obj in self.xpath('./bpmn:dataObject'):
+            data_object = self.parse_data_object(obj)
+            self.spec.data_objects[data_object.name] = data_object
+
         # Check for an IO Specification.
         io_spec = first(self.xpath('./bpmn:ioSpecification'))
         if io_spec is not None:
-            data_parser = DataSpecificationParser(io_spec, filename=self.filename)
-            self.spec.data_inputs, self.spec.data_outputs = data_parser.parse_io_spec()
-
-        # Get the data objects
-        for obj in self.xpath('./bpmn:dataObject'):
-            data_parser = DataSpecificationParser(obj, filename=self.filename)
-            data_object = data_parser.parse_data_object()
-            self.spec.data_objects[data_object.name] = data_object
+            self.spec.io_specification = self.parse_io_spec()
 
         for node in start_node_list:
             self.parse_node(node)
+
+    def parse_data_object(self, obj):
+        return DataObject(obj.get('id'), obj.get('name'))
 
     def get_spec(self):
         """
@@ -129,17 +131,3 @@ class ProcessParser(NodeParser):
         if self.spec is None:
             self._parse()
         return self.spec
-
-
-class DataSpecificationParser(NodeParser):
-
-    def parse_io_spec(self):
-        inputs, outputs = [], []
-        for elem in self.xpath('./bpmn:dataInput'):
-            inputs.append(BpmnDataSpecification(elem.get('id'), elem.get('name')))
-        for elem in self.xpath('./bpmn:dataOutput'):
-            outputs.append(BpmnDataSpecification(elem.get('id'), elem.get('name')))
-        return inputs, outputs
-
-    def parse_data_object(self):
-        return BpmnDataSpecification(self.node.get('id'), self.node.get('name'))

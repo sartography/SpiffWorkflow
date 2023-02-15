@@ -21,7 +21,7 @@ import glob
 import os
 
 from lxml import etree
-from lxml.etree import DocumentInvalid, LxmlError
+from lxml.etree import LxmlError
 
 from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
 
@@ -60,6 +60,7 @@ from .event_parsers import (
     SendTaskParser,
     ReceiveTaskParser
 )
+
 
 
 XSD_PATH = os.path.join(os.path.dirname(__file__), 'schema', 'BPMN20.xsd')

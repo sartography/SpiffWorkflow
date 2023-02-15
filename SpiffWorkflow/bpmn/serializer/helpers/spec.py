@@ -144,10 +144,10 @@ class TaskSpecConverter(BpmnSpecConverter):
         return {
             'lane': spec.lane,
             'documentation': spec.documentation,
-            'loopTask': spec.loopTask,
             'position': spec.position,
             'data_input_associations': [ self.registry.convert(obj) for obj in spec.data_input_associations ],
             'data_output_associations': [ self.registry.convert(obj) for obj in spec.data_output_associations ],
+            'io_specification': self.registry.convert(spec.io_specification),
         }
 
     def get_join_attributes(self, spec):
@@ -174,6 +174,21 @@ class TaskSpecConverter(BpmnSpecConverter):
         """
         return {'spec': spec.spec}
 
+    def get_standard_loop_attributes(self, spec):
+        """Extracts attributes for standard loop tasks.
+        
+        :param spec: the task spec to be converted
+
+        Returns:
+            a dictionary of standard loop task spec attributes
+        """
+        return {
+            'task_spec': spec.task_spec,
+            'maximum': spec.maximum,
+            'condition': spec.condition,
+            'test_before': spec.test_before,
+        }
+    
     def task_spec_from_dict(self, dct, include_data=False):
         """
         Creates a task spec based on the supplied dictionary.  It handles setting the default
@@ -204,9 +219,9 @@ class TaskSpecConverter(BpmnSpecConverter):
         if isinstance(spec, BpmnSpecMixin):
             spec.documentation = dct.pop('documentation', None)
             spec.lane = dct.pop('lane', None)
-            spec.loopTask = dct.pop('loopTask', False)
             spec.data_input_associations = self.registry.restore(dct.pop('data_input_associations', []))
             spec.data_output_associations = self.registry.restore(dct.pop('data_output_associations', []))
+            spec.io_specification = self.registry.restore(dct.pop('io_specification', None))
 
         return spec
 

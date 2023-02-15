@@ -50,6 +50,7 @@ class CatchingEvent(Simple, BpmnSpecMixin):
 
     def _update_hook(self, my_task):
 
+        super()._update_hook(my_task)
         # None events don't propogate, so as soon as we're ready, we fire our event
         if isinstance(self.event_definition, NoneEventDefinition):
             my_task._set_internal_data(event_fired=True)

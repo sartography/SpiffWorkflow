@@ -31,20 +31,6 @@ metrics = logging.getLogger('spiff.metrics')
 data_log = logging.getLogger('spiff.data')
 
 
-def updateDotDict(dct,dotted_path,value):
-    parts = dotted_path.split(".")
-    path_len = len(parts)
-    root = dct
-    for i, key in enumerate(parts):
-        if (i + 1) < path_len:
-            if key not in dct:
-                dct[key] = {}
-            dct = dct[key]
-        else:
-            dct[key] = value
-    return root
-
-
 class TaskState:
     """
 
@@ -247,14 +233,12 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         self.id = uuid4()
         self.thread_id = self.__class__.thread_id_pool
         self.data = {}
-        self.terminate_current_loop = False
         self.internal_data = {}
-        self.mi_collect_data = {}
+        self.last_state_change = time.time()
         if parent is not None:
             self.parent._child_added_notify(self)
 
         # TODO: get rid of this stuff
-        self.last_state_change = time.time()
         self.state_history = [state]
 
     @property
@@ -301,11 +285,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         })
         return extra
 
-    def update_data_var(self, fieldid, value):
-        model = {}
-        updateDotDict(model,fieldid, value)
-        self.update_data(model)
-
     def update_data(self, data):
         """
         If the task.data needs to be updated from a UserTask form or
@@ -316,45 +295,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         self.data = DeepMerge.merge(self.data, data)
         data_log.info('Data update', extra=self.log_info())
 
-    def task_info(self):
-        """
-        Returns a dictionary of information about the current task, so that
-        we can give hints to the user about what kind of task we are working
-        with such as a looping task or a Parallel MultiInstance task
-        :returns: dictionary
-        """
-        default = {'is_looping': False,
-                   'is_sequential_mi': False,
-                   'is_parallel_mi': False,
-                   'mi_count': 0,
-                   'mi_index': 0}
-
-        miInfo = getattr(self.task_spec, "multiinstance_info", None)
-        if callable(miInfo):
-            return miInfo(self)
-        else:
-            return default
-
-    def terminate_loop(self):
-        """
-        Used in the case that we are working with a BPMN 'loop' task.
-        The task will loop, repeatedly asking for input until terminate_loop
-        is called on the task
-        """
-        if self.is_looping():
-            self.terminate_current_loop = True
-        else:
-            raise WorkflowException('The method terminate_loop should only be called in the case of a BPMN Loop Task',
-                                    task_spec=self)
-
-    def is_looping(self):
-        """Returns true if this is a looping task."""
-        islooping = getattr(self.task_spec, "is_loop_task", None)
-        if callable(islooping):
-            return self.task_spec.is_loop_task()
-        else:
-            return False
-
     def set_children_future(self):
         """
         for a parallel gateway, we need to set up our
@@ -362,14 +302,12 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         the inputs - otherwise our child process never gets marked as
         'READY'
         """
-
         if not self.task_spec.task_should_set_children_future(self):
             return
 
         self.task_spec.task_will_set_children_future(self)
 
         # now we set this one to execute
-
         self._set_state(TaskState.MAYBE)
         self._sync_children(self.task_spec.outputs)
         for child in self.children:

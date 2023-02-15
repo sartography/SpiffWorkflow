@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import unittest
 import re
-import os.path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from SpiffWorkflow.task import Task, TaskState, updateDotDict
+from SpiffWorkflow.task import Task, TaskState
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.specs.Simple import Simple
 
@@ -15,10 +12,6 @@ class MockWorkflow(object):
     def __init__(self, spec):
         self.spec = spec
 
-class UpdateDotDictTest(unittest.TestCase):
-    def test_update(self):
-        res = updateDotDict({}, 'some.thing.here', 'avalue')
-        self.assertEqual(res, {'some':{'thing': {'here': 'avalue'}}})
 
 class TaskTest(unittest.TestCase):
 
@@ -85,8 +78,7 @@ class TaskTest(unittest.TestCase):
 
 def suite():
     taskSuite = unittest.TestLoader().loadTestsFromTestCase(TaskTest)
-    updateDotSuite = unittest.TestLoader().loadTestsFromTestCase(UpdateDotDictTest)
-    return unittest.TestSuite([taskSuite, updateDotSuite])
+    return unittest.TestSuite([taskSuite])
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
