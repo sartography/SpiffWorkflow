@@ -15,11 +15,11 @@ class DictionaryConverter:
     by the converter.
 
     The (unqualified) class name will be used as the `typename` if one is not supplied.
-    You can optionally supply our own names (you'll need to do this if you use identically 
+    You can optionally supply our own names (you'll need to do this if you use identically
     named classes in multiple packages).
 
     When a dictionary is passed into `restore`, it will be checked for a `typename` key.
-    If a registered `typename` is found, the supplied `from_dict` function will be 
+    If a registered `typename` is found, the supplied `from_dict` function will be
     called.  Unrecognized objects will be returned as-is.
 
     For a simple example of how to use this class, see the `BpmnDataConverter` in
@@ -67,7 +67,7 @@ class DictionaryConverter:
         :param obj: the object to be converter
 
         Returns:
-            the dictionary representation for registered objects or the original
+            the dictionary representation for registered objects or an empty dictionary
             for unregistered objects
         """
         typename = self.typenames.get(obj.__class__)
@@ -79,7 +79,7 @@ class DictionaryConverter:
         elif isinstance(obj, (list, tuple, set)):
             return obj.__class__([ self.convert(item) for item in obj ])
         else:
-            return obj
+            return {}
 
     def restore(self, val):
         """
