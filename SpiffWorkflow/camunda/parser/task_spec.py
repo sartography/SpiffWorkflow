@@ -134,7 +134,7 @@ class UserTaskParser(CamundaTaskParser):
         return field
 
 
-# These classes need to be able to use the ovverriden _add_multiinstance_task method
+# These classes need to be able to use the overriden _add_multiinstance_task method
 # so they have to inherit from CamundaTaskParser.  Therefore, the parsers have to just
 # be copied, because both they and the CamundaTaskParser inherit from the base task
 # parser.  I am looking forward to the day when I can replaced all of this with
