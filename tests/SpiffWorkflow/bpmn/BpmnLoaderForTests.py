@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from SpiffWorkflow.bpmn.specs.BpmnProcessSpec import BpmnDataStoreSpecification
+from SpiffWorkflow.bpmn.specs.data_spec import BpmnDataStoreSpecification
 from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
 from SpiffWorkflow.bpmn.specs.UserTask import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser

@@ -24,6 +24,33 @@ class BpmnDataSpecification:
         raise NotImplementedError
 
 
+class BpmnDataStoreSpecification:
+    def __init__(self, name, description, capacity=None, is_unlimited=None):
+        """
+        :param name: the name of the task data variable and data store key (the BPMN ID)
+        :param description: the task description (the BPMN name)
+        :param capacity: the capacity of the data store
+        :param is_unlimited: if true capacity is ignored
+        """
+        self.name = name
+        self.description = description
+        self.capacity = capacity or 0
+        self.is_unlimited = is_unlimited or True
+        # In the future, we can add schemas defining the objects here.
+
+    def get(self, my_task):
+        """Copy a value from a data store into task data."""
+        raise NotImplementedError("A Data Store implementation must override the get method.")
+
+    def set(self, my_task):
+        """Copy a value from the task data to the data store"""
+        raise NotImplementedError("A Data Store implementation must override the set method.")
+
+    def copy(self, source, destination, data_input=False, data_output=False):
+        """Copy a value from one task to another."""
+        raise NotImplementedError("A Data Store implementation must override the copy method.")
+
+
 class BpmnIoSpecification:
 
     def __init__(self, data_inputs, data_outputs):

@@ -26,7 +26,8 @@ from lxml.etree import LxmlError
 from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
 
 from .ValidationException import ValidationException
-from ..specs.BpmnProcessSpec import BpmnProcessSpec, BpmnDataStoreSpecification
+from ..specs.BpmnProcessSpec import BpmnProcessSpec
+from ..specs.data_spec import BpmnDataStoreSpecification
 from ..specs.events.EndEvent import EndEvent
 from ..specs.events.StartEvent import StartEvent
 from ..specs.events.IntermediateEvent import BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent, EventBasedGateway

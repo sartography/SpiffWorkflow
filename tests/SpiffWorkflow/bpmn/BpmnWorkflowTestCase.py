@@ -12,7 +12,8 @@ from .BpmnLoaderForTests import TestUserTaskConverter, TestBpmnParser, TestDataS
 
 __author__ = 'matth'
 
-DEFAULT_SPEC_CONFIG['task_specs'].append(TestUserTaskConverter, TestDataStoreConverter)
+DEFAULT_SPEC_CONFIG['task_specs'].append(TestUserTaskConverter)
+DEFAULT_SPEC_CONFIG['task_specs'].append(TestDataStoreConverter)
 
 wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter(spec_config=DEFAULT_SPEC_CONFIG)
 
