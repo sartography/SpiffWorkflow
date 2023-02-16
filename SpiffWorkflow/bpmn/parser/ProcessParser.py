@@ -46,6 +46,7 @@ class ProcessParser(NodeParser):
         self.lane = lane
         self.spec = None
         self.process_executable = self.is_executable()
+        self.inherited_data_objects = {}
 
     def get_name(self):
         """
@@ -106,6 +107,8 @@ class ProcessParser(NodeParser):
         if not start_node_list and self.process_executable:
             raise ValidationException("No start event found", node=self.node, file_name=self.filename)
         self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), filename=self.filename)
+
+        self.spec.data_objects.update(self.inherited_data_objects)
 
         # Get the data objects
         for obj in self.xpath('./bpmn:dataObject'):
