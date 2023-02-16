@@ -86,6 +86,5 @@ class BpmnDmnParser(BpmnParser):
     def _find_dependencies(self, process):
         super()._find_dependencies(process)
         parser_cls, cls = self._get_parser_class(full_tag('businessRuleTask'))
-        for business_rule in process.xpath('.//bpmn:businessRuleTask',namespaces=self.namespaces):
+        for business_rule in process.xpath('.//bpmn:businessRuleTask', namespaces=self.namespaces):
             self.dmn_dependencies.add(parser_cls.get_decision_ref(business_rule))
-

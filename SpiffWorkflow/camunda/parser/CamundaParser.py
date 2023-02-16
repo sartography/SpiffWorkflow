@@ -16,6 +16,7 @@ from SpiffWorkflow.camunda.parser.task_spec import (
     CallActivityParser,
     SubWorkflowParser,
     ScriptTaskParser,
+    CAMUNDA_MODEL_NS
 )
 
 from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
@@ -29,7 +30,6 @@ from .event_parsers import (
     CamundaBoundaryEventParser,
 )
 
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 NSMAP = DEFAULT_NSMAP.copy()
 NSMAP['camunda'] = CAMUNDA_MODEL_NS
 

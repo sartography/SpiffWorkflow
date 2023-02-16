@@ -6,7 +6,6 @@ DEFAULT_NSMAP = {
     'bpmn': 'http://www.omg.org/spec/BPMN/20100524/MODEL',
     'bpmndi': 'http://www.omg.org/spec/BPMN/20100524/DI',
     'dc': 'http://www.omg.org/spec/DD/20100524/DC',
-
 }
 
 
@@ -29,6 +28,12 @@ class NodeParser:
     def doc_xpath(self, xpath, extra_ns=None):
         root = self.node.getroottree().getroot()
         return self._xpath(root, xpath, extra_ns)
+
+    def attribute(self, attribute, namespace=None, node=None):
+        if node is None:
+            node = self.node
+        prefix = '{' + self.nsmap.get(namespace or 'bpmn') + '}'
+        return node.attrib.get(f'{prefix}{attribute}')
 
     def parse_condition(self, sequence_flow):
         expression = first(self._xpath(sequence_flow, './/bpmn:conditionExpression'))
