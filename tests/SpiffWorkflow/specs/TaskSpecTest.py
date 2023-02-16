@@ -52,14 +52,6 @@ class TaskSpecTest(unittest.TestCase):
         self.assertEqual(self.spec.outputs, [spec])
         self.assertEqual(spec.inputs, [self.spec])
 
-    def testFollow(self):
-        self.assertEqual(self.spec.outputs, [])
-        self.assertEqual(self.spec.inputs, [])
-        spec = self.create_instance()
-        self.spec.follow(spec)
-        self.assertEqual(spec.outputs, [self.spec])
-        self.assertEqual(self.spec.inputs, [spec])
-
     def testTest(self):
         # Should fail because the TaskSpec has no id yet.
         spec = self.create_instance()
@@ -101,12 +93,12 @@ class TaskSpecTest(unittest.TestCase):
         M = Join(self.wf_spec, 'M')
         T3 = Simple(self.wf_spec, 'T3')
 
-        T1.follow(self.wf_spec.start)
-        T2A.follow(T1)
-        T2B.follow(T1)
+        self.wf_spec.start.connect(T1)
+        T1.connect(T2A)
+        T1.connect(T2B)
         T2A.connect(M)
         T2B.connect(M)
-        T3.follow(M)
+        M.connect(T3)
 
         self.assertEqual(T1.ancestors(), [self.wf_spec.start])
         self.assertEqual(T2A.ancestors(), [T1, self.wf_spec.start])
@@ -118,8 +110,7 @@ class TaskSpecTest(unittest.TestCase):
         T1 = Join(self.wf_spec, 'T1')
         T2 = Simple(self.wf_spec, 'T2')
 
-        T1.follow(self.wf_spec.start)
-        T2.follow(T1)
+        self.wf_spec.start.connect(T1)
         T1.connect(T2)
 
         self.assertEqual(T1.ancestors(), [self.wf_spec.start])

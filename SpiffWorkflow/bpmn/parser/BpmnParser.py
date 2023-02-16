@@ -259,9 +259,6 @@ class BpmnParser(object):
         self.process_parsers[parser.get_id()] = parser
         self.process_parsers_by_name[parser.get_name()] = parser
 
-    def get_dependencies(self):
-        return self.process_dependencies
-
     def get_process_dependencies(self):
         return self.process_dependencies
 

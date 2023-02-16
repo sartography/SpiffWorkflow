@@ -238,9 +238,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         if parent is not None:
             self.parent._child_added_notify(self)
 
-        # TODO: get rid of this stuff
-        self.state_history = [state]
-
     @property
     def state(self):
         return self._state
@@ -261,7 +258,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         if value != self.state:
             logger.info(f'State change to {TaskStateNames[value]}', extra=self.log_info())
             self.last_state_change = time.time()
-            self.state_history.append(value)
             self._state = value
         else:
             logger.debug(f'State set to {TaskStateNames[value]}', extra=self.log_info())
@@ -312,12 +308,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         self._sync_children(self.task_spec.outputs)
         for child in self.children:
             child.set_children_future()
-
-    def find_children_by_name(self,name):
-        """
-        for debugging
-        """
-        return [x for x in self.workflow.task_tree if x.task_spec.name == name]
 
     def reset_token(self, data, reset_data=False):
         """
@@ -597,12 +587,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
 
     def get_description(self):
         return str(self.task_spec.description)
-
-    def get_state(self):
-        """
-        Returns this Task's state.
-        """
-        return self.state
 
     def get_state_name(self):
         """
