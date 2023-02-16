@@ -95,7 +95,7 @@ class ProcessParser(NodeParser):
         if not node_parser or not spec_class:
             raise ValidationException("There is no support implemented for this task type.",
                                       node=node, file_name=self.filename)
-        np = node_parser(self, spec_class, node, lane=self.lane)
+        np = node_parser(self, spec_class, node, self.nsmap, lane=self.lane)
         task_spec = np.parse_node()
         return task_spec
 

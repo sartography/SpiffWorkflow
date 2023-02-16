@@ -231,13 +231,6 @@ class Workflow(object):
             return True
         return False
 
-    def cancel_notify(self):
-        self.task_tree.internal_data['cancels'] = self.task_tree.internal_data.get('cancels', {})
-        self.task_tree.internal_data['cancels']['TokenReset'] = True
-        self.refresh_waiting_tasks()
-        self.do_engine_steps()
-        self.task_tree.internal_data['cancels'] = {}
-
     def get_tasks(self, state=TaskState.ANY_MASK):
         """
         Returns a list of Task objects with the given state.

@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import sys
-import os
 import unittest
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-__author__ = 'matth'
 
-
-class MultiInstanceTest(BpmnWorkflowTestCase):
+class ParallelOrderTest(BpmnWorkflowTestCase):
     """The example bpmn diagram has a 4 parallel workflows, this
     verifies that the parallel tasks have a natural order that follows
     the visual layout of the diagram, rather than just the order in which
@@ -33,6 +29,6 @@ class MultiInstanceTest(BpmnWorkflowTestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(MultiInstanceTest)
+    return unittest.TestLoader().loadTestsFromTestCase(ParallelOrderTest)
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
