@@ -74,7 +74,7 @@ class BpmnWorkflow(Workflow):
         self.__script_engine = engine
 
     def create_subprocess(self, my_task, spec_name, name):
-
+        # This creates a subprocess for an existing task
         workflow = self._get_outermost_workflow(my_task)
         subprocess = BpmnWorkflow(
             workflow.subprocess_specs[spec_name], name=name,
@@ -91,15 +91,16 @@ class BpmnWorkflow(Workflow):
         workflow = self._get_outermost_workflow(my_task)
         return workflow.subprocesses.get(my_task.id)
 
-    def add_subprocess(self, spec_name, name):
-
+    def connect_subprocess(self, spec_name, name):
+        # This creates a new task associated with a process when an event that kicks of a process is received
         new = CallActivity(self.spec, name, spec_name)
         self.spec.start.connect(new)
         task = Task(self, new)
-        task._ready()
         start = self.get_tasks_from_spec_name('Start', workflow=self)[0]
         start.children.append(task)
         task.parent = start
+        # This (indirectly) calls create_subprocess
+        task.task_spec._update(task)
         return self.subprocesses[task.id]
 
     def _get_outermost_workflow(self, task=None):
@@ -114,7 +115,7 @@ class BpmnWorkflow(Workflow):
                 start = sp.get_tasks_from_spec_name(task_spec.name)
                 if len(start) and start[0].state == TaskState.WAITING:
                     return sp
-        return self.add_subprocess(wf_spec.name, f'{wf_spec.name}_{len(self.subprocesses)}')
+        return self.connect_subprocess(wf_spec.name, f'{wf_spec.name}_{len(self.subprocesses)}')
 
     def catch(self, event_definition, correlations=None):
         """

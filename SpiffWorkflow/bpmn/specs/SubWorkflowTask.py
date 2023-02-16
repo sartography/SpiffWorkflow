@@ -25,11 +25,6 @@ class SubWorkflowTask(BpmnSpecMixin):
     def spec_type(self):
         return 'Subprocess'
 
-    def _on_ready_before_hook(self, my_task):
-        subworkflow = my_task.workflow.create_subprocess(my_task, self.spec, self.name)
-        subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
-        subworkflow.data = deepcopy(my_task.workflow.data)
-
     def _on_ready_hook(self, my_task):
 
         super()._on_ready_hook(my_task)
@@ -55,9 +50,14 @@ class SubWorkflowTask(BpmnSpecMixin):
         my_task._set_state(TaskState.READY)
 
     def _update_hook(self, my_task):
+
         wf = my_task.workflow._get_outermost_workflow(my_task)
         if my_task.id not in wf.subprocesses:
-            return super()._update_hook(my_task)
+            super()._update_hook(my_task)
+            subworkflow = my_task.workflow.create_subprocess(my_task, self.spec, self.name)
+            subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
+            subworkflow.data = deepcopy(my_task.workflow.data)
+            return True
 
     def _on_cancel(self, my_task):
         subworkflow = my_task.workflow.get_subprocess(my_task)
