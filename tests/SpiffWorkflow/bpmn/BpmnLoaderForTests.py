@@ -8,7 +8,7 @@ from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import ConditionalGatewayParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 
-from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
+from SpiffWorkflow.bpmn.serializer.helpers.spec import BpmnSpecConverter, TaskSpecConverter
 
 # Many of our tests relied on the Packager to set the calledElement attribute on
 # Call Activities.  I've moved that code to a customized parser.
@@ -75,12 +75,10 @@ class TestDataStore(BpmnDataStoreSpecification):
         """Copy a value from one task to another."""
         raise NotImplementedError("test copy...")
 
-class TestDataStoreConverter:
+class TestDataStoreConverter(BpmnSpecConverter):
 
-    def __init__(self, data_converter=None):
-        self.data_converter = data_converter
-        self.spec_class = TestDataStore
-        self.typename = "TestDataStore"
+    def __init__(self, registry):
+        super().__init__(TestDataStore, registry)
 
     def to_dict(self, spec):
         return {
@@ -92,7 +90,7 @@ class TestDataStoreConverter:
         }
 
     def from_dict(self, dct):
-        _value = pop(dct, "_value")
+        _value = dct.pop("_value")
         data_store = TestDataStore(**dct)
         data_store._value = _value
         return data_store

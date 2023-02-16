@@ -12,7 +12,7 @@ class DataStoreReferenceTest(BpmnWorkflowTestCase):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         # TODO: need to handle serialization
-        #self.save_restore()
+        self.save_restore()
         self.workflow.do_engine_steps()
 
         last_script_task_data = self.workflow.get_tasks_from_spec_name("Activity_1skgyn9")[0].data
