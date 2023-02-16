@@ -64,11 +64,30 @@ class SubWorkflowTask(BpmnSpecMixin):
         if subworkflow is not None:
             subworkflow.cancel()
 
+    def copy_data(self, my_task, subworkflow):
+        start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
+        start[0].set_data(**my_task.data)
+
     def start_workflow(self, my_task):
 
         subworkflow = my_task.workflow.get_subprocess(my_task)
-        start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
+        self.copy_data(my_task, subworkflow)
+        for child in subworkflow.task_tree.children:
+            child.task_spec._update(child)
+        my_task._set_state(TaskState.WAITING)
 
+    def task_will_set_children_future(self, my_task):
+        my_task.workflow.delete_subprocess(my_task)
+
+
+class CallActivity(SubWorkflowTask):
+
+    def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
+        super(CallActivity, self).__init__(wf_spec, name, subworkflow_spec, False, **kwargs)
+
+    def copy_data(self, my_task, subworkflow):
+
+        start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
         if subworkflow.spec.io_specification is None:
             # Copy all task data into start task if no inputs specified
             start[0].set_data(**my_task.data)
@@ -82,20 +101,6 @@ class SubWorkflowTask(BpmnSpecMixin):
                         data_input=var,
                     )
                 start[0].data[var.name] = my_task.data[var.name]
-
-        for child in subworkflow.task_tree.children:
-            child.task_spec._update(child)
-
-        my_task._set_state(TaskState.WAITING)
-
-    def task_will_set_children_future(self, my_task):
-        my_task.workflow.delete_subprocess(my_task)
-
-
-class CallActivity(SubWorkflowTask):
-
-    def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
-        super(CallActivity, self).__init__(wf_spec, name, subworkflow_spec, False, **kwargs)
 
     @property
     def spec_type(self):
