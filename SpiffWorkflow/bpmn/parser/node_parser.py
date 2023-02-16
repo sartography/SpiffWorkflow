@@ -9,7 +9,6 @@ DEFAULT_NSMAP = {
 
 }
 
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class NodeParser:
 
@@ -82,12 +81,7 @@ class NodeParser:
         return cls(item.attrib.get('id'), item.attrib.get('name'))
 
     def parse_extensions(self, node=None):
-        extensions = {}
-        extra_ns = {'camunda': CAMUNDA_MODEL_NS}
-        extension_nodes = self.xpath('.//bpmn:extensionElements/camunda:properties/camunda:property', extra_ns)
-        for ex_node in extension_nodes:
-            extensions[ex_node.get('name')] = ex_node.get('value')
-        return extensions
+        return {}
 
     def _get_lane(self):
         noderef = first(self.doc_xpath(f".//bpmn:flowNodeRef[text()='{self.get_id()}']"))

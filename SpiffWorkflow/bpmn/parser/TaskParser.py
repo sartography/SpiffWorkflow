@@ -29,8 +29,6 @@ from ..specs.data_spec import TaskDataReference
 from .util import one
 from .node_parser import NodeParser
 
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
-
 
 class TaskParser(NodeParser):
     """

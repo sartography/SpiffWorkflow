@@ -22,8 +22,6 @@ from .ValidationException import ValidationException
 from .TaskParser import TaskParser
 from .util import one, DEFAULT_NSMAP
 
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
-
 
 class GatewayParser(TaskParser):
     def handles_multiple_outgoing(self):

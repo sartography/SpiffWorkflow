@@ -62,7 +62,6 @@ from .event_parsers import (
 )
 
 
-
 XSD_PATH = os.path.join(os.path.dirname(__file__), 'schema', 'BPMN20.xsd')
 
 class BpmnValidator:
@@ -223,8 +222,7 @@ class BpmnParser(object):
         for correlation in bpmn.xpath('.//bpmn:correlationProperty', namespaces=self.namespaces):
             correlation_identifier = correlation.attrib.get("id")
             if correlation_identifier is None:
-                raise ValidationException(
-                    "Correlation identifier is missing from bpmn xml"                )
+                raise ValidationException("Correlation identifier is missing from bpmn xml")
             correlation_property_retrieval_expressions = correlation.xpath(
                 "//bpmn:correlationPropertyRetrievalExpression", namespaces = self.namespaces)
             if not correlation_property_retrieval_expressions:

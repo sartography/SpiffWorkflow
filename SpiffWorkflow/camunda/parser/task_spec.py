@@ -14,8 +14,15 @@ from SpiffWorkflow.camunda.specs.multiinstance_task import SequentialMultiInstan
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 
-
 class CamundaTaskParser(TaskParser):
+
+    def parse_extensions(self, node=None):
+        extensions = {}
+        extra_ns = {'camunda': CAMUNDA_MODEL_NS}
+        extension_nodes = self.xpath('.//bpmn:extensionElements/camunda:properties/camunda:property', extra_ns)
+        for ex_node in extension_nodes:
+            extensions[ex_node.get('name')] = ex_node.get('value')
+        return extensions
 
     def _add_multiinstance_task(self, loop_characteristics):
 
