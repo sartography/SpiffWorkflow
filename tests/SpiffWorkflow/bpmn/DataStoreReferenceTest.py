@@ -4,43 +4,35 @@ from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 class DataStoreReferenceTest(BpmnWorkflowTestCase):
-
-    def testParsesDataStoreReferenceWithInputsAndOutputs(self):
+    def _do_engine_steps(self, file, processid, save_restore):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
         self.workflow = BpmnWorkflow(spec, subprocesses)
-
-    def testCanSaveRestoreDataStoreReferenceWithInputsAndOutputs(self):
-        spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
-        self.workflow = BpmnWorkflow(spec, subprocesses)
-        self.save_restore()
+        if save_restore:
+            self.save_restore()
         self.workflow.do_engine_steps()
-        self.save_restore()
 
+    def _check_last_script_task_data(self):
         last_script_task_data = self.workflow.get_tasks_from_spec_name("Activity_1skgyn9")[0].data
         self.assertEqual(len(last_script_task_data), 1)
         self.assertEqual(last_script_task_data["x"], "Sue")
 
     def testCanInterpretDataStoreReferenceWithInputsAndOutputs(self):
-        spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
-        self.workflow = BpmnWorkflow(spec, subprocesses)
-        self.workflow.do_engine_steps()
+        self._do_engine_steps('data_store.bpmn', 'JustDataStoreRef', False)
+        self._check_last_script_task_data()
 
-        last_script_task_data = self.workflow.get_tasks_from_spec_name("Activity_1skgyn9")[0].data
-        self.assertEqual(len(last_script_task_data), 1)
-        self.assertEqual(last_script_task_data["x"], "Sue")
+    def testCanSaveRestoreDataStoreReferenceWithInputsAndOutputs(self):
+        self._do_engine_steps('data_store.bpmn', 'JustDataStoreRef', True)
+        self._check_last_script_task_data()
 
     def testSeparateWorkflowInstancesCanShareDataUsingDataStores(self):
-        spec, subprocesses = self.load_workflow_spec('data_store_write.bpmn', 'JustDataStoreRef')
-        self.workflow = BpmnWorkflow(spec, subprocesses)
-        self.workflow.do_engine_steps()
+        self._do_engine_steps('data_store_write.bpmn', 'JustDataStoreRef', False)
+        self._do_engine_steps('data_store_read.bpmn', 'JustDataStoreRef', False)
+        self._check_last_script_task_data()
 
-        spec, subprocesses = self.load_workflow_spec('data_store_read.bpmn', 'JustDataStoreRef')
-        self.workflow = BpmnWorkflow(spec, subprocesses)
-        self.workflow.do_engine_steps()
-
-        last_script_task_data = self.workflow.get_tasks_from_spec_name("Activity_1skgyn9")[0].data
-        self.assertEqual(len(last_script_task_data), 1)
-        self.assertEqual(last_script_task_data["x"], "Sue")
+    def testSeparateRestoredWorkflowInstancesCanShareDataUsingDataStores(self):
+        self._do_engine_steps('data_store_write.bpmn', 'JustDataStoreRef', True)
+        self._do_engine_steps('data_store_read.bpmn', 'JustDataStoreRef', True)
+        self._check_last_script_task_data()
 
 
 # TODO: see if we need to handle any more of the cases below
