@@ -64,11 +64,11 @@ class TestDataStore(BpmnDataStoreSpecification):
 
     def get(self, my_task):
         """Copy a value from a data store into task data."""
-        my_task.data[self.name] = self._value
+        my_task.data[self.name] = TestDataStore._value
 
     def set(self, my_task):
         """Copy a value from the task data to the data store"""
-        self._value = my_task.data[self.name]
+        TestDataStore._value = my_task.data[self.name]
         del my_task.data[self.name]
 
     def copy(self, source, destination, data_input=False, data_output=False):
@@ -86,13 +86,13 @@ class TestDataStoreConverter(BpmnSpecConverter):
             "description": spec.description,
             "capacity": spec.capacity,
             "is_unlimited": spec.is_unlimited,
-            "_value": spec._value,
+            "_value": TestDataStore._value,
         }
 
     def from_dict(self, dct):
         _value = dct.pop("_value")
         data_store = TestDataStore(**dct)
-        data_store._value = _value
+        TestDataStore._value = _value
         return data_store
 
 class TestBpmnParser(BpmnParser):

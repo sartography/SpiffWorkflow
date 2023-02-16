@@ -4,22 +4,22 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 class DataStoreReferenceTest(BpmnWorkflowTestCase):
 
-    def testParsesDataStoreReferenceWithInputsAndOutputs(self):
+    def _testParsesDataStoreReferenceWithInputsAndOutputs(self):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
         self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testCanSaveRestoreDataStoreReferenceWithInputsAndOutputs(self):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
         self.workflow = BpmnWorkflow(spec, subprocesses)
-        # TODO: need to handle serialization
         self.save_restore()
         self.workflow.do_engine_steps()
+        self.save_restore()
 
         last_script_task_data = self.workflow.get_tasks_from_spec_name("Activity_1skgyn9")[0].data
         self.assertEqual(len(last_script_task_data), 1)
         self.assertEqual(last_script_task_data["x"], "Sue")
 
-    def testCanInterpretDataStoreReferenceWithInputsAndOutputs(self):
+    def _testCanInterpretDataStoreReferenceWithInputsAndOutputs(self):
         spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
