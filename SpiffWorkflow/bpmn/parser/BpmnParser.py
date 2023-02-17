@@ -106,7 +106,7 @@ class BpmnParser(object):
         full_tag('endEvent'): (EndEventParser, EndEvent),
         full_tag('userTask'): (TaskParser, UserTask),
         full_tag('task'): (TaskParser, NoneTask),
-        full_tag('subProcess'): (SubWorkflowParser, CallActivity),
+        full_tag('subProcess'): (SubWorkflowParser, SubWorkflowTask),
         full_tag('manualTask'): (TaskParser, ManualTask),
         full_tag('exclusiveGateway'): (ConditionalGatewayParser, ExclusiveGateway),
         full_tag('parallelGateway'): (GatewayParser, ParallelGateway),

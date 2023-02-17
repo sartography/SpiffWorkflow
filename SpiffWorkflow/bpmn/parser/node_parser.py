@@ -46,7 +46,7 @@ class NodeParser:
 
     def parse_incoming_data_references(self):
         specs = []
-        for name in self.xpath('.//bpmn:dataInputAssociation/bpmn:sourceRef'):
+        for name in self.xpath('./bpmn:dataInputAssociation/bpmn:sourceRef'):
             ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
             if ref is not None and ref.get('dataObjectRef') in self.process_parser.spec.data_objects:
                 specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
@@ -56,7 +56,7 @@ class NodeParser:
 
     def parse_outgoing_data_references(self):
         specs = []
-        for name in self.xpath('.//bpmn:dataOutputAssociation/bpmn:targetRef'):
+        for name in self.xpath('./bpmn:dataOutputAssociation/bpmn:targetRef'):
             ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
             if ref is not None and ref.get('dataObjectRef') in self.process_parser.spec.data_objects:
                 specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])

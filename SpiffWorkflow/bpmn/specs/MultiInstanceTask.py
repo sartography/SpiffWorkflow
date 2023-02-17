@@ -125,12 +125,13 @@ class MultiInstanceTask(LoopTask):
     def create_child(self, my_task, item, key_or_index=None):
 
         task_spec = my_task.workflow.spec.task_specs[self.task_spec]
-        child = my_task._add_child(task_spec, TaskState.READY)
+        child = my_task._add_child(task_spec, TaskState.WAITING)
         child.data = deepcopy(my_task.data)
         if self.input_item is not None:
             child.data[self.input_item.name] = deepcopy(item)
         if key_or_index is not None:
             child.internal_data['key_or_index'] = key_or_index
+        child.task_spec._update(child)
 
     def check_completion_condition(self, my_task):
 
