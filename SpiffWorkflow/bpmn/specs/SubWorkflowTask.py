@@ -34,12 +34,10 @@ class SubWorkflowTask(BpmnSpecMixin):
         my_task._set_state(TaskState.READY)
 
     def _update_hook(self, my_task):
-
         wf = my_task.workflow._get_outermost_workflow(my_task)
         if my_task.id not in wf.subprocesses:
             super()._update_hook(my_task)
-            subworkflow = my_task.workflow.create_subprocess(my_task, self.spec, self.name)
-            subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
+            self.create_workflow(my_task)
             return True
 
     def _on_cancel(self, my_task):
@@ -55,6 +53,10 @@ class SubWorkflowTask(BpmnSpecMixin):
 
     def update_data(self, my_task, subworkflow):
         my_task.data = deepcopy(subworkflow.last_task.data)
+
+    def create_workflow(self, my_task):
+        subworkflow = my_task.workflow.create_subprocess(my_task, self.spec, self.name)
+        subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
 
     def start_workflow(self, my_task):
         subworkflow = my_task.workflow.get_subprocess(my_task)
@@ -75,7 +77,7 @@ class CallActivity(SubWorkflowTask):
     def copy_data(self, my_task, subworkflow):
 
         start = subworkflow.get_tasks_from_spec_name('Start', workflow=subworkflow)
-        if subworkflow.spec.io_specification is None:
+        if subworkflow.spec.io_specification is None or len(subworkflow.spec.io_specification.data_inputs) == 0:
             # Copy all task data into start task if no inputs specified
             start[0].set_data(**my_task.data)
         else:
