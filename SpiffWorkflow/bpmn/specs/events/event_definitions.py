@@ -23,6 +23,7 @@ from calendar import monthrange
 from time import timezone as tzoffset
 from copy import deepcopy
 
+from SpiffWorkflow.exceptions import SpiffWorkflowException, WorkflowException
 from SpiffWorkflow.task import TaskState
 
 LOCALTZ = timezone(timedelta(seconds=-1 * tzoffset))
@@ -191,7 +192,7 @@ class MessageEventDefinition(NamedEventDefinition):
         # However, there needs to be something to apply the correlations to in the
         # standard case and this is line with the way Spiff works otherwise
         event.payload = deepcopy(my_task.data)
-        correlations = self.get_correlations(my_task.workflow.script_engine, event.payload)
+        correlations = self.get_correlations(my_task, event.payload)
         my_task.workflow.correlations.update(correlations)
         self._throw(event, my_task.workflow, my_task.workflow.outer_workflow, correlations)
 
@@ -205,13 +206,19 @@ class MessageEventDefinition(NamedEventDefinition):
         if payload is not None:
             my_task.set_data(**payload)
 
-    def get_correlations(self, script_engine, payload):
+    def get_correlations(self, task, payload):
         correlations = {}
         for property in self.correlation_properties:
             for key in property.correlation_keys:
                 if key not in correlations:
                     correlations[key] = {}
-                correlations[key][property.name] = script_engine._evaluate(property.expression, payload)
+                try:
+                    correlations[key][property.name] = task.workflow.script_engine._evaluate(property.expression, payload)
+                except WorkflowException as we:
+                    we.add_note(f"Failed to evaluate correlation key '{key}'"
+                                 f" invalid expression '{property.expression}'")
+                    we.task_spec = task.task_spec
+                    raise we
         return correlations
 
 
@@ -351,7 +358,7 @@ class TimerEventDefinition(EventDefinition):
             return TimerEventDefinition.parse_iso_week(expression)
         else:
             return TimerEventDefinition.get_datetime(expression)
- 
+
     @staticmethod
     def parse_iso_recurring_interval(expression):
         components = expression.upper().replace('--', '/').strip('R').split('/')
@@ -510,7 +517,7 @@ class MultipleEventDefinition(EventDefinition):
             if event == other:
                 return True
         return False
-    
+
     def throw(self, my_task):
         # Mutiple events throw all associated events when they fire
         for event_definition in self.event_definitions:
