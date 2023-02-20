@@ -48,6 +48,7 @@ class ProcessParser(NodeParser):
         self.spec = None
         self.process_executable = self.is_executable()
         self.data_stores = data_stores
+        self.inherited_data_objects = {}
 
     def get_name(self):
         """
@@ -97,7 +98,7 @@ class ProcessParser(NodeParser):
         if not node_parser or not spec_class:
             raise ValidationException("There is no support implemented for this task type.",
                                       node=node, file_name=self.filename)
-        np = node_parser(self, spec_class, node, lane=self.lane)
+        np = node_parser(self, spec_class, node, self.nsmap, lane=self.lane)
         task_spec = np.parse_node()
         return task_spec
 
@@ -108,6 +109,8 @@ class ProcessParser(NodeParser):
         if not start_node_list and self.process_executable:
             raise ValidationException("No start event found", node=self.node, file_name=self.filename)
         self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), filename=self.filename)
+
+        self.spec.data_objects.update(self.inherited_data_objects)
 
         # Get the data objects
         for obj in self.xpath('./bpmn:dataObject'):

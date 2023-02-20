@@ -19,8 +19,6 @@ from ..specs.events.event_definitions import (
     NoneEventDefinition
 )
 
-
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 CANCEL_EVENT_XPATH = './/bpmn:cancelEventDefinition'
 ERROR_EVENT_XPATH = './/bpmn:errorEventDefinition'
 ESCALATION_EVENT_XPATH = './/bpmn:escalationEventDefinition'
@@ -28,6 +26,7 @@ TERMINATION_EVENT_XPATH = './/bpmn:terminateEventDefinition'
 MESSAGE_EVENT_XPATH = './/bpmn:messageEventDefinition'
 SIGNAL_EVENT_XPATH = './/bpmn:signalEventDefinition'
 TIMER_EVENT_XPATH = './/bpmn:timerEventDefinition'
+
 
 class EventDefinitionParser(TaskParser):
     """This class provvides methods for parsing different event definitions."""

@@ -1,5 +1,5 @@
 
-from ...bpmn.parser.BpmnParser import full_tag
+from SpiffWorkflow.bpmn.parser.BpmnParser import full_tag, DEFAULT_NSMAP
 
 from SpiffWorkflow.bpmn.specs.ManualTask import ManualTask
 from SpiffWorkflow.bpmn.specs.NoneTask import NoneTask
@@ -16,6 +16,7 @@ from SpiffWorkflow.camunda.parser.task_spec import (
     CallActivityParser,
     SubWorkflowParser,
     ScriptTaskParser,
+    CAMUNDA_MODEL_NS
 )
 
 from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
@@ -28,6 +29,10 @@ from .event_parsers import (
     CamundaIntermediateThrowEventParser,
     CamundaBoundaryEventParser,
 )
+
+NSMAP = DEFAULT_NSMAP.copy()
+NSMAP['camunda'] = CAMUNDA_MODEL_NS
+
 
 class CamundaParser(BpmnDmnParser):
 
@@ -46,3 +51,6 @@ class CamundaParser(BpmnDmnParser):
         full_tag('callActivity'): (CallActivityParser, CallActivity),
         full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
     }
+
+    def __init__(self, namespaces=None, validator=None):
+        super().__init__(namespaces=namespaces or NSMAP, validator=validator)

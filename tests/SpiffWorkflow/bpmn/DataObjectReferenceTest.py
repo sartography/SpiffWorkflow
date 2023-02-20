@@ -72,11 +72,15 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         self.assertNotIn('obj_1', ready_tasks[0].data)
         self.assertEqual(self.workflow.data['obj_1'], 'hello')
 
-        # Make sure data objects can be copied in and out of a subprocess
+        # Make sure data objects are accessible inside a subprocess
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_ready_user_tasks()
         self.assertEqual(ready_tasks[0].data['obj_1'], 'hello')
+        ready_tasks[0].data['obj_1'] = 'hello again'
         ready_tasks[0].complete()
         self.workflow.do_engine_steps()
         sp = self.workflow.get_tasks_from_spec_name('subprocess')[0]
+        # It was copied out
         self.assertNotIn('obj_1', sp.data)
+        # The update should persist in the main process
+        self.assertEqual(self.workflow.data['obj_1'], 'hello again')

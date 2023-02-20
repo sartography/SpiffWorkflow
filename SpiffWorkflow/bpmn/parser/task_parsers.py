@@ -16,13 +16,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from lxml import etree
-
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
-from .util import one, DEFAULT_NSMAP
-
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
+from .util import one
 
 
 class GatewayParser(TaskParser):
@@ -61,30 +57,24 @@ class SubprocessParser:
         workflow_start_event = task_parser.xpath('./bpmn:startEvent')
         workflow_end_event = task_parser.xpath('./bpmn:endEvent')
         if len(workflow_start_event) != 1:
-            raise ValidationException(
-                'Multiple Start points are not allowed in SubWorkflow Task',
+            raise ValidationException('Multiple Start points are not allowed in SubWorkflow Task',
                 node=task_parser.node,
                 file_name=task_parser.filename)
         if len(workflow_end_event) == 0:
-            raise ValidationException(
-                'A SubWorkflow Must contain an End event',
+            raise ValidationException('A SubWorkflow Must contain an End event',
                 node=task_parser.node,
                 file_name=task_parser.filename)
-
-        nsmap = DEFAULT_NSMAP.copy()
-        nsmap['camunda'] = "http://camunda.org/schema/1.0/bpmn"
-        nsmap['di'] = "http://www.omg.org/spec/DD/20100524/DI"
-
-        # Create wrapper xml for the subworkflow
-        for ns, val in nsmap.items():
-            etree.register_namespace(ns, val)
 
         task_parser.process_parser.parser.create_parser(
             task_parser.node,
             filename=task_parser.filename,
             lane=task_parser.lane
         )
-        return task_parser.node.get('id')
+        spec_id = task_parser.node.get('id')
+        # This parser makes me want to cry
+        spec_parser = task_parser.process_parser.parser.process_parsers[spec_id]
+        spec_parser.inherited_data_objects.update(task_parser.process_parser.spec.data_objects)
+        return spec_id
 
     @staticmethod
     def get_call_activity_spec(task_parser):

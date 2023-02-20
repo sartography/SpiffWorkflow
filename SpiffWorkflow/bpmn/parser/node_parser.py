@@ -6,10 +6,8 @@ DEFAULT_NSMAP = {
     'bpmn': 'http://www.omg.org/spec/BPMN/20100524/MODEL',
     'bpmndi': 'http://www.omg.org/spec/BPMN/20100524/DI',
     'dc': 'http://www.omg.org/spec/DD/20100524/DC',
-
 }
 
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class NodeParser:
 
@@ -31,6 +29,12 @@ class NodeParser:
         root = self.node.getroottree().getroot()
         return self._xpath(root, xpath, extra_ns)
 
+    def attribute(self, attribute, namespace=None, node=None):
+        if node is None:
+            node = self.node
+        prefix = '{' + self.nsmap.get(namespace or 'bpmn') + '}'
+        return node.attrib.get(f'{prefix}{attribute}')
+
     def parse_condition(self, sequence_flow):
         expression = first(self._xpath(sequence_flow, './/bpmn:conditionExpression'))
         return expression.text if expression is not None else None
@@ -42,7 +46,7 @@ class NodeParser:
 
     def parse_incoming_data_references(self):
         specs = []
-        for name in self.xpath('.//bpmn:dataInputAssociation/bpmn:sourceRef'):
+        for name in self.xpath('./bpmn:dataInputAssociation/bpmn:sourceRef'):
             ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
             if ref is not None and ref.get('dataObjectRef') in self.process_parser.spec.data_objects:
                 specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
@@ -56,7 +60,7 @@ class NodeParser:
 
     def parse_outgoing_data_references(self):
         specs = []
-        for name in self.xpath('.//bpmn:dataOutputAssociation/bpmn:targetRef'):
+        for name in self.xpath('./bpmn:dataOutputAssociation/bpmn:targetRef'):
             ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
             if ref is not None and ref.get('dataObjectRef') in self.process_parser.spec.data_objects:
                 specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
@@ -90,12 +94,7 @@ class NodeParser:
         return cls(item.attrib.get('id'), item.attrib.get('name'))
 
     def parse_extensions(self, node=None):
-        extensions = {}
-        extra_ns = {'camunda': CAMUNDA_MODEL_NS}
-        extension_nodes = self.xpath('.//bpmn:extensionElements/camunda:properties/camunda:property', extra_ns)
-        for ex_node in extension_nodes:
-            extensions[ex_node.get('name')] = ex_node.get('value')
-        return extensions
+        return {}
 
     def _get_lane(self):
         noderef = first(self.doc_xpath(f".//bpmn:flowNodeRef[text()='{self.get_id()}']"))

@@ -5,7 +5,6 @@ from SpiffWorkflow.bpmn.parser.util import one
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import SubprocessParser
-from SpiffWorkflow.bpmn.parser.node_parser import DEFAULT_NSMAP
 
 from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
 
@@ -14,8 +13,14 @@ from SpiffWorkflow.camunda.specs.multiinstance_task import SequentialMultiInstan
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 
-
 class CamundaTaskParser(TaskParser):
+
+    def parse_extensions(self, node=None):
+        extensions = {}
+        extension_nodes = self.xpath('.//bpmn:extensionElements/camunda:properties/camunda:property')
+        for ex_node in extension_nodes:
+            extensions[ex_node.get('name')] = ex_node.get('value')
+        return extensions
 
     def _add_multiinstance_task(self, loop_characteristics):
 
@@ -24,11 +29,11 @@ class CamundaTaskParser(TaskParser):
 
         cardinality = self.xpath(f'./{prefix}/bpmn:loopCardinality')
         cardinality = cardinality[0].text if len(cardinality) > 0 else None
-        collection = loop_characteristics.attrib.get('{' + CAMUNDA_MODEL_NS + '}collection')
+        collection = self.attribute('collection', 'camunda', loop_characteristics)
         if cardinality is None and collection is None:
             self.raise_validation_exception('A multiinstance task must specify a cardinality or a collection')
 
-        element_var = loop_characteristics.attrib.get('{' + CAMUNDA_MODEL_NS + '}elementVariable')
+        element_var = self.attribute('elementVariable', 'camunda', loop_characteristics)
         condition = self.xpath(f'./{prefix}/bpmn:completionCondition')
         condition = condition[0].text if len(condition) > 0 else None
 
@@ -59,11 +64,6 @@ class CamundaTaskParser(TaskParser):
 class BusinessRuleTaskParser(CamundaTaskParser):
     dmn_debug = None
 
-    def __init__(self, process_parser, spec_class, node, lane=None):
-        nsmap = DEFAULT_NSMAP.copy()
-        nsmap.update({'camunda': CAMUNDA_MODEL_NS})
-        super(BusinessRuleTaskParser, self).__init__(process_parser, spec_class, node, nsmap, lane)
-
     def create_task(self):
         decision_ref = self.get_decision_ref(self.node)
         return BusinessRuleTask(self.spec, self.get_task_spec_name(),
@@ -78,14 +78,7 @@ class BusinessRuleTaskParser(CamundaTaskParser):
 
 
 class UserTaskParser(CamundaTaskParser):
-    """
-    Base class for parsing User Tasks
-    """
-
-    def __init__(self, process_parser, spec_class, node, lane=None):
-        nsmap = DEFAULT_NSMAP.copy()
-        nsmap.update({'camunda': CAMUNDA_MODEL_NS})
-        super(UserTaskParser, self).__init__(process_parser, spec_class, node, nsmap, lane)
+    """Base class for parsing User Tasks"""
 
     def create_task(self):
         form = self.get_form()
@@ -99,7 +92,7 @@ class UserTaskParser(CamundaTaskParser):
         details from that form and construct a form model from it. """
         form = Form()
         try:
-            form.key = self.node.attrib['{' + CAMUNDA_MODEL_NS + '}formKey']
+            form.key = self.attribute('formKey', 'camunda')
         except KeyError:
             return form
         for xml_field in self.xpath('.//camunda:formData/camunda:formField'):
@@ -113,12 +106,13 @@ class UserTaskParser(CamundaTaskParser):
             field.label = xml_field.get('label')
             field.default_value = xml_field.get('defaultValue')
 
+            prefix = '{' + self.nsmap.get('camunda') + '}'
             for child in xml_field:
-                if child.tag == '{' + CAMUNDA_MODEL_NS + '}properties':
+                if child.tag == f'{prefix}properties':
                     for p in child:
                         field.add_property(p.get('id'), p.get('value'))
 
-                if child.tag == '{' + CAMUNDA_MODEL_NS + '}validation':
+                if child.tag == f'{prefix}validation':
                     for v in child:
                         field.add_validation(v.get('name'), v.get('config'))
 
@@ -129,7 +123,7 @@ class UserTaskParser(CamundaTaskParser):
         field = EnumFormField()
 
         for child in xml_field:
-            if child.tag == '{' + CAMUNDA_MODEL_NS + '}value':
+            if child.tag == '{' + self.nsmap.get('camunda') + '}value':
                 field.add_option(child.get('id'), child.get('name'))
         return field
 

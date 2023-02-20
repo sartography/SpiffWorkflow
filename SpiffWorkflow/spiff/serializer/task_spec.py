@@ -93,7 +93,7 @@ class ServiceTaskConverter(SpiffBpmnTaskConverter):
         return self.task_spec_from_dict(dct)
 
 
-class SubprocessTaskConverter(SpiffBpmnTaskConverter):
+class SubWorkflowTaskConverter(SpiffBpmnTaskConverter):
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -104,15 +104,15 @@ class SubprocessTaskConverter(SpiffBpmnTaskConverter):
         dct['subworkflow_spec'] = dct.pop('spec')
         return super().task_spec_from_dict(dct)
 
-class SubWorkflowTaskConverter(SubprocessTaskConverter):
+class SubprocessTaskConverter(SubWorkflowTaskConverter):
     def __init__(self, registry):
         super().__init__(SubWorkflowTask, registry)
 
-class TransactionSubprocessConverter(SubprocessTaskConverter):
+class TransactionSubprocessConverter(SubWorkflowTaskConverter):
     def __init__(self, registry):
         super().__init__(TransactionSubprocess, registry)
 
-class CallActivityTaskConverter(SubprocessTaskConverter):
+class CallActivityTaskConverter(SubWorkflowTaskConverter):
     def __init__(self, registry):
         super().__init__(CallActivity, registry)
 

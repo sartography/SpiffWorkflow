@@ -29,17 +29,17 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
         # Check that workflow and next task completed
         subprocess = self.workflow.get_tasks_from_spec_name('Subprocess')[0]
-        self.assertEqual(subprocess.get_state(), TaskState.COMPLETED)
+        self.assertEqual(subprocess.state, TaskState.COMPLETED)
         print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")[0]
-        self.assertEqual(print_task.get_state(), TaskState.COMPLETED)
+        self.assertEqual(print_task.state, TaskState.COMPLETED)
 
         # Check that the boundary events were cancelled
         cancel_task = self.workflow.get_tasks_from_spec_name("Catch_Cancel_Event")[0]
-        self.assertEqual(cancel_task.get_state(), TaskState.CANCELLED)
+        self.assertEqual(cancel_task.state, TaskState.CANCELLED)
         error_1_task = self.workflow.get_tasks_from_spec_name("Catch_Error_1")[0]
-        self.assertEqual(error_1_task.get_state(), TaskState.CANCELLED)
+        self.assertEqual(error_1_task.state, TaskState.CANCELLED)
         error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
-        self.assertEqual(error_none_task.get_state(), TaskState.CANCELLED)
+        self.assertEqual(error_none_task.state, TaskState.CANCELLED)
 
 
     def testSubworkflowCancelEvent(self):
@@ -56,13 +56,13 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
         # Check that we completed the Cancel Task
         cancel_task = self.workflow.get_tasks_from_spec_name("Cancel_Action")[0]
-        self.assertEqual(cancel_task.get_state(), TaskState.COMPLETED)
+        self.assertEqual(cancel_task.state, TaskState.COMPLETED)
 
         # And cancelled the remaining tasks
         error_1_task = self.workflow.get_tasks_from_spec_name("Catch_Error_1")[0]
-        self.assertEqual(error_1_task.get_state(), TaskState.CANCELLED)
+        self.assertEqual(error_1_task.state, TaskState.CANCELLED)
         error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
-        self.assertEqual(error_none_task.get_state(), TaskState.CANCELLED)
+        self.assertEqual(error_none_task.state, TaskState.CANCELLED)
 
         # We should not have this task, as we followed the 'cancel branch'
         print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")
@@ -87,13 +87,13 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
         # The cancel boundary event should be cancelled
         cancel_task = self.workflow.get_tasks_from_spec_name("Catch_Cancel_Event")[0]
-        self.assertEqual(cancel_task.get_state(), TaskState.CANCELLED)
+        self.assertEqual(cancel_task.state, TaskState.CANCELLED)
 
         # We should catch the None Error, but not Error 1
         error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
-        self.assertEqual(error_none_task.get_state(), TaskState.COMPLETED)
+        self.assertEqual(error_none_task.state, TaskState.COMPLETED)
         error_1_task = self.workflow.get_tasks_from_spec_name("Catch_Error_1")[0]
-        self.assertEqual(error_1_task.get_state(), TaskState.CANCELLED)
+        self.assertEqual(error_1_task.state, TaskState.CANCELLED)
 
         # Make sure this branch didn't getfollowed
         print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")
@@ -117,9 +117,9 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
         # Both boundary events should complete
         error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
-        self.assertEqual(error_none_task.get_state(), TaskState.COMPLETED)
+        self.assertEqual(error_none_task.state, TaskState.COMPLETED)
         error_1_task = self.workflow.get_tasks_from_spec_name("Catch_Error_1")[0]
-        self.assertEqual(error_1_task.get_state(), TaskState.COMPLETED)
+        self.assertEqual(error_1_task.state, TaskState.COMPLETED)
 
         print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")
         self.assertEqual(len(print_task), 0)

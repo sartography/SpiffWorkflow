@@ -102,8 +102,8 @@ class WorkflowSpecTest(unittest.TestCase):
         task2 = Join(self.wf_spec, 'Second')
         task1.connect(task2)
 
-        task2.follow(task1)
-        task1.follow(task2)
+        task1.connect(task2)
+        task2.connect(task1)
 
         results = self.wf_spec.validate()
         self.assertIn("Found loop with 'Second': Second->First then 'Second' "
