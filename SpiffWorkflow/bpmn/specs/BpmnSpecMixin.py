@@ -77,7 +77,7 @@ class BpmnSpecMixin(TaskSpec):
             obj.get(my_task)
 
         # If an IO spec was given, require all inputs are present, and remove all other inputs.
-        if self.io_specification is not None:
+        if self.io_specification is not None and len(self.io_specification.data_inputs) > 0:
             data = {}
             for var in self.io_specification.data_inputs:
                 if var.name not in my_task.data:
@@ -89,7 +89,7 @@ class BpmnSpecMixin(TaskSpec):
 
     def _on_complete_hook(self, my_task):
 
-        if self.io_specification is not None:
+        if self.io_specification is not None and len(self.io_specification.data_outputs) > 0:
             data = {}
             for var in self.io_specification.data_outputs:
                 if var.name not in my_task.data:

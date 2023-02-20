@@ -93,7 +93,7 @@ class CallActivity(SubWorkflowTask):
 
     def update_data(self, my_task, subworkflow):
 
-        if subworkflow.spec.io_specification is None:
+        if subworkflow.spec.io_specification is None or len(subworkflow.spec.io_specification.data_outputs) == 0:
             # Copy all workflow data if no outputs are specified
             my_task.data = deepcopy(subworkflow.last_task.data)
         else:
