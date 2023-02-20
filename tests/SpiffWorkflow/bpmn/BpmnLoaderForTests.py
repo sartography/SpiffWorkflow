@@ -71,10 +71,6 @@ class TestDataStore(BpmnDataStoreSpecification):
         TestDataStore._value = my_task.data[self.name]
         del my_task.data[self.name]
 
-    def copy(self, source, destination, data_input=False, data_output=False):
-        """Copy a value from one task to another."""
-        raise NotImplementedError("test copy...")
-
 class TestDataStoreConverter(BpmnSpecConverter):
 
     def __init__(self, registry):
