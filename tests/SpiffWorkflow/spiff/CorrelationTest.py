@@ -49,7 +49,11 @@ class DualConversationTest(BaseTestCase):
         self.assertEqual(len(messages), 2)
         message_one = [ msg for msg in messages if msg.name== 'Message Send One' ][0]
         message_two = [ msg for msg in messages if msg.name== 'Message Send Two' ][0]
-        self.assertIn('message_correlation_key_one', message_one.correlations)
-        self.assertNotIn('message_correlation_key_one', message_two.correlations)
-        self.assertIn('message_correlation_key_two', message_two.correlations)
-        self.assertNotIn('message_correlation_key_two', message_one.correlations)
+
+        # fixme:  This seemed to test that we get a nested structure of correlation keys and correlation properties
+        # Perhaps there should be a way to get the keys and thier associated properties - but things should not default to a nested structure.
+
+        # self.assertIn('message_correlation_key_one', message_one.correlations)
+        # self.assertNotIn('message_correlation_key_one', message_two.correlations)
+        # self.assertIn('message_correlation_key_two', message_two.correlations)
+        # self.assertNotIn('message_correlation_key_two', message_one.correlations)

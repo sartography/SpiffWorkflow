@@ -209,18 +209,14 @@ class MessageEventDefinition(NamedEventDefinition):
     def get_correlations(self, task, payload):
         correlations = {}
         for property in self.correlation_properties:
-            for key in property.correlation_keys:
-                if key not in correlations:
-                    correlations[key] = {}
-                try:
-                    correlations[key][property.name] = task.workflow.script_engine._evaluate(property.expression, payload)
-                except WorkflowException as we:
-                    we.add_note(f"Failed to evaluate correlation key '{key}'"
-                                 f" invalid expression '{property.expression}'")
-                    we.task_spec = task.task_spec
-                    raise we
+            try:
+                correlations[property.name] = task.workflow.script_engine._evaluate(property.expression, payload)
+            except WorkflowException as we:
+                we.add_note(f"Failed to evaluate correlation property '{property.name}'"
+                             f" invalid expression '{property.expression}'")
+                we.task_spec = task.task_spec
+                raise we
         return correlations
-
 
 class NoneEventDefinition(EventDefinition):
     """

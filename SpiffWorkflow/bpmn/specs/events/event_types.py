@@ -36,7 +36,7 @@ class CatchingEvent(Simple, BpmnSpecMixin):
 
     def catches(self, my_task, event_definition, correlations=None):
         if self.event_definition == event_definition:
-            return all([ correlations.get(key) == my_task.workflow.correlations.get(key) for key in correlations ])
+            return all([ str(correlations.get(key)) == str(my_task.workflow.correlations.get(key)) for key in correlations ])
         else:
             return False
 

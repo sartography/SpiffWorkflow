@@ -32,7 +32,7 @@ class BpmnWorkflowSerializer:
     The goal is to provide modular serialization capabilities.
 
     You'll need to configure a Workflow Spec Converter with converters for any task, data, or event types
-    present in your workflows. 
+    present in your workflows.
 
     If you have implemented any custom specs, you'll need to write a converter to handle them and
     replace the converter from the default confiuration with your own.
@@ -63,13 +63,13 @@ class BpmnWorkflowSerializer:
         """
         This method can be used to create a spec converter that uses custom specs.
 
-        The task specs may contain arbitrary data, though none of the default task specs use it.  We don't 
-        recommend that you do this, as we may disallow it in the future.  However, if you have task spec data, 
+        The task specs may contain arbitrary data, though none of the default task specs use it.  We don't
+        recommend that you do this, as we may disallow it in the future.  However, if you have task spec data,
         then you'll also need to make sure it can be serialized.
 
         The workflow spec serializer is based on the `DictionaryConverter` in the `helpers` package.  You can
-        create one of your own, add custom data serializtion to that and pass that in as the `registry`.  The 
-        conversion classes in the spec_config will be added this "registry" and any classes with entries there 
+        create one of your own, add custom data serializtion to that and pass that in as the `registry`.  The
+        conversion classes in the spec_config will be added this "registry" and any classes with entries there
         will be serialized/deserialized.
 
         See the documentation for `helpers.spec.BpmnSpecConverter` for more information about what's going
@@ -85,7 +85,7 @@ class BpmnWorkflowSerializer:
             cls(spec_converter)
         return spec_converter
 
-    def __init__(self, spec_converter=None, data_converter=None, wf_class=None, version=VERSION, 
+    def __init__(self, spec_converter=None, data_converter=None, wf_class=None, version=VERSION,
                  json_encoder_cls=DEFAULT_JSON_ENCODER_CLS, json_decoder_cls=DEFAULT_JSON_DECODER_CLS):
         """Intializes a Workflow Serializer with the given Workflow, Task and Data Converters.
 
@@ -156,6 +156,8 @@ class BpmnWorkflowSerializer:
             (str(task_id), self.process_to_dict(sp)) for task_id, sp in workflow.subprocesses.items()
         )
         dct['bpmn_messages'] = [self.message_to_dict(msg) for msg in workflow.bpmn_messages]
+
+        dct['correlations'] = workflow.correlations
         return dct
 
     def workflow_from_dict(self, dct):
@@ -185,6 +187,8 @@ class BpmnWorkflowSerializer:
 
         # Restore any unretrieve messages
         workflow.bpmn_messages = [ self.message_from_dict(msg) for msg in dct.get('bpmn_messages', []) ]
+
+        workflow.correlations = dct_copy.pop('correlations', {})
 
         # Restore the remainder of the workflow
         workflow.data = self.data_converter.restore(dct_copy.pop('data'))
