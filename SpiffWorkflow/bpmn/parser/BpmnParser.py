@@ -27,6 +27,7 @@ from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinitio
 
 from .ValidationException import ValidationException
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
+from ..specs.data_spec import BpmnDataStoreSpecification
 from ..specs.events.EndEvent import EndEvent
 from ..specs.events.StartEvent import StartEvent
 from ..specs.events.IntermediateEvent import BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent, EventBasedGateway
@@ -98,7 +99,9 @@ class BpmnParser(object):
 
     Extension points: OVERRIDE_PARSER_CLASSES provides a map from full BPMN tag
     name to a TaskParser and Task class. PROCESS_PARSER_CLASS provides a
-    subclass of ProcessParser
+    subclass of ProcessParser. DATA_STORE_CLASSES provides a mapping of names to
+    subclasses of BpmnDataStoreSpecification that provide a data store
+    implementation.
     """
 
     PARSER_CLASSES = {
@@ -127,6 +130,8 @@ class BpmnParser(object):
 
     PROCESS_PARSER_CLASS = ProcessParser
 
+    DATA_STORE_CLASSES = {}
+
     def __init__(self, namespaces=None, validator=None):
         """
         Constructor.
@@ -139,6 +144,7 @@ class BpmnParser(object):
         self.process_dependencies = set()
         self.messages = {}
         self.correlations = {}
+        self.data_stores = {}
 
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
@@ -193,6 +199,11 @@ class BpmnParser(object):
         if self.validator:
             self.validator.validate(bpmn, filename)
 
+        # we need to parse the data stores before _add_process since it creates
+        # the parser instances, which need to know about the data stores to
+        # resolve data references.
+        self._add_data_stores(bpmn)
+
         self._add_processes(bpmn, filename)
         self._add_collaborations(bpmn)
         self._add_messages(bpmn)
@@ -245,13 +256,36 @@ class BpmnParser(object):
                 "retrieval_expressions": retrieval_expressions
             }
 
+    def _add_data_stores(self, bpmn):
+        for data_store in bpmn.xpath('.//bpmn:dataStore', namespaces=self.namespaces):
+            data_store_id = data_store.attrib.get("id")
+            if data_store_id is None:
+                raise ValidationException(
+                    "Data Store identifier is missing from bpmn xml"
+                )
+            data_store_name = data_store.attrib.get("name")
+            if data_store_name is None:
+                raise ValidationException(
+                    "Data Store name is missing from bpmn xml"
+                )
+            if data_store_name not in self.DATA_STORE_CLASSES:
+                raise ValidationException(
+                    f"Data Store with name {data_store_name} has no implementation"
+                )
+            data_store_spec = self.DATA_STORE_CLASSES[data_store_name](
+                data_store_id,
+                data_store_name,
+                data_store.attrib.get('capacity'),
+                data_store.attrib.get('isUnlimited'))
+            self.data_stores[data_store_id] = data_store_spec
+
     def _find_dependencies(self, process):
         """Locate all calls to external BPMN, and store their ids in our list of dependencies"""
         for call_activity in process.xpath('.//bpmn:callActivity', namespaces=self.namespaces):
             self.process_dependencies.add(call_activity.get('calledElement'))
 
     def create_parser(self, node, filename=None, lane=None):
-        parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, filename=filename, lane=lane)
+        parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, self.data_stores, filename=filename, lane=lane)
         if parser.get_id() in self.process_parsers:
             raise ValidationException(f'Duplicate process ID: {parser.get_id()}', node=node, file_name=filename)
         if parser.get_name() in self.process_parsers_by_name:

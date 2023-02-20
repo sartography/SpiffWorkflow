@@ -24,6 +24,20 @@ class BpmnDataSpecification:
         raise NotImplementedError
 
 
+class BpmnDataStoreSpecification(BpmnDataSpecification):
+    def __init__(self, name, description, capacity=None, is_unlimited=None):
+        """
+        :param name: the name of the task data variable and data store key (the BPMN ID)
+        :param description: the task description (the BPMN name)
+        :param capacity: the capacity of the data store
+        :param is_unlimited: if true capacity is ignored
+        """
+        self.capacity = capacity or 0
+        self.is_unlimited = is_unlimited or True
+        # In the future, we can add schemas defining the objects here.
+        super().__init__(name, description)
+
+
 class BpmnIoSpecification:
 
     def __init__(self, data_inputs, data_outputs):

@@ -30,12 +30,13 @@ class ProcessParser(NodeParser):
     process.
     """
 
-    def __init__(self, p, node, nsmap, filename=None, lane=None):
+    def __init__(self, p, node, nsmap, data_stores, filename=None, lane=None):
         """
         Constructor.
 
         :param p: the owning BpmnParser instance
         :param node: the XML node for the process
+        :param data_stores: map of ids to data store implementations
         :param filename: the source BPMN filename (optional)
         :param doc_xpath: an xpath evaluator for the document (optional)
         :param lane: the lane of a subprocess (optional)
@@ -46,6 +47,7 @@ class ProcessParser(NodeParser):
         self.lane = lane
         self.spec = None
         self.process_executable = self.is_executable()
+        self.data_stores = data_stores
         self.inherited_data_objects = {}
 
     def get_name(self):
@@ -119,6 +121,10 @@ class ProcessParser(NodeParser):
         io_spec = first(self.xpath('./bpmn:ioSpecification'))
         if io_spec is not None:
             self.spec.io_specification = self.parse_io_spec()
+
+        # set the data stores on the process spec so they can survive
+        # serialization
+        self.spec.data_stores = self.data_stores
 
         for node in start_node_list:
             self.parse_node(node)
