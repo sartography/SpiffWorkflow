@@ -29,11 +29,13 @@
       <bpmn:incoming>Flow_0mtq2q5</bpmn:incoming>
       <bpmn:outgoing>Flow_0mc5gib</bpmn:outgoing>
       <bpmn:property id="Property_1k6jy2l" name="__targetRef_placeholder" />
+      <!--
       <bpmn:dataInputAssociation id="DataInputAssociation_1n1g2f7">
         <bpmn:sourceRef>referenceToDataStore</bpmn:sourceRef>
         <bpmn:targetRef>Property_1k6jy2l</bpmn:targetRef>
       </bpmn:dataInputAssociation>
-      <bpmn:script>x=variableTiedToDataStore</bpmn:script>
+      -->
+      <bpmn:script>True</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:dataStoreReference id="referenceToDataStore" name="Data Object Faj Fd" dataStoreRef="variableTiedToDataStore" />
   </bpmn:process>
