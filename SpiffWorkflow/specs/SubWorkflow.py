@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 import os
+from lxml import etree
 
 from .StartTask import StartTask
 from .base import TaskSpec
@@ -93,9 +94,8 @@ class SubWorkflow(TaskSpec):
         file_name = valueof(my_task, self.file)
         serializer = XmlSerializer()
         with open(file_name) as fp:
-            xml = fp.read()
-        wf_spec = WorkflowSpec.deserialize(
-            serializer, xml, filename=file_name)
+            xml = etree.parse(fp).getroot()
+        wf_spec = WorkflowSpec.deserialize(serializer, xml, filename=file_name)
         outer_workflow = my_task.workflow.outer_workflow
         return Workflow(wf_spec, parent=outer_workflow)
 

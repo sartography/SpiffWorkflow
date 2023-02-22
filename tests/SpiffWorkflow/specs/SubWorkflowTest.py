@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-
-import sys
 import unittest
 import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+from lxml import etree
 
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
@@ -26,11 +23,10 @@ class TaskSpecTest(unittest.TestCase):
         pass  # FIXME
 
     def load_workflow_spec(self, folder, f):
-        file = os.path.join(
-            os.path.dirname(__file__), '..', 'data', 'spiff', folder, f)
+        file = os.path.join(os.path.dirname(__file__), '..', 'data', 'spiff', folder, f)
         serializer = XmlSerializer()
         with open(file) as fp:
-            xml = fp.read()
+            xml = etree.parse(fp).getroot()
         self.wf_spec = WorkflowSpec.deserialize(
             serializer, xml, filename=file)
         self.workflow = Workflow(self.wf_spec)

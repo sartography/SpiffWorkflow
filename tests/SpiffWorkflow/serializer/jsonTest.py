@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-
-import sys
 import unittest
-import os
-dirname = os.path.dirname(__file__)
-sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
-
 import json
+
 from SpiffWorkflow.serializer.json import JSONSerializer
 from .dictTest import DictionarySerializerTest
 

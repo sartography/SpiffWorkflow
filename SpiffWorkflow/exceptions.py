@@ -124,8 +124,3 @@ class WorkflowTaskException(WorkflowException):
         # deeply nested in sub-workflows it is.  Takes the form of:
         # task-description (file-name)
         self.task_trace = self.get_task_trace(task)
-
-
-
-class StorageException(SpiffWorkflowException):
-    pass

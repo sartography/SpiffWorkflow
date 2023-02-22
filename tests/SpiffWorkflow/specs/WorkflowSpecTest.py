@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-
-from builtins import zip
-from builtins import range
 import os
-import sys
 import unittest
-data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-
 import pickle
 from random import randint
+
+from lxml import etree
+
 try:
     from util import track_workflow
 except ImportError as e:
     from tests.SpiffWorkflow.util import track_workflow
+
 from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.specs.Join import Join
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 
+data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
 serializer = XmlSerializer()
 data_file = 'data.pkl'
 
@@ -71,7 +69,6 @@ class WorkflowSpecTest(unittest.TestCase):
         workflow.complete_all()
         after = workflow.get_dump()
         self.assertTrue(workflow.is_completed(), 'Workflow not complete:' + after)
-        # taken_path = '\n'.join(taken_path) + '\n'
         if taken_path != expected_path:
             for taken, expected in zip(taken_path, expected_path):
                 print("TAKEN:   ", taken)
@@ -82,7 +79,7 @@ class WorkflowSpecTest(unittest.TestCase):
         # Read a complete workflow spec.
         xml_file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
         with open(xml_file) as fp:
-            xml = fp.read()
+            xml = etree.parse(fp).getroot()
         path_file = os.path.splitext(xml_file)[0] + '.path'
         with open(path_file) as fp:
             expected_path = fp.read().strip().split('\n')
