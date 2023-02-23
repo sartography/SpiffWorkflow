@@ -4,6 +4,8 @@ import sys
 import unittest
 import os
 
+from lxml import etree
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
@@ -30,7 +32,7 @@ class TaskSpecTest(unittest.TestCase):
             os.path.dirname(__file__), '..', 'data', 'spiff', folder, f)
         serializer = XmlSerializer()
         with open(file) as fp:
-            xml = fp.read()
+            xml = etree.parse(fp).getroot()
         self.wf_spec = WorkflowSpec.deserialize(
             serializer, xml, filename=file)
         self.workflow = Workflow(self.wf_spec)

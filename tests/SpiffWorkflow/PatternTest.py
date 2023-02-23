@@ -6,6 +6,8 @@ import unittest
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
+from lxml import etree
+
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
@@ -64,7 +66,7 @@ class PatternTest(unittest.TestCase):
         # Test patterns that are defined in XML format.
         if filename.endswith('.xml'):
             with open(filename) as fp:
-                xml = fp.read()
+                xml = etree.parse(fp).getroot()
             serializer = XmlSerializer()
             wf_spec = WorkflowSpec.deserialize(
                 serializer, xml, filename=filename)
