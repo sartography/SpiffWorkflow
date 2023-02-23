@@ -206,6 +206,15 @@ class MessageEventDefinition(NamedEventDefinition):
         if payload is not None:
             my_task.set_data(**payload)
 
+    def get_correlation_keys(self, task, payload):
+        correlation_keys = {}
+        for property in self.correlation_properties:
+            for key in property.correlation_keys:
+                if key not in correlation_keys:
+                    correlation_keys[key] = {}
+                correlation_keys[key][property.name] = task.workflow.script_engine._evaluate(property.expression, payload)
+        return correlation_keys
+
     def get_correlations(self, task, payload):
         correlations = {}
         for property in self.correlation_properties:

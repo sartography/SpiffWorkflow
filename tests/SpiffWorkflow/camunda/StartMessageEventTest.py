@@ -17,7 +17,7 @@ class StartMessageTest(BaseTestCase):
     def testParserCanReturnStartMessages(self):
         parser = self.get_parser('message_test.bpmn')
         self.assertEqual(
-            parser.process_parsers['ThrowCatch'].start_messages(), ['Message_1rkbi27'])
+            parser.process_parsers['ThrowCatch'].start_messages(), ['ApprovalRequest'])
 
         parser = self.get_parser('random_fact.bpmn')
         self.assertEqual(
