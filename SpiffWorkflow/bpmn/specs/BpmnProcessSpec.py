@@ -73,4 +73,5 @@ class BpmnProcessSpec(WorkflowSpec):
         self.description = description
         self.io_specification = None
         self.data_objects = {}
+        self.data_stores = {}
         self.correlation_keys = {}
