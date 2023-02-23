@@ -8,6 +8,8 @@ from lxml import etree
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from tests.SpiffWorkflow.util import run_workflow
 
 
