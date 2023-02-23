@@ -6,8 +6,8 @@ from .ValidationException import ValidationException
 from .TaskParser import TaskParser
 from .util import first, one
 from ..specs.events.event_definitions import (
-    MultipleEventDefinition, 
-    TimeDateEventDefinition, 
+    MultipleEventDefinition,
+    TimeDateEventDefinition,
     DurationTimerEventDefinition,
     CycleTimerEventDefinition,
     MessageEventDefinition,
