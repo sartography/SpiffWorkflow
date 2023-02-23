@@ -66,9 +66,10 @@ class ProcessParser(NodeParser):
         return self.node.get('isExecutable', 'true') == 'true'
 
     def start_messages(self):
-        """ This returns a list of messages that would cause this
+        """ This returns a list of message names that would cause this
             process to start. """
-        messages = []
+        message_names = []
+        messages = self.xpath("//bpmn:message")
         message_event_definitions = self.xpath(
             "//bpmn:startEvent/bpmn:messageEventDefinition")
         for message_event_definition in message_event_definitions:
@@ -79,9 +80,11 @@ class ProcessParser(NodeParser):
                 raise ValidationException(
                     "Could not find messageRef from message event definition: {message_event_definition}"
                 )
-            messages.append(message_model_identifier)
+            # Convert the id into a Message Name
+            message_name = next((m for m in messages if m.attrib.get('id') == message_model_identifier), None)
+            message_names.append(message_name.attrib.get('name'))
 
-        return messages
+        return message_names
 
     def parse_node(self, node):
         """

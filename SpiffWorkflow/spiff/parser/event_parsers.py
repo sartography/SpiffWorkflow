@@ -23,7 +23,7 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
             extensions = {}
             correlations = []
 
-        return MessageEventDefinition(name, correlations, 
+        return MessageEventDefinition(name, correlations,
             expression=extensions.get('messagePayload'),
             message_var=extensions.get('messageVariable')
         )

@@ -175,10 +175,16 @@ class BpmnWorkflow(Workflow):
         events = []
         for task in [t for t in self.get_waiting_tasks() if isinstance(t.task_spec, CatchingEvent)]:
             event_definition = task.task_spec.event_definition
+            value = None
+            if isinstance(event_definition, TimerEventDefinition):
+                value = event_definition.timer_value(task)
+            elif isinstance(event_definition, MessageEventDefinition):
+                value = event_definition.get_awaiting_correlations(task)
+
             events.append({
                 'event_type': event_definition.event_type,
                 'name': event_definition.name if isinstance(event_definition, NamedEventDefinition) else None,
-                'value': event_definition.timer_value(task) if isinstance(event_definition, TimerEventDefinition) else None,
+                'value': value
             })
         return events
 
