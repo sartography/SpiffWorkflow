@@ -235,7 +235,7 @@ class BpmnParser(object):
             if correlation_identifier is None:
                 raise ValidationException("Correlation identifier is missing from bpmn xml")
             correlation_property_retrieval_expressions = correlation.xpath(
-                "//bpmn:correlationPropertyRetrievalExpression", namespaces = self.namespaces)
+                ".//bpmn:correlationPropertyRetrievalExpression", namespaces = self.namespaces)
             if not correlation_property_retrieval_expressions:
                 raise ValidationException(
                     f"Correlation is missing correlation property retrieval expressions: {correlation_identifier}"
