@@ -165,7 +165,6 @@ class CorrelationProperty:
         self.name = name                            # This is the property name
         self.retrieval_expression = retrieval_expression  # This is how it's generated
         self.correlation_keys = correlation_keys    # These are the keys it's used by
-        self.expected_value = expected_value        # This is the (optional) expected value
 
 class MessageEventDefinition(NamedEventDefinition):
     """The default message event."""
@@ -206,34 +205,23 @@ class MessageEventDefinition(NamedEventDefinition):
         if payload is not None:
             my_task.set_data(**payload)
 
-    def get_correlation_keys(self, task, payload):
+    def get_correlations(self, task, payload):
         correlation_keys = {}
         for property in self.correlation_properties:
             for key in property.correlation_keys:
                 if key not in correlation_keys:
                     correlation_keys[key] = {}
-                correlation_keys[key][property.name] = task.workflow.script_engine._evaluate(property.expression, payload)
+                try:
+                    correlation_keys[key][property.name] = task.workflow.script_engine._evaluate(property.retrieval_expression, payload)
+                except WorkflowException as we:
+                    we.add_note(
+                        f"Failed to evaluate correlation property '{property.name}'"
+                        f" invalid expression '{property.retrieval_expression}'")
+                    we.task_spec = task.task_spec
+                    raise we
         return correlation_keys
 
-    def get_correlations(self, task, payload):
-        correlations = {}
-        for property in self.correlation_properties:
-            try:
-                correlations[property.name] = task.workflow.script_engine._evaluate(property.retrieval_expression, payload)
-            except WorkflowException as we:
-                we.add_note(f"Failed to evaluate correlation property '{property.name}'"
-                             f" invalid expression '{property.retrieval_expression}'")
-                we.task_spec = task.task_spec
-                raise we
-        return correlations
 
-    def get_awaiting_correlations(self, task):
-        for prop in self.correlation_properties:
-            if prop.name in task.workflow.correlations:
-                prop.expected_value = task.workflow.correlations.get(prop.name)
-            else:
-                prop.expected_value = None
-        return self.correlation_properties
 
 class NoneEventDefinition(EventDefinition):
     """
