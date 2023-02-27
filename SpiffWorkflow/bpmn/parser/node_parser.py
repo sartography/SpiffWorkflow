@@ -1,14 +1,13 @@
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
+from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference, BpmnIoSpecification
 from .util import first
 
 DEFAULT_NSMAP = {
     'bpmn': 'http://www.omg.org/spec/BPMN/20100524/MODEL',
     'bpmndi': 'http://www.omg.org/spec/BPMN/20100524/DI',
     'dc': 'http://www.omg.org/spec/DD/20100524/DC',
-
 }
 
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
 class NodeParser:
 
@@ -30,6 +29,12 @@ class NodeParser:
         root = self.node.getroottree().getroot()
         return self._xpath(root, xpath, extra_ns)
 
+    def attribute(self, attribute, namespace=None, node=None):
+        if node is None:
+            node = self.node
+        prefix = '{' + self.nsmap.get(namespace or 'bpmn') + '}'
+        return node.attrib.get(f'{prefix}{attribute}')
+
     def parse_condition(self, sequence_flow):
         expression = first(self._xpath(sequence_flow, './/bpmn:conditionExpression'))
         return expression.text if expression is not None else None
@@ -41,31 +46,55 @@ class NodeParser:
 
     def parse_incoming_data_references(self):
         specs = []
-        for name in self.xpath('.//bpmn:dataInputAssociation/bpmn:sourceRef'):
+        for name in self.xpath('./bpmn:dataInputAssociation/bpmn:sourceRef'):
             ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
             if ref is not None and ref.get('dataObjectRef') in self.process_parser.spec.data_objects:
                 specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
             else:
-                raise ValidationException(f'Cannot resolve dataInputAssociation {name}', self.node, self.filename)
+                ref = first(self.doc_xpath(f".//bpmn:dataStoreReference[@id='{name.text}']"))
+                if ref is not None and ref.get('dataStoreRef') in self.process_parser.data_stores:
+                    specs.append(self.process_parser.data_stores[ref.get('dataStoreRef')])
+                else:
+                    raise ValidationException(f'Cannot resolve dataInputAssociation {name}', self.node, self.filename)
         return specs
 
     def parse_outgoing_data_references(self):
         specs = []
-        for name in self.xpath('.//bpmn:dataOutputAssociation/bpmn:targetRef'):
+        for name in self.xpath('./bpmn:dataOutputAssociation/bpmn:targetRef'):
             ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
             if ref is not None and ref.get('dataObjectRef') in self.process_parser.spec.data_objects:
                 specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
             else:
-                raise ValidationException(f'Cannot resolve dataOutputAssociation {name}', self.node, self.filename)
+                ref = first(self.doc_xpath(f".//bpmn:dataStoreReference[@id='{name.text}']"))
+                if ref is not None and ref.get('dataStoreRef') in self.process_parser.data_stores:
+                    specs.append(self.process_parser.data_stores[ref.get('dataStoreRef')])
+                else:
+                    raise ValidationException(f'Cannot resolve dataOutputAssociation {name}', self.node, self.filename)
         return specs
 
+    def parse_io_spec(self):
+        data_refs = {}
+        for elem in self.xpath('./bpmn:ioSpecification/bpmn:dataInput'):
+            ref = self.create_data_spec(elem, TaskDataReference)
+            data_refs[ref.name] = ref
+        for elem in self.xpath('./bpmn:ioSpecification/bpmn:dataOutput'):
+            ref = self.create_data_spec(elem, TaskDataReference)
+            data_refs[ref.name] = ref
+
+        inputs, outputs = [], []
+        for ref in self.xpath('./bpmn:ioSpecification/bpmn:inputSet/bpmn:dataInputRefs'):
+            if ref.text in data_refs:
+                inputs.append(data_refs[ref.text])
+        for ref in self.xpath('./bpmn:ioSpecification/bpmn:outputSet/bpmn:dataOutputRefs'):
+            if ref.text in data_refs:
+                outputs.append(data_refs[ref.text])
+        return BpmnIoSpecification(inputs, outputs)
+
+    def create_data_spec(self, item, cls):
+        return cls(item.attrib.get('id'), item.attrib.get('name'))
+
     def parse_extensions(self, node=None):
-        extensions = {}
-        extra_ns = {'camunda': CAMUNDA_MODEL_NS}
-        extension_nodes = self.xpath('.//bpmn:extensionElements/camunda:properties/camunda:property', extra_ns)
-        for ex_node in extension_nodes:
-            extensions[ex_node.get('name')] = ex_node.get('value')
-        return extensions
+        return {}
 
     def _get_lane(self):
         noderef = first(self.doc_xpath(f".//bpmn:flowNodeRef[text()='{self.get_id()}']"))
@@ -84,3 +113,6 @@ class NodeParser:
         else:
             nsmap = self.nsmap
         return node.xpath(xpath, namespaces=nsmap)
+
+    def raise_validation_exception(self, message):
+        raise ValidationException(message, self.node, self.filename)

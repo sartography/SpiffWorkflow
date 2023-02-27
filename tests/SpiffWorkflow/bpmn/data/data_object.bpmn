@@ -11,6 +11,7 @@
     <bpmn:dataObjectReference id="DataObjectReference_17fhr1j" name="Data" dataObjectRef="obj_1" />
     <bpmn:dataObjectReference id="DataObjectReference_0pztwm3" name="Data" dataObjectRef="obj_1" />
     <bpmn:dataObjectReference id="DataObjectReference_0cm8dnh" name="Data" dataObjectRef="obj_1" />
+    <bpmn:dataObjectReference id="DataObjectReference_1dn9eoi" name="Data" dataObjectRef="obj_1" />
     <bpmn:endEvent id="Event_0qw1yr0">
       <bpmn:incoming>Flow_19pyf8s</bpmn:incoming>
     </bpmn:endEvent>
@@ -38,17 +39,20 @@
     <bpmn:subProcess id="subprocess" name="Subprocess">
       <bpmn:incoming>Flow_1tnu3ej</bpmn:incoming>
       <bpmn:outgoing>Flow_19pyf8s</bpmn:outgoing>
-      <bpmn:property id="Property_1q5wp77" name="__targetRef_placeholder" />
-      <bpmn:dataInputAssociation id="DataInputAssociation_0w2qahx">
-        <bpmn:sourceRef>DataObjectReference_0cm8dnh</bpmn:sourceRef>
-        <bpmn:targetRef>Property_1q5wp77</bpmn:targetRef>
-      </bpmn:dataInputAssociation>
       <bpmn:startEvent id="Event_1wuwx2f">
         <bpmn:outgoing>Flow_0yx8lkz</bpmn:outgoing>
       </bpmn:startEvent>
       <bpmn:task id="placeholder">
         <bpmn:incoming>Flow_0yx8lkz</bpmn:incoming>
         <bpmn:outgoing>Flow_0rk4i35</bpmn:outgoing>
+        <bpmn:property id="Property_1q5wp77" name="__targetRef_placeholder" />
+        <bpmn:dataInputAssociation id="DataInputAssociation_0w2qahx">
+          <bpmn:sourceRef>DataObjectReference_0cm8dnh</bpmn:sourceRef>
+          <bpmn:targetRef>Property_1q5wp77</bpmn:targetRef>
+        </bpmn:dataInputAssociation>
+        <bpmn:dataOutputAssociation id="DataOutputAssociation_164qpaq">
+          <bpmn:targetRef>DataObjectReference_1dn9eoi</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
       </bpmn:task>
       <bpmn:sequenceFlow id="Flow_0yx8lkz" sourceRef="Event_1wuwx2f" targetRef="placeholder" />
       <bpmn:endEvent id="Event_1qcnmnt">

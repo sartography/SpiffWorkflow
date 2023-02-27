@@ -32,7 +32,7 @@ class BpmnDmnParser(BpmnParser):
             options = ', '.join(list(self.dmn_parsers.keys()))
             raise ValidationException(
                 'No DMN Diagram available with id "%s", Available DMN ids are: %s' %(decision_ref, options),
-                node=node, filename='')
+                node=node, file_name='')
         dmn_parser = self.dmn_parsers[decision_ref]
         dmn_parser.parse()
         decision = dmn_parser.decision
@@ -74,11 +74,8 @@ class BpmnDmnParser(BpmnParser):
         Add all filenames in the given list to the parser's set.
         """
         for filename in filenames:
-            f = open(filename, 'r')
-            try:
+            with open(filename, 'r') as f:
                 self.add_dmn_xml(etree.parse(f).getroot(), filename=filename)
-            finally:
-                f.close()
 
     def get_dependencies(self):
         return self.process_dependencies.union(self.dmn_dependencies)
@@ -89,6 +86,5 @@ class BpmnDmnParser(BpmnParser):
     def _find_dependencies(self, process):
         super()._find_dependencies(process)
         parser_cls, cls = self._get_parser_class(full_tag('businessRuleTask'))
-        for business_rule in process.xpath('.//bpmn:businessRuleTask',namespaces=self.namespaces):
+        for business_rule in process.xpath('.//bpmn:businessRuleTask', namespaces=self.namespaces):
             self.dmn_dependencies.add(parser_cls.get_decision_ref(business_rule))
-

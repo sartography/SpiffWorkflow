@@ -1,3 +1,4 @@
+from SpiffWorkflow.exceptions import SpiffWorkflowException
 from SpiffWorkflow.task import TaskState
 from .BaseTestCase import BaseTestCase
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -18,7 +19,7 @@ class PrescriptPostsciptTest(BaseTestCase):
         self.call_activity_test(True)
 
     def testDataObject(self):
-        
+
         spec, subprocesses = self.load_workflow_spec('prescript_postscript_data_object.bpmn', 'Process_1')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         # Set a on the workflow and b in the first task.
@@ -45,8 +46,21 @@ class PrescriptPostsciptTest(BaseTestCase):
         ready_tasks[0].complete()
         self.assertDictEqual({'a': 1, 'b': 2, 'c': 12, 'z': 6}, ready_tasks[0].data)
 
+    def test_for_error(self, save_restore=False):
+
+        spec, subprocesses = self.load_workflow_spec('prescript_postscript.bpmn', 'Process_1')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        if save_restore:
+            self.save_restore()
+        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        # Calling do-engine steps without setting variables will raise an exception.
+        with self.assertRaises(SpiffWorkflowException) as se:
+            self.workflow.do_engine_steps()
+        ex = se.exception
+        self.assertIn("Error occurred in the Pre-Script", str(ex))
+
     def call_activity_test(self, save_restore=False):
-        
+
         spec, subprocesses = self.load_workflow_spec('prescript_postscript_*.bpmn', 'parent')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         if save_restore:

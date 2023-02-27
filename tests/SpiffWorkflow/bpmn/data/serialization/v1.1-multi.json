@@ -1,0 +1,350 @@
+{
+  "serializer_version": "1.1",
+  "data": {},
+  "last_task": "ca089728-9745-4d50-8fbc-f2f7234dec8f", 
+  "success": true, 
+  "tasks": {
+    "fa4b8656-22a2-467e-8fb0-9b1d8f1f6da6": {
+      "id": "fa4b8656-22a2-467e-8fb0-9b1d8f1f6da6", 
+      "parent": null, 
+      "children": [
+        "ccf50f31-880b-406a-9e61-2f3d42f39d70"
+      ], 
+      "last_state_change": 1676389310.7311432, 
+      "state": 32, 
+      "task_spec": "Root", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "ccf50f31-880b-406a-9e61-2f3d42f39d70": {
+      "id": "ccf50f31-880b-406a-9e61-2f3d42f39d70", 
+      "parent": "fa4b8656-22a2-467e-8fb0-9b1d8f1f6da6", 
+      "children": [
+        "ca089728-9745-4d50-8fbc-f2f7234dec8f"
+      ], 
+      "last_state_change": 1676389310.735502, 
+      "state": 32, 
+      "task_spec": "Start", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {
+        "input_data": [
+          1, 
+          2, 
+          3
+        ]
+      }
+    }, 
+    "ca089728-9745-4d50-8fbc-f2f7234dec8f": {
+      "id": "ca089728-9745-4d50-8fbc-f2f7234dec8f", 
+      "parent": "ccf50f31-880b-406a-9e61-2f3d42f39d70", 
+      "children": [
+        "513dba6b-7017-48df-a1e0-7a2c57a1042c"
+      ], 
+      "last_state_change": 1676389310.739117, 
+      "state": 32, 
+      "task_spec": "StartEvent_1", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {
+        "event_fired": true
+      }, 
+      "data": {
+        "input_data": [
+          1, 
+          2, 
+          3
+        ]
+      }
+    }, 
+    "513dba6b-7017-48df-a1e0-7a2c57a1042c": {
+      "id": "513dba6b-7017-48df-a1e0-7a2c57a1042c", 
+      "parent": "ca089728-9745-4d50-8fbc-f2f7234dec8f", 
+      "children": [
+        "638ea876-beb2-4fd6-9dc3-5fd528d7cfb9"
+      ], 
+      "last_state_change": 1676389310.7412922, 
+      "state": 16, 
+      "task_spec": "Gateway_for_any_task_start", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {
+        "input_data": [
+          1, 
+          2, 
+          3
+        ]
+      }
+    }, 
+    "638ea876-beb2-4fd6-9dc3-5fd528d7cfb9": {
+      "id": "638ea876-beb2-4fd6-9dc3-5fd528d7cfb9", 
+      "parent": "513dba6b-7017-48df-a1e0-7a2c57a1042c", 
+      "children": [
+        "ec145fea-d068-4401-9f6c-6903cf153b23"
+      ], 
+      "last_state_change": 1676389310.7315657, 
+      "state": 4, 
+      "task_spec": "any_task", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {
+        "splits": 1, 
+        "runtimes": 1
+      }, 
+      "data": {
+        "item": 1
+      }
+    }, 
+    "ec145fea-d068-4401-9f6c-6903cf153b23": {
+      "id": "ec145fea-d068-4401-9f6c-6903cf153b23", 
+      "parent": "638ea876-beb2-4fd6-9dc3-5fd528d7cfb9", 
+      "children": [
+        "eccb7e2f-4b23-4b75-b9fb-e3b3a335574f"
+      ], 
+      "last_state_change": 1676389310.7325432, 
+      "state": 1, 
+      "task_spec": "Gateway_for_any_task_end", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "eccb7e2f-4b23-4b75-b9fb-e3b3a335574f": {
+      "id": "eccb7e2f-4b23-4b75-b9fb-e3b3a335574f", 
+      "parent": "ec145fea-d068-4401-9f6c-6903cf153b23", 
+      "children": [], 
+      "last_state_change": 1676389310.732967, 
+      "state": 1, 
+      "task_spec": "Event_0a6d9t5", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }
+  }, 
+  "root": "fa4b8656-22a2-467e-8fb0-9b1d8f1f6da6", 
+  "spec": {
+    "name": "main", 
+    "description": "main", 
+    "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/diagram_1.bpmn", 
+    "task_specs": {
+      "Start": {
+        "id": "main_1", 
+        "name": "Start", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [
+          "StartEvent_1"
+        ], 
+        "typename": "StartTask"
+      }, 
+      "main.EndJoin": {
+        "id": "main_2", 
+        "name": "main.EndJoin", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Event_0a6d9t5"
+        ], 
+        "outputs": [
+          "End"
+        ], 
+        "typename": "_EndJoin"
+      }, 
+      "End": {
+        "id": "main_3", 
+        "name": "End", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "main.EndJoin"
+        ], 
+        "outputs": [], 
+        "typename": "Simple"
+      }, 
+      "StartEvent_1": {
+        "id": "main_4", 
+        "name": "StartEvent_1", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Start"
+        ], 
+        "outputs": [
+          "Gateway_for_any_task_start"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 179.0, 
+          "y": 99.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "StartEvent", 
+        "extensions": {}
+      }, 
+      "any_task": {
+        "id": "main_5", 
+        "name": "any_task", 
+        "description": "Any Task", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "StartEvent_1", 
+          "Gateway_for_any_task_start"
+        ], 
+        "outputs": [
+          "Gateway_for_any_task_end"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 270.0, 
+          "y": 77.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "typename": "NoneTask", 
+        "times": {
+          "name": "input_data", 
+          "typename": "Attrib"
+        }, 
+        "elementVar": "item", 
+        "collection": {
+          "name": "output_data", 
+          "typename": "Attrib"
+        }, 
+        "completioncondition": null, 
+        "prevtaskclass": "SpiffWorkflow.bpmn.specs.NoneTask.NoneTask", 
+        "isSequential": false, 
+        "expanded": 1, 
+        "extensions": {}
+      }, 
+      "Event_0a6d9t5": {
+        "id": "main_6", 
+        "name": "Event_0a6d9t5", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "any_task"
+        ], 
+        "outputs": [
+          "main.EndJoin"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 432.0, 
+          "y": 99.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "EndEvent", 
+        "extensions": {}
+      }, 
+      "Root": {
+        "id": "main_7", 
+        "name": "Root", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [], 
+        "typename": "Simple"
+      }, 
+      "Gateway_for_any_task_start": {
+        "id": "main_8", 
+        "name": "Gateway_for_any_task_start", 
+        "description": "Begin Gateway", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "StartEvent_1"
+        ], 
+        "outputs": [
+          "any_task"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 0, 
+          "y": 0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "split_task": null, 
+        "threshold": null, 
+        "cancel": false, 
+        "typename": "ParallelGateway"
+      }, 
+      "Gateway_for_any_task_end": {
+        "id": "main_9", 
+        "name": "Gateway_for_any_task_end", 
+        "description": "End Gateway", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "any_task"
+        ], 
+        "outputs": [
+          "Event_0a6d9t5"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 0, 
+          "y": 0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "split_task": null, 
+        "threshold": null, 
+        "cancel": false, 
+        "typename": "ParallelGateway"
+      }
+    }, 
+    "data_inputs": [], 
+    "data_outputs": [], 
+    "data_objects": {}, 
+    "correlation_keys": {}, 
+    "typename": "BpmnProcessSpec"
+  }, 
+  "subprocess_specs": {}, 
+  "subprocesses": {}, 
+  "bpmn_messages": []
+}

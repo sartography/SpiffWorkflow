@@ -125,6 +125,26 @@ class Join(TaskSpec):
                 return True
         return False
 
+    def _get_split_task(self, my_task):
+        # One Join spec may have multiple corresponding Task objects::
+        #
+        #     - Due to the MultiInstance pattern.
+        #     - Due to the ThreadSplit pattern.
+        #
+        # When using the MultiInstance pattern, we want to join across
+        # the resulting task instances. When using the ThreadSplit
+        # pattern, we only join within the same thread. (Both patterns
+        # may also be mixed.)
+        #
+        # We are looking for all task instances that must be joined.
+        # We limit our search by starting at the split point.
+        if self.split_task:
+            task_spec = my_task.workflow.get_task_spec_from_name(self.split_task)
+            split_task = my_task._find_ancestor(task_spec)
+        else:
+            split_task = my_task.workflow.task_tree
+        return split_task
+
     def _check_threshold_unstructured(self, my_task, force=False):
         # The default threshold is the number of inputs.
         threshold = valueof(my_task, self.threshold)
@@ -154,7 +174,7 @@ class Join(TaskSpec):
         split_task = my_task._find_ancestor_from_name(self.split_task)
         if split_task is None:
             msg = 'Join with %s, which was not reached' % self.split_task
-            raise WorkflowException(self, msg)
+            raise WorkflowException(msg, task_spec=self)
         tasks = split_task.task_spec._get_activated_tasks(split_task, my_task)
 
         # The default threshold is the number of branches that were started.
@@ -168,7 +188,6 @@ class Join(TaskSpec):
         for task in tasks:
             # Refresh path prediction.
             task.task_spec._predict(task)
-
             if not self._branch_may_merge_at(task):
                 completed += 1
             elif self._branch_is_complete(task):
@@ -198,45 +217,22 @@ class Join(TaskSpec):
 
     def _update_hook(self, my_task):
         # Check whether enough incoming branches have completed.
+        my_task._inherit_data()
         may_fire, waiting_tasks = self._start(my_task)
-        if not may_fire:
+        if may_fire:
+            # If this is a cancelling join, cancel all incoming branches except for the one that just completed.
+            if self.cancel_remaining:
+                for task in waiting_tasks:
+                    task.cancel()
+
+            # Update the state of our child objects.
+            self._do_join(my_task)
+        else:
             my_task._set_state(TaskState.WAITING)
-            return
-
-        # If this is a cancelling join, cancel all incoming branches,
-        # except for the one that just completed.
-        if self.cancel_remaining:
-            for task in waiting_tasks:
-                task.cancel()
-
-        # We do NOT set the task state to COMPLETED, because in
-        # case all other incoming tasks get cancelled (or never reach
-        # the Join for other reasons, such as reaching a stub branch),
-        # we need to revisit it.
-        my_task._ready()
-
-        # Update the state of our child objects.
-        self._do_join(my_task)
 
     def _do_join(self, my_task):
-        # One Join spec may have multiple corresponding Task objects::
-        #
-        #     - Due to the MultiInstance pattern.
-        #     - Due to the ThreadSplit pattern.
-        #
-        # When using the MultiInstance pattern, we want to join across
-        # the resulting task instances. When using the ThreadSplit
-        # pattern, we only join within the same thread. (Both patterns
-        # may also be mixed.)
-        #
-        # We are looking for all task instances that must be joined.
-        # We limit our search by starting at the split point.
-        if self.split_task:
-            split_task = my_task.workflow.get_task_spec_from_name(
-                self.split_task)
-            split_task = my_task._find_ancestor(split_task)
-        else:
-            split_task = my_task.workflow.task_tree
+
+        split_task = self._get_split_task(my_task)
 
         # Identify all corresponding task instances within the thread.
         # Also remember which of those instances was most recently changed,
@@ -259,8 +255,7 @@ class Join(TaskSpec):
             # Check whether the state of the instance was recently
             # changed.
             changed = task.parent.last_state_change
-            if last_changed is None \
-                    or changed > last_changed.parent.last_state_change:
+            if last_changed is None or changed > last_changed.parent.last_state_change:
                 last_changed = task
 
         # Mark the identified task instances as COMPLETED. The exception
@@ -275,8 +270,6 @@ class Join(TaskSpec):
             else:
                 task._set_state(TaskState.COMPLETED)
                 task._drop_children()
-
-
 
     def _on_trigger(self, my_task):
         """

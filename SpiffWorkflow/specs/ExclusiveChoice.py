@@ -53,18 +53,13 @@ class ExclusiveChoice(MultiChoice):
         :param task_spec: The following task spec.
         """
         assert self.default_task_spec is None
-        self.outputs.append(task_spec)
         self.default_task_spec = task_spec.name
-        task_spec._connect_notify(self)
+        super().connect(task_spec)
 
     def test(self):
-        """
-        Checks whether all required attributes are set. Throws an exception
-        if an error was detected.
-        """
-        MultiChoice.test(self)
+        super().test()
         if self.default_task_spec is None:
-            raise WorkflowException(self, 'A default output is required.')
+            raise WorkflowException('A default output is required.', task_spec=self)
 
     def _predict_hook(self, my_task):
         # If the task's status is not predicted, we default to MAYBE
@@ -76,16 +71,15 @@ class ExclusiveChoice(MultiChoice):
         my_task._set_likely_task(spec)
 
     def _on_complete_hook(self, my_task):
-        # Find the first matching condition.
+
         output = self._wf_spec.get_task_spec_from_name(self.default_task_spec)
         for condition, spec_name in self.cond_task_specs:
-            if condition is None or condition._matches(my_task):
+            if condition is not None and condition._matches(my_task):
                 output = self._wf_spec.get_task_spec_from_name(spec_name)
                 break
 
         if output is None:
-            raise WorkflowException(self,
-                f'No conditions satisfied for {my_task.task_spec.name}')
+            raise WorkflowException(f'No conditions satisfied for {my_task.task_spec.name}', task_spec=self)
 
         my_task._sync_children([output], TaskState.FUTURE)
 

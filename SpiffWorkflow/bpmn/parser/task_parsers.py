@@ -16,50 +16,24 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from lxml import etree
-
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
-from .util import one, DEFAULT_NSMAP
-
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
+from .util import one
 
 
-class UserTaskParser(TaskParser):
-
-    """
-    Base class for parsing User Tasks
-    """
-    pass
+class GatewayParser(TaskParser):
+    def handles_multiple_outgoing(self):
+        return True
 
 
-class ManualTaskParser(UserTaskParser):
-
-    """
-    Base class for parsing Manual Tasks. Currently assumes that Manual Tasks
-    should be treated the same way as User Tasks.
-    """
-    pass
-
-
-class NoneTaskParser(UserTaskParser):
-
-    """
-    Base class for parsing unspecified Tasks. Currently assumes that such Tasks
-    should be treated the same way as User Tasks.
-    """
-    pass
-
-
-class ExclusiveGatewayParser(TaskParser):
+class ConditionalGatewayParser(GatewayParser):
     """
     Parses an Exclusive Gateway, setting up the outgoing conditions
     appropriately.
     """
-
     def connect_outgoing(self, outgoing_task, sequence_flow_node, is_default):
         if is_default:
-            super(ExclusiveGatewayParser, self).connect_outgoing(outgoing_task, sequence_flow_node, is_default)
+            super().connect_outgoing(outgoing_task, sequence_flow_node, is_default)
         else:
             cond = self.parse_condition(sequence_flow_node)
             if cond is None:
@@ -68,33 +42,6 @@ class ExclusiveGatewayParser(TaskParser):
                     sequence_flow_node,
                     self.filename)
             self.task.connect_outgoing_if(cond, outgoing_task)
-
-    def handles_multiple_outgoing(self):
-        return True
-
-
-class ParallelGatewayParser(TaskParser):
-
-    """
-    Parses a Parallel Gateway.
-    """
-
-    def handles_multiple_outgoing(self):
-        return True
-
-
-class InclusiveGatewayParser(TaskParser):
-
-    """
-    Parses an Inclusive Gateway.
-    """
-
-    def handles_multiple_outgoing(self):
-        """
-        At the moment I haven't implemented support for diverging inclusive
-        gateways
-        """
-        return False
 
 
 class SubprocessParser:
@@ -110,30 +57,24 @@ class SubprocessParser:
         workflow_start_event = task_parser.xpath('./bpmn:startEvent')
         workflow_end_event = task_parser.xpath('./bpmn:endEvent')
         if len(workflow_start_event) != 1:
-            raise ValidationException(
-                'Multiple Start points are not allowed in SubWorkflow Task',
+            raise ValidationException('Multiple Start points are not allowed in SubWorkflow Task',
                 node=task_parser.node,
-                filename=task_parser.filename)
+                file_name=task_parser.filename)
         if len(workflow_end_event) == 0:
-            raise ValidationException(
-                'A SubWorkflow Must contain an End event',
+            raise ValidationException('A SubWorkflow Must contain an End event',
                 node=task_parser.node,
-                filename=task_parser.filename)
-
-        nsmap = DEFAULT_NSMAP.copy()
-        nsmap['camunda'] = "http://camunda.org/schema/1.0/bpmn"
-        nsmap['di'] = "http://www.omg.org/spec/DD/20100524/DI"
-
-        # Create wrapper xml for the subworkflow
-        for ns, val in nsmap.items():
-            etree.register_namespace(ns, val)
+                file_name=task_parser.filename)
 
         task_parser.process_parser.parser.create_parser(
             task_parser.node,
             filename=task_parser.filename,
             lane=task_parser.lane
         )
-        return task_parser.node.get('id')
+        spec_id = task_parser.node.get('id')
+        # This parser makes me want to cry
+        spec_parser = task_parser.process_parser.parser.process_parsers[spec_id]
+        spec_parser.inherited_data_objects.update(task_parser.process_parser.spec.data_objects)
+        return spec_id
 
     @staticmethod
     def get_call_activity_spec(task_parser):
@@ -143,14 +84,14 @@ class SubprocessParser:
             raise ValidationException(
                 'No "calledElement" attribute for Call Activity.',
                 node=task_parser.node,
-                filename=task_parser.filename)
+                file_name=task_parser.filename)
         parser = task_parser.process_parser.parser.get_process_parser(called_element)
         if parser is None:
             raise ValidationException(
                 f"The process '{called_element}' was not found. Did you mean one of the following: "
                 f"{', '.join(task_parser.process_parser.parser.get_process_ids())}?",
                 node=task_parser.node,
-                filename=task_parser.filename)
+                file_name=task_parser.filename)
         return called_element
 
 
@@ -198,13 +139,5 @@ class ScriptTaskParser(TaskParser):
         except AssertionError as ae:
             raise ValidationException(
                 f"Invalid Script Task.  No Script Provided. " + str(ae),
-                node=self.node, filename=self.filename)
-
-
-class ServiceTaskParser(TaskParser):
-
-    """
-    Parses a ServiceTask node.
-    """
-    pass
+                node=self.node, file_name=self.filename)
 

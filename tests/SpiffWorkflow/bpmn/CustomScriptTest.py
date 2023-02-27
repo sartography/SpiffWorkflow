@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import unittest
 
+from SpiffWorkflow.exceptions import WorkflowTaskException
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'McDonald, danfunk'
@@ -17,8 +18,8 @@ class CustomBpmnScriptEngine(PythonScriptEngine):
     It will execute python code read in from the bpmn.  It will also make any scripts in the
      scripts directory available for execution. """
     def __init__(self):
-        augment_methods = {'custom_function': my_custom_function}
-        super().__init__(scripting_additions=augment_methods)
+        environment = TaskDataEnvironment({'custom_function': my_custom_function})
+        super().__init__(environment=environment)
 
 
 class CustomInlineScriptTest(BpmnWorkflowTestCase):
@@ -46,7 +47,7 @@ class CustomInlineScriptTest(BpmnWorkflowTestCase):
     def test_overwrite_function_with_local_variable(self):
         ready_task = self.workflow.get_tasks(TaskState.READY)[0]
         ready_task.data = {'custom_function': "bill"}
-        with self.assertRaises(WorkflowTaskExecException) as e:
+        with self.assertRaises(WorkflowTaskException) as e:
             self.workflow.do_engine_steps()
         self.assertTrue('' in str(e.exception))
         self.assertTrue('custom_function' in str(e.exception))

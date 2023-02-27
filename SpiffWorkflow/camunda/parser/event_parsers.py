@@ -5,9 +5,6 @@ from SpiffWorkflow.camunda.specs.events.event_definitions import MessageEventDef
 from SpiffWorkflow.bpmn.parser.util import one
 
 
-CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
-
-
 class CamundaEventDefinitionParser(EventDefinitionParser):
 
     def parse_message_event(self, message_event):
@@ -22,8 +19,8 @@ class CamundaEventDefinitionParser(EventDefinitionParser):
             name = message_event.getparent().get('name')
             correlations = {}
 
-        payload = message_event.attrib.get('{' + CAMUNDA_MODEL_NS + '}expression')
-        result_var = message_event.attrib.get('{' + CAMUNDA_MODEL_NS + '}resultVariable')
+        payload = self.attribute('expression', 'camunda', message_event)
+        result_var = self.attribute('resultVariable', 'camunda', message_event)
         return MessageEventDefinition(name, correlations, payload, result_var)
 
 

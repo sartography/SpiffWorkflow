@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .event_definitions import MessageEventDefinition, NoneEventDefinition
+from .event_definitions import MessageEventDefinition, NoneEventDefinition, CycleTimerEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
 from ....task import TaskState
@@ -46,31 +46,41 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         definition, at which point we can update our task's state.
         """
         self.event_definition.catch(my_task, event_definition)
-        self._update_hook(my_task)
+        my_task._set_state(TaskState.WAITING)
 
     def _update_hook(self, my_task):
 
-        if my_task.state == TaskState.WAITING and self.event_definition.has_fired(my_task):
-            my_task._ready()
-        super(CatchingEvent, self)._update_hook(my_task)
-
-    def _on_ready_hook(self, my_task):
-
+        super()._update_hook(my_task)
         # None events don't propogate, so as soon as we're ready, we fire our event
         if isinstance(self.event_definition, NoneEventDefinition):
             my_task._set_internal_data(event_fired=True)
 
-        # If we have not seen the event we're waiting for, enter the waiting state
-        if not self.event_definition.has_fired(my_task):
+        if self.event_definition.has_fired(my_task):
+            return True
+        else:
             my_task._set_state(TaskState.WAITING)
-        super(CatchingEvent, self)._on_ready_hook(my_task)
 
     def _on_complete_hook(self, my_task):
 
         if isinstance(self.event_definition, MessageEventDefinition):
             self.event_definition.update_task_data(my_task)
+        elif isinstance(self.event_definition, CycleTimerEventDefinition):
+            self.event_definition.complete_cycle(my_task)
+            if not self.event_definition.complete(my_task):
+                for output in self.outputs:
+                    my_task._add_child(output)
+                my_task._set_state(TaskState.WAITING)
         self.event_definition.reset(my_task)
         super(CatchingEvent, self)._on_complete_hook(my_task)
+
+    # This fixes the problem of boundary events remaining cancelled if the task is reused.
+    # It pains me to add these methods, but unless we can get rid of the loop reset task we're stuck
+
+    def task_should_set_children_future(self, my_task):
+        return True
+
+    def task_will_set_children_future(self, my_task):
+        my_task.internal_data = {}
 
 
 class ThrowingEvent(Simple, BpmnSpecMixin):

@@ -8,6 +8,8 @@ import unittest
 data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
+from lxml import etree
+
 import pickle
 from random import randint
 try:
@@ -82,7 +84,7 @@ class WorkflowSpecTest(unittest.TestCase):
         # Read a complete workflow spec.
         xml_file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
         with open(xml_file) as fp:
-            xml = fp.read()
+            xml = etree.parse(fp).getroot()
         path_file = os.path.splitext(xml_file)[0] + '.path'
         with open(path_file) as fp:
             expected_path = fp.read().strip().split('\n')
@@ -102,8 +104,8 @@ class WorkflowSpecTest(unittest.TestCase):
         task2 = Join(self.wf_spec, 'Second')
         task1.connect(task2)
 
-        task2.follow(task1)
-        task1.follow(task2)
+        task1.connect(task2)
+        task2.connect(task1)
 
         results = self.wf_spec.validate()
         self.assertIn("Found loop with 'Second': Second->First then 'Second' "

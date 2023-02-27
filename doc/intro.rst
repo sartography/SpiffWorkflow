@@ -64,7 +64,7 @@ The following example also has one task, represented by the rectangle with curve
 
 
 The sequence flow is represented with a solid line connector. When the node at
-the tail of a sequence flow completes, the node  at the arrowhead is enabled to start.
+the tail of a sequence flow completes, the node at the arrowhead is enabled to start.
 
 
 A More Complicated Workflow
@@ -78,7 +78,7 @@ A More Complicated Workflow
 
 
 In this example, the diamond shape is called a gateway. It represents a branch
-point in our flow.  This gateway is an exclusive data-based  gateway (also
+point in our flow.  This gateway is an exclusive data-based gateway (also
 called an XOR gateway). With an exclusive gateway, you must take one path or
 the other based on some data condition. BPMN has other gateway types.
 
@@ -122,4 +122,3 @@ attached to will be cancelled if the event is received) or Non-Interrupting (in
 which case the task will continue).  In both cases, flows may emanate from the
 Boundary Event, which will trigger those paths if the events occur while the task
 is being executed.
-

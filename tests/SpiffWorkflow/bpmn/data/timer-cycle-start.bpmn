@@ -22,7 +22,7 @@
     <bpmn:startEvent id="CycleStart">
       <bpmn:outgoing>Flow_0jtfzsk</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0za5f2h">
-        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">(2,timedelta(seconds=0.1))</bpmn:timeCycle>
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">"R2/PT0.1S"</bpmn:timeCycle>
       </bpmn:timerEventDefinition>
     </bpmn:startEvent>
     <bpmn:scriptTask id="Refill_Coffee" name="Refill Coffee">
@@ -37,7 +37,7 @@
       <bpmn:incoming>Flow_1pahvlr</bpmn:incoming>
       <bpmn:outgoing>Flow_05ejbm4</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0o35ug0">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(seconds=0.5)</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">"PT0.5S"</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:endEvent id="EndItAll">

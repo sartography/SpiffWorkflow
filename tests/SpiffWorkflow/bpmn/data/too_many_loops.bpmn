@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_d4f3442" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.10.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_d4f3442" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1">
   <bpmn:process id="loops" isExecutable="true">
     <bpmn:scriptTask id="increment_counter" name="increment counter">
       <bpmn:incoming>Flow_1gb8wca</bpmn:incoming>
@@ -25,7 +25,7 @@ Days elapsed: {{days_delta }}</bpmn:documentation>
       <bpmn:incoming>Flow_0op1a19</bpmn:incoming>
       <bpmn:outgoing>Flow_1gb8wca</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0x6divu">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">timedelta(milliseconds=10)</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">"PT.01S"</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:exclusiveGateway id="Gateway_over_20" name="is &#62; 20">
@@ -57,6 +57,14 @@ Days elapsed: {{days_delta }}</bpmn:documentation>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="loops">
+      <bpmndi:BPMNEdge id="Flow_0q7fkb7_di" bpmnElement="Flow_0q7fkb7">
+        <di:waypoint x="188" y="177" />
+        <di:waypoint x="250" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mxlkif_di" bpmnElement="Flow_0mxlkif">
+        <di:waypoint x="720" y="177" />
+        <di:waypoint x="755" y="177" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15jw6a4_di" bpmnElement="Flow_15jw6a4">
         <di:waypoint x="350" y="177" />
         <di:waypoint x="412" y="177" />
@@ -85,16 +93,8 @@ Days elapsed: {{days_delta }}</bpmn:documentation>
         <di:waypoint x="580" y="177" />
         <di:waypoint x="620" y="177" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0q7fkb7_di" bpmnElement="Flow_0q7fkb7">
-        <di:waypoint x="188" y="177" />
-        <di:waypoint x="250" y="177" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0mxlkif_di" bpmnElement="Flow_0mxlkif">
-        <di:waypoint x="720" y="177" />
-        <di:waypoint x="755" y="177" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="152" y="159" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_1fgfg5d_di" bpmnElement="increment_counter">
+        <dc:Bounds x="480" y="137" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1tseamj_di" bpmnElement="end_event5">
         <dc:Bounds x="932" y="159" width="36" height="36" />
@@ -114,11 +114,11 @@ Days elapsed: {{days_delta }}</bpmn:documentation>
       <bpmndi:BPMNShape id="Activity_0whalo9_di" bpmnElement="initialize">
         <dc:Bounds x="250" y="137" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1fgfg5d_di" bpmnElement="increment_counter">
-        <dc:Bounds x="480" y="137" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0mmgsiw_di" bpmnElement="Activity_0w5u4k4">
         <dc:Bounds x="620" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="159" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

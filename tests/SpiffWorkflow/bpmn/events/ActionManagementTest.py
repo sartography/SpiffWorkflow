@@ -15,7 +15,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
     FINISH_TIME_DELTA=0.10
 
     def now_plus_seconds(self, seconds):
-        return datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+        return (datetime.datetime.now() + datetime.timedelta(seconds=seconds)).isoformat()
 
     def setUp(self):
         self.spec, self.subprocesses = self.load_workflow_spec('Test-Workflows/Action-Management.bpmn20.xml', 'Action Management')

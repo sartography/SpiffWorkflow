@@ -2,7 +2,7 @@
 
 import unittest
 
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
+from SpiffWorkflow.exceptions import WorkflowTaskException
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -39,7 +39,7 @@ class InlineScriptTest(BpmnWorkflowTestCase):
         # StartTask doesn't know about testvar, it happened earlier.
         # calling an exec that references testvar, in the context of the
         # start task should fail.
-        with self.assertRaises(WorkflowTaskExecException):
+        with self.assertRaises(WorkflowTaskException):
             result = self.workflow.script_engine.evaluate(startTask, 'testvar == True')
 
 

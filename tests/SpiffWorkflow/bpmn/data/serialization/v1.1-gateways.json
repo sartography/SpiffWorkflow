@@ -1,0 +1,830 @@
+{
+  "serializer_version": "1.1",
+  "data": {}, 
+  "last_task": "215867bf-41a3-42b3-8403-b836aabcfe6c", 
+  "success": true, 
+  "tasks": {
+    "01bdb086-35cc-4897-805f-d059d1cfe682": {
+      "id": "01bdb086-35cc-4897-805f-d059d1cfe682", 
+      "parent": null, 
+      "children": [
+        "3846b631-5ed5-4913-9f53-f358886547cd"
+      ], 
+      "last_state_change": 1675380654.3327675, 
+      "state": 32, 
+      "task_spec": "Root", 
+      "triggered": false, 
+      "workflow_name": "lanes", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "3846b631-5ed5-4913-9f53-f358886547cd": {
+      "id": "3846b631-5ed5-4913-9f53-f358886547cd", 
+      "parent": "01bdb086-35cc-4897-805f-d059d1cfe682", 
+      "children": [
+        "7f261ef4-047b-4941-a508-c24790f0a8c0"
+      ], 
+      "last_state_change": 1675380654.338419, 
+      "state": 32, 
+      "task_spec": "Start", 
+      "triggered": false, 
+      "workflow_name": "lanes", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "7f261ef4-047b-4941-a508-c24790f0a8c0": {
+      "id": "7f261ef4-047b-4941-a508-c24790f0a8c0", 
+      "parent": "3846b631-5ed5-4913-9f53-f358886547cd", 
+      "children": [
+        "215867bf-41a3-42b3-8403-b836aabcfe6c"
+      ], 
+      "last_state_change": 1675380654.3411734, 
+      "state": 32, 
+      "task_spec": "StartEvent_1", 
+      "triggered": false, 
+      "workflow_name": "lanes", 
+      "internal_data": {
+        "event_fired": true
+      }, 
+      "data": {}
+    }, 
+    "215867bf-41a3-42b3-8403-b836aabcfe6c": {
+      "id": "215867bf-41a3-42b3-8403-b836aabcfe6c", 
+      "parent": "7f261ef4-047b-4941-a508-c24790f0a8c0", 
+      "children": [
+        "5b0dc44b-0901-4989-8733-2dfcb82344c7"
+      ], 
+      "last_state_change": 1675380654.3452208, 
+      "state": 32, 
+      "task_spec": "Activity_A1", 
+      "triggered": false, 
+      "workflow_name": "lanes", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "5b0dc44b-0901-4989-8733-2dfcb82344c7": {
+      "id": "5b0dc44b-0901-4989-8733-2dfcb82344c7", 
+      "parent": "215867bf-41a3-42b3-8403-b836aabcfe6c", 
+      "children": [
+        "bf645868-c2fc-4dfb-90c9-210f23b7f503"
+      ], 
+      "last_state_change": 1675380654.3462226, 
+      "state": 16, 
+      "task_spec": "Activity_B1", 
+      "triggered": false, 
+      "workflow_name": "lanes", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "bf645868-c2fc-4dfb-90c9-210f23b7f503": {
+      "id": "bf645868-c2fc-4dfb-90c9-210f23b7f503", 
+      "parent": "5b0dc44b-0901-4989-8733-2dfcb82344c7", 
+      "children": [
+        "3825a6af-4ea6-4242-9570-411a7d080f96", 
+        "90b2d2bc-d222-4c96-95e5-9becd7260ef6"
+      ], 
+      "last_state_change": 1675380654.3340564, 
+      "state": 4, 
+      "task_spec": "Gateway_askQuestion", 
+      "triggered": false, 
+      "workflow_name": "lanes", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "3825a6af-4ea6-4242-9570-411a7d080f96": {
+      "id": "3825a6af-4ea6-4242-9570-411a7d080f96", 
+      "parent": "bf645868-c2fc-4dfb-90c9-210f23b7f503", 
+      "children": [
+        "a00fc3d7-c0ab-46ec-a3b1-892ff78f4809"
+      ], 
+      "last_state_change": 1675380654.3344204, 
+      "state": 1, 
+      "task_spec": "Activity_A2", 
+      "triggered": false, 
+      "workflow_name": "lanes", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "a00fc3d7-c0ab-46ec-a3b1-892ff78f4809": {
+      "id": "a00fc3d7-c0ab-46ec-a3b1-892ff78f4809", 
+      "parent": "3825a6af-4ea6-4242-9570-411a7d080f96", 
+      "children": [], 
+      "last_state_change": 1675380654.3349297, 
+      "state": 1, 
+      "task_spec": "Implement_Feature", 
+      "triggered": false, 
+      "workflow_name": "lanes", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "90b2d2bc-d222-4c96-95e5-9becd7260ef6": {
+      "id": "90b2d2bc-d222-4c96-95e5-9becd7260ef6", 
+      "parent": "bf645868-c2fc-4dfb-90c9-210f23b7f503", 
+      "children": [
+        "3eeb1f48-6bde-4921-b2b0-ae4557c09d1f"
+      ], 
+      "last_state_change": 1675380654.3346882, 
+      "state": 2, 
+      "task_spec": "Implement_Feature", 
+      "triggered": false, 
+      "workflow_name": "lanes", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "3eeb1f48-6bde-4921-b2b0-ae4557c09d1f": {
+      "id": "3eeb1f48-6bde-4921-b2b0-ae4557c09d1f", 
+      "parent": "90b2d2bc-d222-4c96-95e5-9becd7260ef6", 
+      "children": [], 
+      "last_state_change": 1675380654.3352633, 
+      "state": 2, 
+      "task_spec": "Activity_1uksrqx", 
+      "triggered": false, 
+      "workflow_name": "lanes", 
+      "internal_data": {}, 
+      "data": {}
+    }
+  }, 
+  "root": "01bdb086-35cc-4897-805f-d059d1cfe682", 
+  "spec": {
+    "name": "lanes", 
+    "description": "lanes", 
+    "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/lanes.bpmn", 
+    "task_specs": {
+      "Start": {
+        "id": "lanes_1", 
+        "name": "Start", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [
+          "StartEvent_1"
+        ], 
+        "typename": "StartTask"
+      }, 
+      "lanes.EndJoin": {
+        "id": "lanes_2", 
+        "name": "lanes.EndJoin", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Event_07pakcl"
+        ], 
+        "outputs": [
+          "End"
+        ], 
+        "typename": "_EndJoin"
+      }, 
+      "End": {
+        "id": "lanes_3", 
+        "name": "End", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "lanes.EndJoin"
+        ], 
+        "outputs": [], 
+        "typename": "Simple"
+      }, 
+      "StartEvent_1": {
+        "id": "lanes_4", 
+        "name": "StartEvent_1", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Start"
+        ], 
+        "outputs": [
+          "Activity_A1"
+        ], 
+        "lane": "A", 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 219.0, 
+          "y": 92.0
+        }, 
+        "outgoing_sequence_flows": {
+          "Activity_A1": {
+            "id": "Flow_0jwejm5", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Activity_A1", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "outgoing_sequence_flows_by_id": {
+          "Flow_0jwejm5": {
+            "id": "Flow_0jwejm5", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Activity_A1", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "StartEvent", 
+        "extensions": {}
+      }, 
+      "Activity_A1": {
+        "id": "lanes_5", 
+        "name": "Activity_A1", 
+        "description": "Request Feature", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "StartEvent_1"
+        ], 
+        "outputs": [
+          "Activity_B1"
+        ], 
+        "lane": "A", 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 300.0, 
+          "y": 70.0
+        }, 
+        "outgoing_sequence_flows": {
+          "Activity_B1": {
+            "id": "Flow_140vffb", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Activity_B1", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "outgoing_sequence_flows_by_id": {
+          "Flow_140vffb": {
+            "id": "Flow_140vffb", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Activity_B1", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "typename": "UserTask", 
+        "extensions": {}
+      }, 
+      "Activity_B1": {
+        "id": "lanes_6", 
+        "name": "Activity_B1", 
+        "description": "Clarifying Questions?", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Activity_A1"
+        ], 
+        "outputs": [
+          "Gateway_askQuestion"
+        ], 
+        "lane": "B", 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 300.0, 
+          "y": 210.0
+        }, 
+        "outgoing_sequence_flows": {
+          "Gateway_askQuestion": {
+            "id": "Flow_1k9gsm1", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Gateway_askQuestion", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "outgoing_sequence_flows_by_id": {
+          "Flow_1k9gsm1": {
+            "id": "Flow_1k9gsm1", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Gateway_askQuestion", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "typename": "UserTask", 
+        "extensions": {}
+      }, 
+      "Gateway_askQuestion": {
+        "id": "lanes_7", 
+        "name": "Gateway_askQuestion", 
+        "description": "Do we need Clarifcation?", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Activity_B1"
+        ], 
+        "outputs": [
+          "Activity_A2", 
+          "Implement_Feature"
+        ], 
+        "lane": "B", 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 465.0, 
+          "y": 225.0
+        }, 
+        "outgoing_sequence_flows": {
+          "Activity_A2": {
+            "id": "Flow_0okhwy0", 
+            "name": "Yes", 
+            "documentation": null, 
+            "target_task_spec": "Activity_A2", 
+            "typename": "SequenceFlow"
+          }, 
+          "Implement_Feature": {
+            "id": "Flow_182bqvo", 
+            "name": "No", 
+            "documentation": null, 
+            "target_task_spec": "Implement_Feature", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "outgoing_sequence_flows_by_id": {
+          "Flow_0okhwy0": {
+            "id": "Flow_0okhwy0", 
+            "name": "Yes", 
+            "documentation": null, 
+            "target_task_spec": "Activity_A2", 
+            "typename": "SequenceFlow"
+          }, 
+          "Flow_182bqvo": {
+            "id": "Flow_182bqvo", 
+            "name": "No", 
+            "documentation": null, 
+            "target_task_spec": "Implement_Feature", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "default_task_spec": "Implement_Feature", 
+        "cond_task_specs": [
+          {
+            "condition": "NeedClarification == 'Yes'", 
+            "task_spec": "Activity_A2"
+          }
+        ], 
+        "choice": null, 
+        "typename": "ExclusiveGateway", 
+        "extensions": {}
+      }, 
+      "Implement_Feature": {
+        "id": "lanes_8", 
+        "name": "Implement_Feature", 
+        "description": "Implement Feature", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Activity_A2", 
+          "Gateway_askQuestion"
+        ], 
+        "outputs": [
+          "Activity_1uksrqx"
+        ], 
+        "lane": "B", 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 620.0, 
+          "y": 200.0
+        }, 
+        "outgoing_sequence_flows": {
+          "Activity_1uksrqx": {
+            "id": "Flow_0xz2oco", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Activity_1uksrqx", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "outgoing_sequence_flows_by_id": {
+          "Flow_0xz2oco": {
+            "id": "Flow_0xz2oco", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Activity_1uksrqx", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "typename": "ManualTask", 
+        "extensions": {}
+      }, 
+      "Activity_1uksrqx": {
+        "id": "lanes_9", 
+        "name": "Activity_1uksrqx", 
+        "description": "Send to testing", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Implement_Feature"
+        ], 
+        "outputs": [
+          "Activity_0i0rxuw"
+        ], 
+        "lane": "C", 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 620.0, 
+          "y": 340.0
+        }, 
+        "outgoing_sequence_flows": {
+          "Activity_0i0rxuw": {
+            "id": "Flow_1cybznq", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Activity_0i0rxuw", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "outgoing_sequence_flows_by_id": {
+          "Flow_1cybznq": {
+            "id": "Flow_1cybznq", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Activity_0i0rxuw", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "typename": "ManualTask", 
+        "extensions": {}
+      }, 
+      "Activity_0i0rxuw": {
+        "id": "lanes_10", 
+        "name": "Activity_0i0rxuw", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Activity_1uksrqx"
+        ], 
+        "outputs": [
+          "Event_07pakcl"
+        ], 
+        "lane": "C", 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 760.0, 
+          "y": 320.0
+        }, 
+        "outgoing_sequence_flows": {
+          "Event_07pakcl": {
+            "id": "Flow_0e1uyol", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Event_07pakcl", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "outgoing_sequence_flows_by_id": {
+          "Flow_0e1uyol": {
+            "id": "Flow_0e1uyol", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Event_07pakcl", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "spec": "Activity_0i0rxuw", 
+        "typename": "CallActivity", 
+        "extensions": {}
+      }, 
+      "Event_07pakcl": {
+        "id": "lanes_11", 
+        "name": "Event_07pakcl", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Activity_0i0rxuw"
+        ], 
+        "outputs": [
+          "lanes.EndJoin"
+        ], 
+        "lane": "C", 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 1092.0, 
+          "y": 362.0
+        }, 
+        "outgoing_sequence_flows": {
+          "lanes.EndJoin": {
+            "id": "Event_07pakcl.ToEndJoin", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "lanes.EndJoin", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "outgoing_sequence_flows_by_id": {
+          "Event_07pakcl.ToEndJoin": {
+            "id": "Event_07pakcl.ToEndJoin", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "lanes.EndJoin", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "EndEvent", 
+        "extensions": {}
+      }, 
+      "Activity_A2": {
+        "id": "lanes_12", 
+        "name": "Activity_A2", 
+        "description": "Clarify Request", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Gateway_askQuestion"
+        ], 
+        "outputs": [
+          "Implement_Feature"
+        ], 
+        "lane": "A", 
+        "documentation": null, 
+        "loopTask": false, 
+        "position": {
+          "x": 530.0, 
+          "y": 70.0
+        }, 
+        "outgoing_sequence_flows": {
+          "Implement_Feature": {
+            "id": "Flow_17rng3c", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Implement_Feature", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "outgoing_sequence_flows_by_id": {
+          "Flow_17rng3c": {
+            "id": "Flow_17rng3c", 
+            "name": null, 
+            "documentation": null, 
+            "target_task_spec": "Implement_Feature", 
+            "typename": "SequenceFlow"
+          }
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "typename": "UserTask", 
+        "extensions": {}
+      }, 
+      "Root": {
+        "id": "lanes_13", 
+        "name": "Root", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [], 
+        "typename": "Simple"
+      }
+    }, 
+    "data_inputs": [], 
+    "data_outputs": [], 
+    "data_objects": {}, 
+    "correlation_keys": {}, 
+    "typename": "BpmnProcessSpec"
+  }, 
+  "subprocess_specs": {
+    "Activity_0i0rxuw": {
+      "name": "Activity_0i0rxuw", 
+      "description": "Activity_0i0rxuw", 
+      "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/lanes.bpmn", 
+      "task_specs": {
+        "Start": {
+          "id": "Activity_0i0rxuw_1", 
+          "name": "Start", 
+          "description": "", 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [
+            "Event_0lbloj7"
+          ], 
+          "typename": "StartTask"
+        }, 
+        "Activity_0i0rxuw.EndJoin": {
+          "id": "Activity_0i0rxuw_2", 
+          "name": "Activity_0i0rxuw.EndJoin", 
+          "description": "", 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Event_1vz21ww"
+          ], 
+          "outputs": [
+            "End"
+          ], 
+          "typename": "_EndJoin"
+        }, 
+        "End": {
+          "id": "Activity_0i0rxuw_3", 
+          "name": "End", 
+          "description": "", 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Activity_0i0rxuw.EndJoin"
+          ], 
+          "outputs": [], 
+          "typename": "Simple"
+        }, 
+        "Event_0lbloj7": {
+          "id": "Activity_0i0rxuw_4", 
+          "name": "Event_0lbloj7", 
+          "description": null, 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Start"
+          ], 
+          "outputs": [
+            "SubProcessTask"
+          ], 
+          "lane": "C", 
+          "documentation": null, 
+          "loopTask": false, 
+          "position": {
+            "x": 782.0, 
+            "y": 362.0
+          }, 
+          "outgoing_sequence_flows": {
+            "SubProcessTask": {
+              "id": "Flow_086ghyu", 
+              "name": null, 
+              "documentation": null, 
+              "target_task_spec": "SubProcessTask", 
+              "typename": "SequenceFlow"
+            }
+          }, 
+          "outgoing_sequence_flows_by_id": {
+            "Flow_086ghyu": {
+              "id": "Flow_086ghyu", 
+              "name": null, 
+              "documentation": null, 
+              "target_task_spec": "SubProcessTask", 
+              "typename": "SequenceFlow"
+            }
+          }, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "StartEvent", 
+          "extensions": {}
+        }, 
+        "SubProcessTask": {
+          "id": "Activity_0i0rxuw_5", 
+          "name": "SubProcessTask", 
+          "description": "SubProcessTask", 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Event_0lbloj7"
+          ], 
+          "outputs": [
+            "Event_1vz21ww"
+          ], 
+          "lane": "C", 
+          "documentation": null, 
+          "loopTask": false, 
+          "position": {
+            "x": 850.0, 
+            "y": 340.0
+          }, 
+          "outgoing_sequence_flows": {
+            "Event_1vz21ww": {
+              "id": "Flow_1jw6qrj", 
+              "name": null, 
+              "documentation": null, 
+              "target_task_spec": "Event_1vz21ww", 
+              "typename": "SequenceFlow"
+            }
+          }, 
+          "outgoing_sequence_flows_by_id": {
+            "Flow_1jw6qrj": {
+              "id": "Flow_1jw6qrj", 
+              "name": null, 
+              "documentation": null, 
+              "target_task_spec": "Event_1vz21ww", 
+              "typename": "SequenceFlow"
+            }
+          }, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "typename": "ManualTask", 
+          "extensions": {}
+        }, 
+        "Event_1vz21ww": {
+          "id": "Activity_0i0rxuw_6", 
+          "name": "Event_1vz21ww", 
+          "description": null, 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "SubProcessTask"
+          ], 
+          "outputs": [
+            "Activity_0i0rxuw.EndJoin"
+          ], 
+          "lane": "C", 
+          "documentation": null, 
+          "loopTask": false, 
+          "position": {
+            "x": 982.0, 
+            "y": 362.0
+          }, 
+          "outgoing_sequence_flows": {
+            "Activity_0i0rxuw.EndJoin": {
+              "id": "Event_1vz21ww.ToEndJoin", 
+              "name": null, 
+              "documentation": null, 
+              "target_task_spec": "Activity_0i0rxuw.EndJoin", 
+              "typename": "SequenceFlow"
+            }
+          }, 
+          "outgoing_sequence_flows_by_id": {
+            "Event_1vz21ww.ToEndJoin": {
+              "id": "Event_1vz21ww.ToEndJoin", 
+              "name": null, 
+              "documentation": null, 
+              "target_task_spec": "Activity_0i0rxuw.EndJoin", 
+              "typename": "SequenceFlow"
+            }
+          }, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "EndEvent", 
+          "extensions": {}
+        }
+      }, 
+      "data_inputs": [], 
+      "data_outputs": [], 
+      "data_objects": {}, 
+      "correlation_keys": {}, 
+      "typename": "BpmnProcessSpec"
+    }
+  }, 
+  "subprocesses": {}, 
+  "bpmn_messages": []
+}

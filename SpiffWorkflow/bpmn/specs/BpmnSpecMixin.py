@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from ..exceptions import WorkflowDataException
 from ...operators import Operator
 from ...specs.base import TaskSpec
 
@@ -30,7 +31,6 @@ class _BpmnCondition(Operator):
 
     def _matches(self, task):
         return task.workflow.script_engine.evaluate(task, self.args[0])
-
 
 
 class BpmnSpecMixin(TaskSpec):
@@ -49,20 +49,14 @@ class BpmnSpecMixin(TaskSpec):
         super(BpmnSpecMixin, self).__init__(wf_spec, name, **kwargs)
         self.lane = lane
         self.position = position or {'x': 0, 'y': 0}
-        self.loopTask = False
         self.documentation = None
         self.data_input_associations = []
         self.data_output_associations = []
+        self.io_specification = None
 
     @property
     def spec_type(self):
         return 'BPMN Task'
-
-    def is_loop_task(self):
-        """
-        Returns true if this task is a BPMN looping task
-        """
-        return self.loopTask
 
     def connect_outgoing_if(self, condition, taskspec):
         """
@@ -70,14 +64,38 @@ class BpmnSpecMixin(TaskSpec):
         evaluates to true. This should only be called if the task has a
         connect_if method (e.g. ExclusiveGateway).
         """
-        self.connect_if(_BpmnCondition(condition), taskspec)
+        if condition is None:
+            self.connect(taskspec)
+        else:
+            self.connect_if(_BpmnCondition(condition), taskspec)
 
-    def _on_ready_hook(self, my_task):
-        super()._on_ready_hook(my_task)
+    def _update_hook(self, my_task):
+
+        super()._update_hook(my_task)
+        # This copies data from data objects
         for obj in self.data_input_associations:
             obj.get(my_task)
 
+        # If an IO spec was given, require all inputs are present, and remove all other inputs.
+        if self.io_specification is not None and len(self.io_specification.data_inputs) > 0:
+            data = {}
+            for var in self.io_specification.data_inputs:
+                if var.name not in my_task.data:
+                    raise WorkflowDataException(f"Missing data input", task=my_task, data_input=var)
+                data[var.name] = my_task.data[var.name]
+            my_task.data = data
+
+        return True
+
     def _on_complete_hook(self, my_task):
+
+        if self.io_specification is not None and len(self.io_specification.data_outputs) > 0:
+            data = {}
+            for var in self.io_specification.data_outputs:
+                if var.name not in my_task.data:
+                    raise WorkflowDataException(f"Missing data ouput", task=my_task, data_output=var)
+                data[var.name] = my_task.data[var.name]
+            my_task.data = data
 
         for obj in self.data_output_associations:
             obj.set(my_task)

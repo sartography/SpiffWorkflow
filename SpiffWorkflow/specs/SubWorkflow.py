@@ -18,6 +18,8 @@
 # 02110-1301  USA
 import os
 
+from lxml import etree
+
 from .StartTask import StartTask
 from .base import TaskSpec
 from ..task import TaskState
@@ -72,8 +74,7 @@ class SubWorkflow(TaskSpec):
     def test(self):
         TaskSpec.test(self)
         if self.file is not None and not os.path.exists(self.file):
-            raise WorkflowException(
-                self, 'File does not exist: %s' % self.file)
+            raise WorkflowException('File does not exist: %s' % self.file, task_spec=self)
 
     def _predict_hook(self, my_task):
         # Modifying the task spec is a TERRIBLE idea, but if we don't do it, sync_children won't work
@@ -94,9 +95,8 @@ class SubWorkflow(TaskSpec):
         file_name = valueof(my_task, self.file)
         serializer = XmlSerializer()
         with open(file_name) as fp:
-            xml = fp.read()
-        wf_spec = WorkflowSpec.deserialize(
-            serializer, xml, filename=file_name)
+            xml = etree.parse(fp).getroot()
+        wf_spec = WorkflowSpec.deserialize(serializer, xml, filename=file_name)
         outer_workflow = my_task.workflow.outer_workflow
         return Workflow(wf_spec, parent=outer_workflow)
 
@@ -125,10 +125,12 @@ class SubWorkflow(TaskSpec):
         my_task._set_state(TaskState.WAITING)
 
     def _update_hook(self, my_task):
+
+        super()._update_hook(my_task)
         subworkflow = my_task._get_internal_data('subworkflow')
         if subworkflow is None:
             # On the first update, we have to create the subworkflow
-            super()._update_hook(my_task)
+            return True
         elif subworkflow.is_completed():
             # Then wait until it finishes to complete
             my_task.complete()

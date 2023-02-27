@@ -16,7 +16,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition, MultipleEventDefinition
+from SpiffWorkflow.bpmn.specs.events.event_definitions import (
+    MessageEventDefinition, 
+    MultipleEventDefinition, 
+    NamedEventDefinition,
+    TimerEventDefinition,
+)
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
 from .specs.events.StartEvent import StartEvent
@@ -69,7 +74,7 @@ class BpmnWorkflow(Workflow):
         self.__script_engine = engine
 
     def create_subprocess(self, my_task, spec_name, name):
-
+        # This creates a subprocess for an existing task
         workflow = self._get_outermost_workflow(my_task)
         subprocess = BpmnWorkflow(
             workflow.subprocess_specs[spec_name], name=name,
@@ -86,15 +91,16 @@ class BpmnWorkflow(Workflow):
         workflow = self._get_outermost_workflow(my_task)
         return workflow.subprocesses.get(my_task.id)
 
-    def add_subprocess(self, spec_name, name):
-
+    def connect_subprocess(self, spec_name, name):
+        # This creates a new task associated with a process when an event that kicks of a process is received
         new = CallActivity(self.spec, name, spec_name)
         self.spec.start.connect(new)
         task = Task(self, new)
-        task._ready()
         start = self.get_tasks_from_spec_name('Start', workflow=self)[0]
         start.children.append(task)
         task.parent = start
+        # This (indirectly) calls create_subprocess
+        task.task_spec._update(task)
         return self.subprocesses[task.id]
 
     def _get_outermost_workflow(self, task=None):
@@ -109,7 +115,7 @@ class BpmnWorkflow(Workflow):
                 start = sp.get_tasks_from_spec_name(task_spec.name)
                 if len(start) and start[0].state == TaskState.WAITING:
                     return sp
-        return self.add_subprocess(wf_spec.name, f'{wf_spec.name}_{len(self.subprocesses)}')
+        return self.connect_subprocess(wf_spec.name, f'{wf_spec.name}_{len(self.subprocesses)}')
 
     def catch(self, event_definition, correlations=None):
         """
@@ -140,6 +146,9 @@ class BpmnWorkflow(Workflow):
         for task in tasks:
             task.task_spec.catch(task, event_definition)
 
+        # Move any tasks that received message to READY
+        self.refresh_waiting_tasks()
+
         # Figure out if we need to create an extenal message
         if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
             self.bpmn_messages.append(
@@ -155,9 +164,21 @@ class BpmnWorkflow(Workflow):
         event_definition.payload = payload
         self.catch(event_definition, correlations=correlations)
 
-    def do_engine_steps(self, exit_at = None,
-        will_complete_task=None,
-        did_complete_task=None):
+    def waiting_events(self):
+        # Ultimately I'd like to add an event class so that EventDefinitions would not so double duty as both specs
+        # and instantiations, and this method would return that.  However, I think that's beyond the scope of the
+        # current request.
+        events = []
+        for task in [t for t in self.get_waiting_tasks() if isinstance(t.task_spec, CatchingEvent)]:
+            event_definition = task.task_spec.event_definition
+            events.append({
+                'event_type': event_definition.event_type,
+                'name': event_definition.name if isinstance(event_definition, NamedEventDefinition) else None,
+                'value': event_definition.timer_value(task) if isinstance(event_definition, TimerEventDefinition) else None,
+            })
+        return events
+
+    def do_engine_steps(self, exit_at = None, will_complete_task=None, did_complete_task=None):
         """
         Execute any READY tasks that are engine specific (for example, gateways
         or script tasks). This is done in a loop, so it will keep completing
@@ -168,9 +189,7 @@ class BpmnWorkflow(Workflow):
         :param will_complete_task: Callback that will be called prior to completing a task
         :param did_complete_task: Callback that will be called after completing a task
         """
-        engine_steps = list(
-            [t for t in self.get_tasks(TaskState.READY)
-             if self._is_engine_task(t.task_spec)])
+        engine_steps = list([t for t in self.get_tasks(TaskState.READY) if self._is_engine_task(t.task_spec)])
         while engine_steps:
             for task in engine_steps:
                 if will_complete_task is not None:
@@ -180,9 +199,7 @@ class BpmnWorkflow(Workflow):
                     did_complete_task(task)
                 if task.task_spec.name == exit_at:
                     return task
-            engine_steps = list(
-                [t for t in self.get_tasks(TaskState.READY)
-                 if self._is_engine_task(t.task_spec)])
+            engine_steps = list([t for t in self.get_tasks(TaskState.READY) if self._is_engine_task(t.task_spec)])
 
     def refresh_waiting_tasks(self,
         will_refresh_task=None,
@@ -218,12 +235,11 @@ class BpmnWorkflow(Workflow):
 
     def _find_task(self, task_id):
         if task_id is None:
-            raise WorkflowException(self.spec, 'task_id is None')
+            raise WorkflowException('task_id is None', task_spec=self.spec)
         for task in self.get_tasks():
             if task.id == task_id:
                 return task
-        raise WorkflowException(self.spec,
-            f'A task with the given task_id ({task_id}) was not found')
+        raise WorkflowException(f'A task with the given task_id ({task_id}) was not found', task_spec=self.spec)
 
     def complete_task_from_id(self, task_id):
         # I don't even know why we use this stupid function instead of calling task.complete,
@@ -256,6 +272,3 @@ class BpmnWorkflow(Workflow):
 
     def _is_engine_task(self, task_spec):
         return (not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task())
-
-    def _task_completed_notify(self, task):
-        super(BpmnWorkflow, self)._task_completed_notify(task)

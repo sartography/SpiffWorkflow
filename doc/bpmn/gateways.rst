@@ -23,7 +23,7 @@ Exclusive Gateway
 Exclusive gateways are used when exactly one alternative can be selected.
 
 Suppose our products are T-shirts and we offer product C in several colors.  After
-the user selects a product, we check to see it if is customizable.   Our default
+the user selects a product, we check to see it if is customizable. Our default
 branch will be 'Not Customizable', but we'll direct the user to a second form
 if they select 'C'; our condition for choosing this branch is a simple python
 expression.

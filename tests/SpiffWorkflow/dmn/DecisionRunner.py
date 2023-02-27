@@ -2,7 +2,7 @@ import os
 
 from lxml import etree
 
-from SpiffWorkflow.bpmn.PythonScriptEngine import Box
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import Box
 from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
 from SpiffWorkflow.dmn.parser.DMNParser import DMNParser, get_dmn_ns
 

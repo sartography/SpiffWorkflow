@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from SpiffWorkflow.exceptions import SpiffWorkflowException
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.specs .BpmnSpecMixin import BpmnSpecMixin
 
@@ -33,12 +34,21 @@ class SpiffBpmnTask(BpmnSpecMixin):
             my_task._set_state(TaskState.WAITING)
             raise exc
 
-    def _on_ready_hook(self, my_task):
-        super()._on_ready_hook(my_task)
+    def _update_hook(self, my_task):
+        super()._update_hook(my_task)
         if self.prescript is not None:
-            self.execute_script(my_task, self.prescript)
+            try:
+                self.execute_script(my_task, self.prescript)
+            except SpiffWorkflowException as se:
+                se.add_note("Error occurred in the Pre-Script")
+                raise se
+        return True
 
     def _on_complete_hook(self, my_task):
         if self.postscript is not None:
-            self.execute_script(my_task, self.postscript)
+            try:
+                self.execute_script(my_task, self.postscript)
+            except SpiffWorkflowException as se:
+                se.add_note("Error occurred in the Post-Script")
+                raise se
         super()._on_complete_hook(my_task)

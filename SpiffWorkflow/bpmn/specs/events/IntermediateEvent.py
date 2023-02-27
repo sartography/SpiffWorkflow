@@ -74,12 +74,10 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
         for child in my_task.children:
             if isinstance(child.task_spec, BoundaryEvent):
                 child.task_spec.event_definition.reset(child)
-                child._set_state(TaskState.WAITING)
 
     def _child_complete_hook(self, child_task):
 
-        # If the main child completes, or a cancelling event occurs, cancel any
-        # unfinished children
+        # If the main child completes, or a cancelling event occurs, cancel any unfinished children
         if child_task.task_spec == self.main_child_task_spec or child_task.task_spec.cancel_activity:
             for sibling in child_task.parent.children:
                 if sibling == child_task:
@@ -88,11 +86,6 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
                     sibling.cancel()
             for t in child_task.workflow._get_waiting_tasks():
                 t.task_spec._update(t)
-
-        # If our event is a cycle timer, we need to set it back to waiting so it can fire again
-        elif isinstance(child_task.task_spec.event_definition, CycleTimerEventDefinition):
-            child_task._set_state(TaskState.WAITING)
-            child_task.task_spec._update_hook(child_task)
 
     def _predict_hook(self, my_task):
 
@@ -103,7 +96,6 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
         for child in my_task.children:
             if child.task_spec == self.main_child_task_spec:
                 child._set_state(state)
-
 
 
 class BoundaryEvent(CatchingEvent):
@@ -129,12 +121,9 @@ class BoundaryEvent(CatchingEvent):
 
     def catch(self, my_task, event_definition):
         super(BoundaryEvent, self).catch(my_task, event_definition)
+        # Would love to get rid of this statement and manage in the workflow
+        # However, it is not really compatible with how boundary events work.
         my_task.complete()
-
-    def _on_complete_hook(self, my_task):
-        super(BoundaryEvent, self)._on_complete_hook(my_task)
-        # Notify the boundary event parent as well.
-        my_task.parent.task_spec._child_complete_hook(my_task)
 
 
 class EventBasedGateway(CatchingEvent):

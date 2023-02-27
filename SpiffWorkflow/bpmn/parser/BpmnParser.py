@@ -21,12 +21,13 @@ import glob
 import os
 
 from lxml import etree
-from lxml.etree import DocumentInvalid
+from lxml.etree import LxmlError
 
 from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
 
 from .ValidationException import ValidationException
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
+from ..specs.data_spec import BpmnDataStoreSpecification
 from ..specs.events.EndEvent import EndEvent
 from ..specs.events.StartEvent import StartEvent
 from ..specs.events.IntermediateEvent import BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent, EventBasedGateway
@@ -43,13 +44,23 @@ from ..specs.UserTask import UserTask
 from .ProcessParser import ProcessParser
 from .node_parser import DEFAULT_NSMAP
 from .util import full_tag, xpath_eval, first
-from .task_parsers import (UserTaskParser, NoneTaskParser, ManualTaskParser,
-                           ExclusiveGatewayParser, ParallelGatewayParser, InclusiveGatewayParser,
-                           CallActivityParser, ScriptTaskParser, SubWorkflowParser,
-                           ServiceTaskParser)
-from .event_parsers import (EventBasedGatewayParser, StartEventParser, EndEventParser, BoundaryEventParser,
-                           IntermediateCatchEventParser, IntermediateThrowEventParser,
-                           SendTaskParser, ReceiveTaskParser)
+from .TaskParser import TaskParser
+from .task_parsers import (
+    GatewayParser,
+    ConditionalGatewayParser,
+    CallActivityParser,
+    ScriptTaskParser,
+    SubWorkflowParser,
+)
+from .event_parsers import (
+    EventBasedGatewayParser,
+    StartEventParser, EndEventParser,
+    BoundaryEventParser,
+    IntermediateCatchEventParser,
+    IntermediateThrowEventParser,
+    SendTaskParser,
+    ReceiveTaskParser
+)
 
 
 XSD_PATH = os.path.join(os.path.dirname(__file__), 'schema', 'BPMN20.xsd')
@@ -72,8 +83,13 @@ class BpmnValidator:
     def validate(self, bpmn, filename=None):
         try:
             self.validator.assertValid(bpmn)
-        except DocumentInvalid as di:
-            raise DocumentInvalid(str(di) + "file: " + filename)
+        except ValidationException as ve:
+            ve.file_name = filename
+            ve.line_number = self.validator.error_log.last_error.line
+        except LxmlError as le:
+            last_error = self.validator.error_log.last_error
+            raise ValidationException(last_error.message, file_name=filename,
+                                      line_number=last_error.line)
 
 class BpmnParser(object):
     """
@@ -83,23 +99,25 @@ class BpmnParser(object):
 
     Extension points: OVERRIDE_PARSER_CLASSES provides a map from full BPMN tag
     name to a TaskParser and Task class. PROCESS_PARSER_CLASS provides a
-    subclass of ProcessParser
+    subclass of ProcessParser. DATA_STORE_CLASSES provides a mapping of names to
+    subclasses of BpmnDataStoreSpecification that provide a data store
+    implementation.
     """
 
     PARSER_CLASSES = {
         full_tag('startEvent'): (StartEventParser, StartEvent),
         full_tag('endEvent'): (EndEventParser, EndEvent),
-        full_tag('userTask'): (UserTaskParser, UserTask),
-        full_tag('task'): (NoneTaskParser, NoneTask),
-        full_tag('subProcess'): (SubWorkflowParser, CallActivity),
-        full_tag('manualTask'): (ManualTaskParser, ManualTask),
-        full_tag('exclusiveGateway'): (ExclusiveGatewayParser, ExclusiveGateway),
-        full_tag('parallelGateway'): (ParallelGatewayParser, ParallelGateway),
-        full_tag('inclusiveGateway'): (InclusiveGatewayParser, InclusiveGateway),
+        full_tag('userTask'): (TaskParser, UserTask),
+        full_tag('task'): (TaskParser, NoneTask),
+        full_tag('subProcess'): (SubWorkflowParser, SubWorkflowTask),
+        full_tag('manualTask'): (TaskParser, ManualTask),
+        full_tag('exclusiveGateway'): (ConditionalGatewayParser, ExclusiveGateway),
+        full_tag('parallelGateway'): (GatewayParser, ParallelGateway),
+        full_tag('inclusiveGateway'): (ConditionalGatewayParser, InclusiveGateway),
         full_tag('callActivity'): (CallActivityParser, CallActivity),
         full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
-        full_tag('serviceTask'): (ServiceTaskParser, ServiceTask),
+        full_tag('serviceTask'): (TaskParser, ServiceTask),
         full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser, IntermediateCatchEvent),
         full_tag('intermediateThrowEvent'): (IntermediateThrowEventParser, IntermediateThrowEvent),
         full_tag('boundaryEvent'): (BoundaryEventParser, BoundaryEvent),
@@ -111,6 +129,8 @@ class BpmnParser(object):
     OVERRIDE_PARSER_CLASSES = {}
 
     PROCESS_PARSER_CLASS = ProcessParser
+
+    DATA_STORE_CLASSES = {}
 
     def __init__(self, namespaces=None, validator=None):
         """
@@ -124,6 +144,7 @@ class BpmnParser(object):
         self.process_dependencies = set()
         self.messages = {}
         self.correlations = {}
+        self.data_stores = {}
 
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
@@ -164,11 +185,8 @@ class BpmnParser(object):
         Add all filenames in the given list to the parser's set.
         """
         for filename in filenames:
-            f = open(filename, 'r')
-            try:
+            with open(filename, 'r') as f:
                 self.add_bpmn_xml(etree.parse(f), filename=filename)
-            finally:
-                f.close()
 
     def add_bpmn_xml(self, bpmn, filename=None):
         """
@@ -180,6 +198,11 @@ class BpmnParser(object):
         """
         if self.validator:
             self.validator.validate(bpmn, filename)
+
+        # we need to parse the data stores before _add_process since it creates
+        # the parser instances, which need to know about the data stores to
+        # resolve data references.
+        self._add_data_stores(bpmn)
 
         self._add_processes(bpmn, filename)
         self._add_collaborations(bpmn)
@@ -210,9 +233,7 @@ class BpmnParser(object):
         for correlation in bpmn.xpath('.//bpmn:correlationProperty', namespaces=self.namespaces):
             correlation_identifier = correlation.attrib.get("id")
             if correlation_identifier is None:
-                raise ValidationException(
-                    "Correlation identifier is missing from bpmn xml"
-                )
+                raise ValidationException("Correlation identifier is missing from bpmn xml")
             correlation_property_retrieval_expressions = correlation.xpath(
                 "//bpmn:correlationPropertyRetrievalExpression", namespaces = self.namespaces)
             if not correlation_property_retrieval_expressions:
@@ -235,22 +256,42 @@ class BpmnParser(object):
                 "retrieval_expressions": retrieval_expressions
             }
 
+    def _add_data_stores(self, bpmn):
+        for data_store in bpmn.xpath('.//bpmn:dataStore', namespaces=self.namespaces):
+            data_store_id = data_store.attrib.get("id")
+            if data_store_id is None:
+                raise ValidationException(
+                    "Data Store identifier is missing from bpmn xml"
+                )
+            data_store_name = data_store.attrib.get("name")
+            if data_store_name is None:
+                raise ValidationException(
+                    "Data Store name is missing from bpmn xml"
+                )
+            if data_store_name not in self.DATA_STORE_CLASSES:
+                raise ValidationException(
+                    f"Data Store with name {data_store_name} has no implementation"
+                )
+            data_store_spec = self.DATA_STORE_CLASSES[data_store_name](
+                data_store_id,
+                data_store_name,
+                data_store.attrib.get('capacity'),
+                data_store.attrib.get('isUnlimited'))
+            self.data_stores[data_store_id] = data_store_spec
+
     def _find_dependencies(self, process):
         """Locate all calls to external BPMN, and store their ids in our list of dependencies"""
         for call_activity in process.xpath('.//bpmn:callActivity', namespaces=self.namespaces):
             self.process_dependencies.add(call_activity.get('calledElement'))
 
     def create_parser(self, node, filename=None, lane=None):
-        parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, filename=filename, lane=lane)
+        parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, self.data_stores, filename=filename, lane=lane)
         if parser.get_id() in self.process_parsers:
-            raise ValidationException('Duplicate process ID', node=node, filename=filename)
+            raise ValidationException(f'Duplicate process ID: {parser.get_id()}', node=node, file_name=filename)
         if parser.get_name() in self.process_parsers_by_name:
-            raise ValidationException('Duplicate process name', node=node, filename=filename)
+            raise ValidationException(f'Duplicate process name: {parser.get_name()}', node=node, file_name=filename)
         self.process_parsers[parser.get_id()] = parser
         self.process_parsers_by_name[parser.get_name()] = parser
-
-    def get_dependencies(self):
-        return self.process_dependencies
 
     def get_process_dependencies(self):
         return self.process_dependencies

@@ -3,8 +3,10 @@ import ast
 import copy
 import sys
 import traceback
+import warnings
 
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskExecException
+from .PythonScriptEngineEnvironment import TaskDataEnvironment
+from ..exceptions import SpiffWorkflowException, WorkflowTaskException
 from ..operators import Operator
 
 
@@ -26,66 +28,6 @@ from ..operators import Operator
 # 02110-1301  USA
 
 
-class Box(dict):
-    """
-    Example:
-    m = Box({'first_name': 'Eduardo'}, last_name='Pool', age=24, sports=['Soccer'])
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(Box, self).__init__(*args, **kwargs)
-        for arg in args:
-            if isinstance(arg, dict):
-                for k, v in arg.items():
-                    if isinstance(v, dict):
-                        self[k] = Box(v)
-                    else:
-                        self[k] = v
-
-        if kwargs:
-            for k, v in kwargs.items():
-                if isinstance(v, dict):
-                    self[k] = Box(v)
-                else:
-                    self[k] = v
-
-    def __deepcopy__(self, memodict=None):
-        if memodict is None:
-            memodict = {}
-        my_copy = Box()
-        for k, v in self.items():
-            my_copy[k] = copy.deepcopy(v)
-        return my_copy
-
-    def __getattr__(self, attr):
-        try:
-            output = self[attr]
-        except:
-            raise AttributeError(
-                "Dictionary has no attribute '%s' " % str(attr))
-        return output
-
-    def __setattr__(self, key, value):
-        self.__setitem__(key, value)
-
-    def __setitem__(self, key, value):
-        super(Box, self).__setitem__(key, value)
-        self.__dict__.update({key: value})
-
-    def __getstate__(self):
-        return self.__dict__
-
-    def __setstate__(self, state):
-        self.__init__(state)
-
-    def __delattr__(self, item):
-        self.__delitem__(item)
-
-    def __delitem__(self, key):
-        super(Box, self).__delitem__(key)
-        del self.__dict__[key]
-
-
 class PythonScriptEngine(object):
     """
     This should serve as a base for all scripting & expression evaluation
@@ -97,10 +39,18 @@ class PythonScriptEngine(object):
     expressions in a different way.
     """
 
-    def __init__(self, default_globals=None, scripting_additions=None):
-
-        self.globals = default_globals or {}
-        self.globals.update(scripting_additions or {})
+    def __init__(self, default_globals=None, scripting_additions=None, environment=None):
+        if default_globals is not None or scripting_additions is not None:
+            warnings.warn(f'default_globals and scripting_additions are deprecated.  '
+                          f'Please provide an environment such as TaskDataEnvrionment',
+                          DeprecationWarning, stacklevel=2)
+        if environment is None:
+            environment_globals = {}
+            environment_globals.update(default_globals or {})
+            environment_globals.update(scripting_additions or {})
+            self.environment = TaskDataEnvironment(environment_globals)
+        else:
+            self.environment = environment
         self.error_tasks = {}
 
     def validate(self, expression):
@@ -118,10 +68,11 @@ class PythonScriptEngine(object):
                 return expression._matches(task)
             else:
                 return self._evaluate(expression, task.data, external_methods)
+        except SpiffWorkflowException as se:
+            se.add_note(f"Error evaluating expression '{expression}'")
+            raise se
         except Exception as e:
-            raise WorkflowTaskExecException(task,
-                                            f"Error evaluating expression {expression}",
-                                            e)
+            raise WorkflowTaskException(f"Error evaluating expression '{expression}'", task=task, exception=e)
 
     def execute(self, task, script, external_methods=None):
         """
@@ -141,78 +92,49 @@ class PythonScriptEngine(object):
         raise NotImplementedError("To call external services override the script engine and implement `call_service`.")
 
     def create_task_exec_exception(self, task, script, err):
-
-        if isinstance(err, WorkflowTaskExecException):
+        line_number, error_line = self.get_error_line_number_and_content(script, err)
+        if isinstance(err, SpiffWorkflowException):
+            err.line_number = line_number
+            err.error_line = error_line
+            err.add_note(f"Python script error on line {line_number}: '{error_line}'")
             return err
-
         detail = err.__class__.__name__
         if len(err.args) > 0:
             detail += ":" + err.args[0]
+        return WorkflowTaskException(detail, task=task, exception=err, line_number=line_number, error_line=error_line)
+
+    def get_error_line_number_and_content(self, script, err):
         line_number = 0
         error_line = ''
-        cl, exc, tb = sys.exc_info()
-        # Loop back through the stack trace to find the file called
-        # 'string' - which is the script we are executing, then use that
-        # to parse and pull out the offending line.
-        for frame_summary in traceback.extract_tb(tb):
-            if frame_summary.filename == '<string>':
-                line_number = frame_summary.lineno
-                error_line = script.splitlines()[line_number - 1]
-        return WorkflowTaskExecException(task, detail, err, line_number,
-                                         error_line)
+        if isinstance(err, SyntaxError):
+            line_number = err.lineno
+        else:
+            cl, exc, tb = sys.exc_info()
+            # Loop back through the stack trace to find the file called
+            # 'string' - which is the script we are executing, then use that
+            # to parse and pull out the offending line.
+            for frame_summary in traceback.extract_tb(tb):
+                if frame_summary.filename == '<string>':
+                    line_number = frame_summary.lineno
+        if line_number > 0:
+            error_line = script.splitlines()[line_number - 1]
+        return line_number, error_line
 
     def check_for_overwrite(self, task, external_methods):
         """It's possible that someone will define a variable with the
         same name as a pre-defined script, rending the script un-callable.
         This results in a nearly indecipherable error.  Better to fail
         fast with a sensible error message."""
-        func_overwrites = set(self.globals).intersection(task.data)
+        func_overwrites = set(self.environment.globals).intersection(task.data)
         func_overwrites.update(set(external_methods).intersection(task.data))
         if len(func_overwrites) > 0:
             msg = f"You have task data that overwrites a predefined " \
                   f"function(s). Please change the following variable or " \
                   f"field name(s) to something else: {func_overwrites}"
-            raise WorkflowTaskExecException(task, msg)
-
-    def convert_to_box(self, data):
-        if isinstance(data, dict):
-            for key, value in data.items():
-                if not isinstance(value, Box):
-                    data[key] = self.convert_to_box(value)
-            return Box(data)
-        if isinstance(data, list):
-            for idx, value in enumerate(data):
-                data[idx] = self.convert_to_box(value)
-            return data
-        return data
+            raise WorkflowTaskException(msg, task=task)
 
     def _evaluate(self, expression, context, external_methods=None):
-
-        globals = copy.copy(self.globals)  # else we pollute all later evals.
-        self.convert_to_box(context)
-        globals.update(external_methods or {})
-        globals.update(context)
-        return eval(expression, globals)
+        return self.environment.evaluate(expression, context, external_methods)
 
     def _execute(self, script, context, external_methods=None):
-
-        my_globals = copy.copy(self.globals)
-        self.convert_to_box(context)
-        my_globals.update(external_methods or {})
-        context.update(my_globals)
-        try:
-            exec(script, context)
-        finally:
-            self.remove_globals_and_functions_from_context(context,
-                                                           external_methods)
-
-    def remove_globals_and_functions_from_context(self, context,
-                                                  external_methods=None):
-        """When executing a script, don't leave the globals, functions
-        and external methods in the context that we have modified."""
-        for k in list(context):
-            if k == "__builtins__" or \
-                    hasattr(context[k], '__call__') or \
-                    k in self.globals or \
-                    external_methods and k in external_methods:
-                context.pop(k)
+        self.environment.execute(script, context, external_methods)

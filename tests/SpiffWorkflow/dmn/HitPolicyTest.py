@@ -1,14 +1,11 @@
 import os
 import unittest
 
-from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
+from SpiffWorkflow.bpmn.serializer.helpers.dictionary import DictionaryConverter
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from SpiffWorkflow.dmn.serializer.task_spec_converters import \
-    BusinessRuleTaskConverter
+from SpiffWorkflow.dmn.serializer.task_spec import BusinessRuleTaskConverter
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-from tests.SpiffWorkflow.dmn.DecisionRunner import DecisionRunner
-from tests.SpiffWorkflow.dmn.python_engine.PythonDecisionRunner import \
-    PythonDecisionRunner
+from tests.SpiffWorkflow.dmn.python_engine.PythonDecisionRunner import PythonDecisionRunner
 
 
 class HitPolicyTest(BpmnWorkflowTestCase):
@@ -38,8 +35,8 @@ class HitPolicyTest(BpmnWorkflowTestCase):
         runner = PythonDecisionRunner(file_name)
         decision_table = runner.decision_table
         self.assertEqual("COLLECT", decision_table.hit_policy)
-        dict = BusinessRuleTaskConverter().decision_table_to_dict(decision_table)
-        new_table = BusinessRuleTaskConverter().decision_table_from_dict(dict)
+        dict = BusinessRuleTaskConverter(DictionaryConverter()).decision_table_to_dict(decision_table)
+        new_table = BusinessRuleTaskConverter(DictionaryConverter()).decision_table_from_dict(dict)
         self.assertEqual("COLLECT", new_table.hit_policy)
 
 def suite():

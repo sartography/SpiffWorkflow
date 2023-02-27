@@ -31,20 +31,6 @@ metrics = logging.getLogger('spiff.metrics')
 data_log = logging.getLogger('spiff.data')
 
 
-def updateDotDict(dct,dotted_path,value):
-    parts = dotted_path.split(".")
-    path_len = len(parts)
-    root = dct
-    for i, key in enumerate(parts):
-        if (i + 1) < path_len:
-            if key not in dct:
-                dct[key] = {}
-            dct = dct[key]
-        else:
-            dct[key] = value
-    return root
-
-
 class TaskState:
     """
 
@@ -182,8 +168,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             # Assure we don't recurse forever.
             self.count += 1
             if self.count > self.MAX_ITERATIONS:
-                raise WorkflowException(current,
-                "Task Iterator entered infinite recursion loop" )
+                raise WorkflowException("Task Iterator entered infinite recursion loop", task_spec=current)
 
 
             # If the current task has children, the first child is the next
@@ -248,15 +233,10 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         self.id = uuid4()
         self.thread_id = self.__class__.thread_id_pool
         self.data = {}
-        self.terminate_current_loop = False
         self.internal_data = {}
-        self.mi_collect_data = {}
+        self.last_state_change = time.time()
         if parent is not None:
             self.parent._child_added_notify(self)
-
-        # TODO: get rid of this stuff
-        self.last_state_change = time.time()
-        self.state_history = [state]
 
     @property
     def state(self):
@@ -266,8 +246,8 @@ class Task(object,  metaclass=DeprecatedMetaTask):
     def state(self, value):
         if value < self._state:
             raise WorkflowException(
-                self.task_spec,
-                'state went from %s to %s!' % (self.get_state_name(), TaskStateNames[value])
+                'state went from %s to %s!' % (self.get_state_name(), TaskStateNames[value]),
+                task_spec=self.task_spec
             )
         self._set_state(value)
 
@@ -278,7 +258,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         if value != self.state:
             logger.info(f'State change to {TaskStateNames[value]}', extra=self.log_info())
             self.last_state_change = time.time()
-            self.state_history.append(value)
             self._state = value
         else:
             logger.debug(f'State set to {TaskStateNames[value]}', extra=self.log_info())
@@ -302,11 +281,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         })
         return extra
 
-    def update_data_var(self, fieldid, value):
-        model = {}
-        updateDotDict(model,fieldid, value)
-        self.update_data(model)
-
     def update_data(self, data):
         """
         If the task.data needs to be updated from a UserTask form or
@@ -317,45 +291,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         self.data = DeepMerge.merge(self.data, data)
         data_log.info('Data update', extra=self.log_info())
 
-    def task_info(self):
-        """
-        Returns a dictionary of information about the current task, so that
-        we can give hints to the user about what kind of task we are working
-        with such as a looping task or a Parallel MultiInstance task
-        :returns: dictionary
-        """
-        default = {'is_looping': False,
-                   'is_sequential_mi': False,
-                   'is_parallel_mi': False,
-                   'mi_count': 0,
-                   'mi_index': 0}
-
-        miInfo = getattr(self.task_spec, "multiinstance_info", None)
-        if callable(miInfo):
-            return miInfo(self)
-        else:
-            return default
-
-    def terminate_loop(self):
-        """
-        Used in the case that we are working with a BPMN 'loop' task.
-        The task will loop, repeatedly asking for input until terminate_loop
-        is called on the task
-        """
-        if self.is_looping():
-            self.terminate_current_loop = True
-        else:
-            raise WorkflowException(self.task_spec,
-                                    'The method terminate_loop should only be called in the case of a BPMN Loop Task')
-
-    def is_looping(self):
-        """Returns true if this is a looping task."""
-        islooping = getattr(self.task_spec, "is_loop_task", None)
-        if callable(islooping):
-            return self.task_spec.is_loop_task()
-        else:
-            return False
-
     def set_children_future(self):
         """
         for a parallel gateway, we need to set up our
@@ -363,24 +298,16 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         the inputs - otherwise our child process never gets marked as
         'READY'
         """
-
         if not self.task_spec.task_should_set_children_future(self):
             return
 
         self.task_spec.task_will_set_children_future(self)
 
         # now we set this one to execute
-
         self._set_state(TaskState.MAYBE)
         self._sync_children(self.task_spec.outputs)
         for child in self.children:
             child.set_children_future()
-
-    def find_children_by_name(self,name):
-        """
-        for debugging
-        """
-        return [x for x in self.workflow.task_tree if x.task_spec.name == name]
 
     def reset_token(self, data, reset_data=False):
         """
@@ -403,14 +330,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
 
     def __iter__(self):
         return Task.Iterator(self)
-
-    def __setstate__(self, dict):
-        self.__dict__.update(dict)
-        # If unpickled in the same Python process in which a workflow
-        # (Task) is built through the API, we need to make sure
-        # that there will not be any ID collisions.
-        if dict['thread_id'] >= self.__class__.thread_id_pool:
-            self.__class__.thread_id_pool = dict['thread_id']
 
     def _get_root(self):
         """
@@ -475,7 +394,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             raise ValueError(self, '_add_child() requires a TaskSpec')
         if self._is_predicted() and state & TaskState.PREDICTED_MASK == 0:
             msg = 'Attempt to add non-predicted child to predicted task'
-            raise WorkflowException(self.task_spec, msg)
+            raise WorkflowException(msg, task_spec=self.task_spec)
         task = Task(self.workflow, task_spec, self, state=state)
         task.thread_id = self.thread_id
         if state == TaskState.READY:
@@ -551,7 +470,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
 
             # Definite tasks must not be removed, so they HAVE to be in the given task spec list.
             if child._is_definite():
-                raise WorkflowException(self.task_spec, f'removal of non-predicted child {child}')
+                raise WorkflowException(f'removal of non-predicted child {child}', task_spec=self.task_spec)
             unneeded_children.append(child)
 
         # Remove and add the children accordingly.
@@ -669,12 +588,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
     def get_description(self):
         return str(self.task_spec.description)
 
-    def get_state(self):
-        """
-        Returns this Task's state.
-        """
-        return self.state
-
     def get_state_name(self):
         """
         Returns a textual representation of this Task's state.
@@ -713,7 +626,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         Defines the given attribute/value pairs.
         """
         self.data.update(kwargs)
-        data_log.info('Set data', extra=self.log_info())
 
     def _inherit_data(self):
         """
@@ -754,10 +666,9 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         has changed (e.g. from FUTURE to COMPLETED.)
         """
         self._set_state(TaskState.COMPLETED)
-        # WHY on earth do we mark the task completed and THEN attempt to execute it.
-        # A sane model would have success and failure states and instead we return
-        # a boolean, with no systematic way of dealing with failures.  This is just
-        # crazy!
+        # I am taking back my previous comment about running the task after it's completed being "CRAZY"
+        # Turns out that tasks are in fact supposed to be complete at this point and I've been wrong all along
+        # about when tasks should actually be executed
         start = time.time()
         retval = self.task_spec._on_complete(self)
         extra = self.log_info({

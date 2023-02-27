@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1bprarj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="main" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0zbeoq1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0zbeoq1" sourceRef="StartEvent_1" targetRef="set_data" />
+    <bpmn:scriptTask id="set_data" name="Set Data">
+      <bpmn:incoming>Flow_0zbeoq1</bpmn:incoming>
+      <bpmn:outgoing>Flow_16rr3p3</bpmn:outgoing>
+      <bpmn:script>in_1, in_2, unused = 1, "hello world", True
+</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_16rr3p3" sourceRef="set_data" targetRef="any_task" />
+    <bpmn:manualTask id="any_task" name="Any Task">
+      <bpmn:incoming>Flow_16rr3p3</bpmn:incoming>
+      <bpmn:outgoing>Flow_1woo38x</bpmn:outgoing>
+      <bpmn:ioSpecification>
+        <bpmn:dataInput id="in_1" name="input 1" />
+        <bpmn:dataInput id="in_2" name="input 2" />
+        <bpmn:dataOutput id="out_1" name="output 1" />
+        <bpmn:dataOutput id="out_2" name="output 2" />
+        <bpmn:inputSet id="input_set" name="Inputs">
+          <bpmn:dataInputRefs>in_1</bpmn:dataInputRefs>
+          <bpmn:dataInputRefs>in_2</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="output_set" name="Outputs">
+          <bpmn:dataOutputRefs>out_1</bpmn:dataOutputRefs>
+          <bpmn:dataOutputRefs>out_2</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+    </bpmn:manualTask>
+    <bpmn:endEvent id="Event_1nbxxx5">
+      <bpmn:incoming>Flow_1woo38x</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1woo38x" sourceRef="any_task" targetRef="Event_1nbxxx5" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="main">
+      <bpmndi:BPMNEdge id="Flow_1woo38x_di" bpmnElement="Flow_1woo38x">
+        <di:waypoint x="530" y="117" />
+        <di:waypoint x="592" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16rr3p3_di" bpmnElement="Flow_16rr3p3">
+        <di:waypoint x="370" y="117" />
+        <di:waypoint x="430" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zbeoq1_di" bpmnElement="Flow_0zbeoq1">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="270" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0w8jd8z_di" bpmnElement="set_data">
+        <dc:Bounds x="270" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fltcc2_di" bpmnElement="any_task">
+        <dc:Bounds x="430" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1nbxxx5_di" bpmnElement="Event_1nbxxx5">
+        <dc:Bounds x="592" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

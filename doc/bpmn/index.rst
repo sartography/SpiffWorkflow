@@ -1,7 +1,7 @@
 BPMN Workflows
 ==============
 
-The basic idea of SpiffWorkflow is that you can use it to write an interpreter 
+The basic idea of SpiffWorkflow is that you can use it to write an interpreter
 in Python that creates business applications from BPMN models.  In this section,
 we'll develop a model of an example process and as well as a
 simple workflow runner.
@@ -11,8 +11,8 @@ We expect that readers will fall into two general categories:
 - People with a background in BPMN who might not be very familiar Python
 - Python developers who might not know much about BPMN
 
-This section of the documentation provides an example that (hopefully) serves 
-the needs of both groups.  We will introduce the BPMN elements that SpiffWorkflow 
+This section of the documentation provides an example that (hopefully) serves
+the needs of both groups.  We will introduce the BPMN elements that SpiffWorkflow
 supports and show how to build a simple workflow runner around them.
 
 SpiffWorkflow does heavy-lifting such as keeping track of task dependencies and
@@ -29,7 +29,7 @@ Quickstart
 Check out the code in `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_
 and follow the instructions to set up an environment to run it in.
 
-Run the sample workflow we built up using our example application with the following 
+Run the sample workflow we built up using our example application with the following
 command:
 
 .. code-block:: console

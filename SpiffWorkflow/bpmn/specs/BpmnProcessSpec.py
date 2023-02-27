@@ -16,17 +16,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from copy import deepcopy
-import logging
-
-from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 from ...task import TaskState
 from .UnstructuredJoin import UnstructuredJoin
 from ...specs.Simple import Simple
 from ...specs.WorkflowSpec import WorkflowSpec
 
-
-data_log = logging.getLogger('spiff.data')
 
 class _EndJoin(UnstructuredJoin):
 
@@ -58,46 +52,6 @@ class _EndJoin(UnstructuredJoin):
         my_task.workflow.data.update(my_task.data)
 
 
-class BpmnDataSpecification:
-
-    def __init__(self, name, description=None):
-        """
-        :param name: the name of the task (the BPMN ID)
-        :param description: the task description (the BPMN name)
-        """
-        self.name = name
-        self.description = description or name
-        # In the future, we can add schemas defining the objects here.
-
-    def get(self, my_task):
-        """Copy a value form the workflow data to the task data."""
-        if self.name not in my_task.workflow.data:
-            message = f"Workflow variable {self.name} not found"
-            raise WorkflowDataException(my_task, data_input=self, message=message)
-        my_task.data[self.name] = deepcopy(my_task.workflow.data[self.name])
-
-    def set(self, my_task):
-        """Copy a value from the task data to the workflow data"""
-        if self.name not in my_task.data:
-            message = f"Task variable {self.name} not found"
-            raise WorkflowDataException(my_task, data_output=self, message=message)
-        my_task.workflow.data[self.name] = deepcopy(my_task.data[self.name])
-        del my_task.data[self.name]
-        data_log.info(f'Set workflow variable {self.name}', extra=my_task.log_info())
-
-    def copy(self, source, destination, data_input=False, data_output=False):
-        """Copy a value from one task to another."""
-        if self.name not in source.data:
-            message = f"Unable to copy {self.name}"
-            raise WorkflowDataException(
-                source, 
-                data_input=self if data_input else None,
-                data_output=self if data_output else None,
-                message=message
-            )
-        destination.data[self.name] = deepcopy(source.data[self.name])
-
-
 class BpmnProcessSpec(WorkflowSpec):
     """
     This class represents the specification of a BPMN process workflow. This
@@ -114,65 +68,10 @@ class BpmnProcessSpec(WorkflowSpec):
         """
         super(BpmnProcessSpec, self).__init__(name=name, filename=filename)
         self.end = _EndJoin(self, '%s.EndJoin' % (self.name))
-        end = Simple(self, 'End')
-        end.follow(self.end)
+        self.end.connect(Simple(self, 'End'))
         self.svg = svg
         self.description = description
-        self.data_inputs = []
-        self.data_outputs = []
+        self.io_specification = None
         self.data_objects = {}
+        self.data_stores = {}
         self.correlation_keys = {}
-
-    def get_all_lanes(self):
-        """
-        Returns a set of the distinct lane names used in the process (including
-        called activities)
-        """
-
-        done = set()
-        lanes = set()
-
-        def recursive_find(task_spec):
-            if task_spec in done:
-                return
-
-            done.add(task_spec)
-
-            if hasattr(task_spec, 'lane') and task_spec.lane:
-                lanes.add(task_spec.lane)
-
-            if hasattr(task_spec, 'spec'):
-                recursive_find(task_spec.spec.start)
-
-            for t in task_spec.outputs:
-                recursive_find(t)
-
-        recursive_find(self.start)
-
-        return lanes
-
-    def get_specs_depth_first(self):
-        """
-        Get the specs for all processes (including called ones), in depth first
-        order.
-        """
-
-        done = set()
-        specs = [self]
-
-        def recursive_find(task_spec):
-            if task_spec in done:
-                return
-
-            done.add(task_spec)
-
-            if hasattr(task_spec, 'spec'):
-                specs.append(task_spec.spec)
-                recursive_find(task_spec.spec.start)
-
-            for t in task_spec.outputs:
-                recursive_find(t)
-
-        recursive_find(self.start)
-
-        return specs
