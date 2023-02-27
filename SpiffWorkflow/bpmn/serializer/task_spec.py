@@ -17,7 +17,7 @@ from ..specs.InclusiveGateway import InclusiveGateway
 from ..specs.ParallelGateway import ParallelGateway
 from ..specs.events.StartEvent import StartEvent
 from ..specs.events.EndEvent import EndEvent
-from dmn.serializer.task_spec import BusinessRuleTaskConverter
+from SpiffWorkflow.dmn.serializer.task_spec import BusinessRuleTaskConverter
 from ..specs.events.IntermediateEvent import (
     BoundaryEvent,
     _BoundaryEventParent,
