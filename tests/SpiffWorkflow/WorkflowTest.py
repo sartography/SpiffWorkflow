@@ -6,6 +6,8 @@ import os
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
+from lxml import etree
+
 from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.specs.Cancel import Cancel
 from SpiffWorkflow.specs.Simple import Simple
@@ -27,7 +29,7 @@ class WorkflowTest(unittest.TestCase):
         """
         xml_file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
         with open(xml_file) as fp:
-            xml = fp.read()
+            xml = etree.parse(fp).getroot()
         wf_spec = WorkflowSpec.deserialize(XmlSerializer(), xml)
         workflow = Workflow(wf_spec)
 
