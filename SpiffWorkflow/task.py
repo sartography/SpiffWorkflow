@@ -272,6 +272,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         extra = dct or {}
         extra.update({
             'workflow': self.workflow.spec.name,
+            'workflow_name': self.workflow.spec.description,
             'task_spec': self.task_spec.name,
             'task_name': self.task_spec.description,
             'task_id': self.id,
