@@ -271,7 +271,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
     def log_info(self, dct=None):
         extra = dct or {}
         extra.update({
-            'workflow': self.workflow.spec.name,
+            'workflow_spec': self.workflow.spec.name,
             'workflow_name': self.workflow.spec.description,
             'task_spec': self.task_spec.name,
             'task_name': self.task_spec.description,
