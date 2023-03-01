@@ -221,6 +221,20 @@ class MessageEventDefinition(NamedEventDefinition):
                     raise we
         return correlation_keys
 
+    def conversation(self):
+        """An event may have many correlation properties, this figures out
+        which conversation exists across all of them, or return None if they
+        do not share a topic. """
+        conversation = None
+        if len(self.correlation_properties) > 0:
+            for prop in self.correlation_properties:
+                for key in prop.correlation_keys:
+                    conversation = key
+                    for prop in self.correlation_properties:
+                        if conversation not in prop.correlation_keys:
+                            break
+                    return conversation
+        return None
 
 
 class NoneEventDefinition(EventDefinition):

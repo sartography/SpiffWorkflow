@@ -1,5 +1,5 @@
 from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow, BpmnMessage
 from SpiffWorkflow.task import TaskState
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -60,12 +60,18 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertEqual('from_name', events[0]['value'][0].retrieval_expression)
         self.assertEqual('lover_name', events[0]['value'][0].name)
 
-        workflow.catch_bpmn_message('Love Letter Response', messages[0].payload,
-                                    messages[0].correlations)
+        # As shown above, the waiting event is looking for a payload with a
+        # 'from_name' that should be used to retrieve the lover's name.
+        new_message_payload = {'from_name': 'Peggy', 'other_nonsense': 1001}
+        workflow.catch_bpmn_message('Love Letter Response', new_message_payload)
         workflow.do_engine_steps()
         # The external message created above should be caught
         self.assertEqual(receive.state, TaskState.COMPLETED)
-        self.assertEqual(receive.data, messages[0].payload)
+        # Spiff extensions allow us to specify the destination of a workflow
+        # but base BPMN does not, and all keys are added directly to the
+        # task data.
+        self.assertEqual(workflow.last_task.data, {'from_name': 'Peggy', 'lover_name': 'Peggy', 'other_nonsense': 1001})
+        self.assertEqual(workflow.correlations, {'lover':{'lover_name':'Peggy'}})
         self.assertEqual(workflow.is_completed(), True)
 
     def testCorrelation(self):

@@ -15,6 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+import copy
 
 from SpiffWorkflow.bpmn.specs.events.event_definitions import (
     MessageEventDefinition,
@@ -28,7 +29,7 @@ from .specs.events.StartEvent import StartEvent
 from .specs.SubWorkflowTask import CallActivity
 from ..task import TaskState, Task
 from ..workflow import Workflow
-from ..exceptions import WorkflowException
+from ..exceptions import WorkflowException, WorkflowTaskException
 
 
 class BpmnMessage:
@@ -117,9 +118,8 @@ class BpmnWorkflow(Workflow):
                     return sp
         return self.connect_subprocess(wf_spec.name, f'{wf_spec.name}_{len(self.subprocesses)}')
 
-    def catch(self, event_definition, correlations=None, external_origin=False):
+    def catch(self, event_definition, correlations=None):
         """
-        Send an event definition to any tasks that catch it.
 
         Tasks can always catch events, regardless of their state.  The
         event information is stored in the tasks internal data and processed
@@ -154,7 +154,7 @@ class BpmnWorkflow(Workflow):
         self.refresh_waiting_tasks()
 
         # Figure out if we need to create an external message
-        if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition) and not external_origin:
+        if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
             self.bpmn_messages.append(
                 BpmnMessage(correlations, event_definition.name, event_definition.payload))
 
@@ -163,10 +163,58 @@ class BpmnWorkflow(Workflow):
         self.bpmn_messages = []
         return messages
 
-    def catch_bpmn_message(self, name, payload, correlations=None):
+    def catch_bpmn_message(self, name, payload):
+        """Allows this workflow to catch an externally generated bpmn message.
+        Raises an error if this workflow is not waiting on the given message."""
         event_definition = MessageEventDefinition(name)
         event_definition.payload = payload
-        self.catch(event_definition, correlations=correlations, external_origin=True)
+
+        # There should be one and only be one task that can accept the message
+        # (messages are one to one, not one to many)
+        tasks = [t for t in self.get_waiting_tasks() if t.task_spec.event_definition == event_definition]
+        if len(tasks) == 0:
+            raise WorkflowException(
+                f"This process is not waiting on a message named '{event_definition.name}'")
+        if len(tasks) > 1:
+            raise WorkflowException(
+                f"This process has multiple tasks waiting on the same message '{event_definition.name}', which is not supported. ")
+
+        task = tasks[0]
+        conversation = task.task_spec.event_definition.conversation()
+        if not conversation:
+            raise WorkflowTaskException(
+                f"The waiting task and message payload can not be matched to any correlation key (conversation topic).  "
+                f"And is therefor unable to respond to the given message.", task)
+        updated_props = self._correlate(conversation, payload, task)
+        task.task_spec.catch(task, event_definition)
+        self.refresh_waiting_tasks()
+        self.correlations[conversation] = updated_props
+
+    def _correlate(self, conversation, payload, task):
+        """Assures that the provided payload correlates to the given
+        task's event definition and this workflows own correlation
+        properties.  Returning an updated property list if successful"""
+        receive_event = task.task_spec.event_definition
+        current_props = self.correlations.get(conversation, {})
+        updated_props = copy.copy(current_props)
+        for prop in receive_event.correlation_properties:
+            try:
+                new_val = self.script_engine._evaluate(
+                    prop.retrieval_expression, payload
+                )
+            except Exception as e:
+                raise WorkflowTaskException("Unable to accept the BPMN message. "
+                                            "The payload must contain "
+                                            f"'{prop.retrieval_expression}'", task, e)
+            if prop.name in current_props and \
+                new_val != updated_props[prop.name]:
+                raise WorkflowTaskException("Unable to accept the BPMN message. "
+                                            "The payload does not match. Expected "
+                                            f"'{prop.retrieval_expression}' to equal "
+                                            f"{current_props[prop.name]}.", task)
+            else:
+                updated_props[prop.name] = new_val
+        return updated_props
 
     def waiting_events(self):
         # Ultimately I'd like to add an event class so that EventDefinitions would not so double duty as both specs
