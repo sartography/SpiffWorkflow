@@ -27,7 +27,6 @@ class SubWorkflowTask(BpmnSpecMixin):
 
     def _on_ready_hook(self, my_task):
         super()._on_ready_hook(my_task)
-        self.start_workflow(my_task)
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
         self.update_data(my_task, subworkflow)
@@ -38,7 +37,8 @@ class SubWorkflowTask(BpmnSpecMixin):
         if my_task.id not in wf.subprocesses:
             super()._update_hook(my_task)
             self.create_workflow(my_task)
-            return True
+            self.start_workflow(my_task)
+            my_task._set_state(TaskState.WAITING)
 
     def _on_cancel(self, my_task):
         subworkflow = my_task.workflow.get_subprocess(my_task)

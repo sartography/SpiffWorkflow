@@ -1,3 +1,4 @@
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.specs.SubWorkflowTask import (
     SubWorkflowTask as DefaultSubWorkflow,
     TransactionSubprocess as DefaultTransaction,
@@ -24,7 +25,8 @@ class SubWorkflowTask(DefaultSubWorkflow, SpiffBpmnTask):
         if my_task.id not in wf.subprocesses:
             SpiffBpmnTask._update_hook(self, my_task)
             self.create_workflow(my_task)
-            return True
+            self.start_workflow(my_task)
+            my_task._set_state(TaskState.WAITING)
 
     def _on_complete_hook(self, my_task):
         SpiffBpmnTask._on_complete_hook(self, my_task)
