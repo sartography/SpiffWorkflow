@@ -54,14 +54,14 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
         last_changed = None
         thread_tasks = []
         for task in split_task._find_any(self):
-            # Ignore tasks from other threads.
             if task.thread_id != my_task.thread_id:
+                # Ignore tasks from other threads.  (Do we need this condition?)
                 continue
-            # Ignore my outgoing branches.
-            if self.split_task and task._is_descendant_of(my_task):
-                continue
-            # For an inclusive join, this can happen - it's a future join
             if not task.parent._is_finished():
+                # For an inclusive join, this can happen - it's a future join
+                continue
+            if my_task._is_descendant_of(task):
+                # Skip ancestors (otherwise the branch this task is on will get dropped)
                 continue
             # We have found a matching instance.
             thread_tasks.append(task)

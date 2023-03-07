@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from builtins import range
-import unittest
 import logging
 from SpiffWorkflow.task import TaskState
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
@@ -28,13 +25,9 @@ class BaseParallelTestCase(BpmnWorkflowTestCase):
                         "Doing step '%s' (with choice='%s')", s, choice)
                 else:
                     logging.info("Doing step '%s'", s)
-                # logging.debug(self.workflow.get_dump())
-                self.do_next_named_step(
-                    s, choice=choice, only_one_instance=only_one_instance)
+                self.do_next_named_step(s, choice=choice, only_one_instance=only_one_instance)
             self.workflow.do_engine_steps()
             if save_restore:
-                # logging.debug("Before SaveRestore: \n%s" %
-                # self.workflow.get_dump())
                 self.save_restore()
 
         self.workflow.do_engine_steps()

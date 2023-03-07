@@ -428,8 +428,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
               exists.
             - Remove all children for which there is no spec in the given list,
               unless it is a "triggered" task.
-            - Handle looping back to previous tasks, so we don't end up with
-              an infinitely large tree.
         .. note::
 
            It is an error if the task has a non-predicted child that is
@@ -444,37 +442,23 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             raise ValueError('"task_specs" argument is None')
         new_children = task_specs[:]
 
-        # If a child task_spec is also an ancestor, we are looping back,
-        # replace those specs with a loopReset task.
-        root_task = self._get_root()
-        for index, task_spec in enumerate(new_children):
-            ancestor_task = self._find_ancestor(task_spec)
-            if ancestor_task and ancestor_task != root_task:
-                destination = ancestor_task
-                new_spec = self.workflow.get_reset_task_spec(destination)
-                new_spec.outputs = []
-                new_spec.inputs = task_spec.inputs
-                new_children[index] = new_spec
-
         # Create a list of all children that are no longer needed.
         unneeded_children = []
         for child in self.children:
-            # Triggered tasks are never removed.
             if child.triggered:
-                continue
-
-            # If the task already exists, remove it from to-be-added
-            if child.task_spec in new_children:
+                # Triggered tasks are never removed.
+                pass
+            elif child.task_spec in new_children:
+                # If the task already exists, remove it from to-be-added and update its state
                 new_children.remove(child.task_spec)
-                # We should set the state here but that breaks everything
-                continue
-
-            # Definite tasks must not be removed, so they HAVE to be in the given task spec list.
-            if child._is_definite():
+            elif child._is_definite():
+                # Definite tasks must not be removed, so they HAVE to be in the given task spec list.
                 raise WorkflowException(f'removal of non-predicted child {child}', task_spec=self.task_spec)
-            unneeded_children.append(child)
+            else:
+                # Drop this child
+                unneeded_children.append(child)
 
-        # Remove and add the children accordingly.
+        # Update children accordingly
         for child in unneeded_children:
             self.children.remove(child)
         for task_spec in new_children:

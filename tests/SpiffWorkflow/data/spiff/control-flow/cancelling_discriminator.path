@@ -3,10 +3,9 @@ Start
     task_f1
       struct_discriminator_1
         excl_choice_1
-          return_to_first
-  first
-    task_f1
-      struct_discriminator_1
-        excl_choice_1
-          last
-            End
+          first
+            task_f1
+              struct_discriminator_1
+                excl_choice_1
+                  last
+                    End
