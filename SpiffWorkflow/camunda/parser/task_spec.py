@@ -44,7 +44,7 @@ class UserTaskParser(TaskParser):
     """
     Base class for parsing User Tasks
     """
-    
+
     def __init__(self, process_parser, spec_class, node, lane=None):
         nsmap = DEFAULT_NSMAP.copy()
         nsmap.update({'camunda': CAMUNDA_MODEL_NS})
@@ -64,7 +64,7 @@ class UserTaskParser(TaskParser):
         try:
             form.key = self.node.attrib['{' + CAMUNDA_MODEL_NS + '}formKey']
         except (KeyError):
-            return form
+            form.key = self.node.get('id') + "_form"
         for xml_field in self.xpath('.//camunda:formData/camunda:formField'):
             if xml_field.get('type') == 'enum':
                 field = self.get_enum_field(xml_field)
