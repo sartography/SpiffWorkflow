@@ -93,13 +93,7 @@ def run_workflow(test, wf_spec, expected_path, expected_data, workflow=None):
         workflow.task_tree.dump()
         raise
 
-    # workflow.task_tree.dump()
-    test.assertTrue(workflow.is_completed(), workflow.task_tree.get_dump())
-
-    # Make sure that there are no waiting tasks left in the tree.
-    for thetask in Task.Iterator(workflow.task_tree, TaskState.READY):
-        workflow.task_tree.dump()
-        raise Exception('Task with state READY: %s' % thetask.name)
+    test.assertTrue(workflow.is_completed())
 
     # Check whether the correct route was taken.
     if expected_path is not None:

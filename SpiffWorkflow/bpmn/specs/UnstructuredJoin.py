@@ -77,20 +77,13 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
         for task in thread_tasks:
             collected_data.update(task.data)
 
-        # Mark the identified task instances as COMPLETED. The exception
-        # is the most recently changed task, for which we assume READY.
-        # By setting the state to READY only, we allow for calling
-        # :class:`Task.complete()`, which leads to the task tree being
-        # (re)built underneath the node.
         for task in thread_tasks:
-            if task == last_changed:
-                task.data.update(collected_data)
-                self.entered_event.emit(my_task.workflow, my_task)
-                task._ready()
-            else:
-                task._set_state(TaskState.COMPLETED)
+            if task != last_changed:
+                task._set_state(TaskState.CANCELLED)
                 task._drop_children()
-
+            else:
+                task.data.update(collected_data)
+    
     def task_should_set_children_future(self, my_task):
         return True
 

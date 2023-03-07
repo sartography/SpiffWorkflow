@@ -153,8 +153,8 @@ class Join(TaskSpec):
 
         # Look at the tree to find all places where this task is used.
         tasks = []
-        for input in self.inputs:
-            tasks += my_task.workflow.task_mapping[my_task.thread_id][input]
+        for spec in self.inputs:
+            tasks.extend([ t for t in  my_task.workflow.task_tree._find_any(spec) if t.thread_id == my_task.thread_id ])
 
         # Look up which tasks have already completed.
         waiting_tasks = []
@@ -162,7 +162,7 @@ class Join(TaskSpec):
         for task in tasks:
             if task.parent is None or task._has_state(TaskState.COMPLETED):
                 completed += 1
-            else:
+            elif not task._is_finished():
                 waiting_tasks.append(task)
 
         # If the threshold was reached, get ready to fire.
@@ -186,8 +186,6 @@ class Join(TaskSpec):
         waiting_tasks = []
         completed = 0
         for task in tasks:
-            # Refresh path prediction.
-            task.task_spec._predict(task)
             if not self._branch_may_merge_at(task):
                 completed += 1
             elif self._branch_is_complete(task):
@@ -204,16 +202,16 @@ class Join(TaskSpec):
         Returns True if the threshold was reached, False otherwise.
         Also returns the list of tasks that yet need to be completed.
         """
-        # If the threshold was already reached, there is nothing else to do.
-        if my_task._has_state(TaskState.COMPLETED):
-            return True, None
+        if my_task._is_finished():
+            return False, None
         if my_task._has_state(TaskState.READY):
             return True, None
 
         # Check whether we may fire.
         if self.split_task is None:
             return self._check_threshold_unstructured(my_task, force)
-        return self._check_threshold_structured(my_task, force)
+        else:
+            return self._check_threshold_structured(my_task, force)
 
     def _update_hook(self, my_task):
         # Check whether enough incoming branches have completed.
@@ -224,22 +222,16 @@ class Join(TaskSpec):
             if self.cancel_remaining:
                 for task in waiting_tasks:
                     task.cancel()
-
             # Update the state of our child objects.
             self._do_join(my_task)
-        else:
+            return True
+        elif not my_task._is_finished():
             my_task._set_state(TaskState.WAITING)
 
-    def _do_join(self, my_task):
+    def _find_tasks(self, my_task):
 
         split_task = self._get_split_task(my_task)
-
         # Identify all corresponding task instances within the thread.
-        # Also remember which of those instances was most recently changed,
-        # because we are making this one the instance that will
-        # continue the thread of control. In other words, we will continue
-        # to build the task tree underneath the most recently changed task.
-        last_changed = None
         thread_tasks = []
         for task in split_task._find_any(self):
             # Ignore tasks from other threads.
@@ -248,27 +240,16 @@ class Join(TaskSpec):
             # Ignore my outgoing branches.
             if self.split_task and task._is_descendant_of(my_task):
                 continue
-
             # We have found a matching instance.
             thread_tasks.append(task)
+        return thread_tasks
 
-            # Check whether the state of the instance was recently
-            # changed.
-            changed = task.parent.last_state_change
-            if last_changed is None or changed > last_changed.parent.last_state_change:
-                last_changed = task
+    def _do_join(self, my_task):
 
-        # Mark the identified task instances as COMPLETED. The exception
-        # is the most recently changed task, for which we assume READY.
-        # By setting the state to READY only, we allow for calling
-        # :class:`Task.complete()`, which leads to the task tree being
-        # (re)built underneath the node.
-        for task in thread_tasks:
-            if task == last_changed:
-                self.entered_event.emit(my_task.workflow, my_task)
-                task._ready()
-            else:
-                task._set_state(TaskState.COMPLETED)
+        # Execution will continue from this task; mark others as cancelled
+        for task in self._find_tasks(my_task):
+            if task != my_task:
+                task._set_state(TaskState.CANCELLED)
                 task._drop_children()
 
     def _on_trigger(self, my_task):
@@ -276,10 +257,11 @@ class Join(TaskSpec):
         May be called to fire the Join before the incoming branches are
         completed.
         """
-        for task in my_task.workflow.task_tree._find_any(self):
-            if task.thread_id != my_task.thread_id:
-                continue
-            self._do_join(task)
+        tasks = sorted(self._find_tasks(my_task), key=lambda t: t.last_state_change)
+        for task in tasks[:-1]:
+            task._set_state(TaskState.CANCELLED)
+            task._drop_children()
+        tasks[-1]._ready()
 
     def serialize(self, serializer):
         return serializer.serialize_join(self)
