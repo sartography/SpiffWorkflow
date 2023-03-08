@@ -1,11 +1,11 @@
 from lxml import etree
 
-from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import SubprocessParser
 from SpiffWorkflow.bpmn.parser.util import xpath_eval
 
 from SpiffWorkflow.spiff.specs.multiinstance_task import StandardLoopTask, ParallelMultiInstanceTask, SequentialMultiInstanceTask
+from SpiffWorkflow.spiff.specs.business_rule_task import BusinessRuleTask
 
 SPIFFWORKFLOW_MODEL_NS = 'http://spiffworkflow.org/bpmn/schema/1.0/core'
 SPIFFWORKFLOW_MODEL_PREFIX = 'spiffworkflow'
@@ -169,13 +169,19 @@ class BusinessRuleTaskParser(SpiffTaskParser):
 
     def create_task(self):
         decision_ref = self.get_decision_ref(self.node)
-        return BusinessRuleTask(self.spec,
-                                self.get_task_spec_name(),
-                                dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
-                                lane=self.lane,
-                                position=self.position,
-                                description=self.node.get('name', None)
-                                )
+        extensions = self.parse_extensions()
+        prescript = extensions.get('preScript')
+        postscript = extensions.get('postScript')
+        return BusinessRuleTask(
+            self.spec,
+            self.get_task_spec_name(),
+            dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
+            lane=self.lane,
+            position=self.position,
+            description=self.node.get('name', None),
+            prescript=prescript,
+            postscript=postscript,
+        )
 
     @staticmethod
     def get_decision_ref(node):

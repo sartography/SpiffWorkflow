@@ -1,5 +1,4 @@
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
-from ..specs.MultiInstanceTask import MultiInstanceTask
 from ..specs.events.IntermediateEvent import _BoundaryEventParent
 
 from .helpers.spec import WorkflowSpecConverter

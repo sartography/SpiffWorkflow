@@ -32,6 +32,7 @@ from .task_spec import (
     CallActivityTaskConverter,
     ParallelMultiInstanceTaskConverter,
     SequentialMultiInstanceTaskConverter,
+    BusinessRuleTaskConverter,
 )
 
 from SpiffWorkflow.bpmn.serializer.event_definition import MessageEventDefinitionConverter as DefaultMessageEventDefinitionConverter
@@ -66,6 +67,7 @@ SPIFF_SPEC_CONFIG['task_specs'] = [
     StandardLoopTaskConverter,
     ParallelMultiInstanceTaskConverter,
     SequentialMultiInstanceTaskConverter,
+    BusinessRuleTaskConverter
 ]
 SPIFF_SPEC_CONFIG['event_definitions'].remove(DefaultMessageEventDefinitionConverter)
 SPIFF_SPEC_CONFIG['event_definitions'].append(MessageEventDefinitionConverter)
