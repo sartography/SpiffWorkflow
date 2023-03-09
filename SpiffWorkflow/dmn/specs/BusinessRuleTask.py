@@ -1,5 +1,4 @@
-from SpiffWorkflow.exceptions import WorkflowTaskException, WorkflowException, \
-    SpiffWorkflowException
+from SpiffWorkflow.exceptions import WorkflowTaskException, SpiffWorkflowException
 
 from ...specs.Simple import Simple
 
@@ -17,7 +16,6 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
 
     def __init__(self, wf_spec, name, dmnEngine, **kwargs):
         super().__init__(wf_spec, name, **kwargs)
-
         self.dmnEngine = dmnEngine
         self.resDict = None
 
@@ -25,11 +23,10 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
     def spec_class(self):
         return 'Business Rule Task'
 
-    def _on_complete_hook(self, my_task):
+    def _on_ready_hook(self, my_task):
         try:
-            my_task.data = DeepMerge.merge(my_task.data,
-                                           self.dmnEngine.result(my_task))
-            super(BusinessRuleTask, self)._on_complete_hook(my_task)
+            my_task.data = DeepMerge.merge(my_task.data, self.dmnEngine.result(my_task))
+            super(BusinessRuleTask, self)._on_ready_hook(my_task)
         except SpiffWorkflowException as we:
             we.add_note(f"Business Rule Task '{my_task.task_spec.description}'.")
             raise we

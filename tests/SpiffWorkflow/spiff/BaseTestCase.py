@@ -3,12 +3,9 @@ import os
 
 from SpiffWorkflow.spiff.parser.process import SpiffBpmnParser, VALIDATOR
 from SpiffWorkflow.spiff.serializer.config import SPIFF_SPEC_CONFIG
-from SpiffWorkflow.dmn.serializer.task_spec import BusinessRuleTaskConverter
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-
-SPIFF_SPEC_CONFIG['task_specs'].append(BusinessRuleTaskConverter)
 
 wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter(SPIFF_SPEC_CONFIG)
 

@@ -5,10 +5,7 @@ from ..specs.model import DecisionTable, Rule, HitPolicy
 from ..specs.model import Input, InputEntry, Output, OutputEntry
 from ..engine.DMNEngine import DMNEngine
 
-class BusinessRuleTaskConverter(TaskSpecConverter):
-
-    def __init__(self, registry):
-        super().__init__(BusinessRuleTask, registry)
+class BaseBusinessRuleTaskConverter(TaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
@@ -98,3 +95,8 @@ class BusinessRuleTaskConverter(TaskSpecConverter):
         rule.outputEntries = [self.output_entry_from_dict(entry, outputs)
                               for entry in dct['output_entries']]
         return rule
+
+
+class BusinessRuleTaskConverter(BaseBusinessRuleTaskConverter):
+    def __init__(self, registry):
+        super().__init__(BusinessRuleTask, registry)

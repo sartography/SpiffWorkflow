@@ -29,10 +29,10 @@ class ScriptEngineTask(Simple, BpmnSpecMixin):
         """Please override for specific Implementations, see ScriptTask below for an example"""
         pass
 
-    def _on_complete_hook(self, task):
+    def _on_ready_hook(self, task):
         try:
             self._execute(task)
-            super(ScriptEngineTask, self)._on_complete_hook(task)
+            super(ScriptEngineTask, self)._on_ready_hook(task)
         except Exception as exc:
             task._set_state(TaskState.WAITING)
             raise exc

@@ -1,5 +1,6 @@
 from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
 from SpiffWorkflow.bpmn.serializer.task_spec import MultiInstanceTaskConverter
+from SpiffWorkflow.dmn.serializer.task_spec import BaseBusinessRuleTaskConverter
 
 from SpiffWorkflow.spiff.specs.none_task import NoneTask
 from SpiffWorkflow.spiff.specs.manual_task import ManualTask
@@ -9,6 +10,7 @@ from SpiffWorkflow.spiff.specs.service_task import ServiceTask
 from SpiffWorkflow.spiff.specs.subworkflow_task import SubWorkflowTask, TransactionSubprocess, CallActivity
 from SpiffWorkflow.spiff.specs.events.event_types import SendTask, ReceiveTask
 from SpiffWorkflow.spiff.specs.multiinstance_task import StandardLoopTask, ParallelMultiInstanceTask, SequentialMultiInstanceTask
+from SpiffWorkflow.spiff.specs.business_rule_task import BusinessRuleTask
 
 
 class SpiffBpmnTaskConverter(TaskSpecConverter):
@@ -37,6 +39,16 @@ class ManualTaskConverter(SpiffBpmnTaskConverter):
 class UserTaskConverter(SpiffBpmnTaskConverter):
     def __init__(self, registry):
         super().__init__(UserTask, registry)
+
+
+class BusinessRuleTaskConverter(BaseBusinessRuleTaskConverter, SpiffBpmnTaskConverter):
+    def __init__(self, registry):
+        super().__init__(BusinessRuleTask, registry)
+
+    def to_dict(self, spec):
+        dct = BaseBusinessRuleTaskConverter.to_dict(self, spec)
+        dct.update(SpiffBpmnTaskConverter.to_dict(self, spec))
+        return dct
 
 
 class SendTaskConverter(SpiffBpmnTaskConverter):
