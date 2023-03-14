@@ -20,13 +20,14 @@
 import re
 from datetime import datetime, timedelta, timezone
 from calendar import monthrange
-from time import timezone as tzoffset
+from time import timezone as tzoffset, altzone as dstoffset, daylight as isdst
 from copy import deepcopy
 
-from SpiffWorkflow.exceptions import SpiffWorkflowException, WorkflowException
+from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.task import TaskState
 
-LOCALTZ = timezone(timedelta(seconds=-1 * tzoffset))
+seconds_from_utc = dstoffset if isdst else tzoffset
+LOCALTZ = timezone(timedelta(seconds=-1 * seconds_from_utc))
 
 
 class EventDefinition(object):
