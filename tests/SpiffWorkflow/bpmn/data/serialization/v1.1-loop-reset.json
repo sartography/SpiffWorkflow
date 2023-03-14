@@ -1,0 +1,600 @@
+{
+  "serializer_version": "1.1",
+  "data": {}, 
+  "last_task": "65ef57f0-3fbf-4851-b7c8-a03de9a9062d", 
+  "success": true, 
+  "tasks": {
+    "fcccd5d5-8e9c-4dba-91c3-5b2ed44bb332": {
+      "id": "fcccd5d5-8e9c-4dba-91c3-5b2ed44bb332", 
+      "parent": null, 
+      "children": [
+        "e9523ea2-0474-4c36-a7c2-24ff56633ed7"
+      ], 
+      "last_state_change": 1678818080.7799659, 
+      "state": 32, 
+      "task_spec": "Root", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "e9523ea2-0474-4c36-a7c2-24ff56633ed7": {
+      "id": "e9523ea2-0474-4c36-a7c2-24ff56633ed7", 
+      "parent": "fcccd5d5-8e9c-4dba-91c3-5b2ed44bb332", 
+      "children": [
+        "af4a1c32-12a7-46a7-b985-284fef1cb993"
+      ], 
+      "last_state_change": 1678818080.7888825, 
+      "state": 32, 
+      "task_spec": "Start", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "af4a1c32-12a7-46a7-b985-284fef1cb993": {
+      "id": "af4a1c32-12a7-46a7-b985-284fef1cb993", 
+      "parent": "e9523ea2-0474-4c36-a7c2-24ff56633ed7", 
+      "children": [
+        "65ef57f0-3fbf-4851-b7c8-a03de9a9062d"
+      ], 
+      "last_state_change": 1678818080.7926495, 
+      "state": 32, 
+      "task_spec": "StartEvent_1", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {
+        "event_fired": true
+      }, 
+      "data": {}
+    }, 
+    "65ef57f0-3fbf-4851-b7c8-a03de9a9062d": {
+      "id": "65ef57f0-3fbf-4851-b7c8-a03de9a9062d", 
+      "parent": "af4a1c32-12a7-46a7-b985-284fef1cb993", 
+      "children": [
+        "b5200074-8196-40d3-8f83-204cf132856c"
+      ], 
+      "last_state_change": 1678818080.7970355, 
+      "state": 32, 
+      "task_spec": "initialize", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {}, 
+      "data": {
+        "counter": 0
+      }
+    }, 
+    "b5200074-8196-40d3-8f83-204cf132856c": {
+      "id": "b5200074-8196-40d3-8f83-204cf132856c", 
+      "parent": "65ef57f0-3fbf-4851-b7c8-a03de9a9062d", 
+      "children": [
+        "2ab8ec7f-a9ee-4891-a7a9-20250e2ab816"
+      ], 
+      "last_state_change": 1678818091.420421, 
+      "state": 16, 
+      "task_spec": "TIMER_EVENT", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {
+        "event_value": "2023-03-14T18:21:20.809141+00:00", 
+        "event_fired": true
+      }, 
+      "data": {
+        "counter": 0
+      }
+    }, 
+    "2ab8ec7f-a9ee-4891-a7a9-20250e2ab816": {
+      "id": "2ab8ec7f-a9ee-4891-a7a9-20250e2ab816", 
+      "parent": "b5200074-8196-40d3-8f83-204cf132856c", 
+      "children": [
+        "259de884-e162-4e0b-8c86-d4827870e2ca"
+      ], 
+      "last_state_change": 1678818080.7815213, 
+      "state": 4, 
+      "task_spec": "increment_counter", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "259de884-e162-4e0b-8c86-d4827870e2ca": {
+      "id": "259de884-e162-4e0b-8c86-d4827870e2ca", 
+      "parent": "2ab8ec7f-a9ee-4891-a7a9-20250e2ab816", 
+      "children": [
+        "bd7c4868-142b-487f-9ed3-6a384762dd55"
+      ], 
+      "last_state_change": 1678818080.7818034, 
+      "state": 4, 
+      "task_spec": "Activity_0w5u4k4", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "bd7c4868-142b-487f-9ed3-6a384762dd55": {
+      "id": "bd7c4868-142b-487f-9ed3-6a384762dd55", 
+      "parent": "259de884-e162-4e0b-8c86-d4827870e2ca", 
+      "children": [
+        "2fc6691e-f99b-46f2-bebc-7ba729880d13", 
+        "3a14ea66-76b3-4442-8cb3-71a89b9b92fd"
+      ], 
+      "last_state_change": 1678818080.782314, 
+      "state": 4, 
+      "task_spec": "Gateway_over_20", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "2fc6691e-f99b-46f2-bebc-7ba729880d13": {
+      "id": "2fc6691e-f99b-46f2-bebc-7ba729880d13", 
+      "parent": "bd7c4868-142b-487f-9ed3-6a384762dd55", 
+      "children": [
+        "655b5f82-14dd-4edd-b88d-94e8cce02e78"
+      ], 
+      "last_state_change": 1678818080.783402, 
+      "state": 1, 
+      "task_spec": "end_event5", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "655b5f82-14dd-4edd-b88d-94e8cce02e78": {
+      "id": "655b5f82-14dd-4edd-b88d-94e8cce02e78", 
+      "parent": "2fc6691e-f99b-46f2-bebc-7ba729880d13", 
+      "children": [], 
+      "last_state_change": 1678818080.7840528, 
+      "state": 1, 
+      "task_spec": "loops.EndJoin", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "3a14ea66-76b3-4442-8cb3-71a89b9b92fd": {
+      "id": "3a14ea66-76b3-4442-8cb3-71a89b9b92fd", 
+      "parent": "bd7c4868-142b-487f-9ed3-6a384762dd55", 
+      "children": [], 
+      "last_state_change": 1678818080.7835343, 
+      "state": 1, 
+      "task_spec": "return_to_TIMER_EVENT", 
+      "triggered": false, 
+      "workflow_name": "loops", 
+      "internal_data": {}, 
+      "data": {}
+    }
+  }, 
+  "root": "fcccd5d5-8e9c-4dba-91c3-5b2ed44bb332", 
+  "spec": {
+    "name": "loops", 
+    "description": "loops", 
+    "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/too_many_loops.bpmn", 
+    "task_specs": {
+      "Start": {
+        "id": "loops_1", 
+        "name": "Start", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [
+          "StartEvent_1"
+        ], 
+        "typename": "StartTask"
+      }, 
+      "loops.EndJoin": {
+        "id": "loops_2", 
+        "name": "loops.EndJoin", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "end_event5"
+        ], 
+        "outputs": [
+          "End"
+        ], 
+        "typename": "_EndJoin"
+      }, 
+      "End": {
+        "id": "loops_3", 
+        "name": "End", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "loops.EndJoin"
+        ], 
+        "outputs": [], 
+        "typename": "Simple"
+      }, 
+      "StartEvent_1": {
+        "id": "loops_4", 
+        "name": "StartEvent_1", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Start"
+        ], 
+        "outputs": [
+          "initialize"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 152.0, 
+          "y": 159.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "StartEvent", 
+        "extensions": {}
+      }, 
+      "initialize": {
+        "id": "loops_5", 
+        "name": "initialize", 
+        "description": "initialize", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "StartEvent_1"
+        ], 
+        "outputs": [
+          "TIMER_EVENT"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 250.0, 
+          "y": 137.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "script": "counter = 0", 
+        "typename": "ScriptTask", 
+        "extensions": {}
+      }, 
+      "TIMER_EVENT": {
+        "id": "loops_6", 
+        "name": "TIMER_EVENT", 
+        "description": "Wait", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Gateway_over_20", 
+          "initialize"
+        ], 
+        "outputs": [
+          "increment_counter"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 412.0, 
+          "y": 159.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": true, 
+          "external": true, 
+          "name": "Wait", 
+          "expression": "\"PT.01S\"", 
+          "typename": "DurationTimerEventDefinition"
+        }, 
+        "typename": "IntermediateCatchEvent", 
+        "extensions": {}
+      }, 
+      "increment_counter": {
+        "id": "loops_7", 
+        "name": "increment_counter", 
+        "description": "increment counter", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "TIMER_EVENT"
+        ], 
+        "outputs": [
+          "Activity_0w5u4k4"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 480.0, 
+          "y": 137.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "script": "counter = counter + 1", 
+        "typename": "ScriptTask", 
+        "extensions": {}
+      }, 
+      "Activity_0w5u4k4": {
+        "id": "loops_8", 
+        "name": "Activity_0w5u4k4", 
+        "description": "call something", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "increment_counter"
+        ], 
+        "outputs": [
+          "Gateway_over_20"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 620.0, 
+          "y": 137.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "spec": "loops_ca", 
+        "typename": "CallActivity", 
+        "extensions": {}
+      }, 
+      "Gateway_over_20": {
+        "id": "loops_9", 
+        "name": "Gateway_over_20", 
+        "description": "is > 20", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Activity_0w5u4k4"
+        ], 
+        "outputs": [
+          "end_event5", 
+          "TIMER_EVENT"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 755.0, 
+          "y": 152.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "cond_task_specs": [
+          {
+            "condition": "counter >= 20", 
+            "task_spec": "end_event5"
+          }, 
+          {
+            "condition": "counter < 20", 
+            "task_spec": "TIMER_EVENT"
+          }
+        ], 
+        "choice": null, 
+        "default_task_spec": null, 
+        "typename": "ExclusiveGateway", 
+        "extensions": {}
+      }, 
+      "end_event5": {
+        "id": "loops_10", 
+        "name": "end_event5", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Gateway_over_20"
+        ], 
+        "outputs": [
+          "loops.EndJoin"
+        ], 
+        "lane": null, 
+        "documentation": "### Results\nSubmission for Pre-Review was sent to the HSR-IRB on {{ sent_local_date_str }} at {{ sent_local_time_str }}.\n\nThe HSR-IRB started the Pre-Review process on {{ end_local_date_str }} at {{ end_local_time_str }} and assigned {{ irb_info.IRB_ADMINISTRATIVE_REVIEWER }} as the reviewer.\n\n### Metrics\n\n\nDays elapsed: {{days_delta }}", 
+        "position": {
+          "x": 932.0, 
+          "y": 159.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "EndEvent", 
+        "extensions": {}
+      }, 
+      "Root": {
+        "id": "loops_11", 
+        "name": "Root", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [], 
+        "typename": "Simple"
+      }, 
+      "return_to_TIMER_EVENT": {
+        "id": "loops_12", 
+        "name": "return_to_TIMER_EVENT", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Gateway_over_20", 
+          "initialize"
+        ], 
+        "outputs": [], 
+        "destination_id": "b5200074-8196-40d3-8f83-204cf132856c", 
+        "destination_spec_name": "TIMER_EVENT", 
+        "typename": "LoopResetTask"
+      }
+    }, 
+    "io_specification": null, 
+    "data_objects": {}, 
+    "correlation_keys": {}, 
+    "typename": "BpmnProcessSpec"
+  }, 
+  "subprocess_specs": {
+    "loops_ca": {
+      "name": "loops_ca", 
+      "description": "loops_ca", 
+      "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/too_many_loops_call_activity.bpmn", 
+      "task_specs": {
+        "Start": {
+          "id": "loops_ca_1", 
+          "name": "Start", 
+          "description": "", 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [
+            "StartEvent_1"
+          ], 
+          "typename": "StartTask"
+        }, 
+        "loops_ca.EndJoin": {
+          "id": "loops_ca_2", 
+          "name": "loops_ca.EndJoin", 
+          "description": "", 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "end_event5"
+          ], 
+          "outputs": [
+            "End"
+          ], 
+          "typename": "_EndJoin"
+        }, 
+        "End": {
+          "id": "loops_ca_3", 
+          "name": "End", 
+          "description": "", 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "loops_ca.EndJoin"
+          ], 
+          "outputs": [], 
+          "typename": "Simple"
+        }, 
+        "StartEvent_1": {
+          "id": "loops_ca_4", 
+          "name": "StartEvent_1", 
+          "description": null, 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Start"
+          ], 
+          "outputs": [
+            "increment_counter"
+          ], 
+          "lane": null, 
+          "documentation": null, 
+          "position": {
+            "x": 152.0, 
+            "y": 109.0
+          }, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "StartEvent", 
+          "extensions": {}
+        }, 
+        "increment_counter": {
+          "id": "loops_ca_5", 
+          "name": "increment_counter", 
+          "description": "increment counter", 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "StartEvent_1"
+          ], 
+          "outputs": [
+            "end_event5"
+          ], 
+          "lane": null, 
+          "documentation": null, 
+          "position": {
+            "x": 220.0, 
+            "y": 87.0
+          }, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "script": "counter2 = 1000", 
+          "typename": "ScriptTask", 
+          "extensions": {}
+        }, 
+        "end_event5": {
+          "id": "loops_ca_6", 
+          "name": "end_event5", 
+          "description": null, 
+          "manual": false, 
+          "internal": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "increment_counter"
+          ], 
+          "outputs": [
+            "loops_ca.EndJoin"
+          ], 
+          "lane": null, 
+          "documentation": "### Results\nSubmission for Pre-Review was sent to the HSR-IRB on {{ sent_local_date_str }} at {{ sent_local_time_str }}.\n\nThe HSR-IRB started the Pre-Review process on {{ end_local_date_str }} at {{ end_local_time_str }} and assigned {{ irb_info.IRB_ADMINISTRATIVE_REVIEWER }} as the reviewer.\n\n### Metrics\n\n\nDays elapsed: {{days_delta }}", 
+          "position": {
+            "x": 362.0, 
+            "y": 109.0
+          }, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "EndEvent", 
+          "extensions": {}
+        }
+      }, 
+      "io_specification": null, 
+      "data_objects": {}, 
+      "correlation_keys": {}, 
+      "typename": "BpmnProcessSpec"
+    }
+  }, 
+  "subprocesses": {}, 
+  "bpmn_messages": [], 
+  "correlations": {}
+}

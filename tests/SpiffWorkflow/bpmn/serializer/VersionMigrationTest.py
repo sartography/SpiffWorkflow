@@ -59,3 +59,14 @@ class Version_1_1_Test(BaseTestCase):
         with self.assertRaises(VersionMigrationError) as ctx:
             wf = self.serializer.deserialize_json(open(fn).read())
             self.assertEqual(ctx.exception.message, "This workflow cannot be migrated because it contains MultiInstance Tasks")
+
+    def test_remove_loop_reset(self):
+        fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.1-loop-reset.json')
+        wf = self.serializer.deserialize_json(open(fn).read())
+        # Allow 3 seconds max to allow this test to complete (there are 20 loops with a 0.1s timer)
+        end = time.time() + 3
+        while not wf.is_completed() and time.time() < end:
+            wf.do_engine_steps()
+            wf.refresh_waiting_tasks()
+        self.assertTrue(wf.is_completed())
+        self.assertEqual(wf.last_task.data['counter'], 20)
