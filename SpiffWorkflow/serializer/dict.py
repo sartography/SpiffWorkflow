@@ -22,8 +22,7 @@ from base64 import b64encode, b64decode
 from ..workflow import Workflow
 from ..util.impl import get_class
 from ..task import Task
-from ..operators import (Attrib, PathAttrib, Equal, NotEqual,
-                         Operator, GreaterThan, LessThan, Match)
+from ..operators import (Attrib, PathAttrib, Equal, NotEqual, Operator, GreaterThan, LessThan, Match)
 from ..specs.base import TaskSpec
 from ..specs.AcquireMutex import AcquireMutex
 from ..specs.Cancel import Cancel
@@ -44,10 +43,8 @@ from ..specs.SubWorkflow import SubWorkflow
 from ..specs.ThreadStart import ThreadStart
 from ..specs.ThreadMerge import ThreadMerge
 from ..specs.ThreadSplit import ThreadSplit
-from ..specs.Transform import Transform
 from ..specs.Trigger import Trigger
 from ..specs.WorkflowSpec import WorkflowSpec
-from ..specs.LoopResetTask import LoopResetTask
 from .base import Serializer
 from .exceptions import TaskNotSupportedError, MissingSpecError
 import warnings
@@ -302,18 +299,6 @@ class DictionarySerializer(Serializer):
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
-    def serialize_loop_reset_task(self, spec):
-        s_state = self.serialize_task_spec(spec)
-        s_state['destination_id'] = spec.destination_id
-        s_state['destination_spec_name'] = spec.destination_spec_name
-        return s_state
-
-    def deserialize_loop_reset_task(self, wf_spec, s_state):
-        spec = LoopResetTask(wf_spec, s_state['name'], s_state['destination_id'],
-                             s_state['destination_spec_name'])
-        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
-        return spec
-
     def serialize_join(self, spec):
         s_state = self.serialize_task_spec(spec)
         s_state['split_task'] = spec.split_task
@@ -555,8 +540,7 @@ class DictionarySerializer(Serializer):
 
         del spec.task_specs['Start']
         start_task_spec_state = s_state['task_specs']['Start']
-        start_task_spec = StartTask.deserialize(
-            self, spec, start_task_spec_state)
+        start_task_spec = StartTask.deserialize(self, spec, start_task_spec_state)
         spec.start = start_task_spec
         spec.task_specs['Start'] = start_task_spec
         for name, task_spec_state in list(s_state['task_specs'].items()):
@@ -602,13 +586,25 @@ class DictionarySerializer(Serializer):
         s_state['wf_spec']"""
 
         if wf_spec is None:
+            # The json serializer serializes the spec as a string and then serializes it again, hence this check
+            # I'm not confident that this is going to actually work, but this serializer is so fundamentally flawed
+            # that I'm not going to put the effort in to be sure this works.
+            if isinstance(s_state['wf_spec'], str):
+                spec_dct = json.loads(s_state['wf_spec'])
+            else:
+                spec_dct = s_state['wf_spec']
+            reset_specs = [spec['name'] for spec in spec_dct['task_specs'].values() if spec['class'].endswith('LoopResetTask')]
+            for name in reset_specs:
+                s_state['wf_spec']['task_specs'].pop(name)
             wf_spec = self.deserialize_workflow_spec(s_state['wf_spec'], **kwargs)
+        else:
+            reset_specs = []
+
         workflow = wf_class(wf_spec)
         workflow.data = self.deserialize_dict(s_state['data'])
         workflow.success = s_state['success']
         workflow.spec = wf_spec
-        workflow.task_tree = self.deserialize_task(
-            workflow, s_state['task_tree'])
+        workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'], reset_specs)
 
         # Re-connect parents
         tasklist = list(workflow.get_tasks())
@@ -636,81 +632,48 @@ class DictionarySerializer(Serializer):
                 " internal_data to store the subworkflow).")
 
         s_state = dict()
-
-        # id
         s_state['id'] = task.id
-
-        # workflow
         s_state['workflow_name'] = task.workflow.name
-
-        # parent
         s_state['parent'] = task.parent.id if task.parent is not None else None
-
-        # children
         if not skip_children:
             s_state['children'] = [
                 self.serialize_task(child) for child in task.children]
-
-        # state
         s_state['state'] = task.state
         s_state['triggered'] = task.triggered
-
-        # task_spec
         s_state['task_spec'] = task.task_spec.name
-
-        # last_state_change
         s_state['last_state_change'] = task.last_state_change
-
-        # data
         s_state['data'] = self.serialize_dict(task.data)
-
-        # internal_data
         s_state['internal_data'] = task.internal_data
 
         return s_state
 
-
-    def deserialize_task(self, workflow, s_state):
+    def deserialize_task(self, workflow, s_state, ignored_specs=None):
         assert isinstance(workflow, Workflow)
-        splits = s_state['task_spec'].split('_')
-        oldtaskname = s_state['task_spec']
-        task_spec = workflow.get_task_spec_from_name(oldtaskname)
+        old_spec_name = s_state['task_spec']
+        if old_spec_name in ignored_specs:
+            return None
+        task_spec = workflow.get_task_spec_from_name(old_spec_name)
         if task_spec is None:
-            raise MissingSpecError("Unknown task spec: " + oldtaskname)
+            raise MissingSpecError("Unknown task spec: " + old_spec_name)
         task = Task(workflow, task_spec)
 
-        if getattr(task_spec,'isSequential',False) and \
-            s_state['internal_data'].get('splits') is not None:
+        if getattr(task_spec,'isSequential',False) and s_state['internal_data'].get('splits') is not None:
             task.task_spec.expanded = s_state['internal_data']['splits']
 
-
-        # id
         task.id = s_state['id']
-
-        # parent
         # as the task_tree might not be complete yet
         # keep the ids so they can be processed at the end
         task.parent = s_state['parent']
-
-        # children
-        task.children = self._deserialize_task_children(task, s_state)
-
-        # state
+        task.children = self._deserialize_task_children(task, s_state, ignored_specs)
         task._state = s_state['state']
         task.triggered = s_state['triggered']
-
-        # last_state_change
         task.last_state_change = s_state['last_state_change']
-
-        # data
         task.data = self.deserialize_dict(s_state['data'])
-
-        # internal_data
         task.internal_data = s_state['internal_data']
         return task
 
-    def _deserialize_task_children(self, task, s_state):
+    def _deserialize_task_children(self, task, s_state, ignored_specs):
         """This may need to be overridden if you need to support
          deserialization of sub-workflows"""
-        return [self.deserialize_task(task.workflow, c)
-                         for c in s_state['children']]
+        children = [self.deserialize_task(task.workflow, c, ignored_specs) for c in s_state['children']]
+        return [c for c in children if c is not None]

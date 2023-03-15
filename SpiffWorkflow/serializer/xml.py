@@ -15,15 +15,12 @@ from builtins import str
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-import re
 import warnings
 from lxml import etree
 from lxml.etree import SubElement
 from ..workflow import Workflow
-from .. import specs, operators
 from ..task import Task, TaskStateNames
-from ..operators import (Attrib, Assign, PathAttrib, Equal, NotEqual,
-                         GreaterThan, LessThan, Match)
+from ..operators import (Attrib, Assign, PathAttrib, Equal, NotEqual, GreaterThan, LessThan, Match)
 from ..specs.AcquireMutex import AcquireMutex
 from ..specs.Cancel import Cancel
 from ..specs.CancelTask import CancelTask
@@ -43,10 +40,8 @@ from ..specs.SubWorkflow import SubWorkflow
 from ..specs.ThreadStart import ThreadStart
 from ..specs.ThreadMerge import ThreadMerge
 from ..specs.ThreadSplit import ThreadSplit
-from ..specs.Transform import Transform
 from ..specs.Trigger import Trigger
 from ..specs.WorkflowSpec import WorkflowSpec
-from ..specs.LoopResetTask import LoopResetTask
 from .base import Serializer, spec_map, op_map
 from .exceptions import TaskNotSupportedError
 
@@ -735,21 +730,6 @@ class XmlSerializer(Serializer):
             workflow.last_task = workflow.get_task(last_task)
 
         return workflow
-
-    def serialize_loop_reset_task(self, spec):
-        elem = etree.Element('loop-reset-task')
-        SubElement(elem, 'destination_id').text = str(spec.destination_id)
-        SubElement(elem, 'destination_spec_name').text = str(spec.destination_spec_name)
-        return self.serialize_task_spec(spec, elem)
-
-    def deserialize_loop_reset_task(self, wf_spec, elem, cls=LoopResetTask, **kwargs):
-        destination_id = elem.findtext('destination_id')
-        destination_spec_name = elem.findtext('destination_spec_name')
-
-        task = self.deserialize_task_spec(wf_spec, elem, cls,
-                                          destination_id=destination_id,
-                                          destination_spec_name=destination_spec_name)
-        return task
 
     def serialize_task(self, task, skip_children=False):
         assert isinstance(task, Task)

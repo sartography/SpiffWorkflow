@@ -2,7 +2,6 @@ from .helpers.spec import TaskSpecConverter
 
 from ...specs.StartTask import StartTask
 from ...specs.Simple import Simple
-from ...specs.LoopResetTask import LoopResetTask
 
 from ..specs.BpmnProcessSpec import _EndJoin
 from ..specs.BpmnSpecMixin import _BpmnCondition
@@ -27,8 +26,6 @@ from ..specs.events.IntermediateEvent import (
     ReceiveTask,
 )
 
-from ..workflow import BpmnWorkflow
-
 
 class DefaultTaskSpecConverter(TaskSpecConverter):
 
@@ -48,23 +45,6 @@ class SimpleTaskConverter(DefaultTaskSpecConverter):
 class StartTaskConverter(DefaultTaskSpecConverter):
     def __init__(self, registry):
         super().__init__(StartTask, registry)
-
-
-class LoopResetTaskConverter(DefaultTaskSpecConverter):
-
-    def __init__(self, registry):
-        super().__init__(LoopResetTask, registry)
-
-    def to_dict(self, spec):
-        dct = super().to_dict(spec)
-        dct['destination_id'] = str(spec.destination_id)
-        dct['destination_spec_name'] = spec.destination_spec_name
-        return dct
-
-    def from_dict(self, dct):
-        spec = self.task_spec_from_dict(dct)
-        spec.destination_id = self.registry.convert(spec.destination_id)
-        return spec
 
 
 class EndJoinConverter(DefaultTaskSpecConverter):
@@ -317,7 +297,6 @@ DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
     SimpleTaskConverter,
     StartTaskConverter,
     EndJoinConverter,
-    LoopResetTaskConverter,
     NoneTaskConverter,
     UserTaskConverter,
     ManualTaskConverter,
