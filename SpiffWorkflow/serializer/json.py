@@ -22,24 +22,20 @@ from .dict import DictionarySerializer
 class JSONSerializer(DictionarySerializer):
 
     def serialize_workflow_spec(self, wf_spec, **kwargs):
-        thedict = super(JSONSerializer, self).serialize_workflow_spec(
-            wf_spec, **kwargs)
+        thedict = super(JSONSerializer, self).serialize_workflow_spec(wf_spec, **kwargs)
         return self._dumps(thedict)
 
     def deserialize_workflow_spec(self, s_state, **kwargs):
         thedict = self._loads(s_state)
-        return super(JSONSerializer, self).deserialize_workflow_spec(
-            thedict, **kwargs)
+        return super(JSONSerializer, self).deserialize_workflow_spec(thedict, **kwargs)
 
     def serialize_workflow(self, workflow, **kwargs):
-        thedict = super(JSONSerializer, self).serialize_workflow(
-            workflow, **kwargs)
+        thedict = super(JSONSerializer, self).serialize_workflow(workflow, **kwargs)
         return self._dumps(thedict)
 
     def deserialize_workflow(self, s_state, **kwargs):
         thedict = self._loads(s_state)
-        return super(JSONSerializer, self).deserialize_workflow(
-            thedict, **kwargs)
+        return super(JSONSerializer, self).deserialize_workflow(thedict, **kwargs)
 
     def _object_hook(self, dct):
         if '__uuid__' in dct:

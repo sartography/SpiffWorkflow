@@ -6,6 +6,7 @@ from .version_1_2 import (
     add_default_condition_to_cond_task_specs,
     create_data_objects_and_io_specs,
     check_multiinstance,
+    remove_loop_reset,
 )
 
 def from_version_1_1(old):
@@ -23,12 +24,18 @@ def from_version_1_1(old):
     Data inputs and outputs on process specs were moved inside a BPMNIOSpecification, and
     are now TaskDataReferences; BpmnDataSpecifications that referred to Data Objects are
     now DataObjects.
+
+    Multiinstance tasks were completely refactored, in a way that is simply too difficult to
+    migrate.
+
+    Loop reset tasks were removed.
     """
     new = deepcopy(old)
     convert_timer_expressions(new)
     add_default_condition_to_cond_task_specs(new)
     create_data_objects_and_io_specs(new)
     check_multiinstance(new)
+    remove_loop_reset(new)
     new['VERSION'] = "1.2"
     return new
 

@@ -15,27 +15,28 @@ Start
                       task_f1
                         struct_discriminator_1
                           excl_choice_3
-                            return_to_excl_choice_1
-        excl_choice_1
-          task_c1
-            excl_choice_2
-              task_d3
-                multi_choice_1
-                  task_e1
-                  task_e3
-                    struct_synch_merge_1
-                      task_f1
-                        struct_discriminator_1
-                          excl_choice_3
-                            multi_instance_1
-                              task_g1
-                              task_g2
-                              task_g1
-                              task_g2
-                              task_g1
-                              task_g2
-                                struct_synch_merge_2
-                                  last
-                                    End
+                            excl_choice_1
+                              task_c1
+                                excl_choice_2
+                                  task_d3
+                                    multi_choice_1
+                                      task_e1
+                                      task_e3
+                                        struct_synch_merge_1
+                                          task_f1
+                                            struct_discriminator_1
+                                              excl_choice_3
+                                                multi_instance_1
+                                                  task_g1
+                                                  task_g2
+                                                  task_g1
+                                                  task_g2
+                                                  task_g1
+                                                  task_g2
+                                                    struct_synch_merge_2
+                                                      last
+                                                        End
+                                          task_f2
+                                          task_f3
                       task_f2
                       task_f3

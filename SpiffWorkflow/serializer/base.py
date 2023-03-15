@@ -16,9 +16,7 @@ from builtins import object
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import re
 from .. import operators
-from .. import specs
 from ..specs.AcquireMutex import AcquireMutex
 from ..specs.Cancel import Cancel
 from ..specs.CancelTask import CancelTask
@@ -41,7 +39,6 @@ from ..specs.ThreadSplit import ThreadSplit
 from ..specs.Transform import Transform
 from ..specs.Trigger import Trigger
 from ..specs.WorkflowSpec import WorkflowSpec
-from ..specs.LoopResetTask import LoopResetTask
 
 # Create a list of tag names out of the spec names.
 def spec_map():
@@ -68,7 +65,6 @@ def spec_map():
         'transform': Transform,
         'trigger': Trigger,
         'workflow-spec': WorkflowSpec,
-        'loop-reset-task': LoopResetTask,
         'task': Simple,
     }
 

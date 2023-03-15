@@ -20,7 +20,6 @@
 import logging
 
 from .specs.Simple import Simple
-from .specs.LoopResetTask import LoopResetTask
 from .task import Task, TaskState
 from .util.compat import mutex
 from .util.event import Event
@@ -260,20 +259,6 @@ class Workflow(object):
                 return task.reset_token(data)
         msg = 'A task with the given task_id (%s) was not found' % task_id
         raise WorkflowException(msg, task_spec=self.spec)
-
-    def get_reset_task_spec(self, destination):
-        """
-        Returns a task, that once complete, will reset the workflow back
-        to a previously completed task.
-        :param destination: Task to reset to, on complete.
-        :return: TaskSpec
-        """
-        name = "return_to_" + destination.task_spec.name
-        spec = self.get_task_spec_from_name(name)
-        if not spec:
-            spec = LoopResetTask(self.spec, name, destination.id,
-                                 destination.task_spec.name)
-        return spec
 
     def get_tasks_iterator(self, state=TaskState.ANY_MASK):
         """

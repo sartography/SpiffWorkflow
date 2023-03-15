@@ -366,8 +366,7 @@ class TaskSpec(object):
         my_task.workflow.last_task = my_task
         self._on_complete_hook(my_task)
         for child in my_task.children:
-            # Don't like this, but this is the most expedient way of preventing cancelled tasks from reactivation
-            if child.state != TaskState.CANCELLED:
+            if not child._is_finished():
                 child.task_spec._update(child)
         my_task.workflow._task_completed_notify(my_task)
 

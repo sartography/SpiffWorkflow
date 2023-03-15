@@ -2,9 +2,8 @@ Start
   first
     excl_choice_1
       go_to_repetition
-        return_to_first
-  first
-    excl_choice_1
-      task_c1
-        last
-          End
+        first
+          excl_choice_1
+            task_c1
+              last
+                End

@@ -54,14 +54,14 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
         last_changed = None
         thread_tasks = []
         for task in split_task._find_any(self):
-            # Ignore tasks from other threads.
             if task.thread_id != my_task.thread_id:
+                # Ignore tasks from other threads.  (Do we need this condition?)
                 continue
-            # Ignore my outgoing branches.
-            if self.split_task and task._is_descendant_of(my_task):
-                continue
-            # For an inclusive join, this can happen - it's a future join
             if not task.parent._is_finished():
+                # For an inclusive join, this can happen - it's a future join
+                continue
+            if my_task._is_descendant_of(task):
+                # Skip ancestors (otherwise the branch this task is on will get dropped)
                 continue
             # We have found a matching instance.
             thread_tasks.append(task)
@@ -77,20 +77,13 @@ class UnstructuredJoin(Join, BpmnSpecMixin):
         for task in thread_tasks:
             collected_data.update(task.data)
 
-        # Mark the identified task instances as COMPLETED. The exception
-        # is the most recently changed task, for which we assume READY.
-        # By setting the state to READY only, we allow for calling
-        # :class:`Task.complete()`, which leads to the task tree being
-        # (re)built underneath the node.
         for task in thread_tasks:
-            if task == last_changed:
-                task.data.update(collected_data)
-                self.entered_event.emit(my_task.workflow, my_task)
-                task._ready()
-            else:
-                task._set_state(TaskState.COMPLETED)
+            if task != last_changed:
+                task._set_state(TaskState.CANCELLED)
                 task._drop_children()
-
+            else:
+                task.data.update(collected_data)
+    
     def task_should_set_children_future(self, my_task):
         return True
 

@@ -85,10 +85,9 @@ class Trigger(TaskSpec):
         times = int(valueof(my_task, self.times, 1)) + self.queued
         for i in range(times):
             for task_name in self.context:
-                task = my_task.workflow.get_task_spec_from_name(task_name)
-                task._on_trigger(my_task)
+                task_spec = my_task.workflow.get_task_spec_from_name(task_name)
+                task_spec._on_trigger(my_task)
         self.queued = 0
-        TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):
         return serializer.serialize_trigger(self)

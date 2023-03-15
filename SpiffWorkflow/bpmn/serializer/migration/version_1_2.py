@@ -72,7 +72,7 @@ def convert_timer_expressions(dct):
 def add_default_condition_to_cond_task_specs(dct):
 
     for spec in [ts for ts in dct['spec']['task_specs'].values() if ts['typename'] == 'ExclusiveGateway']:
-        if (None, spec['default_task_spec']) not in spec['cond_task_specs']:
+        if spec['default_task_spec'] is not None and (None, spec['default_task_spec']) not in spec['cond_task_specs']:
             spec['cond_task_specs'].append({'condition': None, 'task_spec': spec['default_task_spec']})
 
 def create_data_objects_and_io_specs(dct):
@@ -111,3 +111,14 @@ def check_multiinstance(dct):
     specs = [ spec for spec in dct['spec']['task_specs'].values() if 'prevtaskclass' in spec ]
     if len(specs) > 0:
         raise VersionMigrationError("This workflow cannot be migrated because it contains MultiInstance Tasks")
+
+def remove_loop_reset(dct):
+    task_specs = [spec for spec in dct['spec']['task_specs'].values() if spec['typename'] == 'LoopResetTask']
+    for spec in task_specs:
+        if spec['typename'] == 'LoopResetTask':
+            tasks = [t for t in dct['tasks'].values() if t['task_spec'] == spec['name']]
+            for task in tasks:
+                dct['tasks'].pop(task['id'])
+                parent = dct['tasks'].get(task['parent'])
+                parent['children'] = [c for c in parent['children'] if c != task['id']]
+        dct['spec']['task_specs'].pop(spec['name'])
