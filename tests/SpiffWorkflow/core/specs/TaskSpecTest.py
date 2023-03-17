@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-
-import sys
 import unittest
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from SpiffWorkflow.specs.Join import Join
 from SpiffWorkflow.specs.Simple import Simple

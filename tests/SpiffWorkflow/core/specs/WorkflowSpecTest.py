@@ -1,25 +1,19 @@
 # -*- coding: utf-8 -*-
-
-from builtins import zip
-from builtins import range
-import os
-import sys
 import unittest
-data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-
+import os
+import pickle
 from lxml import etree
 
-import pickle
 from random import randint
-try:
-    from util import track_workflow
-except ImportError as e:
-    from tests.SpiffWorkflow.util import track_workflow
+
 from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.specs.Join import Join
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
+
+from ..util import track_workflow
+
+data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
 
 serializer = XmlSerializer()
 data_file = 'data.pkl'
@@ -82,7 +76,7 @@ class WorkflowSpecTest(unittest.TestCase):
 
     def testSerialize(self):
         # Read a complete workflow spec.
-        xml_file = os.path.join(data_dir, 'spiff', 'workflow1.xml')
+        xml_file = os.path.join(data_dir, 'workflow1.xml')
         with open(xml_file) as fp:
             xml = etree.parse(fp).getroot()
         path_file = os.path.splitext(xml_file)[0] + '.path'

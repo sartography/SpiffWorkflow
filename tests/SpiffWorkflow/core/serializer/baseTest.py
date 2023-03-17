@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
-
-from builtins import str
-import sys
 import unittest
-import os
 import warnings
-dirname = os.path.dirname(__file__)
-data_dir = os.path.join(dirname, '..', 'data')
-sys.path.insert(0, os.path.join(dirname, '..'))
 
-from PatternTest import run_workflow, PatternTest
 from SpiffWorkflow.serializer.base import Serializer
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.serializer.exceptions import TaskNotSupportedError
+
+from ..PatternTest import PatternTest
+from ..util import run_workflow
 
 
 class SerializerTest(PatternTest):
@@ -26,10 +21,7 @@ class SerializerTest(PatternTest):
     def _prepare_result(self, item):
         return item
 
-    def _compare_results(self, item1, item2, exclude_dynamic=False,
-                         exclude_items=None):
-        #with open('1.xml', 'w') as fp: fp.write(item1)
-        #with open('2.xml', 'w') as fp: fp.write(item2)
+    def _compare_results(self, item1, item2, exclude_dynamic=False, exclude_items=None):
         self.assertEqual(item1.decode('utf8'), item2.decode('utf8'))
 
     def _test_roundtrip_serialization(self, obj):
@@ -67,14 +59,10 @@ class SerializerTest(PatternTest):
         if type(self.serializer) is Serializer:
             spec = self.workflows[0].spec
             wf = Workflow(spec)
-            self.assertRaises(NotImplementedError, spec.serialize,
-                              self.serializer)
-            self.assertRaises(NotImplementedError,
-                              WorkflowSpec.deserialize, self.serializer, None)
-            self.assertRaises(NotImplementedError, wf.serialize,
-                              self.serializer)
-            self.assertRaises(NotImplementedError,
-                              Workflow.deserialize, self.serializer, None)
+            self.assertRaises(NotImplementedError, spec.serialize, self.serializer)
+            self.assertRaises(NotImplementedError, WorkflowSpec.deserialize, self.serializer, None)
+            self.assertRaises(NotImplementedError, wf.serialize, self.serializer)
+            self.assertRaises(NotImplementedError, Workflow.deserialize, self.serializer, None)
             return
 
         for test in self.workflows:

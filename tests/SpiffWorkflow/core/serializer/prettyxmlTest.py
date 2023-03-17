@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import unittest
-import os
-dirname = os.path.dirname(__file__)
-data_dir = os.path.join(dirname, '..', 'data')
-sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 from .baseTest import SerializerTest

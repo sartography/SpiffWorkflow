@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
 import unittest
 import pickle
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
 from .TaskSpecTest import TaskSpecTest
 from SpiffWorkflow.specs.Celery import Celery
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec

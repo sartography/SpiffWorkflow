@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from builtins import object
 import sys
 import unittest
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from lxml import etree
 
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
-from tests.SpiffWorkflow.util import run_workflow
+
+from .util import run_workflow
 
 
 class WorkflowTestData(object):
@@ -29,10 +28,10 @@ class PatternTest(unittest.TestCase):
     def setUp(self):
         Task.id_pool = 0
         Task.thread_id_pool = 0
-        self.xml_path = ['data/spiff/control-flow',
-                         'data/spiff/data',
-                         'data/spiff/resource',
-                         'data/spiff']
+        self.xml_path = ['data/control-flow',
+                         'data/data',
+                         'data/resource',
+                         'data']
         self.workflows = []
 
         for basedir in self.xml_path:

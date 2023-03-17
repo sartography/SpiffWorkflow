@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-
-
-
 import os
 import unittest
 
-from tests.SpiffWorkflow.util import run_workflow
-from .TaskSpecTest import TaskSpecTest
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.specs.Execute import Execute
 
+from .TaskSpecTest import TaskSpecTest
+from ..util import run_workflow
 
 class ExecuteTest(TaskSpecTest):
     CORRELATE = Execute

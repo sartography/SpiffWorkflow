@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import time
-from SpiffWorkflow.task import Task, TaskState
 from SpiffWorkflow.workflow import Workflow
 
 

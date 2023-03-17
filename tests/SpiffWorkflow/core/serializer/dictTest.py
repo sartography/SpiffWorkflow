@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
-
-from builtins import str
-import sys
 import unittest
-import os
-dirname = os.path.dirname(__file__)
-sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 import uuid
 from SpiffWorkflow.serializer.dict import DictionarySerializer

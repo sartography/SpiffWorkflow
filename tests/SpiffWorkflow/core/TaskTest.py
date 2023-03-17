@@ -69,7 +69,7 @@ class TaskTest(unittest.TestCase):
 
         # Run the iterator test.
         result = ''
-        for thetask in Task.Iterator(root, Task.MAYBE):
+        for thetask in Task.Iterator(root, TaskState.MAYBE):
             result += thetask.get_dump(0, False) + '\n'
         self.assertTrue(expected2.match(result),
                         'Expected:\n' + repr(expected2.pattern) + '\n' +
