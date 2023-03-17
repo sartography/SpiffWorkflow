@@ -292,43 +292,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         self.data = DeepMerge.merge(self.data, data)
         data_log.info('Data update', extra=self.log_info())
 
-    def set_children_future(self):
-        """
-        for a parallel gateway, we need to set up our
-        children so that the gateway figures out that it needs to join up
-        the inputs - otherwise our child process never gets marked as
-        'READY'
-        """
-        if not self.task_spec.task_should_set_children_future(self):
-            return
-
-        self.task_spec.task_will_set_children_future(self)
-
-        # now we set this one to execute
-        self._set_state(TaskState.MAYBE)
-        self._sync_children(self.task_spec.outputs)
-        for child in self.children:
-            child.set_children_future()
-
-    def reset_token(self, data, reset_data=False):
-        """
-        Resets the token to this task. This should allow a trip 'back in time'
-        as it were to items that have already been completed.
-        :type  reset_data: bool
-        :param reset_data: Do we want to have the data be where we left of in
-                           this task or not
-        """
-        self.internal_data = {}
-        if not reset_data and self.workflow.last_task and self.workflow.last_task.data:
-            # This is a little sly, the data that will get inherited should
-            # be from the last completed task, but we don't want to alter
-            # the tree, so we just set the parent's data to the given data.
-            self.parent.data = copy.deepcopy(data)
-        self.workflow.last_task = self.parent
-        self.set_children_future()  # this method actually fixes the problem
-        self._set_state(TaskState.FUTURE)
-        self.task_spec._update(self)
-
     def __iter__(self):
         return Task.Iterator(self)
 
@@ -380,6 +343,43 @@ class Task(object,  metaclass=DeprecatedMetaTask):
     def _is_definite(self):
         return self._has_state(TaskState.DEFINITE_MASK)
 
+    def set_children_future(self):
+        """
+        for a parallel gateway, we need to set up our
+        children so that the gateway figures out that it needs to join up
+        the inputs - otherwise our child process never gets marked as
+        'READY'
+        """
+        if not self.task_spec.task_should_set_children_future(self):
+            return
+
+        self.task_spec.task_will_set_children_future(self)
+
+        # now we set this one to execute
+        self._set_state(TaskState.MAYBE)
+        self._sync_children(self.task_spec.outputs)
+        for child in self.children:
+            child.set_children_future()
+
+    def reset_token(self, data, reset_data=False):
+        """
+        Resets the token to this task. This should allow a trip 'back in time'
+        as it were to items that have already been completed.
+        :type  reset_data: bool
+        :param reset_data: Do we want to have the data be where we left of in
+                           this task or not
+        """
+        self.internal_data = {}
+        if not reset_data and self.workflow.last_task and self.workflow.last_task.data:
+            # This is a little sly, the data that will get inherited should
+            # be from the last completed task, but we don't want to alter
+            # the tree, so we just set the parent's data to the given data.
+            self.parent.data = copy.deepcopy(data)
+        self.workflow.last_task = self.parent
+        self.set_children_future()  # this method actually fixes the problem
+        self._set_state(TaskState.FUTURE)
+        self.task_spec._update(self)
+
     def _add_child(self, task_spec, state=TaskState.MAYBE):
         """
         Adds a new child and assigns the given TaskSpec to it.
@@ -391,33 +391,13 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         :rtype:  Task
         :returns: The new child task.
         """
-        if task_spec is None:
-            raise ValueError(self, '_add_child() requires a TaskSpec')
         if self._is_predicted() and state & TaskState.PREDICTED_MASK == 0:
-            msg = 'Attempt to add non-predicted child to predicted task'
-            raise WorkflowException(msg, task_spec=self.task_spec)
+            raise WorkflowException('Attempt to add non-predicted child to predicted task', task_spec=self.task_spec)
         task = Task(self.workflow, task_spec, self, state=state)
         task.thread_id = self.thread_id
         if state == TaskState.READY:
             task._ready()
         return task
-
-    def _assign_new_thread_id(self, recursive=True):
-        """
-        Assigns a new thread id to the task.
-
-        :type  recursive: bool
-        :param recursive: Whether to assign the id to children recursively.
-        :rtype:  bool
-        :returns: The new thread id.
-        """
-        self.__class__.thread_id_pool += 1
-        self.thread_id = self.__class__.thread_id_pool
-        if not recursive:
-            return self.thread_id
-        for child in self:
-            child.thread_id = self.thread_id
-        return self.thread_id
 
     def _sync_children(self, task_specs, state=TaskState.MAYBE):
         """
@@ -451,11 +431,10 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             elif child.task_spec in new_children:
                 # If the task already exists, remove it from to-be-added and update its state
                 new_children.remove(child.task_spec)
-            elif child._is_definite():
-                # Definite tasks must not be removed, so they HAVE to be in the given task spec list.
-                raise WorkflowException(f'removal of non-predicted child {child}', task_spec=self.task_spec)
             else:
-                # Drop this child
+                if child._is_definite():
+                    # Definite tasks must not be removed, so they HAVE to be in the given task spec list.
+                    raise WorkflowException(f'removal of non-predicted child {child}', task_spec=self.task_spec)
                 unneeded_children.append(child)
 
         # Update children accordingly
@@ -474,6 +453,23 @@ class Task(object,  metaclass=DeprecatedMetaTask):
                 if child._is_definite():
                     continue
                 child._set_state(TaskState.LIKELY)
+
+    def _assign_new_thread_id(self, recursive=True):
+        """
+        Assigns a new thread id to the task.
+
+        :type  recursive: bool
+        :param recursive: Whether to assign the id to children recursively.
+        :rtype:  bool
+        :returns: The new thread id.
+        """
+        self.__class__.thread_id_pool += 1
+        self.thread_id = self.__class__.thread_id_pool
+        if not recursive:
+            return self.thread_id
+        for child in self:
+            child.thread_id = self.thread_id
+        return self.thread_id
 
     def _is_descendant_of(self, parent):
         """
@@ -558,15 +554,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             return self.parent
         return self.parent._find_ancestor_from_name(name)
 
-    def _ready(self):
-        """
-        Marks the task as ready for execution.
-        """
-        if self._has_state(TaskState.COMPLETED) or self._has_state(TaskState.CANCELLED):
-            return
-        self._set_state(TaskState.READY)
-        self.task_spec._on_ready(self)
-
     def get_name(self):
         return str(self.task_spec.name)
 
@@ -631,6 +618,15 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         :returns: The value of the data field
         """
         return self.data.get(name, default)
+
+    def _ready(self):
+        """
+        Marks the task as ready for execution.
+        """
+        if self._has_state(TaskState.COMPLETED) or self._has_state(TaskState.CANCELLED):
+            return
+        self._set_state(TaskState.READY)
+        self.task_spec._on_ready(self)
 
     def cancel(self):
         """
