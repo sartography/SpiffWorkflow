@@ -166,7 +166,6 @@ class DictionarySerializer(Serializer):
         s_state['defines'] = self.serialize_dict(spec.defines)
         s_state['pre_assign'] = self.serialize_list(spec.pre_assign)
         s_state['post_assign'] = self.serialize_list(spec.post_assign)
-        s_state['locks'] = spec.locks[:]
 
         # Note: Events are not serialized; this is documented in
         # the TaskSpec API docs.
@@ -187,7 +186,6 @@ class DictionarySerializer(Serializer):
         spec.pre_assign = self.deserialize_list(s_state.get('pre_assign', []))
         spec.post_assign = self.deserialize_list(
             s_state.get('post_assign', []))
-        spec.locks = s_state.get('locks', [])[:]
         # We can't restore inputs and outputs yet because they may not be
         # deserialized yet. So keep the names, and resolve them in the end.
         spec.inputs = s_state.get('inputs', [])[:]

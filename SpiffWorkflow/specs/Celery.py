@@ -117,7 +117,7 @@ class Celery(TaskSpec):
         self.call = call or []
         self.args = call_args or {}
         self.merge_results = merge_results
-        skip = 'data', 'defines', 'pre_assign', 'post_assign', 'lock'
+        skip = 'data', 'defines', 'pre_assign', 'post_assign'
         self.kwargs = dict(i for i in list(kwargs.items()) if i[0] not in skip)
         self.result_key = result_key
 

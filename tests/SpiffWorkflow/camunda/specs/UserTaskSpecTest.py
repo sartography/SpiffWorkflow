@@ -25,7 +25,6 @@ class UserTaskSpecTest(unittest.TestCase):
         self.assertEqual(self.user_spec.defines, {})
         self.assertEqual(self.user_spec.pre_assign, [])
         self.assertEqual(self.user_spec.post_assign, [])
-        self.assertEqual(self.user_spec.locks, [])
 
     def test_set_form(self):
         self.assertEqual(self.form, self.user_spec.form)

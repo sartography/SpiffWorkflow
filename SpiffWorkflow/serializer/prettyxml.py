@@ -176,8 +176,7 @@ class XmlSerializer(Serializer):
         threshold_field = start_node.attrib.get('threshold-field', '').lower()
         file_name = start_node.attrib.get('file', '').lower()
         file_field = start_node.attrib.get('file-field', '').lower()
-        kwargs = {'lock':        [],
-                  'data':        {},
+        kwargs = {'data':        {},
                   'defines':     {},
                   'pre_assign':  [],
                   'post_assign': []}
@@ -253,10 +252,6 @@ class XmlSerializer(Serializer):
                 elif not isinstance(context, list):
                     context = [context]
                 context.append(node.text)
-            elif node.tag == 'lock':
-                if not node.text:
-                    self.raise_parser_exception('Empty %s tag' % node.tag)
-                kwargs['lock'].append(node.text)
             elif node.tag == 'pick':
                 if not node.text:
                     self.raise_parser_exception('Empty %s tag' % node.tag)

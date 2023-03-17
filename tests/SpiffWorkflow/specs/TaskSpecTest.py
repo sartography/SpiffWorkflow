@@ -32,7 +32,6 @@ class TaskSpecTest(unittest.TestCase):
         self.assertEqual(self.spec.defines, {})
         self.assertEqual(self.spec.pre_assign, [])
         self.assertEqual(self.spec.post_assign, [])
-        self.assertEqual(self.spec.locks, [])
 
     def testSetData(self):
         self.assertEqual(self.spec.get_data('foo'), None)

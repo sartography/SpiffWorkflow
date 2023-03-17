@@ -10,20 +10,16 @@
 
     <!-- Branch 1 -->
         <task name="one_1">
-            <lock>lock_one</lock>
             <successor>one_2</successor>
         </task>
         <acquire-mutex name="one_2" mutex="my_global_mutex">
-            <lock>lock_two</lock>
             <successor>one_3</successor>
         </acquire-mutex>
         <task name="one_3">
-            <lock>lock_three</lock>
             <successor>two_2</successor>
             <successor>one_4</successor>
         </task>
         <release-mutex name="one_4" mutex="my_global_mutex">
-            <lock>lock_four</lock>
             <successor>last</successor>
         </release-mutex>
     <!-- End branch 1 -->

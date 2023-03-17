@@ -1,30 +1,22 @@
-from builtins import object
+from threading import Lock
 
-try:
-    # python 2
-    from mutex import mutex
+class mutex(object):
 
-except ImportError:
-    # python 3
-    from threading import Lock
+    def __init__(self):
+        self.lock = Lock()
 
-    class mutex(object):
+    def lock(self):
+        raise NotImplementedError
 
-        def __init__(self):
-            self.lock = Lock()
-
-        def lock(self):
-            raise NotImplementedError
-
-        def test(self):
-            has = self.lock.acquire(blocking=False)
-            if has:
-                self.lock.release()
-
-            return has
-
-        def testandset(self):
-            return self.lock.acquire(blocking=False)
-
-        def unlock(self):
+    def test(self):
+        has = self.lock.acquire(blocking=False)
+        if has:
             self.lock.release()
+
+        return has
+
+    def testandset(self):
+        return self.lock.acquire(blocking=False)
+
+    def unlock(self):
+        self.lock.release()
