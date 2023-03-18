@@ -605,11 +605,13 @@ class DictionarySerializer(Serializer):
         workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'], reset_specs)
 
         # Re-connect parents
-        tasklist = list(workflow.get_tasks())
+        tasklist = workflow.get_tasks()
         for task in tasklist:
-            task.parent = workflow.get_task(task.parent,tasklist)
+            if task.parent is not None:
+                task.parent = workflow.get_task_from_id(task.parent, tasklist)
 
-        workflow.last_task = workflow.get_task(s_state['last_task'],tasklist)
+        if workflow.last_task is not None:
+            workflow.last_task = workflow.get_task_from_id(s_state['last_task'],tasklist)
         workflow.update_task_mapping()
 
         return workflow

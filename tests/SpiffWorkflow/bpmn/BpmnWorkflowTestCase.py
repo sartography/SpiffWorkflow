@@ -64,7 +64,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         def switch_workflow(p):
             for task_id, sp in p.workflow._get_outermost_workflow().subprocesses.items():
                 if p in sp.get_tasks(workflow=sp):
-                    return p.workflow.get_task(task_id)
+                    return p.workflow.get_task_from_id(task_id)
 
         def is_match(t):
             if not (t.task_spec.name == step_name_path[-1] or t.task_spec.description == step_name_path[-1]):
