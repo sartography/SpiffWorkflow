@@ -6,7 +6,7 @@ from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.exceptions import WorkflowTaskException
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'kellym'
 

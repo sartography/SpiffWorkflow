@@ -20,7 +20,7 @@ class UserTaskSpecTest(unittest.TestCase):
         self.user_spec = self.create_instance()
 
     def testConstructor(self):
-        self.assertEquals(self.user_spec.name, 'userTask')
+        self.assertEqual(self.user_spec.name, 'userTask')
         self.assertEqual(self.user_spec.data, {})
         self.assertEqual(self.user_spec.defines, {})
         self.assertEqual(self.user_spec.pre_assign, [])
