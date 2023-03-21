@@ -23,10 +23,10 @@ class MultiInstanceDMNTest(BaseTestCase):
         
         self.save_restore()
         self.workflow.do_engine_steps()
-        self.workflow.complete_next()
+        self.workflow.run_next()
         self.save_restore()
         self.workflow.do_engine_steps()
-        self.workflow.complete_next()
+        self.workflow.run_next()
         self.save_restore()
         self.workflow.do_engine_steps()
         self.save_restore()

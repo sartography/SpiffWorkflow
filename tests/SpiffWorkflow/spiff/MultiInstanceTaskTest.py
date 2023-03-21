@@ -19,7 +19,7 @@ class MultiInstanceTaskTest(BaseTestCase):
         ready_tasks = self.workflow.get_ready_user_tasks()
         for task in ready_tasks:
             task.data['output_item'] = task.data['input_item'] * 2
-            task.complete()
+            task.run()
             self.workflow.do_engine_steps()
 
         self.assertTrue(self.workflow.is_completed())

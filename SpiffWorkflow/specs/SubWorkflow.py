@@ -98,21 +98,15 @@ class SubWorkflow(TaskSpec):
             xml = etree.parse(fp).getroot()
         wf_spec = WorkflowSpec.deserialize(serializer, xml, filename=file_name)
         outer_workflow = my_task.workflow.outer_workflow
-        return Workflow(wf_spec, parent=outer_workflow)
-
-    def _on_ready_before_hook(self, my_task):
-        subworkflow = self._create_subworkflow(my_task)
-        subworkflow.completed_event.connect(
-            self._on_subworkflow_completed, my_task)
-        self._integrate_subworkflow_tree(my_task, subworkflow)
-        my_task._set_internal_data(subworkflow=subworkflow)
-
-    def _integrate_subworkflow_tree(self, my_task, subworkflow):
-        # Integrate the tree of the subworkflow into the tree of this workflow.
-        my_task._sync_children(self.outputs, TaskState.LIKELY)
+        subworkflow = Workflow(wf_spec, parent=outer_workflow)
+        my_task._sync_children(self.outputs, TaskState.FUTURE)
         for child in subworkflow.task_tree.children:
             my_task.children.insert(0, child)
             child.parent = my_task
+            child.state = TaskState.READY
+        subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
+        my_task._set_internal_data(subworkflow=subworkflow)
+        my_task._set_state(TaskState.WAITING)
 
     def _on_ready_hook(self, my_task):
         # Assign variables, if so requested.
@@ -121,18 +115,13 @@ class SubWorkflow(TaskSpec):
             for assignment in self.in_assign:
                 assignment.assign(my_task, child)
             child.task_spec._update(child)
-        # Instead of completing immediately, we'll wait for the subworkflow to complete
-        my_task._set_state(TaskState.WAITING)
 
     def _update_hook(self, my_task):
-
         super()._update_hook(my_task)
         subworkflow = my_task._get_internal_data('subworkflow')
         if subworkflow is None:
-            # On the first update, we have to create the subworkflow
-            return True
+            self._create_subworkflow(my_task)
         elif subworkflow.is_completed():
-            # Then wait until it finishes to complete
             my_task.complete()
 
     def _on_subworkflow_completed(self, subworkflow, my_task):

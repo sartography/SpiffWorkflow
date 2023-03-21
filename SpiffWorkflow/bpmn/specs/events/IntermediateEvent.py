@@ -18,7 +18,6 @@
 # 02110-1301  USA
 
 from .event_types import ThrowingEvent, CatchingEvent
-from .event_definitions import CycleTimerEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
 from ....task import TaskState
@@ -123,7 +122,7 @@ class BoundaryEvent(CatchingEvent):
         super(BoundaryEvent, self).catch(my_task, event_definition)
         # Would love to get rid of this statement and manage in the workflow
         # However, it is not really compatible with how boundary events work.
-        my_task.complete()
+        my_task.run()
 
 
 class EventBasedGateway(CatchingEvent):

@@ -36,4 +36,4 @@ class InclusiveGatewayTest(BpmnWorkflowTestCase):
     def set_data(self, value):
         task = self.workflow.get_ready_user_tasks()[0]
         task.data = value
-        task.complete()
+        task.run()

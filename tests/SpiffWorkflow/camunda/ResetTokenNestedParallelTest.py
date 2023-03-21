@@ -73,7 +73,7 @@ class ResetTokenTestNestedParallel(BaseTestCase):
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
-            self.workflow.complete_task_from_id(task.id)
+            self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
         self.workflow.reset_task_from_id(firsttaskid)
@@ -91,7 +91,7 @@ class ResetTokenTestNestedParallel(BaseTestCase):
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
-            self.workflow.complete_task_from_id(task.id)
+            self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
         notworking = self.workflow.get_ready_user_tasks()
@@ -148,7 +148,7 @@ class ResetTokenTestNestedParallel(BaseTestCase):
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
-            self.workflow.complete_task_from_id(task.id)
+            self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 
@@ -182,7 +182,7 @@ class ResetTokenTestNestedParallel(BaseTestCase):
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
-            self.workflow.complete_task_from_id(task.id)
+            self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 

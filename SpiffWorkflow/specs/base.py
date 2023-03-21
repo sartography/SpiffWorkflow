@@ -253,8 +253,8 @@ class TaskSpec(object):
         """
         if my_task._is_predicted():
             self._predict(my_task)
-        self.entered_event.emit(my_task.workflow, my_task)
         if self._update_hook(my_task):
+            self.entered_event.emit(my_task.workflow, my_task)
             my_task._ready()
 
     def _update_hook(self, my_task):
@@ -276,23 +276,6 @@ class TaskSpec(object):
         assert my_task is not None
         self.test()
 
-        # Assign variables, if so requested.
-        for assignment in self.pre_assign:
-            assignment.assign(my_task, my_task)
-
-        # Run task-specific code.
-        self._on_ready_before_hook(my_task)
-        self.reached_event.emit(my_task.workflow, my_task)
-        self._on_ready_hook(my_task)
-
-        # Run user code, if any.
-        if self.ready_event.emit(my_task.workflow, my_task):
-            # Assign variables, if so requested.
-            for assignment in self.post_assign:
-                assignment.assign(my_task, my_task)
-
-        self.finished_event.emit(my_task.workflow, my_task)
-
     def _on_ready_before_hook(self, my_task):
         """
         A hook into _on_ready() that does the task specific work.
@@ -310,6 +293,26 @@ class TaskSpec(object):
         :param my_task: The associated task in the task tree.
         """
         pass
+
+    def _run(self, my_task):
+
+        # Assign variables, if so requested.
+        for assignment in self.pre_assign:
+            assignment.assign(my_task, my_task)
+
+        # Run task-specific code.
+        self._on_ready_before_hook(my_task)
+        self.reached_event.emit(my_task.workflow, my_task)
+        self._on_ready_hook(my_task)
+
+        # Run user code, if any.
+        if self.ready_event.emit(my_task.workflow, my_task):
+            # Assign variables, if so requested.
+            for assignment in self.post_assign:
+                assignment.assign(my_task, my_task)
+
+        self.finished_event.emit(my_task.workflow, my_task)
+        return True
 
     def _on_cancel(self, my_task):
         """
@@ -355,7 +358,7 @@ class TaskSpec(object):
         my_task.workflow._task_completed_notify(my_task)
 
         self.completed_event.emit(my_task.workflow, my_task)
-        return True
+
 
     def _on_complete_hook(self, my_task):
         """

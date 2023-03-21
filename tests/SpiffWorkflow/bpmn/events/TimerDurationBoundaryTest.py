@@ -24,7 +24,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
     def actual_test(self,save_restore = False):
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.workflow.do_engine_steps()
 
         loopcount = 0
@@ -43,7 +43,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         self.assertEqual(subworkflow.state, TaskState.CANCELLED)
         ready_tasks = self.workflow.get_ready_user_tasks()
         while len(ready_tasks) > 0:
-            ready_tasks[0].complete()
+            ready_tasks[0].run()
             ready_tasks = self.workflow.get_ready_user_tasks()
             self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())

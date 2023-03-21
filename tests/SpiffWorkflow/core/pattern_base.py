@@ -71,7 +71,7 @@ class WorkflowPatternTestCase:
     def run_workflow(self):
         # We allow the workflow to require a maximum of 5 seconds to complete, to allow for testing long running tasks.
         for i in range(10):
-            self.workflow.complete_all(False)
+            self.workflow.run_all(False)
             if self.workflow.is_completed():
                 break
             time.sleep(0.5)

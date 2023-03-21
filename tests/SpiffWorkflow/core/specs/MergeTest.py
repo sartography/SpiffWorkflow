@@ -56,7 +56,7 @@ class MergeTest(JoinTest):
         workflow.task_tree.set_data(everywhere=1)
         for task in workflow.get_tasks():
             task.set_data(**{'name': task.get_name(), task.get_name(): 1})
-        workflow.complete_all()
+        workflow.run_all()
         self.assertTrue(workflow.is_completed())
         found = {}
         for task in workflow.get_tasks():

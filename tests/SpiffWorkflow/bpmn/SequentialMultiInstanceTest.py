@@ -27,7 +27,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
             self.assertEqual(task.task_spec.name, 'any_task [child]')
             self.assertIn('input_item', task.data)
             task.data['output_item'] = task.data['input_item'] * 2
-            task.complete()
+            task.run()
             if save_restore:
                 self.save_restore()
             ready_tasks = self.workflow.get_ready_user_tasks()
@@ -54,7 +54,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
             self.assertEqual(ready.task_spec.name, 'any_task [child]')
             self.assertIn('input_item', ready.data)
             ready.data['output_item'] = ready.data['input_item'] * 2
-            ready.complete()
+            ready.run()
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
             ready_tasks = self.workflow.get_ready_user_tasks()

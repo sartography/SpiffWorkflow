@@ -116,7 +116,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
         if set_attribs:
             tasks[0].set_data(**set_attribs)
-        tasks[0].complete()
+        tasks[0].run()
 
     def save_restore(self):
 

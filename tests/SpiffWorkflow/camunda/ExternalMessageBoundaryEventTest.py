@@ -41,7 +41,7 @@ class ExternalMessageBoundaryTest(BaseTestCase):
         self.assertEqual(True, ready_tasks[1].data['caughtinterrupt'])
         self.assertEqual('Meaningless User Task',ready_tasks[0].task_spec.description)
         self.assertEqual(False, ready_tasks[0].data['caughtinterrupt'])
-        ready_tasks[1].complete()
+        ready_tasks[1].run()
         self.workflow.do_engine_steps()
         # what I think is going on here is that when we hit the reset, it is updating the
         # last_task and appending the data to whatever happened there, so it would make sense that
@@ -52,7 +52,7 @@ class ExternalMessageBoundaryTest(BaseTestCase):
         # The user activity was cancelled and we should continue from the boundary event
         self.assertEqual(1, len(ready_tasks),'Expected to have two ready tasks')
         event = self.workflow.get_tasks_from_spec_name('Event_19detfv')[0]
-        event.complete()
+        event.run()
         self.assertEqual('SomethingDrastic', event.data['reset_var'])
         self.assertEqual(False, event.data['caughtinterrupt'])
 

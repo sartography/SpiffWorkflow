@@ -34,7 +34,7 @@ class TestUserTask(UserTask):
 
     def do_choice(self, task, choice):
         task.set_data(choice=choice)
-        task.complete()
+        task.run()
 
 
 class TestExclusiveGatewayParser(ConditionalGatewayParser):

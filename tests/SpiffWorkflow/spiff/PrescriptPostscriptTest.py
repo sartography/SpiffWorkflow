@@ -27,7 +27,7 @@ class PrescriptPostsciptTest(BaseTestCase):
         self.set_process_data({'b': 2})
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         # This execute the same script as task_test
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         # a should be removed, b should be unchanged, and c and z should be present (but not x & y)
         self.assertDictEqual({'b': 2, 'c': 12, 'z': 6}, ready_tasks[0].data)
 
@@ -43,7 +43,7 @@ class PrescriptPostsciptTest(BaseTestCase):
         # The prescript sets x, y = a * 2, b * 2 and creates the variable z = x + y
         # The postscript sets c = z * 2 and deletes x and y
         # a and b should remain unchanged, and c and z should be added
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.assertDictEqual({'a': 1, 'b': 2, 'c': 12, 'z': 6}, ready_tasks[0].data)
 
     def test_for_error(self, save_restore=False):

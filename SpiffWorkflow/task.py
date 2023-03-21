@@ -628,6 +628,20 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         self._set_state(TaskState.READY)
         self.task_spec._on_ready(self)
 
+    def run(self):
+        start = time.time()
+        retval = self.task_spec._run(self)
+        extra = self.log_info({
+            'action': 'Complete',
+            'elapsed': time.time() - start
+        })
+        metrics.debug('', extra=extra)
+        if retval is None:
+            self._set_state(TaskState.WAITING)
+        else:
+            self.complete()
+        return retval
+
     def cancel(self):
         """
         Cancels the item if it was not yet completed, and removes
@@ -647,17 +661,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         has changed (e.g. from FUTURE to COMPLETED.)
         """
         self._set_state(TaskState.COMPLETED)
-        # I am taking back my previous comment about running the task after it's completed being "CRAZY"
-        # Turns out that tasks are in fact supposed to be complete at this point and I've been wrong all along
-        # about when tasks should actually be executed
-        start = time.time()
-        retval = self.task_spec._on_complete(self)
-        extra = self.log_info({
-            'action': 'Complete',
-            'elapsed': time.time() - start
-        })
-        metrics.debug('', extra=extra)
-        return retval
+        self.task_spec._on_complete(self)
 
     def trigger(self, *args):
         """
