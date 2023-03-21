@@ -31,7 +31,7 @@ class BusinessRuleTaskParserTest(BaseTestCase):
             self.assertTrue(True, "An error was raised..")
             self.assertEqual("InvalidDecisionTaskId", we.task_spec.name)
             self.maxDiff = 1000
-            self.assertEquals("Error evaluating expression 'spam= 1'. Rule failed on row 1. Business Rule Task 'Invalid Decision'.", str(we))
+            self.assertEqual("Error evaluating expression 'spam= 1'. Rule failed on row 1. Business Rule Task 'Invalid Decision'.", str(we))
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(BusinessRuleTaskParserTest)

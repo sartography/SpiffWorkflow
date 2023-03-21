@@ -279,10 +279,15 @@ class BpmnWorkflow(Workflow):
         return [t for t in self.get_tasks(workflow=workflow) if t.task_spec.name == name]
 
     def get_tasks(self, state=TaskState.ANY_MASK, workflow=None):
+        # Now that I've revisited and had to ask myself what the hell was I doing, I realize I should comment this
         tasks = []
         top = self._get_outermost_workflow()
-        wf = workflow or top
-        for task in Workflow.get_tasks(wf):
+        # I think it makes more sense to start with the current workflow, which is probably going to be the top
+        # most of the time anyway
+        wf = workflow or self
+        # We can't filter the iterator on the state because we have to subprocesses, and the subprocess task will
+        # almost surely be in a different state than the tasks we want
+        for task in Workflow.get_tasks_iterator(wf):
             subprocess = top.subprocesses.get(task.id)
             if subprocess is not None:
                 tasks.extend(subprocess.get_tasks(state, subprocess))
@@ -290,42 +295,28 @@ class BpmnWorkflow(Workflow):
                 tasks.append(task)
         return tasks
 
-    def _find_task(self, task_id):
-        if task_id is None:
-            raise WorkflowException('task_id is None', task_spec=self.spec)
-        for task in self.get_tasks():
+    def get_task_from_id(self, task_id, workflow=None):
+        for task in self.get_tasks(workflow=workflow):
             if task.id == task_id:
                 return task
         raise WorkflowException(f'A task with the given task_id ({task_id}) was not found', task_spec=self.spec)
 
-    def complete_task_from_id(self, task_id):
-        # I don't even know why we use this stupid function instead of calling task.complete,
-        # since all it does is search the task tree and call the method
-        task = self._find_task(task_id)
-        return task.complete()
-
-    def reset_task_from_id(self, task_id):
-        task = self._find_task(task_id)
-        if task.workflow.last_task and task.workflow.last_task.data:
-            data = task.workflow.last_task.data
-        return task.reset_token(data)
-
-    def get_ready_user_tasks(self,lane=None):
+    def get_ready_user_tasks(self, lane=None, workflow=None):
         """Returns a list of User Tasks that are READY for user action"""
         if lane is not None:
-            return [t for t in self.get_tasks(TaskState.READY)
+            return [t for t in self.get_tasks(TaskState.READY, workflow)
                        if (not self._is_engine_task(t.task_spec))
                            and (t.task_spec.lane == lane)]
         else:
-            return [t for t in self.get_tasks(TaskState.READY)
+            return [t for t in self.get_tasks(TaskState.READY, workflow)
                        if not self._is_engine_task(t.task_spec)]
 
-    def get_waiting_tasks(self):
+    def get_waiting_tasks(self, workflow=None):
         """Returns a list of all WAITING tasks"""
-        return self.get_tasks(TaskState.WAITING)
+        return self.get_tasks(TaskState.WAITING, workflow)
 
-    def get_catching_tasks(self):
-        return [ task for task in self.get_tasks() if isinstance(task.task_spec, CatchingEvent) ]
+    def get_catching_tasks(self, workflow=None):
+        return [task for task in self.get_tasks(workflow=workflow) if isinstance(task.task_spec, CatchingEvent)]
 
     def _is_engine_task(self, task_spec):
         return (not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task())

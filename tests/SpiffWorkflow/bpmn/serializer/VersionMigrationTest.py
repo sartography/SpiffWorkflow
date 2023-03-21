@@ -16,7 +16,8 @@ class Version_1_0_Test(BaseTestCase):
     def test_convert_subprocess(self):
         # The serialization used here comes from NestedSubprocessTest saved at line 25 with version 1.0
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.0.json')
-        wf = self.serializer.deserialize_json(open(fn).read())
+        with open(fn) as fh:
+            wf = self.serializer.deserialize_json(fh.read())
         # We should be able to finish the workflow from this point
         ready_tasks = wf.get_tasks(TaskState.READY)
         self.assertEqual('Action3', ready_tasks[0].task_spec.description)

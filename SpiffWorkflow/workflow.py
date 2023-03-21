@@ -194,24 +194,6 @@ class Workflow(object):
         """
         return self.spec.get_task_spec_from_name(name)
 
-    def get_task(self, id,tasklist=None):
-        """
-        Returns the task with the given id.
-
-        :type id:integer
-        :param id: The id of a task.
-        :param tasklist: Optional cache of get_tasks for operations
-                         where we are calling multiple times as when we
-                         are deserializing the workflow
-        :rtype: Task
-        :returns: The task with the given id.
-        """
-        if tasklist:
-            tasks = [task for task in tasklist if task.id == id]
-        else:
-            tasks = [task for task in self.get_tasks() if task.id == id]
-        return tasks[0] if len(tasks) == 1 else None
-
     def get_tasks_from_spec_name(self, name):
         """
         Returns all tasks whose spec has the given name.
@@ -221,15 +203,7 @@ class Workflow(object):
         :rtype: list[Task]
         :returns: A list of tasks that relate to the spec with the given name.
         """
-        return [task for task in self.get_tasks_iterator()
-                if task.task_spec.name == name]
-
-    def empty(self,str):
-        if str == None:
-            return True
-        if str == '':
-            return True
-        return False
+        return [task for task in self.get_tasks_iterator() if task.task_spec.name == name]
 
     def get_tasks(self, state=TaskState.ANY_MASK):
         """
@@ -242,24 +216,6 @@ class Workflow(object):
         """
         return [t for t in Task.Iterator(self.task_tree, state)]
 
-    def reset_task_from_id(self, task_id):
-        """
-        Runs the task with the given id.
-
-        :type  task_id: integer
-        :param task_id: The id of the Task object.
-        """
-        if task_id is None:
-            raise WorkflowException('task_id is None', task_spec=self.spec)
-        data = {}
-        if self.last_task and self.last_task.data:
-            data = self.last_task.data
-        for task in self.task_tree:
-            if task.id == task_id:
-                return task.reset_token(data)
-        msg = 'A task with the given task_id (%s) was not found' % task_id
-        raise WorkflowException(msg, task_spec=self.spec)
-
     def get_tasks_iterator(self, state=TaskState.ANY_MASK):
         """
         Returns a iterator of Task objects with the given state.
@@ -271,6 +227,27 @@ class Workflow(object):
         """
         return Task.Iterator(self.task_tree, state)
 
+    def get_task_from_id(self, task_id, tasklist=None):
+        """
+        Returns the task with the given id.
+
+        :type id:integer
+        :param id: The id of a task.
+        :param tasklist: Optional cache of get_tasks for operations
+                         where we are calling multiple times as when we
+                         are deserializing the workflow
+        :rtype: Task
+        :returns: The task with the given id.
+        """
+        if task_id is None:
+            raise WorkflowException('task_id is None', task_spec=self.spec)
+        tasklist = tasklist or self.task_tree
+        for task in self.task_tree:
+            if task.id == task_id:
+                return task
+        msg = 'A task with the given task_id (%s) was not found' % task_id
+        raise WorkflowException(msg, task_spec=self.spec)
+
     def complete_task_from_id(self, task_id):
         """
         Runs the task with the given id.
@@ -278,13 +255,24 @@ class Workflow(object):
         :type  task_id: integer
         :param task_id: The id of the Task object.
         """
-        if task_id is None:
-            raise WorkflowException('task_id is None', task_spec=self.spec)
-        for task in self.task_tree:
-            if task.id == task_id:
-                return task.complete()
-        msg = 'A task with the given task_id (%s) was not found' % task_id
-        raise WorkflowException(msg, task_spec=self.spec)
+        task = self.get_task_from_id(task_id)
+        return task.complete()
+
+    def reset_task_from_id(self, task_id):
+        """
+        Runs the task with the given id.
+
+        :type  task_id: integer
+        :param task_id: The id of the Task object.
+        """
+        # Given that this is a BPMN thing it's questionable whether this belongs here at all
+        # However, since it calls a BPMN thing on `task`, I guess I'll leave it here
+        # At least it's not in both places any more
+        data = {}
+        if self.last_task and self.last_task.data:
+            data = self.last_task.data
+        task = self.get_task_from_id(task_id)
+        return task.reset_token(data)
 
     def complete_next(self, pick_up=True, halt_on_manual=True):
         """

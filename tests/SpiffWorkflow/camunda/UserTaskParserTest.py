@@ -16,22 +16,22 @@ class UserTaskParserTest(BaseTestCase):
 
     def testGetEnumField(self):
         form = self.spec.task_specs['Task_User_Select_Type'].form
-        self.assertEquals("Fact", form.key)
-        self.assertEquals(1, len(form.fields))
-        self.assertEquals("type", form.fields[0].id)
-        self.assertEquals(3, len(form.fields[0].options))
+        self.assertEqual("Fact", form.key)
+        self.assertEqual(1, len(form.fields))
+        self.assertEqual("type", form.fields[0].id)
+        self.assertEqual(3, len(form.fields[0].options))
 
     def testGetFieldProperties(self):
         form = self.spec.task_specs['Task_User_Select_Type'].form
-        self.assertEquals(1, len(form.fields[0].properties))
-        self.assertEquals('description', form.fields[0].properties[0].id)
-        self.assertEquals('Choose from the list of available types of random facts', form.fields[0].properties[0].value)
+        self.assertEqual(1, len(form.fields[0].properties))
+        self.assertEqual('description', form.fields[0].properties[0].id)
+        self.assertEqual('Choose from the list of available types of random facts', form.fields[0].properties[0].value)
 
     def testGetFieldValidation(self):
         form = self.spec.task_specs['Task_User_Select_Type'].form
-        self.assertEquals(1, len(form.fields[0].validation))
-        self.assertEquals('maxlength', form.fields[0].validation[0].name)
-        self.assertEquals('25', form.fields[0].validation[0].config)
+        self.assertEqual(1, len(form.fields[0].validation))
+        self.assertEqual('maxlength', form.fields[0].validation[0].name)
+        self.assertEqual('25', form.fields[0].validation[0].config)
 
     def testNoFormDoesNotBombOut(self):
         self.load_workflow_spec('no_form.bpmn', 'no_form')

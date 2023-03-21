@@ -721,13 +721,14 @@ class XmlSerializer(Serializer):
         workflow.task_tree = self.deserialize_task(workflow, task_tree_elem[0])
 
         # Re-connect parents
-        for task in workflow.get_tasks():
-            task.parent = workflow.get_task(task.parent)
+        for task in workflow.get_tasks_iterator():
+            if task.parent is not None:
+                task.parent = workflow.get_task_from_id(task.parent)
 
         # last_task
         last_task = elem.findtext('last-task')
         if last_task is not None:
-            workflow.last_task = workflow.get_task(last_task)
+            workflow.last_task = workflow.get_task_from_id(last_task)
 
         return workflow
 

@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-
-import sys
 import unittest
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from SpiffWorkflow.specs.Join import Join
 from SpiffWorkflow.specs.Simple import Simple
@@ -32,7 +28,6 @@ class TaskSpecTest(unittest.TestCase):
         self.assertEqual(self.spec.defines, {})
         self.assertEqual(self.spec.pre_assign, [])
         self.assertEqual(self.spec.post_assign, [])
-        self.assertEqual(self.spec.locks, [])
 
     def testSetData(self):
         self.assertEqual(self.spec.get_data('foo'), None)

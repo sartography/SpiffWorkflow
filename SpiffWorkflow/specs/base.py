@@ -74,10 +74,6 @@ class TaskSpec(object):
         :param wf_spec: A reference to the workflow specification that owns it.
         :type  name: string
         :param name: A name for the task.
-        :type  lock: list(str)
-        :param lock: A list of mutex names. The mutex is acquired
-                     on entry of execute() and released on leave of
-                     execute().
         :type  manual: bool
         :param manual: Whether this task requires a manual action to complete.
         :type  data: dict((str, object))
@@ -107,7 +103,6 @@ class TaskSpec(object):
         self.defines = kwargs.get('defines', {})
         self.pre_assign = kwargs.get('pre_assign',[])
         self.post_assign = kwargs.get('post_assign', [])
-        self.locks = kwargs.get('lock', [])
         self.lookahead = 2  # Maximum number of MAYBE predictions.
 
         # Events.
@@ -281,12 +276,6 @@ class TaskSpec(object):
         assert my_task is not None
         self.test()
 
-        # Acquire locks, if any.
-        for lock in self.locks:
-            mutex = my_task.workflow._get_mutex(lock)
-            if not mutex.testandset():
-                return
-
         # Assign variables, if so requested.
         for assignment in self.pre_assign:
             assignment.assign(my_task, my_task)
@@ -301,11 +290,6 @@ class TaskSpec(object):
             # Assign variables, if so requested.
             for assignment in self.post_assign:
                 assignment.assign(my_task, my_task)
-
-        # Release locks, if any.
-        for lock in self.locks:
-            mutex = my_task.workflow._get_mutex(lock)
-            mutex.unlock()
 
         self.finished_event.emit(my_task.workflow, my_task)
 
@@ -418,7 +402,6 @@ class TaskSpec(object):
                   'defines':self.defines,
                   'pre_assign':self.pre_assign,
                   'post_assign':self.post_assign,
-                  'locks':self.locks,
                   'lookahead':self.lookahead,
                   }
 
@@ -456,7 +439,6 @@ class TaskSpec(object):
         out.defines = s_state.get('defines')
         out.pre_assign = s_state.get('pre_assign')
         out.post_assign = s_state.get('post_assign')
-        out.locks = s_state.get('locks')
         out.lookahead = s_state.get('lookahead')
         return out
 

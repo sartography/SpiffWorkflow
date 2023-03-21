@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
 import unittest
 import pickle
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
 from .TaskSpecTest import TaskSpecTest
 from SpiffWorkflow.specs.Celery import Celery
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
@@ -64,12 +62,17 @@ class CeleryTest(TaskSpecTest):
         data = {'R': b64encode(pickle.dumps('1'))}
         # Comes from live data. Bug not identified, but there we are...
         data = {'inputs': ['Wait:1'], 'lookahead': 2, 'description': '',
-                'outputs': [], 'args': args,
+                'outputs': [],
+                'args': args,
                 'manual': False,
-                'data': data, 'locks': [], 'pre_assign': [],
+                'data': data,
+                'pre_assign': [],
                 'call': 'call.x',
-                'internal': False, 'post_assign': [], 'id': 8,
-                'result_key': None, 'defines': data,
+                'internal': False, 
+                'post_assign': [],
+                'id': 8,
+                'result_key': None, 
+                'defines': data,
                 'class': 'SpiffWorkflow.specs.Celery.Celery',
                 'name': 'RS1:1'}
         Celery.deserialize(serializer, new_wf_spec, data)
