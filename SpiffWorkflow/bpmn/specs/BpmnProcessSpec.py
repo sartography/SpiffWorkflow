@@ -47,8 +47,8 @@ class _EndJoin(UnstructuredJoin):
 
         return force or len(waiting_tasks) == 0, waiting_tasks
 
-    def _on_complete_hook(self, my_task):
-        super(_EndJoin, self)._on_complete_hook(my_task)
+    def _on_ready_hook(self, my_task):
+        super(_EndJoin, self)._on_ready_hook(my_task)
         my_task.workflow.data.update(my_task.data)
 
 

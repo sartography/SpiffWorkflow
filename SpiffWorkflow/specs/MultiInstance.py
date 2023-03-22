@@ -99,7 +99,7 @@ class MultiInstance(TaskSpec):
         else:
             my_task._sync_children(outputs, TaskState.LIKELY)
 
-    def _on_complete_hook(self, my_task):
+    def _on_ready_hook(self, my_task):
         outputs = self._get_predicted_outputs(my_task)
         my_task._sync_children(outputs, TaskState.FUTURE)
 

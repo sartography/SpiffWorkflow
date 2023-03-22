@@ -125,7 +125,7 @@ class MultiChoice(TaskSpec):
                 outputs.append(self._wf_spec.get_task_spec_from_name(output))
         return outputs
 
-    def _on_complete_hook(self, my_task):
+    def _on_ready_hook(self, my_task):
         """
         Runs the task. Should not be called directly.
         Returns True if completed, False otherwise.

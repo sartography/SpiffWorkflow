@@ -42,9 +42,8 @@ class ThreadStart(TaskSpec):
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.internal = True
 
-    def _on_complete_hook(self, my_task):
+    def _on_ready_hook(self, my_task):
         my_task._assign_new_thread_id()
-        TaskSpec._on_complete_hook(self, my_task)
 
     def serialize(self, serializer):
         return serializer.serialize_thread_start(self)

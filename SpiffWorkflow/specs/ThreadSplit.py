@@ -124,7 +124,7 @@ class ThreadSplit(TaskSpec):
         else:
             my_task._sync_children(outputs, TaskState.LIKELY)
 
-    def _on_complete_hook(self, my_task):
+    def _on_ready_hook(self, my_task):
         # Split, and remember the number of splits in the context data.
         split_n = int(valueof(my_task, self.times))
 

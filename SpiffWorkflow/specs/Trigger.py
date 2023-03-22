@@ -73,7 +73,7 @@ class Trigger(TaskSpec):
                 thetask._set_state(TaskState.FUTURE)
                 thetask._ready()
 
-    def _on_complete_hook(self, my_task):
+    def _on_ready_hook(self, my_task):
         """
         A hook into _on_complete() that does the task specific work.
 

@@ -70,7 +70,7 @@ class ExclusiveChoice(MultiChoice):
         spec = self._wf_spec.get_task_spec_from_name(self.default_task_spec)
         my_task._set_likely_task(spec)
 
-    def _on_complete_hook(self, my_task):
+    def _on_ready_hook(self, my_task):
 
         output = self._wf_spec.get_task_spec_from_name(self.default_task_spec)
         for condition, spec_name in self.cond_task_specs:
