@@ -77,9 +77,9 @@ class TaskState:
     CANCELLED = 64
 
     FINISHED_MASK = CANCELLED | COMPLETED
-    DEFINITE_MASK = FUTURE | WAITING | READY | FINISHED_MASK
-    PREDICTED_MASK = FUTURE | LIKELY | MAYBE
-    NOT_FINISHED_MASK = PREDICTED_MASK | WAITING | READY
+    DEFINITE_MASK = FUTURE | WAITING | READY
+    PREDICTED_MASK = LIKELY | MAYBE
+    NOT_FINISHED_MASK = PREDICTED_MASK | DEFINITE_MASK
     ANY_MASK = FINISHED_MASK | NOT_FINISHED_MASK
 
 
@@ -431,6 +431,8 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             elif child.task_spec in new_children:
                 # If the task already exists, remove it from to-be-added and update its state
                 new_children.remove(child.task_spec)
+                if not child._is_finished():
+                    child._set_state(state)
             else:
                 if child._is_definite():
                     # Definite tasks must not be removed, so they HAVE to be in the given task spec list.
@@ -442,17 +444,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             self.children.remove(child)
         for task_spec in new_children:
             self._add_child(task_spec, state)
-
-    def _set_likely_task(self, task_specs):
-        if not isinstance(task_specs, list):
-            task_specs = [task_specs]
-        for task_spec in task_specs:
-            for child in self.children:
-                if child.task_spec != task_spec:
-                    continue
-                if child._is_definite():
-                    continue
-                child._set_state(TaskState.LIKELY)
 
     def _assign_new_thread_id(self, recursive=True):
         """

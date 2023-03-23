@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import range
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -75,25 +74,14 @@ class MultiInstance(TaskSpec):
         for output in self.outputs:
             new_task = my_task._add_child(output, state)
             new_task.triggered = True
-            output._predict(new_task)
+            output._predict(new_task, mask=TaskState.FUTURE|TaskState.READY|TaskState.PREDICTED_MASK)
 
     def _get_predicted_outputs(self, my_task):
         split_n = int(valueof(my_task, self.times, 1))
-
-        # Predict the outputs.
-        outputs = []
-        for i in range(split_n):
-            outputs += self.outputs
-        return outputs
+        return self.outputs * split_n
 
     def _predict_hook(self, my_task):
-        split_n = int(valueof(my_task, self.times, 1))
-        my_task._set_internal_data(splits=split_n)
-
-        # Create the outgoing tasks.
-        outputs = []
-        for i in range(split_n):
-            outputs += self.outputs
+        outputs = self._get_predicted_outputs(my_task)
         if my_task._is_definite():
             my_task._sync_children(outputs, TaskState.FUTURE)
         else:
@@ -102,6 +90,7 @@ class MultiInstance(TaskSpec):
     def _on_ready_hook(self, my_task):
         outputs = self._get_predicted_outputs(my_task)
         my_task._sync_children(outputs, TaskState.FUTURE)
+        self._predict(my_task, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
 
     def serialize(self, serializer):
         return serializer.serialize_multi_instance(self)

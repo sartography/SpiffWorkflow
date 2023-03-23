@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 from .base import TaskSpec
+from SpiffWorkflow.task import TaskState
 
 
 class ThreadStart(TaskSpec):
@@ -44,6 +45,7 @@ class ThreadStart(TaskSpec):
 
     def _on_ready_hook(self, my_task):
         my_task._assign_new_thread_id()
+        my_task._sync_children(self.outputs, TaskState.READY)
 
     def serialize(self, serializer):
         return serializer.serialize_thread_start(self)

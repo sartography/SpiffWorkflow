@@ -73,7 +73,7 @@ class Workflow(object):
 
         start = self.task_tree._add_child(self.spec.start, state=TaskState.FUTURE)
 
-        self.spec.start._predict(start)
+        self.spec.start._predict(start, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
         if 'parent' not in kwargs:
             start.task_spec._update(start)
 

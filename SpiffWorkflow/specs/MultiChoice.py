@@ -89,32 +89,18 @@ class MultiChoice(TaskSpec):
         # The caller needs to make sure that predict() is called.
 
     def _predict_hook(self, my_task):
-        if self.choice:
-            outputs = [self._wf_spec.get_task_spec_from_name(o)
-                       for o in self.choice]
-        else:
-            outputs = self.outputs
-
-        # Default to MAYBE for all conditional outputs, default to LIKELY
-        # for unconditional ones. We can not default to FUTURE, because
-        # a call to trigger() may override the unconditional paths.
-        my_task._sync_children(outputs)
-        if not my_task._is_definite():
-            best_state = my_task.state
-        else:
-            best_state = TaskState.LIKELY
-
-        # Collect a list of all unconditional outputs.
-        outputs = []
+        conditional, unconditional = [], []
         for condition, output in self.cond_task_specs:
-            if condition is None:
-                outputs.append(self._wf_spec.get_task_spec_from_name(output))
-
-        for child in my_task.children:
-            if child._is_definite():
+            if self.choice is not None and output not in self.choice:
                 continue
-            if child.task_spec in outputs:
-                child._set_state(best_state)
+            if condition is None:
+                unconditional.append(self._wf_spec.get_task_spec_from_name(output))
+            else:
+                conditional.append(self._wf_spec.get_task_spec_from_name(output))
+        state = TaskState.MAYBE if my_task.state == TaskState.MAYBE else TaskState.LIKELY
+        my_task._sync_children(unconditional, state)
+        for spec in conditional:
+            my_task._add_child(spec, TaskState.MAYBE)
 
     def _get_matching_outputs(self, my_task):
         outputs = []
@@ -126,11 +112,10 @@ class MultiChoice(TaskSpec):
         return outputs
 
     def _on_ready_hook(self, my_task):
-        """
-        Runs the task. Should not be called directly.
-        Returns True if completed, False otherwise.
-        """
+        """Runs the task. Should not be called directly."""
         my_task._sync_children(self._get_matching_outputs(my_task), TaskState.FUTURE)
+        for child in my_task.children:
+            child.task_spec._predict(child, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
 
     def serialize(self, serializer):
         return serializer.serialize_multi_choice(self)

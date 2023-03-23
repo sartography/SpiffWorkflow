@@ -208,7 +208,7 @@ class TaskSpec(object):
         if len(self.inputs) < 1:
             raise WorkflowException(self, 'No input task connected.')
 
-    def _predict(self, my_task, seen=None, looked_ahead=0):
+    def _predict(self, my_task, seen=None, looked_ahead=0, mask=TaskState.PREDICTED_MASK):
         """
         Updates the branch such that all possible future routes are added.
 
@@ -224,26 +224,25 @@ class TaskSpec(object):
         if seen is None:
             seen = []
 
-        self._predict_hook(my_task)
-        if not my_task._is_definite():
+        if my_task._has_state(mask):
+            self._predict_hook(my_task)
+
+        if my_task._is_predicted():
             seen.append(self)
+
         look_ahead = my_task._is_definite() or looked_ahead + 1 < self.lookahead
         for child in my_task.children:
-            if not child._is_finished() and child not in seen and look_ahead:
-                child.task_spec._predict(child, seen[:], looked_ahead + 1)
+            if child._has_state(mask) and child not in seen and look_ahead:
+                child.task_spec._predict(child, seen[:], looked_ahead + 1, mask)
 
     def _predict_hook(self, my_task):
-        # If the task's status is not predicted, we default to FUTURE for all it's outputs.
+        # If the task's status is definite, we default to FUTURE for all it's outputs.
         # Otherwise, copy my own state to the children.
-        if my_task._is_definite():
+        if  my_task._is_definite():
             best_state = TaskState.FUTURE
         else:
             best_state = my_task.state
-
         my_task._sync_children(self.outputs, best_state)
-        for child in my_task.children:
-            if not child._is_definite():
-                child._set_state(best_state)
 
     def _update(self, my_task):
         """

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import range
 # Copyright (C) 2007 Samuel Abels
 #
 # This library is free software; you can redistribute it and/or
@@ -108,30 +107,23 @@ class ThreadSplit(TaskSpec):
             new_task = my_task.add_child(output, TaskState.READY)
             new_task.triggered = True
 
-    def _predict_hook(self, my_task):
+    def _get_predicted_outputs(self, my_task):
         split_n = int(valueof(my_task, self.times))
+        return [self.thread_starter] * split_n
 
+    def _predict_hook(self, my_task):
         # if we were created with thread_starter suppressed, connect it now.
         if self.thread_starter is None:
             self.thread_starter = self.outputs[0]
 
-        # Predict the outputs.
-        outputs = []
-        for i in range(split_n):
-            outputs.append(self.thread_starter)
+        outputs = self._get_predicted_outputs(my_task)
         if my_task._is_definite():
             my_task._sync_children(outputs, TaskState.FUTURE)
         else:
             my_task._sync_children(outputs, TaskState.LIKELY)
 
     def _on_ready_hook(self, my_task):
-        # Split, and remember the number of splits in the context data.
-        split_n = int(valueof(my_task, self.times))
-
-        # Create the outgoing tasks.
-        outputs = []
-        for i in range(split_n):
-            outputs.append(self.thread_starter)
+        outputs = self._get_predicted_outputs(my_task)
         my_task._sync_children(outputs, TaskState.FUTURE)
 
     def serialize(self, serializer):
