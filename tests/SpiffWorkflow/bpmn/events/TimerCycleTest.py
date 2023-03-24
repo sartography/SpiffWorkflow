@@ -55,11 +55,11 @@ class TimerCycleTest(BpmnWorkflowTestCase):
             time.sleep(0.05)
             self.workflow.refresh_waiting_tasks()
             events = self.workflow.waiting_events()
-            if loopcount == 0:
-                # Wait time is 0.1s, so the first time through, there should still be a waiting event
+            if loopcount < 2:
+                # Wait time is 0.1s, two child tasks are created
                 self.assertEqual(len(events), 1)
             else:
-                # By the second iteration, both should be complete
+                # By the third iteration, the event should no longer be waiting
                 self.assertEqual(len(events), 0)
 
         # Get coffee still ready

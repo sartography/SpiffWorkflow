@@ -453,41 +453,37 @@ class CycleTimerEventDefinition(TimerEventDefinition):
     def event_type(self):
         return 'Cycle Timer'
 
-    def has_fired(self, my_task):
+    def cycle_complete(self, my_task):
 
-        if not my_task._get_internal_data('event_fired'):
-            # Only check for the next cycle when the event has not fired to prevent cycles from being skipped.
-            event_value = my_task._get_internal_data('event_value')
-            if event_value is None:
-                expression = my_task.workflow.script_engine.evaluate(my_task, self.expression)
-                cycles, start, duration = TimerEventDefinition.parse_iso_recurring_interval(expression)
-                event_value = {'cycles': cycles, 'next': start.isoformat(), 'duration': duration.total_seconds()}
+        event_value = my_task._get_internal_data('event_value')
+        if event_value is None:
+            # Don't necessarily like this, but it's a lot more staightforward than trying to only create
+            # a child task on loop iterations after the first
+            my_task._drop_children()
+            expression = my_task.workflow.script_engine.evaluate(my_task, self.expression)
+            cycles, start, duration = TimerEventDefinition.parse_iso_recurring_interval(expression)
+            event_value = {'cycles': cycles, 'next': start.isoformat(), 'duration': duration.total_seconds()}
 
-            if event_value['cycles'] > 0:
-                next_event = datetime.fromisoformat(event_value['next'])
-                if next_event < datetime.now(timezone.utc):
-                    my_task._set_internal_data(event_fired=True)
-                    event_value['next'] = (next_event + timedelta(seconds=event_value['duration'])).isoformat()
+        # When the next timer event passes, return True to allow the parent task to generate another child
+        # Use event fired to indicate that this timer has completed all cycles and the task can be completed
+        ready = False
+        if event_value['cycles'] != 0:
+            next_event = datetime.fromisoformat(event_value['next'])
+            if next_event < datetime.now(timezone.utc):
+                event_value['next'] = (next_event + timedelta(seconds=event_value['duration'])).isoformat()
+                event_value['cycles'] -= 1
+                ready = True
+        else:
+            my_task.internal_data.pop('event_value', None)
+            my_task.internal_data['event_fired'] = True
 
-            my_task._set_internal_data(event_value=event_value)
-
-        return my_task._get_internal_data('event_fired', False)
+        my_task._set_internal_data(event_value=event_value)
+        return ready
 
     def timer_value(self, my_task):
         event_value = my_task._get_internal_data('event_value')
-        if event_value is not None and event_value['cycles'] > 0:
+        if event_value is not None and event_value['cycles'] != 0:
             return event_value['next']
-
-    def complete(self, my_task):
-        event_value = my_task._get_internal_data('event_value')
-        if event_value is not None and event_value['cycles'] == 0:
-            my_task.internal_data.pop('event_value')
-            return True
-
-    def complete_cycle(self, my_task):
-        # Only increment when the task completes
-        if my_task._get_internal_data('event_value') is not None:
-            my_task.internal_data['event_value']['cycles'] -= 1
 
 
 class MultipleEventDefinition(EventDefinition):

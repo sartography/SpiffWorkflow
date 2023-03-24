@@ -57,21 +57,22 @@ class CatchingEvent(Simple, BpmnSpecMixin):
 
         if self.event_definition.has_fired(my_task):
             return True
-        else:
+        elif isinstance(self.event_definition, CycleTimerEventDefinition):
+            if self.event_definition.cycle_complete(my_task):
+                for output in self.outputs:
+                    child = my_task._add_child(output, TaskState.READY)
+                    child.task_spec._predict(child, mask=TaskState.READY|TaskState.PREDICTED_MASK)
+                if my_task.state != TaskState.WAITING:
+                    my_task._set_state(TaskState.WAITING)
+        elif my_task.state != TaskState.WAITING:
             my_task._set_state(TaskState.WAITING)
 
-    def _on_complete_hook(self, my_task):
+    def _on_ready_hook(self, my_task):
 
         if isinstance(self.event_definition, MessageEventDefinition):
             self.event_definition.update_task_data(my_task)
-        elif isinstance(self.event_definition, CycleTimerEventDefinition):
-            self.event_definition.complete_cycle(my_task)
-            if not self.event_definition.complete(my_task):
-                for output in self.outputs:
-                    my_task._add_child(output)
-                my_task._set_state(TaskState.WAITING)
         self.event_definition.reset(my_task)
-        super(CatchingEvent, self)._on_complete_hook(my_task)
+        super(CatchingEvent, self)._on_ready_hook(my_task)
 
     # This fixes the problem of boundary events remaining cancelled if the task is reused.
     # It pains me to add these methods, but unless we can get rid of the loop reset task we're stuck
@@ -95,6 +96,6 @@ class ThrowingEvent(Simple, BpmnSpecMixin):
         super(ThrowingEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
 
-    def _on_complete_hook(self, my_task):
-        super(ThrowingEvent, self)._on_complete_hook(my_task)
+    def _on_ready_hook(self, my_task):
+        super(ThrowingEvent, self)._on_ready_hook(my_task)
         self.event_definition.throw(my_task)
