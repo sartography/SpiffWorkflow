@@ -67,12 +67,12 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         elif my_task.state != TaskState.WAITING:
             my_task._set_state(TaskState.WAITING)
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
 
         if isinstance(self.event_definition, MessageEventDefinition):
             self.event_definition.update_task_data(my_task)
         self.event_definition.reset(my_task)
-        super(CatchingEvent, self)._on_ready_hook(my_task)
+        super(CatchingEvent, self)._run_hook(my_task)
 
     # This fixes the problem of boundary events remaining cancelled if the task is reused.
     # It pains me to add these methods, but unless we can get rid of the loop reset task we're stuck
@@ -96,6 +96,6 @@ class ThrowingEvent(Simple, BpmnSpecMixin):
         super(ThrowingEvent, self).__init__(wf_spec, name, **kwargs)
         self.event_definition = event_definition
 
-    def _on_ready_hook(self, my_task):
-        super(ThrowingEvent, self)._on_ready_hook(my_task)
+    def _run_hook(self, my_task):
+        super(ThrowingEvent, self)._run_hook(my_task)
         self.event_definition.throw(my_task)

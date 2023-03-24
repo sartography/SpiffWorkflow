@@ -47,7 +47,7 @@ class ReleaseMutex(TaskSpec):
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.mutex = mutex
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
         mutex = my_task.workflow._get_mutex(self.mutex)
         mutex.unlock()
 

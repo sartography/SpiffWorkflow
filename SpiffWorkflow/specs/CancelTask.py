@@ -29,7 +29,7 @@ class CancelTask(Trigger):
     parallel split.
     """
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
         for task_name in self.context:
             cancel_tasks = my_task.workflow.get_task_spec_from_name(task_name)
             for cancel_task in my_task._get_root()._find_any(cancel_tasks):

@@ -111,7 +111,7 @@ class MultiChoice(TaskSpec):
                 outputs.append(self._wf_spec.get_task_spec_from_name(output))
         return outputs
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
         """Runs the task. Should not be called directly."""
         my_task._sync_children(self._get_matching_outputs(my_task), TaskState.FUTURE)
         for child in my_task.children:

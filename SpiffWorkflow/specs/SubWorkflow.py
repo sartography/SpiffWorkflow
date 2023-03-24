@@ -108,7 +108,7 @@ class SubWorkflow(TaskSpec):
         my_task._set_internal_data(subworkflow=subworkflow)
         my_task._set_state(TaskState.WAITING)
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
         # Assign variables, if so requested.
         subworkflow = my_task._get_internal_data('subworkflow')
         for child in subworkflow.task_tree.children:

@@ -66,7 +66,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
     def spec_type(self):
         return 'Boundary Event Parent'
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
 
         # Clear any events that our children might have received and
         # wait for new events

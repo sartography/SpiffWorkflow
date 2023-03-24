@@ -275,14 +275,13 @@ class TaskSpec(object):
         assert my_task is not None
         self.test()
 
-    def _on_ready_before_hook(self, my_task):
-        """
-        A hook into _on_ready() that does the task specific work.
+        # Assign variables, if so requested.
+        for assignment in self.pre_assign:
+            assignment.assign(my_task, my_task)
 
-        :type  my_task: Task
-        :param my_task: The associated task in the task tree.
-        """
-        pass
+        # Run task-specific code.
+        self._on_ready_hook(my_task)
+        self.reached_event.emit(my_task.workflow, my_task)
 
     def _on_ready_hook(self, my_task):
         """
@@ -295,14 +294,7 @@ class TaskSpec(object):
 
     def _run(self, my_task):
 
-        # Assign variables, if so requested.
-        for assignment in self.pre_assign:
-            assignment.assign(my_task, my_task)
-
-        # Run task-specific code.
-        self._on_ready_before_hook(my_task)
-        self.reached_event.emit(my_task.workflow, my_task)
-        self._on_ready_hook(my_task)
+        self._run_hook(my_task)
 
         # Run user code, if any.
         if self.ready_event.emit(my_task.workflow, my_task):
@@ -312,6 +304,15 @@ class TaskSpec(object):
 
         self.finished_event.emit(my_task.workflow, my_task)
         return True
+
+    def _run_hook(self, my_task):
+        """
+        A hook into _run() that does the task specific work.
+
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
+        """
+        pass
 
     def _on_cancel(self, my_task):
         """

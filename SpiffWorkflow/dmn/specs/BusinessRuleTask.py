@@ -23,10 +23,10 @@ class BusinessRuleTask(Simple, BpmnSpecMixin):
     def spec_class(self):
         return 'Business Rule Task'
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
         try:
             my_task.data = DeepMerge.merge(my_task.data, self.dmnEngine.result(my_task))
-            super(BusinessRuleTask, self)._on_ready_hook(my_task)
+            super(BusinessRuleTask, self)._run_hook(my_task)
         except SpiffWorkflowException as we:
             we.add_note(f"Business Rule Task '{my_task.task_spec.description}'.")
             raise we

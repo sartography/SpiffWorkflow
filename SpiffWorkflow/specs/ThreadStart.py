@@ -43,7 +43,7 @@ class ThreadStart(TaskSpec):
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.internal = True
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
         my_task._assign_new_thread_id()
         my_task._sync_children(self.outputs, TaskState.READY)
 

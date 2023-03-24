@@ -25,8 +25,8 @@ class SubWorkflowTask(BpmnSpecMixin):
     def spec_type(self):
         return 'Subprocess'
 
-    def _on_ready_hook(self, my_task):
-        super()._on_ready_hook(my_task)
+    def _run_hook(self, my_task):
+        super()._run_hook(my_task)
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
         self.update_data(my_task, subworkflow)

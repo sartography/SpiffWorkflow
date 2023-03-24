@@ -61,7 +61,7 @@ class ExclusiveChoice(MultiChoice):
         if self.default_task_spec is None:
             raise WorkflowException('A default output is required.', task_spec=self)
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
 
         output = self._wf_spec.get_task_spec_from_name(self.default_task_spec)
         for condition, spec_name in self.cond_task_specs:
