@@ -34,6 +34,7 @@ class CancelTask(Trigger):
             cancel_tasks = my_task.workflow.get_task_spec_from_name(task_name)
             for cancel_task in my_task._get_root()._find_any(cancel_tasks):
                 cancel_task.cancel()
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_cancel_task(self)

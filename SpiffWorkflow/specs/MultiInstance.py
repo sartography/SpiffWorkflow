@@ -91,6 +91,7 @@ class MultiInstance(TaskSpec):
         outputs = self._get_predicted_outputs(my_task)
         my_task._sync_children(outputs, TaskState.FUTURE)
         self._predict(my_task, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_multi_instance(self)

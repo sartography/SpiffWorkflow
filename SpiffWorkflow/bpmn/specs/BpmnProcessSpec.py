@@ -48,8 +48,9 @@ class _EndJoin(UnstructuredJoin):
         return force or len(waiting_tasks) == 0, waiting_tasks
 
     def _run_hook(self, my_task):
-        super(_EndJoin, self)._run_hook(my_task)
+        result = super(_EndJoin, self)._run_hook(my_task)
         my_task.workflow.data.update(my_task.data)
+        return result
 
 
 class BpmnProcessSpec(WorkflowSpec):

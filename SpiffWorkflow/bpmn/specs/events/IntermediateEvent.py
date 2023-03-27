@@ -74,6 +74,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
             if isinstance(child.task_spec, BoundaryEvent):
                 child.task_spec.event_definition.reset(child)
                 child._set_state(TaskState.WAITING)
+        return True
 
     def _child_complete_hook(self, child_task):
 

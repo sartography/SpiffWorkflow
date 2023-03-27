@@ -125,6 +125,7 @@ class ThreadSplit(TaskSpec):
     def _run_hook(self, my_task):
         outputs = self._get_predicted_outputs(my_task)
         my_task._sync_children(outputs, TaskState.FUTURE)
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_thread_split(self)

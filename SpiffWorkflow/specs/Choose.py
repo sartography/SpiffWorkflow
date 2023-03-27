@@ -66,6 +66,7 @@ class Choose(Trigger):
                 triggered.append(task)
         for task in triggered:
             context._predict(task)
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_choose(self)

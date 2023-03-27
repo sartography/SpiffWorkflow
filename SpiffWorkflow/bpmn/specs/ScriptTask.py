@@ -36,7 +36,7 @@ class ScriptEngineTask(Simple, BpmnSpecMixin):
         except Exception as exc:
             task._set_state(TaskState.WAITING)
             raise exc
-
+        return True
 
 class ScriptTask(ScriptEngineTask):
 

@@ -46,6 +46,7 @@ class ThreadStart(TaskSpec):
     def _run_hook(self, my_task):
         my_task._assign_new_thread_id()
         my_task._sync_children(self.outputs, TaskState.READY)
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_thread_start(self)

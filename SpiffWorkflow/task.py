@@ -329,9 +329,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             self.children.remove(task)
 
     def _has_state(self, state):
-        """
-        Returns True if the Task has the given state flag set.
-        """
+        """Returns True if the Task has the given state flag set."""
         return (self.state & state) != 0
 
     def _is_finished(self):
@@ -552,14 +550,10 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         return str(self.task_spec.description)
 
     def get_state_name(self):
-        """
-        Returns a textual representation of this Task's state.
-        """
-        state_name = []
+        """Returns a textual representation of this Task's state."""
         for state, name in list(TaskStateNames.items()):
             if self._has_state(state):
-                state_name.append(name)
-        return '|'.join(state_name)
+                return name
 
     def get_spec_data(self, name=None, default=None):
         """
@@ -611,15 +605,22 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         return self.data.get(name, default)
 
     def _ready(self):
-        """
-        Marks the task as ready for execution.
-        """
+        """Marks the task as ready for execution."""
         if self._has_state(TaskState.COMPLETED) or self._has_state(TaskState.CANCELLED):
             return
         self._set_state(TaskState.READY)
         self.task_spec._on_ready(self)
 
     def run(self):
+        """
+        Execute the task.
+
+        If the return value of task_spec._run is None, assume the task is not finished, 
+        and move the task to WAITING.
+
+        :rtype: boolean or None
+        :returns: the value returned by the task spec's run method
+        """
         start = time.time()
         retval = self.task_spec._run(self)
         extra = self.log_info({
@@ -630,29 +631,26 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         if retval is None:
             self._set_state(TaskState.WAITING)
         else:
+            # If we add an error state, the we can move the task to COMPLETE or ERROR
+            # according to the return value.
             self.complete()
         return retval
 
     def cancel(self):
-        """
-        Cancels the item if it was not yet completed, and removes
-        any children that are LIKELY.
-        """
+        """Cancels the item if it was not yet completed, and removes any children that are LIKELY."""
         if self._is_finished():
             for child in self.children:
                 child.cancel()
-            return
-        self._set_state(TaskState.CANCELLED)
-        self._drop_children()
-        self.task_spec._on_cancel(self)
+        else:
+            self._set_state(TaskState.CANCELLED)
+            self._drop_children()
+            self.task_spec._on_cancel(self)
 
     def complete(self):
-        """
-        Called by the associated task to let us know that its state
-        has changed (e.g. from FUTURE to COMPLETED.)
-        """
+        """Marks this task complete."""
         self._set_state(TaskState.COMPLETED)
         self.task_spec._on_complete(self)
+        self.workflow.last_task = self
 
     def trigger(self, *args):
         """

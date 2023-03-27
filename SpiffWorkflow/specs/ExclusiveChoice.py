@@ -75,6 +75,8 @@ class ExclusiveChoice(MultiChoice):
         my_task._sync_children([output], TaskState.FUTURE)
         for child in my_task.children:
             child.task_spec._predict(child, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
+        
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_exclusive_choice(self)

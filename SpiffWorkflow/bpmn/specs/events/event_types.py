@@ -72,7 +72,7 @@ class CatchingEvent(Simple, BpmnSpecMixin):
         if isinstance(self.event_definition, MessageEventDefinition):
             self.event_definition.update_task_data(my_task)
         self.event_definition.reset(my_task)
-        super(CatchingEvent, self)._run_hook(my_task)
+        return super(CatchingEvent, self)._run_hook(my_task)
 
     # This fixes the problem of boundary events remaining cancelled if the task is reused.
     # It pains me to add these methods, but unless we can get rid of the loop reset task we're stuck
@@ -99,3 +99,4 @@ class ThrowingEvent(Simple, BpmnSpecMixin):
     def _run_hook(self, my_task):
         super(ThrowingEvent, self)._run_hook(my_task)
         self.event_definition.throw(my_task)
+        return True

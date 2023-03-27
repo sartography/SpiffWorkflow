@@ -116,6 +116,7 @@ class MultiChoice(TaskSpec):
         my_task._sync_children(self._get_matching_outputs(my_task), TaskState.FUTURE)
         for child in my_task.children:
             child.task_spec._predict(child, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_multi_choice(self)

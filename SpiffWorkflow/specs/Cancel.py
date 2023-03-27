@@ -57,6 +57,7 @@ class Cancel(TaskSpec):
 
     def _run_hook(self, my_task):
         my_task.workflow.cancel(self.cancel_successfully)
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_cancel(self)

@@ -293,9 +293,16 @@ class TaskSpec(object):
         pass
 
     def _run(self, my_task):
+        """
+        Run the task.
 
-        self._run_hook(my_task)
+        :type  my_task: Task
+        :param my_task: The associated task in the task tree.
 
+        :rtype: boolean or None
+        :returns: the value returned by the task spec's run method.
+        """
+        result = self._run_hook(my_task)
         # Run user code, if any.
         if self.ready_event.emit(my_task.workflow, my_task):
             # Assign variables, if so requested.
@@ -303,7 +310,7 @@ class TaskSpec(object):
                 assignment.assign(my_task, my_task)
 
         self.finished_event.emit(my_task.workflow, my_task)
-        return True
+        return result
 
     def _run_hook(self, my_task):
         """
@@ -312,7 +319,7 @@ class TaskSpec(object):
         :type  my_task: Task
         :param my_task: The associated task in the task tree.
         """
-        pass
+        return True
 
     def _on_cancel(self, my_task):
         """
@@ -346,19 +353,12 @@ class TaskSpec(object):
         :rtype:  boolean
         :returns: True on success, False otherwise.
         """
-        assert my_task is not None
-
-        # We have to set the last task here, because the on_complete_hook
-        # of a loopback task may overwrite what the last_task will be.
-        my_task.workflow.last_task = my_task
         self._on_complete_hook(my_task)
         for child in my_task.children:
             if not child._is_finished():
                 child.task_spec._update(child)
         my_task.workflow._task_completed_notify(my_task)
-
         self.completed_event.emit(my_task.workflow, my_task)
-
 
     def _on_complete_hook(self, my_task):
         """

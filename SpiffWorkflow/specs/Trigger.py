@@ -86,6 +86,7 @@ class Trigger(TaskSpec):
                 task_spec = my_task.workflow.get_task_spec_from_name(task_name)
                 task_spec._on_trigger(my_task)
         self.queued = 0
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_trigger(self)

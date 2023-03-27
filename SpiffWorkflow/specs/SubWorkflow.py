@@ -115,6 +115,7 @@ class SubWorkflow(TaskSpec):
             for assignment in self.in_assign:
                 assignment.assign(my_task, child)
             child.task_spec._update(child)
+        return True
 
     def _update_hook(self, my_task):
         super()._update_hook(my_task)
