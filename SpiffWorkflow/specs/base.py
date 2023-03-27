@@ -252,8 +252,8 @@ class TaskSpec(object):
         """
         if my_task._is_predicted():
             self._predict(my_task)
+        self.entered_event.emit(my_task.workflow, my_task)
         if self._update_hook(my_task):
-            self.entered_event.emit(my_task.workflow, my_task)
             my_task._ready()
 
     def _update_hook(self, my_task):

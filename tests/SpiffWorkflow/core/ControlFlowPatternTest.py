@@ -165,8 +165,8 @@ class RecursionTest(TestCase, WorkflowPatternTestCase):
     # Moving subworkflow creation to predict would likely fix the problem, but there are problems
     # with prediction that also need to be fixed as well.
 
-    def test_run_workflow(self):
-        pass
+    #def test_run_workflow(self):
+    #    pass
 
 class ImplicitTerminationTest(TestCase, WorkflowPatternTestCase):
     def setUp(self):

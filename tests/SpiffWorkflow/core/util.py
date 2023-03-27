@@ -2,6 +2,7 @@
 
 import time
 from SpiffWorkflow.workflow import Workflow
+from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
 
 
 def on_reached_cb(workflow, task, taken_path):
@@ -37,6 +38,12 @@ def on_reached_cb(workflow, task, taken_path):
     old = task.get_data('data', '')
     data = task.get_name() + ': ' + atts + '/' + props + '\n'
     task.set_data(data=old + data)
+    return True
+
+def on_complete_cb(workflow, task, taken_path):
+    # Record the path.
+    indent = '  ' * (task._get_depth() - 1)
+    taken_path.append('%s%s' % (indent, task.get_name()))
     # In workflows that load a subworkflow, the newly loaded children
     # will not have on_reached_cb() assigned. By using this function, we
     # re-assign the function in every step, thus making sure that new
@@ -45,10 +52,9 @@ def on_reached_cb(workflow, task, taken_path):
         track_task(child.task_spec, taken_path)
     return True
 
-def on_complete_cb(workflow, task, taken_path):
-    # Record the path.
-    indent = '  ' * (task._get_depth() - 1)
-    taken_path.append('%s%s' % (indent, task.get_name()))
+def on_entered_cb(workflow, task, taken_path):
+    for child in task.children:
+        track_task(child.task_spec, taken_path)
     return True
 
 def track_task(task_spec, taken_path):
@@ -60,6 +66,10 @@ def track_task(task_spec, taken_path):
     if task_spec.completed_event.is_connected(on_complete_cb):
         task_spec.completed_event.disconnect(on_complete_cb)
     task_spec.completed_event.connect(on_complete_cb, taken_path)
+    if isinstance(task_spec, SubWorkflow):
+        if task_spec.entered_event.is_connected(on_entered_cb):
+            task_spec.entered_event.disconnect(on_entered_cb)
+        task_spec.entered_event.connect(on_entered_cb, taken_path)
 
 def track_workflow(wf_spec, taken_path=None):
     if taken_path is None:
