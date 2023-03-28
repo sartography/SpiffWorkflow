@@ -21,7 +21,7 @@ class Version_1_0_Test(BaseTestCase):
         # We should be able to finish the workflow from this point
         ready_tasks = wf.get_tasks(TaskState.READY)
         self.assertEqual('Action3', ready_tasks[0].task_spec.description)
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         wf.do_engine_steps()
         self.assertEqual(True, wf.is_completed())
 
@@ -50,7 +50,7 @@ class Version_1_1_Test(BaseTestCase):
         self.assertEqual(len(task.task_spec.cond_task_specs), 2)
         ready_task = wf.get_ready_user_tasks()[0]
         ready_task.data['NeedClarification'] = 'Yes'
-        ready_task.complete()
+        ready_task.run()
         wf.do_engine_steps()
         ready_task = wf.get_ready_user_tasks()[0]
         self.assertEqual(ready_task.task_spec.name, 'Activity_A2')

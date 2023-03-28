@@ -18,7 +18,6 @@
 # 02110-1301  USA
 
 from .event_types import ThrowingEvent, CatchingEvent
-from .event_definitions import CycleTimerEventDefinition
 from ..BpmnSpecMixin import BpmnSpecMixin
 from ....specs.Simple import Simple
 from ....task import TaskState
@@ -67,13 +66,15 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
     def spec_type(self):
         return 'Boundary Event Parent'
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
 
         # Clear any events that our children might have received and
         # wait for new events
         for child in my_task.children:
             if isinstance(child.task_spec, BoundaryEvent):
                 child.task_spec.event_definition.reset(child)
+                child._set_state(TaskState.WAITING)
+        return True
 
     def _child_complete_hook(self, child_task):
 
@@ -123,7 +124,7 @@ class BoundaryEvent(CatchingEvent):
         super(BoundaryEvent, self).catch(my_task, event_definition)
         # Would love to get rid of this statement and manage in the workflow
         # However, it is not really compatible with how boundary events work.
-        my_task.complete()
+        my_task.run()
 
 
 class EventBasedGateway(CatchingEvent):

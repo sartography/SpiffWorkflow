@@ -31,7 +31,7 @@ class SubWorkflowTest(BaseTestCase):
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEqual("Activity_"+answer, task.task_spec.name)
             task.update_data({"Field"+answer: answer})
-            self.workflow.complete_task_from_id(task.id)
+            self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 

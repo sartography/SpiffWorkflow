@@ -42,17 +42,16 @@ class TaskSpecTest(unittest.TestCase):
         self.assertEqual(1, len(ready_tasks))
         task = ready_tasks[0]
         self.assertEqual(name, task.task_spec.name)
-        task.complete()
+        task.run()
 
     def do_next_named_step(self, name, other_ready_tasks):
         # This method completes a single task from the specified set of ready
         # tasks
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         all_tasks = sorted([name] + other_ready_tasks)
-        self.assertEqual(
-            all_tasks, sorted([t.task_spec.name for t in ready_tasks]))
+        self.assertEqual(all_tasks, sorted([t.task_spec.name for t in ready_tasks]))
         task = list([t for t in ready_tasks if t.task_spec.name == name])[0]
-        task.complete()
+        task.run()
 
     def test_block_to_subworkflow(self):
         self.load_workflow_spec('data', 'block_to_subworkflow.xml')

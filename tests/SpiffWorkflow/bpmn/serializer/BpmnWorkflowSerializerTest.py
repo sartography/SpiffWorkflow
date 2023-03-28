@@ -142,7 +142,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
     def test_serialize_workflow_where_script_task_includes_function(self):
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_ready_user_tasks()
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.workflow.do_engine_steps()
         results = self.serializer.serialize_json(self.workflow)
         assert self.workflow.is_completed()

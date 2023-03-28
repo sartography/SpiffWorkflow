@@ -29,7 +29,7 @@ class NIMessageBoundaryTest(BaseTestCase):
 
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
-        self.workflow.complete_task_from_id(ready_tasks[0].id)
+        self.workflow.run_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
 
         # first we run through a couple of steps where we answer No to each
@@ -45,7 +45,7 @@ class NIMessageBoundaryTest(BaseTestCase):
                                  'We got a ready task that we did not expect - %s'%(
                                  task.task_spec.name))
                 task.data[response[0]] = response[1]
-                self.workflow.complete_task_from_id(task.id)
+                self.workflow.run_task_from_id(task.id)
                 self.workflow.do_engine_steps()
             # if we have a list of tasks - that list becomes invalid
             # after we do a save restore, so I'm completing the list
@@ -66,7 +66,7 @@ class NIMessageBoundaryTest(BaseTestCase):
                                  'We got a ready task that we did not expect - %s'%(
                                  task.task_spec.name))
                 task.data[response[0]] = response[1]
-                self.workflow.complete_task_from_id(task.id)
+                self.workflow.run_task_from_id(task.id)
                 self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 
@@ -75,14 +75,14 @@ class NIMessageBoundaryTest(BaseTestCase):
         task = ready_tasks[0]
         self.assertEqual(task.task_spec.name,'Activity_DoWork')
         task.data['work_done'] = 'Yes'
-        self.workflow.complete_task_from_id(task.id)
+        self.workflow.run_task_from_id(task.id)
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(len(ready_tasks), 1)
         task = ready_tasks[0]
         self.assertEqual(task.task_spec.name, 'Activity_WorkCompleted')
         task.data['work_completed'] = 'Lots of Stuff'
-        self.workflow.complete_task_from_id(task.id)
+        self.workflow.run_task_from_id(task.id)
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.is_completed(),True)
         self.assertEqual(self.workflow.last_task.data,{'Event_InterruptBoundary_Response': 'Youre late!',

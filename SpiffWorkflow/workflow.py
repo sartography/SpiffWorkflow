@@ -73,7 +73,7 @@ class Workflow(object):
 
         start = self.task_tree._add_child(self.spec.start, state=TaskState.FUTURE)
 
-        self.spec.start._predict(start)
+        self.spec.start._predict(start, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
         if 'parent' not in kwargs:
             start.task_spec._update(start)
 
@@ -248,7 +248,7 @@ class Workflow(object):
         msg = 'A task with the given task_id (%s) was not found' % task_id
         raise WorkflowException(msg, task_spec=self.spec)
 
-    def complete_task_from_id(self, task_id):
+    def run_task_from_id(self, task_id):
         """
         Runs the task with the given id.
 
@@ -256,7 +256,7 @@ class Workflow(object):
         :param task_id: The id of the Task object.
         """
         task = self.get_task_from_id(task_id)
-        return task.complete()
+        return task.run()
 
     def reset_task_from_id(self, task_id):
         """
@@ -274,7 +274,7 @@ class Workflow(object):
         task = self.get_task_from_id(task_id)
         return task.reset_token(data)
 
-    def complete_next(self, pick_up=True, halt_on_manual=True):
+    def run_next(self, pick_up=True, halt_on_manual=True):
         """
         Runs the next task.
         Returns True if completed, False otherwise.
@@ -302,7 +302,7 @@ class Workflow(object):
             self.last_task = None
             if task is not None:
                 if not (halt_on_manual and task.task_spec.manual):
-                    if task.complete():
+                    if task.run():
                         self.last_task = task
                         return True
                 blacklist.append(task)
@@ -313,7 +313,7 @@ class Workflow(object):
                 if task._is_descendant_of(blacklisted_task):
                     continue
             if not (halt_on_manual and task.task_spec.manual):
-                if task.complete():
+                if task.run():
                     self.last_task = task
                     return True
             blacklist.append(task)
@@ -326,7 +326,7 @@ class Workflow(object):
                 return True
         return False
 
-    def complete_all(self, pick_up=True, halt_on_manual=True):
+    def run_all(self, pick_up=True, halt_on_manual=True):
         """
         Runs all branches until completion. This is a convenience wrapper
         around :meth:`complete_next`, and the pick_up argument is passed
@@ -339,7 +339,7 @@ class Workflow(object):
                         complete any tasks that have manual=True.
                         See :meth:`SpiffWorkflow.specs.TaskSpec.__init__`
         """
-        while self.complete_next(pick_up, halt_on_manual):
+        while self.run_next(pick_up, halt_on_manual):
             pass
 
     def get_dump(self):

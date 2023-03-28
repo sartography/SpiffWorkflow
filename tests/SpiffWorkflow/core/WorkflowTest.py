@@ -34,7 +34,7 @@ class WorkflowTest(unittest.TestCase):
         tasks = workflow.get_tasks(TaskState.READY)
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks[0].task_spec.name, 'Start')
-        workflow.complete_task_from_id(tasks[0].id)
+        workflow.run_task_from_id(tasks[0].id)
         self.assertEqual(tasks[0].state, TaskState.COMPLETED)
 
         tasks = workflow.get_tasks(TaskState.READY)
@@ -45,7 +45,7 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(task_a1.task_spec.name, 'task_a1')
         self.assertEqual(task_b1.task_spec.__class__, Simple)
         self.assertEqual(task_b1.task_spec.name, 'task_b1')
-        workflow.complete_task_from_id(task_a1.id)
+        workflow.run_task_from_id(task_a1.id)
         self.assertEqual(task_a1.state, TaskState.COMPLETED)
 
         tasks = workflow.get_tasks(TaskState.READY)
@@ -54,16 +54,16 @@ class WorkflowTest(unittest.TestCase):
         task_a2 = tasks[0]
         self.assertEqual(task_a2.task_spec.__class__, Simple)
         self.assertEqual(task_a2.task_spec.name, 'task_a2')
-        workflow.complete_task_from_id(task_a2.id)
+        workflow.run_task_from_id(task_a2.id)
 
         tasks = workflow.get_tasks(TaskState.READY)
         self.assertEqual(len(tasks), 1)
         self.assertTrue(task_b1 in tasks)
 
-        workflow.complete_task_from_id(task_b1.id)
+        workflow.run_task_from_id(task_b1.id)
         tasks = workflow.get_tasks(TaskState.READY)
         self.assertEqual(len(tasks), 1)
-        workflow.complete_task_from_id(tasks[0].id)
+        workflow.run_task_from_id(tasks[0].id)
 
         tasks = workflow.get_tasks(TaskState.READY)
         self.assertEqual(len(tasks), 1)

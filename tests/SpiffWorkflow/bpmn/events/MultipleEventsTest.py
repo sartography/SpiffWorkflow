@@ -33,7 +33,7 @@ class MultipleEventsTest(BpmnWorkflowTestCase):
         task = self.workflow.get_tasks(TaskState.READY)[0]
 
         # Move to User Task 1
-        self.workflow.complete_task_from_id(task.id)
+        self.workflow.run_task_from_id(task.id)
         self.workflow.do_engine_steps()
         task = self.workflow.get_tasks(TaskState.READY)[0]
         self.assertEqual('UserTaskOne', task.get_name())
@@ -52,10 +52,10 @@ class MultipleEventsTest(BpmnWorkflowTestCase):
         task = self.workflow.get_tasks(TaskState.READY)[0]
 
         # Move to User Task 2
-        self.workflow.complete_task_from_id(task.id)
+        self.workflow.run_task_from_id(task.id)
         self.workflow.do_engine_steps()
         task = self.workflow.get_tasks(TaskState.READY)[0]
-        self.workflow.complete_task_from_id(task.id)
+        self.workflow.run_task_from_id(task.id)
         self.workflow.do_engine_steps()
         task = self.workflow.get_tasks(TaskState.READY)[0]
         self.assertEqual('UserTaskTwo', task.get_name())

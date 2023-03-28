@@ -62,8 +62,7 @@ class ThreadMerge(Join):
         # task that did the conditional parallel split.
         split_task = my_task._find_ancestor_from_name(self.split_task)
         if split_task is None:
-            msg = 'Join with %s, which was not reached' % self.split_task
-            raise WorkflowException(msg, task_spec=self)
+            raise WorkflowException(f'Join with %s, which was not reached {self.split_task}', task_spec=self)
         tasks = split_task.task_spec._get_activated_threads(split_task)
 
         # The default threshold is the number of threads that were started.
@@ -105,8 +104,7 @@ class ThreadMerge(Join):
             my_task._set_state(TaskState.WAITING)
             return
 
-        split_task_spec = my_task.workflow.get_task_spec_from_name(
-            self.split_task)
+        split_task_spec = my_task.workflow.get_task_spec_from_name(self.split_task)
         split_task = my_task._find_ancestor(split_task_spec)
 
         # Find the inbound task that was completed last.

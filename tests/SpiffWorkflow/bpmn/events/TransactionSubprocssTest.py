@@ -19,11 +19,11 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].update_data({'value': 'asdf'})
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].update_data({'quantity': 2})
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.workflow.do_engine_steps()
         self.assertIn('value', self.workflow.last_task.data)
 
@@ -48,7 +48,7 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
         # If value == '', we cancel
         ready_tasks[0].update_data({'value': ''})
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.workflow.do_engine_steps()
 
         # If the subprocess gets cancelled, verify that data set there does not persist
@@ -72,13 +72,13 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].update_data({'value': 'asdf'})
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
 
         # If quantity == 0, we throw an error with no error code
         ready_tasks[0].update_data({'quantity': 0})
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.workflow.do_engine_steps()
 
         # We formerly checked that subprocess data does not persist, but I think it should persist
@@ -103,13 +103,13 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].update_data({'value': 'asdf'})
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
 
         # If quantity < 0, we throw 'Error 1'
         ready_tasks[0].update_data({'quantity': -1})
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.workflow.do_engine_steps()
 
         # The cancel boundary event should be cancelled

@@ -251,7 +251,7 @@ class BpmnWorkflow(Workflow):
             for task in engine_steps:
                 if will_complete_task is not None:
                     will_complete_task(task)
-                task.complete()
+                task.run()
                 if did_complete_task is not None:
                     did_complete_task(task)
                 if task.task_spec.name == exit_at:

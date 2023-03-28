@@ -16,7 +16,7 @@ class DMNDictTest(BaseTestCase):
         self.workflow = BpmnWorkflow(self.spec)
         self.workflow.do_engine_steps()
         x = self.workflow.get_ready_user_tasks()
-        self.workflow.complete_task_from_id(x[0].id)
+        self.workflow.run_task_from_id(x[0].id)
         self.workflow.do_engine_steps()
         self.assertDictEqual(self.workflow.last_task.data, self.expectedResult)
 
@@ -25,7 +25,7 @@ class DMNDictTest(BaseTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
         x = self.workflow.get_ready_user_tasks()
-        self.workflow.complete_task_from_id(x[0].id)
+        self.workflow.run_task_from_id(x[0].id)
         self.workflow.do_engine_steps()
         self.save_restore()
         self.assertDictEqual(self.workflow.last_task.data, self.expectedResult)

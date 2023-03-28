@@ -29,7 +29,7 @@ class DMNCustomScriptTest(BaseTestCase):
 
     def complete_manual_task(self):
         manual_task = self.workflow.get_tasks_from_spec_name('manual_task')[0]
-        self.workflow.complete_task_from_id(manual_task.id)
+        self.workflow.run_task_from_id(manual_task.id)
         self.workflow.do_engine_steps()
 
     def testDmnHappy(self):

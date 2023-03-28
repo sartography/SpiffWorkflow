@@ -43,7 +43,7 @@ class WorkflowSpecTest(unittest.TestCase):
 
         # Execute a random number of steps.
         for i in range(randint(0, len(workflow.spec.task_specs))):
-            workflow.complete_next()
+            workflow.run_next()
 
         # Store the workflow instance in a file.
         with open(data_file, 'wb') as fp:
@@ -64,14 +64,9 @@ class WorkflowSpecTest(unittest.TestCase):
         taken_path = track_workflow(workflow.spec, taken_path)
 
         # Run the rest of the workflow.
-        workflow.complete_all()
+        workflow.run_all()
         after = workflow.get_dump()
         self.assertTrue(workflow.is_completed(), 'Workflow not complete:' + after)
-        # taken_path = '\n'.join(taken_path) + '\n'
-        if taken_path != expected_path:
-            for taken, expected in zip(taken_path, expected_path):
-                print("TAKEN:   ", taken)
-                print("EXPECTED:", expected)
         self.assertEqual(expected_path, taken_path)
 
     def testSerialize(self):

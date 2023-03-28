@@ -41,7 +41,7 @@ class MessageBoundaryTest(BaseTestCase):
                 if task.task_spec.name == step[0]:
                     task.update_data(step[1])
 
-                self.workflow.complete_task_from_id(task.id)
+                self.workflow.run_task_from_id(task.id)
                 self.workflow.do_engine_steps()
                 time.sleep(.01)
                 self.workflow.refresh_waiting_tasks()

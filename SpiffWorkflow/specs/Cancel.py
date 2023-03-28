@@ -55,9 +55,9 @@ class Cancel(TaskSpec):
         if len(self.outputs) > 0:
             raise WorkflowException('Cancel with an output.', task_spec=self)
 
-    def _on_complete_hook(self, my_task):
+    def _run_hook(self, my_task):
         my_task.workflow.cancel(self.cancel_successfully)
-        TaskSpec._on_complete_hook(self, my_task)
+        return True
 
     def serialize(self, serializer):
         return serializer.serialize_cancel(self)

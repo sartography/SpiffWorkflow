@@ -22,13 +22,13 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         # Add the data so that we can advance the workflow
         ready_tasks = self.workflow.get_ready_user_tasks()
         ready_tasks[0].data = { 'obj_1': 'hello' }
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
 
         # Remove the data before advancing
         ready_tasks = self.workflow.get_ready_user_tasks()
         self.workflow.data.pop('obj_1')
         with self.assertRaises(WorkflowDataException) as exc:
-            ready_tasks[0].complete()
+            ready_tasks[0].run()
             self.assertEqual(exc.data_output.name, 'obj_1')
 
     def testMissingDataOutput(self):
@@ -37,7 +37,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_ready_user_tasks()
         with self.assertRaises(WorkflowDataException) as exc:
-            ready_tasks[0].complete()
+            ready_tasks[0].run()
             self.assertEqual(exc.data_output.name, 'obj_1')
 
     def actual_test(self, save_restore):
@@ -48,7 +48,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         # Set up the data
         ready_tasks = self.workflow.get_ready_user_tasks()
         ready_tasks[0].data = { 'obj_1': 'hello' }
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         # After task completion, obj_1 should be copied out of the task into the workflow
         self.assertNotIn('obj_1', ready_tasks[0].data)
         self.assertIn('obj_1', self.workflow.data)
@@ -59,14 +59,14 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         # Set a value for obj_1 in the task data again
         ready_tasks = self.workflow.get_ready_user_tasks()
         ready_tasks[0].data = { 'obj_1': 'hello again' }
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
 
         # Check to make sure we use the workflow value instead of the value we set
         ready_tasks = self.workflow.get_ready_user_tasks()
         self.assertEqual(ready_tasks[0].data['obj_1'], 'hello')
         # Modify the value in the task
         ready_tasks[0].data = { 'obj_1': 'hello again' }
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         # We did not set an output data reference so obj_1 should remain unchanged in the workflow data
         # and be removed from the task data
         self.assertNotIn('obj_1', ready_tasks[0].data)
@@ -77,7 +77,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         ready_tasks = self.workflow.get_ready_user_tasks()
         self.assertEqual(ready_tasks[0].data['obj_1'], 'hello')
         ready_tasks[0].data['obj_1'] = 'hello again'
-        ready_tasks[0].complete()
+        ready_tasks[0].run()
         self.workflow.do_engine_steps()
         sp = self.workflow.get_tasks_from_spec_name('subprocess')[0]
         # It was copied out

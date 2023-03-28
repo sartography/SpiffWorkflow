@@ -76,7 +76,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         waiting = self.workflow.get_tasks(TaskState.WAITING)
         while len(waiting) == 0:
             next_task = self.workflow.get_tasks(TaskState.READY)[0]
-            next_task.complete()
+            next_task.run()
             waiting = self.workflow.get_tasks(TaskState.WAITING)
 
     def complete_subprocess(self):
@@ -84,7 +84,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         waiting = self.workflow.get_tasks(TaskState.WAITING)
         while len(waiting) > 0:
             next_task = self.workflow.get_tasks(TaskState.READY)[0]
-            next_task.complete()
+            next_task.run()
             waiting = self.workflow.get_tasks(TaskState.WAITING)
 
 
@@ -113,7 +113,7 @@ class IOSpecOnTaskTest(BpmnWorkflowTestCase):
         task = self.workflow.get_tasks_from_spec_name('any_task')[0]
         task.data.update({'out_1': 1})
         with self.assertRaises(WorkflowDataException) as exc:
-            task.complete()
+            task.run()
         self.assertEqual(exc.exception.data_output.name, 'out_2')
 
     def actual_test(self, save_restore=False):
@@ -124,6 +124,6 @@ class IOSpecOnTaskTest(BpmnWorkflowTestCase):
         task = self.workflow.get_tasks_from_spec_name('any_task')[0]
         self.assertDictEqual(task.data, {'in_1': 1, 'in_2': 'hello world'})
         task.data.update({'out_1': 1, 'out_2': 'bye', 'extra': True})
-        task.complete()
+        task.run()
         self.workflow.do_engine_steps()
         self.assertDictEqual(self.workflow.last_task.data, {'out_1': 1, 'out_2': 'bye'})

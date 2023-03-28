@@ -77,9 +77,9 @@ class TaskState:
     CANCELLED = 64
 
     FINISHED_MASK = CANCELLED | COMPLETED
-    DEFINITE_MASK = FUTURE | WAITING | READY | FINISHED_MASK
-    PREDICTED_MASK = FUTURE | LIKELY | MAYBE
-    NOT_FINISHED_MASK = PREDICTED_MASK | WAITING | READY
+    DEFINITE_MASK = FUTURE | WAITING | READY
+    PREDICTED_MASK = LIKELY | MAYBE
+    NOT_FINISHED_MASK = PREDICTED_MASK | DEFINITE_MASK
     ANY_MASK = FINISHED_MASK | NOT_FINISHED_MASK
 
 
@@ -329,9 +329,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             self.children.remove(task)
 
     def _has_state(self, state):
-        """
-        Returns True if the Task has the given state flag set.
-        """
+        """Returns True if the Task has the given state flag set."""
         return (self.state & state) != 0
 
     def _is_finished(self):
@@ -431,6 +429,8 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             elif child.task_spec in new_children:
                 # If the task already exists, remove it from to-be-added and update its state
                 new_children.remove(child.task_spec)
+                if not child._is_finished():
+                    child._set_state(state)
             else:
                 if child._is_definite():
                     # Definite tasks must not be removed, so they HAVE to be in the given task spec list.
@@ -442,17 +442,6 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             self.children.remove(child)
         for task_spec in new_children:
             self._add_child(task_spec, state)
-
-    def _set_likely_task(self, task_specs):
-        if not isinstance(task_specs, list):
-            task_specs = [task_specs]
-        for task_spec in task_specs:
-            for child in self.children:
-                if child.task_spec != task_spec:
-                    continue
-                if child._is_definite():
-                    continue
-                child._set_state(TaskState.LIKELY)
 
     def _assign_new_thread_id(self, recursive=True):
         """
@@ -561,14 +550,10 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         return str(self.task_spec.description)
 
     def get_state_name(self):
-        """
-        Returns a textual representation of this Task's state.
-        """
-        state_name = []
+        """Returns a textual representation of this Task's state."""
         for state, name in list(TaskStateNames.items()):
             if self._has_state(state):
-                state_name.append(name)
-        return '|'.join(state_name)
+                return name
 
     def get_spec_data(self, name=None, default=None):
         """
@@ -620,44 +605,52 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         return self.data.get(name, default)
 
     def _ready(self):
-        """
-        Marks the task as ready for execution.
-        """
+        """Marks the task as ready for execution."""
         if self._has_state(TaskState.COMPLETED) or self._has_state(TaskState.CANCELLED):
             return
         self._set_state(TaskState.READY)
         self.task_spec._on_ready(self)
 
-    def cancel(self):
+    def run(self):
         """
-        Cancels the item if it was not yet completed, and removes
-        any children that are LIKELY.
-        """
-        if self._is_finished():
-            for child in self.children:
-                child.cancel()
-            return
-        self._set_state(TaskState.CANCELLED)
-        self._drop_children()
-        self.task_spec._on_cancel(self)
+        Execute the task.
 
-    def complete(self):
+        If the return value of task_spec._run is None, assume the task is not finished, 
+        and move the task to WAITING.
+
+        :rtype: boolean or None
+        :returns: the value returned by the task spec's run method
         """
-        Called by the associated task to let us know that its state
-        has changed (e.g. from FUTURE to COMPLETED.)
-        """
-        self._set_state(TaskState.COMPLETED)
-        # I am taking back my previous comment about running the task after it's completed being "CRAZY"
-        # Turns out that tasks are in fact supposed to be complete at this point and I've been wrong all along
-        # about when tasks should actually be executed
         start = time.time()
-        retval = self.task_spec._on_complete(self)
+        retval = self.task_spec._run(self)
         extra = self.log_info({
             'action': 'Complete',
             'elapsed': time.time() - start
         })
         metrics.debug('', extra=extra)
+        if retval is None:
+            self._set_state(TaskState.WAITING)
+        else:
+            # If we add an error state, the we can move the task to COMPLETE or ERROR
+            # according to the return value.
+            self.complete()
         return retval
+
+    def cancel(self):
+        """Cancels the item if it was not yet completed, and removes any children that are LIKELY."""
+        if self._is_finished():
+            for child in self.children:
+                child.cancel()
+        else:
+            self._set_state(TaskState.CANCELLED)
+            self._drop_children()
+            self.task_spec._on_cancel(self)
+
+    def complete(self):
+        """Marks this task complete."""
+        self._set_state(TaskState.COMPLETED)
+        self.task_spec._on_complete(self)
+        self.workflow.last_task = self
 
     def trigger(self, *args):
         """

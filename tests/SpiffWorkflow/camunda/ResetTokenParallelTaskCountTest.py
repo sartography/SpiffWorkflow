@@ -36,7 +36,7 @@ class ResetTokenParallelTaskCountTest(BaseTestCase):
         data = {'skipParallel': True}
         task = self.workflow.get_ready_user_tasks()[0]
         task.data = data
-        self.workflow.complete_task_from_id(task.id)
+        self.workflow.run_task_from_id(task.id)
         self.assertEquals(total, len(self.workflow.get_tasks()))
 
         # Reset the token to the first user task.

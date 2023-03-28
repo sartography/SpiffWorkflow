@@ -120,8 +120,7 @@ class Join(TaskSpec):
             # If the task is predicted with less outputs than he has
             # children, that means the prediction may be incomplete (for
             # example, because a prediction is not yet possible at this time).
-            if not child._is_definite() \
-                    and len(child.task_spec.outputs) > len(child.children):
+            if child._is_predicted() and len(child.task_spec.outputs) > len(child.children):
                 return True
         return False
 

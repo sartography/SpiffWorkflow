@@ -39,7 +39,7 @@ class CallActivityMessageTest(BaseTestCase):
             current_task = ready_tasks[0]
             self.assertEqual(current_task.task_spec.name,step[0])
             current_task.update_data(step[1])
-            current_task.complete()
+            current_task.run()
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
             if save_restore: self.save_restore()

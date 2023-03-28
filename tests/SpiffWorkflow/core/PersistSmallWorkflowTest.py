@@ -47,15 +47,15 @@ class PersistSmallWorkflowTest(unittest.TestCase):
 
         tasks = workflow.get_tasks(TaskState.READY)
         task_start = tasks[0]
-        workflow.complete_task_from_id(task_start.id)
+        workflow.run_task_from_id(task_start.id)
 
         tasks = workflow.get_tasks(TaskState.READY)
         multichoice = tasks[0]
-        workflow.complete_task_from_id(multichoice.id)
+        workflow.run_task_from_id(multichoice.id)
 
         tasks = workflow.get_tasks(TaskState.READY)
         task_a1 = tasks[0]
-        workflow.complete_task_from_id(task_a1.id)
+        workflow.run_task_from_id(task_a1.id)
         return workflow
 
     def testDictionarySerializer(self):
@@ -100,7 +100,7 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         """
         old_workflow = self.workflow
 
-        old_workflow.complete_next()
+        old_workflow.run_next()
         self.assertEqual('task_a2', old_workflow.last_task.get_name())
         serializer = DictionarySerializer()
         serialized_workflow = old_workflow.serialize(serializer)
@@ -108,7 +108,7 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         serializer = DictionarySerializer()
         new_workflow = Workflow.deserialize(serializer, serialized_workflow)
         self.assertEqual('task_a2', old_workflow.last_task.get_name())
-        new_workflow.complete_all()
+        new_workflow.run_all()
         self.assertEqual('task_a2', old_workflow.last_task.get_name())
 
 

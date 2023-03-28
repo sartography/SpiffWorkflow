@@ -32,7 +32,7 @@ class ParseMultiInstanceTest(BaseTestCase):
         self.assertEqual(len(ready_tasks), 3)
         for task in ready_tasks:
             task.data['output_item'] = task.data['output_item'] * 2
-            task.complete()
+            task.run()
 
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
@@ -58,7 +58,7 @@ class ParseMultiInstanceTest(BaseTestCase):
         self.assertEqual(len(ready_tasks), 3)
         for task in ready_tasks:
             task.data['output_item'] = task.data['output_item'] * 2
-            task.complete()
+            task.run()
 
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
@@ -84,7 +84,7 @@ class ParseMultiInstanceTest(BaseTestCase):
         self.assertEqual(len(ready_tasks), 3)
         for task in ready_tasks:
             task.data['input_item'] = task.data['input_item'] * 2
-            task.complete()
+            task.run()
 
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())

@@ -35,7 +35,7 @@ class SwimLaneTest(BpmnWorkflowTestCase):
         self.assertEqual(0, len(btasks))
         task = atasks[0]
         self.assertEqual('Activity_A1', task.task_spec.name)
-        self.workflow.complete_task_from_id(task.id)
+        self.workflow.run_task_from_id(task.id)
         self.workflow.do_engine_steps()
         atasks = self.workflow.get_ready_user_tasks(lane="A")
         btasks = self.workflow.get_ready_user_tasks(lane="B")
@@ -44,10 +44,10 @@ class SwimLaneTest(BpmnWorkflowTestCase):
 
         # Complete the gateway and the two tasks in B Lane
         btasks[0].data = {'NeedClarification': False}
-        self.workflow.complete_task_from_id(btasks[0].id)
+        self.workflow.run_task_from_id(btasks[0].id)
         self.workflow.do_engine_steps()
         btasks = self.workflow.get_ready_user_tasks(lane="B")
-        self.workflow.complete_task_from_id(btasks[0].id)
+        self.workflow.run_task_from_id(btasks[0].id)
         self.workflow.do_engine_steps()
 
         # Assert we are in lane C
@@ -56,7 +56,7 @@ class SwimLaneTest(BpmnWorkflowTestCase):
         self.assertEqual(tasks[0].task_spec.lane, "C")
 
         # Step into the sub-process, assure that is also in lane C
-        self.workflow.complete_task_from_id(tasks[0].id)
+        self.workflow.run_task_from_id(tasks[0].id)
         self.workflow.do_engine_steps()
         tasks = self.workflow.get_ready_user_tasks()
         self.assertEqual("SubProcessTask", tasks[0].task_spec.description)

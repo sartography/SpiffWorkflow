@@ -82,7 +82,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         workflow.do_engine_steps()
         for idx, task in enumerate(workflow.get_ready_user_tasks()):
             task.data['task_num'] = idx
-            task.complete()
+            task.run()
         workflow.do_engine_steps()
         ready_tasks = workflow.get_ready_user_tasks()
         waiting = workflow.get_tasks_from_spec_name('get_response')
@@ -94,7 +94,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         # Now copy the task_num that was sent into a new variable
         for task in ready_tasks:
             task.data.update(init_id=task.data['task_num'])
-            task.complete()
+            task.run()
         workflow.do_engine_steps()
         # If the messages were routed properly, the id should match
         for task in workflow.get_tasks_from_spec_name('subprocess_end'):
@@ -108,7 +108,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         workflow.do_engine_steps()
         for idx, task in enumerate(workflow.get_ready_user_tasks()):
             task.data['task_num'] = idx
-            task.complete()
+            task.run()
         workflow.do_engine_steps()
 
         # Two processes should have been started and two corresponding catch events should be waiting
@@ -121,12 +121,12 @@ class CollaborationTest(BpmnWorkflowTestCase):
         # Now copy the task_num that was sent into a new variable
         for task in ready_tasks:
             task.data.update(init_id=task.data['task_num'])
-            task.complete()
+            task.run()
         workflow.do_engine_steps()
 
         # Complete dummy tasks
         for task in workflow.get_ready_user_tasks():
-            task.complete()
+            task.run()
         workflow.do_engine_steps()
 
         # Repeat for the other process, using a different mapped name
@@ -136,7 +136,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertEqual(len(waiting), 2)
         for task in ready_tasks:
             task.data.update(subprocess=task.data['task_num'])
-            task.complete()
+            task.run()
         workflow.do_engine_steps()
 
         # If the messages were routed properly, the id should match
