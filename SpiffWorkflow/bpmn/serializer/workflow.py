@@ -246,7 +246,7 @@ class BpmnWorkflowSerializer:
 
         if isinstance(task_spec, SubWorkflowTask) and task_id in top_dct.get('subprocesses', {}):
             subprocess_spec = top.subprocess_specs[task_spec.spec]
-            subprocess = self.wf_class(subprocess_spec, {}, name=task_spec.name, parent=process)
+            subprocess = self.wf_class(subprocess_spec, {}, name=task_spec.name, parent=process, deserializing=True)
             subprocess_dct = top_dct['subprocesses'].get(task_id, {})
             subprocess.data = self.data_converter.restore(subprocess_dct.pop('data'))
             subprocess.success = subprocess_dct.pop('success')

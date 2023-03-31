@@ -53,29 +53,25 @@ class Workflow(object):
         self.outer_workflow = kwargs.get('parent', self)
         self.locks = {}
         self.last_task = None
-        if deserializing:
-            assert 'Root' in workflow_spec.task_specs
-            root = workflow_spec.task_specs['Root']  # Probably deserialized
+        if 'Root' in workflow_spec.task_specs:
+            root = workflow_spec.task_specs['Root']
         else:
-            if 'Root' in workflow_spec.task_specs:
-                root = workflow_spec.task_specs['Root']
-            else:
-                root = Simple(workflow_spec, 'Root')
-            logger.info('Initialize', extra=self.log_info())
+            root = Simple(workflow_spec, 'Root')
 
         # Setting TaskState.COMPLETED prevents the root task from being executed.
         self.task_tree = Task(self, root, state=TaskState.COMPLETED)
+        start = self.task_tree._add_child(self.spec.start, state=TaskState.FUTURE)
         self.success = True
         self.debug = False
 
         # Events.
         self.completed_event = Event()
 
-        start = self.task_tree._add_child(self.spec.start, state=TaskState.FUTURE)
-
-        self.spec.start._predict(start, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
-        if 'parent' not in kwargs:
-            start.task_spec._update(start)
+        if not deserializing:
+            self._predict()
+            if 'parent' not in kwargs:
+                start.task_spec._update(start)
+            logger.info('Initialize', extra=self.log_info())
 
         self.task_mapping = self._get_task_mapping()
 
@@ -106,6 +102,10 @@ class Workflow(object):
             # No waiting tasks found.
             return True
         return False
+
+    def _predict(self, mask=TaskState.NOT_FINISHED_MASK):
+        for task in Workflow.get_tasks(self,TaskState.NOT_FINISHED_MASK):
+            task.task_spec._predict(task, mask=mask)
 
     def _get_waiting_tasks(self):
         waiting = Task.Iterator(self.task_tree, TaskState.WAITING)

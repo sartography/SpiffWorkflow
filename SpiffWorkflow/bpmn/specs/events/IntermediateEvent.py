@@ -139,5 +139,5 @@ class EventBasedGateway(CatchingEvent):
     def _on_ready_hook(self, my_task):
         seen_events =  my_task.internal_data.get('seen_events', [])
         for child in my_task.children:
-            if not child.task_spec.event_definition in seen_events:
+            if child.task_spec.event_definition not in seen_events:
                 child.cancel()
