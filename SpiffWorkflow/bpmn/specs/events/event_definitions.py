@@ -501,11 +501,10 @@ class MultipleEventDefinition(EventDefinition):
 
         seen_events = my_task.internal_data.get('seen_events', [])
         for event in self.event_definitions:
-            if isinstance(event, (TimerEventDefinition, CycleTimerEventDefinition)):
+            if isinstance(event, TimerEventDefinition):
                 child = [c for c in my_task.children if c.task_spec.event_definition == event]
                 child[0].task_spec._update_hook(child[0])
-                child[0]._set_state(TaskState.MAYBE)
-                if event.has_fired(my_task):
+                if event.has_fired(child[0]):
                     seen_events.append(event)
 
         if self.parallel:

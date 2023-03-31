@@ -271,7 +271,10 @@ class BpmnWorkflow(Workflow):
         for my_task in self.get_tasks(TaskState.WAITING):
             if will_refresh_task is not None:
                 will_refresh_task(my_task)
-            my_task.task_spec._update(my_task)
+            # This seems redundant, but the state could have been updated by another waiting task and no longer be waiting.
+            # Someday, I would like to get rid of this method, and also do_engine_steps
+            if my_task.state == TaskState.WAITING:
+                my_task.task_spec._update(my_task)
             if did_refresh_task is not None:
                 did_refresh_task(my_task)
 
