@@ -28,7 +28,7 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
         if save_restore:
             self.save_restore()
             self.workflow.script_engine = self.script_engine
-        self.assertEqual(len(waiting_tasks), 1)
+        self.assertEqual(len(waiting_tasks), 2)
         self.workflow.catch(MessageEventDefinition('message_1'))
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
@@ -41,7 +41,7 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         waiting_tasks = self.workflow.get_waiting_tasks()
-        self.assertEqual(len(waiting_tasks), 1)
+        self.assertEqual(len(waiting_tasks), 2)
         timer_event = waiting_tasks[0].task_spec.event_definition.event_definitions[-1]
         self.workflow.catch(timer_event)
         self.workflow.refresh_waiting_tasks()

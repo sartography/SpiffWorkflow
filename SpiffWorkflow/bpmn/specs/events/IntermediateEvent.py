@@ -136,8 +136,8 @@ class EventBasedGateway(CatchingEvent):
     def _predict_hook(self, my_task):
         my_task._sync_children(self.outputs, state=TaskState.MAYBE)
 
-    def _on_complete_hook(self, my_task):
+    def _on_ready_hook(self, my_task):
+        seen_events =  my_task.internal_data.get('seen_events', [])
         for child in my_task.children:
-            if not child.task_spec.event_definition.has_fired(child):
+            if child.task_spec.event_definition not in seen_events:
                 child.cancel()
-        return super()._on_complete_hook(my_task)
