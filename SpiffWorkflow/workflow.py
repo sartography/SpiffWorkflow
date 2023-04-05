@@ -23,9 +23,10 @@ from .specs.Simple import Simple
 from .task import Task, TaskState
 from .util.compat import mutex
 from .util.event import Event
-from .exceptions import WorkflowException
+from .exceptions import TaskNotFoundException, WorkflowException
 
 logger = logging.getLogger('spiff')
+
 
 class Workflow(object):
 
@@ -246,7 +247,7 @@ class Workflow(object):
             if task.id == task_id:
                 return task
         msg = 'A task with the given task_id (%s) was not found' % task_id
-        raise WorkflowException(msg, task_spec=self.spec)
+        raise TaskNotFoundException(msg, task_spec=self.spec)
 
     def run_task_from_id(self, task_id):
         """

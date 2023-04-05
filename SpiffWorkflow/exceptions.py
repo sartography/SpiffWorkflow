@@ -129,3 +129,7 @@ class WorkflowTaskException(WorkflowException):
 
 class StorageException(SpiffWorkflowException):
     pass
+
+
+class TaskNotFoundException(WorkflowException):
+    pass
