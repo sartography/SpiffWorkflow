@@ -254,8 +254,12 @@ class BpmnWorkflowSerializer:
             subprocess.completed_event.connect(task_spec._on_subworkflow_completed, task)
             top_level_workflow.subprocesses[task.id] = subprocess
 
-        for child in [ process_dct['tasks'][c] for c in task_dict['children'] ]:
-            self.task_tree_from_dict(process_dct, child['id'], task, process, top, top_dct)
+        for child_task_id in task_dict['children']:
+            if child_task_id in process_dct['tasks']:
+                child = process_dct['tasks'][child_task_id]
+                self.task_tree_from_dict(process_dct, child_task_id, task, process, top, top_dct)
+            else:
+                raise ValueError(f"Task {task_id} ({task_spec.name}) has child {child_task_id}, but no such task exists")
 
         return task
 
