@@ -29,7 +29,7 @@ from .specs.events.StartEvent import StartEvent
 from .specs.SubWorkflowTask import CallActivity
 from ..task import TaskState, Task
 from ..workflow import Workflow
-from ..exceptions import WorkflowException, WorkflowTaskException
+from ..exceptions import TaskNotFoundException, WorkflowException, WorkflowTaskException
 
 
 class BpmnMessage:
@@ -302,7 +302,7 @@ class BpmnWorkflow(Workflow):
         for task in self.get_tasks(workflow=workflow):
             if task.id == task_id:
                 return task
-        raise WorkflowException(f'A task with the given task_id ({task_id}) was not found', task_spec=self.spec)
+        raise TaskNotFoundException(f'A task with the given task_id ({task_id}) was not found', task_spec=self.spec)
 
     def get_ready_user_tasks(self, lane=None, workflow=None):
         """Returns a list of User Tasks that are READY for user action"""
