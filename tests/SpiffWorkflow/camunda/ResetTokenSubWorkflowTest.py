@@ -51,7 +51,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
-            self.workflow.run_task_from_id(task.id)
+            task.run()
             self.workflow.do_engine_steps()
             if save_restore:
                 self.save_restore()
@@ -75,8 +75,9 @@ class ResetTokenTestSubProcess(BaseTestCase):
             task = self.workflow.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
-            self.workflow.run_task_from_id(task.id)
+            task.run()
             self.workflow.do_engine_steps()
+            self.complete_subworkflow()
             if save_restore:
                 self.save_restore()
 

@@ -25,9 +25,11 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.do_next_named_step('Action3')
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
+        self.complete_subworkflow()
+        self.complete_subworkflow()
         self.save_restore()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
 def suite():

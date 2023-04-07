@@ -67,9 +67,7 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
         return 'Boundary Event Parent'
 
     def _run_hook(self, my_task):
-
-        # Clear any events that our children might have received and
-        # wait for new events
+        # Clear any events that our children might have received and wait for new events
         for child in my_task.children:
             if isinstance(child.task_spec, BoundaryEvent):
                 child.task_spec.event_definition.reset(child)
@@ -77,7 +75,6 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
         return True
 
     def _child_complete_hook(self, child_task):
-
         # If the main child completes, or a cancelling event occurs, cancel any unfinished children
         if child_task.task_spec == self.main_child_task_spec or child_task.task_spec.cancel_activity:
             for sibling in child_task.parent.children:
@@ -85,11 +82,8 @@ class _BoundaryEventParent(Simple, BpmnSpecMixin):
                     continue
                 if sibling.task_spec == self.main_child_task_spec or not sibling._is_finished():
                     sibling.cancel()
-            for t in child_task.workflow._get_waiting_tasks():
-                t.task_spec._update(t)
 
     def _predict_hook(self, my_task):
-
         # Events attached to the main task might occur
         my_task._sync_children(self.outputs, state=TaskState.MAYBE)
         # The main child's state is based on this task's state
@@ -119,12 +113,6 @@ class BoundaryEvent(CatchingEvent):
     def catches(self, my_task, event_definition, correlations=None):
         # Boundary events should only be caught while waiting
         return super(BoundaryEvent, self).catches(my_task, event_definition, correlations) and my_task.state == TaskState.WAITING
-
-    def catch(self, my_task, event_definition):
-        super(BoundaryEvent, self).catch(my_task, event_definition)
-        # Would love to get rid of this statement and manage in the workflow
-        # However, it is not really compatible with how boundary events work.
-        my_task.run()
 
 
 class EventBasedGateway(CatchingEvent):

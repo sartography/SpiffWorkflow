@@ -27,12 +27,11 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.workflow.catch(MessageEventDefinition('Test Message'))
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
 
-        self.assertEqual(
-            'Test Message', self.workflow.get_tasks(TaskState.READY)[0].task_spec.description)
+        self.assertEqual('Test Message', self.workflow.get_tasks(TaskState.READY)[0].task_spec.description)
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.complete_subworkflow()
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughSaveAndRestore(self):
 
@@ -52,8 +51,8 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.complete_subworkflow()
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
 def suite():

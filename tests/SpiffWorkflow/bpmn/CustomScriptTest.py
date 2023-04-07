@@ -38,6 +38,8 @@ class CustomInlineScriptTest(BpmnWorkflowTestCase):
     def actual_test(self, save_restore):
         if save_restore: self.save_restore()
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
+        self.complete_subworkflow()
         if save_restore: self.save_restore()
         data = self.workflow.last_task.data
         self.assertEqual(data['c1'], 'HELLO')

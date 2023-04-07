@@ -89,6 +89,9 @@ class BpmnSpecMixin(TaskSpec):
 
     def _on_complete_hook(self, my_task):
 
+        if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
+            my_task.parent.task_spec._child_complete_hook(my_task)
+
         if self.io_specification is not None and len(self.io_specification.data_outputs) > 0:
             data = {}
             for var in self.io_specification.data_outputs:
@@ -105,8 +108,6 @@ class BpmnSpecMixin(TaskSpec):
             my_task.data.pop(obj.name, None)
 
         super(BpmnSpecMixin, self)._on_complete_hook(my_task)
-        if isinstance(my_task.parent.task_spec, BpmnSpecMixin):
-            my_task.parent.task_spec._child_complete_hook(my_task)
 
     def _child_complete_hook(self, child_task):
         pass

@@ -50,6 +50,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
 
         self.do_next_named_step("Complete Work", choice="Done")
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
 
         self.assertTrue(self.workflow.is_completed())
 
@@ -91,6 +92,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
 
         self.do_next_named_step("Complete Work", choice="Done")
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
 
         self.assertTrue(self.workflow.is_completed())
 

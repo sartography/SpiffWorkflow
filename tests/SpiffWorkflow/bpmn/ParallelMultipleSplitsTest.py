@@ -32,6 +32,7 @@ class ParallelMultipleSplitsTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.do_next_named_step('SP 3 - Yes Task')
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
 
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()

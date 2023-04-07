@@ -31,13 +31,13 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
         self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageInterruptSaveAndRestore(self):
 
@@ -71,8 +71,8 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.complete_subworkflow()
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughHappy(self):
 
@@ -87,11 +87,11 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Do Something That Takes A Long Time')
 
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
         self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageInterrupt(self):
 
@@ -118,8 +118,8 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Do Something That Takes A Long Time')
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.complete_subworkflow()
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageInterruptOtherOrder(self):
 
@@ -145,8 +145,8 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Acknowledge Non-Interrupt Message')
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.complete_subworkflow()
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageInterruptOtherOrderSaveAndRestore(self):
 
@@ -177,8 +177,8 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.complete_subworkflow()
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
 def suite():

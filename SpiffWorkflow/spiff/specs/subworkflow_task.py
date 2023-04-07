@@ -22,11 +22,14 @@ class SubWorkflowTask(DefaultSubWorkflow, SpiffBpmnTask):
     def _update_hook(self, my_task):
         # Don't really like duplicating this, but we need to run SpiffBpmn update rather than the default
         wf = my_task.workflow._get_outermost_workflow(my_task)
-        if my_task.id not in wf.subprocesses:
-            SpiffBpmnTask._update_hook(self, my_task)
+        subprocess = wf.subprocesses.get(my_task.id)
+        if subprocess is None:
+            super()._update_hook(my_task)
             self.create_workflow(my_task)
             self.start_workflow(my_task)
             my_task._set_state(TaskState.WAITING)
+        else:
+            return subprocess.is_completed()
 
     def _on_complete_hook(self, my_task):
         SpiffBpmnTask._on_complete_hook(self, my_task)

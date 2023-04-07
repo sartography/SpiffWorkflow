@@ -35,7 +35,7 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         
         self.workflow.do_engine_steps()
         top_level_task = self.workflow.get_ready_user_tasks()[0]
-        self.workflow.run_task_from_id(top_level_task.id)
+        top_level_task.run()
         self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]
         self.save_restore()
@@ -50,11 +50,11 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.assertEqual(1, len(self.workflow.get_ready_user_tasks()))
         task = self.workflow.get_ready_user_tasks()[0]
-        self.workflow.run_task_from_id(task.id)
+        task.run()
         self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'SubTask2')
-        self.workflow.run_task_from_id(task.id)
+        task.run()
         self.workflow.do_engine_steps()
         task = self.workflow.get_tasks_from_spec_name('Task1')[0]
         task.reset_token(self.workflow.last_task.data)
@@ -62,19 +62,20 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.reload_save_restore()
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'Task1')
-        self.workflow.run_task_from_id(task.id)
+        task.run()
         self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'Subtask2')
-        self.workflow.run_task_from_id(task.id)
+        task.run()
         self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'Subtask2A')
-        self.workflow.run_task_from_id(task.id)
+        task.run()
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'Task2')
-        self.workflow.run_task_from_id(task.id)
+        task.run()
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
 

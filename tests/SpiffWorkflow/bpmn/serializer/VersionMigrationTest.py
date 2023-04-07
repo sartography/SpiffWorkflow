@@ -23,6 +23,10 @@ class Version_1_0_Test(BaseTestCase):
         self.assertEqual('Action3', ready_tasks[0].task_spec.description)
         ready_tasks[0].run()
         wf.do_engine_steps()
+        wf.refresh_waiting_tasks()
+        wf.do_engine_steps()
+        wf.refresh_waiting_tasks()
+        wf.do_engine_steps()
         self.assertEqual(True, wf.is_completed())
 
 
@@ -34,11 +38,15 @@ class Version_1_1_Test(BaseTestCase):
         wf.script_engine = PythonScriptEngine(environment=TaskDataEnvironment({"time": time}))
         wf.refresh_waiting_tasks()
         wf.do_engine_steps()
+        wf.refresh_waiting_tasks()
+        wf.do_engine_steps()
         self.assertTrue(wf.is_completed())
 
     def test_convert_data_specs(self):
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.1-data.json')
         wf = self.serializer.deserialize_json(open(fn).read())
+        wf.do_engine_steps()
+        wf.refresh_waiting_tasks()
         wf.do_engine_steps()
         self.assertTrue(wf.is_completed())
 
