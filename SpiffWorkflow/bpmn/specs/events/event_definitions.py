@@ -75,7 +75,8 @@ class EventDefinition(object):
         # a particular process, but this at least provides a mechanism for distinguishing
         # between processes and subprocesses.
         if self.external and outer_workflow != workflow:
-            outer_workflow.catch(event, correlations)
+            top = workflow._get_outermost_workflow()
+            top.catch(event, correlations)
         else:
             workflow.catch(event)
 
