@@ -30,13 +30,13 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
         self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageInterruptSaveAndRestore(self):
 
@@ -61,9 +61,9 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
         self.save_restore()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughHappy(self):
 
@@ -77,11 +77,11 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Do Something That Takes A Long Time')
 
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
         self.assertEqual(0, len(self.workflow.get_tasks(TaskState.WAITING)))
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughMessageInterrupt(self):
 
@@ -101,8 +101,8 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Acknowledge Interrupt Message')
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.complete_subworkflow()
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
 def suite():

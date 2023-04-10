@@ -62,6 +62,8 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         self.assertNotIn('unused', task.data)
 
         self.complete_subprocess()
+        # Refreshing causes the subprocess to become ready
+        self.workflow.refresh_waiting_tasks()
         task = self.workflow.get_tasks(TaskState.READY)[0]
         # Originals should not change
         self.assertEqual(task.data['in_1'], 1)
@@ -80,13 +82,11 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
             waiting = self.workflow.get_tasks(TaskState.WAITING)
 
     def complete_subprocess(self):
-        # When we complete, the subworkflow task will move from WAITING to READY
-        waiting = self.workflow.get_tasks(TaskState.WAITING)
-        while len(waiting) > 0:
-            next_task = self.workflow.get_tasks(TaskState.READY)[0]
-            next_task.run()
-            waiting = self.workflow.get_tasks(TaskState.WAITING)
-
+        # Complete the ready tasks in the subprocess
+        ready = self.workflow.get_tasks(TaskState.READY)
+        while len(ready) > 0:
+            ready[0].run()
+            ready = self.workflow.get_tasks(TaskState.READY)
 
 class IOSpecOnTaskTest(BpmnWorkflowTestCase):
 

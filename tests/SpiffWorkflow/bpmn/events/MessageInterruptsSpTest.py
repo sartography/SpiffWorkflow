@@ -28,6 +28,7 @@ class MessageInterruptsSpTest(BpmnWorkflowTestCase):
 
         self.do_next_exclusive_step('Do Something In a Subprocess')
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
         self.save_restore()
 
         self.do_next_exclusive_step('Ack Subprocess Done')
@@ -35,8 +36,7 @@ class MessageInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughInterruptSaveAndRestore(self):
 
@@ -58,8 +58,7 @@ class MessageInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
 def suite():

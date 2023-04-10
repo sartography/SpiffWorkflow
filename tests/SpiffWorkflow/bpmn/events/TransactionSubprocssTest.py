@@ -25,6 +25,7 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         ready_tasks[0].update_data({'quantity': 2})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
         self.assertIn('value', self.workflow.last_task.data)
 
         # Check that workflow and next task completed

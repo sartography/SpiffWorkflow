@@ -118,6 +118,13 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             tasks[0].set_data(**set_attribs)
         tasks[0].run()
 
+    def complete_subworkflow(self):
+        # A side effect of finer grained contol over task execution is that tasks require more explicit intervention
+        # to change states.  Subworkflows tasks no longer go directly to ready when the subworkflow completes.
+        # So they may need to explicitly refreshed to become ready, and then run.
+        self.workflow.refresh_waiting_tasks()
+        self.workflow.do_engine_steps()
+
     def save_restore(self):
 
         script_engine = self.workflow.script_engine

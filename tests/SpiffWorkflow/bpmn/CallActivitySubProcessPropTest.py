@@ -27,6 +27,8 @@ class CallActivitySubProcessPropTest(BpmnWorkflowTestCase):
 
     def actualTest(self, save_restore=False):
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
+        self.complete_subworkflow()
         if save_restore:
             self.save_restore()
         self.assertTrue(self.workflow.is_completed())
