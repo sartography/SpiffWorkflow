@@ -1,5 +1,6 @@
-from copy import deepcopy
 import json
+from copy import deepcopy
+
 from SpiffWorkflow.bpmn.specs.ServiceTask import ServiceTask
 from SpiffWorkflow.exceptions import WorkflowTaskException
 from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
@@ -42,3 +43,4 @@ class ServiceTask(SpiffBpmnTask, ServiceTask):
             raise wte
         parsed_result = json.loads(result)
         task.data[self._result_variable(task)] = parsed_result
+        return True

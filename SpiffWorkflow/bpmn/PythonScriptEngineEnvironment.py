@@ -32,6 +32,7 @@ class TaskDataEnvironment(BasePythonScriptEngineEnvironment):
             exec(script, context)
         finally:
             self._remove_globals_and_functions_from_context(context, external_methods)
+        return True
 
     def _prepare_context(self, context):
         pass

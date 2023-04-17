@@ -302,15 +302,24 @@ class TaskSpec(object):
         :rtype: boolean or None
         :returns: the value returned by the task spec's run method.
         """
-        result = self._run_hook(my_task)
-        # Run user code, if any.
-        if self.ready_event.emit(my_task.workflow, my_task):
-            # Assign variables, if so requested.
-            for assignment in self.post_assign:
-                assignment.assign(my_task, my_task)
+        # I'm not sure I like setting the state here.  I'd like to handle it in `task` like
+        # the other transitions, and allow task specific error handling behavior.
+        # Having a task return a boolean indicating success (or None if it should just wait
+        # because the task is running) works well for scripts, but not for other types
+        # This is the easiest way of dealing with all other errors.
+        try:
+            result = self._run_hook(my_task)
+            # Run user code, if any.
+            if self.ready_event.emit(my_task.workflow, my_task):
+                # Assign variables, if so requested.
+                for assignment in self.post_assign:
+                    assignment.assign(my_task, my_task)
 
-        self.finished_event.emit(my_task.workflow, my_task)
-        return result
+            self.finished_event.emit(my_task.workflow, my_task)
+            return result
+        except Exception as exc:
+            my_task._set_state(TaskState.ERROR)
+            raise exc
 
     def _run_hook(self, my_task):
         """
@@ -369,6 +378,12 @@ class TaskSpec(object):
         :rtype:  bool
         :returns: True on success, False otherwise.
         """
+        pass
+
+    def _on_error(self, my_task):
+        self._on_error_hook(my_task)
+    
+    def _on_error_hook(self, my_task):
         pass
 
     @abstractmethod

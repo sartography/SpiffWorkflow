@@ -2,7 +2,7 @@ import json
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import BasePythonScriptEngineEnvironment
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import BasePythonScriptEngineEnvironment, TaskDataEnvironment
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.task import TaskState
 
@@ -23,9 +23,18 @@ class NonTaskDataExampleEnvironment(BasePythonScriptEngineEnvironment):
         self.environment.update(external_methods or {})
         exec(script, self.environment)
         self.environment = {k: v for k, v in self.environment.items() if k not in external_methods}
+        return True
 
     def user_defined_values(self):
         return {k: v for k, v in self.environment.items() if k not in self.globals}
+
+
+class AsyncScriptEnvironment(TaskDataEnvironment):
+
+    def execute(self, script, context, external_methods=None):
+        super().execute(script, context, external_methods)
+        return None 
+
 
 class PythonScriptEngineEnvironmentTest(BpmnWorkflowTestCase):
 
@@ -78,3 +87,24 @@ class PythonScriptEngineEnvironmentTest(BpmnWorkflowTestCase):
         task_data_len = len(json.dumps(task_data_to_check))
         return task_data_len
 
+
+class StartedTaskTest(BpmnWorkflowTestCase):
+
+    def setUp(self):
+        spec, subprocesses = self.load_workflow_spec('script-start.bpmn', 'Process_cozt5fu')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+
+    def testStartedState(self):
+        script_engine_environemnt = AsyncScriptEnvironment()
+        script_engine = PythonScriptEngine(environment=script_engine_environemnt)
+        self.workflow.script_engine = script_engine
+        self.workflow.do_engine_steps()
+        script_task = self.workflow.get_tasks_from_spec_name('script')[0]
+        self.assertEqual(script_task.state, TaskState.STARTED)
+        script_task.complete()
+        manual_task = self.workflow.get_tasks_from_spec_name('manual')[0]
+        manual_task.run()
+        self.workflow.do_engine_steps()
+        end = self.workflow.get_tasks_from_spec_name('End')[0]
+        self.assertDictEqual(end.data, {'x': 1, 'y': 2, 'z': 3})
+        self.assertTrue(self.workflow.is_completed())

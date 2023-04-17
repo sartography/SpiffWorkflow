@@ -71,7 +71,7 @@ class PythonScriptEngine(object):
     def execute(self, task, script, external_methods=None):
         """Execute the script, within the context of the specified task."""
         try:
-            self._execute(script, task.data, external_methods or {})
+            return self._execute(script, task.data, external_methods or {})
         except Exception as err:
             wte = self.create_task_exec_exception(task, script, err)
             raise wte
@@ -114,4 +114,4 @@ class PythonScriptEngine(object):
         return self.environment.evaluate(expression, context, external_methods)
 
     def _execute(self, script, context, external_methods=None):
-        self.environment.execute(script, context, external_methods)
+        return self.environment.execute(script, context, external_methods)

@@ -18,7 +18,6 @@
 # 02110-1301  USA
 
 from .BpmnSpecMixin import BpmnSpecMixin
-from ...task import TaskState
 from ...specs.Simple import Simple
 
 
@@ -30,13 +29,8 @@ class ScriptEngineTask(Simple, BpmnSpecMixin):
         pass
 
     def _run_hook(self, task):
-        try:
-            self._execute(task)
-            super(ScriptEngineTask, self)._run_hook(task)
-        except Exception as exc:
-            task._set_state(TaskState.WAITING)
-            raise exc
-        return True
+        return self._execute(task)
+
 
 class ScriptTask(ScriptEngineTask):
 
@@ -54,5 +48,4 @@ class ScriptTask(ScriptEngineTask):
         return 'Script Task'
 
     def _execute(self, task):
-        task.workflow.script_engine.execute(task, self.script)
-
+        return task.workflow.script_engine.execute(task, self.script)
