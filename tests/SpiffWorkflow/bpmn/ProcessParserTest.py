@@ -13,13 +13,12 @@ def _process_parser(bpmn_filename, process_id):
 class ProcessParserTest(unittest.TestCase):
     def testReturnsEmptyListIfNoCallActivities(self):
         parser = _process_parser("no-tasks.bpmn", "no_tasks")
-        assert parser.called_elements() == []
+        assert parser.called_element_ids() == []
     
     def testHandlesSingleCallActivity(self):
         parser = _process_parser("single_call_activity.bpmn", "Process_p4pfxhq")
-        assert parser.called_elements() == ["SingleTask_Process"]
+        assert parser.called_element_ids() == ["SingleTask_Process"]
     
     def testHandlesMultipleCallActivities(self):
         parser = _process_parser("multiple_call_activities.bpmn", "Process_90mmqlw")
-        assert parser.called_elements() == ["Process_sypm122", "Process_diu8ta2", "Process_l14lar1"]
-    
+        assert parser.called_element_ids() == ["Process_sypm122", "Process_diu8ta2", "Process_l14lar1"]
