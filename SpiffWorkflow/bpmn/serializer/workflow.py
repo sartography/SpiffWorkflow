@@ -248,7 +248,11 @@ class BpmnWorkflowSerializer:
             subprocess_spec = top.subprocess_specs[task_spec.spec]
             subprocess = self.wf_class(subprocess_spec, {}, name=task_spec.name, parent=process, deserializing=True)
             subprocess_dct = top_dct['subprocesses'].get(task_id, {})
-            subprocess.data = self.data_converter.restore(subprocess_dct.pop('data'))
+            subprocess.spec.data_objects.update(process.spec.data_objects)
+            if len(subprocess.spec.data_objects) > 0:
+                subprocess.data = process.data
+            else:
+                subprocess.data = self.data_converter.restore(subprocess_dct.pop('data'))
             subprocess.success = subprocess_dct.pop('success')
             subprocess.task_tree = self.task_tree_from_dict(subprocess_dct, subprocess_dct.pop('root'), None, subprocess, top, top_dct)
             subprocess.completed_event.connect(task_spec._on_subworkflow_completed, task)
