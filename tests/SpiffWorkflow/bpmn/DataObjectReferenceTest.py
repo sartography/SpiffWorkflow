@@ -72,6 +72,9 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         self.assertNotIn('obj_1', ready_tasks[0].data)
         self.assertEqual(self.workflow.data['obj_1'], 'hello')
 
+        if save_restore:
+            self.save_restore()
+
         # Make sure data objects are accessible inside a subprocess
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_ready_user_tasks()
