@@ -157,8 +157,8 @@ class DictionarySerializer(Serializer):
                        lookahead=spec.lookahead)
         module_name = spec.__class__.__module__
         s_state['class'] = module_name + '.' + spec.__class__.__name__
-        s_state['inputs'] = [t.id for t in spec.inputs]
-        s_state['outputs'] = [t.id for t in spec.outputs]
+        s_state['inputs'] = [t.name for t in spec.inputs]
+        s_state['outputs'] = [t.name for t in spec.outputs]
         s_state['data'] = self.serialize_dict(spec.data)
         if hasattr(spec, 'position'):
             s_state['position'] = self.serialize_dict(spec.position)
@@ -486,9 +486,7 @@ class DictionarySerializer(Serializer):
         return spec
 
     def serialize_workflow_spec(self, spec, **kwargs):
-        s_state = dict(name=spec.name,
-                       description=spec.description,
-                       file=spec.file)
+        s_state = dict(name=spec.name, description=spec.description, file=spec.file)
 
         if 'Root' not in spec.task_specs:
             # This is to fix up the case when we
@@ -519,8 +517,8 @@ class DictionarySerializer(Serializer):
         return s_state
 
     def _deserialize_workflow_spec_task_spec(self, spec, task_spec, name):
-        task_spec.inputs = [spec.get_task_spec_from_id(t) for t in task_spec.inputs]
-        task_spec.outputs = [spec.get_task_spec_from_id(t) for t in task_spec.outputs]
+        task_spec.inputs = [spec.get_task_spec_from_name(t) for t in task_spec.inputs]
+        task_spec.outputs = [spec.get_task_spec_from_name(t) for t in task_spec.outputs]
 
     def _prevtaskclass_bases(self, oldtask):
         return (oldtask)
@@ -558,7 +556,7 @@ class DictionarySerializer(Serializer):
             self._deserialize_workflow_spec_task_spec(spec, task_spec, name)
 
         if s_state.get('end', None):
-            spec.end = spec.get_task_spec_from_id(s_state['end'])
+            spec.end = spec.get_task_spec_from_name(s_state['end'])
 
         assert spec.start is spec.get_task_spec_from_name('Start')
         return spec

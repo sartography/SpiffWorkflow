@@ -3,6 +3,7 @@
 import sys
 import unittest
 import os
+
 dirname = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 doc_dir = os.path.join(dirname, '..', '..', '..', 'doc')

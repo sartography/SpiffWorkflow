@@ -1,4 +1,4 @@
-from SpiffWorkflow.specs import Simple
+from SpiffWorkflow.specs.Simple import Simple
 
 class NuclearStrike(Simple):
     def _on_complete_hook(self, my_task):
