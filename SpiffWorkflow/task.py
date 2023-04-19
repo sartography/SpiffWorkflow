@@ -633,11 +633,14 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         })
         metrics.debug('', extra=extra)
         if retval is None:
-            # This state is intended to indicate a task that is not finished, but can continue
-            # in the background without blocking other unrelated tasks (it on other branches)
-            # If a task is set to "started", it will have to be tracked independently of the workflow
-            # and completed manually when it finishes for the time being (probably I'll add polling
-            # methods in the future, but I'm not exactly sure how they should work).
+            # This state is intended to indicate a task that is not finished, but will continue
+            # in the background without blocking other unrelated tasks (ie on other branches).
+            # It is a distinct state from "waiting" so that `update` does not have to distinguish
+            # between tasks that can be started and tasks that have already been started.  
+            # Spiff can manage deciding if a task can run, but if a task is set to "started", it will
+            # have to be tracked independently of the workflow and completed manually when it finishes 
+            # for the time being (probably I'll add polling methods in the future, but I'm not exactly 
+            # sure how they should work).
             # I'm adding this state now because I'm adding an error state (which I think there is a
             # need for) and don't want to go through the hassle of updating serialization of task states
             # twice; doing this at all is going to be painful enough.
