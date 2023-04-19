@@ -21,7 +21,7 @@ import pickle
 from base64 import b64encode, b64decode
 from ..workflow import Workflow
 from ..util.impl import get_class
-from ..task import Task
+from ..task import Task, TaskState
 from ..operators import (Attrib, PathAttrib, Equal, NotEqual, Operator, GreaterThan, LessThan, Match)
 from ..specs.base import TaskSpec
 from ..specs.AcquireMutex import AcquireMutex
@@ -604,11 +604,18 @@ class DictionarySerializer(Serializer):
         workflow.spec = wf_spec
         workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'], reset_specs)
 
-        # Re-connect parents
+        # Re-connect parents and update states if necessary
         tasklist = workflow.get_tasks()
+        root = workflow.get_tasks_from_spec_name('Root')[0]
+        update_state = root.state != TaskState.COMPLETED
         for task in tasklist:
             if task.parent is not None:
                 task.parent = workflow.get_task_from_id(task.parent, tasklist)
+            if update_state:
+                if task.state == 32:
+                    task.state = TaskState.COMPLETED
+                elif task.state == 64:
+                    task.state = TaskState.CANCELLED
 
         if workflow.last_task is not None:
             workflow.last_task = workflow.get_task_from_id(s_state['last_task'],tasklist)

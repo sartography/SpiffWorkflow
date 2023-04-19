@@ -381,6 +381,7 @@ class TaskSpec(object):
         pass
 
     def _on_error(self, my_task):
+        """Can be overridden for task specific error handling"""
         self._on_error_hook(my_task)
     
     def _on_error_hook(self, my_task):

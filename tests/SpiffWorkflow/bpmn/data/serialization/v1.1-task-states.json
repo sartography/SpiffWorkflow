@@ -1,0 +1,563 @@
+{
+  "serializer_version": "1.1",
+  "data": {}, 
+  "last_task": "3a4a6596-3b3d-4cd5-9724-cd1ccc263676", 
+  "success": true, 
+  "tasks": {
+    "d10fb568-6104-4a26-9081-e29c8eb42e70": {
+      "id": "d10fb568-6104-4a26-9081-e29c8eb42e70", 
+      "parent": null, 
+      "children": [
+        "f0a4e631-c30a-4444-b2b1-2cdc21179c65"
+      ], 
+      "last_state_change": 1681913960.451874, 
+      "state": 32, 
+      "task_spec": "Root", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "f0a4e631-c30a-4444-b2b1-2cdc21179c65": {
+      "id": "f0a4e631-c30a-4444-b2b1-2cdc21179c65", 
+      "parent": "d10fb568-6104-4a26-9081-e29c8eb42e70", 
+      "children": [
+        "3468f48a-c493-4731-9484-0821d046a0bc"
+      ], 
+      "last_state_change": 1681913960.4591289, 
+      "state": 32, 
+      "task_spec": "Start", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "3468f48a-c493-4731-9484-0821d046a0bc": {
+      "id": "3468f48a-c493-4731-9484-0821d046a0bc", 
+      "parent": "f0a4e631-c30a-4444-b2b1-2cdc21179c65", 
+      "children": [
+        "0366c1b3-d55e-42e4-a6fd-db2d6a1940eb"
+      ], 
+      "last_state_change": 1681913960.460862, 
+      "state": 32, 
+      "task_spec": "StartEvent_1", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {
+        "event_fired": true
+      }, 
+      "data": {}
+    }, 
+    "0366c1b3-d55e-42e4-a6fd-db2d6a1940eb": {
+      "id": "0366c1b3-d55e-42e4-a6fd-db2d6a1940eb", 
+      "parent": "3468f48a-c493-4731-9484-0821d046a0bc", 
+      "children": [
+        "afd334bf-f987-46b3-b6df-779562c4b4bf", 
+        "ad8b1640-55ac-4ff5-b07e-16c0b7c92976"
+      ], 
+      "last_state_change": 1681913960.4621637, 
+      "state": 32, 
+      "task_spec": "task_1.BoundaryEventParent", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "afd334bf-f987-46b3-b6df-779562c4b4bf": {
+      "id": "afd334bf-f987-46b3-b6df-779562c4b4bf", 
+      "parent": "0366c1b3-d55e-42e4-a6fd-db2d6a1940eb", 
+      "children": [
+        "3a4a6596-3b3d-4cd5-9724-cd1ccc263676"
+      ], 
+      "last_state_change": 1681913960.4634154, 
+      "state": 32, 
+      "task_spec": "task_1", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "3a4a6596-3b3d-4cd5-9724-cd1ccc263676": {
+      "id": "3a4a6596-3b3d-4cd5-9724-cd1ccc263676", 
+      "parent": "afd334bf-f987-46b3-b6df-779562c4b4bf", 
+      "children": [
+        "8ee8a04c-e784-4419-adb4-7c7f99f72bf6", 
+        "00c5b447-760e-47dc-a77b-cffbf893d098"
+      ], 
+      "last_state_change": 1681913960.4667528, 
+      "state": 32, 
+      "task_spec": "Gateway_1eg2w56", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "8ee8a04c-e784-4419-adb4-7c7f99f72bf6": {
+      "id": "8ee8a04c-e784-4419-adb4-7c7f99f72bf6", 
+      "parent": "3a4a6596-3b3d-4cd5-9724-cd1ccc263676", 
+      "children": [
+        "cee7ab8e-d50b-4681-94f2-51bbd8dd6df1"
+      ], 
+      "last_state_change": 1681913960.4669333, 
+      "state": 16, 
+      "task_spec": "task_2", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "cee7ab8e-d50b-4681-94f2-51bbd8dd6df1": {
+      "id": "cee7ab8e-d50b-4681-94f2-51bbd8dd6df1", 
+      "parent": "8ee8a04c-e784-4419-adb4-7c7f99f72bf6", 
+      "children": [
+        "4695356f-8db1-48f6-a8bb-d610b2da7a63"
+      ], 
+      "last_state_change": 1681913960.454116, 
+      "state": 4, 
+      "task_spec": "Gateway_1dpu3vt", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "4695356f-8db1-48f6-a8bb-d610b2da7a63": {
+      "id": "4695356f-8db1-48f6-a8bb-d610b2da7a63", 
+      "parent": "cee7ab8e-d50b-4681-94f2-51bbd8dd6df1", 
+      "children": [
+        "f4ab0e07-d985-412f-aca0-369bd29797e1"
+      ], 
+      "last_state_change": 1681913960.45428, 
+      "state": 4, 
+      "task_spec": "Event_1deqprp", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "f4ab0e07-d985-412f-aca0-369bd29797e1": {
+      "id": "f4ab0e07-d985-412f-aca0-369bd29797e1", 
+      "parent": "4695356f-8db1-48f6-a8bb-d610b2da7a63", 
+      "children": [
+        "e326e6ec-f20d-4171-8133-24b160ad3404"
+      ], 
+      "last_state_change": 1681913960.4544458, 
+      "state": 4, 
+      "task_spec": "main.EndJoin", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "e326e6ec-f20d-4171-8133-24b160ad3404": {
+      "id": "e326e6ec-f20d-4171-8133-24b160ad3404", 
+      "parent": "f4ab0e07-d985-412f-aca0-369bd29797e1", 
+      "children": [], 
+      "last_state_change": 1681913960.4546103, 
+      "state": 4, 
+      "task_spec": "End", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "00c5b447-760e-47dc-a77b-cffbf893d098": {
+      "id": "00c5b447-760e-47dc-a77b-cffbf893d098", 
+      "parent": "3a4a6596-3b3d-4cd5-9724-cd1ccc263676", 
+      "children": [
+        "c57e4be7-670c-41aa-9740-9fff831f6ccd"
+      ], 
+      "last_state_change": 1681913960.4671006, 
+      "state": 16, 
+      "task_spec": "task_3", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "c57e4be7-670c-41aa-9740-9fff831f6ccd": {
+      "id": "c57e4be7-670c-41aa-9740-9fff831f6ccd", 
+      "parent": "00c5b447-760e-47dc-a77b-cffbf893d098", 
+      "children": [
+        "ee2c8edc-5d5e-4fc2-ba4b-1801d000c6c3"
+      ], 
+      "last_state_change": 1681913960.454881, 
+      "state": 4, 
+      "task_spec": "Gateway_1dpu3vt", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "ee2c8edc-5d5e-4fc2-ba4b-1801d000c6c3": {
+      "id": "ee2c8edc-5d5e-4fc2-ba4b-1801d000c6c3", 
+      "parent": "c57e4be7-670c-41aa-9740-9fff831f6ccd", 
+      "children": [
+        "91a213bf-bef6-40fa-b0a4-7c7f58552184"
+      ], 
+      "last_state_change": 1681913960.4550629, 
+      "state": 4, 
+      "task_spec": "Event_1deqprp", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "91a213bf-bef6-40fa-b0a4-7c7f58552184": {
+      "id": "91a213bf-bef6-40fa-b0a4-7c7f58552184", 
+      "parent": "ee2c8edc-5d5e-4fc2-ba4b-1801d000c6c3", 
+      "children": [
+        "8166e255-1d17-4f94-8c0e-82cefe8500fd"
+      ], 
+      "last_state_change": 1681913960.4552596, 
+      "state": 4, 
+      "task_spec": "main.EndJoin", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "8166e255-1d17-4f94-8c0e-82cefe8500fd": {
+      "id": "8166e255-1d17-4f94-8c0e-82cefe8500fd", 
+      "parent": "91a213bf-bef6-40fa-b0a4-7c7f58552184", 
+      "children": [], 
+      "last_state_change": 1681913960.455456, 
+      "state": 4, 
+      "task_spec": "End", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "ad8b1640-55ac-4ff5-b07e-16c0b7c92976": {
+      "id": "ad8b1640-55ac-4ff5-b07e-16c0b7c92976", 
+      "parent": "0366c1b3-d55e-42e4-a6fd-db2d6a1940eb", 
+      "children": [], 
+      "last_state_change": 1681913960.463645, 
+      "state": 64, 
+      "task_spec": "signal", 
+      "triggered": false, 
+      "workflow_name": "main", 
+      "internal_data": {
+        "event_fired": false
+      }, 
+      "data": {}
+    }
+  }, 
+  "root": "d10fb568-6104-4a26-9081-e29c8eb42e70", 
+  "spec": {
+    "name": "main", 
+    "description": "main", 
+    "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/diagram_1.bpmn", 
+    "task_specs": {
+      "Start": {
+        "id": "main_1", 
+        "name": "Start", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [
+          "StartEvent_1"
+        ], 
+        "typename": "StartTask"
+      }, 
+      "main.EndJoin": {
+        "id": "main_2", 
+        "name": "main.EndJoin", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Event_1deqprp"
+        ], 
+        "outputs": [
+          "End"
+        ], 
+        "typename": "_EndJoin"
+      }, 
+      "End": {
+        "id": "main_3", 
+        "name": "End", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "main.EndJoin"
+        ], 
+        "outputs": [], 
+        "typename": "Simple"
+      }, 
+      "StartEvent_1": {
+        "id": "main_4", 
+        "name": "StartEvent_1", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Start"
+        ], 
+        "outputs": [
+          "task_1.BoundaryEventParent"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 179.0, 
+          "y": 99.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "StartEvent", 
+        "extensions": {}
+      }, 
+      "task_1": {
+        "id": "main_5", 
+        "name": "task_1", 
+        "description": "Task 1", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "task_1.BoundaryEventParent"
+        ], 
+        "outputs": [
+          "Gateway_1eg2w56"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 270.0, 
+          "y": 77.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "NoneTask", 
+        "extensions": {}
+      }, 
+      "task_1.BoundaryEventParent": {
+        "id": "main_6", 
+        "name": "task_1.BoundaryEventParent", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "StartEvent_1"
+        ], 
+        "outputs": [
+          "task_1", 
+          "signal"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 0, 
+          "y": 0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "main_child_task_spec": "task_1", 
+        "typename": "_BoundaryEventParent"
+      }, 
+      "signal": {
+        "id": "main_7", 
+        "name": "signal", 
+        "description": "Signal Event", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "task_1.BoundaryEventParent"
+        ], 
+        "outputs": [], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 302.0, 
+          "y": 139.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": true, 
+          "external": true, 
+          "name": "Signal_08n3u9r", 
+          "typename": "SignalEventDefinition"
+        }, 
+        "cancel_activity": true, 
+        "typename": "BoundaryEvent", 
+        "extensions": {}
+      }, 
+      "Gateway_1eg2w56": {
+        "id": "main_8", 
+        "name": "Gateway_1eg2w56", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "task_1"
+        ], 
+        "outputs": [
+          "task_2", 
+          "task_3"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 425.0, 
+          "y": 92.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "split_task": null, 
+        "threshold": null, 
+        "cancel": false, 
+        "typename": "ParallelGateway", 
+        "extensions": {}
+      }, 
+      "task_2": {
+        "id": "main_9", 
+        "name": "task_2", 
+        "description": "Task 2", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Gateway_1eg2w56"
+        ], 
+        "outputs": [
+          "Gateway_1dpu3vt"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 530.0, 
+          "y": 77.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "NoneTask", 
+        "extensions": {}
+      }, 
+      "Gateway_1dpu3vt": {
+        "id": "main_10", 
+        "name": "Gateway_1dpu3vt", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "task_2", 
+          "task_3"
+        ], 
+        "outputs": [
+          "Event_1deqprp"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 685.0, 
+          "y": 92.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "split_task": null, 
+        "threshold": null, 
+        "cancel": false, 
+        "typename": "ParallelGateway", 
+        "extensions": {}
+      }, 
+      "Event_1deqprp": {
+        "id": "main_11", 
+        "name": "Event_1deqprp", 
+        "description": null, 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Gateway_1dpu3vt"
+        ], 
+        "outputs": [
+          "main.EndJoin"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 792.0, 
+          "y": 99.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "EndEvent", 
+        "extensions": {}
+      }, 
+      "task_3": {
+        "id": "main_12", 
+        "name": "task_3", 
+        "description": "Task 3", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Gateway_1eg2w56"
+        ], 
+        "outputs": [
+          "Gateway_1dpu3vt"
+        ], 
+        "lane": null, 
+        "documentation": null, 
+        "position": {
+          "x": 530.0, 
+          "y": 190.0
+        }, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "NoneTask", 
+        "extensions": {}
+      }, 
+      "Root": {
+        "id": "main_13", 
+        "name": "Root", 
+        "description": "", 
+        "manual": false, 
+        "internal": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [], 
+        "typename": "Simple"
+      }
+    }, 
+    "io_specification": null, 
+    "data_objects": {}, 
+    "correlation_keys": {}, 
+    "typename": "BpmnProcessSpec"
+  }, 
+  "subprocess_specs": {}, 
+  "subprocesses": {}, 
+  "bpmn_messages": [], 
+  "correlations": {}
+}
