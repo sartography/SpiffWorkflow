@@ -49,7 +49,7 @@ class TaskDataEnvironment(BasePythonScriptEngineEnvironment):
 
     def check_for_overwrite(self, context, external_methods):
         """It's possible that someone will define a variable with the
-        same name as a pre-defined script, rending the script un-callable.
+        same name as a pre-defined script, rendering the script un-callable.
         This results in a nearly indecipherable error.  Better to fail
         fast with a sensible error message."""
         func_overwrites = set(self.globals).intersection(context)
