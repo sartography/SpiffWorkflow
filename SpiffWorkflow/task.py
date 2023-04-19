@@ -635,12 +635,12 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         if retval is None:
             # This state is intended to indicate a task that is not finished, but can continue
             # in the background without blocking other unrelated tasks (it on other branches)
-            # If a task is set to "started", it will have to be tracked indepentenly of the workflow
+            # If a task is set to "started", it will have to be tracked independently of the workflow
             # and completed manually when it finishes for the time being (probably I'll add polling
             # methods in the future, but I'm not exactly sure how they should work).
-            # I'm adding this state now, because I'm add an error state (which I think there is a
-            # need for and don't want to do throuh the hassle of updatin serialization of task states
-            # twice; doing this at all is going to be painful enough).
+            # I'm adding this state now because I'm adding an error state (which I think there is a
+            # need for) and don't want to go through the hassle of updating serialization of task states
+            # twice; doing this at all is going to be painful enough.
             self._set_state(TaskState.STARTED)
         elif retval is False:
             self.error()
