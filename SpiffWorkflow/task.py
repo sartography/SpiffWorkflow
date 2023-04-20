@@ -66,37 +66,41 @@ class TaskState:
     created to allow for visualizing the workflow at a time where
     the required decisions have not yet been made.
     """
-    # Note: The states in this list are ordered in the sequence in which
-    # they may appear. Do not change.
     MAYBE = 1
     LIKELY = 2
     FUTURE = 4
     WAITING = 8
     READY = 16
-    COMPLETED = 32
-    CANCELLED = 64
+    STARTED = 32
+    COMPLETED = 64
+    ERROR = 128
+    CANCELLED = 256
 
-    FINISHED_MASK = CANCELLED | COMPLETED
-    DEFINITE_MASK = FUTURE | WAITING | READY
+    FINISHED_MASK = CANCELLED | ERROR | COMPLETED
+    DEFINITE_MASK = FUTURE | WAITING | READY | STARTED
     PREDICTED_MASK = LIKELY | MAYBE
     NOT_FINISHED_MASK = PREDICTED_MASK | DEFINITE_MASK
     ANY_MASK = FINISHED_MASK | NOT_FINISHED_MASK
 
 
-TaskStateNames = {TaskState.FUTURE: 'FUTURE',
-                  TaskState.WAITING: 'WAITING',
-                  TaskState.READY: 'READY',
-                  TaskState.CANCELLED: 'CANCELLED',
-                  TaskState.COMPLETED: 'COMPLETED',
-                  TaskState.LIKELY: 'LIKELY',
-                  TaskState.MAYBE: 'MAYBE'}
+TaskStateNames = {
+    TaskState.FUTURE: 'FUTURE',
+    TaskState.WAITING: 'WAITING',
+    TaskState.READY: 'READY',
+    TaskState.STARTED: 'STARTED',
+    TaskState.CANCELLED: 'CANCELLED',
+    TaskState.COMPLETED: 'COMPLETED',
+    TaskState.ERROR: 'ERROR',
+    TaskState.LIKELY: 'LIKELY',
+    TaskState.MAYBE: 'MAYBE'
+}
 TaskStateMasks = {
-                  TaskState.FINISHED_MASK: 'FINISHED_MASK',
-                  TaskState.DEFINITE_MASK: 'DEFINITE_MASK',
-                  TaskState.PREDICTED_MASK: 'PREDICTED_MASK',
-                  TaskState.NOT_FINISHED_MASK: 'NOT_FINISHED_MASK',
-                  TaskState.ANY_MASK: 'ANY_MASK',
-                  }
+    TaskState.FINISHED_MASK: 'FINISHED_MASK',
+    TaskState.DEFINITE_MASK: 'DEFINITE_MASK',
+    TaskState.PREDICTED_MASK: 'PREDICTED_MASK',
+    TaskState.NOT_FINISHED_MASK: 'NOT_FINISHED_MASK',
+    TaskState.ANY_MASK: 'ANY_MASK',
+}
 
 
 class DeprecatedMetaTask(type):
@@ -629,10 +633,21 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         })
         metrics.debug('', extra=extra)
         if retval is None:
-            self._set_state(TaskState.WAITING)
+            # This state is intended to indicate a task that is not finished, but will continue
+            # in the background without blocking other unrelated tasks (ie on other branches).
+            # It is a distinct state from "waiting" so that `update` does not have to distinguish
+            # between tasks that can be started and tasks that have already been started.  
+            # Spiff can manage deciding if a task can run, but if a task is set to "started", it will
+            # have to be tracked independently of the workflow and completed manually when it finishes 
+            # for the time being (probably I'll add polling methods in the future, but I'm not exactly 
+            # sure how they should work).
+            # I'm adding this state now because I'm adding an error state (which I think there is a
+            # need for) and don't want to go through the hassle of updating serialization of task states
+            # twice; doing this at all is going to be painful enough.
+            self._set_state(TaskState.STARTED)
+        elif retval is False:
+            self.error()
         else:
-            # If we add an error state, the we can move the task to COMPLETE or ERROR
-            # according to the return value.
             self.complete()
         return retval
 
@@ -651,6 +666,10 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         self._set_state(TaskState.COMPLETED)
         self.task_spec._on_complete(self)
         self.workflow.last_task = self
+
+    def error(self):
+        self._set_state(TaskState.ERROR)
+        self.task_spec._on_error(self)
 
     def trigger(self, *args):
         """

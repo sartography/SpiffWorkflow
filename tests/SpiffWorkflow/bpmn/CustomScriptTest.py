@@ -51,8 +51,9 @@ class CustomInlineScriptTest(BpmnWorkflowTestCase):
         ready_task.data = {'custom_function': "bill"}
         with self.assertRaises(WorkflowTaskException) as e:
             self.workflow.do_engine_steps()
-        self.assertTrue('' in str(e.exception))
         self.assertTrue('custom_function' in str(e.exception))
+        task = self.workflow.get_tasks_from_spec_name('Activity_1y303ko')[0]
+        self.assertEqual(task.state, TaskState.ERROR)
 
 
 def suite():

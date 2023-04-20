@@ -16,58 +16,64 @@ def convert_timer_expressions(dct):
 
     message = "Unable to convert time specifications for {spec}. This most likely because the values are set during workflow execution."
 
+    # Moving this code into helper functions to make sonarcloud STFU about this file.
+    # Don't really consider this better but whatever.
+
+    def convert_timedate(spec):
+        expr = spec['event_definition'].pop('dateTime')
+        try:
+            dt = eval(expr)
+            if isinstance(dt, datetime):
+                spec['event_definition']['expression'] = f"'{dt.isoformat()}'"
+                spec['event_definition']['typename'] = 'TimeDateEventDefinition'
+            elif isinstance(dt, timedelta):
+                spec['event_definition']['expression'] = f"'{td_to_iso(dt)}'"
+                spec['event_definition']['typename'] = 'DurationTimerEventDefinition'
+        except:
+            raise VersionMigrationError(message.format(spec=spec['name']))
+
+    def convert_cycle(spec, task):
+        expr = spec['event_definition'].pop('cycle_definition')
+        try:
+            repeat, duration = eval(expr)
+            spec['event_definition']['expression'] = f"'R{repeat}/{td_to_iso(duration)}'"
+            if task is not None:
+                cycles_complete = task['data'].pop('repeat_count', 0)
+                start_time = task['internal_data'].pop('start_time', None)
+                if start_time is not None:
+                    dt = datetime.fromisoformat(start_time)
+                    task['internal_data']['event_value'] = {
+                        'cycles': repeat - cycles_complete,
+                        'next': datetime.combine(dt.date(), dt.time(), LOCALTZ).isoformat(),
+                        'duration': duration.total_seconds(),
+                    }
+        except:
+            raise VersionMigrationError(message.format(spec=spec['name']))
+
+        if spec['typename'] == 'StartEvent':
+            spec['outputs'].remove(spec['name'])
+            if task is not None:
+                children = [ dct['tasks'][c] for c in task['children'] ]
+                # Formerly cycles were handled by looping back and reusing the tasks so this removes the extra tasks
+                remove = [ c for c in children if c['task_spec'] == task['task_spec']][0]
+                for task_id in remove['children']:
+                    child = dct['tasks'][task_id]
+                    if child['task_spec'].startswith('return') or child['state'] != TaskState.COMPLETED:
+                        dct['tasks'].pop(task_id)
+                    else:
+                        task['children'].append(task_id)
+                task['children'].remove(remove['id'])
+                dct['tasks'].pop(remove['id'])
+
     has_timer = lambda ts: 'event_definition' in ts and ts['event_definition']['typename'] in [ 'CycleTimerEventDefinition', 'TimerEventDefinition']
     for spec in [ ts for ts in dct['spec']['task_specs'].values() if has_timer(ts) ]:
         spec['event_definition']['name'] = spec['event_definition'].pop('label')
         if spec['event_definition']['typename'] == 'TimerEventDefinition':
-            expr = spec['event_definition'].pop('dateTime')
-            try:
-                dt = eval(expr)
-                if isinstance(dt, datetime):
-                    spec['event_definition']['expression'] = f"'{dt.isoformat()}'"
-                    spec['event_definition']['typename'] = 'TimeDateEventDefinition'
-                elif isinstance(dt, timedelta):
-                    spec['event_definition']['expression'] = f"'{td_to_iso(dt)}'"
-                    spec['event_definition']['typename'] = 'DurationTimerEventDefinition'
-            except:
-                raise VersionMigrationError(message.format(spec=spec['name']))
-
+            convert_timedate(spec)
         if spec['event_definition']['typename'] == 'CycleTimerEventDefinition':
-
             tasks = [ t for t in dct['tasks'].values() if t['task_spec'] == spec['name'] ]
             task = tasks[0] if len(tasks) > 0 else None
-
-            expr = spec['event_definition'].pop('cycle_definition')
-            try:
-                repeat, duration = eval(expr)
-                spec['event_definition']['expression'] = f"'R{repeat}/{td_to_iso(duration)}'"
-                if task is not None:
-                    cycles_complete = task['data'].pop('repeat_count', 0)
-                    start_time = task['internal_data'].pop('start_time', None)
-                    if start_time is not None:
-                        dt = datetime.fromisoformat(start_time)
-                        task['internal_data']['event_value'] = {
-                            'cycles': repeat - cycles_complete,
-                            'next': datetime.combine(dt.date(), dt.time(), LOCALTZ).isoformat(),
-                            'duration': duration.total_seconds(),
-                        }
-            except:
-                raise VersionMigrationError(message.format(spec=spec['name']))
-
-            if spec['typename'] == 'StartEvent':
-                spec['outputs'].remove(spec['name'])
-                if task is not None:
-                    children = [ dct['tasks'][c] for c in task['children'] ]
-                    # Formerly cycles were handled by looping back and reusing the tasks so this removes the extra tasks
-                    remove = [ c for c in children if c['task_spec'] == task['task_spec']][0]
-                    for task_id in remove['children']:
-                        child = dct['tasks'][task_id]
-                        if child['task_spec'].startswith('return') or child['state'] != TaskState.COMPLETED:
-                            dct['tasks'].pop(task_id)
-                        else:
-                            task['children'].append(task_id)
-                    task['children'].remove(remove['id'])
-                    dct['tasks'].pop(remove['id'])
+            convert_cycle(spec, task)
 
 def add_default_condition_to_cond_task_specs(dct):
 
@@ -122,3 +128,18 @@ def remove_loop_reset(dct):
                 parent = dct['tasks'].get(task['parent'])
                 parent['children'] = [c for c in parent['children'] if c != task['id']]
         dct['spec']['task_specs'].pop(spec['name'])
+
+def update_task_states(dct):
+
+    def update(process):
+        for task in process['tasks'].values():
+            if task['state'] == 32:
+                task['state'] = TaskState.COMPLETED
+            elif task['state'] == 64:
+                task['state'] = TaskState.CANCELLED
+
+    root = dct['tasks'].get(dct['root'])
+    if root['state'] == 32:
+        update(dct)
+        for sp in dct['subprocesses'].values():
+            update(sp)

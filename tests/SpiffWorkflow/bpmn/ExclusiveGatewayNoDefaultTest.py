@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-
-
-
-import sys
-import os
 import unittest
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 from SpiffWorkflow.exceptions import WorkflowException
+from SpiffWorkflow.task import TaskState
+
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'essweine'
 
@@ -25,6 +22,8 @@ class ExclusiveGatewayNoDefaultTest(BpmnWorkflowTestCase):
         first = self.workflow.get_tasks_from_spec_name('StartEvent_1')[0]
         first.data = { 'x': 1 }
         self.assertRaises(WorkflowException, self.workflow.do_engine_steps)
+        task = self.workflow.get_tasks_from_spec_name('Gateway_CheckValue')[0]
+        self.assertEqual(task.state, TaskState.ERROR)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ExclusiveGatewayNoDefaultTest)

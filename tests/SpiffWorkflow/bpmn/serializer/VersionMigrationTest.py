@@ -79,3 +79,16 @@ class Version_1_1_Test(BaseTestCase):
             wf.refresh_waiting_tasks()
         self.assertTrue(wf.is_completed())
         self.assertEqual(wf.last_task.data['counter'], 20)
+
+    def test_update_task_states(self):
+        fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.1-task-states.json')
+        wf = self.serializer.deserialize_json(open(fn).read())
+        start = wf.get_tasks_from_spec_name('Start')[0]
+        self.assertEqual(start.state, TaskState.COMPLETED)
+        signal = wf.get_tasks_from_spec_name('signal')[0]
+        self.assertEqual(signal.state, TaskState.CANCELLED)
+        ready_tasks = wf.get_tasks(TaskState.READY)
+        while len(ready_tasks) > 0:
+            ready_tasks[0].run()
+            ready_tasks = wf.get_tasks(TaskState.READY)
+        self.assertTrue(wf.is_completed())

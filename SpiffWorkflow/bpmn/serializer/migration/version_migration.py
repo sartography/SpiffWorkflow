@@ -7,6 +7,7 @@ from .version_1_2 import (
     create_data_objects_and_io_specs,
     check_multiinstance,
     remove_loop_reset,
+    update_task_states,
 )
 
 def from_version_1_1(old):
@@ -36,6 +37,7 @@ def from_version_1_1(old):
     create_data_objects_and_io_specs(new)
     check_multiinstance(new)
     remove_loop_reset(new)
+    update_task_states(new)
     new['VERSION'] = "1.2"
     return new
 
@@ -53,6 +55,7 @@ def from_version_1_0(old):
     attributes based on the task states.
     """
     new = deepcopy(old)
+    new['VERSION'] = "1.1"
     move_subprocesses_to_top(new)
     return from_version_1_1(new)
 
