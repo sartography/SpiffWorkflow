@@ -50,7 +50,6 @@ class MultiInstance(TaskSpec):
             raise ValueError('times argument is required')
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.times = times
-        self.prevtaskclass = None
 
     def _find_my_task(self, task):
         for thetask in task.workflow.task_tree:
