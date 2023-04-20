@@ -45,7 +45,7 @@ tests-par:
 		echo "  pip install unittest-parallel"; \
 		exit 1; \
 	fi
-	unittest-parallel --module-fixtures -vs tests/SpiffWorkflow -p \*Test.py -t .
+	unittest-parallel --module-fixtures -qbs tests/SpiffWorkflow -p \*Test.py -t .
 
 .PHONY : tests-cov
 tests-cov:

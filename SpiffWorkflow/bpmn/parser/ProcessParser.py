@@ -88,6 +88,12 @@ class ProcessParser(NodeParser):
 
         return message_names
 
+    def called_element_ids(self):
+        """
+        Returns a list of ids referenced by `bpmn:callActivity` nodes.
+        """
+        return self.xpath("./bpmn:callActivity/@calledElement")
+
     def parse_node(self, node):
         """
         Parses the specified child task node, and returns the task spec. This
