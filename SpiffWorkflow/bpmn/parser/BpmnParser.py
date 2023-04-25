@@ -185,7 +185,7 @@ class BpmnParser(object):
         """
         for filename in filenames:
             with open(filename, 'r') as f:
-                self.add_bpmn_file_like_object(f)
+                self.add_bpmn_file_like_object(f, filename)
 
     def add_bpmn_file_like_object(self, file_like_object, filename=None):
         """

@@ -4,10 +4,7 @@ import unittest
 
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 
-class BpmnParserTest(unittest.TestCase):
-
-    # not testing that we can read from a file or that we parse correctly here
-    # since the entire test suite does that already. 
+class InMemoryBpmnParserTest(unittest.TestCase):
     
     def testCanAddBpmnFromString(self):
         parser = BpmnParser()
