@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_34b94b6" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.10.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_34b94b6" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0">
   <bpmn:process id="Call_Activity_Get_Data" name="Call Activity Get Data" isExecutable="true">
-    <bpmn:startEvent id="StartEvent_1">
+    <bpmn:startEvent id="Start_Called_Activity">
       <bpmn:outgoing>Flow_07uhaa7</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_07uhaa7" sourceRef="StartEvent_1" targetRef="Sub_Bpmn_Task" />
-    <bpmn:endEvent id="Event_1rokcus">
+    <bpmn:sequenceFlow id="Flow_07uhaa7" sourceRef="Start_Called_Activity" targetRef="Sub_Bpmn_Task" />
+    <bpmn:endEvent id="End_Called_Activity">
       <bpmn:documentation># Call Event
 &lt;div&gt;&lt;span&gt;Hello {{my_var}}&lt;/span&gt;&lt;/div&gt;</bpmn:documentation>
       <bpmn:incoming>Flow_0apfnjq</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0apfnjq" sourceRef="Sub_Bpmn_Task" targetRef="Event_1rokcus" />
+    <bpmn:sequenceFlow id="Flow_0apfnjq" sourceRef="Sub_Bpmn_Task" targetRef="End_Called_Activity" />
     <bpmn:scriptTask id="Sub_Bpmn_Task" name="Create Data">
       <bpmn:incoming>Flow_07uhaa7</bpmn:incoming>
       <bpmn:outgoing>Flow_0apfnjq</bpmn:outgoing>
@@ -29,10 +29,10 @@ del(remove_this_var)</bpmn:script>
         <di:waypoint x="215" y="117" />
         <di:waypoint x="270" y="117" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="Start_Called_Activity">
         <dc:Bounds x="179" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1rokcus_di" bpmnElement="Event_1rokcus">
+      <bpmndi:BPMNShape id="Event_1rokcus_di" bpmnElement="End_Called_Activity">
         <dc:Bounds x="432" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0esr09m_di" bpmnElement="Sub_Bpmn_Task">
