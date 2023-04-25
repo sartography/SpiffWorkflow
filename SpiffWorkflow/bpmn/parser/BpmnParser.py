@@ -27,7 +27,6 @@ from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinitio
 
 from .ValidationException import ValidationException
 from ..specs.BpmnProcessSpec import BpmnProcessSpec
-from ..specs.data_spec import BpmnDataStoreSpecification
 from ..specs.events.EndEvent import EndEvent
 from ..specs.events.StartEvent import StartEvent
 from ..specs.events.IntermediateEvent import BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent, EventBasedGateway
@@ -296,27 +295,30 @@ class BpmnParser(object):
     def get_process_dependencies(self):
         return self.process_dependencies
 
-    def get_spec(self, process_id_or_name):
+    def get_spec(self, process_id_or_name, required=True):
         """
         Parses the required subset of the BPMN files, in order to provide an
         instance of BpmnProcessSpec (i.e. WorkflowSpec)
         for the given process ID or name. The Name is matched first.
         """
         parser = self.get_process_parser(process_id_or_name)
-        if parser is None:
+        if required and parser is None:
             raise ValidationException(
                 f"The process '{process_id_or_name}' was not found. "
                 f"Did you mean one of the following: "
                 f"{', '.join(self.get_process_ids())}?")
-        return parser.get_spec()
+        elif parser is not None:
+            return parser.get_spec()
 
-    def get_subprocess_specs(self, name, specs=None):
+    def get_subprocess_specs(self, name, specs=None, require_call_activity_specs=True):
         used = specs or {}
         wf_spec = self.get_spec(name)
         for task_spec in wf_spec.task_specs.values():
             if isinstance(task_spec, SubWorkflowTask) and task_spec.spec not in used:
-                used[task_spec.spec] = self.get_spec(task_spec.spec)
-                self.get_subprocess_specs(task_spec.spec, used)
+                subprocess_spec = self.get_spec(task_spec.spec, required=require_call_activity_specs)
+                used[task_spec.spec] = subprocess_spec
+                if subprocess_spec is not None:
+                    self.get_subprocess_specs(task_spec.spec, used)
         return used
 
     def find_all_specs(self):

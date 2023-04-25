@@ -85,13 +85,6 @@ class SubprocessParser:
                 'No "calledElement" attribute for Call Activity.',
                 node=task_parser.node,
                 file_name=task_parser.filename)
-        parser = task_parser.process_parser.parser.get_process_parser(called_element)
-        if parser is None:
-            raise ValidationException(
-                f"The process '{called_element}' was not found. Did you mean one of the following: "
-                f"{', '.join(task_parser.process_parser.parser.get_process_ids())}?",
-                node=task_parser.node,
-                file_name=task_parser.filename)
         return called_element
 
 

@@ -41,4 +41,15 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(ex.file_name, bpmn_file)
             self.assertEqual(14, ex.line_number)
             self.assertIn('DataObjectReference_0cm8dnh', str(ex))
-        assert(errored, "This should have errored out with a validation exception.")
+        self.assertTrue(errored, "This should have errored out with a validation exception.")
+
+    def testSkipSubprocesses(self):
+
+        parser = BpmnParser()
+        bpmn_file = os.path.join(os.path.dirname(__file__), 'data', 'call_activity_end_event.bpmn')
+        parser.add_bpmn_file(bpmn_file)
+        # The default is to require that call activity specs be included, so this should raise an exception
+        self.assertRaises(ValidationException, parser.get_subprocess_specs, 'Process_8200379')
+        # When call activity specs are skipped, no exception should be raised
+        subprocess_specs = parser.get_subprocess_specs('Process_8200379', require_call_activity_specs=False)
+        self.assertDictEqual(subprocess_specs, {'Call_Activity_Get_Data': None})
