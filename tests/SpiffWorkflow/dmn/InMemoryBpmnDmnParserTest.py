@@ -9,12 +9,12 @@ class InMemoryBpmnDmnParserTest(unittest.TestCase):
     def testCanAddDmnFromString(self):
         parser = BpmnDmnParser()
         parser.add_dmn_str(EMPTY_DMN)
-        assert parser.dmn_parsers
+        assert len(parser.dmn_parsers) > 0
     
     def testCanAddDmnFromFileLikeObject(self):
         parser = BpmnDmnParser()
         parser.add_dmn_file_like_object(io.StringIO(EMPTY_DMN))
-        assert parser.dmn_parsers
+        assert len(parser.dmn_parsers) > 0
 
 
 EMPTY_DMN = """
