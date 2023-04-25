@@ -292,10 +292,10 @@ class BpmnWorkflow(Workflow):
         # almost surely be in a different state than the tasks we want
         for task in Workflow.get_tasks_iterator(wf):
             subprocess = top.subprocesses.get(task.id)
-            if subprocess is not None:
-                tasks.extend(subprocess.get_tasks(state, subprocess))
             if task._has_state(state):
                 tasks.append(task)
+            if subprocess is not None:
+                tasks.extend(subprocess.get_tasks(state, subprocess))
         return tasks
 
     def get_task_from_id(self, task_id, workflow=None):

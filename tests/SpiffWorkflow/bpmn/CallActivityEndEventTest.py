@@ -71,6 +71,18 @@ class CallActivityTest(BpmnWorkflowTestCase):
         task = self.workflow.get_tasks_from_spec_name('Sub_Bpmn_Task')[0]
         self.assertEqual(task.state, TaskState.ERROR)
 
+    def test_order_of_tasks_in_get_task_is_call_acitivty_task_first_then_sub_tasks(self):
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        self.workflow.do_engine_steps()
+        tasks = self.workflow.get_tasks()
+        def index_of(name):
+            return [i for i, x in enumerate(tasks) if x.task_spec.name == name][0]
+
+        self.assertLess(index_of('Activity_Call_Activity'), index_of('Start_Called_Activity'))
+        self.assertLess(index_of('Activity_Call_Activity'), index_of('Sub_Bpmn_Task'))
+        self.assertLess(index_of('Activity_Call_Activity'), index_of('End_Called_Activity'))
+
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(CallActivityTest)
 if __name__ == '__main__':
