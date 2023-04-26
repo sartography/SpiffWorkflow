@@ -34,7 +34,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
             self.assertTrue('No-Start-Event.bpmn20.xml' in ex.file_name,
                             '\'No-Start-Event.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
 
-    def testSubprocessNotFound(self):
+    def testCallActivityNotFound(self):
 
         with self.assertRaises(ValidationException) as exc:
             self.load_workflow_spec('Invalid-Workflows/Subprocess-Not-Found.bpmn20.xml', 'Subprocess Not Found')
