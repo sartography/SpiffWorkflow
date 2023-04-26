@@ -75,9 +75,9 @@ class BpmnDmnParser(BpmnParser):
         """
         for filename in filenames:
             with open(filename, 'r') as f:
-                self.add_dmn_file_like_object(f, filename=filename)
+                self.add_dmn_io(f, filename=filename)
 
-    def add_dmn_file_like_object(self, file_like_object, filename=None):
+    def add_dmn_io(self, file_like_object, filename=None):
         """
         Add the given DMN file like object to the parser's set.
         """
