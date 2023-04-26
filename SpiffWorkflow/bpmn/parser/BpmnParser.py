@@ -185,7 +185,19 @@ class BpmnParser(object):
         """
         for filename in filenames:
             with open(filename, 'r') as f:
-                self.add_bpmn_xml(etree.parse(f), filename=filename)
+                self.add_bpmn_io(f, filename)
+
+    def add_bpmn_io(self, file_like_object, filename=None):
+        """
+        Add the given BPMN file like object to the parser's set. 
+        """
+        self.add_bpmn_xml(etree.parse(file_like_object), filename)
+
+    def add_bpmn_str(self, bpmn_str, filename=None):
+        """
+        Add the given BPMN string to the parser's set. 
+        """
+        self.add_bpmn_xml(etree.fromstring(bpmn_str), filename)
 
     def add_bpmn_xml(self, bpmn, filename=None):
         """
