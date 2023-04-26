@@ -1,20 +1,10 @@
 # -*- coding: utf-8 -*-
 
-
-
-import os
-import sys
-import unittest
-
+from unittest import TestCase
 from SpiffWorkflow.util.deep_merge import DeepMerge
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
-from .TaskSpecTest import TaskSpecTest
-
-
-class DeepMergeTest(TaskSpecTest):
-    CORRELATE = DeepMerge
+class DeepMergeTest(TestCase):
 
     def testBasicMerge(self):
         """
@@ -67,7 +57,3 @@ class DeepMergeTest(TaskSpecTest):
 
         self.assertEqual({"foods": [{"fruit": {"apples": "tasty", "oranges": "also tasty"}}]}, c)
 
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(DeepMergeTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -10,7 +10,6 @@ from SpiffWorkflow.serializer.dict import DictionarySerializer
 
 
 class TaskSpecTest(unittest.TestCase):
-    CORRELATE = TaskSpec
 
     def create_instance(self):
         if 'testtask' in self.wf_spec.task_specs:
@@ -78,8 +77,7 @@ class TaskSpecTest(unittest.TestCase):
                                               serialized)
         before = spec.serialize(serializer)
         after = new_spec.serialize(serializer)
-        self.assertEqual(before, after, 'Before:\n%s\nAfter:\n%s\n' % (before,
-                                                                       after))
+        self.assertEqual(before, after, 'Before:\n%s\nAfter:\n%s\n' % (before, after))
 
     def testAncestors(self):
         T1 = Simple(self.wf_spec, 'T1')
@@ -110,9 +108,3 @@ class TaskSpecTest(unittest.TestCase):
 
         self.assertEqual(T1.ancestors(), [self.wf_spec.start])
         self.assertEqual(T2.ancestors(), [T1, self.wf_spec.start])
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TaskSpecTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

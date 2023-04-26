@@ -5,14 +5,12 @@ import os
 from lxml import etree
 
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
-from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.workflow import Workflow
 
 
 class TaskSpecTest(unittest.TestCase):
-    CORRELATE = SubWorkflow
 
     def testConstructor(self):
         pass  # FIXME
@@ -120,9 +118,3 @@ class TaskSpecTest(unittest.TestCase):
         self.do_next_unique_task('join')
         self.do_next_unique_task('last')
         self.do_next_unique_task('End')
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TaskSpecTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import unittest
-
 from .JoinTest import JoinTest
 from SpiffWorkflow.specs.Merge import Merge
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
@@ -10,7 +8,6 @@ from SpiffWorkflow.workflow import Workflow
 
 
 class MergeTest(JoinTest):
-    CORRELATE = Merge
 
     def create_instance(self):
         if 'testtask' in self.wf_spec.task_specs:
@@ -83,9 +80,3 @@ class MergeTest(JoinTest):
         self.assertIn('simple1', found)
         self.assertIn('simple2', found)
         self.assertIn('unmerged', found)
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(MergeTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

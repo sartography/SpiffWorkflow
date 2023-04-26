@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import unittest
 
 from ..util import run_workflow
 from .TaskSpecTest import TaskSpecTest
@@ -8,7 +7,6 @@ from SpiffWorkflow.specs.Simple import Simple
 
 
 class TransformTest(TaskSpecTest):
-    CORRELATE = Transform
 
     def create_instance(self):
         if 'testtask' in self.wf_spec.task_specs:
@@ -42,9 +40,3 @@ class TransformTest(TaskSpecTest):
         self.assertEqual(first.data.get('foo'), 1)
         self.assertEqual(last.data.get('foo'), 2)
         self.assertEqual(last.data.get('copy'), 2)
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TransformTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
