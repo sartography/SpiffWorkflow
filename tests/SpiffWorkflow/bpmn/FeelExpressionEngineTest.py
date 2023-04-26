@@ -51,24 +51,6 @@ class FeelExpressionTest(BpmnWorkflowTestCase):
             self.assertEqual(self.expressionEngine._evaluate(test[0], test[2]),
                              test[1], "test --> %s <-- with variables ==> %s <==Fail!" % (test[0], str(test[2])))
 
-    def testRunThroughDMNExpression(self):
-        """
-        Real world test
-        """
-        data = {
-            "exclusive": [
-                {
-                    "ExclusiveSpaceAMComputingID": None
-                }
-            ]
-        }
-        x = self.expressionEngine._evaluate(
-            """sum([1 for x in exclusive if x.get('ExclusiveSpaceAMComputingID',None)==None])""",
-            data
-        )
-        self.assertEqual(x, 1)
-
-
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(FeelExpressionTest)

@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import sys
-import os
-import unittest
-
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.exceptions import WorkflowTaskException
+from SpiffWorkflow.task import TaskState
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'danfunk'
 
@@ -20,18 +17,38 @@ class PythonScriptEngineTest(BpmnWorkflowTestCase):
 
         # All this, just so we have a task object, not using anything in the Script.
         spec, subprocesses = self.load_workflow_spec('ScriptTest.bpmn', 'ScriptTest')
-        workflow = BpmnWorkflow(spec, subprocesses)
-        workflow.do_engine_steps()
-        self.task = workflow.last_task
+        self. workflow = BpmnWorkflow(spec, subprocesses)
+
+    def testRunThroughHappy(self):
+
+        self.workflow.do_engine_steps()
+        data = self.workflow.last_task.data
+        self.assertEqual(data,{'testvar': {'a': 1, 'b': 2, 'new': 'Test'},
+                               'testvar2': [{'x': 1, 'y': 'a'},
+                                            {'x': 2, 'y': 'b'},
+                                            {'x': 3, 'y': 'c'}],
+                               'sample': ['b', 'c']})
+
+    def testNoDataPollution(self):
+        """Ran into an issue where data from one run of a workflow could
+        bleed into a separate execution.  It will think a variable is there
+        when it should not be there"""
+        startTask = self.workflow.get_tasks(TaskState.READY)[0]
+        self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue("testvar" in self.workflow.last_task.data)
+        self.assertFalse("testvar" in startTask.data)
+
+        # StartTask doesn't know about testvar, it happened earlier.
+        # calling an exec that references testvar, in the context of the
+        # start task should fail.
+        with self.assertRaises(WorkflowTaskException):
+            result = self.workflow.script_engine.evaluate(startTask, 'testvar == True')
 
     def testFunctionsAndGlobalsAreRemoved(self):
-        self.assertIn('testvar', self.task.data)
-        self.assertIn('testvar2', self.task.data)
-        self.assertIn('sample', self.task.data)
-        self.assertNotIn('my_function', self.task.data)
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(PythonScriptEngineTest)
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
+        self.workflow.do_engine_steps()
+        task = self.workflow.last_task
+        self.assertIn('testvar', task.data)
+        self.assertIn('testvar2', task.data)
+        self.assertIn('sample', task.data)
+        self.assertNotIn('my_function', task.data)

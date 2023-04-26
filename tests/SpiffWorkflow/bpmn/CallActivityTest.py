@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-
-import unittest
-
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.exceptions import WorkflowTaskException
 from SpiffWorkflow.task import TaskState
@@ -18,30 +14,22 @@ class CallActivityTest(BpmnWorkflowTestCase):
     def setUp(self):
         self.spec, self.subprocesses = self.load_workflow_spec('call_activity_*.bpmn', 'Process_8200379')
 
-    def testRunThroughHappy(self):
+    def test_data_persists_through_call_activity(self):
 
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.workflow.do_engine_steps()
+        self.complete_subworkflow()
+        self.assertDictEqual(self.workflow.data, {'pre_var': 'some string', 'my_var': 'World', 'my_other_var': 'Mike'})
 
-    def testCallActivityHasSameScriptEngine(self):
-        self.runCallActivityWithCustomScript()
-
-    def testCallActivityHasSameScriptEngineAfterSaveRestore(self):
-        self.runCallActivityWithCustomScript(save_restore=True)
-
-    def runCallActivityWithCustomScript(self, save_restore=False):
+    def test_call_activity_has_same_script_engine(self):
         class CustomScriptEngine(PythonScriptEngine):
             pass
 
-        self.workflow = BpmnWorkflow(self.spec, self.subprocesses,
-                                     script_engine=CustomScriptEngine())
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=CustomScriptEngine())
         self.workflow.do_engine_steps()
         self.complete_subworkflow()
         self.assertTrue(self.workflow.is_completed())
         self.assertIsInstance(self.workflow.script_engine, CustomScriptEngine)
-
-        if save_restore:
-            self.save_restore()
 
         # Get the subworkflow
         sub_task = self.workflow.get_tasks_from_spec_name('Sub_Bpmn_Task')[0]
@@ -81,9 +69,3 @@ class CallActivityTest(BpmnWorkflowTestCase):
         self.assertLess(index_of('Activity_Call_Activity'), index_of('Start_Called_Activity'))
         self.assertLess(index_of('Activity_Call_Activity'), index_of('Sub_Bpmn_Task'))
         self.assertLess(index_of('Activity_Call_Activity'), index_of('End_Called_Activity'))
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(CallActivityTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
