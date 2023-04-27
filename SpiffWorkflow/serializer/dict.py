@@ -24,7 +24,6 @@ from ..specs.base import TaskSpec
 from ..specs.AcquireMutex import AcquireMutex
 from ..specs.Cancel import Cancel
 from ..specs.CancelTask import CancelTask
-from ..specs.Celery import Celery
 from ..specs.Choose import Choose
 from ..specs.ExclusiveChoice import ExclusiveChoice
 from ..specs.Execute import Execute
@@ -202,26 +201,6 @@ class DictionarySerializer(Serializer):
                           s_state['context'],
                           times=self.deserialize_arg(s_state['times']))
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
-        return spec
-
-    def serialize_celery(self, spec):
-        args = self.serialize_list(spec.args)
-        kwargs = self.serialize_dict(spec.kwargs)
-        s_state = self.serialize_task_spec(spec)
-        s_state['call'] = spec.call
-        s_state['args'] = args
-        s_state['kwargs'] = kwargs
-        s_state['result_key'] = spec.result_key
-        return s_state
-
-    def deserialize_celery(self, wf_spec, s_state):
-        args = self.deserialize_list(s_state['args'])
-        kwargs = self.deserialize_dict(s_state.get('kwargs', {}))
-        spec = Celery(wf_spec, s_state['name'], s_state['call'],
-                      call_args=args,
-                      result_key=s_state['result_key'],
-                      **kwargs)
-        self.deserialize_task_spec(wf_spec, s_state, spec)
         return spec
 
     def serialize_choose(self, spec):

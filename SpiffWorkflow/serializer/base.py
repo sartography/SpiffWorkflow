@@ -20,7 +20,6 @@ from .. import operators
 from ..specs.AcquireMutex import AcquireMutex
 from ..specs.Cancel import Cancel
 from ..specs.CancelTask import CancelTask
-from ..specs.Celery import Celery
 from ..specs.Choose import Choose
 from ..specs.ExclusiveChoice import ExclusiveChoice
 from ..specs.Execute import Execute
@@ -46,7 +45,6 @@ def spec_map():
         'acquire-mutex': AcquireMutex,
         'cancel': Cancel,
         'cancel-task': CancelTask,
-        'celery': Celery,
         'choose': Choose,
         'exclusive-choice': ExclusiveChoice,
         'execute': Execute,
