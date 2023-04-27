@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BaseParallelTestCase import BaseParallelTestCase
+from .BaseParallelTestCase import BaseParallelTestCase
 
 __author__ = 'matth'
 
@@ -26,8 +25,3 @@ class ParallelManyThreadsAtSamePointTest(BaseParallelTestCase):
         self._do_test(['1', '2', 'Done', '3', '4', 'Done', 'Done', 'Done'],
                       only_one_instance=False, save_restore=True)
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ParallelManyThreadsAtSamePointTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

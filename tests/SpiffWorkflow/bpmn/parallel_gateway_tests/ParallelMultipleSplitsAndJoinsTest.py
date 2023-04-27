@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BaseParallelTestCase import BaseParallelTestCase
+from .BaseParallelTestCase import BaseParallelTestCase
 
 __author__ = 'matth'
 
@@ -31,8 +30,3 @@ class ParallelMultipleSplitsAndJoinsTest(BaseParallelTestCase):
         self._do_test(
             ['1', '1B', '1A', '1 Done', '!Done', '2', '2B', '2A', '2 Done', 'Done'], save_restore=True)
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ParallelMultipleSplitsAndJoinsTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
