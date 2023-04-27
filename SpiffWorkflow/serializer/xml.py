@@ -24,7 +24,6 @@ from ..operators import (Attrib, Assign, PathAttrib, Equal, NotEqual, GreaterTha
 from ..specs.AcquireMutex import AcquireMutex
 from ..specs.Cancel import Cancel
 from ..specs.CancelTask import CancelTask
-from ..specs.Celery import Celery
 from ..specs.Choose import Choose
 from ..specs.ExclusiveChoice import ExclusiveChoice
 from ..specs.Execute import Execute
@@ -383,37 +382,6 @@ class XmlSerializer(Serializer):
 
     def deserialize_cancel_task(self, wf_spec, elem, cls=CancelTask, **kwargs):
         return self.deserialize_trigger(wf_spec, elem, cls, **kwargs)
-
-    def serialize_celery(self, spec, elem=None):
-        if elem is None:
-            elem = etree.Element('celery')
-
-        SubElement(elem, 'call').text = spec.call
-        args_elem = SubElement(elem, 'args')
-        self.serialize_value_list(args_elem, spec.args)
-        kwargs_elem = SubElement(elem, 'kwargs')
-        self.serialize_value_map(kwargs_elem, spec.kwargs)
-        if spec.merge_results:
-            SubElement(elem, 'merge-results')
-        SubElement(elem, 'result-key').text = spec.result_key
-
-        return self.serialize_task_spec(spec, elem)
-
-    def deserialize_celery(self, wf_spec, elem, cls=Celery, **kwargs):
-        call = elem.findtext('call')
-        args = self.deserialize_value_list(elem.find('args'))
-        result_key = elem.findtext('call')
-        merge_results = elem.find('merge-results') is not None
-        spec = self.deserialize_task_spec(wf_spec,
-                                          elem,
-                                          cls,
-                                          call=call,
-                                          call_args=args,
-                                          result_key=result_key,
-                                          merge_results=merge_results,
-                                          **kwargs)
-        spec.kwargs = self.deserialize_value_map(elem.find('kwargs'))
-        return spec
 
     def serialize_choose(self, spec, elem=None):
         if elem is None:
