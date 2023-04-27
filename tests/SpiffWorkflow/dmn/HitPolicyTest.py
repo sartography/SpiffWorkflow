@@ -2,14 +2,11 @@ import os
 import unittest
 
 from SpiffWorkflow.bpmn.serializer.helpers.dictionary import DictionaryConverter
-from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from SpiffWorkflow.dmn.serializer.task_spec import BusinessRuleTaskConverter
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-from tests.SpiffWorkflow.dmn.python_engine.PythonDecisionRunner import PythonDecisionRunner
+from .python_engine.PythonDecisionRunner import PythonDecisionRunner
 
 
-class HitPolicyTest(BpmnWorkflowTestCase):
-    PARSER_CLASS = BpmnDmnParser
+class HitPolicyTest(unittest.TestCase):
 
     def testHitPolicyUnique(self):
         file_name = os.path.join(os.path.dirname(__file__), 'data', 'unique_hit.dmn')
@@ -38,10 +35,3 @@ class HitPolicyTest(BpmnWorkflowTestCase):
         dict = BusinessRuleTaskConverter(DictionaryConverter()).decision_table_to_dict(decision_table)
         new_table = BusinessRuleTaskConverter(DictionaryConverter()).decision_table_from_dict(dict)
         self.assertEqual("COLLECT", new_table.hit_policy)
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(HitPolicyTest)
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
