@@ -10,11 +10,6 @@ from SpiffWorkflow.bpmn.parser.util import full_tag
 
 from SpiffWorkflow.bpmn.serializer.helpers.spec import BpmnSpecConverter, TaskSpecConverter
 
-# Many of our tests relied on the Packager to set the calledElement attribute on
-# Call Activities.  I've moved that code to a customized parser.
-from SpiffWorkflow.signavio.parser.tasks import CallActivityParser
-from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity
-
 __author__ = 'matth'
 
 # This provides some extensions to the BPMN parser that make it easier to
@@ -95,7 +90,6 @@ class TestBpmnParser(BpmnParser):
     OVERRIDE_PARSER_CLASSES = {
         full_tag('userTask'): (TaskParser, TestUserTask),
         full_tag('exclusiveGateway'): (TestExclusiveGatewayParser, ExclusiveGateway),
-        full_tag('callActivity'): (CallActivityParser, CallActivity)
     }
 
     DATA_STORE_CLASSES = {

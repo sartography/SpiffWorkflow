@@ -1,30 +1,16 @@
 # -*- coding: utf-8 -*-
-import os
-
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
-from SpiffWorkflow.signavio.parser.bpmn import SignavioBpmnParser
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
 class InvalidWorkflowsTest(BpmnWorkflowTestCase):
 
-    def testDisconnectedBoundaryEvent(self):
-
-        with self.assertRaises(ValidationException) as exc:
-            parser = SignavioBpmnParser()
-            filename = os.path.join(os.path.dirname(__file__), 'data', 'Invalid-Workflows/Disconnected-Boundary-Event.bpmn20.xml')
-            parser.add_bpmn_file(filename)
-            self.assertIn('Intermediate Catch Event has no incoming sequences', str(exc))
-            self.assertIn('bpmn:intermediateCatchEvent (id:sid-84C7CE67-D0B6-486A-B097-486DA924FF9D)', str(exc))
-            self.assertIn('Invalid-Workflows/Disconnected-Boundary-Event.bpmn20.xml', str(exc))
-
     def testNoStartEvent(self):
         try:
             self.load_workflow_spec(
                 'Invalid-Workflows/No-Start-Event.bpmn20.xml', 'sid-669ddebf-4196-41ee-8b04-bcc90bc5f983')
-            self.fail(
-                "self.load_workflow_spec('Invalid-Workflows/No-Start-Event.bpmn20.xml', 'No Start Event') should fail.")
+            self.fail("self.load_workflow_spec('Invalid-Workflows/No-Start-Event.bpmn20.xml', 'No Start Event') should fail.")
         except ValidationException as ex:
             self.assertTrue('No start event found' in ('%r' % ex),
                             '\'No start event found\' should be a substring of error message: \'%r\'' % ex)
@@ -41,14 +27,11 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
 
     def testUnsupportedTask(self):
         try:
-            self.load_workflow_spec(
-                'Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'sid-00c10a31-5eb4-4f6c-a3eb-3664035ca9a7')
-            self.fail(
-                "self.load_workflow_spec('Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'Unsupported Task') should fail.")
+            self.load_workflow_spec('Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'sid-00c10a31-5eb4-4f6c-a3eb-3664035ca9a7')
+            self.fail("self.load_workflow_spec('Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'Unsupported Task') should fail.")
         except ValidationException as ex:
             self.assertTrue(
-                'There is no support implemented for this task type' in (
-                    '%r' % ex),
+                'There is no support implemented for this task type' in ( '%r' % ex),
                 '\'There is no support implemented for this task type\' should be a substring of error message: \'%r\'' % ex)
             self.assertTrue('Unsupported-Task.bpmn20.xml' in ex.file_name,
                             '\'Unsupported-Task.bpmn20.xml\' should be a substring of error message: \'%r\'' % ex)
