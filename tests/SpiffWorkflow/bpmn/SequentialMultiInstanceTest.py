@@ -1,9 +1,8 @@
-from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
 
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 
 class BaseTestCase(BpmnWorkflowTestCase):

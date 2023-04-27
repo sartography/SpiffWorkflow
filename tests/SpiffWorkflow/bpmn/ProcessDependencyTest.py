@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
-import unittest
 
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 from SpiffWorkflow.spiff.parser.process import SpiffBpmnParser
 
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'danfunk'
 
@@ -46,10 +45,3 @@ class ProcessDependencyTest(BpmnWorkflowTestCase):
         dependencies = parser.get_dependencies()
         self.assertEqual(4, len(dependencies))
         self.assertIn('Level3', dependencies)
-
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ProcessDependencyTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import unittest
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
@@ -78,8 +76,3 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         task.run()
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ResetSubProcessTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
