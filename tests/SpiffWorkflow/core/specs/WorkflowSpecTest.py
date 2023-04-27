@@ -20,7 +20,6 @@ data_file = 'data.pkl'
 
 
 class WorkflowSpecTest(unittest.TestCase):
-    CORRELATE = WorkflowSpec
 
     def setUp(self):
         self.wf_spec = WorkflowSpec()
@@ -105,7 +104,3 @@ class WorkflowSpecTest(unittest.TestCase):
     def testGetTaskSpecFromId(self):
         pass
 
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(WorkflowSpecTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

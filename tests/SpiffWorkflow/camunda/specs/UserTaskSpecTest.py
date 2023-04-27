@@ -7,7 +7,6 @@ from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 
 
 class UserTaskSpecTest(unittest.TestCase):
-    CORRELATE = UserTask
 
     def create_instance(self):
         if 'testtask' in self.wf_spec.task_specs:

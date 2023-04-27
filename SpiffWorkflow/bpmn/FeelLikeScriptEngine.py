@@ -306,7 +306,7 @@ class FeelLikeScriptEngine(PythonScriptEngine):
         if external_methods is None:
             external_methods = {}
         external_methods.update(externalFuncs)
-        super(PythonScriptEngine).execute(task, script, external_methods)
+        super().execute(task, script, external_methods)
 
 
 

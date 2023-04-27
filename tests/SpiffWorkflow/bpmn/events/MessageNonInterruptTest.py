@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-
-import unittest
-
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.specs.events.event_definitions import MessageEventDefinition
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
@@ -13,7 +10,10 @@ __author__ = 'matth'
 class MessageNonInterruptTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec, self.subprocesses = self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Test Workflows', False)
+        self.spec, self.subprocesses = self.load_workflow_spec(
+            'Test-Workflows/*.bpmn20.xml',
+            'sid-b0903a88-fe74-4f93-b912-47b815ea8d1c', 
+            False)
 
     def testRunThroughHappySaveAndRestore(self):
 
@@ -179,9 +179,3 @@ class MessageNonInterruptTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.complete_subworkflow()
         self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(MessageNonInterruptTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
 
 class ParallelFromCamunda(BpmnWorkflowTestCase):
-
-    # Should we move this to the Camunda package?  Is this even testing anything Camunda related?
 
     def setUp(self):
         spec, subprocesses = self.load_workflow_spec('Test-Workflows/Parallel.camunda.bpmn20.xml', 'Process_1hb021r')
@@ -63,9 +60,3 @@ class ParallelFromCamunda(BpmnWorkflowTestCase):
         self.assertEqual("taskA", self.workflow.last_task.data["taskA"])
         self.assertEqual("taskB", self.workflow.last_task.data["taskB"])
         self.assertEqual("taskC", self.workflow.last_task.data["taskC"])
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ParallelFromCamunda)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

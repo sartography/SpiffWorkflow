@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-
-import unittest
-
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
-from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
+from .BaseTestCase import BaseTestCase
 
 __author__ = 'kellym'
 
@@ -15,7 +12,7 @@ class NIMessageBoundaryTest(BaseTestCase):
     Non-Interrupting Timer boundary test
     """
     def setUp(self):
-        spec, subprocesses = self.load_workflow_spec('noninterrupting-MessageBoundary.bpmn', 'MessageBoundary')
+        spec, subprocesses = self.load_workflow_spec('noninterrupting-MessageBoundary.bpmn', 'Process_1kjyavs')
         self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
@@ -92,8 +89,3 @@ class NIMessageBoundaryTest(BaseTestCase):
                                                        'work_completed': 'Lots of Stuff',
                                                        'work_late_reason': 'covid-19'})
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(NIMessageBoundaryTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
 class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Parallel-Through-Same-Task.bpmn20.xml', 'Parallel Through Same Task')
+        spec, subprocesses = self.load_workflow_spec(
+            'Test-Workflows/Parallel-Through-Same-Task.bpmn20.xml',
+            'sid-57c563e3-fb68-4961-ae34-b6201e0c09e8')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
 
@@ -35,8 +36,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRepeatTasksReadyTogether(self):
 
@@ -63,8 +63,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRepeatTasksReadyTogetherSaveRestore(self):
 
@@ -98,8 +97,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testNoRouteRepeatTaskFirst(self):
 
@@ -124,8 +122,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testNoRouteNoTaskFirst(self):
 
@@ -146,8 +143,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testNoRouteNoFirstThenRepeating(self):
 
@@ -169,11 +165,4 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ParallelThroughSameTaskTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))

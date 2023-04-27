@@ -1,8 +1,8 @@
 from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow, BpmnMessage
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.task import TaskState
 
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 class CollaborationTest(BpmnWorkflowTestCase):
 

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BaseParallelTestCase import BaseParallelTestCase
+from .BaseParallelTestCase import BaseParallelTestCase
 
 __author__ = 'matth'
 
@@ -11,7 +10,7 @@ class ParallelManyThreadsAtSamePointTest(BaseParallelTestCase):
     def setUp(self):
         spec, subprocesses = self.load_workflow_spec(
             'Test-Workflows/Parallel-Many-Threads-At-Same-Point.bpmn20.xml',
-            'Parallel Many Threads At Same Point')
+            'sid-6d1186e0-fc1f-43d5-bdb4-c49df043944d')
         self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def test1(self):
@@ -26,8 +25,3 @@ class ParallelManyThreadsAtSamePointTest(BaseParallelTestCase):
         self._do_test(['1', '2', 'Done', '3', '4', 'Done', 'Done', 'Done'],
                       only_one_instance=False, save_restore=True)
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ParallelManyThreadsAtSamePointTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

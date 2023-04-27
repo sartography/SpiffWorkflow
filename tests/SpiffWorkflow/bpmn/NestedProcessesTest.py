@@ -1,8 +1,6 @@
-import unittest
-
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'neilc'
 
@@ -10,7 +8,9 @@ __author__ = 'neilc'
 class NestedProcessesTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Nested*.bpmn20.xml', 'Nested Subprocesses')
+        spec, subprocesses = self.load_workflow_spec(
+            'Test-Workflows/Nested*.bpmn20.xml', 
+            'sid-a12cf1e5-86f4-4d69-9790-6a90342f5963')
         self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
@@ -31,8 +31,3 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
         self.save_restore()
         self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(NestedProcessesTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

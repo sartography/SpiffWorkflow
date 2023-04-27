@@ -9,7 +9,6 @@ from .TaskSpecTest import TaskSpecTest
 from ..util import run_workflow
 
 class ExecuteTest(TaskSpecTest):
-    CORRELATE = Execute
 
     def create_instance(self):
         if 'testtask' in self.wf_spec.task_specs:

@@ -2,8 +2,7 @@ from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
-
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 
 class CallActivityDataTest(BpmnWorkflowTestCase):

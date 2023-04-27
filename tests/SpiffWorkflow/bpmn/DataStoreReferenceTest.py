@@ -1,6 +1,4 @@
-from tests.SpiffWorkflow.bpmn.BpmnLoaderForTests import TestDataStore
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 class DataStoreReferenceTest(BpmnWorkflowTestCase):

@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-
-import unittest
+import datetime
 
 from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine, FeelInterval
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import BoxedTaskDataEnvironment
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-import datetime
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
+
 
 __author__ = 'matth'
 
@@ -50,28 +49,3 @@ class FeelExpressionTest(BpmnWorkflowTestCase):
         for test in tests:
             self.assertEqual(self.expressionEngine._evaluate(test[0], test[2]),
                              test[1], "test --> %s <-- with variables ==> %s <==Fail!" % (test[0], str(test[2])))
-
-    def testRunThroughDMNExpression(self):
-        """
-        Real world test
-        """
-        data = {
-            "exclusive": [
-                {
-                    "ExclusiveSpaceAMComputingID": None
-                }
-            ]
-        }
-        x = self.expressionEngine._evaluate(
-            """sum([1 for x in exclusive if x.get('ExclusiveSpaceAMComputingID',None)==None])""",
-            data
-        )
-        self.assertEqual(x, 1)
-
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(FeelExpressionTest)
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

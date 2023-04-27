@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import unittest
 import pickle
 
 from .TaskSpecTest import TaskSpecTest
@@ -12,7 +10,6 @@ from base64 import b64encode
 
 
 class CeleryTest(TaskSpecTest):
-    CORRELATE = Celery
 
     def create_instance(self):
         if 'testtask' in self.wf_spec.task_specs:
@@ -76,15 +73,3 @@ class CeleryTest(TaskSpecTest):
                 'class': 'SpiffWorkflow.specs.Celery.Celery',
                 'name': 'RS1:1'}
         Celery.deserialize(serializer, new_wf_spec, data)
-
-
-def suite():
-    try:
-        import celery
-    except ImportError:
-        print("WARNING: Celery not found, not all tests are running!")
-        return lambda x: None
-    else:
-        return unittest.TestLoader().loadTestsFromTestCase(CeleryTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

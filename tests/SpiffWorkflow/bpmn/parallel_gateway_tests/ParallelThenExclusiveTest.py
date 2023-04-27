@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
 class ParallelThenExclusiveTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        spec, subprocesses = self.load_workflow_spec('Test-Workflows/Parallel-Then-Exclusive.bpmn20.xml', 'Parallel Then Exclusive')
+        spec, subprocesses = self.load_workflow_spec(
+            'Test-Workflows/Parallel-Then-Exclusive.bpmn20.xml',
+            'sid-bb9ea2d5-58b6-43c7-8e77-6e28f71106f0')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
 
@@ -29,8 +30,7 @@ class ParallelThenExclusiveTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughChoiceFirst(self):
 
@@ -47,8 +47,7 @@ class ParallelThenExclusiveTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughChoiceThreadCompleteFirst(self):
 
@@ -65,8 +64,7 @@ class ParallelThenExclusiveTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(
-            0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
 
 class ParallelThenExclusiveNoInclusiveTest(ParallelThenExclusiveTest):
@@ -74,12 +72,8 @@ class ParallelThenExclusiveNoInclusiveTest(ParallelThenExclusiveTest):
     def setUp(self):
         spec, subprocesses = self.load_workflow_spec(
             'Test-Workflows/Parallel-Then-Exclusive-No-Inclusive.bpmn20.xml', 
-            'Parallel Then Exclusive No Inclusive')
+            'sid-900d26c9-beab-47a4-8092-4284bfb39927')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
 
 
-def suite():
-    return unittest.TestLoader().loadTestsFromModule(sys.modules[__name__])
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
