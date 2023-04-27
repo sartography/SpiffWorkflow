@@ -10,7 +10,7 @@ class ParallelLoopingAfterJoinTest(BaseParallelTestCase):
     def setUp(self):
         spec, subprocesses = self.load_workflow_spec(
             'Test-Workflows/Parallel-Looping-After-Join.bpmn20.xml',
-            'Parallel Looping After Join')
+            'sid-41eb2b6c-08bc-4a61-b38b-5f32052139c5')
         self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def test1(self):

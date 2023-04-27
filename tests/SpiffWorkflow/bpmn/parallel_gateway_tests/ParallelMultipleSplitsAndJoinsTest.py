@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from .BaseParallelTestCase import BaseParallelTestCase
 
@@ -11,7 +10,7 @@ class ParallelMultipleSplitsAndJoinsTest(BaseParallelTestCase):
     def setUp(self):
         spec, subprocesses = self.load_workflow_spec(
             'Test-Workflows/Parallel-Multiple-Splits-And-Joins.bpmn20.xml',
-            'Parallel Multiple Splits And Joins')
+            'sid-a90fa1f1-32a9-4a62-8ad4-8820a3fc6cc4')
         self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def test1(self):

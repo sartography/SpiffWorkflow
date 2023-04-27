@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import unittest
-
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.camunda.specs.events.event_definitions import MessageEventDefinition
@@ -13,7 +10,7 @@ __author__ = 'kellym'
 class ExternalMessageBoundaryTest(BaseTestCase):
 
     def setUp(self):
-        spec, subprocesses = self.load_workflow_spec('external_message.bpmn', 'ExternalMessage')
+        spec, subprocesses = self.load_workflow_spec('external_message.bpmn', 'Process_1iggtmi')
         self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
@@ -55,8 +52,3 @@ class ExternalMessageBoundaryTest(BaseTestCase):
         event.run()
         self.assertEqual('SomethingDrastic', event.data['reset_var'])
         self.assertEqual(False, event.data['caughtinterrupt'])
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ExternalMessageBoundaryTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

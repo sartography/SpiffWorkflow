@@ -53,9 +53,3 @@ class SpiffBpmnParser(BpmnDmnParser):
         full_tag('receiveTask'): (SpiffReceiveTaskParser, ReceiveTask),
         full_tag('businessRuleTask'): (BusinessRuleTaskParser, BusinessRuleTask)
     }
-
-    def create_parser(self, node, filename=None, lane=None):
-        parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, self.data_stores, filename=filename, lane=lane)
-        if parser.get_id() in self.process_parsers:
-            raise ValidationException(f'Duplicate process ID: {parser.get_id()}', node=node, file_name=filename)
-        self.process_parsers[parser.get_id()] = parser

@@ -13,7 +13,10 @@ __author__ = 'matth'
 class MessageInterruptsTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec, self.subprocesses = self.load_workflow_spec('Test-Workflows/*.bpmn20.xml', 'Test Workflows', False)
+        self.spec, self.subprocesses = self.load_workflow_spec(
+            'Test-Workflows/*.bpmn20.xml', 
+            'sid-b0903a88-fe74-4f93-b912-47b815ea8d1c',
+            False)
 
     def testRunThroughHappySaveAndRestore(self):
 

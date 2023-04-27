@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-
-import unittest
-
 import os
 
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.signavio.parser.bpmn import SignavioBpmnParser
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 
@@ -25,7 +22,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
     def testNoStartEvent(self):
         try:
             self.load_workflow_spec(
-                'Invalid-Workflows/No-Start-Event.bpmn20.xml', 'No Start Event')
+                'Invalid-Workflows/No-Start-Event.bpmn20.xml', 'sid-669ddebf-4196-41ee-8b04-bcc90bc5f983')
             self.fail(
                 "self.load_workflow_spec('Invalid-Workflows/No-Start-Event.bpmn20.xml', 'No Start Event') should fail.")
         except ValidationException as ex:
@@ -45,7 +42,7 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
     def testUnsupportedTask(self):
         try:
             self.load_workflow_spec(
-                'Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'Unsupported Task')
+                'Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'sid-00c10a31-5eb4-4f6c-a3eb-3664035ca9a7')
             self.fail(
                 "self.load_workflow_spec('Invalid-Workflows/Unsupported-Task.bpmn20.xml', 'Unsupported Task') should fail.")
         except ValidationException as ex:
@@ -60,8 +57,3 @@ class InvalidWorkflowsTest(BpmnWorkflowTestCase):
             self.assertTrue('Business Rule Task' in ex.name,
                             '\'Business Rule Task\' should be the name: \'%s\'' % ex.name)
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(InvalidWorkflowsTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

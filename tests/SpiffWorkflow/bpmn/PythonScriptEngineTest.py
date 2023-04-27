@@ -14,9 +14,7 @@ class PythonScriptEngineTest(BpmnWorkflowTestCase):
 
     def setUp(self):
         self.expressionEngine = PythonScriptEngine()
-
-        # All this, just so we have a task object, not using anything in the Script.
-        spec, subprocesses = self.load_workflow_spec('ScriptTest.bpmn', 'ScriptTest')
+        spec, subprocesses = self.load_workflow_spec('ScriptTest.bpmn', 'Process_1l85e0n')
         self. workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):

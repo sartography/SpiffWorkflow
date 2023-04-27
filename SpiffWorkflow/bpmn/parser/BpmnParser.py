@@ -138,7 +138,6 @@ class BpmnParser(object):
         self.namespaces = namespaces or DEFAULT_NSMAP
         self.validator = validator
         self.process_parsers = {}
-        self.process_parsers_by_name = {}
         self.collaborations = {}
         self.process_dependencies = set()
         self.messages = {}
@@ -152,15 +151,13 @@ class BpmnParser(object):
             return self.PARSER_CLASSES[tag]
         return None, None
 
-    def get_process_parser(self, process_id_or_name):
+    def get_process_parser(self, process_id):
         """
         Returns the ProcessParser for the given process ID or name. It matches
         by name first.
         """
-        if process_id_or_name in self.process_parsers_by_name:
-            return self.process_parsers_by_name[process_id_or_name]
-        elif process_id_or_name in self.process_parsers:
-            return self.process_parsers[process_id_or_name]
+        if process_id in self.process_parsers:
+            return self.process_parsers[process_id]
 
     def get_process_ids(self):
         """Returns a list of process IDs"""
@@ -299,24 +296,21 @@ class BpmnParser(object):
         parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, self.data_stores, filename=filename, lane=lane)
         if parser.get_id() in self.process_parsers:
             raise ValidationException(f'Duplicate process ID: {parser.get_id()}', node=node, file_name=filename)
-        if parser.get_name() in self.process_parsers_by_name:
-            raise ValidationException(f'Duplicate process name: {parser.get_name()}', node=node, file_name=filename)
         self.process_parsers[parser.get_id()] = parser
-        self.process_parsers_by_name[parser.get_name()] = parser
 
     def get_process_dependencies(self):
         return self.process_dependencies
 
-    def get_spec(self, process_id_or_name, required=True):
+    def get_spec(self, process_id, required=True):
         """
         Parses the required subset of the BPMN files, in order to provide an
         instance of BpmnProcessSpec (i.e. WorkflowSpec)
         for the given process ID or name. The Name is matched first.
         """
-        parser = self.get_process_parser(process_id_or_name)
+        parser = self.get_process_parser(process_id)
         if required and parser is None:
             raise ValidationException(
-                f"The process '{process_id_or_name}' was not found. "
+                f"The process '{process_id}' was not found. "
                 f"Did you mean one of the following: "
                 f"{', '.join(self.get_process_ids())}?")
         elif parser is not None:
