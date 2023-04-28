@@ -133,11 +133,9 @@ class TaskSpecConverter(BpmnSpecConverter):
             a dictionary of standard task spec attributes
         """
         dct = {
-            'id': spec.id,
             'name': spec.name,
             'description': spec.description,
             'manual': spec.manual,
-            'internal': spec.internal,
             'lookahead': spec.lookahead,
             'inputs': [task.name for task in spec.inputs],
             'outputs': [task.name for task in spec.outputs],
@@ -161,9 +159,9 @@ class TaskSpecConverter(BpmnSpecConverter):
             a dictionary of BPMN task spec attributes
         """
         return {
+            'id': spec.id,
             'lane': spec.lane,
             'documentation': spec.documentation,
-            'position': spec.position,
             'data_input_associations': [ self.registry.convert(obj) for obj in spec.data_input_associations ],
             'data_output_associations': [ self.registry.convert(obj) for obj in spec.data_output_associations ],
             'io_specification': self.registry.convert(spec.io_specification),
@@ -219,15 +217,12 @@ class TaskSpecConverter(BpmnSpecConverter):
         Returns:
             a restored task spec
         """
-        internal = dct.pop('internal')
         inputs = dct.pop('inputs')
         outputs = dct.pop('outputs')
 
         spec = self.spec_class(**dct)
-        spec.internal = internal
         spec.inputs = inputs
         spec.outputs = outputs
-        spec.id = dct['id']
 
         if include_data:
             spec.data = self.registry.restore(dct.get('data', {}))
@@ -236,6 +231,7 @@ class TaskSpecConverter(BpmnSpecConverter):
             spec.post_assign = self.registry.restore(dct.get('post_assign', {}))
 
         if isinstance(spec, BpmnSpecMixin):
+            spec.id = dct['id']
             spec.documentation = dct.pop('documentation', None)
             spec.lane = dct.pop('lane', None)
             spec.data_input_associations = self.registry.restore(dct.pop('data_input_associations', []))

@@ -294,9 +294,9 @@ class BpmnParser(object):
 
     def create_parser(self, node, filename=None, lane=None):
         parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, self.data_stores, filename=filename, lane=lane)
-        if parser.get_id() in self.process_parsers:
-            raise ValidationException(f'Duplicate process ID: {parser.get_id()}', node=node, file_name=filename)
-        self.process_parsers[parser.get_id()] = parser
+        if parser.bpmn_id in self.process_parsers:
+            raise ValidationException(f'Duplicate process ID: {parser.bpmn_id}', node=node, file_name=filename)
+        self.process_parsers[parser.bpmn_id] = parser
 
     def get_process_dependencies(self):
         return self.process_dependencies

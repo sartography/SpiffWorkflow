@@ -18,10 +18,9 @@
 # 02110-1301  USA
 
 from .BpmnSpecMixin import BpmnSpecMixin
-from ...specs.Simple import Simple
 
 
-class UserTask(Simple, BpmnSpecMixin):
+class UserTask(BpmnSpecMixin):
 
     """
     Task Spec for a bpmn:userTask node.

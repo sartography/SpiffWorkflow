@@ -18,10 +18,9 @@
 # 02110-1301  USA
 
 from .BpmnSpecMixin import BpmnSpecMixin
-from ...specs.Simple import Simple
 
 
-class ScriptEngineTask(Simple, BpmnSpecMixin):
+class ScriptEngineTask(BpmnSpecMixin):
     """Task Spec for a bpmn:scriptTask node"""
 
     def _execute(self, task):

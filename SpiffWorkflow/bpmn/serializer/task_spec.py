@@ -66,11 +66,6 @@ class StartTaskConverter(DefaultTaskSpecConverter):
         super().__init__(StartTask, registry)
 
 
-class EndJoinConverter(DefaultTaskSpecConverter):
-    def __init__(self, registry):
-        super().__init__(_EndJoin, registry)
-
-
 class BpmnTaskSpecConverter(TaskSpecConverter):
 
     def to_dict(self, spec):
@@ -81,6 +76,9 @@ class BpmnTaskSpecConverter(TaskSpecConverter):
     def from_dict(self, dct):
         return self.task_spec_from_dict(dct)
 
+class EndJoinConverter(BpmnTaskSpecConverter):
+    def __init__(self, registry):
+        super().__init__(_EndJoin, registry)
 
 class NoneTaskConverter(BpmnTaskSpecConverter):
     def __init__(self, registry):

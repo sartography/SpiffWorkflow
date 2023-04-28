@@ -17,11 +17,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...specs.Simple import Simple
 from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 
 
-class NoneTask(Simple, BpmnSpecMixin):
+class NoneTask(BpmnSpecMixin):
 
     def is_engine_task(self):
         return False

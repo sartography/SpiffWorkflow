@@ -144,16 +144,12 @@ class EventDefinitionParser(TaskParser):
                     if prop.name not in self.spec.correlation_keys[key]:
                         self.spec.correlation_keys[key].append(prop.name)
 
-        kwargs = {
-            'lane': self.lane,
-            'description': self.node.get('name', None),
-            'position': self.position,
-        }
+        kwargs = self.bpmn_attributes
         if cancel_activity is not None:
             kwargs['cancel_activity'] = cancel_activity
         if parallel is not None:
             kwargs['parallel'] = parallel
-        return self.spec_class(self.spec, self.get_task_spec_name(), event_definition, **kwargs)
+        return self.spec_class(self.spec, self.bpmn_id, event_definition=event_definition, **kwargs)
 
     def get_event_definition(self, xpaths):
         """Returns all event definitions it can find in given list of xpaths"""

@@ -18,10 +18,9 @@
 # 02110-1301  USA
 
 from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
-from ...specs.Simple import Simple
 
 
-class ManualTask(Simple, BpmnSpecMixin):
+class ManualTask(BpmnSpecMixin):
 
     def is_engine_task(self):
         return False

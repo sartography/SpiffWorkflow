@@ -286,15 +286,11 @@ class XmlSerializer(Serializer):
         """
         Serializes common attributes of :meth:`SpiffWorkflow.specs.TaskSpec`.
         """
-        if spec.id is not None:
-            SubElement(elem, 'id').text = str(spec.id)
         SubElement(elem, 'name').text = spec.name
         if spec.description:
             SubElement(elem, 'description').text = spec.description
         if spec.manual:
             SubElement(elem, 'manual')
-        if spec.internal:
-            SubElement(elem, 'internal')
         SubElement(elem, 'lookahead').text = str(spec.lookahead)
         inputs = [t.name for t in spec.inputs]
         outputs = [t.name for t in spec.outputs]
@@ -315,11 +311,8 @@ class XmlSerializer(Serializer):
     def deserialize_task_spec(self, wf_spec, elem, spec_cls, **kwargs):
         name = elem.findtext('name')
         spec = spec_cls(wf_spec, name, **kwargs)
-        theid = elem.findtext('id')
-        spec.id = theid if theid is not None else None
         spec.description = elem.findtext('description', spec.description)
         spec.manual = elem.findtext('manual', spec.manual)
-        spec.internal = elem.find('internal') is not None
         spec.lookahead = int(elem.findtext('lookahead', spec.lookahead))
 
         data_elem = elem.find('data')

@@ -45,8 +45,6 @@ class WorkflowSpec(object):
         if task_spec.name in self.task_specs:
             raise KeyError('Duplicate task spec name: ' + task_spec.name)
         self.task_specs[task_spec.name] = task_spec
-        # Why does this attribute even exist???
-        task_spec.id = str(len(self.task_specs))
 
     def get_task_spec_from_name(self, name):
         """

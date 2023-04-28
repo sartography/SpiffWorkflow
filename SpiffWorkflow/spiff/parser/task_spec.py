@@ -120,12 +120,7 @@ class SpiffTaskParser(TaskParser):
         extensions = self.parse_extensions()
         prescript = extensions.get('preScript')
         postscript = extensions.get('postScript')
-        return self.spec_class(self.spec, self.get_task_spec_name(),
-                               lane=self.lane,
-                               description=self.node.get('name', None),
-                               position=self.position,
-                               prescript=prescript,
-                               postscript=postscript)
+        return self.spec_class(self.spec, self.bpmn_id, prescript=prescript, postscript=postscript, **self.bpmn_attributes)
 
 
 class SubWorkflowParser(SpiffTaskParser):
@@ -136,11 +131,12 @@ class SubWorkflowParser(SpiffTaskParser):
         postscript = extensions.get('postScript')
         subworkflow_spec = SubprocessParser.get_subprocess_spec(self)
         return self.spec_class(
-            self.spec, self.get_task_spec_name(), subworkflow_spec,
-            lane=self.lane, position=self.position,
-            description=self.node.get('name', None),
+            self.spec, 
+            self.bpmn_id,
+            subworkflow_spec=subworkflow_spec,
             prescript=prescript,
-            postscript=postscript)
+            postscript=postscript,
+            **self.bpmn_attributes)
 
 
 class ScriptTaskParser(SpiffTaskParser):
@@ -149,10 +145,7 @@ class ScriptTaskParser(SpiffTaskParser):
         for child_node in self.node:
             if child_node.tag.endswith('script'):
                 script = child_node.text
-        return self.spec_class(
-            self.spec, self.get_task_spec_name(), script,
-            lane=self.lane, position=self.position,
-            description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.bpmn_id, script, **self.bpmn_attributes)
 
 
 class CallActivityParser(SpiffTaskParser):
@@ -163,11 +156,12 @@ class CallActivityParser(SpiffTaskParser):
         postscript = extensions.get('postScript')
         subworkflow_spec = SubprocessParser.get_call_activity_spec(self)
         return self.spec_class(
-            self.spec, self.get_task_spec_name(), subworkflow_spec,
-            lane=self.lane, position=self.position,
-            description=self.node.get('name', None),
+            self.spec, 
+            self.bpmn_id,
+            subworkflow_spec=subworkflow_spec,
             prescript=prescript,
-            postscript=postscript)
+            postscript=postscript,
+            **self.bpmn_attributes)
 
 class ServiceTaskParser(SpiffTaskParser):
     def create_task(self):
@@ -176,13 +170,14 @@ class ServiceTaskParser(SpiffTaskParser):
         prescript = extensions.get('preScript')
         postscript = extensions.get('postScript')
         return self.spec_class(
-                self.spec, self.get_task_spec_name(),
-                operator['name'], operator['parameters'],
-                operator['resultVariable'],
-                description=self.node.get('name', None),
-                lane=self.lane, position=self.position,
+                self.spec,
+                self.bpmn_id,
+                operation_name=operator['name'], 
+                operation_params=operator['parameters'],
+                result_variable=operator['resultVariable'],
                 prescript=prescript,
-                postscript=postscript)
+                postscript=postscript,
+                **self.bpmn_attributes)
 
 class BusinessRuleTaskParser(SpiffTaskParser):
 
@@ -193,13 +188,11 @@ class BusinessRuleTaskParser(SpiffTaskParser):
         postscript = extensions.get('postScript')
         return BusinessRuleTask(
             self.spec,
-            self.get_task_spec_name(),
+            self.bpmn_id,
             dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
-            lane=self.lane,
-            position=self.position,
-            description=self.node.get('name', None),
             prescript=prescript,
             postscript=postscript,
+            **self.bpmn_attributes,
         )
 
     @staticmethod

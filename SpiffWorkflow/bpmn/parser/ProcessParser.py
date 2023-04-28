@@ -54,7 +54,7 @@ class ProcessParser(NodeParser):
         """
         Returns the process name (or ID, if no name is included in the file)
         """
-        return self.node.get('name', default=self.get_id())
+        return self.node.get('name', default=self.bpmn_id)
 
     def has_lanes(self) -> bool:
         """Returns true if this process has one or more named lanes """
@@ -117,7 +117,7 @@ class ProcessParser(NodeParser):
         start_node_list = self.xpath('./bpmn:startEvent')
         if not start_node_list and self.process_executable:
             raise ValidationException("No start event found", node=self.node, file_name=self.filename)
-        self.spec = BpmnProcessSpec(name=self.get_id(), description=self.get_name(), filename=self.filename)
+        self.spec = BpmnProcessSpec(name=self.bpmn_id, description=self.get_name(), filename=self.filename)
 
         self.spec.data_objects.update(self.inherited_data_objects)
 

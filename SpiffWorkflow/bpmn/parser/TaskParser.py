@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Matthew Hampton
+# Copyright (C) 2012 Matthew Hampton, 2023 Sartography
 #
 # This file is part of SpiffWorkflow.
 #
@@ -155,7 +155,7 @@ class TaskParser(NodeParser):
     def _add_boundary_event(self, children):
 
         parent = _BoundaryEventParent(
-            self.spec, '%s.BoundaryEventParent' % self.get_id(),
+            self.spec, '%s.BoundaryEventParent' % self.bpmn_id,
             self.task, lane=self.task.lane)
         self.process_parser.parsed_nodes[self.node.get('id')] = parent
         parent.connect(self.task)
@@ -176,10 +176,6 @@ class TaskParser(NodeParser):
             # Why do we just set random attributes willy nilly everywhere in the code????
             # And we still pass around a gigantic kwargs dict whenever we create anything!
             self.task.extensions = self.parse_extensions()
-            self.task.documentation = self.parse_documentation()
-            # And now I have to add more of the same crappy thing.
-            self.task.data_input_associations = self.parse_incoming_data_references()
-            self.task.data_output_associations = self.parse_outgoing_data_references()
 
             io_spec = self.xpath('./bpmn:ioSpecification')
             if len(io_spec) > 0:
@@ -193,14 +189,14 @@ class TaskParser(NodeParser):
             if len(mi_loop_characteristics) > 0:
                 self._add_multiinstance_task(mi_loop_characteristics[0])
 
-            boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.get_id())
+            boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.bpmn_id)
             if boundary_event_nodes:
                 parent = self._add_boundary_event(boundary_event_nodes)
             else:
                 self.process_parser.parsed_nodes[self.node.get('id')] = self.task
 
             children = []
-            outgoing = self.doc_xpath('.//bpmn:sequenceFlow[@sourceRef="%s"]' % self.get_id())
+            outgoing = self.doc_xpath('.//bpmn:sequenceFlow[@sourceRef="%s"]' % self.bpmn_id)
             if len(outgoing) > 1 and not self.handles_multiple_outgoing():
                 self.raise_validation_exception('Multiple outgoing flows are not supported for tasks of type')
             for sequence_flow in outgoing:
@@ -212,11 +208,13 @@ class TaskParser(NodeParser):
                         'perhaps a form has the same ID? (%s)' % target_ref)
 
                 c = self.process_parser.parse_node(target_node)
-                position = c.position
+                position = self.get_position(target_node)
                 children.append((position, c, target_node, sequence_flow))
 
             if children:
                 # Sort children by their y coordinate.
+                # Why??  Isn't the point of parallel tasks that they can be executed in any order (or simultaneously)?
+                # And what if they're arranged horizontally?
                 children = sorted(children, key=lambda tup: float(tup[0]["y"]))
 
                 default_outgoing = self.node.get('default')
@@ -238,17 +236,14 @@ class TaskParser(NodeParser):
         """
         Returns a unique task spec name for this task (or the targeted one)
         """
-        return target_ref or self.get_id()
+        return target_ref or self.bpmn_id
 
     def create_task(self):
         """
         Create an instance of the task appropriately. A subclass can override
         this method to get extra information from the node.
         """
-        return self.spec_class(self.spec, self.get_task_spec_name(),
-                               lane=self.lane,
-                               description=self.node.get('name', None),
-                               position=self.position)
+        return self.spec_class(self.spec, self.bpmn_id, **self.bpmn_attributes)
 
     def connect_outgoing(self, outgoing_task, sequence_flow_node, is_default):
         """

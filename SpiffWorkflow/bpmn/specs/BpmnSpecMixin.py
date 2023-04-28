@@ -38,7 +38,8 @@ class BpmnSpecMixin(TaskSpec):
     methods that are BPMN specific to the TaskSpec.
     """
 
-    def __init__(self, wf_spec, name, lane=None, position=None, **kwargs):
+    def __init__(self, wf_spec, name, lane=None, documentation=None, 
+                 data_input_associations=None, data_output_associations=None, **kwargs):
         """
         Constructor.
 
@@ -47,11 +48,11 @@ class BpmnSpecMixin(TaskSpec):
         """
         super(BpmnSpecMixin, self).__init__(wf_spec, name, **kwargs)
         self.lane = lane
-        self.position = position or {'x': 0, 'y': 0}
-        self.documentation = None
-        self.data_input_associations = []
-        self.data_output_associations = []
+        self.documentation = documentation
+        self.data_input_associations = data_input_associations or []
+        self.data_output_associations = data_output_associations or []
         self.io_specification = None
+        self.id = self.name
 
     @property
     def spec_type(self):
