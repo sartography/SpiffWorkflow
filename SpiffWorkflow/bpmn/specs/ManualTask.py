@@ -21,9 +21,11 @@ from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 
 
 class ManualTask(BpmnSpecMixin):
+    """Task Spec for a bpmn:manualTask node."""
 
-    def is_engine_task(self):
-        return False
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.manual = True
 
     @property
     def spec_type(self):

@@ -17,11 +17,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...bpmn.specs.UserTask import UserTask
-from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
+from ...bpmn.specs.UserTask import UserTask as DefaultUserTask
 
 
-class UserTask(UserTask, BpmnSpecMixin):
+class UserTask(DefaultUserTask):
     """Task Spec for a bpmn:userTask node with Camunda forms."""
 
     def __init__(self, wf_spec, name, form, **kwargs):
@@ -32,12 +31,6 @@ class UserTask(UserTask, BpmnSpecMixin):
         """
         super(UserTask, self).__init__(wf_spec, name, **kwargs)
         self.form = form
-
-    def _on_trigger(self, my_task):
-        pass
-
-    def is_engine_task(self):
-        return False
 
 
 class FormField(object):

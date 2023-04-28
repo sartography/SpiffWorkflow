@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Matthew Hampton
+# Copyright (C) 2012 Matthew Hampton, 2023 Sartography
 #
 # This file is part of SpiffWorkflow.
 #
@@ -21,9 +21,11 @@ from ...bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
 
 
 class NoneTask(BpmnSpecMixin):
+    """Task Spec for a bpmn:task node."""
 
-    def is_engine_task(self):
-        return False
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.manual = True
 
     @property
     def spec_type(self):

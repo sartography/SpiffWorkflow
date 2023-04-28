@@ -121,12 +121,4 @@ class UserTaskSpecTest(unittest.TestCase):
         self.assertEquals("rubble", form_field.get_validation("barney"))
 
     def testIsEngineTask(self):
-        self.assertFalse(self.user_spec.is_engine_task())
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(UserTaskSpecTest)
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
+        self.assertTrue(self.user_spec.manual)
