@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1ako4x9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="main" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0tx8esv</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="set_data" name="Set Data">
+      <bpmn:incoming>Flow_0tx8esv</bpmn:incoming>
+      <bpmn:outgoing>Flow_0sg9gpx</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_0w3n2za">
+        <bpmn:targetRef>DataObjectReference_07x66g8</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_0tx8esv" sourceRef="StartEvent_1" targetRef="set_data" />
+    <bpmn:exclusiveGateway id="choose" name="Choose">
+      <bpmn:incoming>Flow_0sg9gpx</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bc7w21</bpmn:outgoing>
+      <bpmn:outgoing>Flow_16z4b2q</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0sg9gpx" sourceRef="set_data" targetRef="choose" />
+    <bpmn:endEvent id="yes" name="Yes">
+      <bpmn:incoming>Flow_1bc7w21</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1bc7w21" sourceRef="choose" targetRef="yes">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">val</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="no" name="No">
+      <bpmn:incoming>Flow_16z4b2q</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_16z4b2q" sourceRef="choose" targetRef="no">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">not val</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:dataObjectReference id="DataObjectReference_07x66g8" name="val" dataObjectRef="val" />
+    <bpmn:dataObject id="val" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="main">
+      <bpmndi:BPMNEdge id="Flow_16z4b2q_di" bpmnElement="Flow_16z4b2q">
+        <di:waypoint x="450" y="202" />
+        <di:waypoint x="450" y="290" />
+        <di:waypoint x="532" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bc7w21_di" bpmnElement="Flow_1bc7w21">
+        <di:waypoint x="475" y="177" />
+        <di:waypoint x="532" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0sg9gpx_di" bpmnElement="Flow_0sg9gpx">
+        <di:waypoint x="370" y="177" />
+        <di:waypoint x="425" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tx8esv_di" bpmnElement="Flow_0tx8esv">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="270" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_075t1a5_di" bpmnElement="set_data">
+        <dc:Bounds x="270" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1lynepm_di" bpmnElement="choose" isMarkerVisible="true">
+        <dc:Bounds x="425" y="152" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="432" y="122" width="38" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0yzigs0_di" bpmnElement="yes">
+        <dc:Bounds x="532" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="541" y="202" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1xpwysm_di" bpmnElement="no">
+        <dc:Bounds x="532" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="543" y="315" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataObjectReference_07x66g8_di" bpmnElement="DataObjectReference_07x66g8">
+        <dc:Bounds x="302" y="265" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="313" y="322" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_0w3n2za_di" bpmnElement="DataOutputAssociation_0w3n2za">
+        <di:waypoint x="319" y="217" />
+        <di:waypoint x="318" y="265" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
