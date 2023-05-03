@@ -1,0 +1,83 @@
+# Copyright (C) 2012 Matthew Hampton, 2023 Sartography
+#
+# This file is part of SpiffWorkflow.
+#
+# SpiffWorkflow is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 3.0 of the License, or (at your option) any later version.
+#
+# SpiffWorkflow is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
+
+from SpiffWorkflow.task import TaskState
+from .event_types import ThrowingEvent, CatchingEvent
+
+
+class SendTask(ThrowingEvent):
+    @property
+    def spec_type(self):
+        return 'Send Task'
+
+
+class ReceiveTask(CatchingEvent):
+    @property
+    def spec_type(self):
+        return 'Receive Task'
+
+
+class IntermediateCatchEvent(CatchingEvent):
+    @property
+    def spec_type(self):
+        return f'{self.event_definition.event_type} Catching Event'
+
+
+class IntermediateThrowEvent(ThrowingEvent):
+    @property
+    def spec_type(self):
+        return f'{self.event_definition.event_type} Throwing Event'
+
+
+class BoundaryEvent(CatchingEvent):
+    """Task Spec for a bpmn:boundaryEvent node."""
+
+    def __init__(self, wf_spec, name, event_definition, cancel_activity, **kwargs):
+        """
+        Constructor.
+
+        :param cancel_activity: True if this is a Cancelling boundary event.
+        """
+        super(BoundaryEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
+        self.cancel_activity = cancel_activity
+
+    @property
+    def spec_type(self):
+        interrupting = 'Interrupting' if self.cancel_activity else 'Non-Interrupting'
+        return f'{interrupting} {self.event_definition.event_type} Event'
+
+    def catches(self, my_task, event_definition, correlations=None):
+        # Boundary events should only be caught while waiting
+        return super(BoundaryEvent, self).catches(my_task, event_definition, correlations) and my_task.state == TaskState.WAITING
+
+
+class EventBasedGateway(CatchingEvent):
+
+    @property
+    def spec_type(self):
+        return 'Event Based Gateway'
+
+    def _predict_hook(self, my_task):
+        my_task._sync_children(self.outputs, state=TaskState.MAYBE)
+
+    def _on_ready_hook(self, my_task):
+        seen_events =  my_task.internal_data.get('seen_events', [])
+        for child in my_task.children:
+            if child.task_spec.event_definition not in seen_events:
+                child.cancel()

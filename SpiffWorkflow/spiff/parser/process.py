@@ -20,20 +20,30 @@
 import os
 
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator, full_tag, ValidationException
+from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator, full_tag
 
-from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
-from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
-from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, BoundaryEvent, IntermediateCatchEvent
+from SpiffWorkflow.bpmn.specs.defaults import (
+    StartEvent,
+    EndEvent,
+    IntermediateCatchEvent,
+    IntermediateThrowEvent,
+    BoundaryEvent,
+)
 
-from SpiffWorkflow.spiff.specs.none_task import NoneTask
-from SpiffWorkflow.spiff.specs.manual_task import ManualTask
-from SpiffWorkflow.spiff.specs.user_task import UserTask
-from SpiffWorkflow.spiff.specs.script_task import ScriptTask
-from SpiffWorkflow.spiff.specs.subworkflow_task import SubWorkflowTask, TransactionSubprocess, CallActivity
-from SpiffWorkflow.spiff.specs.service_task import ServiceTask
-from SpiffWorkflow.spiff.specs.events.event_types import SendTask, ReceiveTask
-from SpiffWorkflow.spiff.specs.business_rule_task import BusinessRuleTask
+from SpiffWorkflow.spiff.specs.defaults import (
+    UserTask,
+    ManualTask,
+    NoneTask,
+    ScriptTask,
+    SendTask,
+    ReceiveTask,
+    BusinessRuleTask,
+    SubWorkflowTask,
+    CallActivity,
+    TransactionSubprocess,
+    ServiceTask
+)
+
 from SpiffWorkflow.spiff.parser.task_spec import (
     SpiffTaskParser,
     SubWorkflowParser,
@@ -42,11 +52,15 @@ from SpiffWorkflow.spiff.parser.task_spec import (
     ScriptTaskParser,
     BusinessRuleTaskParser
 )
-from SpiffWorkflow.spiff.parser.event_parsers import (SpiffStartEventParser, SpiffEndEventParser, SpiffBoundaryEventParser,
-    SpiffIntermediateCatchEventParser, SpiffIntermediateThrowEventParser, SpiffSendTaskParser, SpiffReceiveTaskParser)
-
-
-from SpiffWorkflow.spiff.parser.task_spec import BusinessRuleTaskParser
+from SpiffWorkflow.spiff.parser.event_parsers import (
+    SpiffStartEventParser,
+    SpiffEndEventParser,
+    SpiffBoundaryEventParser,
+    SpiffIntermediateCatchEventParser,
+    SpiffIntermediateThrowEventParser,
+    SpiffSendTaskParser,
+    SpiffReceiveTaskParser
+)
 
 SPIFF_XSD = os.path.join(os.path.dirname(__file__), 'schema', 'spiffworkflow.xsd')
 VALIDATOR = BpmnValidator(imports={'spiffworkflow': SPIFF_XSD})

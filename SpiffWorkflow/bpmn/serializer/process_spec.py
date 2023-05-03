@@ -17,8 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ..specs.BpmnProcessSpec import BpmnProcessSpec
-from ..specs.events.IntermediateEvent import _BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.bpmn_process_spec import BpmnProcessSpec
+from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
 
 from .helpers.spec import WorkflowSpecConverter
 

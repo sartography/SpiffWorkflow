@@ -21,7 +21,7 @@ from SpiffWorkflow.bpmn.parser.event_parsers import EventDefinitionParser, Recei
 from SpiffWorkflow.bpmn.parser.event_parsers import StartEventParser, EndEventParser, \
     IntermediateCatchEventParser, IntermediateThrowEventParser, BoundaryEventParser, \
     SendTaskParser
-from SpiffWorkflow.spiff.specs.events.event_definitions import MessageEventDefinition
+from SpiffWorkflow.spiff.specs.event_definitions import MessageEventDefinition
 from SpiffWorkflow.bpmn.parser.util import one
 from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser
 

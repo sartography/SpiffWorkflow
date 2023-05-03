@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from .ValidationException import ValidationException
-from ..specs.BpmnProcessSpec import BpmnProcessSpec
+from ..specs.bpmn_process_spec import BpmnProcessSpec
 from ..specs.data_spec import DataObject
 from .node_parser import NodeParser
 from .util import first

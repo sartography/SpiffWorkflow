@@ -126,7 +126,7 @@ class NodeParser:
         return {}
 
     def get_position(self, node=None):
-        node = node or self.node
+        node = node if node is not None else self.node
         nodeid = node.get('id')
         if nodeid is not None:
             bounds = first(self.doc_xpath(f".//bpmndi:BPMNShape[@bpmnElement='{nodeid}']//dc:Bounds"))

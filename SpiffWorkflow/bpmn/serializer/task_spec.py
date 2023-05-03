@@ -17,33 +17,35 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .helpers.spec import TaskSpecConverter
-
-from ...specs.StartTask import StartTask
-from ...specs.Simple import Simple
-
-from ..specs.BpmnProcessSpec import _EndJoin
-from ..specs.BpmnSpecMixin import _BpmnCondition
-from ..specs.NoneTask import NoneTask
-from ..specs.UserTask import UserTask
-from ..specs.ManualTask import ManualTask
-from ..specs.ScriptTask import ScriptTask
-from ..specs.MultiInstanceTask import StandardLoopTask, SequentialMultiInstanceTask, ParallelMultiInstanceTask
-from ..specs.SubWorkflowTask import CallActivity, TransactionSubprocess, SubWorkflowTask
-from ..specs.ExclusiveGateway import ExclusiveGateway
-from ..specs.InclusiveGateway import InclusiveGateway
-from ..specs.ParallelGateway import ParallelGateway
-from ..specs.events.StartEvent import StartEvent
-from ..specs.events.EndEvent import EndEvent
-from ..specs.events.IntermediateEvent import (
-    BoundaryEvent,
-    _BoundaryEventParent,
-    EventBasedGateway,
+from SpiffWorkflow.specs.Simple import Simple
+from SpiffWorkflow.specs.StartTask import StartTask
+from SpiffWorkflow.bpmn.specs.control import _EndJoin, _BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import _BpmnCondition
+from SpiffWorkflow.bpmn.specs.defaults import (
+    UserTask,
+    ManualTask,
+    NoneTask,
+    ScriptTask,
+    ExclusiveGateway,
+    InclusiveGateway,
+    ParallelGateway,
+    StandardLoopTask,
+    SequentialMultiInstanceTask,
+    ParallelMultiInstanceTask,
+    CallActivity,
+    TransactionSubprocess,
+    SubWorkflowTask,
+    StartEvent,
+    EndEvent,
     IntermediateCatchEvent,
     IntermediateThrowEvent,
+    BoundaryEvent,
+    EventBasedGateway,
     SendTask,
     ReceiveTask,
 )
+
+from .helpers.spec import TaskSpecConverter
 
 
 class DefaultTaskSpecConverter(TaskSpecConverter):

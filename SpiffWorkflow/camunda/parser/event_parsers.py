@@ -17,10 +17,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.parser.event_parsers import EventDefinitionParser
-from SpiffWorkflow.bpmn.parser.event_parsers import StartEventParser, EndEventParser, \
-    IntermediateCatchEventParser, IntermediateThrowEventParser, BoundaryEventParser
-from SpiffWorkflow.camunda.specs.events.event_definitions import MessageEventDefinition
+from SpiffWorkflow.bpmn.parser.event_parsers import (
+    EventDefinitionParser,
+    StartEventParser,
+    EndEventParser,
+    IntermediateCatchEventParser,
+    IntermediateThrowEventParser,
+    BoundaryEventParser
+)
+from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
 from SpiffWorkflow.bpmn.parser.util import one
 
 

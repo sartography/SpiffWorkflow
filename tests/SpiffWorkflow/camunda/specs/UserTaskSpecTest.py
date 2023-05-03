@@ -1,6 +1,6 @@
 import unittest
 
-from SpiffWorkflow.camunda.specs.UserTask import FormField, UserTask, Form, EnumFormField
+from SpiffWorkflow.camunda.specs.user_task import FormField, UserTask, Form, EnumFormField
 from SpiffWorkflow.camunda.serializer.task_spec import UserTaskConverter
 from SpiffWorkflow.bpmn.serializer.helpers.dictionary import DictionaryConverter
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec

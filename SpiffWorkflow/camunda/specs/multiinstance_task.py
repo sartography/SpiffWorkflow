@@ -18,10 +18,10 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.task import TaskState
-from SpiffWorkflow.bpmn.specs.BpmnSpecMixin import BpmnSpecMixin
+from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
 from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
 
-from SpiffWorkflow.bpmn.specs.MultiInstanceTask import (
+from SpiffWorkflow.bpmn.specs.defaults import (
     SequentialMultiInstanceTask as BpmnSequentialMITask, 
     ParallelMultiInstanceTask as BpmnParallelMITask,
 )

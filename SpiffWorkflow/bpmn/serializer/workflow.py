@@ -22,9 +22,9 @@ import gzip
 from copy import deepcopy
 from uuid import UUID
 
-from ..workflow import BpmnMessage, BpmnWorkflow
-from ..specs.SubWorkflowTask import SubWorkflowTask
-from ...task import Task
+from SpiffWorkflow.task import Task
+from SpiffWorkflow.bpmn.workflow import BpmnMessage, BpmnWorkflow
+from SpiffWorkflow.bpmn.specs.mixins.subworkfow_task import SubWorkflowTask
 
 from .migration.version_migration import MIGRATIONS
 from .helpers.registry import DefaultRegistry

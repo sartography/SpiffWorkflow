@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.camunda.specs.events.event_definitions import MessageEventDefinition
+from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
 from .BaseTestCase import BaseTestCase
 
 __author__ = 'kellym'

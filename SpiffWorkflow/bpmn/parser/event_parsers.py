@@ -19,12 +19,10 @@
 
 from lxml import etree
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import CorrelationProperty
-
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
 from .util import first, one
-from ..specs.events.event_definitions import (
+from ..specs.event_definitions import (
     MultipleEventDefinition,
     TimeDateEventDefinition,
     DurationTimerEventDefinition,
@@ -35,7 +33,8 @@ from ..specs.events.event_definitions import (
     SignalEventDefinition,
     CancelEventDefinition,
     TerminateEventDefinition,
-    NoneEventDefinition
+    NoneEventDefinition,
+    CorrelationProperty
 )
 
 CANCEL_EVENT_XPATH = './/bpmn:cancelEventDefinition'

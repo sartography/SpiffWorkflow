@@ -20,7 +20,7 @@
 from datetime import datetime, timedelta
 
 from SpiffWorkflow.task import TaskState
-from SpiffWorkflow.bpmn.specs.events.event_definitions import LOCALTZ
+from SpiffWorkflow.bpmn.specs.event_definitions import LOCALTZ
 
 from .exceptions import VersionMigrationError
 

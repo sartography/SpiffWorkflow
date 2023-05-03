@@ -19,10 +19,14 @@
 
 from functools import partial
 
-from ...specs.BpmnSpecMixin import BpmnSpecMixin
-from ...specs.events.event_definitions import NamedEventDefinition, TimerEventDefinition
-from ...specs.events.event_definitions import CorrelationProperty
-from ....operators import Attrib, PathAttrib
+from SpiffWorkflow.operators import Attrib, PathAttrib
+
+from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
+from SpiffWorkflow.bpmn.specs.event_definitions import (
+    NamedEventDefinition,
+    TimerEventDefinition,
+    CorrelationProperty
+)
 
 
 class BpmnSpecConverter:

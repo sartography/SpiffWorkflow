@@ -19,7 +19,6 @@
 
 from ...bpmn.serializer.helpers.spec import TaskSpecConverter
 
-from ..specs.BusinessRuleTask import BusinessRuleTask
 from ..specs.model import DecisionTable, Rule, HitPolicy
 from ..specs.model import Input, InputEntry, Output, OutputEntry
 from ..engine.DMNEngine import DMNEngine
@@ -114,8 +113,3 @@ class BaseBusinessRuleTaskConverter(TaskSpecConverter):
         rule.outputEntries = [self.output_entry_from_dict(entry, outputs)
                               for entry in dct['output_entries']]
         return rule
-
-
-class BusinessRuleTaskConverter(BaseBusinessRuleTaskConverter):
-    def __init__(self, registry):
-        super().__init__(BusinessRuleTask, registry)

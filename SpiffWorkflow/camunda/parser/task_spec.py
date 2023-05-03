@@ -17,17 +17,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...camunda.specs.UserTask import Form, FormField, EnumFormField
-
 from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
 from SpiffWorkflow.bpmn.parser.util import one
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import SubprocessParser
 
-from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
-
+from SpiffWorkflow.camunda.specs.business_rule_task import BusinessRuleTask
 from SpiffWorkflow.camunda.specs.multiinstance_task import SequentialMultiInstanceTask, ParallelMultiInstanceTask
+from SpiffWorkflow.camunda.specs.user_task import Form, FormField, EnumFormField
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 

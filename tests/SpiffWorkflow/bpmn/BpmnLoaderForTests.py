@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from SpiffWorkflow.bpmn.specs.data_spec import BpmnDataStoreSpecification
-from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
-from SpiffWorkflow.bpmn.specs.UserTask import UserTask
+from SpiffWorkflow.bpmn.specs.defaults import ExclusiveGateway
+from SpiffWorkflow.bpmn.specs.defaults import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import ConditionalGatewayParser
@@ -12,8 +12,7 @@ from SpiffWorkflow.bpmn.serializer.helpers.spec import BpmnSpecConverter, TaskSp
 
 __author__ = 'matth'
 
-# This provides some extensions to the BPMN parser that make it easier to
-# implement testcases
+# One glorious day I will be able to remove these classes.
 
 
 class TestUserTask(UserTask):

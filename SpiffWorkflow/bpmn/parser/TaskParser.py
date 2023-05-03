@@ -17,17 +17,21 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .ValidationException import ValidationException
-from ..specs.events.IntermediateEvent import _BoundaryEventParent
-from ..specs.events.event_definitions import CancelEventDefinition
-from ..specs.MultiInstanceTask import StandardLoopTask, SequentialMultiInstanceTask, ParallelMultiInstanceTask
-from ..specs.SubWorkflowTask import TransactionSubprocess
-from ..specs.ExclusiveGateway import ExclusiveGateway
-from ..specs.InclusiveGateway import InclusiveGateway
-from ..specs.data_spec import TaskDataReference
+from SpiffWorkflow.bpmn.specs.defaults import (
+    ExclusiveGateway,
+    InclusiveGateway,
+    TransactionSubprocess,
+    StandardLoopTask,
+    SequentialMultiInstanceTask,
+    ParallelMultiInstanceTask
+)
+from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.event_definitions import CancelEventDefinition
+from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
 
 from .util import one
 from .node_parser import NodeParser
+from .ValidationException import ValidationException
 
 
 class TaskParser(NodeParser):

@@ -23,23 +23,32 @@ import os
 from lxml import etree
 from lxml.etree import LxmlError
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
+from SpiffWorkflow.bpmn.specs.bpmn_process_spec import BpmnProcessSpec
+from SpiffWorkflow.bpmn.specs.defaults import (
+    UserTask,
+    ManualTask,
+    NoneTask,
+    ScriptTask,
+    ServiceTask,
+    CallActivity,
+    SubWorkflowTask,
+    TransactionSubprocess,
+    InclusiveGateway,
+    ExclusiveGateway,
+    ParallelGateway,
+    StartEvent,
+    EndEvent,
+    IntermediateCatchEvent,
+    IntermediateThrowEvent,
+    SendTask,
+    ReceiveTask,
+    BoundaryEvent,
+    EventBasedGateway
+)
+from SpiffWorkflow.bpmn.specs.event_definitions import NoneEventDefinition
+from SpiffWorkflow.bpmn.specs.mixins.subworkfow_task import SubWorkflowTask as SubWorkflowTaskMixin
 
 from .ValidationException import ValidationException
-from ..specs.BpmnProcessSpec import BpmnProcessSpec
-from ..specs.events.EndEvent import EndEvent
-from ..specs.events.StartEvent import StartEvent
-from ..specs.events.IntermediateEvent import BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent, EventBasedGateway
-from ..specs.events.IntermediateEvent import SendTask, ReceiveTask
-from ..specs.SubWorkflowTask import CallActivity, SubWorkflowTask, TransactionSubprocess
-from ..specs.ExclusiveGateway import ExclusiveGateway
-from ..specs.InclusiveGateway import InclusiveGateway
-from ..specs.ManualTask import ManualTask
-from ..specs.NoneTask import NoneTask
-from ..specs.ParallelGateway import ParallelGateway
-from ..specs.ScriptTask import ScriptTask
-from ..specs.ServiceTask import ServiceTask
-from ..specs.UserTask import UserTask
 from .ProcessParser import ProcessParser
 from .node_parser import DEFAULT_NSMAP
 from .util import full_tag, xpath_eval, first
@@ -320,7 +329,7 @@ class BpmnParser(object):
         used = specs or {}
         wf_spec = self.get_spec(name)
         for task_spec in wf_spec.task_specs.values():
-            if isinstance(task_spec, SubWorkflowTask) and task_spec.spec not in used:
+            if isinstance(task_spec, SubWorkflowTaskMixin) and task_spec.spec not in used:
                 subprocess_spec = self.get_spec(task_spec.spec, required=require_call_activity_specs)
                 used[task_spec.spec] = subprocess_spec
                 if subprocess_spec is not None:

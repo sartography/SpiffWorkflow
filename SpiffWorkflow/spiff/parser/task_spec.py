@@ -23,8 +23,12 @@ from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import SubprocessParser
 from SpiffWorkflow.bpmn.parser.util import xpath_eval
 
-from SpiffWorkflow.spiff.specs.multiinstance_task import StandardLoopTask, ParallelMultiInstanceTask, SequentialMultiInstanceTask
-from SpiffWorkflow.spiff.specs.business_rule_task import BusinessRuleTask
+from SpiffWorkflow.spiff.specs.defaults import (
+    StandardLoopTask,
+    ParallelMultiInstanceTask,
+    SequentialMultiInstanceTask,
+    BusinessRuleTask
+)
 
 SPIFFWORKFLOW_MODEL_NS = 'http://spiffworkflow.org/bpmn/schema/1.0/core'
 SPIFFWORKFLOW_MODEL_PREFIX = 'spiffworkflow'

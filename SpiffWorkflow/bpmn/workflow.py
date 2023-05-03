@@ -19,19 +19,21 @@
 
 import copy
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import (
+from SpiffWorkflow.task import TaskState, Task
+from SpiffWorkflow.workflow import Workflow
+from SpiffWorkflow.exceptions import TaskNotFoundException, WorkflowException, WorkflowTaskException
+
+from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
+from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
+from SpiffWorkflow.bpmn.specs.mixins.subworkfow_task import CallActivity
+from SpiffWorkflow.bpmn.specs.event_definitions import (
     MessageEventDefinition,
     MultipleEventDefinition,
     NamedEventDefinition,
     TimerEventDefinition,
 )
+
 from .PythonScriptEngine import PythonScriptEngine
-from .specs.events.event_types import CatchingEvent
-from .specs.events.StartEvent import StartEvent
-from .specs.SubWorkflowTask import CallActivity
-from ..task import TaskState, Task
-from ..workflow import Workflow
-from ..exceptions import TaskNotFoundException, WorkflowException, WorkflowTaskException
 
 
 class BpmnMessage:
