@@ -30,7 +30,6 @@ class Simple(TaskSpec):
     If more than one output is connected, the task performs an implicit
     parallel split.
     """
-
     def serialize(self, serializer):
         return serializer.serialize_simple(self)
 

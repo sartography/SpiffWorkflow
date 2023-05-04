@@ -17,10 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.specs.Simple import Simple
-from SpiffWorkflow.specs.StartTask import StartTask
-from SpiffWorkflow.bpmn.specs.control import _EndJoin, _BoundaryEventParent
-from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import _BpmnCondition
+from SpiffWorkflow.bpmn.specs.control import BpmnStartTask, _EndJoin, _BoundaryEventParent, SimpleBpmnTask
+from SpiffWorkflow.bpmn.specs.bpmn_task_spec import _BpmnCondition
 from SpiffWorkflow.bpmn.specs.defaults import (
     UserTask,
     ManualTask,
@@ -48,26 +46,6 @@ from SpiffWorkflow.bpmn.specs.defaults import (
 from .helpers.spec import TaskSpecConverter
 
 
-class DefaultTaskSpecConverter(TaskSpecConverter):
-
-    def to_dict(self, spec):
-        dct = self.get_default_attributes(spec)
-        return dct
-
-    def from_dict(self, dct):
-        return self.task_spec_from_dict(dct)
-
-
-class SimpleTaskConverter(DefaultTaskSpecConverter):
-    def __init__(self, registry):
-        super().__init__(Simple, registry)
-
-
-class StartTaskConverter(DefaultTaskSpecConverter):
-    def __init__(self, registry):
-        super().__init__(StartTask, registry)
-
-
 class BpmnTaskSpecConverter(TaskSpecConverter):
 
     def to_dict(self, spec):
@@ -78,9 +56,20 @@ class BpmnTaskSpecConverter(TaskSpecConverter):
     def from_dict(self, dct):
         return self.task_spec_from_dict(dct)
 
+
+class SimpleBpmnTaskConverter(BpmnTaskSpecConverter):
+    def __init__(self, registry):
+        super().__init__(SimpleBpmnTask, registry)
+
+class BpmnStartTaskConverter(BpmnTaskSpecConverter):
+    def __init__(self, registry):
+        super().__init__(BpmnStartTask, registry)
+
 class EndJoinConverter(BpmnTaskSpecConverter):
     def __init__(self, registry):
         super().__init__(_EndJoin, registry)
+
+
 
 class NoneTaskConverter(BpmnTaskSpecConverter):
     def __init__(self, registry):
@@ -313,8 +302,8 @@ class EventBasedGatewayConverter(EventConverter):
 
 
 DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
-    SimpleTaskConverter,
-    StartTaskConverter,
+    SimpleBpmnTaskConverter,
+    BpmnStartTaskConverter,
     EndJoinConverter,
     NoneTaskConverter,
     UserTaskConverter,

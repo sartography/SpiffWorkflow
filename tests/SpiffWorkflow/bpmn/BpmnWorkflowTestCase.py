@@ -84,8 +84,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
                     return False
             return True
 
-        tasks = list(
-            [t for t in self.workflow.get_tasks(TaskState.READY) if is_match(t)])
+        tasks = [t for t in self.workflow.get_tasks(TaskState.READY) if is_match(t)]
 
         self._do_single_step(
             step_name_path[-1], tasks, set_attribs, choice, only_one_instance=only_one_instance)

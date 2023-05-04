@@ -42,9 +42,6 @@ class EndEvent(ThrowingEvent):
      * There is no token remaining within the Process instance.
     """
 
-    def __init__(self, wf_spec, name, event_definition, **kwargs):
-        super(EndEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
-
     @property
     def spec_type(self):
         return 'End Event'

@@ -1,9 +1,37 @@
+
+# Copyright (C) 2023 Sartography
+#
+# This file is part of SpiffWorkflow.
+#
+# SpiffWorkflow is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 3.0 of the License, or (at your option) any later version.
+#
+# SpiffWorkflow is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
+
 from SpiffWorkflow.task import TaskState
-from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
+from SpiffWorkflow.specs.StartTask import StartTask
+from SpiffWorkflow.bpmn.specs.bpmn_task_spec import BpmnTaskSpec
 from SpiffWorkflow.bpmn.specs.mixins.unstructured_join import UnstructuredJoin
 from SpiffWorkflow.bpmn.specs.mixins.events.intermediate_event import BoundaryEvent
 
-class _BoundaryEventParent(BpmnSpecMixin):
+
+class BpmnStartTask(BpmnTaskSpec, StartTask):
+    pass
+
+class SimpleBpmnTask(BpmnTaskSpec):
+    pass
+
+class _BoundaryEventParent(BpmnTaskSpec):
     """This task is inserted before a task with boundary events."""
 
     # I wonder if this would be better modelled as some type of join.
@@ -11,8 +39,7 @@ class _BoundaryEventParent(BpmnSpecMixin):
     # they're attached to be inputs rather than outputs.
 
     def __init__(self, wf_spec, name, main_child_task_spec, **kwargs):
-
-        super(_BoundaryEventParent, self).__init__(wf_spec, name)
+        super(_BoundaryEventParent, self).__init__(wf_spec, name, **kwargs)
         self.main_child_task_spec = main_child_task_spec
 
     @property
@@ -46,7 +73,7 @@ class _BoundaryEventParent(BpmnSpecMixin):
                 child._set_state(state)
 
 
-class _EndJoin(UnstructuredJoin, BpmnSpecMixin):
+class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
 
     def _check_threshold_unstructured(self, my_task, force=False):
         # Look at the tree to find all ready and waiting tasks (excluding

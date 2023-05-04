@@ -163,7 +163,6 @@ class TaskSpecConverter(BpmnSpecConverter):
             a dictionary of BPMN task spec attributes
         """
         return {
-            'id': spec.id,
             'lane': spec.lane,
             'documentation': spec.documentation,
             'data_input_associations': [ self.registry.convert(obj) for obj in spec.data_input_associations ],
@@ -235,9 +234,6 @@ class TaskSpecConverter(BpmnSpecConverter):
             spec.post_assign = self.registry.restore(dct.get('post_assign', {}))
 
         if isinstance(spec, BpmnSpecMixin):
-            spec.id = dct['id']
-            spec.documentation = dct.pop('documentation', None)
-            spec.lane = dct.pop('lane', None)
             spec.data_input_associations = self.registry.restore(dct.pop('data_input_associations', []))
             spec.data_output_associations = self.registry.restore(dct.pop('data_output_associations', []))
             spec.io_specification = self.registry.restore(dct.pop('io_specification', None))

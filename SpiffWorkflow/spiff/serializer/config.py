@@ -21,8 +21,8 @@ from copy import deepcopy
 
 from SpiffWorkflow.bpmn.serializer.workflow import DEFAULT_SPEC_CONFIG
 from SpiffWorkflow.bpmn.serializer.task_spec import (
-    SimpleTaskConverter,
-    StartTaskConverter,
+    SimpleBpmnTaskConverter,
+    BpmnStartTaskConverter,
     EndJoinConverter,
     StartEventConverter,
     EndEventConverter, 
@@ -58,8 +58,8 @@ from .event_definition import MessageEventDefinitionConverter
 
 SPIFF_SPEC_CONFIG = deepcopy(DEFAULT_SPEC_CONFIG)
 SPIFF_SPEC_CONFIG['task_specs'] = [
-    SimpleTaskConverter,
-    StartTaskConverter,
+    SimpleBpmnTaskConverter,
+    BpmnStartTaskConverter,
     EndJoinConverter,
     StartEventConverter,
     EndEventConverter, 

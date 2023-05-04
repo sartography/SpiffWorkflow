@@ -18,8 +18,8 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
-from SpiffWorkflow.specs.Simple import Simple
-from SpiffWorkflow.bpmn.specs.control import _EndJoin
+from SpiffWorkflow.bpmn.specs.control import _EndJoin, BpmnStartTask, SimpleBpmnTask
+
 
 class BpmnProcessSpec(WorkflowSpec):
     """
@@ -35,9 +35,13 @@ class BpmnProcessSpec(WorkflowSpec):
         :param svg: This provides the SVG representation of the workflow as an
         LXML node. (optional)
         """
-        super(BpmnProcessSpec, self).__init__(name=name, filename=filename)
+        super(BpmnProcessSpec, self).__init__(name=name, filename=filename, nostart=True)
+        # Add a root task to ensure all tasks in the workflow are bpmn tasks
+        # The serializer ignores this task
+        SimpleBpmnTask(self, 'Root')
+        self.start = BpmnStartTask(self, 'Start')
         self.end = _EndJoin(self, '%s.EndJoin' % (self.name))
-        self.end.connect(Simple(self, 'End'))
+        self.end.connect(SimpleBpmnTask(self, 'End'))
         self.svg = svg
         self.description = description
         self.io_specification = None

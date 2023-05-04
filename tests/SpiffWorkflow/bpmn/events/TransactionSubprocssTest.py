@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import unittest
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -41,7 +38,6 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         self.assertEqual(error_1_task.state, TaskState.CANCELLED)
         error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
         self.assertEqual(error_none_task.state, TaskState.CANCELLED)
-
 
     def testSubworkflowCancelEvent(self):
 
@@ -124,10 +120,3 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
         print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")
         self.assertEqual(len(print_task), 0)
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TransactionSubprocessTest)
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

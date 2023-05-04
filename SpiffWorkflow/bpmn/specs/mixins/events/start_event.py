@@ -24,9 +24,6 @@ from .event_types import CatchingEvent
 class StartEvent(CatchingEvent):
     """Task Spec for a bpmn:startEvent node with an optional event definition."""
 
-    def __init__(self, wf_spec, name, event_definition, **kwargs):
-        super(StartEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
-
     @property
     def spec_type(self):
         return f'{self.event_definition.event_type} Start Event'

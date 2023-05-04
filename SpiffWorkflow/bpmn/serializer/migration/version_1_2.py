@@ -162,3 +162,16 @@ def update_task_states(dct):
         update(dct)
         for sp in dct['subprocesses'].values():
             update(sp)
+
+def convert_simple_tasks(dct):
+
+    def update_specs(task_specs):
+        for name, spec in task_specs.items():
+            if spec['typename'] == 'StartTask':
+                spec['typename'] = 'BpmnStartTask'
+            elif spec['typename'] == 'Simple':
+                spec['typename'] = 'SimpleBpmnTask'
+
+    update_specs(dct['spec']['task_specs'])
+    for subprocess_spec in dct['subprocess_specs'].values():
+        update_specs(subprocess_spec['task_specs'])

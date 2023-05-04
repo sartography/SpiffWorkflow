@@ -27,6 +27,7 @@ from .version_1_2 import (
     check_multiinstance,
     remove_loop_reset,
     update_task_states,
+    convert_simple_tasks,
 )
 
 def from_version_1_1(old):
@@ -57,6 +58,7 @@ def from_version_1_1(old):
     check_multiinstance(new)
     remove_loop_reset(new)
     update_task_states(new)
+    convert_simple_tasks(new)
     new['VERSION'] = "1.2"
     return new
 
