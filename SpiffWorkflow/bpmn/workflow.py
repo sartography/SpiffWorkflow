@@ -25,6 +25,8 @@ from SpiffWorkflow.bpmn.specs.events.event_definitions import (
     NamedEventDefinition,
     TimerEventDefinition,
 )
+from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import \
+    _BoundaryEventParent
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
 from .specs.events.StartEvent import StartEvent
@@ -325,3 +327,18 @@ class BpmnWorkflow(Workflow):
 
     def _is_engine_task(self, task_spec):
         return (not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task())
+
+    def reset_task_from_id(self, task_id):
+        """Override method from base class, and assures that if the task
+        being reset has a boundary event parent, we reset that parent and
+        run it rather than resetting to the current task.  This assures
+        our boundary events are set to the correct state."""
+        has_boundary_parent = False
+        task = self.get_task_from_id(task_id)
+        if isinstance(task.parent.task_spec, _BoundaryEventParent):
+            super().reset_task_from_id(task.parent.id)
+            task.parent.run()
+        else:
+            super().reset_task_from_id(task_id)
+
+

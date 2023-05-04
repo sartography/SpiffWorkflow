@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1nsvcwb" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0">
+  <bpmn:process id="token" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_03vnrmv</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_03vnrmv" sourceRef="StartEvent_1" targetRef="First" />
+    <bpmn:endEvent id="Event_0xfwzm8">
+      <bpmn:incoming>Flow_039y4lk</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_039y4lk" sourceRef="Last" targetRef="Event_0xfwzm8" />
+    <bpmn:endEvent id="Event_1ormhyr">
+      <bpmn:incoming>Flow_18nptz1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_18nptz1" sourceRef="Activity_0q8gfca" targetRef="Event_1ormhyr" />
+    <bpmn:manualTask id="Activity_0q8gfca" name="Middle">
+      <bpmn:incoming>Flow_1n2rgse</bpmn:incoming>
+      <bpmn:outgoing>Flow_18nptz1</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:sequenceFlow id="Flow_02q0uoy" sourceRef="First" targetRef="Last" />
+    <bpmn:boundaryEvent id="Event_My_Timer" attachedToRef="First">
+      <bpmn:outgoing>Flow_1n2rgse</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_0g1p9dz">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">'P14D'</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_1n2rgse" sourceRef="Event_My_Timer" targetRef="Activity_0q8gfca" />
+    <bpmn:manualTask id="First" name="First">
+      <bpmn:documentation>Do you want to do the next steps?</bpmn:documentation>
+      <bpmn:incoming>Flow_03vnrmv</bpmn:incoming>
+      <bpmn:outgoing>Flow_02q0uoy</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="Last" name="Last">
+      <bpmn:documentation>FormC</bpmn:documentation>
+      <bpmn:incoming>Flow_02q0uoy</bpmn:incoming>
+      <bpmn:outgoing>Flow_039y4lk</bpmn:outgoing>
+    </bpmn:manualTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="token">
+      <bpmndi:BPMNEdge id="Flow_039y4lk_di" bpmnElement="Flow_039y4lk">
+        <di:waypoint x="570" y="117" />
+        <di:waypoint x="642" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03vnrmv_di" bpmnElement="Flow_03vnrmv">
+        <di:waypoint x="188" y="117" />
+        <di:waypoint x="270" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02q0uoy_di" bpmnElement="Flow_02q0uoy">
+        <di:waypoint x="370" y="117" />
+        <di:waypoint x="470" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n2rgse_di" bpmnElement="Flow_1n2rgse">
+        <di:waypoint x="330" y="175" />
+        <di:waypoint x="330" y="240" />
+        <di:waypoint x="400" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18nptz1_di" bpmnElement="Flow_18nptz1">
+        <di:waypoint x="500" y="240" />
+        <di:waypoint x="552" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0xfwzm8_di" bpmnElement="Event_0xfwzm8">
+        <dc:Bounds x="642" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ormhyr_di" bpmnElement="Event_1ormhyr">
+        <dc:Bounds x="552" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1y3o0zt_di" bpmnElement="Activity_0q8gfca">
+        <dc:Bounds x="400" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ngv6u6_di" bpmnElement="First">
+        <dc:Bounds x="270" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1smmawa_di" bpmnElement="Last">
+        <dc:Bounds x="470" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0fb7g8m_di" bpmnElement="Event_My_Timer">
+        <dc:Bounds x="312" y="139" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
