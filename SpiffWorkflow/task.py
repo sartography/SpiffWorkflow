@@ -619,7 +619,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         """
         Execute the task.
 
-        If the return value of task_spec._run is None, assume the task is not finished, 
+        If the return value of task_spec._run is None, assume the task is not finished,
         and move the task to WAITING.
 
         :rtype: boolean or None
@@ -636,10 +636,10 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             # This state is intended to indicate a task that is not finished, but will continue
             # in the background without blocking other unrelated tasks (ie on other branches).
             # It is a distinct state from "waiting" so that `update` does not have to distinguish
-            # between tasks that can be started and tasks that have already been started.  
+            # between tasks that can be started and tasks that have already been started.
             # Spiff can manage deciding if a task can run, but if a task is set to "started", it will
-            # have to be tracked independently of the workflow and completed manually when it finishes 
-            # for the time being (probably I'll add polling methods in the future, but I'm not exactly 
+            # have to be tracked independently of the workflow and completed manually when it finishes
+            # for the time being (probably I'll add polling methods in the future, but I'm not exactly
             # sure how they should work).
             # I'm adding this state now because I'm adding an error state (which I think there is a
             # need for) and don't want to go through the hassle of updating serialization of task states
