@@ -49,8 +49,26 @@ TIMER_EVENT_XPATH = './/bpmn:timerEventDefinition'
 class EventDefinitionParser(TaskParser):
     """This class provvides methods for parsing different event definitions."""
 
-    def parse_cancel_event(self):
-        return CancelEventDefinition()
+    def __init__(self, process_parser, spec_class, node, nsmap=None, lane=None):
+        super().__init__(process_parser, spec_class, node, nsmap, lane)
+        self.event_nodes = []
+
+    def get_description(self):
+        spec_description = super().get_description()
+        if spec_description is not None:
+            if len(self.event_nodes) == 0:
+                event_description =  'Default'
+            elif len(self.event_nodes) > 1:
+                event_description = 'Multiple'
+            elif len(self.event_nodes) == 1:
+                event_description = self.process_parser.parser.spec_descriptions.get(self.event_nodes[0].tag)
+            return f'{event_description} {spec_description}'
+
+    def get_event_description(self, event):
+        return self.process_parser.parser.spec_descriptions.get(event.tag)
+
+    def parse_cancel_event(self, event):
+        return CancelEventDefinition(description=self.get_event_description(event))
 
     def parse_error_event(self, error_event):
         """Parse the errorEventDefinition node and return an instance of ErrorEventDefinition."""
@@ -61,7 +79,7 @@ class EventDefinitionParser(TaskParser):
             name = error.get('name')
         else:
             name, error_code = 'None Error Event', None
-        return ErrorEventDefinition(name, error_code)
+        return ErrorEventDefinition(name, error_code, description=self.get_event_description(error_event))
 
     def parse_escalation_event(self, escalation_event):
         """Parse the escalationEventDefinition node and return an instance of EscalationEventDefinition."""
@@ -73,7 +91,7 @@ class EventDefinitionParser(TaskParser):
             name = escalation.get('name')
         else:
             name, escalation_code = 'None Escalation Event', None
-        return EscalationEventDefinition(name, escalation_code)
+        return EscalationEventDefinition(name, escalation_code, description=self.get_event_description(escalation_event))
 
     def parse_message_event(self, message_event):
 
@@ -81,11 +99,13 @@ class EventDefinitionParser(TaskParser):
         if message_ref is not None:
             message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
             name = message.get('name')
+            description = self.get_event_description(message_event)
             correlations = self.get_message_correlations(message_ref)
         else:
             name = message_event.getparent().get('name')
+            description = 'Message'
             correlations = {}
-        return MessageEventDefinition(name, correlations)
+        return MessageEventDefinition(name, correlations, description=description)
 
     def parse_signal_event(self, signal_event):
         """Parse the signalEventDefinition node and return an instance of SignalEventDefinition."""
@@ -96,26 +116,26 @@ class EventDefinitionParser(TaskParser):
             name = signal.get('name')
         else:
             name = signal_event.getparent().get('name')
-        return SignalEventDefinition(name)
+        return SignalEventDefinition(name, description=self.get_event_description(signal_event))
 
-    def parse_terminate_event(self):
+    def parse_terminate_event(self, event):
         """Parse the terminateEventDefinition node and return an instance of TerminateEventDefinition."""
-        return TerminateEventDefinition()
+        return TerminateEventDefinition(description=self.get_event_description(event))
 
-    def parse_timer_event(self):
+    def parse_timer_event(self, event):
         """Parse the timerEventDefinition node and return an instance of TimerEventDefinition."""
-
         try:
+            description = self.get_event_description(event)
             name = self.node.get('name', self.node.get('id'))
             time_date = first(self.xpath('.//bpmn:timeDate'))
             if time_date is not None:
-                return TimeDateEventDefinition(name, time_date.text)
+                return TimeDateEventDefinition(name, time_date.text, description=description)
             time_duration = first(self.xpath('.//bpmn:timeDuration'))
             if time_duration is not None:
-                return DurationTimerEventDefinition(name, time_duration.text)
+                return DurationTimerEventDefinition(name, time_duration.text, description=description)
             time_cycle = first(self.xpath('.//bpmn:timeCycle'))
             if time_cycle is not None:
-                return CycleTimerEventDefinition(name, time_cycle.text)
+                return CycleTimerEventDefinition(name, time_cycle.text, description=description)
             raise ValidationException("Unknown Time Specification", node=self.node, file_name=self.filename)
         except Exception as e:
             raise ValidationException("Time Specification Error. " + str(e), node=self.node, file_name=self.filename)
@@ -146,6 +166,8 @@ class EventDefinitionParser(TaskParser):
         kwargs = self.bpmn_attributes
         if cancel_activity is not None:
             kwargs['cancel_activity'] = cancel_activity
+            interrupt = 'Interrupting' if cancel_activity else 'Non-Interrupting'
+            kwargs['description'] = interrupt + ' ' + kwargs['description']
         if parallel is not None:
             kwargs['parallel'] = parallel
         return self.spec_class(self.spec, self.bpmn_id, event_definition=event_definition, **kwargs)
@@ -156,29 +178,31 @@ class EventDefinitionParser(TaskParser):
         event_definitions = []
         for path in xpaths:
             for event in self.xpath(path):
+                if event is not None:
+                    self.event_nodes.append(event)
                 if path == MESSAGE_EVENT_XPATH:
                     event_definitions.append(self.parse_message_event(event))
                 elif path == SIGNAL_EVENT_XPATH:
                     event_definitions.append(self.parse_signal_event(event))
                 elif path == TIMER_EVENT_XPATH:
-                    event_definitions.append(self.parse_timer_event())
+                    event_definitions.append(self.parse_timer_event(event))
                 elif path == CANCEL_EVENT_XPATH:
-                    event_definitions.append(self.parse_cancel_event())
+                    event_definitions.append(self.parse_cancel_event(event))
                 elif path == ERROR_EVENT_XPATH:
                     event_definitions.append(self.parse_error_event(event))
                 elif path == ESCALATION_EVENT_XPATH:
                     event_definitions.append(self.parse_escalation_event(event))
                 elif path == TERMINATION_EVENT_XPATH:
-                    event_definitions.append(self.parse_terminate_event())
+                    event_definitions.append(self.parse_terminate_event(event))
 
         parallel = self.node.get('parallelMultiple') == 'true'
 
         if len(event_definitions) == 0:
-            return NoneEventDefinition()
+            return NoneEventDefinition(description='Default')
         elif len(event_definitions) == 1:
             return event_definitions[0]
         else:
-            return MultipleEventDefinition(event_definitions, parallel)
+            return MultipleEventDefinition(event_definitions, parallel, description='Multiple')
 
 
 class StartEventParser(EventDefinitionParser):

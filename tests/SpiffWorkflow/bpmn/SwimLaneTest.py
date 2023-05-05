@@ -59,7 +59,7 @@ class SwimLaneTest(BpmnWorkflowTestCase):
         self.workflow.run_task_from_id(tasks[0].id)
         self.workflow.do_engine_steps()
         tasks = self.workflow.get_ready_user_tasks()
-        self.assertEqual("SubProcessTask", tasks[0].task_spec.description)
+        self.assertEqual("SubProcessTask", tasks[0].task_spec.bpmn_name)
         self.assertEqual(tasks[0].task_spec.lane, "C")
 
 def suite():

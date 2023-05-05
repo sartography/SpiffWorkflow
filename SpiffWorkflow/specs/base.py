@@ -90,7 +90,7 @@ class TaskSpec(object):
         assert name is not None
         self._wf_spec = wf_spec
         self.name = str(name)
-        self.description = kwargs.get('description', '')
+        self.description = kwargs.get('description', None)
         self.inputs = []
         self.outputs = []
         self.manual = kwargs.get('manual', False)

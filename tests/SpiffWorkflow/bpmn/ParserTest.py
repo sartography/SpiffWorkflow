@@ -26,9 +26,9 @@ class ParserTest(unittest.TestCase):
         generate = spec.task_specs['generate_data']
         read = spec.task_specs['read_data']
         self.assertEqual(len(generate.data_output_associations), 1)
-        self.assertEqual(generate.data_output_associations[0].name, 'obj_1')
+        self.assertEqual(generate.data_output_associations[0].bpmn_id, 'obj_1')
         self.assertEqual(len(read.data_input_associations), 1)
-        self.assertEqual(read.data_input_associations[0].name, 'obj_1')
+        self.assertEqual(read.data_input_associations[0].bpmn_id, 'obj_1')
 
     def testSkipSubprocesses(self):
 

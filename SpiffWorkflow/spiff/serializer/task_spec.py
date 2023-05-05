@@ -42,7 +42,6 @@ class SpiffBpmnTaskConverter(TaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         dct['prescript'] = spec.prescript
         dct['postscript'] = spec.postscript
         return dct
@@ -161,7 +160,6 @@ class StandardLoopTaskConverter(SpiffBpmnTaskConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         dct.update(self.get_standard_loop_attributes(spec))
         return dct
 

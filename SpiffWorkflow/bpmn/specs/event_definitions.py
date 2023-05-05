@@ -24,7 +24,6 @@ from time import timezone as tzoffset, altzone as dstoffset, daylight as isdst
 from copy import deepcopy
 
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.task import TaskState
 
 seconds_from_utc = dstoffset if isdst else tzoffset
 LOCALTZ = timezone(timedelta(seconds=-1 * seconds_from_utc))
@@ -42,11 +41,12 @@ class EventDefinition(object):
     and external flags.
     Default catch behavior is to set the event to fired
     """
-    def __init__(self):
+    def __init__(self, description=None):
         # Ideally I'd mke these parameters, but I don't want to them to be parameters
         # for any subclasses (as they are based on event type, not user choice) and
         # I don't want to write a separate deserializer for every every type.
         self.internal, self.external = True, True
+        self.description = description
 
     @property
     def event_type(self):
@@ -92,8 +92,8 @@ class NamedEventDefinition(EventDefinition):
     :param name: the name of this event
     """
 
-    def __init__(self, name):
-        super(NamedEventDefinition, self).__init__()
+    def __init__(self, name, **kwargs):
+        super(NamedEventDefinition, self).__init__(**kwargs)
         self.name = name
 
     def reset(self, my_task):
@@ -108,13 +108,9 @@ class CancelEventDefinition(EventDefinition):
     Cancel events are only handled by the outerworkflow, as they can only be used inside
     of transaction subprocesses.
     """
-    def __init__(self):
-        super(CancelEventDefinition, self).__init__()
+    def __init__(self, **kwargs):
+        super(CancelEventDefinition, self).__init__(**kwargs)
         self.internal = False
-
-    @property
-    def event_type(self):
-        return 'Cancel'
 
 
 class ErrorEventDefinition(NamedEventDefinition):
@@ -123,14 +119,10 @@ class ErrorEventDefinition(NamedEventDefinition):
     matched by code rather than name.
     """
 
-    def __init__(self, name, error_code=None):
-        super(ErrorEventDefinition, self).__init__(name)
+    def __init__(self, name, error_code=None, **kwargs):
+        super(ErrorEventDefinition, self).__init__(name,**kwargs)
         self.error_code = error_code
         self.internal = False
-
-    @property
-    def event_type(self):
-        return 'Error'
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__ and self.error_code in [ None, other.error_code ]
@@ -142,19 +134,15 @@ class EscalationEventDefinition(NamedEventDefinition):
     the spec says that the escalation code should be matched.
     """
 
-    def __init__(self, name, escalation_code=None):
+    def __init__(self, name, escalation_code=None, **kwargs):
         """
         Constructor.
 
         :param escalation_code: The escalation code this event should
         react to. If None then all escalations will activate this event.
         """
-        super(EscalationEventDefinition, self).__init__(name)
+        super(EscalationEventDefinition, self).__init__(name, **kwargs)
         self.escalation_code = escalation_code
-
-    @property
-    def event_type(self):
-        return 'Escalation'
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__ and self.escalation_code in [ None, other.escalation_code ]
@@ -171,17 +159,13 @@ class CorrelationProperty:
 class MessageEventDefinition(NamedEventDefinition):
     """The default message event."""
 
-    def __init__(self, name, correlation_properties=None):
-        super().__init__(name)
+    def __init__(self, name, correlation_properties=None, **kwargs):
+        super().__init__(name, **kwargs)
         self.correlation_properties = correlation_properties or []
         self.payload = None
         self.internal = False
 
-    @property
-    def event_type(self):
-        return 'Message'
-
-    def catch(self, my_task, event_definition = None):
+    def catch(self, my_task, event_definition=None):
         self.update_internal_data(my_task, event_definition)
         super(MessageEventDefinition, self).catch(my_task, event_definition)
 
@@ -243,12 +227,9 @@ class NoneEventDefinition(EventDefinition):
     """
     This class defines behavior for NoneEvents.  We override throw to do nothing.
     """
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.internal, self.external = False, False
-
-    @property
-    def event_type(self):
-        return 'Default'
 
     def throw(self, my_task):
         """It's a 'none' event, so nothing to throw."""
@@ -261,26 +242,21 @@ class NoneEventDefinition(EventDefinition):
 
 class SignalEventDefinition(NamedEventDefinition):
     """The SignalEventDefinition is the implementation of event definition used for Signal Events."""
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
 
-    @property
-    def spec_type(self):
-        return 'Signal'
 
 class TerminateEventDefinition(EventDefinition):
     """The TerminateEventDefinition is the implementation of event definition used for Termination Events."""
 
-    def __init__(self):
-        super(TerminateEventDefinition, self).__init__()
+    def __init__(self, **kwargs):
+        super(TerminateEventDefinition, self).__init__(**kwargs)
         self.external = False
-
-    @property
-    def event_type(self):
-        return 'Terminate'
 
 
 class TimerEventDefinition(EventDefinition):
 
-    def __init__(self, name, expression):
+    def __init__(self, name, expression, **kwargs):
         """
         Constructor.
 
@@ -288,7 +264,7 @@ class TimerEventDefinition(EventDefinition):
 
         :param expression: An ISO 8601 datetime or interval expression.
         """
-        super().__init__()
+        super().__init__(**kwargs)
         self.name = name
         self.expression = expression
 
@@ -409,10 +385,6 @@ class TimerEventDefinition(EventDefinition):
 class TimeDateEventDefinition(TimerEventDefinition):
     """A Timer event represented by a specific date/time."""
 
-    @property
-    def event_type(self):
-        return 'Time Date Timer'
-
     def has_fired(self, my_task):
         event_value = my_task._get_internal_data('event_value')
         if event_value is None:
@@ -428,10 +400,6 @@ class TimeDateEventDefinition(TimerEventDefinition):
 
 class DurationTimerEventDefinition(TimerEventDefinition):
     """A timer event represented by a duration"""
-
-    @property
-    def event_type(self):
-        return 'Duration Timer'
 
     def has_fired(self, my_task):
         event_value = my_task._get_internal_data("event_value")
@@ -449,10 +417,6 @@ class DurationTimerEventDefinition(TimerEventDefinition):
 
 
 class CycleTimerEventDefinition(TimerEventDefinition):
-
-    @property
-    def event_type(self):
-        return 'Cycle Timer'
 
     def cycle_complete(self, my_task):
 
@@ -489,14 +453,10 @@ class CycleTimerEventDefinition(TimerEventDefinition):
 
 class MultipleEventDefinition(EventDefinition):
 
-    def __init__(self, event_definitions=None, parallel=False):
-        super().__init__()
+    def __init__(self, event_definitions=None, parallel=False, **kwargs):
+        super().__init__(**kwargs)
         self.event_definitions = event_definitions or []
         self.parallel = parallel
-
-    @property
-    def event_type(self):
-        return 'Multiple'
 
     def has_fired(self, my_task):
 

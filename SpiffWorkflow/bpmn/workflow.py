@@ -233,7 +233,7 @@ class BpmnWorkflow(Workflow):
             elif isinstance(event_definition, MessageEventDefinition):
                 value = event_definition.correlation_properties
             events.append({
-                'event_type': event_definition.event_type,
+                'event_type': event_definition.description,
                 'name': event_definition.name if isinstance(event_definition, NamedEventDefinition) else None,
                 'value': value
             })

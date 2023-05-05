@@ -29,9 +29,9 @@ class MessageEventDefinition(MessageEventDefinition):
     # this should be revisited: for one thing, we're relying on some Camunda-specific
     # properties.
 
-    def __init__(self, name, correlation_properties=None, payload=None, result_var=None):
+    def __init__(self, name, correlation_properties=None, payload=None, result_var=None, **kwargs):
 
-        super(MessageEventDefinition, self).__init__(name, correlation_properties)
+        super(MessageEventDefinition, self).__init__(name, correlation_properties, **kwargs)
         self.payload = payload
         self.result_var = result_var
 

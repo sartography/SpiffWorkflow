@@ -33,18 +33,14 @@ class ScriptEngineTask(TaskSpec):
 
 class ScriptTask(ScriptEngineTask):
 
-    def __init__(self, wf_spec, name, script, **kwargs):
+    def __init__(self, wf_spec, bpmn_id, script, **kwargs):
         """
         Constructor.
 
         :param script: the script that must be executed by the script engine.
         """
-        super(ScriptTask, self).__init__(wf_spec, name, **kwargs)
+        super(ScriptTask, self).__init__(wf_spec, bpmn_id, **kwargs)
         self.script = script
-
-    @property
-    def spec_type(self):
-        return 'Script Task'
 
     def _execute(self, task):
         return task.workflow.script_engine.execute(task, self.script)

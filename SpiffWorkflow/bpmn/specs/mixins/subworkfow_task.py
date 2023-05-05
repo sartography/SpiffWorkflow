@@ -28,20 +28,16 @@ class SubWorkflowTask(TaskSpec):
     """
     Task Spec for a bpmn node containing a subworkflow.
     """
-    def __init__(self, wf_spec, name, subworkflow_spec, transaction=False, **kwargs):
+    def __init__(self, wf_spec, bpmn_id, subworkflow_spec, transaction=False, **kwargs):
         """
         Constructor.
 
         :param bpmn_wf_spec: the BpmnProcessSpec for the sub process.
         :param bpmn_wf_class: the BpmnWorkflow class to instantiate
         """
-        super(SubWorkflowTask, self).__init__(wf_spec, name, **kwargs)
+        super(SubWorkflowTask, self).__init__(wf_spec, bpmn_id, **kwargs)
         self.spec = subworkflow_spec
         self.transaction = transaction
-
-    @property
-    def spec_type(self):
-        return 'Subprocess'
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
         self.update_data(my_task, subworkflow)
@@ -92,8 +88,8 @@ class SubWorkflowTask(TaskSpec):
 
 class CallActivity(SubWorkflowTask):
 
-    def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
-        super(CallActivity, self).__init__(wf_spec, name, subworkflow_spec, False, **kwargs)
+    def __init__(self, wf_spec, bpmn_id, subworkflow_spec, **kwargs):
+        super(CallActivity, self).__init__(wf_spec, bpmn_id, subworkflow_spec, False, **kwargs)
 
     def copy_data(self, my_task, subworkflow):
 
@@ -104,13 +100,13 @@ class CallActivity(SubWorkflowTask):
         else:
             # Otherwise copy only task data with the specified names
             for var in subworkflow.spec.io_specification.data_inputs:
-                if var.name not in my_task.data:
+                if var.bpmn_id not in my_task.data:
                     raise WorkflowDataException(
                         "You are missing a required Data Input for a call activity.",
                         task=my_task,
                         data_input=var,
                     )
-                start[0].data[var.name] = my_task.data[var.name]
+                start[0].data[var.bpmn_id] = my_task.data[var.bpmn_id]
 
     def update_data(self, my_task, subworkflow):
 
@@ -121,25 +117,16 @@ class CallActivity(SubWorkflowTask):
             end = subworkflow.get_tasks_from_spec_name('End', workflow=subworkflow)
             # Otherwise only copy data with the specified names
             for var in subworkflow.spec.io_specification.data_outputs:
-                if var.name not in end[0].data:
+                if var.bpmn_id not in end[0].data:
                     raise WorkflowDataException(
                         f"The Data Output was not available in the subprocess output.",
                         task=my_task,
                         data_output=var,
                     )
-                my_task.data[var.name] = end[0].data[var.name]
-
-    @property
-    def spec_type(self):
-        return 'Call Activity'
+                my_task.data[var.bpmn_id] = end[0].data[var.bpmn_id]
 
 
 class TransactionSubprocess(SubWorkflowTask):
 
-    def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):
-        super(TransactionSubprocess, self).__init__(wf_spec, name, subworkflow_spec, True, **kwargs)
-
-    @property
-    def spec_type(self):
-        return 'Transactional Subprocess'
-
+    def __init__(self, wf_spec, bpmn_id, subworkflow_spec, **kwargs):
+        super(TransactionSubprocess, self).__init__(wf_spec, bpmn_id, subworkflow_spec, True, **kwargs)

@@ -16,17 +16,28 @@ class _BpmnCondition(Operator):
 
 
 class BpmnTaskSpec(TaskSpec):
-    """This class provides BPMN-specific attributes."""
+    """
+    This class provides BPMN-specific attributes.
 
+    It is intended to be used with all tasks in a BPMN workflow.  Spiff internal tasks (such
+    as Root, EndJoin, etc) inherit directly from this.
+    
+    Visible tasks inherit from `BpmnSpecMixin`, which will assign the `bpmn_id` and `bpmn_name`.
+
+    The intent is to (1) give all tasks in the workflow the same attributes and (2) provide an
+    easy way of knowing whether a task appearson the diagram.
+    """
     def __init__(self, wf_spec, name, lane=None, documentation=None, 
                  data_input_associations=None, data_output_associations=None, **kwargs):
         """
-        Constructor.
-
         :param lane: Indicates the name of the lane that this task belongs to
-        (optional).
+        :param documentation: the contents of the documentation element
+        :param data_input_associations: a list of data references to be used as inputs to the task
+        :param data_output_associations: a list of data references to be used as inputs to the task
         """
         super().__init__(wf_spec, name, **kwargs)
+        self.bpmn_id = None
+        self.bpmn_name = None
         self.lane = lane
         self.documentation = documentation
         self.data_input_associations = data_input_associations or []
@@ -59,9 +70,9 @@ class BpmnTaskSpec(TaskSpec):
         if self.io_specification is not None and len(self.io_specification.data_inputs) > 0:
             data = {}
             for var in self.io_specification.data_inputs:
-                if var.name not in my_task.data:
+                if var.bpmn_id not in my_task.data:
                     raise WorkflowDataException(f"Missing data input", task=my_task, data_input=var)
-                data[var.name] = my_task.data[var.name]
+                data[var.bpmn_id] = my_task.data[var.bpmn_id]
             my_task.data = data
 
         return True
@@ -73,9 +84,9 @@ class BpmnTaskSpec(TaskSpec):
         if self.io_specification is not None and len(self.io_specification.data_outputs) > 0:
             data = {}
             for var in self.io_specification.data_outputs:
-                if var.name not in my_task.data:
+                if var.bpmn_id not in my_task.data:
                     raise WorkflowDataException(f"Missing data ouput", task=my_task, data_output=var)
-                data[var.name] = my_task.data[var.name]
+                data[var.bpmn_id] = my_task.data[var.bpmn_id]
             my_task.data = data
 
         for obj in self.data_output_associations:
@@ -83,7 +94,7 @@ class BpmnTaskSpec(TaskSpec):
 
         for obj in self.data_input_associations:
             # Remove the any copied input variables that might not have already been removed
-            my_task.data.pop(obj.name, None)
+            my_task.data.pop(obj.bpmn_id, None)
 
         super()._on_complete_hook(my_task)
 

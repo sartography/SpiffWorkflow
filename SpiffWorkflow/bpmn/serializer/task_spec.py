@@ -50,7 +50,6 @@ class BpmnTaskSpecConverter(TaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         return dct
 
     def from_dict(self, dct):
@@ -93,7 +92,6 @@ class ScriptTaskConverter(BpmnTaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         dct['script'] = spec.script
         return dct
 
@@ -105,7 +103,6 @@ class StandardLoopTaskConverter(BpmnTaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         dct.update(self.get_standard_loop_attributes(spec))
         return dct
 
@@ -114,7 +111,6 @@ class MultiInstanceTaskConverter(BpmnTaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         dct['task_spec'] = spec.task_spec
         dct['cardinality'] = spec.cardinality
         dct['data_input'] = self.registry.convert(spec.data_input)

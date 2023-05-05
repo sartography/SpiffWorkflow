@@ -23,10 +23,6 @@ from SpiffWorkflow.specs.base import TaskSpec
 class ManualTask(TaskSpec):
     """Task Spec for a bpmn:manualTask node."""
 
-    def __init__(self, wf_spec, name, **kwargs):
-        super().__init__(wf_spec, name, **kwargs)
+    def __init__(self, wf_spec, bpmn_id, **kwargs):
+        super().__init__(wf_spec, bpmn_id, **kwargs)
         self.manual = True
-
-    @property
-    def spec_type(self):
-        return 'Manual Task'

@@ -22,10 +22,10 @@ class ParallelOrderTest(BpmnWorkflowTestCase):
         self.assertFalse(self.workflow.is_completed())
         self.assertEqual(4, len(self.workflow.get_ready_user_tasks()))
         tasks = self.workflow.get_ready_user_tasks()
-        self.assertEquals("Task 1", tasks[0].get_description())
-        self.assertEquals("Task 2", tasks[1].get_description())
-        self.assertEquals("Task 3", tasks[2].get_description())
-        self.assertEquals("Task 4", tasks[3].get_description())
+        self.assertEquals("Task 1", tasks[0].task_spec.bpmn_name)
+        self.assertEquals("Task 2", tasks[1].task_spec.bpmn_name)
+        self.assertEquals("Task 3", tasks[2].task_spec.bpmn_name)
+        self.assertEquals("Task 4", tasks[3].task_spec.bpmn_name)
 
 
 def suite():

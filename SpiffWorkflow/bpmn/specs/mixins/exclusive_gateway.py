@@ -30,6 +30,3 @@ class ExclusiveGateway(ExclusiveChoice):
         # Bypass the check for no default output -- this is not required in BPMN
         MultiChoice.test(self)
 
-    @property
-    def spec_type(self):
-        return 'Exclusive Gateway'

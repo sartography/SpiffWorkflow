@@ -22,45 +22,29 @@ from .event_types import ThrowingEvent, CatchingEvent
 
 
 class SendTask(ThrowingEvent):
-    @property
-    def spec_type(self):
-        return 'Send Task'
-
+    pass
 
 class ReceiveTask(CatchingEvent):
-    @property
-    def spec_type(self):
-        return 'Receive Task'
-
+    pass
 
 class IntermediateCatchEvent(CatchingEvent):
-    @property
-    def spec_type(self):
-        return f'{self.event_definition.event_type} Catching Event'
-
+    pass
 
 class IntermediateThrowEvent(ThrowingEvent):
-    @property
-    def spec_type(self):
-        return f'{self.event_definition.event_type} Throwing Event'
+    pass
 
 
 class BoundaryEvent(CatchingEvent):
     """Task Spec for a bpmn:boundaryEvent node."""
 
-    def __init__(self, wf_spec, name, event_definition, cancel_activity, **kwargs):
+    def __init__(self, wf_spec, bpmn_id, event_definition, cancel_activity, **kwargs):
         """
         Constructor.
 
         :param cancel_activity: True if this is a Cancelling boundary event.
         """
-        super(BoundaryEvent, self).__init__(wf_spec, name, event_definition, **kwargs)
+        super(BoundaryEvent, self).__init__(wf_spec, bpmn_id, event_definition, **kwargs)
         self.cancel_activity = cancel_activity
-
-    @property
-    def spec_type(self):
-        interrupting = 'Interrupting' if self.cancel_activity else 'Non-Interrupting'
-        return f'{interrupting} {self.event_definition.event_type} Event'
 
     def catches(self, my_task, event_definition, correlations=None):
         # Boundary events should only be caught while waiting
@@ -68,10 +52,6 @@ class BoundaryEvent(CatchingEvent):
 
 
 class EventBasedGateway(CatchingEvent):
-
-    @property
-    def spec_type(self):
-        return 'Event Based Gateway'
 
     def _predict_hook(self, my_task):
         my_task._sync_children(self.outputs, state=TaskState.MAYBE)

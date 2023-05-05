@@ -24,10 +24,6 @@ from .event_types import CatchingEvent
 class StartEvent(CatchingEvent):
     """Task Spec for a bpmn:startEvent node with an optional event definition."""
 
-    @property
-    def spec_type(self):
-        return f'{self.event_definition.event_type} Start Event'
-
     def catch(self, my_task, event_definition):
 
         # We might need to revisit a start event after it completes or
@@ -35,6 +31,5 @@ class StartEvent(CatchingEvent):
         if my_task.state == TaskState.COMPLETED or my_task.state == TaskState.CANCELLED:
             my_task.set_children_future()
             my_task._set_state(TaskState.WAITING)
-
         super(StartEvent, self).catch(my_task, event_definition)
 

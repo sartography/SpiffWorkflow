@@ -39,10 +39,10 @@ class BusinessRuleTaskMixin(TaskSpec):
             my_task.data = DeepMerge.merge(my_task.data, self.dmnEngine.result(my_task))
             super(BusinessRuleTaskMixin, self)._run_hook(my_task)
         except SpiffWorkflowException as we:
-            we.add_note(f"Business Rule Task '{my_task.task_spec.description}'.")
+            we.add_note(f"Business Rule Task '{my_task.task_spec.bpmn_name}'.")
             raise we
         except Exception as e:
             error = WorkflowTaskException(str(e), task=my_task)
-            error.add_note(f"Business Rule Task '{my_task.task_spec.description}'.")
+            error.add_note(f"Business Rule Task '{my_task.task_spec.bpmn_name}'.")
             raise error
         return True

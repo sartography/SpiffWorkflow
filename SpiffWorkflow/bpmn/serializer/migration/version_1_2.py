@@ -175,3 +175,84 @@ def convert_simple_tasks(dct):
     update_specs(dct['spec']['task_specs'])
     for subprocess_spec in dct['subprocess_specs'].values():
         update_specs(subprocess_spec['task_specs'])
+
+def update_bpmn_attributes(dct):
+
+    descriptions = {
+        'StartEvent': 'Start Event',
+        'EndEvent': 'End Event',
+        'UserTask': 'User Task',
+        'Task': 'Task',
+        'SubProcess': 'Subprocss',
+        'ManualTask': 'Manual Task',
+        'ExclusiveGateway': 'Exclusive Gateway',
+        'ParallelGateway': 'Parallel Gateway',
+        'InclusiveGateway': 'Inclusive Gateway',
+        'CallActivity': 'Call Activity',
+        'TransactionSubprocess': 'Transaction',
+        'ScriptTask': 'Script Task',
+        'ServiceTask': 'Service Task',
+        'IntermediateCatchEvent': 'Intermediate Catch Event',
+        'IntermediateThrowEvent': 'Intermediate Throw Event',
+        'BoundaryEvent': 'Boundary Event',
+        'ReceiveTask': 'Receive Task',
+        'SendTask': 'Send Task',
+        'EventBasedGateway': 'Event Based Gateway',
+        'CancelEventDefinition': 'Cancel',
+        'ErrorEventDefinition': 'Error',
+        'EscalationEventDefinition': 'Escalation',
+        'TerminateEventDefinition': 'Terminate',
+        'MessageEventDefinition': 'Message',
+        'SignalEventDefinition': 'Signal',
+        'TimerEventDefinition': 'Timer',
+        'NoneEventDefinition': 'Default',
+        'MultipleEventDefinition': 'Multiple'
+    }
+
+    def update_data_spec(obj):
+        obj['bpmn_id'] = obj.pop('name')
+        obj['bpmn_name'] = obj.pop('description', None)
+
+    def update_io_spec(io_spec):
+        for obj in io_spec['data_inputs']:
+            update_data_spec(obj)
+        for obj in io_spec['data_outputs']:
+            update_data_spec(obj)
+
+    def update_task_specs(spec):
+        for spec in spec['task_specs'].values():
+            spec['bpmn_id'] = None
+            if spec['typename'] not in ['BpmnStartTask', 'SimpleBpmnTask', '_EndJoin', '_BoundaryEventParent']:
+                spec['bpmn_id'] = spec['name']
+                spec['bpmn_name'] = spec['description'] or None
+                if 'event_definition' in spec and spec['event_definition']['typename'] in descriptions:    
+                    spec_desc = descriptions.get(spec['typename'])
+                    event_desc = descriptions.get(spec['event_definition']['typename'])
+                    cancelling = spec.get('cancel_activity')
+                    interrupt = 'Interrupting ' if cancelling else 'Non-Interrupting ' if not cancelling else ''
+                    desc = f'{interrupt}{event_desc} {spec_desc}'
+                elif spec['typename'] in descriptions:
+                    desc = descriptions.get(spec['typename'])
+                else:
+                    desc = None
+                spec['description'] = desc
+            else:
+                spec['bpmn_name'] = None
+                spec['description'] = None
+            if spec.get('io_specification') is not None:
+                update_io_spec(spec['io_specification'])
+            for obj in spec.get('data_input_associations', []):
+                update_data_spec(obj)
+            for obj in spec.get('data_output_associations', []):
+                update_data_spec(obj)
+
+    update_task_specs(dct['spec'])
+    for obj in dct['spec'].get('data_objects', {}).values():
+        update_data_spec(obj)
+
+    for subprocess_spec in dct['subprocess_specs'].values():
+        update_task_specs(subprocess_spec)
+        for obj in subprocess_spec.get('data_objects', {}).values():
+            update_data_spec(obj)
+        if subprocess_spec.get('io_specification') is not None:
+            update_io_spec(subprocess_spec['io_specification'])

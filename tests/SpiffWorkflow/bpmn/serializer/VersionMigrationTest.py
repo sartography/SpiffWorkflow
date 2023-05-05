@@ -20,7 +20,7 @@ class Version_1_0_Test(BaseTestCase):
             wf = self.serializer.deserialize_json(fh.read())
         # We should be able to finish the workflow from this point
         ready_tasks = wf.get_tasks(TaskState.READY)
-        self.assertEqual('Action3', ready_tasks[0].task_spec.description)
+        self.assertEqual('Action3', ready_tasks[0].task_spec.bpmn_name)
         ready_tasks[0].run()
         wf.do_engine_steps()
         wf.refresh_waiting_tasks()

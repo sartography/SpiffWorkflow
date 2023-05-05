@@ -41,11 +41,6 @@ class EndEvent(ThrowingEvent):
        Gateways, one of the associated Events has been triggered.
      * There is no token remaining within the Process instance.
     """
-
-    @property
-    def spec_type(self):
-        return 'End Event'
-
     def _on_complete_hook(self, my_task):
 
         super(EndEvent, self)._on_complete_hook(my_task)

@@ -50,7 +50,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(2, len(ready_tasks))
         self.assertEqual(
-            'Repeated Task', ready_tasks[0].task_spec.description)
+            'Repeated Task', ready_tasks[0].task_spec.bpmn_name)
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
         # The inclusive gateway allows us through here, because there is no route for the other thread
@@ -80,7 +80,7 @@ class ParallelThroughSameTaskTest(BpmnWorkflowTestCase):
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(2, len(ready_tasks))
         self.assertEqual(
-            'Repeated Task', ready_tasks[0].task_spec.description)
+            'Repeated Task', ready_tasks[0].task_spec.bpmn_name)
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
         self.save_restore()

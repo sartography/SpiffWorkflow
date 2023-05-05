@@ -44,7 +44,3 @@ class ParallelGateway(UnstructuredJoin):
     def _check_threshold_unstructured(self, my_task, force=False):
         completed_inputs, waiting_tasks = self._get_inputs_with_tokens(my_task)
         return force or len(completed_inputs) >= len(self.inputs), waiting_tasks
-
-    @property
-    def spec_type(self):
-        return 'Parallel Gateway'

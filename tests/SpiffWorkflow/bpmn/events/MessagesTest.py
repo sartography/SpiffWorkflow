@@ -27,7 +27,7 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.workflow.catch(MessageEventDefinition('Test Message'))
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
 
-        self.assertEqual('Test Message', self.workflow.get_tasks(TaskState.READY)[0].task_spec.description)
+        self.assertEqual('Test Message', self.workflow.get_tasks(TaskState.READY)[0].task_spec.bpmn_name)
 
         self.workflow.do_engine_steps()
         self.complete_subworkflow()

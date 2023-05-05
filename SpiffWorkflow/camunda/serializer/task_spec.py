@@ -32,7 +32,6 @@ class UserTaskConverter(TaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         dct['form'] = self.form_to_dict(spec.form)
         return dct
 

@@ -16,7 +16,7 @@ class Workflow:
 class TaskSpec:
     def __init__(self):
         self.name = "MockTestSpec"
-        self.description = "Mock Test Spec"
+        self.bpmn_name = "Mock Test Spec"
 
 class Task:
     def __init__(self, script_engine, data):

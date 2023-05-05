@@ -25,13 +25,13 @@ from ...event_definitions import MessageEventDefinition, NoneEventDefinition, Cy
 class CatchingEvent(TaskSpec):
     """Base Task Spec for Catching Event nodes."""
 
-    def __init__(self, wf_spec, name, event_definition, **kwargs):
+    def __init__(self, wf_spec, bpmn_id, event_definition, **kwargs):
         """
         Constructor.
 
         :param event_definition: the EventDefinition that we must wait for.
         """
-        super(CatchingEvent, self).__init__(wf_spec, name, **kwargs)
+        super(CatchingEvent, self).__init__(wf_spec, bpmn_id, **kwargs)
         self.event_definition = event_definition
 
     def catches(self, my_task, event_definition, correlations=None):
@@ -87,13 +87,13 @@ class CatchingEvent(TaskSpec):
 class ThrowingEvent(TaskSpec):
     """Base Task Spec for Throwing Event nodes."""
 
-    def __init__(self, wf_spec, name, event_definition, **kwargs):
+    def __init__(self, wf_spec, bpmn_id, event_definition, **kwargs):
         """
         Constructor.
 
         :param event_definition: the EventDefinition to be thrown.
         """
-        super(ThrowingEvent, self).__init__(wf_spec, name, **kwargs)
+        super(ThrowingEvent, self).__init__(wf_spec, bpmn_id, **kwargs)
         self.event_definition = event_definition
 
     def _run_hook(self, my_task):

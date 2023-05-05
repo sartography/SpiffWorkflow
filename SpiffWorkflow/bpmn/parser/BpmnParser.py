@@ -51,6 +51,7 @@ from SpiffWorkflow.bpmn.specs.mixins.subworkfow_task import SubWorkflowTask as S
 from .ValidationException import ValidationException
 from .ProcessParser import ProcessParser
 from .node_parser import DEFAULT_NSMAP
+from .spec_description import SPEC_DESCRIPTIONS
 from .util import full_tag, xpath_eval, first
 from .TaskParser import TaskParser
 from .task_parsers import (
@@ -140,12 +141,13 @@ class BpmnParser(object):
 
     DATA_STORE_CLASSES = {}
 
-    def __init__(self, namespaces=None, validator=None):
+    def __init__(self, namespaces=None, validator=None, spec_descriptions=SPEC_DESCRIPTIONS):
         """
         Constructor.
         """
         self.namespaces = namespaces or DEFAULT_NSMAP
         self.validator = validator
+        self.spec_descriptions = spec_descriptions
         self.process_parsers = {}
         self.collaborations = {}
         self.process_dependencies = set()

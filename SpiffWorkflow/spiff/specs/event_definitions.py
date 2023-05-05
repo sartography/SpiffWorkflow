@@ -21,9 +21,9 @@ from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
 
 class MessageEventDefinition(MessageEventDefinition):
 
-    def __init__(self, name, correlation_properties=None, expression=None, message_var=None):
+    def __init__(self, name, correlation_properties=None, expression=None, message_var=None, **kwargs):
 
-        super(MessageEventDefinition, self).__init__(name, correlation_properties)
+        super(MessageEventDefinition, self).__init__(name, correlation_properties, **kwargs)
         self.expression = expression
         self.message_var = message_var
         self.internal = False

@@ -117,7 +117,3 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
             raise WorkflowTaskException(f'No conditions satisfied on gateway', task=my_task)
         my_task._sync_children(outputs, TaskState.FUTURE)
         return True
-
-    @property
-    def spec_type(self):
-        return 'Inclusive Gateway'

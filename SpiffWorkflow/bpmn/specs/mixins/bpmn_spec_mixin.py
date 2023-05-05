@@ -21,6 +21,8 @@ from ..bpmn_task_spec import BpmnTaskSpec
 
 
 class BpmnSpecMixin(BpmnTaskSpec):
+
     def __init__(self, wf_spec, bpmn_id, **kwargs):
         super().__init__(wf_spec, bpmn_id, **kwargs)
-
+        self.bpmn_id = bpmn_id
+        self.bpmn_name = kwargs.get('bpmn_name')

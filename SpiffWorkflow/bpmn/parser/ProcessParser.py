@@ -124,7 +124,7 @@ class ProcessParser(NodeParser):
         # Get the data objects
         for obj in self.xpath('./bpmn:dataObject'):
             data_object = self.parse_data_object(obj)
-            self.spec.data_objects[data_object.name] = data_object
+            self.spec.data_objects[data_object.bpmn_id] = data_object
 
         # Check for an IO Specification.
         io_spec = first(self.xpath('./bpmn:ioSpecification'))
