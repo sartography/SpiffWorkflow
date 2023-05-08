@@ -17,7 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.exceptions import WorkflowTaskException, SpiffWorkflowException
+from SpiffWorkflow.exceptions import SpiffWorkflowException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 from SpiffWorkflow.specs.base import TaskSpec
 from SpiffWorkflow.util.deep_merge import DeepMerge
 

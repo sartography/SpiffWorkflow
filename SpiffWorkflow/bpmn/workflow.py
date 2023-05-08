@@ -21,7 +21,8 @@ import copy
 
 from SpiffWorkflow.task import TaskState, Task
 from SpiffWorkflow.workflow import Workflow
-from SpiffWorkflow.exceptions import TaskNotFoundException, WorkflowException, WorkflowTaskException
+from SpiffWorkflow.exceptions import WorkflowException, TaskNotFoundException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 
 from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent

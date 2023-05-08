@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-from SpiffWorkflow.exceptions import WorkflowTaskException
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'McDonald, danfunk'

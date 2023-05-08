@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.exceptions import WorkflowTaskException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.specs.MultiChoice import MultiChoice
 from .unstructured_join import UnstructuredJoin

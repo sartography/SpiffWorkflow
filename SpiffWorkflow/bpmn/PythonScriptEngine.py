@@ -22,8 +22,9 @@ import sys
 import traceback
 import warnings
 
+from SpiffWorkflow.exceptions import SpiffWorkflowException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 from .PythonScriptEngineEnvironment import TaskDataEnvironment
-from ..exceptions import SpiffWorkflowException, WorkflowTaskException
 
 
 class PythonScriptEngine(object):

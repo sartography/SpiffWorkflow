@@ -2,7 +2,7 @@
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.exceptions import WorkflowTaskException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 from SpiffWorkflow.task import TaskState
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase

@@ -21,7 +21,7 @@ import json
 from copy import deepcopy
 
 from SpiffWorkflow.bpmn.specs.mixins.service_task import ServiceTask
-from SpiffWorkflow.exceptions import WorkflowTaskException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 
 class ServiceTask(ServiceTask):
 
