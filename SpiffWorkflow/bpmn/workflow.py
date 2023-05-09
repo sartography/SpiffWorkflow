@@ -25,8 +25,7 @@ from SpiffWorkflow.bpmn.specs.events.event_definitions import (
     NamedEventDefinition,
     TimerEventDefinition,
 )
-from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import \
-    _BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import _BoundaryEventParent
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
 from .specs.events.StartEvent import StartEvent
@@ -90,7 +89,8 @@ class BpmnWorkflow(Workflow):
 
     def delete_subprocess(self, my_task):
         workflow = self._get_outermost_workflow(my_task)
-        del workflow.subprocesses[my_task.id]
+        if my_task.id in workflow.subprocesses:
+            del workflow.subprocesses[my_task.id]
 
     def get_subprocess(self, my_task):
         workflow = self._get_outermost_workflow(my_task)
@@ -328,17 +328,19 @@ class BpmnWorkflow(Workflow):
     def _is_engine_task(self, task_spec):
         return (not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task())
 
-    def reset_task_from_id(self, task_id):
+    def reset_from_task_id(self, task_id, data=None):
         """Override method from base class, and assures that if the task
         being reset has a boundary event parent, we reset that parent and
         run it rather than resetting to the current task.  This assures
         our boundary events are set to the correct state."""
-        has_boundary_parent = False
         task = self.get_task_from_id(task_id)
         if isinstance(task.parent.task_spec, _BoundaryEventParent):
-            super().reset_task_from_id(task.parent.id)
+            descendants = super().reset_from_task_id(task.parent.id, data=None)
             task.parent.run()
         else:
-            super().reset_task_from_id(task_id)
+            descendants = super().reset_from_task_id(task_id, data=None)
 
+        for task in descendants:
+            self.delete_subprocess(task)
 
+        return descendants

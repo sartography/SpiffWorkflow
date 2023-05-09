@@ -86,12 +86,6 @@ class SubWorkflowTask(BpmnSpecMixin):
             child.task_spec._update(child)
         my_task._set_state(TaskState.WAITING)
 
-    def task_will_set_children_future(self, my_task):
-        my_task.workflow.delete_subprocess(my_task)
-
-    def task_should_set_children_future(self, my_task):
-        return True
-
 class CallActivity(SubWorkflowTask):
 
     def __init__(self, wf_spec, name, subworkflow_spec, **kwargs):

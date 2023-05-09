@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.task import TaskState
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
-
-__author__ = 'matth'
 
 
 class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
@@ -13,12 +9,12 @@ class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
     correct state."""
 
     def setUp(self):
-        spec, subprocesses = self.load_workflow_spec('reset_with_boundary_event.bpmn',
-                                                     'token')
+        spec, subprocesses = self.load_workflow_spec('reset_with_boundary_event.bpmn', 'token')
         self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testNormal(self):
         self.actualTest(save_restore=False)
+
     def testSaveRestore(self):
         self.actualTest(save_restore=True)
 
@@ -37,11 +33,15 @@ class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
         timer_event = self.workflow.get_tasks_from_spec_name('Event_My_Timer')[0]
         self.assertEqual(TaskState.CANCELLED, timer_event.state)
 
+        sub = self.workflow.get_tasks_from_spec_name('subprocess')[0]
+        self.assertEqual(sub.state, TaskState.WAITING)
+
         # Here we reset back to the first task
-        self.workflow.reset_task_from_id(task1.id)
+        self.workflow.reset_from_task_id(task1.id)
 
         # At which point, the timer event should return to a waiting state.
         task1 = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task1.get_name(), 'First')
         timer_event = self.workflow.get_tasks_from_spec_name('Event_My_Timer')[0]
         self.assertEqual(TaskState.WAITING, timer_event.state)
+        self.assertNotIn(sub.id, self.workflow.subprocesses)
