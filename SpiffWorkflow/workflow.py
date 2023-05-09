@@ -265,6 +265,7 @@ class Workflow(object):
 
         :type  task_id: integer
         :param task_id: The id of the Task object.
+        :param data: optionall set the task data
         """
         task = self.get_task_from_id(task_id)
         return task.reset_token(data)

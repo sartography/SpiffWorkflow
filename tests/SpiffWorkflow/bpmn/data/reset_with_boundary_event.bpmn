@@ -6,9 +6,9 @@
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_03vnrmv" sourceRef="StartEvent_1" targetRef="First" />
     <bpmn:endEvent id="Event_0xfwzm8">
-      <bpmn:incoming>Flow_039y4lk</bpmn:incoming>
+      <bpmn:incoming>Flow_1cztu3l</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_039y4lk" sourceRef="subprocess" targetRef="Event_0xfwzm8" />
+    <bpmn:sequenceFlow id="Flow_039y4lk" sourceRef="subprocess" targetRef="Final" />
     <bpmn:endEvent id="Event_1ormhyr">
       <bpmn:incoming>Flow_18nptz1</bpmn:incoming>
     </bpmn:endEvent>
@@ -47,6 +47,11 @@
       </bpmn:endEvent>
       <bpmn:sequenceFlow id="Flow_1s4ala8" sourceRef="Last" targetRef="Event_0u7p7aw" />
     </bpmn:subProcess>
+    <bpmn:task id="Final" name="Final">
+      <bpmn:incoming>Flow_039y4lk</bpmn:incoming>
+      <bpmn:outgoing>Flow_1cztu3l</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1cztu3l" sourceRef="Final" targetRef="Event_0xfwzm8" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="token">
@@ -64,37 +69,44 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_039y4lk_di" bpmnElement="Flow_039y4lk">
         <di:waypoint x="790" y="187" />
-        <di:waypoint x="872" y="187" />
+        <di:waypoint x="870" y="187" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_03vnrmv_di" bpmnElement="Flow_03vnrmv">
         <di:waypoint x="188" y="187" />
         <di:waypoint x="270" y="187" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1cztu3l_di" bpmnElement="Flow_1cztu3l">
+        <di:waypoint x="970" y="187" />
+        <di:waypoint x="1042" y="187" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="169" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ngv6u6_di" bpmnElement="First">
-        <dc:Bounds x="270" y="147" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0xfwzm8_di" bpmnElement="Event_0xfwzm8">
-        <dc:Bounds x="872" y="169" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1y3o0zt_di" bpmnElement="Activity_0q8gfca">
-        <dc:Bounds x="270" y="360" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ormhyr_di" bpmnElement="Event_1ormhyr">
         <dc:Bounds x="472" y="382" width="36" height="36" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1y3o0zt_di" bpmnElement="Activity_0q8gfca">
+        <dc:Bounds x="270" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ngv6u6_di" bpmnElement="First">
+        <dc:Bounds x="270" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1pb7gsi_di" bpmnElement="Final">
+        <dc:Bounds x="870" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0xfwzm8_di" bpmnElement="Event_0xfwzm8">
+        <dc:Bounds x="1042" y="169" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_02zut3e_di" bpmnElement="subprocess" isExpanded="true">
         <dc:Bounds x="430" y="82" width="360" height="210" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1chdrkt_di" bpmnElement="Flow_1chdrkt">
-        <di:waypoint x="508" y="190" />
-        <di:waypoint x="560" y="190" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1s4ala8_di" bpmnElement="Flow_1s4ala8">
         <di:waypoint x="660" y="190" />
         <di:waypoint x="712" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1chdrkt_di" bpmnElement="Flow_1chdrkt">
+        <di:waypoint x="508" y="190" />
+        <di:waypoint x="560" y="190" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0kwese8_di" bpmnElement="Event_0kwese8">
         <dc:Bounds x="472" y="172" width="36" height="36" />

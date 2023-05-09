@@ -348,11 +348,8 @@ class Task(object,  metaclass=DeprecatedMetaTask):
 
     def reset_token(self, data):
         """
-        Resets the token to this task. This should allow a trip 'back in time'
-        as it were to items that have already been completed.
-        :type  reset_data: bool
-        :param reset_data: Do we want to have the data be where we left of in
-                           this task or not
+        Reset the workflow to this task,
+        :param data: set the task data (if None, inherit from parent task)
         """
         self.internal_data = {}
         if data is None:

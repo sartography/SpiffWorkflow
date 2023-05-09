@@ -335,12 +335,21 @@ class BpmnWorkflow(Workflow):
         our boundary events are set to the correct state."""
         task = self.get_task_from_id(task_id)
         if isinstance(task.parent.task_spec, _BoundaryEventParent):
-            descendants = super().reset_from_task_id(task.parent.id, data=None)
+            descendants = super().reset_from_task_id(task.parent.id, data)
             task.parent.run()
         else:
-            descendants = super().reset_from_task_id(task_id, data=None)
+            descendants = super().reset_from_task_id(task_id, data)
 
         for task in descendants:
             self.delete_subprocess(task)
+
+        top = self._get_outermost_workflow()
+        if task.workflow != self:
+            # This task is in a subprocess so we have to find the subprocess task and reset it as well
+            for sp_id, sp in top.subprocesses.items():
+                if sp == task.workflow:
+                    descendants.extend(self.reset_from_task_id(sp_id))
+                    sp_task = self.get_task_from_id(sp_id)
+                    sp_task.state = TaskState.WAITING
 
         return descendants
