@@ -335,12 +335,13 @@ class BpmnWorkflow(Workflow):
         our boundary events are set to the correct state."""
 
         task = self.get_task_from_id(task_id)
-        if isinstance(task.parent.task_spec, _BoundaryEventParent):
-            descendants = super().reset_from_task_id(task.parent.id, data)
-            task.parent.run()
-        else:
-            descendants = super().reset_from_task_id(task_id, data)
+        run_task_at_end = False
 
+        if isinstance(task.parent.task_spec, _BoundaryEventParent):
+            task = task.parent
+            run_task_at_end = True # we jumped up one level, so exectute so we are on the correct task as requested.
+
+        descendants = super().reset_from_task_id(task_id, data)
         descendant_ids = [t.id for t in descendants]
         top = self._get_outermost_workflow()
 
@@ -360,6 +361,9 @@ class BpmnWorkflow(Workflow):
         for sp_id in reset:
             descendants.extend(self.reset_from_task_id(sp_id))
             sp_task = self.get_task_from_id(sp_id)
-            sp_task.state = TaskState.WAITING 
+            sp_task.state = TaskState.WAITING
+
+        if run_task_at_end:
+            task.run()
 
         return descendants
