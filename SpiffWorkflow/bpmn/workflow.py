@@ -367,3 +367,12 @@ class BpmnWorkflow(Workflow):
             task.run()
 
         return descendants
+
+    def cancel(self):
+        cancelled = super().cancel()
+        cancelled_ids = [t.id for t in cancelled]
+        top = self._get_outermost_workflow()
+        for sp_id, sp in top.subprocesses.items():
+            if sp_id in cancelled_ids:
+                cancelled.extend(Workflow.cancel(sp))
+        return cancelled

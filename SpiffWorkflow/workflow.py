@@ -172,17 +172,16 @@ class Workflow(object):
         Cancels all open tasks in the workflow.
 
         :type  success: bool
-        :param success: Whether the Workflow should be marked as successfully
-                        completed.
+        :param success: Whether the Workflow should be marked as successfully completed.
         """
         self.success = success
         cancel = []
-        mask = TaskState.NOT_FINISHED_MASK
-        for task in Task.Iterator(self.task_tree, mask):
+        for task in Task.Iterator(self.task_tree, TaskState.NOT_FINISHED_MASK):
             cancel.append(task)
         for task in cancel:
             task.cancel()
         logger.info(f'Cancel with {len(cancel)} remaining', extra=self.log_info())
+        return cancel
 
     def get_task_spec_from_name(self, name):
         """
