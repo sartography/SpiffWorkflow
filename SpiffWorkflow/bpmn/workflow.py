@@ -368,11 +368,18 @@ class BpmnWorkflow(Workflow):
 
         return descendants
 
-    def cancel(self):
-        cancelled = super().cancel()
+    def cancel(self, workflow=None):
+
+        wf = workflow or self
+        cancelled = Workflow.cancel(wf)
         cancelled_ids = [t.id for t in cancelled]
         top = self._get_outermost_workflow()
+        to_cancel = []
         for sp_id, sp in top.subprocesses.items():
             if sp_id in cancelled_ids:
-                cancelled.extend(Workflow.cancel(sp))
+                to_cancel.append(sp)
+        
+        for sp in to_cancel:
+            cancelled.extend(self.cancel(sp))
+
         return cancelled
