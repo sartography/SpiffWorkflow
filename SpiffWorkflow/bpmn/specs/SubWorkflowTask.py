@@ -64,7 +64,7 @@ class SubWorkflowTask(BpmnSpecMixin):
 
     def copy_data(self, my_task, subworkflow):
         # There is only one copy of any given data object, so it should be updated immediately
-        # Doing this is actually a little problematic, because it gives parent processes access to 
+        # Doing this is actually a little problematic, because it gives parent processes access to
         # data objects defined in subprocesses.
         # But our data management is already hopelessly messed up and in dire needs of reconsideration
         if len(subworkflow.spec.data_objects) > 0:
@@ -85,10 +85,6 @@ class SubWorkflowTask(BpmnSpecMixin):
         for child in subworkflow.task_tree.children:
             child.task_spec._update(child)
         my_task._set_state(TaskState.WAITING)
-
-    def task_will_set_children_future(self, my_task):
-        my_task.workflow.delete_subprocess(my_task)
-
 
 class CallActivity(SubWorkflowTask):
 

@@ -30,7 +30,7 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.actualTest(True)
 
     def testResetToOuterWorkflowWhileInSubWorkflow(self):
-        
+
         self.workflow.do_engine_steps()
         top_level_task = self.workflow.get_ready_user_tasks()[0]
         top_level_task.run()
@@ -38,8 +38,11 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         task = self.workflow.get_ready_user_tasks()[0]
         self.save_restore()
         top_level_task = self.workflow.get_tasks_from_spec_name('Task1')[0]
-        top_level_task.reset_token({}, reset_data=True)
+#        top_level_task.reset_token({}, reset_data=True)
+        self.workflow.reset_from_task_id(top_level_task.id)
         task = self.workflow.get_ready_user_tasks()[0]
+        self.assertEqual(len(self.workflow.get_ready_user_tasks()), 1,
+                         "There should only be one task in a ready state.")
         self.assertEqual(task.get_name(), 'Task1')
 
 

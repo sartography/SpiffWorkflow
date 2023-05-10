@@ -25,8 +25,7 @@ from SpiffWorkflow.bpmn.specs.events.event_definitions import (
     NamedEventDefinition,
     TimerEventDefinition,
 )
-from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import \
-    _BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import _BoundaryEventParent
 from .PythonScriptEngine import PythonScriptEngine
 from .specs.events.event_types import CatchingEvent
 from .specs.events.StartEvent import StartEvent
@@ -90,7 +89,8 @@ class BpmnWorkflow(Workflow):
 
     def delete_subprocess(self, my_task):
         workflow = self._get_outermost_workflow(my_task)
-        del workflow.subprocesses[my_task.id]
+        if my_task.id in workflow.subprocesses:
+            del workflow.subprocesses[my_task.id]
 
     def get_subprocess(self, my_task):
         workflow = self._get_outermost_workflow(my_task)
@@ -328,17 +328,51 @@ class BpmnWorkflow(Workflow):
     def _is_engine_task(self, task_spec):
         return (not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task())
 
-    def reset_task_from_id(self, task_id):
+    def reset_from_task_id(self, task_id, data=None):
         """Override method from base class, and assures that if the task
         being reset has a boundary event parent, we reset that parent and
         run it rather than resetting to the current task.  This assures
         our boundary events are set to the correct state."""
-        has_boundary_parent = False
+
         task = self.get_task_from_id(task_id)
+        run_task_at_end = False
+
         if isinstance(task.parent.task_spec, _BoundaryEventParent):
-            super().reset_task_from_id(task.parent.id)
-            task.parent.run()
-        else:
-            super().reset_task_from_id(task_id)
+            task = task.parent
+            run_task_at_end = True # we jumped up one level, so exectute so we are on the correct task as requested.
 
+        descendants = super().reset_from_task_id(task_id, data)
+        descendant_ids = [t.id for t in descendants]
+        top = self._get_outermost_workflow()
 
+        delete, reset = [], []
+        for sp_id, sp in top.subprocesses.items():
+            if sp_id in descendant_ids:
+                delete.append(sp_id)
+                delete.extend([t.id for t in sp.get_tasks() if t.id in top.subprocesses])
+            if task in sp.get_tasks():
+                reset.append(sp_id)
+
+        # Remove any subprocesses for removed tasks
+        for sp_id in delete:
+            del top.subprocesses[sp_id]
+
+        # Reset any containing subprocesses
+        for sp_id in reset:
+            descendants.extend(self.reset_from_task_id(sp_id))
+            sp_task = self.get_task_from_id(sp_id)
+            sp_task.state = TaskState.WAITING
+
+        if run_task_at_end:
+            task.run()
+
+        return descendants
+
+    def cancel(self):
+        cancelled = super().cancel()
+        cancelled_ids = [t.id for t in cancelled]
+        top = self._get_outermost_workflow()
+        for sp_id, sp in top.subprocesses.items():
+            if sp_id in cancelled_ids:
+                cancelled.extend(Workflow.cancel(sp))
+        return cancelled

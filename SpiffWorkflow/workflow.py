@@ -172,17 +172,16 @@ class Workflow(object):
         Cancels all open tasks in the workflow.
 
         :type  success: bool
-        :param success: Whether the Workflow should be marked as successfully
-                        completed.
+        :param success: Whether the Workflow should be marked as successfully completed.
         """
         self.success = success
         cancel = []
-        mask = TaskState.NOT_FINISHED_MASK
-        for task in Task.Iterator(self.task_tree, mask):
+        for task in Task.Iterator(self.task_tree, TaskState.NOT_FINISHED_MASK):
             cancel.append(task)
         for task in cancel:
             task.cancel()
         logger.info(f'Cancel with {len(cancel)} remaining', extra=self.log_info())
+        return cancel
 
     def get_task_spec_from_name(self, name):
         """
@@ -259,19 +258,14 @@ class Workflow(object):
         task = self.get_task_from_id(task_id)
         return task.run()
 
-    def reset_task_from_id(self, task_id):
+    def reset_from_task_id(self, task_id, data=None):
         """
         Runs the task with the given id.
 
         :type  task_id: integer
         :param task_id: The id of the Task object.
+        :param data: optionall set the task data
         """
-        # Given that this is a BPMN thing it's questionable whether this belongs here at all
-        # However, since it calls a BPMN thing on `task`, I guess I'll leave it here
-        # At least it's not in both places any more
-        data = {}
-        if self.last_task and self.last_task.data:
-            data = self.last_task.data
         task = self.get_task_from_id(task_id)
         return task.reset_token(data)
 

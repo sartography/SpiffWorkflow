@@ -80,7 +80,7 @@ class ResetTokenTestParallelMatrix(BaseTestCase):
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 
-        self.workflow.reset_task_from_id(firsttaskid)
+        self.workflow.reset_from_task_id(firsttaskid)
         #NB - this won't test random access
         steps = [{'taskname': 'FormB2',
                   'formvar': 'B2',
@@ -158,7 +158,7 @@ class ResetTokenTestParallelMatrix(BaseTestCase):
             self.workflow.do_engine_steps()
             if save_restore: self.save_restore()
 
-        self.workflow.reset_task_from_id(firsttaskid)
+        self.workflow.reset_from_task_id(firsttaskid)
         #NB - this won't test random access
         steps = [{'taskname': 'FormA2',
                   'formvar': 'A2',
