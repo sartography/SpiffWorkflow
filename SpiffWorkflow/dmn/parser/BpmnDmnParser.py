@@ -72,7 +72,7 @@ class BpmnDmnParser(BpmnParser):
             validator.validate(node, filename)
 
         dmn_parser = DMNParser(self, node, nsmap, filename=filename)
-        self.dmn_parsers[dmn_parser.bpmn_id()] = dmn_parser
+        self.dmn_parsers[dmn_parser.bpmn_id] = dmn_parser
         self.dmn_parsers_by_name[dmn_parser.get_name()] = dmn_parser
 
     def add_dmn_file(self, filename):

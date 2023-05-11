@@ -81,6 +81,7 @@ class DMNParser(NodeParser):
     def parse(self):
         self.decision = self._parse_decision(self.node.findall('{*}decision'))
 
+    @property
     def bpmn_id(self):
         """
         Returns the process ID
