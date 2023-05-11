@@ -34,7 +34,7 @@ from SpiffWorkflow.bpmn.specs.event_definitions import (
     TimerEventDefinition,
 )
 
-from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import _BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
 from .PythonScriptEngine import PythonScriptEngine
 
 
