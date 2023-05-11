@@ -183,7 +183,7 @@ def update_bpmn_attributes(dct):
         'EndEvent': 'End Event',
         'UserTask': 'User Task',
         'Task': 'Task',
-        'SubProcess': 'Subprocss',
+        'SubProcess': 'Subprocess',
         'ManualTask': 'Manual Task',
         'ExclusiveGateway': 'Exclusive Gateway',
         'ParallelGateway': 'Parallel Gateway',
