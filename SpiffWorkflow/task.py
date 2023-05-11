@@ -17,7 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import copy
+from copy import deepcopy
+
 import logging
 import time
 import warnings
@@ -345,42 +346,20 @@ class Task(object,  metaclass=DeprecatedMetaTask):
     def _is_definite(self):
         return self._has_state(TaskState.DEFINITE_MASK)
 
-    def set_children_future(self):
+    def reset_token(self, data):
         """
-        for a parallel gateway, we need to set up our
-        children so that the gateway figures out that it needs to join up
-        the inputs - otherwise our child process never gets marked as
-        'READY'
-        """
-        if not self.task_spec.task_should_set_children_future(self):
-            return
-
-        self.task_spec.task_will_set_children_future(self)
-
-        # now we set this one to execute
-        self._set_state(TaskState.MAYBE)
-        self._sync_children(self.task_spec.outputs)
-        for child in self.children:
-            child.set_children_future()
-
-    def reset_token(self, data, reset_data=False):
-        """
-        Resets the token to this task. This should allow a trip 'back in time'
-        as it were to items that have already been completed.
-        :type  reset_data: bool
-        :param reset_data: Do we want to have the data be where we left of in
-                           this task or not
+        Reset the workflow to this task,
+        :param data: set the task data (if None, inherit from parent task)
         """
         self.internal_data = {}
-        if not reset_data and self.workflow.last_task and self.workflow.last_task.data:
-            # This is a little sly, the data that will get inherited should
-            # be from the last completed task, but we don't want to alter
-            # the tree, so we just set the parent's data to the given data.
-            self.parent.data = copy.deepcopy(data)
-        self.workflow.last_task = self.parent
-        self.set_children_future()  # this method actually fixes the problem
+        if data is None:
+            self.data = deepcopy(self.parent.data)
+        descendants = [t for t in self]
+        self._drop_children(force=True)
         self._set_state(TaskState.FUTURE)
+        self.task_spec._predict(self, mask=TaskState.PREDICTED_MASK|TaskState.FUTURE)
         self.task_spec._update(self)
+        return descendants[1:] if len(descendants) > 1 else []
 
     def _add_child(self, task_spec, state=TaskState.MAYBE):
         """
@@ -619,7 +598,7 @@ class Task(object,  metaclass=DeprecatedMetaTask):
         """
         Execute the task.
 
-        If the return value of task_spec._run is None, assume the task is not finished, 
+        If the return value of task_spec._run is None, assume the task is not finished,
         and move the task to WAITING.
 
         :rtype: boolean or None
@@ -636,10 +615,10 @@ class Task(object,  metaclass=DeprecatedMetaTask):
             # This state is intended to indicate a task that is not finished, but will continue
             # in the background without blocking other unrelated tasks (ie on other branches).
             # It is a distinct state from "waiting" so that `update` does not have to distinguish
-            # between tasks that can be started and tasks that have already been started.  
+            # between tasks that can be started and tasks that have already been started.
             # Spiff can manage deciding if a task can run, but if a task is set to "started", it will
-            # have to be tracked independently of the workflow and completed manually when it finishes 
-            # for the time being (probably I'll add polling methods in the future, but I'm not exactly 
+            # have to be tracked independently of the workflow and completed manually when it finishes
+            # for the time being (probably I'll add polling methods in the future, but I'm not exactly
             # sure how they should work).
             # I'm adding this state now because I'm adding an error state (which I think there is a
             # need for) and don't want to go through the hassle of updating serialization of task states

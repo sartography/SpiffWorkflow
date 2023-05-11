@@ -25,11 +25,8 @@ class StartEvent(CatchingEvent):
     """Task Spec for a bpmn:startEvent node with an optional event definition."""
 
     def catch(self, my_task, event_definition):
-
         # We might need to revisit a start event after it completes or
         # if it got cancelled so we'll still catch messages even if we're finished
         if my_task.state == TaskState.COMPLETED or my_task.state == TaskState.CANCELLED:
-            my_task.set_children_future()
-            my_task._set_state(TaskState.WAITING)
+            my_task.workflow.reset_from_task_id(my_task.id)
         super(StartEvent, self).catch(my_task, event_definition)
-

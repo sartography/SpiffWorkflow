@@ -87,3 +87,24 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         self.assertNotIn('obj_1', sp.data)
         # The update should persist in the main process
         self.assertEqual(self.workflow.data['obj_1'], 'hello again')
+
+class DataObjectGatewayTest(BpmnWorkflowTestCase):
+
+    def setUp(self):
+        spec, subprocesses = self.load_workflow_spec('data_object_gateway.bpmn', 'main')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
+    
+    def testExpression(self):
+        task = self.workflow.get_ready_user_tasks()[0]
+        # Set the data object
+        task.data = {'val': True}
+        task.run()
+        # The gateway depends on the value of the data object
+        self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.is_completed())
+        completed = [task.task_spec.name for task in self.workflow.get_tasks()]
+        self.assertIn('yes', completed)
+        self.assertNotIn('no', completed)
+        # The data object was removed by the script engine
+        self.assertNotIn('val', self.workflow.last_task.data)

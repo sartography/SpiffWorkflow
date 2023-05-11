@@ -450,21 +450,3 @@ class TaskSpec(object):
         out.post_assign = s_state.get('post_assign')
         out.lookahead = s_state.get('lookahead')
         return out
-
-    def task_should_set_children_future(self, my_task):
-        """
-        Hook to allow a task_spec to indicate if a task should
-        set_future_children.
-
-        Subclasses can override to influence this decision.
-        """
-        return my_task.state == TaskState.COMPLETED or my_task.state == TaskState.READY
-
-    def task_will_set_children_future(self, my_task):
-        """
-        Called right before a task runs the logic for set_children_future if
-        task_should_set_children_future returns True.
-
-        Subclasses can override to perform work during that stage of execution.
-        """
-        pass

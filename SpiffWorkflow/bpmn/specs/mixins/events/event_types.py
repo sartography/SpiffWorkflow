@@ -16,7 +16,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-
+import time
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.specs.base import TaskSpec
 from ...event_definitions import MessageEventDefinition, NoneEventDefinition, CycleTimerEventDefinition
@@ -46,6 +46,7 @@ class CatchingEvent(TaskSpec):
         definition, at which point we can update our task's state.
         """
         self.event_definition.catch(my_task, event_definition)
+        my_task.last_update_time = time.time()
         my_task._set_state(TaskState.WAITING)
 
     def _update_hook(self, my_task):
@@ -73,15 +74,6 @@ class CatchingEvent(TaskSpec):
             self.event_definition.update_task_data(my_task)
         self.event_definition.reset(my_task)
         return super(CatchingEvent, self)._run_hook(my_task)
-
-    # This fixes the problem of boundary events remaining cancelled if the task is reused.
-    # It pains me to add these methods, but unless we can get rid of the loop reset task we're stuck
-
-    def task_should_set_children_future(self, my_task):
-        return True
-
-    def task_will_set_children_future(self, my_task):
-        my_task.internal_data = {}
 
 
 class ThrowingEvent(TaskSpec):

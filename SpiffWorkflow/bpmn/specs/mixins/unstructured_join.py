@@ -82,13 +82,3 @@ class UnstructuredJoin(Join):
                 task._drop_children()
             else:
                 task.data.update(collected_data)
-    
-    def task_should_set_children_future(self, my_task):
-        return True
-
-    def task_will_set_children_future(self, my_task):
-        # go find all of the gateways with the same name as this one,
-        # drop children and set state to WAITING
-        for t in list(my_task.workflow.task_tree):
-            if t.task_spec.name == self.name and t.state == TaskState.COMPLETED:
-                t._set_state(TaskState.WAITING)
