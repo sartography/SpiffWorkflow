@@ -54,7 +54,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         # Waiting Events should contain details about what we are no waiting on.
         events = workflow.waiting_events()
         self.assertEqual(1, len(events))
-        self.assertEqual("Message", events[0]['event_type'])
+        self.assertEqual("MessageEventDefinition", events[0]['event_type'])
         self.assertEqual("Love Letter Response", events[0]['name'])
         self.assertEqual(['lover'], events[0]['value'][0].correlation_keys)
         self.assertEqual('from_name', events[0]['value'][0].retrieval_expression)
