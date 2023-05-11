@@ -19,7 +19,7 @@
 
 from SpiffWorkflow.bpmn.serializer.helpers.spec import EventDefinitionConverter
 
-from SpiffWorkflow.spiff.specs.events.event_definitions import MessageEventDefinition
+from SpiffWorkflow.spiff.specs.event_definitions import MessageEventDefinition
 
 class MessageEventDefinitionConverter(EventDefinitionConverter):
 

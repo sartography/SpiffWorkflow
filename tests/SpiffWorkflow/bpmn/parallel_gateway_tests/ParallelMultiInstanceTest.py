@@ -207,7 +207,7 @@ class ParallelMultiInstanceTaskTest(BpmnWorkflowTestCase):
 
     def check_reference(self, reference, name):
         self.assertIsInstance(reference, TaskDataReference)
-        self.assertEqual(reference.name, name)
+        self.assertEqual(reference.bpmn_id, name)
 
     def testParseInputOutput(self):
         spec, subprocess = self.load_workflow_spec('parallel_multiinstance_loop_input.bpmn', 'main')

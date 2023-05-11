@@ -19,10 +19,14 @@
 
 from functools import partial
 
-from ...specs.BpmnSpecMixin import BpmnSpecMixin
-from ...specs.events.event_definitions import NamedEventDefinition, TimerEventDefinition
-from ...specs.events.event_definitions import CorrelationProperty
-from ....operators import Attrib, PathAttrib
+from SpiffWorkflow.operators import Attrib, PathAttrib
+
+from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
+from SpiffWorkflow.bpmn.specs.event_definitions import (
+    NamedEventDefinition,
+    TimerEventDefinition,
+    CorrelationProperty
+)
 
 
 class BpmnSpecConverter:
@@ -76,7 +80,7 @@ class BpmnDataSpecificationConverter(BpmnSpecConverter):
     """
 
     def to_dict(self, data_spec):
-        return { 'name': data_spec.name, 'description': data_spec.description }
+        return { 'bpmn_id': data_spec.bpmn_id, 'bpmn_name': data_spec.bpmn_name }
 
     def from_dict(self, dct):
         return self.spec_class(**dct)
@@ -91,7 +95,11 @@ class EventDefinitionConverter(BpmnSpecConverter):
     """
 
     def to_dict(self, event_definition):
-        dct = {'internal': event_definition.internal, 'external': event_definition.external}
+        dct = {
+            'internal': event_definition.internal,
+            'external': event_definition.external,
+            'description': event_definition.description,
+        }
         if isinstance(event_definition, (NamedEventDefinition, TimerEventDefinition)):
             dct['name'] = event_definition.name
         return dct
@@ -133,14 +141,19 @@ class TaskSpecConverter(BpmnSpecConverter):
             a dictionary of standard task spec attributes
         """
         dct = {
-            'id': spec.id,
             'name': spec.name,
             'description': spec.description,
             'manual': spec.manual,
-            'internal': spec.internal,
             'lookahead': spec.lookahead,
             'inputs': [task.name for task in spec.inputs],
             'outputs': [task.name for task in spec.outputs],
+            'bpmn_id': spec.bpmn_id,
+            'bpmn_name': spec.bpmn_name,
+            'lane': spec.lane,
+            'documentation': spec.documentation,
+            'data_input_associations': [ self.registry.convert(obj) for obj in spec.data_input_associations ],
+            'data_output_associations': [ self.registry.convert(obj) for obj in spec.data_output_associations ],
+            'io_specification': self.registry.convert(spec.io_specification),
         }
         # This stuff is also all defined in the base task spec, but can contain data, so we need
         # our data serializer.  I think we should try to get this stuff out of the base task spec.
@@ -151,23 +164,6 @@ class TaskSpecConverter(BpmnSpecConverter):
             dct['post_assign'] = self.registry.convert(spec.post_assign)
 
         return dct
-
-    def get_bpmn_attributes(self, spec):
-        """Extracts the attributes added by the `BpmnSpecMixin` class.
-
-        :param spec: the task spec to be converted
-
-        Returns:
-            a dictionary of BPMN task spec attributes
-        """
-        return {
-            'lane': spec.lane,
-            'documentation': spec.documentation,
-            'position': spec.position,
-            'data_input_associations': [ self.registry.convert(obj) for obj in spec.data_input_associations ],
-            'data_output_associations': [ self.registry.convert(obj) for obj in spec.data_output_associations ],
-            'io_specification': self.registry.convert(spec.io_specification),
-        }
 
     def get_join_attributes(self, spec):
         """Extracts attributes for task specs that inherit from `Join`.
@@ -219,15 +215,24 @@ class TaskSpecConverter(BpmnSpecConverter):
         Returns:
             a restored task spec
         """
-        internal = dct.pop('internal')
+        dct['data_input_associations'] = self.registry.restore(dct.pop('data_input_associations', []))
+        dct['data_output_associations'] = self.registry.restore(dct.pop('data_output_associations', []))
+
         inputs = dct.pop('inputs')
         outputs = dct.pop('outputs')
 
-        spec = self.spec_class(**dct)
-        spec.internal = internal
+        wf_spec = dct.pop('wf_spec')
+        name = dct.pop('name')
+        bpmn_id = dct.pop('bpmn_id')
+
+        spec = self.spec_class(wf_spec, name, **dct)
         spec.inputs = inputs
         spec.outputs = outputs
-        spec.id = dct['id']
+
+        if issubclass(self.spec_class, BpmnSpecMixin) and bpmn_id != name:
+            # This is a hack for multiinstance tasks :(  At least it is simple.
+            # Ideally I'd fix it in the parser, but I'm afraid of quickly running into a wall there
+            spec.bpmn_id = bpmn_id
 
         if include_data:
             spec.data = self.registry.restore(dct.get('data', {}))
@@ -236,10 +241,6 @@ class TaskSpecConverter(BpmnSpecConverter):
             spec.post_assign = self.registry.restore(dct.get('post_assign', {}))
 
         if isinstance(spec, BpmnSpecMixin):
-            spec.documentation = dct.pop('documentation', None)
-            spec.lane = dct.pop('lane', None)
-            spec.data_input_associations = self.registry.restore(dct.pop('data_input_associations', []))
-            spec.data_output_associations = self.registry.restore(dct.pop('data_output_associations', []))
             spec.io_specification = self.registry.restore(dct.pop('io_specification', None))
 
         return spec

@@ -20,10 +20,10 @@ class ParseMultiInstanceTest(BaseTestCase):
         self.save_restore()
 
         task_spec = self.workflow.get_tasks_from_spec_name('any_task')[0].task_spec
-        self.assertEqual(task_spec.data_input.name, 'input_data')
-        self.assertEqual(task_spec.data_output.name, 'output_data')
-        self.assertEqual(task_spec.input_item.name, 'output_item')
-        self.assertEqual(task_spec.output_item.name, 'output_item')
+        self.assertEqual(task_spec.data_input.bpmn_id, 'input_data')
+        self.assertEqual(task_spec.data_output.bpmn_id, 'output_data')
+        self.assertEqual(task_spec.input_item.bpmn_id, 'output_item')
+        self.assertEqual(task_spec.output_item.bpmn_id, 'output_item')
 
         ready_tasks = self.workflow.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
@@ -52,7 +52,7 @@ class ParseMultiInstanceTest(BaseTestCase):
         self.save_restore()
 
         self.assertEqual(task_spec.data_input, None)
-        self.assertEqual(task_spec.input_item.name, 'output_item')
+        self.assertEqual(task_spec.input_item.bpmn_id, 'output_item')
 
         ready_tasks = self.workflow.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
@@ -75,10 +75,10 @@ class ParseMultiInstanceTest(BaseTestCase):
         self.save_restore()
 
         task_spec = self.workflow.get_tasks_from_spec_name('any_task')[0].task_spec
-        self.assertEqual(task_spec.data_input.name, 'input_data')
-        self.assertEqual(task_spec.data_output.name, 'input_data')
-        self.assertEqual(task_spec.input_item.name, 'input_item')
-        self.assertEqual(task_spec.output_item.name, 'input_item')
+        self.assertEqual(task_spec.data_input.bpmn_id, 'input_data')
+        self.assertEqual(task_spec.data_output.bpmn_id, 'input_data')
+        self.assertEqual(task_spec.input_item.bpmn_id, 'input_item')
+        self.assertEqual(task_spec.output_item.bpmn_id, 'input_item')
 
         ready_tasks = self.workflow.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)

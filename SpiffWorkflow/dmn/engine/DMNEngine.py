@@ -20,8 +20,10 @@
 import logging
 import re
 
+from SpiffWorkflow.exceptions import SpiffWorkflowException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
+
 from ..specs.model import HitPolicy
-from ...exceptions import SpiffWorkflowException, WorkflowTaskException
 
 logger = logging.getLogger('spiff.dmn')
 

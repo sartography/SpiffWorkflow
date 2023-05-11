@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.camunda.specs.events.event_definitions import MessageEventDefinition
+from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
 from .BaseTestCase import BaseTestCase
 
 __author__ = 'kellym'
@@ -33,10 +33,10 @@ class ExternalMessageBoundaryTest(BaseTestCase):
         # here because the thread just dies and doesn't lead to a task, we expect the data
         # to die with it.
         # item 1 should be at 'Pause'
-        self.assertEqual('Pause',ready_tasks[1].task_spec.description)
+        self.assertEqual('Pause',ready_tasks[1].task_spec.bpmn_name)
         self.assertEqual('SomethingImportant', ready_tasks[1].data['interrupt_var'])
         self.assertEqual(True, ready_tasks[1].data['caughtinterrupt'])
-        self.assertEqual('Meaningless User Task',ready_tasks[0].task_spec.description)
+        self.assertEqual('Meaningless User Task',ready_tasks[0].task_spec.bpmn_name)
         self.assertEqual(False, ready_tasks[0].data['caughtinterrupt'])
         ready_tasks[1].run()
         self.workflow.do_engine_steps()

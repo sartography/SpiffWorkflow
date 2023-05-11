@@ -23,25 +23,35 @@ import os
 from lxml import etree
 from lxml.etree import LxmlError
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import NoneEventDefinition
+from SpiffWorkflow.bpmn.specs.bpmn_process_spec import BpmnProcessSpec
+from SpiffWorkflow.bpmn.specs.defaults import (
+    UserTask,
+    ManualTask,
+    NoneTask,
+    ScriptTask,
+    ServiceTask,
+    CallActivity,
+    SubWorkflowTask,
+    TransactionSubprocess,
+    InclusiveGateway,
+    ExclusiveGateway,
+    ParallelGateway,
+    StartEvent,
+    EndEvent,
+    IntermediateCatchEvent,
+    IntermediateThrowEvent,
+    SendTask,
+    ReceiveTask,
+    BoundaryEvent,
+    EventBasedGateway
+)
+from SpiffWorkflow.bpmn.specs.event_definitions import NoneEventDefinition
+from SpiffWorkflow.bpmn.specs.mixins.subworkfow_task import SubWorkflowTask as SubWorkflowTaskMixin
 
 from .ValidationException import ValidationException
-from ..specs.BpmnProcessSpec import BpmnProcessSpec
-from ..specs.events.EndEvent import EndEvent
-from ..specs.events.StartEvent import StartEvent
-from ..specs.events.IntermediateEvent import BoundaryEvent, IntermediateCatchEvent, IntermediateThrowEvent, EventBasedGateway
-from ..specs.events.IntermediateEvent import SendTask, ReceiveTask
-from ..specs.SubWorkflowTask import CallActivity, SubWorkflowTask, TransactionSubprocess
-from ..specs.ExclusiveGateway import ExclusiveGateway
-from ..specs.InclusiveGateway import InclusiveGateway
-from ..specs.ManualTask import ManualTask
-from ..specs.NoneTask import NoneTask
-from ..specs.ParallelGateway import ParallelGateway
-from ..specs.ScriptTask import ScriptTask
-from ..specs.ServiceTask import ServiceTask
-from ..specs.UserTask import UserTask
 from .ProcessParser import ProcessParser
 from .node_parser import DEFAULT_NSMAP
+from .spec_description import SPEC_DESCRIPTIONS
 from .util import full_tag, xpath_eval, first
 from .TaskParser import TaskParser
 from .task_parsers import (
@@ -131,12 +141,13 @@ class BpmnParser(object):
 
     DATA_STORE_CLASSES = {}
 
-    def __init__(self, namespaces=None, validator=None):
+    def __init__(self, namespaces=None, validator=None, spec_descriptions=SPEC_DESCRIPTIONS):
         """
         Constructor.
         """
         self.namespaces = namespaces or DEFAULT_NSMAP
         self.validator = validator
+        self.spec_descriptions = spec_descriptions
         self.process_parsers = {}
         self.collaborations = {}
         self.process_dependencies = set()
@@ -294,9 +305,9 @@ class BpmnParser(object):
 
     def create_parser(self, node, filename=None, lane=None):
         parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, self.data_stores, filename=filename, lane=lane)
-        if parser.get_id() in self.process_parsers:
-            raise ValidationException(f'Duplicate process ID: {parser.get_id()}', node=node, file_name=filename)
-        self.process_parsers[parser.get_id()] = parser
+        if parser.bpmn_id in self.process_parsers:
+            raise ValidationException(f'Duplicate process ID: {parser.bpmn_id}', node=node, file_name=filename)
+        self.process_parsers[parser.bpmn_id] = parser
 
     def get_process_dependencies(self):
         return self.process_dependencies
@@ -320,7 +331,7 @@ class BpmnParser(object):
         used = specs or {}
         wf_spec = self.get_spec(name)
         for task_spec in wf_spec.task_specs.values():
-            if isinstance(task_spec, SubWorkflowTask) and task_spec.spec not in used:
+            if isinstance(task_spec, SubWorkflowTaskMixin) and task_spec.spec not in used:
                 subprocess_spec = self.get_spec(task_spec.spec, required=require_call_activity_specs)
                 used[task_spec.spec] = subprocess_spec
                 if subprocess_spec is not None:

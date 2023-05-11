@@ -24,7 +24,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
 
         with self.assertRaises(WorkflowDataException) as exc:
             self.advance_to_subprocess()
-        self.assertEqual(exc.exception.data_input.name,'in_2')
+        self.assertEqual(exc.exception.data_input.bpmn_id, 'in_2')
 
     def testCallActivityMissingOutput(self):
 
@@ -39,7 +39,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
 
         with self.assertRaises(WorkflowDataException) as exc:
             self.complete_subprocess()
-        self.assertEqual(exc.exception.data_output.name, 'out_2')
+        self.assertEqual(exc.exception.data_output.bpmn_id, 'out_2')
 
     def actual_test(self, save_restore=False):
 
@@ -104,7 +104,7 @@ class IOSpecOnTaskTest(BpmnWorkflowTestCase):
         set_data.script = """in_1, unused = 1, True"""
         with self.assertRaises(WorkflowDataException) as exc:
             self.workflow.do_engine_steps()
-        self.assertEqual(exc.exception.data_input.name, 'in_2')
+        self.assertEqual(exc.exception.data_input.bpmn_id, 'in_2')
 
     def testIOSpecOnTaskMissingOutput(self):
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
@@ -113,7 +113,7 @@ class IOSpecOnTaskTest(BpmnWorkflowTestCase):
         task.data.update({'out_1': 1})
         with self.assertRaises(WorkflowDataException) as exc:
             task.run()
-        self.assertEqual(exc.exception.data_output.name, 'out_2')
+        self.assertEqual(exc.exception.data_output.bpmn_id, 'out_2')
 
     def actual_test(self, save_restore=False):
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)

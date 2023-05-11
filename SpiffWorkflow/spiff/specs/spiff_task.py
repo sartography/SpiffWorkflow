@@ -21,15 +21,13 @@ from copy import deepcopy
 
 from SpiffWorkflow.exceptions import SpiffWorkflowException
 from SpiffWorkflow.task import TaskState
-from SpiffWorkflow.bpmn.specs .BpmnSpecMixin import BpmnSpecMixin
+from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
+
 
 class SpiffBpmnTask(BpmnSpecMixin):
 
     def __init__(self, wf_spec, name, prescript=None, postscript=None, **kwargs):
-
-        # WHy am I doing this instead of just calling super?
-        # Because I need to deal with multiple inheritance and the kwargs nightmare created by our parser design
-        BpmnSpecMixin.__init__(self, wf_spec, name, **kwargs)
+        super().__init__(wf_spec, name, **kwargs)
         self.prescript = prescript
         self.postscript = postscript
 

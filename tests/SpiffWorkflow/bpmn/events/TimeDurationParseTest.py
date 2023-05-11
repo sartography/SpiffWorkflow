@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import TimerEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition
 
 class TimeDurationParseTest(unittest.TestCase):
     "Non-exhaustive ISO durations, but hopefully covers basic support"

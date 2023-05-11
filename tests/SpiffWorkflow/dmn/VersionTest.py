@@ -35,7 +35,7 @@ class DmnVersionTest(unittest.TestCase):
         self.parser.add_dmn_files_by_glob(f'{dirname}/*.dmn')
         for parser in self.parser.dmn_parsers.values():
             parser.parse()
-            self.assertIsNotNone(parser.get_id())
+            self.assertIsNotNone(parser.bpmn_id)
             self.assertIsNotNone(parser.get_name())
 
     def _assert_parse_all_fail(self, dir_path):

@@ -19,20 +19,23 @@
 
 import copy
 
-from SpiffWorkflow.bpmn.specs.events.event_definitions import (
+from SpiffWorkflow.task import TaskState, Task
+from SpiffWorkflow.workflow import Workflow
+from SpiffWorkflow.exceptions import WorkflowException, TaskNotFoundException
+from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
+
+from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
+from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
+from SpiffWorkflow.bpmn.specs.mixins.subworkfow_task import CallActivity
+from SpiffWorkflow.bpmn.specs.event_definitions import (
     MessageEventDefinition,
     MultipleEventDefinition,
     NamedEventDefinition,
     TimerEventDefinition,
 )
-from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import _BoundaryEventParent
+
+from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
 from .PythonScriptEngine import PythonScriptEngine
-from .specs.events.event_types import CatchingEvent
-from .specs.events.StartEvent import StartEvent
-from .specs.SubWorkflowTask import CallActivity
-from ..task import TaskState, Task
-from ..workflow import Workflow
-from ..exceptions import TaskNotFoundException, WorkflowException, WorkflowTaskException
 
 
 class BpmnMessage:
@@ -233,7 +236,7 @@ class BpmnWorkflow(Workflow):
             elif isinstance(event_definition, MessageEventDefinition):
                 value = event_definition.correlation_properties
             events.append({
-                'event_type': event_definition.event_type,
+                'event_type': event_definition.__class__.__name__,
                 'name': event_definition.name if isinstance(event_definition, NamedEventDefinition) else None,
                 'value': value
             })
@@ -250,7 +253,7 @@ class BpmnWorkflow(Workflow):
         :param will_complete_task: Callback that will be called prior to completing a task
         :param did_complete_task: Callback that will be called after completing a task
         """
-        engine_steps = list([t for t in self.get_tasks(TaskState.READY) if self._is_engine_task(t.task_spec)])
+        engine_steps = list([t for t in self.get_tasks(TaskState.READY) if not t.task_spec.manual])
         while engine_steps:
             for task in engine_steps:
                 if will_complete_task is not None:
@@ -260,7 +263,7 @@ class BpmnWorkflow(Workflow):
                     did_complete_task(task)
                 if task.task_spec.name == exit_at:
                     return task
-            engine_steps = list([t for t in self.get_tasks(TaskState.READY) if self._is_engine_task(t.task_spec)])
+            engine_steps = list([t for t in self.get_tasks(TaskState.READY) if not t.task_spec.manual])
 
     def refresh_waiting_tasks(self,
         will_refresh_task=None,
@@ -311,12 +314,10 @@ class BpmnWorkflow(Workflow):
     def get_ready_user_tasks(self, lane=None, workflow=None):
         """Returns a list of User Tasks that are READY for user action"""
         if lane is not None:
-            return [t for t in self.get_tasks(TaskState.READY, workflow)
-                       if (not self._is_engine_task(t.task_spec))
-                           and (t.task_spec.lane == lane)]
+            return [t for t in self.get_tasks(TaskState.READY, workflow) 
+                        if t.task_spec.manual and t.task_spec.lane == lane]
         else:
-            return [t for t in self.get_tasks(TaskState.READY, workflow)
-                       if not self._is_engine_task(t.task_spec)]
+            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual]
 
     def get_waiting_tasks(self, workflow=None):
         """Returns a list of all WAITING tasks"""
@@ -324,9 +325,6 @@ class BpmnWorkflow(Workflow):
 
     def get_catching_tasks(self, workflow=None):
         return [task for task in self.get_tasks(workflow=workflow) if isinstance(task.task_spec, CatchingEvent)]
-
-    def _is_engine_task(self, task_spec):
-        return (not hasattr(task_spec, 'is_engine_task') or task_spec.is_engine_task())
 
     def reset_from_task_id(self, task_id, data=None):
         """Override method from base class, and assures that if the task

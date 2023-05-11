@@ -17,16 +17,24 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from SpiffWorkflow.bpmn.parser.BpmnParser import full_tag, DEFAULT_NSMAP
 
-from SpiffWorkflow.bpmn.specs.ManualTask import ManualTask
-from SpiffWorkflow.bpmn.specs.NoneTask import NoneTask
-from SpiffWorkflow.bpmn.specs.ScriptTask import ScriptTask
-from SpiffWorkflow.bpmn.specs.SubWorkflowTask import CallActivity, TransactionSubprocess
+from SpiffWorkflow.bpmn.specs.defaults import (
+    ManualTask,
+    NoneTask,
+    ScriptTask,
+    CallActivity,
+    TransactionSubprocess,
+    StartEvent,
+    EndEvent,
+    IntermediateThrowEvent,
+    IntermediateCatchEvent,
+    BoundaryEvent
+)
+from SpiffWorkflow.camunda.specs.business_rule_task import BusinessRuleTask
+from SpiffWorkflow.camunda.specs.user_task import UserTask
 
-from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
-from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
-from SpiffWorkflow.camunda.specs.UserTask import UserTask
 from SpiffWorkflow.camunda.parser.task_spec import (
     CamundaTaskParser,
     BusinessRuleTaskParser,
@@ -36,10 +44,6 @@ from SpiffWorkflow.camunda.parser.task_spec import (
     ScriptTaskParser,
     CAMUNDA_MODEL_NS
 )
-
-from SpiffWorkflow.bpmn.specs.events.StartEvent import StartEvent
-from SpiffWorkflow.bpmn.specs.events.EndEvent import EndEvent
-from SpiffWorkflow.bpmn.specs.events.IntermediateEvent import IntermediateThrowEvent, IntermediateCatchEvent, BoundaryEvent
 from .event_parsers import (
     CamundaStartEventParser,
     CamundaEndEventParser,

@@ -36,10 +36,24 @@ class NodeParser:
         self.nsmap = nsmap or DEFAULT_NSMAP
         self.filename = filename
         self.lane = self._get_lane() or lane
-        self.position = self._get_position() or {'x': 0.0, 'y': 0.0}
 
-    def get_id(self):
+    @property
+    def bpmn_id(self):
         return self.node.get('id')
+
+    @property
+    def bpmn_attributes(self):
+        return {
+            'description': self.get_description(),
+            'lane': self.lane,
+            'bpmn_name': self.node.get('name'),
+            'documentation': self.parse_documentation(),
+            'data_input_associations': self.parse_incoming_data_references(),
+            'data_output_associations': self.parse_outgoing_data_references(),
+        }
+    
+    def get_description(self):
+        return self.process_parser.parser.spec_descriptions.get(self.node.tag)
 
     def xpath(self, xpath, extra_ns=None):
         return self._xpath(self.node, xpath, extra_ns)
@@ -95,10 +109,10 @@ class NodeParser:
         data_refs = {}
         for elem in self.xpath('./bpmn:ioSpecification/bpmn:dataInput'):
             ref = self.create_data_spec(elem, TaskDataReference)
-            data_refs[ref.name] = ref
+            data_refs[ref.bpmn_id] = ref
         for elem in self.xpath('./bpmn:ioSpecification/bpmn:dataOutput'):
             ref = self.create_data_spec(elem, TaskDataReference)
-            data_refs[ref.name] = ref
+            data_refs[ref.bpmn_id] = ref
 
         inputs, outputs = [], []
         for ref in self.xpath('./bpmn:ioSpecification/bpmn:inputSet/bpmn:dataInputRefs'):
@@ -115,15 +129,19 @@ class NodeParser:
     def parse_extensions(self, node=None):
         return {}
 
+    def get_position(self, node=None):
+        node = node if node is not None else self.node
+        nodeid = node.get('id')
+        if nodeid is not None:
+            bounds = first(self.doc_xpath(f".//bpmndi:BPMNShape[@bpmnElement='{nodeid}']//dc:Bounds"))
+            if bounds is not None:
+                return {'x': float(bounds.get('x', 0)), 'y': float(bounds.get('y', 0))}
+        return {'x': 0.0, 'y': 0.0}
+
     def _get_lane(self):
-        noderef = first(self.doc_xpath(f".//bpmn:flowNodeRef[text()='{self.get_id()}']"))
+        noderef = first(self.doc_xpath(f".//bpmn:flowNodeRef[text()='{self.bpmn_id}']"))
         if noderef is not None:
             return noderef.getparent().get('name')
-
-    def _get_position(self):
-        bounds = first(self.doc_xpath(f".//bpmndi:BPMNShape[@bpmnElement='{self.get_id()}']//dc:Bounds"))
-        if bounds is not None:
-            return {'x': float(bounds.get('x', 0)), 'y': float(bounds.get('y', 0))}
 
     def _xpath(self, node, xpath, extra_ns=None):
         if extra_ns is not None:

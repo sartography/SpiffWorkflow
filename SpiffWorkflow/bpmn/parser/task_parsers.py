@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Matthew Hampton
+# Copyright (C) 2012 Matthew Hampton, 2023 Sartography
 #
 # This file is part of SpiffWorkflow.
 #
@@ -93,10 +93,7 @@ class SubWorkflowParser(TaskParser):
 
     def create_task(self):
         subworkflow_spec = SubprocessParser.get_subprocess_spec(self)
-        return self.spec_class(
-            self.spec, self.get_task_spec_name(), subworkflow_spec,
-            lane=self.lane, position=self.position,
-            description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.bpmn_id, subworkflow_spec=subworkflow_spec, **self.bpmn_attributes)
 
 
 class CallActivityParser(TaskParser):
@@ -104,23 +101,14 @@ class CallActivityParser(TaskParser):
 
     def create_task(self):
         subworkflow_spec = SubprocessParser.get_call_activity_spec(self)
-        return self.spec_class(
-            self.spec, self.get_task_spec_name(), subworkflow_spec,
-            lane=self.lane, position=self.position,
-            description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.bpmn_id, subworkflow_spec=subworkflow_spec, **self.bpmn_attributes)
 
 
 class ScriptTaskParser(TaskParser):
-    """
-    Parses a script task
-    """
+    """Parses a script task"""
 
     def create_task(self):
-        script = self.get_script()
-        return self.spec_class(self.spec, self.get_task_spec_name(), script,
-                               lane=self.lane,
-                               position=self.position,
-                               description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.bpmn_id, script=self.get_script(), **self.bpmn_attributes)
 
     def get_script(self):
         """

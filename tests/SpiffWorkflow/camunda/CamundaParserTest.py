@@ -1,8 +1,9 @@
 from SpiffWorkflow.bpmn.parser.util import full_tag
-from SpiffWorkflow.camunda.specs.UserTask import UserTask
+from SpiffWorkflow.camunda.specs.user_task import UserTask
+from SpiffWorkflow.camunda.specs.business_rule_task import BusinessRuleTask
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 from SpiffWorkflow.camunda.parser.task_spec import UserTaskParser, BusinessRuleTaskParser
-from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
+
 
 from .BaseTestCase import BaseTestCase
 

@@ -85,21 +85,15 @@ class TaskSpec(object):
         :param pre_assign: a list of name/value pairs
         :type  post_assign: list((str, object))
         :param post_assign: a list of name/value pairs
-        :type  position: dict((str, object))
-        :param position: a dict containing an 'x' and 'y' with coordinates
-                            that describe where the element occurred in the
-                            diagram.
         """
         assert wf_spec is not None
         assert name is not None
         self._wf_spec = wf_spec
-        self.id = None
         self.name = str(name)
-        self.description = kwargs.get('description', '')
+        self.description = kwargs.get('description', None)
         self.inputs = []
         self.outputs = []
         self.manual = kwargs.get('manual', False)
-        self.internal = False  # Only for easing debugging.
         self.data = kwargs.get('data', {})
         self.defines = kwargs.get('defines', {})
         self.pre_assign = kwargs.get('pre_assign',[])
@@ -116,7 +110,6 @@ class TaskSpec(object):
 
         self._wf_spec._add_notify(self)
         self.data.update(self.defines)
-        assert self.id is not None
 
     @property
     def spec_type(self):
@@ -410,14 +403,12 @@ class TaskSpec(object):
         class_name = module + '.' + self.__class__.__name__
 
         return {
-                  'id':self.id,
                   'class': class_name,
                   'name':self.name,
                   'description':self.description,
                   'inputs':[x.name for x in self.inputs],
                   'outputs':[x.name for x in self.outputs],
                   'manual':self.manual,
-                  'internal':self.internal,
                   'data':self.data,
                   'defines':self.defines,
                   'pre_assign':self.pre_assign,
@@ -448,13 +439,11 @@ class TaskSpec(object):
         :returns: The task specification instance.
         """
         out = cls(wf_spec,s_state.get('name'))
-        out.id = s_state.get('id')
         out.name = s_state.get('name')
         out.description = s_state.get('description')
         out.inputs = s_state.get('inputs')
         out.outputs = s_state.get('outputs')
         out.manual = s_state.get('manual')
-        out.internal = s_state.get('internal')
         out.data = s_state.get('data')
         out.defines = s_state.get('defines')
         out.pre_assign = s_state.get('pre_assign')

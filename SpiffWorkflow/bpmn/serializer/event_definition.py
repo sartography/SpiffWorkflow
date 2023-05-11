@@ -17,9 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .helpers.spec import EventDefinitionConverter
-
-from ..specs.events.event_definitions import (
+from SpiffWorkflow.bpmn.specs.event_definitions import (
     CancelEventDefinition,
     ErrorEventDefinition,
     EscalationEventDefinition,
@@ -32,6 +30,7 @@ from ..specs.events.event_definitions import (
     CycleTimerEventDefinition,
     MultipleEventDefinition,
 )
+from .helpers.spec import EventDefinitionConverter
 
 class CancelEventDefinitionConverter(EventDefinitionConverter):
     def __init__(self, registry):

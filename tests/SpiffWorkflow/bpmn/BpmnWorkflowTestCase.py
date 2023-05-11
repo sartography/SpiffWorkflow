@@ -67,13 +67,13 @@ class BpmnWorkflowTestCase(unittest.TestCase):
                     return p.workflow.get_task_from_id(task_id)
 
         def is_match(t):
-            if not (t.task_spec.name == step_name_path[-1] or t.task_spec.description == step_name_path[-1]):
+            if not (t.task_spec.name == step_name_path[-1] or t.task_spec.bpmn_name == step_name_path[-1]):
                 return False
             for parent_name in step_name_path[:-1]:
                 p = t.parent
                 found = False
                 while (p and p != p.parent):
-                    if (p.task_spec.name == parent_name or p.task_spec.description == parent_name):
+                    if (p.task_spec.name == parent_name or p.task_spec.bpmn_name == parent_name):
                         found = True
                         break
                     if p.parent is None and p.workflow != p.workflow.outer_workflow:
@@ -84,15 +84,14 @@ class BpmnWorkflowTestCase(unittest.TestCase):
                     return False
             return True
 
-        tasks = list(
-            [t for t in self.workflow.get_tasks(TaskState.READY) if is_match(t)])
+        tasks = [t for t in self.workflow.get_tasks(TaskState.READY) if is_match(t)]
 
         self._do_single_step(
             step_name_path[-1], tasks, set_attribs, choice, only_one_instance=only_one_instance)
 
     def assertTaskNotReady(self, step_name):
         tasks = list([t for t in self.workflow.get_tasks(TaskState.READY)
-                     if t.task_spec.name == step_name or t.task_spec.description == step_name])
+                     if t.task_spec.name == step_name or t.task_spec.bpmn_name == step_name])
         self.assertEqual([], tasks)
 
     def _do_single_step(self, step_name, tasks, set_attribs=None, choice=None, only_one_instance=True):
@@ -106,8 +105,8 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
         self.assertTrue(
             tasks[0].task_spec.name == step_name or tasks[
-                0].task_spec.description == step_name,
-                       'Expected step %s, got %s (%s)' % (step_name, tasks[0].task_spec.description, tasks[0].task_spec.name))
+                0].task_spec.bpmn_name == step_name,
+                       'Expected step %s, got %s (%s)' % (step_name, tasks[0].task_spec.bpmn_name, tasks[0].task_spec.name))
         if not set_attribs:
             set_attribs = {}
 

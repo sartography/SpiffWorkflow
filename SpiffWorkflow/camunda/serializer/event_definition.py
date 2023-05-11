@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.serializer.helpers.spec import EventDefinitionConverter
-from ..specs.events.event_definitions import MessageEventDefinition
+from ..specs.event_definitions import MessageEventDefinition
 
 
 class MessageEventDefinitionConverter(EventDefinitionConverter):

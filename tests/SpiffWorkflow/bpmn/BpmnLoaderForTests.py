@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from SpiffWorkflow.bpmn.specs.data_spec import BpmnDataStoreSpecification
-from SpiffWorkflow.bpmn.specs.ExclusiveGateway import ExclusiveGateway
-from SpiffWorkflow.bpmn.specs.UserTask import UserTask
+from SpiffWorkflow.bpmn.specs.defaults import ExclusiveGateway
+from SpiffWorkflow.bpmn.specs.defaults import UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import ConditionalGatewayParser
@@ -12,8 +12,7 @@ from SpiffWorkflow.bpmn.serializer.helpers.spec import BpmnSpecConverter, TaskSp
 
 __author__ = 'matth'
 
-# This provides some extensions to the BPMN parser that make it easier to
-# implement testcases
+# One glorious day I will be able to remove these classes.
 
 
 class TestUserTask(UserTask):
@@ -47,7 +46,6 @@ class TestUserTaskConverter(TaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         return dct
 
     def from_dict(self, dct):
@@ -59,12 +57,12 @@ class TestDataStore(BpmnDataStoreSpecification):
 
     def get(self, my_task):
         """Copy a value from a data store into task data."""
-        my_task.data[self.name] = TestDataStore._value
+        my_task.data[self.bpmn_id] = TestDataStore._value
 
     def set(self, my_task):
         """Copy a value from the task data to the data store"""
-        TestDataStore._value = my_task.data[self.name]
-        del my_task.data[self.name]
+        TestDataStore._value = my_task.data[self.bpmn_id]
+        del my_task.data[self.bpmn_id]
 
 class TestDataStoreConverter(BpmnSpecConverter):
 
@@ -73,8 +71,8 @@ class TestDataStoreConverter(BpmnSpecConverter):
 
     def to_dict(self, spec):
         return {
-            "name": spec.name,
-            "description": spec.description,
+            "bpmn_id": spec.bpmn_id,
+            "bpmn_name": spec.bpmn_name,
             "capacity": spec.capacity,
             "is_unlimited": spec.is_unlimited,
             "_value": TestDataStore._value,

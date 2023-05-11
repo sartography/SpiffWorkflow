@@ -35,7 +35,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.assertEqual('NEW ACTION', self.workflow.get_tasks(
             TaskState.READY)[0].get_data('script_output'))
-        self.assertEqual('Cancel Action (if necessary)', self.workflow.get_tasks(TaskState.READY)[0].task_spec.description)
+        self.assertEqual('Cancel Action (if necessary)', self.workflow.get_tasks(TaskState.READY)[0].task_spec.bpmn_name)
 
         time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
@@ -58,7 +58,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
 
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
-        self.assertEqual('Cancel Action (if necessary)', self.workflow.get_tasks(TaskState.READY)[0].task_spec.description)
+        self.assertEqual('Cancel Action (if necessary)', self.workflow.get_tasks(TaskState.READY)[0].task_spec.bpmn_name)
 
         time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
@@ -70,15 +70,15 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
-        self.assertEqual('Finish Time', self.workflow.get_tasks(TaskState.WAITING)[1].task_spec.description)
+        self.assertEqual('Finish Time', self.workflow.get_tasks(TaskState.WAITING)[1].task_spec.bpmn_name)
         time.sleep(self.FINISH_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
-        self.assertNotEqual('Finish Time', self.workflow.get_tasks(TaskState.WAITING)[0].task_spec.description)
+        self.assertNotEqual('Finish Time', self.workflow.get_tasks(TaskState.WAITING)[0].task_spec.bpmn_name)
 
         overdue_escalation_task = [
-            t for t in self.workflow.get_tasks() if t.task_spec.description == 'Overdue Escalation']
+            t for t in self.workflow.get_tasks() if t.task_spec.bpmn_name == 'Overdue Escalation']
         self.assertEqual(1, len(overdue_escalation_task))
         overdue_escalation_task = overdue_escalation_task[0]
         self.assertEqual(TaskState.COMPLETED, overdue_escalation_task.state)

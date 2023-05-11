@@ -140,11 +140,9 @@ class DictionarySerializer(Serializer):
             return ret
 
     def serialize_task_spec(self, spec):
-        s_state = dict(id=spec.id,
-                       name=spec.name,
+        s_state = dict(name=spec.name,
                        description=spec.description,
                        manual=spec.manual,
-                       internal=spec.internal,
                        lookahead=spec.lookahead)
         module_name = spec.__class__.__module__
         s_state['class'] = module_name + '.' + spec.__class__.__name__
@@ -159,10 +157,8 @@ class DictionarySerializer(Serializer):
         return s_state
 
     def deserialize_task_spec(self, wf_spec, s_state, spec):
-        spec.id = s_state.get('id', None)
         spec.description = s_state.get('description', '')
         spec.manual = s_state.get('manual', False)
-        spec.internal = s_state.get('internal', False)
         spec.lookahead = s_state.get('lookahead', 2)
         spec.data = self.deserialize_dict(s_state.get('data', {}))
         spec.defines = self.deserialize_dict(s_state.get('defines', {}))

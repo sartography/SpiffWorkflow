@@ -21,22 +21,27 @@ from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
 from SpiffWorkflow.bpmn.serializer.task_spec import MultiInstanceTaskConverter
 from SpiffWorkflow.dmn.serializer.task_spec import BaseBusinessRuleTaskConverter
 
-from SpiffWorkflow.spiff.specs.none_task import NoneTask
-from SpiffWorkflow.spiff.specs.manual_task import ManualTask
-from SpiffWorkflow.spiff.specs.user_task import UserTask
-from SpiffWorkflow.spiff.specs.script_task import ScriptTask
-from SpiffWorkflow.spiff.specs.service_task import ServiceTask
-from SpiffWorkflow.spiff.specs.subworkflow_task import SubWorkflowTask, TransactionSubprocess, CallActivity
-from SpiffWorkflow.spiff.specs.events.event_types import SendTask, ReceiveTask
-from SpiffWorkflow.spiff.specs.multiinstance_task import StandardLoopTask, ParallelMultiInstanceTask, SequentialMultiInstanceTask
-from SpiffWorkflow.spiff.specs.business_rule_task import BusinessRuleTask
-
+from SpiffWorkflow.spiff.specs.defaults import (
+    NoneTask,
+    ManualTask,
+    UserTask,
+    ScriptTask,
+    SendTask,
+    ReceiveTask,
+    StandardLoopTask,
+    ParallelMultiInstanceTask,
+    SequentialMultiInstanceTask,
+    BusinessRuleTask,
+    SubWorkflowTask,
+    CallActivity,
+    TransactionSubprocess,
+    ServiceTask
+)
 
 class SpiffBpmnTaskConverter(TaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         dct['prescript'] = spec.prescript
         dct['postscript'] = spec.postscript
         return dct
@@ -155,7 +160,6 @@ class StandardLoopTaskConverter(SpiffBpmnTaskConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         dct.update(self.get_standard_loop_attributes(spec))
         return dct
 

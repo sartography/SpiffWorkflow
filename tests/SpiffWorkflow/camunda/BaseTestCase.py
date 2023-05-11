@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-from copy import deepcopy
 
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 from SpiffWorkflow.camunda.serializer.config import CAMUNDA_SPEC_CONFIG
 
-from SpiffWorkflow.dmn.serializer.task_spec import BusinessRuleTaskConverter
-
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-CAMUNDA_SPEC_CONFIG['task_specs'].append(BusinessRuleTaskConverter)
 
 __author__ = 'danfunk'
 

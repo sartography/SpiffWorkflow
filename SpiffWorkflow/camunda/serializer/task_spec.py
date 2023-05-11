@@ -19,8 +19,10 @@
 
 from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
 from SpiffWorkflow.bpmn.serializer.task_spec import MultiInstanceTaskConverter
+from SpiffWorkflow.dmn.serializer.task_spec import BaseBusinessRuleTaskConverter
 
-from SpiffWorkflow.camunda.specs.UserTask import UserTask, Form
+from SpiffWorkflow.camunda.specs.user_task import UserTask, Form
+from SpiffWorkflow.camunda.specs.business_rule_task import BusinessRuleTask
 from SpiffWorkflow.camunda.specs.multiinstance_task import ParallelMultiInstanceTask, SequentialMultiInstanceTask
 
 class UserTaskConverter(TaskSpecConverter):
@@ -30,7 +32,6 @@ class UserTaskConverter(TaskSpecConverter):
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
-        dct.update(self.get_bpmn_attributes(spec))
         dct['form'] = self.form_to_dict(spec.form)
         return dct
 
@@ -54,6 +55,10 @@ class UserTaskConverter(TaskSpecConverter):
             dct['fields'].append(new)
         return dct
 
+
+class BusinessRuleTaskConverter(BaseBusinessRuleTaskConverter):
+    def __init__(self, registry):
+        super().__init__(BusinessRuleTask, registry)
 
 class ParallelMultiInstanceTaskConverter(MultiInstanceTaskConverter):
     def __init__(self, registry):

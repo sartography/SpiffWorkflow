@@ -17,8 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ..specs.BpmnProcessSpec import BpmnProcessSpec
-from ..specs.events.IntermediateEvent import _BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.bpmn_process_spec import BpmnProcessSpec
+from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
 
 from .helpers.spec import WorkflowSpecConverter
 
@@ -58,12 +58,9 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
     def from_dict(self, dct):
 
         spec = self.spec_class(name=dct['name'], description=dct['description'], filename=dct['file'])
-        # There a nostart arg in the base workflow spec class that prevents start task creation, but
-        # the BPMN process spec doesn't pass it in, so we have to delete the auto generated Start task.
+        # These are automatically created with a workflow and should be replaced
         del spec.task_specs['Start']
         spec.start = None
-
-        # These are also automatically created with a workflow and should be replaced
         del spec.task_specs['End']
         del spec.task_specs[f'{spec.name}.EndJoin']
 
@@ -79,6 +76,7 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
         # Add messaging related stuff
         spec.correlation_keys = dct.pop('correlation_keys', {})
 
+        dct['task_specs'].pop('Root', None)
         for name, task_dict in dct['task_specs'].items():
             # I hate this, but I need to pass in the workflow spec when I create the task.
             # IMO storing the workflow spec on the task spec is a TERRIBLE idea, but that's

@@ -17,17 +17,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ...camunda.specs.UserTask import Form, FormField, EnumFormField
-
 from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
 from SpiffWorkflow.bpmn.parser.util import one
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import SubprocessParser
 
-from SpiffWorkflow.dmn.specs.BusinessRuleTask import BusinessRuleTask
-
+from SpiffWorkflow.camunda.specs.business_rule_task import BusinessRuleTask
 from SpiffWorkflow.camunda.specs.multiinstance_task import SequentialMultiInstanceTask, ParallelMultiInstanceTask
+from SpiffWorkflow.camunda.specs.user_task import Form, FormField, EnumFormField
 
 CAMUNDA_MODEL_NS = 'http://camunda.org/schema/1.0/bpmn'
 
@@ -85,11 +83,9 @@ class BusinessRuleTaskParser(CamundaTaskParser):
 
     def create_task(self):
         decision_ref = self.get_decision_ref(self.node)
-        return BusinessRuleTask(self.spec, self.get_task_spec_name(),
+        return BusinessRuleTask(self.spec, self.bpmn_id, 
                                 dmnEngine=self.process_parser.parser.get_engine(decision_ref, self.node),
-                                lane=self.lane, position=self.position,
-                                description=self.node.get('name', None),
-                                )
+                                **self.bpmn_attributes)
 
     @staticmethod
     def get_decision_ref(node):
@@ -101,10 +97,7 @@ class UserTaskParser(CamundaTaskParser):
 
     def create_task(self):
         form = self.get_form()
-        return self.spec_class(self.spec, self.get_task_spec_name(), form,
-                               lane=self.lane,
-                               position=self.position,
-                               description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.bpmn_id, form=form, **self.bpmn_attributes)
 
     def get_form(self):
         """Camunda provides a simple form builder, this will extract the
@@ -157,10 +150,7 @@ class SubWorkflowParser(CamundaTaskParser):
 
     def create_task(self):
         subworkflow_spec = SubprocessParser.get_subprocess_spec(self)
-        return self.spec_class(
-            self.spec, self.get_task_spec_name(), subworkflow_spec,
-            lane=self.lane, position=self.position,
-            description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.bpmn_id, subworkflow_spec=subworkflow_spec, **self.bpmn_attributes)
 
 
 class CallActivityParser(CamundaTaskParser):
@@ -168,10 +158,7 @@ class CallActivityParser(CamundaTaskParser):
 
     def create_task(self):
         subworkflow_spec = SubprocessParser.get_call_activity_spec(self)
-        return self.spec_class(
-            self.spec, self.get_task_spec_name(), subworkflow_spec,
-            lane=self.lane, position=self.position,
-            description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.bpmn_id, subworkflow_spec=subworkflow_spec, **self.bpmn_attributes)
 
 
 class ScriptTaskParser(TaskParser):
@@ -181,10 +168,7 @@ class ScriptTaskParser(TaskParser):
 
     def create_task(self):
         script = self.get_script()
-        return self.spec_class(self.spec, self.get_task_spec_name(), script,
-                               lane=self.lane,
-                               position=self.position,
-                               description=self.node.get('name', None))
+        return self.spec_class(self.spec, self.bpmn_id, script=script, **self.bpmn_attributes)
 
     def get_script(self):
         """
