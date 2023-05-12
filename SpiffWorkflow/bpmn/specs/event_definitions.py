@@ -338,7 +338,7 @@ class TimerEventDefinition(EventDefinition):
     @staticmethod
     def parse_iso_week(expression):
         # https://en.wikipedia.org/wiki/ISO_8601#Week_dates
-        m = re.match('(\d{4})W(\d{2})(\d)(T.+)?', expression.upper().replace('-', ''))
+        m = re.match(r'(\d{4})W(\d{2})(\d)(T.+)?', expression.upper().replace('-', ''))
         year, month, day, ts = m.groups()
         ds = datetime.fromisocalendar(int(year), int(month), int(day)).strftime('%Y-%m-%d')
         return TimerEventDefinition.get_datetime(ds + (ts or ''))
