@@ -46,7 +46,7 @@ from SpiffWorkflow.bpmn.specs.defaults import (
     EventBasedGateway
 )
 from SpiffWorkflow.bpmn.specs.event_definitions import NoneEventDefinition
-from SpiffWorkflow.bpmn.specs.mixins.subworkfow_task import SubWorkflowTask as SubWorkflowTaskMixin
+from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask as SubWorkflowTaskMixin
 
 from .ValidationException import ValidationException
 from .ProcessParser import ProcessParser

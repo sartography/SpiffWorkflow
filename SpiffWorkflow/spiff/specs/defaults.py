@@ -24,7 +24,7 @@ from SpiffWorkflow.bpmn.specs.mixins.script_task import ScriptTask as ScriptTask
 
 from SpiffWorkflow.bpmn.specs.mixins.events.intermediate_event import SendTask, ReceiveTask
 
-from SpiffWorkflow.bpmn.specs.mixins.subworkfow_task import(
+from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import(
     SubWorkflowTask as SubWorkflowTaskMixin,
     CallActivity as CallActivityMixin,
     TransactionSubprocess as TransactionSubprocessMixin,

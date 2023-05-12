@@ -35,7 +35,7 @@ from .mixins.multiinstance_task import (
     SequentialMultiInstanceTask as SequentialMultiInstanceTaskMixin,
 )
 
-from .mixins.subworkfow_task import (
+from .mixins.subworkflow_task import (
     SubWorkflowTask as SubworkflowTaskMixin,
     CallActivity as CallActivityMixin,
     TransactionSubprocess as TransactionSubprocessMixin,
