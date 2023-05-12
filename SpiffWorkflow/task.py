@@ -104,24 +104,7 @@ TaskStateMasks = {
 }
 
 
-class DeprecatedMetaTask(type):
-    """
-    Handle deprecated methods that are now moved to TaskState
-    """
-    TaskNames = {**TaskStateNames, **TaskStateMasks}
-    TaskStateFromNames = {v: k for k, v in TaskNames.items()}
-
-    def __getattribute__(self, item):
-        if item in DeprecatedMetaTask.TaskNames.values():
-            warnings.warn(f'Task.{item} is deprecated.  '
-                          f'Please use TaskState.{item}',
-                          DeprecationWarning, stacklevel=2)
-            return DeprecatedMetaTask.TaskStateFromNames[item]
-        else:
-            return type.__getattribute__(self, item)
-
-
-class Task(object,  metaclass=DeprecatedMetaTask):
+class Task(object):
     """
     Used internally for composing a tree that represents the path that
     is taken (or predicted) within the workflow.

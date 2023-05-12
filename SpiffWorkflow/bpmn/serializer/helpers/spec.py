@@ -132,7 +132,7 @@ class TaskSpecConverter(BpmnSpecConverter):
     modules of this package; the `camunda`,`dmn`, and `spiff` serialization packages contain other 
     examples.
     """
-    def get_default_attributes(self, spec, include_data=False):
+    def get_default_attributes(self, spec):
         """Extracts the default Spiff attributes from a task spec.
 
         :param spec: the task spec to be converted
@@ -140,7 +140,7 @@ class TaskSpecConverter(BpmnSpecConverter):
         Returns:
             a dictionary of standard task spec attributes
         """
-        dct = {
+        return {
             'name': spec.name,
             'description': spec.description,
             'manual': spec.manual,
@@ -155,15 +155,6 @@ class TaskSpecConverter(BpmnSpecConverter):
             'data_output_associations': [ self.registry.convert(obj) for obj in spec.data_output_associations ],
             'io_specification': self.registry.convert(spec.io_specification),
         }
-        # This stuff is also all defined in the base task spec, but can contain data, so we need
-        # our data serializer.  I think we should try to get this stuff out of the base task spec.
-        if include_data:
-            dct['data'] = self.registry.convert(spec.data)
-            dct['defines'] = self.registry.convert(spec.defines)
-            dct['pre_assign'] = self.registry.convert(spec.pre_assign)
-            dct['post_assign'] = self.registry.convert(spec.post_assign)
-
-        return dct
 
     def get_join_attributes(self, spec):
         """Extracts attributes for task specs that inherit from `Join`.
@@ -204,13 +195,12 @@ class TaskSpecConverter(BpmnSpecConverter):
             'test_before': spec.test_before,
         }
     
-    def task_spec_from_dict(self, dct, include_data=False):
+    def task_spec_from_dict(self, dct):
         """
         Creates a task spec based on the supplied dictionary.  It handles setting the default
         task spec attributes as well as attributes added by `BpmnSpecMixin`.
 
         :param dct: the dictionary to create the task spec from
-        :param include_data: whether or not to include task spec data attributes
 
         Returns:
             a restored task spec
@@ -233,12 +223,6 @@ class TaskSpecConverter(BpmnSpecConverter):
             # This is a hack for multiinstance tasks :(  At least it is simple.
             # Ideally I'd fix it in the parser, but I'm afraid of quickly running into a wall there
             spec.bpmn_id = bpmn_id
-
-        if include_data:
-            spec.data = self.registry.restore(dct.get('data', {}))
-            spec.defines = self.registry.restore(dct.get('defines', {}))
-            spec.pre_assign = self.registry.restore(dct.get('pre_assign', {}))
-            spec.post_assign = self.registry.restore(dct.get('post_assign', {}))
 
         if isinstance(spec, BpmnSpecMixin):
             spec.io_specification = self.registry.restore(dct.pop('io_specification', None))
