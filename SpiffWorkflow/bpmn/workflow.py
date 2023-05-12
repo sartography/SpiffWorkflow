@@ -26,7 +26,7 @@ from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 
 from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
-from SpiffWorkflow.bpmn.specs.mixins.subworkfow_task import CallActivity
+from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
 from SpiffWorkflow.bpmn.specs.event_definitions import (
     MessageEventDefinition,
     MultipleEventDefinition,
