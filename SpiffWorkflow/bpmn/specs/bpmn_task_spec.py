@@ -21,13 +21,13 @@ class BpmnTaskSpec(TaskSpec):
 
     It is intended to be used with all tasks in a BPMN workflow.  Spiff internal tasks (such
     as Root, EndJoin, etc) inherit directly from this.
-    
+
     Visible tasks inherit from `BpmnSpecMixin`, which will assign the `bpmn_id` and `bpmn_name`.
 
     The intent is to (1) give all tasks in the workflow the same attributes and (2) provide an
     easy way of knowing whether a task appearson the diagram.
     """
-    def __init__(self, wf_spec, name, lane=None, documentation=None, 
+    def __init__(self, wf_spec, name, lane=None, documentation=None,
                  data_input_associations=None, data_output_associations=None, **kwargs):
         """
         :param lane: Indicates the name of the lane that this task belongs to
@@ -79,7 +79,8 @@ class BpmnTaskSpec(TaskSpec):
 
     def _on_complete_hook(self, my_task):
 
-        my_task.parent.task_spec._child_complete_hook(my_task)
+        if my_task.parent:
+            my_task.parent.task_spec._child_complete_hook(my_task)
 
         if self.io_specification is not None and len(self.io_specification.data_outputs) > 0:
             data = {}
