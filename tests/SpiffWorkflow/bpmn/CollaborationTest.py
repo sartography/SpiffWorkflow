@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn.specs.mixins.subworkfow_task import CallActivity
+from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.task import TaskState
 

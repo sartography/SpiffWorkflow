@@ -117,7 +117,7 @@ class DMNEngine:
         # NOTE:  It should only do this replacement outside of quotes.
         # for example, provided "This thing?"  in quotes, it should not
         # do the replacement.
-        match_expr = re.sub('(\?)(?=(?:[^\'"]|[\'"][^\'"]*[\'"])*$)', 'dmninputexpr', match_expr)
+        match_expr = re.sub(r'(\?)(?=(?:[^\'"]|[\'"][^\'"]*[\'"])*$)', 'dmninputexpr', match_expr)
         if 'dmninputexpr' in match_expr:
             external_methods = {
                 'dmninputexpr': script_engine.evaluate(task, input_expr)
