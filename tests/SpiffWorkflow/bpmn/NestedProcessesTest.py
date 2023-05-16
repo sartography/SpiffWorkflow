@@ -24,9 +24,9 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
 
     def testResetToTop(self):
 
-        self.complete_task('Action1')
-        self.complete_task('Action2')
-        self.complete_task('Action3')
+        self.complete_task('Action1', True)
+        self.complete_task('Action2', True)
+        self.complete_task('Action3', True)
 
         task = [t for t in self.workflow.get_tasks() if t.task_spec.bpmn_name == 'Action1'][0]
         self.workflow.reset_from_task_id(task.id)
@@ -40,9 +40,9 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
 
     def testResetToIntermediate(self):
 
-        self.complete_task('Action1')
-        self.complete_task('Action2')
-        self.complete_task('Action3')
+        self.complete_task('Action1', True)
+        self.complete_task('Action2', True)
+        self.complete_task('Action3', True)
 
         task = [t for t in self.workflow.get_tasks() if t.task_spec.bpmn_name == 'Action2'][0]
         sub = [t for t in self.workflow.get_tasks() if t.task_spec.bpmn_name == 'Nested level 1'][0]
