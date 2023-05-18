@@ -6,11 +6,11 @@ BPMN Model
 
 We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
-- `lanes <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/lanes.bpmn>`_ workflow
-- `top_level <https://github.com/sartography/spiff-example-cli/bpmn/top_level.bpmn>`_ workflow
-- `call_activity <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/call_activity.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/product_prices.dmn>`_ DMN table
-- `shipping_costs <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
+- `lanes <https://github.com/sartography/spiff-example-cli/blob/main/tutorial/bpmn/lanes.bpmn>`_ workflow
+- `top_level <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/top_level.bpmn>`_ workflow
+- `call_activity <https://github.com/sartography/spiff-example-cli/blob/main/tutorial/bpmn/call_activity.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/spiff-example-cli/blob/main/tutorial/bpmn/product_prices.dmn>`_ DMN table
+- `shipping_costs <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/shipping_costs.dmn>`_ DMN table
 
 Lanes
 ^^^^^
@@ -24,7 +24,7 @@ on the nature of the workflow.  Within a BPMN editor, this is done by choosing t
 We'll modify our workflow to get the customer's payment information and send it
 to an employee who will charge the customer and fulfill the order.
 
-.. figure:: figures/lanes.png
+.. figure:: figures/organization/lanes.png
    :scale: 30%
    :align: center
 
@@ -34,9 +34,9 @@ To run this workflow
 
 .. code-block:: console
 
-   ./run.py -p order_product \
-        -d bpmn/product_prices.dmn bpmn/shipping_costs.dmn \
-        -b bpmn/lanes.bpmn
+   ./spiff-bpmn-runner.py -p order_product \
+        -d bpmn/tutorial/product_prices.dmn bpmn/tutorial/shipping_costs.dmn \
+        -b bpmn/tutorial/lanes.bpmn
 
 For a simple code example of displaying a tasks lane, see `Handling Lanes`_
 
@@ -47,12 +47,11 @@ In general, subprocesses are a way of grouping work into smaller units. This, in
 theory, will help us to re-use sections of business logic, but it will also allow
 us to treat groups of work as a unit.
 
-Subprocesses come in two different flavors. In this workflow we see an Expanded
-Subprocess.  Unfortunately, we can't collapse an expanded subprocess within BPMN.js,
-so expanded subprocesses are mainly useful for conceptualizing a group of tasks as
-a unit.
+Subprocesses come in two different flavors.  We can create a Subprocess Task, which can be
+expanded or collapsed.  The difference between the two types is visual rather than functional.
+The purpose of a Subprocess Task is to conceptualize a group of tasks as a unit.
 
-It also possible to refer to external subprocesses via a Call Activity Task. This
+It also possible to refer to external processes via a Call Activity Task. This
 allows us to 'call' a separate workflow in a different file by referencing the ID of
 the called workflow, which can simplify business logic and make it re-usable.
 
@@ -62,8 +61,8 @@ the order -- and create an Expanded Subprocess.
 We'll also expand our selection of products, adding several new products and the ability
 to customize certain products by size and style in addition to color.
 
-.. figure:: figures/dmn_table_updated.png
-   :scale: 30%
+.. figure:: figures/organization/dmn_table_updated.png
+   :scale: 60%
    :align: center
 
    Updated Product List
@@ -78,30 +77,29 @@ Since adding gateways for navigating the new options will add a certain amount o
 clutter to our diagram, we'll create a separate workflow around selecting and
 customizing products and refer to that in our main workflow.
 
-.. figure:: figures/call_activity.png
+.. figure:: figures/organization/call_activity.png
    :scale: 30%
    :align: center
 
    Subworkflow for product selection
 
-When configuring the subworkflow, we need to make sure the 'CallActivity Type' of the
-parent workflow is 'BPMN' and the 'Called Element' matches the ID we assigned in the
-subworkflow.
+We need to make sure the 'Called Element' matches the ID we assigned in the called process.
 
-.. figure:: figures/top_level.png
+.. figure:: figures/organization/top_level.png
    :scale: 30%
    :align: center
 
    Parent workflow
+
 
 Running the Model
 ^^^^^^^^^^^^^^^^^
 
 .. code-block:: console
 
-   ./run.py -p order_product \
-        -d bpmn/product_prices.dmn bpmn/shipping_costs.dmn \
-        -b bpmn/top_level.bpmn bpmn/call_activity.bpmn
+   ./spiff-bpmn-runner.py -p order_product \
+        -d bpmn/tutorial/product_prices.dmn bpmn/tutorial/shipping_costs.dmn \
+        -b bpmn/tutorial/top_level.bpmn bpmn/tutorial/call_activity.bpmn
 
 Example Application Code
 ------------------------
@@ -115,14 +113,16 @@ our sample application, we'll simply display which lane a task belongs to.
 
 .. code:: python
 
-    if hasattr(task.task_spec, 'lane') and task.task_spec.lane is not None:
-        lane = f'[{task.task_spec.lane}]'
-    else:
-        lane = ''
+    def get_task_description(self, task, include_state=True):
 
-The tasks lane can be obtained from :code:`task.task_spec.lane`.  Not all tasks
-will have a :code:`lane` attribute, so we need to check to make sure it exists
-before attempting to access it (this is true for many task attributes).
+        task_spec = task.task_spec
+        lane = f'{task_spec.lane}' if task.task_spec.lane is not None else '-'
+        name = task_spec.bpmn_name if task_spec.bpmn_name is not None else '-'
+        state = f'{task.get_state_name()}' if include_state else ''
+        return f'[{lane}] {name} ({task_spec.bpmn_id}) {state}'
+
+The tasks lane can be obtained from :code:`task.task_spec.lane`, which will be :code:`None`
+if the task is not part of a lane.
 
 See the Filtering Tasks Section of :doc:`advanced` more information
 about working with lanes in Spiff.

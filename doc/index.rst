@@ -20,8 +20,13 @@ What is SpiffWorkflow?
     :align: center
     :target: https://www.spiffworkflow.org
 
+SpiffWorkflow is a library that provides a flexible workflow execution environment.
+
+Recent development has largely focused on allowing Python applications to process
+BPMN diagrams.
+
 SpiffWorkflow allows your python application to process BPMN diagrams (think
-of them as very powerful flow charts,  See :doc:`intro`.) to accomplish
+of them as very powerful flow charts,  See :doc:`bpmn/intro`.) to accomplish
 what would otherwise require writing a lot of complex business logic in your
 code. You can use these diagrams to accomplish a number of tasks, such as:
 
@@ -53,8 +58,8 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   intro
-   bpmn/index
-   development
-   non-bpmn/index
+   bpmn/overview
+   bpmn/intro
+   concepts
+   core/index
 
