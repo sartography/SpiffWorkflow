@@ -34,7 +34,6 @@ from SpiffWorkflow.bpmn.serializer.task_spec import (
     ParallelGatewayConverter,
     ExclusiveGatewayConverter,
     InclusiveGatewayConverter,
-    StandardLoopTaskConverter,
 )
 
 from .task_spec import (
@@ -48,6 +47,7 @@ from .task_spec import (
     SubprocessTaskConverter,
     TransactionSubprocessConverter,
     CallActivityTaskConverter,
+    StandardLoopTaskConverter,
     ParallelMultiInstanceTaskConverter,
     SequentialMultiInstanceTaskConverter,
     BusinessRuleTaskConverter,

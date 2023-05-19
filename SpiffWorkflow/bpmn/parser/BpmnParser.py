@@ -45,8 +45,9 @@ from SpiffWorkflow.bpmn.specs.defaults import (
     BoundaryEvent,
     EventBasedGateway
 )
-from SpiffWorkflow.bpmn.specs.event_definitions import NoneEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions import NoneEventDefinition, TimerEventDefinition
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask as SubWorkflowTaskMixin
+from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent as StartEventMixin
 
 from .ValidationException import ValidationException
 from .ProcessParser import ProcessParser
@@ -351,16 +352,24 @@ class BpmnParser(object):
         self.find_all_specs()
         spec = BpmnProcessSpec(name)
         subprocesses = {}
-        start = StartEvent(spec, 'Start Collaboration', NoneEventDefinition())
+        participant_type = self._get_parser_class(full_tag('callActivity'))[1]
+        start_type = self._get_parser_class(full_tag('startEvent'))[1]
+        end_type = self._get_parser_class(full_tag('endEvent'))[1]
+        start = start_type(spec, 'Start Collaboration', NoneEventDefinition())
         spec.start.connect(start)
-        end = EndEvent(spec, 'End Collaboration', NoneEventDefinition())
+        end = end_type(spec, 'End Collaboration', NoneEventDefinition())
         end.connect(spec.end)
         for process in self.collaborations[name]:
             process_parser = self.get_process_parser(process)
             if process_parser and process_parser.process_executable:
-                participant = CallActivity(spec, process, process)
-                start.connect(participant)
-                participant.connect(end)
-                subprocesses[process] = self.get_spec(process)
+                sp_spec = self.get_spec(process)
+                subprocesses[process] = sp_spec
                 subprocesses.update(self.get_subprocess_specs(process))
+                if len([s for s in sp_spec.task_specs.values() if 
+                        isinstance(s, StartEventMixin) and 
+                        isinstance(s.event_definition, (NoneEventDefinition, TimerEventDefinition))
+                ]):
+                    participant = participant_type(spec, process, process)
+                    start.connect(participant)
+                    participant.connect(end)
         return spec, subprocesses

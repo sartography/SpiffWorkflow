@@ -21,6 +21,9 @@ from copy import deepcopy
 
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.specs.base import TaskSpec
+from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.mixins.events.intermediate_event import BoundaryEvent
+
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 
 
@@ -82,6 +85,7 @@ class SubWorkflowTask(TaskSpec):
             child.task_spec._update(child)
         my_task._set_state(TaskState.WAITING)
 
+
 class CallActivity(SubWorkflowTask):
 
     def __init__(self, wf_spec, bpmn_id, subworkflow_spec, **kwargs):
@@ -126,3 +130,23 @@ class TransactionSubprocess(SubWorkflowTask):
 
     def __init__(self, wf_spec, bpmn_id, subworkflow_spec, **kwargs):
         super(TransactionSubprocess, self).__init__(wf_spec, bpmn_id, subworkflow_spec, True, **kwargs)
+
+    def _on_complete_hook(self, my_task):
+        # It is possible that a transaction could end by throwing an event caught by a boundary event attached to it
+        # In that case both the subprocess and the boundary event become ready and whichever one gets executed
+        # first will cancel the other.
+        # So here I'm checking whether this has happened and cancelling this task in that case.
+        # I really hate this fix, so I'm only putting it in transactions because that's where I'm having the problem,
+        # but it's likely to be a general issue that we miraculously haven't run up against.
+        # We desperately need to get rid of this BonudaryEventParent BS.
+        parent = my_task.parent
+        if isinstance(parent.task_spec, _BoundaryEventParent) and len(
+            [t for t in parent.children if 
+                isinstance(t.task_spec, BoundaryEvent) and 
+                t.task_spec.cancel_activity and 
+                t.state==TaskState.READY
+            ]):
+                my_task._drop_children()
+                my_task._set_state(TaskState.CANCELLED)
+        else:
+            super()._on_complete_hook(my_task)

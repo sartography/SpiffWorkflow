@@ -101,7 +101,17 @@ class BpmnWorkflow(Workflow):
 
     def connect_subprocess(self, spec_name, name):
         # This creates a new task associated with a process when an event that kicks of a process is received
-        new = CallActivity(self.spec, name, spec_name)
+        # I need to know what class is being used to create new processes in this case, and this seems slightly
+        # less bad than adding yet another argument.  Still sucks though.
+        # TODO: Make collaborations a class rather than trying to shoehorn them into a process.
+        for spec in self.spec.task_specs.values():
+            if isinstance(spec, CallActivity):
+                spec_class = spec.__class__
+                break
+        else:
+            # Default to the mixin class, which will probably fail in many cases.
+            spec_class = CallActivity
+        new = spec_class(self.spec, name, spec_name)
         self.spec.start.connect(new)
         task = Task(self, new)
         start = self.get_tasks_from_spec_name('Start', workflow=self)[0]
@@ -142,7 +152,7 @@ class BpmnWorkflow(Workflow):
         :param event_definition: the thrown event
         """
         # Start a subprocess for known specs with start events that catch this
-        # This is total hypocritical of me given how I've argued that specs should
+        # This is totally hypocritical of me given how I've argued that specs should
         # be immutable, but I see no other way of doing this.
         for name, spec in self.subprocess_specs.items():
             for task_spec in list(spec.task_specs.values()):

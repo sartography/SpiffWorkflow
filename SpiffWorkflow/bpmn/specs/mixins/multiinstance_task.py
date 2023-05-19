@@ -59,7 +59,9 @@ class StandardLoopTask(LoopTask):
 
     def _update_hook(self, my_task):
 
-        super()._update_hook(my_task)
+        if my_task.state != TaskState.WAITING:
+            super()._update_hook(my_task)
+
         child_running = self.process_children(my_task)
         if child_running:
             # We're in the middle of an iteration; we're not done and we can't create a new task
@@ -72,7 +74,7 @@ class StandardLoopTask(LoopTask):
             if my_task.state != TaskState.WAITING:
                 my_task._set_state(TaskState.WAITING)
             task_spec = my_task.workflow.spec.task_specs[self.task_spec]
-            child = my_task._add_child(task_spec, TaskState.READY)
+            child = my_task._add_child(task_spec, TaskState.WAITING)
             child.data = deepcopy(my_task.data)
 
     def child_completed_action(self, my_task, child):
