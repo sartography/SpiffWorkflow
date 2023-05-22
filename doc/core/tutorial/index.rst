@@ -7,7 +7,7 @@ Introduction
 In this chapter we are going to use Spiff Workflow to solve a real-world
 problem: We will create a workflow for triggering a nuclear strike.
 
-We are assuming that you are familiar with the :doc:`../basics`.
+We are assuming that you are familiar with the :doc:`../../concepts`.
 
 Assume you want to send the rockets, but only after both the president and
 a general have signed off on it.

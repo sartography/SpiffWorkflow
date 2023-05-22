@@ -7,9 +7,8 @@ Introduction
 In this second tutorial, we are going to implement our own task, and
 use serialization and deserialization to store and restore it.
 
-If you haven't already, you should complete the first
-:doc:`../tutorial/index`.
-We are also assuming that you are familiar with the :doc:`../basics`.
+If you haven't already, you should complete the first :doc:`../tutorial/index`.
+We are also assuming that you are familiar with the :doc:`../../concepts`.
 
 Implementing the custom task
 ----------------------------

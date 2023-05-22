@@ -1,99 +1,113 @@
 SpiffWorkflow Concepts
-====================================
+======================
 
-Specification vs. Workflow Instance
------------------------------------
+Specifications vs. Instances
+----------------------------
 
-One critical concept to know about SpiffWorkflow is the difference between a
-:class:`SpiffWorkflow.specs.WorkflowSpec` and :class:`SpiffWorkflow.Workflow` and
-the difference between a :class:`SpiffWorkflow.specs.TaskSpec` and :class:`SpiffWorkflow.Task`.
+SpiffWorkflow consists of two different categories of objects:
 
-In order to understand how to handle a running workflow consider the following process::
+- **Specification objects**, which represent the definitions and derive from :code:`WorkflowSpec` and :code:`TaskSpec`
+- **Instance objects**, which represent the state of a running workflow :code:`Workflow`, :code:`BpmnWorkflow` and :code:`Task`
 
-    Choose product -> Choose amount -> Produce product A
-                                  `--> Produce product B
+In the workflow context, a specification is model of the workflow, an abstraction that describes *every path that could
+be taken whenever the workflow is executed*.  An instance is a particular instantiation of a specification.  It describes *the
+current state* or *the path(s) that were actually taken when the workflow ran*.
 
-As you can see, in this case the process resembles a simple tree. *Choose product*,
-*Choose amount*, *Produce product A*, and *Produce product B* are all specific kinds
-of *task specifications*, and the whole process is a *workflow specification*.
+In the task context, a specification is a model for how a task behaves.  It describes the mechanisms for deciding *whether
+there are preconditions for running an associated task*, *how to decide whether they are met*, and *what it means to complete
+(successfully or unsuccessfully)*.  An instance describes the *state of the task, in the context of the workflow* and *contains
+the data used to manage that state*.
 
-But when you execute the workflow, the path taken does not necessarily have the same shape. For example, if the user chooses to produce 3 items of product A, the path taken looks like the following::
+The key difference is that specifications are unique, whereas instances are not.  There is *one* model of a workflow, and *one*
+specification for a particular task.
 
-    Choose product -> Choose amount -> Produce product A
-                                  |--> Produce product A
-                                  `--> Produce product A
+Imagine a workflow with a loop.  The loop is defined once in the specification, but there can be many tasks associated with
+each of the specs that comprise the loop.
 
-This is the reason why you will find two different categories of objects in Spiff Workflow:
+In our BPMN example, described a product selection process.::
 
-- **Specification objects** (WorkflowSpec and TaskSpec) represent the workflow definition, and
-- **derivation tree objects** (Workflow and Task) model the task tree that represents the state of a running workflow.
+    Start -> Select and Customize Product -> Continue Shopping?
 
-Understanding task states
--------------------------
+Since the customer can potentially select more than one product, how our instance looks depends on the customer's actions.  If
+they choose three products, then we get the following tree::
 
-The following task states exist:
+    Start --> Select and Customize Product -> Continue Shopping?
+          |-> Select and Customize Product -> Continue Shopping?
+          |-> Select and Customize Product -> Continue Shopping?
 
-.. image:: figures/state-diagram.png
+There is *one* TaskSpec describing product selection and customization and *one* TaskSpec that determines whether to add more
+items, but it may execute any number of imes, resulting in as many Tasks for these TaskSpecs as the number of products the
+customer selects.
 
-The states are reached in a strict order and the lines in the diagram show the possible state transitions.
+Understanding Task Statess
+--------------------------
 
-The order of these state transitions is violated only in one case: A *Trigger* task may add additional work to a task that was already COMPLETED, causing it to change the state back to FUTURE.
+* **Predicted Tasks**
 
-- **MAYBE** means that the task will possibly, but not necessarily run at a future time. This means that it can not yet be fully determined as to whether or not it may run, for example, because the execution still depends on the outcome of an ExclusiveChoice task in the path that leads towards it.
+  A predicted task is one that will possibly, but not necessarily run at a future time.  For example, if a task follows a
+  conditional gateway, which path is taken won't be known until the gateway is reached and the conditions evaluated.  There
+  are two types of predicted tasks:
 
-- **LIKELY** is like MAYBE, except it is considered to have a higher probability of being reached because the path leading towards it is the default choice in an ExclusiveChoice task.
+  - **MAYBE**: The task is part of a conditional path
+  - **LIKELY** : The task is the default output on a conditional path
 
-- **FUTURE** means that the processor has predicted that this this path will be taken and this task will, at some point, definitely run. (Unless the task is explicitly set to CANCELLED, which can not be predicted.) If a task is waiting on predecessors to run then it is in FUTURE state (not WAITING).
+* **Definite Tasks**
 
-- **WAITING** means *I am in the process of doing my work and have not finished. When the work is finished, then I will be READY for completion and will go to READY state*. WAITING is an optional state.
+  Definite tasks are certain to run as the workflow pregresses.
 
-- **READY** means "the preconditions for marking this task as complete are met".
+  - **FUTURE**: The task will definitely run.
+  - **WAITING**: A condition must be met before the task can become **READY**
+  - **READY**: The preconditions for running this task have been met
+  - **STARTED**: The task has started running but has not finished
 
-- **COMPLETED** means that the task is done.
+* **Finished Tasks**
 
-- **CANCELLED** means that the task was explicitly cancelled, for example by a CancelTask operation.
+  A finished task is one where no further action will be taken.
 
-Associating data with a workflow
---------------------------------
+  - **COMPLETED**: The task finished successfully.
+  - **ERROR**: The task finished unsucessfully.
+  - **CANCELLED**: The task was cancelled before it ran or while it was running.
 
-The difference between *specification objects* and *derivation tree objects* is also important when choosing how to store data in a workflow. Spiff Workflow supports storing data in two ways:
+Tasks start in either a **PREDICTED** or **FUTURE** state, move through one or more **DEFINITE** states, and end in a
+**FINISHED** state.  State changes are determined by several task spec methods:
 
-- **Task spec data** is stored in the TaskSpec object. In other words, if a task causes task spec data to change, that change is reflected to all other instances in the derivation tree that use the TaskSpec object.
-- **Task data** is local to the Task object, but is carried along to the children of each Task object in the derivation tree as the workflow progresses.
+* `update_hook`: This method will be run by a task's predecessor when the predecessor completes.  The method checks the
+  preconditions for running the task and returns a boolean indicating whether a task should become **READY**.  Otherwise,
+  the state will be set to **WAITING**.
 
-Internal Details
-----------------
+* `_on_ready_hook`: This method will be run when the task becomes **READY** (but before it runs).
 
-A **derivation tree** is created based off of the spec using a hierarchy of
-:class:`SpiffWorkflow.Task` objects (not :class:`SpiffWorkflow.specs.TaskSpec` objects!).
-Each Task contains a reference to the TaskSpec that generated it.
+* `run_hook`: This method implements the task's behavior when it is run, returning:
 
-Think of a derivation tree as tree of execution paths (some, but not all, of
-which will end up executing). Each Task object is basically a node in the
-derivation tree. Each task in the tree links back to its parent (there are
-no connection objects). The processing is done by walking down the
-derivation tree one Task at a time and moving the task (and its
-children) through the sequence of states towards completion.
+  - :code:`True` if the task completed successfully.  The state will transition to **COMPLETED**.
+  - :code:`False` if the task completed unsucessfully.  The state will transition to **ERRROR**.
+  - :code:`None` if the task has not completed.  The state will transition to **STARTED**.
+  
+* `_on_complete_hook`: This method will be run when the task's state is changed to **COMPLETED**.
 
-You can serialize/deserialize specs. You can also
-serialize/deserialize a running workflow (it will pull in its spec as well).
+* `_on_error_hook`: This method will be run when the task's state is changed to **ERROR**.
 
-There's a decent eventing model that allows you to tie in to and receive
-events (for each task, you can get event notifications from its TaskSpec).
-The events correspond with how the processing is going in the derivation
-tree, not necessarily how the workflow as a whole is moving.
-See :class:`SpiffWorkflow.specs.TaskSpec` for docs on events.
+* `_on_trigger`: This method executes the task's behavior when it is triggered (`Trigger` tasks only).
 
-You can nest workflows (using the :class:`SpiffWorkflow.specs.SubWorkflowSpec`).
+Task Prediction
+---------------
 
-The serialization code is done well which makes it easy to add new formats
-if we need to support them.
+Each TaskSpec also has a `_predict_hook` method, which is used to set the state of not-yet-executed children.  The behavior
+of `_predict_hook` varies by TaskSpec.  This is the mechanism that determines whether tasks are **FUTURE**, **LIKELY**, or
+**MAYBE**.  When a workflow is created, a task tree is generated that contains all definite paths, and branches of
+**PREDICTED** tasks with a maximum length of two.  If a **PREDICTED** task becomes **DEFINITE**, the Task's descenadants
+are re-predicted.  If it's determined that a **PREDICTED** will not run, the task and all its descendants will be dropped
+from the tree.  By default `_on_predict_hook` will ignore **DEFINITE** tasks, but this can be overridden by providing a
+mask of `TaskState` values that specifies states other than **PREDICTED**.
 
+Where Data is Stored
+--------------------
 
-Other documentation
--------------------
+Data can ba associated with worklows in the following ways:
 
-**API documentation** is currently embedded into the Spiff Workflow source code and not yet made available in a prettier form.
+- **Workflow data** is stored on the Workflow, with changes affecting all Tasks.
+- **Task data** is local to the Task, initialized from the data of the Task's parent.
+- **Task internal data** is local to the Task and not passed to the Task's children
+- **Task spec data** is stored in the TaskSpec object, and if updated, the updates will apply to any Task that references the spec
+  (unused by the :code:`bpmn` package and derivatives).
 
-If you need more help, please create an issue in our
-`issue tracker <https://github.com/knipknap/SpiffWorkflow/issues>`_.
