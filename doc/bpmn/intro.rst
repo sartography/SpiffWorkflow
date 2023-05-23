@@ -3,7 +3,7 @@ BPMN Workflows
 
 The basic idea of SpiffWorkflow is that you can use it to write an interpreter
 in Python that creates business applications from BPMN models.  In this section,
-we'll develop a model of an example process and as well as a
+we'll develop a model of a reasonably complex process and as well as a
 simple workflow runner.
 
 We expect that readers will fall into two general categories:
@@ -34,7 +34,7 @@ command:
 
 .. code-block:: console
 
-   ./spiff-bpmn-runner.py -p order_product \
+   ./spiff-bpmn-runner.py -c order_collboration \
         -d bpmn/tutorial/{product_prices,shipping_costs}.dmn \
         -b bpmn/tutorial/{top_level_multi,call_activity_multi}.bpmn
 
@@ -43,7 +43,7 @@ For a full description of program options:
 
 .. code-block:: console
 
-   ./run.py --help
+   ./spiff-bpmn-runner.py --help
 
 The code in the workflow runner and the models in the bpmn directory of the
 repository will be discussed in the remainder of this tutorial.

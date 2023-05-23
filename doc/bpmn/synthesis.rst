@@ -215,11 +215,13 @@ complete.
             human_tasks = [t for t in runnable if t.task_spec.manual]
             current_tasks = human_tasks if not step else runnable
 
+            self.list_tasks(tasks, 'Ready and Waiting Tasks')
             if len(current_tasks) > 0:
-                self.list_tasks(tasks, 'Ready and Waiting Tasks')
                 action = self.show_workflow_options(current_tasks)
             else:
                 action = None
+                if len(tasks) > 0:
+                    input("\nPress any key to update task list")
 
 In the code above we first get the list of all `READY` or `WAITING` tasks; these are the currently active tasks.
 `READY` tasks can be run, and `WAITING` tasks may change to `READY` (see :doc:`../concepts` for a discussion of task 
@@ -229,6 +231,11 @@ We can further filter our runnable tasks on the :code:`task_spec.manual` attribu
 workflow, we'll present the entire list; otherwise only the human tasks.  There are actually many points where no
 human tasks are available to execute; the :code:`advance` method runs the other runnable tasks if we've opted to
 skip displaying them; we'll look at that method after this one.
+
+There may also be points where there are no runnable tasks at all (for example, if the entire process is waiting
+on a timer).  In that case, we'll do nothing until the user indicates we can proceeed (the timer will fire
+regardless of what the user does -- we're just preventing this loop from executing repeatedly when there's nothing
+to do).
 
 .. code:: python
 

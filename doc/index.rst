@@ -14,20 +14,19 @@
 .. image:: https://img.shields.io/github/license/sartography/SpiffWorkflow.svg
     :target: https://github.com/sartography/SpiffWorkflow/blob/master/COPYING
 
+
 What is SpiffWorkflow?
 ======================
+
 .. image:: images/logo.png
     :align: center
     :target: https://www.spiffworkflow.org
 
-SpiffWorkflow is a library that provides a flexible workflow execution environment.
+**SpiffWorkflow is a library that provides a flexible workflow execution environment.**
 
 Recent development has largely focused on allowing Python applications to process
-BPMN diagrams.
-
-SpiffWorkflow allows your python application to process BPMN diagrams (think
-of them as very powerful flow charts,  See :doc:`bpmn/intro`.) to accomplish
-what would otherwise require writing a lot of complex business logic in your
+BPMN diagrams (think of them as very powerful flow charts; see :doc:`bpmn/intro`). to
+accomplish what would otherwise require writing a lot of complex business logic in your
 code. You can use these diagrams to accomplish a number of tasks, such as:
 
  - Creating a questionnaire with multiple complex paths

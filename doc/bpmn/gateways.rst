@@ -20,7 +20,7 @@ We'll be using the following files from `spiff-example-cli <https://github.com/s
 Exclusive Gateway
 ^^^^^^^^^^^^^^^^^
 
-Exclusive gateways are used when exactly one alternative can be selected.
+Exclusive Gateways are used when exactly one alternative can be selected.
 
 Suppose our products are T-shirts and we offer product C in several colors.  After
 the user selects a product, we check to see it if is customizable. Our default
@@ -44,7 +44,7 @@ Parallel Gateway
    leave it blank to avoid visual clutter.  I've put a description of the
    gateway into the ID field instead.
 
-Parallel gateways are used when the subsequent tasks do not need to be completed
+Parallel Gateways are used when the subsequent tasks do not need to be completed
 in any particular order.  The user can complete them in any sequence and the
 workflow will wait for all tasks to be finished before advancing.
 

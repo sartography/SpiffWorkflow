@@ -38,7 +38,6 @@ SpiffWorkflowException
 - **task_spec**:  The TaskSpec - the specific Task, Gateway, etc... that caused the error to happen.
 - **error**:  a human readable error message describing the problem.
 
-and call activities to show where an error occurred.  Useful if the error happened within a deeply nested structure (where call activities include call activities ....)
 
 WorkflowDataException
 ---------------------
@@ -61,6 +60,12 @@ WorkflowTaskException
 **Extends**
 WorkflowException
 
+It will accept the line_number and error_line as arguments - if the
+underlying error provided is a SyntaxError it will try to derive this
+information from the error.
+If this is a name error, it will attempt to calculate a did-you-mean
+error_msg.
+
 **Attributes/Methods**
 
 (in addition to the values in a WorkflowException)
@@ -71,11 +76,8 @@ WorkflowException
  - **line_number** The line number that contains the error
  - **offset** The point in the line that caused the error
  - **error_line** The content of the line that caused the error.
- - **get_task_trace**:  Provided a specific Task, will work it's way through the workflow / sub-processes
+ - **get_task_trace**:  Provided a specific Task, will work it's way through the workflow/sub-processes and 
+   call activities to show where an error occurred.  Useful if the error happened within a deeply nested 
+   structure (where call activities include call activities ....)
  - **did_you_mean_name_error**: Compares a missing data value with the contents of the data
 
-It will accept the line_number and error_line as arguments - if the
-underlying error provided is a SyntaxError it will try to derive this
-information from the error.
-If this is a name error, it will attempt to calculate a did-you-mean
-error_msg.

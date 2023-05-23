@@ -7,7 +7,7 @@ User Tasks
 Creating a User Task
 ^^^^^^^^^^^^^^^^^^^^
 
-When you click on a user task in a BPMN modeler, the Properties Panel includes a form tab. Use this
+When you click on a user task in the BPMN modeler, the Properties Panel includes a form tab. Use this
 tab to build your questions.
 
 The following example shows how a form might be set up in Camumda.
@@ -46,7 +46,7 @@ following command:
 
 .. code-block:: console
 
-   ./camunda-bpmn-runner.py -p order_product -d bpmn/camunda/product_prices.dmn -b bpmn/camunda/task_types.bpmn
+   ./camunda-bpmn-runner.py -p order_product -d bpmn/tutorial/product_prices.dmn -b bpmn/camunda/task_types.bpmn
 
 Example Application Code
 ------------------------

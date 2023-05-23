@@ -15,7 +15,7 @@ We'll be using the following files from `spiff-example-cli <https://github.com/s
 User Tasks
 ^^^^^^^^^^
 
-User tasks would typically be used in the case where the task would be completed from within the
+User Tasks would typically be used in the case where the task would be completed from within the
 application. Our User tasks present forms that collect data from users.
 
 We'll ask our hypothetical user to choose a product and quantity.
@@ -41,7 +41,7 @@ We have some support for Camunda forms: :doc:`camunda/tasks`.
 Business Rule Tasks
 ^^^^^^^^^^^^^^^^^^^
 
-In our business rule task, we'll use a DMN table to look up the price of the
+In our Business Rule Task, we'll use a DMN table to look up the price of the
 product the user chose.
 
 We'll need to create a DMN table.
@@ -89,7 +89,7 @@ Script Tasks
 ^^^^^^^^^^^^
 
 The total order cost will need to be calculated on the fly.  We can do this in
-a script task.  We'll configure the task with some simple Python code.
+a Script Task.  We'll configure the task with some simple Python code.
 
 .. figure:: figures/tasks/script_task.png
    :scale: 30%
@@ -103,11 +103,11 @@ have been defined previously will be available to it.
 Manual Tasks
 ^^^^^^^^^^^^
 
-Our final task type is a manual task.  We would use this task in the situation
+Our final task type is a Manual Task.  We would use this task in the situation
 where the application might simply need to mark a task that requires user
 involvement complete without gathering any additional information from them.
 
-Text that will be displayed to the user is add in the "Instructions" panel.
+Text that will be displayed to the user is added in the "Instructions" panel.
 
 .. figure:: figures/tasks/manual_task.png
    :scale: 30%
@@ -117,7 +117,9 @@ Text that will be displayed to the user is add in the "Instructions" panel.
 
 Spiff's manual tasks may contain references to data inside the workflow.  We have used 
 `Jinja <https://jinja.palletsprojects.com/en/3.0.x/>`_, but Spiff is set up in a way that
-you could use any templating library you want,
+you could use any templating library you want, as well as Mrkdown formatting directives
+(we won't implement those there though, because it doesn't make sense for a command
+line app).
 
 .. figure:: figures/tasks/manual_task_instructions.png
    :scale: 30%
@@ -125,17 +127,15 @@ you could use any templating library you want,
 
    Editing Instructions
 
-
 See the `Handling Manual Tasks`_ section for a discussion of sample code.
 
-For information about how Spiff handles Manual tasks created with Camunda:
+For information about how Spiff handles Manual Tasks created with Camunda:
 :doc:`camunda/tasks`.
 
 Running The Model
 ^^^^^^^^^^^^^^^^^
 
-If you have set up our example repository, this model can be run with the
-following command:
+If you have set up our example repository, this model can be run with the following command:
 
 .. code-block:: console
 
@@ -177,7 +177,7 @@ line appliction is a little awkward.  The form specifications can be quite compl
 
 This simple implementation will present a list of options for simple enumerated fields and simply
 directly stores whatever the user enters otherwise, with integer conversions if the field is so
-specificed.  This is robust enough to collect enough information from a user to make it through our example.
+specified.  This is robust enough to collect enough information from a user to make it through our example.
 
 SpiffWorkflow provides a mechanism for you to provide your own form specification and leaves it up to you
 to decide how to present it.
@@ -186,15 +186,15 @@ to decide how to present it.
 Handling Business Rule Tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We do not need to do any special configuration to handle these business ruletasks.  SpiffWorkflow does it all for us.
+We do not need to do any special configuration to handle these Business Rule Tasks.  SpiffWorkflow does it all for us.
 
 Handling Script Tasks
 ^^^^^^^^^^^^^^^^^^^^^
 
-We do not need to do any special configuration to handle script tasks, although it
+We do not need to do any special configuration to handle Script Tasks, although it
 is possible to implement a custom script engine.  We demonstrate that process in
 Custom Script Engines section :doc:`advanced` features.  However, the default script
-engine will be adequate in many cases.
+engine will be adequate for now.
 
 Handling Manual Tasks
 ^^^^^^^^^^^^^^^^^^^^^
@@ -208,8 +208,7 @@ completed.
         display_instructions(task)
         input("Press any key to mark task complete")
 
-:code:`display_instructions()` is the code for converting the "code"`endUserInstructions`
-property of the task into something that can be presented to the user.
+:code:`display_instructions` handles presenting the task to the user.
 
 .. code:: python
 
@@ -227,5 +226,5 @@ using the task data, which is just a dictionary.
 
 .. note::
 
-    Most of Spiff's task specifications contain this extension.  We also use it to display
-    information along with forms, and for several event types.
+    Most of Spiff's task specifications contain this extension, not just Manual Tasks.  We also use it to display
+    information along with forms, and about certain events.

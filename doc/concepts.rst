@@ -7,7 +7,7 @@ Specifications vs. Instances
 SpiffWorkflow consists of two different categories of objects:
 
 - **Specification objects**, which represent the definitions and derive from :code:`WorkflowSpec` and :code:`TaskSpec`
-- **Instance objects**, which represent the state of a running workflow :code:`Workflow`, :code:`BpmnWorkflow` and :code:`Task`
+- **Instance objects**, which represent the state of a running workflow (:code:`Workflow`, :code:`BpmnWorkflow` and :code:`Task`)
 
 In the workflow context, a specification is model of the workflow, an abstraction that describes *every path that could
 be taken whenever the workflow is executed*.  An instance is a particular instantiation of a specification.  It describes *the
@@ -15,11 +15,10 @@ current state* or *the path(s) that were actually taken when the workflow ran*.
 
 In the task context, a specification is a model for how a task behaves.  It describes the mechanisms for deciding *whether
 there are preconditions for running an associated task*, *how to decide whether they are met*, and *what it means to complete
-(successfully or unsuccessfully)*.  An instance describes the *state of the task, in the context of the workflow* and *contains
-the data used to manage that state*.
+(successfully or unsuccessfully)*.  An instance describes the *state of the task, as it pertains to a particular workflow* and
+*contains the data used to manage that state*.
 
-The key difference is that specifications are unique, whereas instances are not.  There is *one* model of a workflow, and *one*
-specification for a particular task.
+Specifications are unique, whereas instances are not.  There is *one* model of a workflow, and *one* specification for a particular task.
 
 Imagine a workflow with a loop.  The loop is defined once in the specification, but there can be many tasks associated with
 each of the specs that comprise the loop.
@@ -39,8 +38,8 @@ There is *one* TaskSpec describing product selection and customization and *one*
 items, but it may execute any number of imes, resulting in as many Tasks for these TaskSpecs as the number of products the
 customer selects.
 
-Understanding Task Statess
---------------------------
+Understanding Task States
+-------------------------
 
 * **Predicted Tasks**
 
@@ -71,7 +70,7 @@ Understanding Task Statess
 Tasks start in either a **PREDICTED** or **FUTURE** state, move through one or more **DEFINITE** states, and end in a
 **FINISHED** state.  State changes are determined by several task spec methods:
 
-* `update_hook`: This method will be run by a task's predecessor when the predecessor completes.  The method checks the
+* `_update_hook`: This method will be run by a task's predecessor when the predecessor completes.  The method checks the
   preconditions for running the task and returns a boolean indicating whether a task should become **READY**.  Otherwise,
   the state will be set to **WAITING**.
 
@@ -93,9 +92,9 @@ Task Prediction
 ---------------
 
 Each TaskSpec also has a `_predict_hook` method, which is used to set the state of not-yet-executed children.  The behavior
-of `_predict_hook` varies by TaskSpec.  This is the mechanism that determines whether tasks are **FUTURE**, **LIKELY**, or
+of `_predict_hook` varies by TaskSpec.  This is the mechanism that determines whether Tasks are **FUTURE**, **LIKELY**, or
 **MAYBE**.  When a workflow is created, a task tree is generated that contains all definite paths, and branches of
-**PREDICTED** tasks with a maximum length of two.  If a **PREDICTED** task becomes **DEFINITE**, the Task's descenadants
+**PREDICTED** tasks with a maximum length of two.  If a **PREDICTED** task becomes **DEFINITE**, the Task's descendants
 are re-predicted.  If it's determined that a **PREDICTED** will not run, the task and all its descendants will be dropped
 from the tree.  By default `_on_predict_hook` will ignore **DEFINITE** tasks, but this can be overridden by providing a
 mask of `TaskState` values that specifies states other than **PREDICTED**.

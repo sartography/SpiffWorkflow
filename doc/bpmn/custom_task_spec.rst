@@ -31,10 +31,12 @@ we'll replace it with a NoneEventDefinition.
 
 .. note::
 
-    Our class inherits from two classes.  We import a mixin class that defines generic BPMN Start Task behavior from
-    :code:`SpiffWorkflow.bpmn.specs.mixins.events.start_event` and the :code:`SpiffBpmnTask`, which extends the default
-    :code:`SpiffWorkflow.bpmn.specs.mixins.bpmn_task_spec.BpmnSpecMixim`.  We've split the basic BPMN behavior for Specification
-    task types from the `BpmnSpecMixin` to make it easier to extend them without running into MRO issues.
+    Our class inherits from two classes.  We import a mixin class that defines generic BPMN Start Event behavior from
+    :code:`StartEvent` in the :code:`bpmn` package and the :code:`SpiffBpmnTask` from the :code:`spiff` package, which
+    extends the default :code:`BpmnSpecMixin`.
+    
+    We've split the basic behavior for specific BPMN tasks from the :code:`BpmnSpecMixin` to make it easier to extend
+    them without running into MRO issues.
 
     In general, if you implement a custom task spec, you'll need to inherit from bases of both categories.
 
@@ -75,13 +77,13 @@ extracting standard attributes from tasks; the :code:`SpiffBpmnTaskConverter` do
 :code:`spiff` package.
 
 We don't have to do much -- all we do is replace the event definition with the original.  The timer event will be
-removed when the task is restored.
+moved when the task is restored.
 
 .. note::
 
     It might be better have the class's init method take both the event definition to use *and* the timer event
-    definition.  Unfortunately, our parser is not terrible intuitive, so I've done it this way to make this a little
-    easier to follow.
+    definition.  Unfortunately, our parser is not terribly intuitive or easily extendable, so I've done it this
+    way to make this a little easier to follow.
 
 When we create our serializer, we need to tell it about this task.  We'll remove the converter for the standard Start
 Event and add the one we created to the confiuration and create the :code:`workflow_spec_converter` from the updated
@@ -90,16 +92,16 @@ config.
 .. note::
 
     We have not instantiated our converter class.  When we call :code:`configure_workflow_spec_converter` with a
-    configuration (which is essentially a list of classes, split up into sections for organization purposes),
+    configuration (which is essentially a list of classes, split up into sections for organizational purposes),
     *it* instantiates the classes for us, using the same `registry` for every class.  At the end of the configuration
     if returns this registry, which now knows about all of the classes that will be used for SpiffWorkflow
     specifications.  It is possible to pass a separately created :code:`DictionaryConverter` preconfigured with
     other converters; in that case, it will be used as the base `registry`, to which specification conversions will
     be added.
     
-Because we've built up the `registry` in such a way, we can make use of the `registry.convert` and `registry.restore`
-methods rather than figuring out how to serialize them, though we didn't need to `restore` anything since the
-default method works fine.
+Because we've built up the `registry` in such a way, we can make use of the :code:`registry.convert` and
+:code:`registry.restore` methods rather than figuring out how to serialize them.  We can use these methods on any
+objects that SpiffWorkflow knows about.
 
 See :doc:`advanced` for more information about the serializer.
 
@@ -126,4 +128,6 @@ I am going to leave creating a script that makes use of them to readers of this 
 how to do.
 
 There is a very simple diagram `bpmn/tutorial/timer_start.bpmn` with the process ID `timer_start` with a Start Event
-with a Duration Timer of one day that can be used to illustrate how the custom task works.
+with a Duration Timer of one day that can be used to illustrate how the custom task works.  If you run this workflow
+with `spiff-bpmn-runner.py`, you'll see a `WAITING` Start Event; if you use the parser and serializer we just created,
+you'll be propmted to complete the User Task immediately.

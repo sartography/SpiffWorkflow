@@ -5,7 +5,7 @@ Supported Workflow Patterns
 
 .. HINT::
    All examples are located
-   `here <https://github.com/knipknap/SpiffWorkflow/blob/master/tests/SpiffWorkflow/data/spiff/>`_.
+   `here <https://github.com/sartography/SpiffWorkflow/tree/main/tests/SpiffWorkflow/core/data>`_
 
 Control-Flow Patterns
 ---------------------

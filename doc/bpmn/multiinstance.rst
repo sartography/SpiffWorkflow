@@ -28,10 +28,10 @@ First we'll update the Call Activity's model to ask the customer if they would l
 
 We've also added a *postScript* to the user task.  Spiffworkflow provides extensions that allow scripts to be
 run before and after tasks.  It is often the case that data needs to be manipulated before and after a task.
-We could add regular script tasks before and after, but diagrams quickly become cluttered with scripts, and
+We could add regular Script Tasks before and after, but diagrams quickly become cluttered with scripts, and
 these extensions are intended to alleviate that.
 
-We use a postscript to add the current product to a list of products.
+We use a *postScript* to add the current product to a list of products.
 
 .. code:: python
 
@@ -44,7 +44,7 @@ We use a postscript to add the current product to a list of products.
    'product_price': product_price,
    })
 
-We'll use a prescript on the first User Task (Select Product and Quantity) to initialize these variables to
+We'll use a *preScript* on the first User Task (Select Product and Quantity) to initialize these variables to
 :code:`None` each time we execute the task.
 
 Loop Tasks run either a specified number of times or until a completion condition is met.  Since we can't
@@ -86,7 +86,7 @@ And our order summary
 Parallel MultiInstance
 ^^^^^^^^^^^^^^^^^^^^^^
 
-We'll also update our 'Retrieve Product' task and 'Product Not Available' flows to
+We'll also update our 'Retrieve Product' Task and 'Product Not Available' flows to
 accommodate multiple products.  We can use a Parallel MultiInstance for this, since
 it does not matter what order our Employee retrieves the products in.
 
@@ -94,7 +94,7 @@ it does not matter what order our Employee retrieves the products in.
    :scale: 30%
    :align: center
 
-   MultiInstance task configuration
+   MultiInstance Task configuration
 
 We've specified :code:`products` as our Input Collection and :code:`product` as our Input Item.  The
 Input Collection should be an existing collection.  We'll create a task instance for each element of
@@ -113,7 +113,7 @@ child task into the Output Collection.
 The 'Retrieve Product' task creates :code:`product_available` from the form input.
 
 Since our input is a list, our output will also be a list.  It is possible to generate different output
-types.  See the :doc:`advanced` section for more details.
+types if you create the output collections before referring to them.
 
 We have to update our gateway condition to handle the list:
 
@@ -127,11 +127,9 @@ We have to update our gateway condition to handle the list:
 Sequential MultiInstance
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-SpiffWorkflow also supports Sequential MultiInstance Tasks for previously defined
-collections, or if the loopCardinality is known in advance, although we have not added an
-example of this to our workflow.
-
-For more information about MultiInstance Tasks and SpiffWorkflow, see :doc:`/bpmn/advanced`.
+SpiffWorkflow also supports Sequential MultiInstance Tasks for collections, or if the loopCardinality
+is known in advance, although we have not added an example of this to our workflow.  Their configuraiton
+is almost idenitcal to the configuration for Parallel MultiInstance Tasks.
 
 Running The Model
 ^^^^^^^^^^^^^^^^^

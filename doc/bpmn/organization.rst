@@ -18,7 +18,7 @@ Lanes
 Lanes are a method in BPMN to distinguish roles for the workflow and who is
 responsible for which actions. In some cases this will be different business
 units, and in some cases this will be different individuals - it really depends
-on the nature of the workflow.  Within a BPMN editor, this is done by choosing the
+on the nature of the workflow.  Within the BPMN editor, this is done by choosing the
 'Create pool/participant' option from the toolbar on the left hand side.
 
 We'll modify our workflow to get the customer's payment information and send it
@@ -43,17 +43,14 @@ For a simple code example of displaying a tasks lane, see `Handling Lanes`_
 Subprocesses
 ^^^^^^^^^^^^
 
-In general, subprocesses are a way of grouping work into smaller units. This, in
-theory, will help us to re-use sections of business logic, but it will also allow
-us to treat groups of work as a unit.
-
-Subprocesses come in two different flavors.  We can create a Subprocess Task, which can be
-expanded or collapsed.  The difference between the two types is visual rather than functional.
-The purpose of a Subprocess Task is to conceptualize a group of tasks as a unit.
+Subprocesses allow us to conceptualize a group of tasks as a unit by creating a 
+mini-workflow inside a task.  Subprocess Tasks come in two different flavors: expanded
+or collapsed.  The difference between the two types is visual rather than functional.  
 
 It also possible to refer to external processes via a Call Activity Task. This
-allows us to 'call' a separate workflow in a different file by referencing the ID of
-the called workflow, which can simplify business logic and make it re-usable.
+allows us to 'call' a separate Process (which might be stored independently of the
+Process we're implementing) by referencing the ID of the called Process, which can simplify
+business logic and make it re-usable.
 
 We'll expand 'Fulfill Order' into sub tasks -- retrieving the product and shipping
 the order -- and create an Expanded Subprocess.
@@ -65,7 +62,7 @@ to customize certain products by size and style in addition to color.
    :scale: 60%
    :align: center
 
-   Updated Product List
+   Updated product list
 
 .. note::
 
@@ -74,8 +71,8 @@ to customize certain products by size and style in addition to color.
    the option of documenting the decisions contained in the table.
 
 Since adding gateways for navigating the new options will add a certain amount of
-clutter to our diagram, we'll create a separate workflow around selecting and
-customizing products and refer to that in our main workflow.
+clutter to our diagram, we'll create a separate workflow for selecting and customizing
+products and refer to that in our main workflow.
 
 .. figure:: figures/organization/call_activity.png
    :scale: 30%
@@ -83,7 +80,7 @@ customizing products and refer to that in our main workflow.
 
    Subworkflow for product selection
 
-We need to make sure the 'Called Element' matches the ID we assigned in the called process.
+We need to make sure the 'Called Element' matches the ID we assigned in the called Process.
 
 .. figure:: figures/organization/top_level.png
    :scale: 30%
@@ -116,13 +113,13 @@ our sample application, we'll simply display which lane a task belongs to.
     def get_task_description(self, task, include_state=True):
 
         task_spec = task.task_spec
-        lane = f'{task_spec.lane}' if task.task_spec.lane is not None else '-'
+        lane = f'{task_spec.lane}' if task_spec.lane is not None else '-'
         name = task_spec.bpmn_name if task_spec.bpmn_name is not None else '-'
+        description = task_spec.description if task_spec.description is not None else 'Task'
         state = f'{task.get_state_name()}' if include_state else ''
-        return f'[{lane}] {name} ({task_spec.bpmn_id}) {state}'
+        return f'[{lane}] {name} ({description}: {task_spec.bpmn_id}) {state}'
 
 The tasks lane can be obtained from :code:`task.task_spec.lane`, which will be :code:`None`
 if the task is not part of a lane.
 
-See the Filtering Tasks Section of :doc:`advanced` more information
-about working with lanes in Spiff.
+See the Filtering Tasks Section of :doc:`advanced` more information about working with lanes in Spiff.

@@ -38,8 +38,9 @@ Today, nearly every process modeling tool supports BPMN in some fashion making i
 learn and use.  This page provides a brief overview, and the following section provides a more 
 in-depth look. There are many resources for additional information about BPMN.
 
-Most of the examples in this guide have been created with our modeler, which is based on the
-`BPMN.js <https://github.com/sartography/bpmn-js-spiffworkflow>`_ BPMN Modeler.
+Most of the examples in this guide have been created with 
+`our modeler <https://github.com/sartography/bpmn-js-spiffworkflow>`_, which is based on
+`bpmn.js <https://bpmn.io/toolkit/bpmn-js/>`_.
 
 
 

@@ -17,15 +17,15 @@ Data Objects
 ^^^^^^^^^^^^
 
  Data Objects exist at a process level and are not visible in the diagram, but when you create a Data Object
- reference, you can choose what Data Object it points to.
+ Reference, you can choose what Data Object it points to.
 
 .. figure:: figures/data/data_object_configuration.png
    :scale: 50%
    :align: center
 
-   Configuring a data object reference
+   Configuring a Data Object Reference
 
-When a Data Output association (a line) is drawn from a task to a Data Object reference, the value is copied
+When a Data Output association (a line) is drawn from a task to a Data Object Reference, the value is copied
 from the task data to the workflow data and removed from the task.  If a Data Input Association is created from
 a Data Object Reference, the value is temporarily copied into the task data while the task is being executed,
 and immediate removed afterwards.
@@ -33,7 +33,7 @@ and immediate removed afterwards.
 This allows sensitive data to be removed from individual tasks (in our example, the customer's credit card
 number).  It can also be used to prevent large objects from being repeatedly copied from task to task.
 
-Multiple Data Object references can point to the same underlying data.  In our example, we use two references
+Multiple Data Object References can point to the same underlying data.  In our example, we use two references
 to the same Data Object to pass the credit card info to both tasks that require it.  On the right panel, we can
 see that only one data object exists in the process.
 
@@ -44,7 +44,7 @@ see that only one data object exists in the process.
    Data objects in a process
 
 If you step through this workflow, you'll see that the card number is not contained in the task data after
-the 'Enter Payment Info' has been completed.
+the 'Enter Payment Info' has been completed but is available to the 'Charge Customer' task later on.
 
 Running The Model
 *****************
@@ -55,7 +55,7 @@ If you have set up our example repository, this model can be run with the follow
 
    ./spiff-bpmn-runner.py -c order_collaboration \
         -d bpmn/tutorial/product_prices.dmn bpmn/tutorial/shipping_costs.dmn \
-        -b bpmn/tutorial/events.bpmn bpmn-spiff/tutorial/call_activity.bpmn
+        -b bpmn/tutorial/events.bpmn bpmn/tutorial/call_activity.bpmn
 
 
 Data Inputs and Outputs
