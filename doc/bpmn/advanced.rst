@@ -373,7 +373,7 @@ And we can simplify the gateways in our 'Call Activity' flows as well now too:
 
    Call Activity with Custom Script Engine
 
-To run this workflow:
+To run this workflow (you'll have to manually change which script engine you import):
 
 .. code-block:: console
 
@@ -389,4 +389,89 @@ script.  We've imported our custom methods into `subprocess.py` so they are auto
 
 This example is needlessly complex for the work we're doing in this case, but the point of the example is to demonstrate
 that this could be a Docker container with a complex environment, an HTTP API running somewhere else entirely.
+
+Service Tasks
+-------------
+
+Let's return to the simpler Custom Script Engine case, ignoring the possibility of running in some external environment.
+
+Each of these functions takes a parameter, and if you expect BPMN authors to use them, it's necessary to let them know
+the functions exist, as well as how to call them.  This is a little inconvenient, so an alternative would be to 
+re-implement them as Service Tasks.
+
+Service Tasks are also executed by the workflow's script engine, but through a different method, with the help of some
+custom extensions in the :code:`spiff` package:
+
+- `operation_name`, the name assigned to the service being called
+- `operation_params`, the parameters the operation requires
+
+This is our script engine and scripting enviroment:
+
+.. code:: python
+
+    service_task_env = TaskDataEnvironment({
+        'product_info_from_dict': product_info_from_dict,
+        'datetime': datetime,
+    })
+
+    class ServiceTaskEngine(PythonScriptEngine):
+
+        def __init__(self):
+            super().__init__(environment=service_task_env)
+
+        def call_service(self, operation_name, operation_params, task_data):
+            if operation_name == 'lookup_product_info':
+                product_info = lookup_product_info(operation_params['product_name']['value'])
+                result = product_info_to_dict(product_info)
+            elif operation_name == 'lookup_shipping_cost':
+                result = lookup_shipping_cost(operation_params['shipping_method']['value'])
+            else:
+                raise Exception("Unknown Service!")
+            return json.dumps(result)
+
+    service_task_engine = ServiceTaskEngine()
+
+Instead of adding our custom functions to the enviroment, we'll override :code:`call_service` and call them directly
+according to the `operation_name` that was given.  The :code:`spiff` Service Task also evaluates the parameters 
+against the task data for us, so we can use those values when we do.  The Service Task will also store our result in
+a user-specified variable.
+
+We need to send the result back as json, so we'll reuse the functions we wrote for the serializer.
+
+The Service Task will assign the dictionary as the operation result, so we'll add a `postScript` to the Service Task
+that retrieves the product information that creates a :code:`ProductInfo` instance from the dictionary, so we need to
+import that too.
+
+The XML for the Service Task looks like this:
+
+.. code:: xml
+
+    <bpmn:serviceTask id="Activity_1ln3xkw" name="Lookup Product Info">
+      <bpmn:extensionElements>
+        <spiffworkflow:serviceTaskOperator id="lookup_product_info" resultVariable="product_info">
+          <spiffworkflow:parameters>
+            <spiffworkflow:parameter id="product_name" type="str" value="product_name"/>
+          </spiffworkflow:parameters>
+        </spiffworkflow:serviceTaskOperator>
+        <spiffworkflow:postScript>product_info = product_info_from_dict(product_info)</spiffworkflow:postScript>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_104dmrv</bpmn:incoming>
+      <bpmn:outgoing>Flow_06k811b</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+Getting this information into the task is a little bit beyond the scope of this tutorial, as it involves more than
+just SpiffWorkflow.  I hand edited this XML; I do not recommend that (though it worked well enough for this case).
+
+Our `bpmn.js <https://github.com/sartography/bpmn-js-spiffworkflow>`_ has a means of providing a list of services and
+their parameters that can be displayed to a BPMN author.  There is an example of hard-coding a list of services in
+`app.js <https://github.com/sartography/bpmn-js-spiffworkflow/blob/0a9db509a0e85aa7adecc8301d8fbca9db75ac7c/app/app.js#L47>`_
+and as suggested, you could replace this with a API call.
+
+How this all works is obviously heavily dependent on your application, so we won't go into further detail here.
+
+To run this workflow (you'll have to manually change which script engine you import):
+
+.. code-block:: console
+
+    ./spiff-bpmn-runner.py -p order_product -b bpmn/tutorial/top_level_service_task.bpmn bpmn/tutorial/call_activity_service_task.bpmn
 

@@ -79,6 +79,14 @@ Features in More Depth
 
    advanced
 
+Custom Task Specs
+-----------------
+
+.. toctree::
+   :maxdepth: 2
+
+   custom_task_spec
+
 Exceptions
 ----------
 
