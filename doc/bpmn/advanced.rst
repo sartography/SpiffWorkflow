@@ -16,7 +16,7 @@ BPMN Tasks have the following additional attributes.
 
 * `bpmn_id`: the ID of the BPMN Task (this will be :code:`None` if the task is not visible on the diagram)
 * `bpmn_name`: the BPMN name of the Task
-* `lame`: the lane of the BPMN Task
+* `lane`: the lane of the BPMN Task
 * `documentation`: the contents of the BPMN `documentation` element for the Task
 * `data_input_associations`: a list of incoming data object references
 * `data_output_associtions`: a list of outgoing data object references
@@ -44,7 +44,7 @@ To retrieve a list of tasks associated with a particular task spec, use :code:`w
 
 .. code:: python
 
-    tasks = workflow.get_tasks_from_spec_name('customize_product')    
+    tasks = workflow.get_tasks_from_spec_name('customize_product')
 
 will return a list containing the Call Actitivities for the customization of a product in our example workflow.
 
@@ -76,7 +76,7 @@ to create a list of all tasks.  It is also possible to start from a particular s
 
 .. code:: python
 
-    tasks = workflow.get_tasks_from_spec_name('customize_prodcut')
+    tasks = workflow.get_tasks_from_spec_name('customize_product')
     subprocess = workflow.get_subprocess(tasks[0])
     subprocess_tasks = workflow.get_tasks(workflow=subprocess)
 
@@ -126,11 +126,11 @@ See the example in :doc:`synthesis` for the basics of creating a parser.  The pa
 
 - a set of namespaces (useful if you have custom extensions)
 - a BPMN Validator (the one in the :code:`bpmn` package validates against the BPMN 2.0 spec)
-- a mapping of XML tag to Task Spec Descriptions.  The default set of descriptions can be found in 
+- a mapping of XML tag to Task Spec Descriptions.  The default set of descriptions can be found in
   :code:`SpiffWorkflow.bpmn.parser.spec_descriptions`.  These values will be added to the Task Spec in the `description` attribute
   and are intended as a user-friendly description of what the task is.
 
-The :code:`BpmnValidator` can be used and extended independently of the parser as well; call :code:`validate` with 
+The :code:`BpmnValidator` can be used and extended independently of the parser as well; call :code:`validate` with
 an :code:`lxml` parsed tree.
 
 Loading BPMN Files
@@ -150,7 +150,7 @@ The following methods are available for discovering the names of processes and D
 - :code:`find_all_spec`: Returns a mapping of name -> :code:`BpmnWorkflowSpec` for all processes used in all files that have been
   provided to the parser at that point.
 - :code:`get_process_dependences`: Returns a list of process IDs referenced by the provided process ID
-- :code:`get_dmn_dependencies`: Returns a list of DMN IDs referenced byt he provided process ID
+- :code:`get_dmn_dependencies`: Returns a list of DMN IDs referenced by the provided process ID
 
 
 Serialization
@@ -171,7 +171,7 @@ Serializing Custom Objects
 In `Custom Script Engines`_ , we add some custom methods and objects to our scripting environment.  We create a simple
 class (a :code:`namedtuple`) that holds the product information for each product.
 
-We'd like to be ble to save and restore our custom object.
+We'd like to be able to save and restore our custom object.
 
 .. code:: python
 
@@ -398,7 +398,7 @@ that this could be a Docker container with a complex environment, an HTTP API ru
 
     Note that our execute method returns :code:`True`.  We could check the status of our process here and return
     :code:`False` to force our task into an `ERROR` state if the task failed to execute.
-    
+
     We could also return :code:`None`
     if the task is not finished; this will cause the task to go into the `STARTED` state.  You would have to manually
     complete a task that has been `STARTED`.  The purpose of the state is to tell SpiffWorkflow your application will
@@ -410,19 +410,14 @@ that this could be a Docker container with a complex environment, an HTTP API ru
 Service Tasks
 -------------
 
-Let's return to the simpler Custom Script Engine case, ignoring the possibility of running in some external environment.
-
-Each of these functions takes a parameter, and if you expect BPMN authors to use them, it's necessary to let them know
-the functions exist, as well as how to call them.  This is a little inconvenient, so an alternative would be to 
-re-implement them as Service Tasks.
-
 Service Tasks are also executed by the workflow's script engine, but through a different method, with the help of some
 custom extensions in the :code:`spiff` package:
 
 - `operation_name`, the name assigned to the service being called
 - `operation_params`, the parameters the operation requires
 
-This is our script engine and scripting enviroment:
+
+This is our script engine and scripting environment:
 
 .. code:: python
 
@@ -449,7 +444,7 @@ This is our script engine and scripting enviroment:
     service_task_engine = ServiceTaskEngine()
 
 Instead of adding our custom functions to the enviroment, we'll override :code:`call_service` and call them directly
-according to the `operation_name` that was given.  The :code:`spiff` Service Task also evaluates the parameters 
+according to the `operation_name` that was given.  The :code:`spiff` Service Task also evaluates the parameters
 against the task data for us, so we can pass those in directly.  The Service Task will also store our result in
 a user-specified variable.
 
@@ -483,8 +478,8 @@ Our `modeler <https://github.com/sartography/bpmn-js-spiffworkflow>`_ has a mean
 their parameters that can be displayed to a BPMN author in the Service Task configurtion panel.  There is an example of
 hard-coding a list of services in
 `app.js <https://github.com/sartography/bpmn-js-spiffworkflow/blob/0a9db509a0e85aa7adecc8301d8fbca9db75ac7c/app/app.js#L47>`_
-and as suggested, it would be reasonably straightforward to replace this with a API call.  SpiffArena has robust
-mechanisms for handling this that might serve as a model for you.
+and as suggested, it would be reasonably straightforward to replace this with a API call.  `SpiffArena <https://www.spiffworkflow.org/posts/articles/get_started/>`_
+has robust mechanisms for handling this that might serve as a model for you.
 
 How this all works is obviously heavily dependent on your application, so we won't go into further detail here, except
 to give you a bare bones starting point for implementing something yourself that meets your own needs.

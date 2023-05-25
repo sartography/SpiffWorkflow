@@ -16,7 +16,7 @@ We'll be using the following files from `spiff-example-cli <https://github.com/s
 Data Objects
 ^^^^^^^^^^^^
 
- Data Objects exist at a process level and are not visible in the diagram, but when you create a Data Object
+ Data Objects exist at the process level and are not visible in the diagram, but when you create a Data Object
  Reference, you can choose what Data Object it points to.
 
 .. figure:: figures/data/data_object_configuration.png
@@ -61,17 +61,16 @@ If you have set up our example repository, this model can be run with the follow
 Data Inputs and Outputs
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-In complex workflows, it useful to be able to specify required Data Inputs and Outputs, especially for Call Activities
+In complex workflows, it is useful to be able to specify required Data Inputs and Outputs, especially for Call Activities
 given that they are external and might be shared across many different processes.
 
 When you add a Data Input to a Call Activity, SpiffWorkflow will check that a variable with that name is available to
-be copied into the activity and copy *only* the variables you've specified as inputs.  When you add a Data Output, 
+be copied into the activity and copy *only* the variables you've specified as inputs.  When you add a Data Output,
 SpiffWorkflow will copy *only* the variables you've specified from the Call Activity at the end of the process.  If any
 of the variables are missing, SpiffWorkflow will raise an error.
 
 Our product customization Call Activity does not require any input, but the output of the process is the product
 name and quantity.  We can add corresponding Data Outputs for those.
-
 .. figure:: figures/data/data_output.png
    :scale: 30%
    :align: center

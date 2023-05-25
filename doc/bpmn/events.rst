@@ -220,11 +220,11 @@ In BPMN, Messages are used to communicate across processes.  Technically, Messag
 intended to be used inside a single Process, but Spiff does support this use.
 
 Messages are similar to Signals, in that they are referenced by name, but they have the
-additional property that they may contain a payload.  The payload is a bit of python code that will be 
-evaluated against the task data and sent along with the Message.  In the corresponding Message Catch 
+additional property that they may contain a payload.  The payload is a bit of python code that will be
+evaluated against the task data and sent along with the Message.  In the corresponding Message Catch
 Event or Receive Task, we define a variable name where we'll store the result.
 
-We've added a QA process to our model, which will be initiated whenever an order takes to long
+We've added a QA process to our model, which will be initiated whenever an order takes too long
 to fulfill.  We'll send the reason for the delay in the Message.
 
 Spiff Messages can also optionally use Correlation Keys.  The Correlation Key is an expression or set of

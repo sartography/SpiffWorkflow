@@ -31,7 +31,8 @@ code. You can use these diagrams to accomplish a number of tasks, such as:
 
  - Creating a questionnaire with multiple complex paths
  - Implement an approval process that requires input from multiple users
- - Allow non-programmers to modify the flow and behavior of your application.
+ - Allow non-programmers to modify the flow and behavior of your application
+ - Visualize and manage long running data processing tasks
 
 Please visit `SpiffWorkflow.org <https://www.spiffworkflow.org>`_ for
 additional articles, videos, and tutorials about SpiffWorkflow and its

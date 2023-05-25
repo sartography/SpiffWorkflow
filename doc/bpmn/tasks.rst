@@ -7,7 +7,7 @@ BPMN Model
 In this example, we'll model a customer selecting a product to illustrate the basic task types that
 can be used with SpiffWorkflow.
 
-We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
+We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_:
 
 - `task_types <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/task_types.bpmn>`_ workflow
 - `product_prices <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/product_prices.dmn>`_ DMN table
@@ -36,7 +36,9 @@ We can use the form builder to create the form.
 
 See the `Handling User Tasks`_ section for a discussion of sample code.
 
-We have some support for Camunda forms: :doc:`camunda/tasks`.
+We have also retained some limited support for the now deprecated
+camunda forms, which you can read about in our Camunda Specific section on :doc:`camunda/tasks`.
+
 
 Business Rule Tasks
 ^^^^^^^^^^^^^^^^^^^
@@ -103,9 +105,11 @@ have been defined previously will be available to it.
 Manual Tasks
 ^^^^^^^^^^^^
 
-Our final task type is a Manual Task.  We would use this task in the situation
-where the application might simply need to mark a task that requires user
-involvement complete without gathering any additional information from them.
+Our final task type is a Manual Task.  Manual Tasks represent work that occures
+outside of SpiffWorkflow's control.  Say that you need to include a step in a
+process where the participant needs to stand up, walk over to the coffee maker,
+and poor the cup of coffee.  Manual Tasks pause the process, and wait for
+confirmation that the step was completed.
 
 Text that will be displayed to the user is added in the "Instructions" panel.
 
@@ -115,10 +119,10 @@ Text that will be displayed to the user is added in the "Instructions" panel.
 
    Manual Task
 
-Spiff's manual tasks may contain references to data inside the workflow.  We have used 
+Spiff's manual tasks may contain references to data inside the workflow.  We have used
 `Jinja <https://jinja.palletsprojects.com/en/3.0.x/>`_, but Spiff is set up in a way that
-you could use any templating library you want, as well as Mrkdown formatting directives
-(we won't implement those there though, because it doesn't make sense for a command
+you could use any templating library you want, as well as Markdown formatting directives
+(we won't implement those here though, because it doesn't make sense for a command
 line app).
 
 .. figure:: figures/tasks/manual_task_instructions.png
@@ -129,8 +133,8 @@ line app).
 
 See the `Handling Manual Tasks`_ section for a discussion of sample code.
 
-For information about how Spiff handles Manual Tasks created with Camunda:
-:doc:`camunda/tasks`.
+For information about how Spiff handles Manual Tasks created with Camunda please
+refer to the Camunda Specific section on :doc:`camunda/tasks`.
 
 Running The Model
 ^^^^^^^^^^^^^^^^^
@@ -171,8 +175,8 @@ responses.
             task.data[field] = response
 
 SpiffWorkflow uses JSON Schema to represent forms, specifically
-`react-jsonschema-form <https://react-jsonschema-form.readthedocs.io/en/latest/>`_. 
-Our forms are really intended to be displayed in a browser, and attempting to handle them in a command 
+`react-jsonschema-form <https://react-jsonschema-form.readthedocs.io/en/latest/>`_.
+Our forms are really intended to be displayed in a browser, and attempting to handle them in a command
 line appliction is a little awkward.  The form specifications can be quite complex.
 
 This simple implementation will present a list of options for simple enumerated fields and simply

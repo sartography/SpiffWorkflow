@@ -41,7 +41,7 @@ customer selects.
 Understanding Task States
 -------------------------
 
-* **Predicted Tasks**
+* **PREDICTED** Tasks
 
   A predicted task is one that will possibly, but not necessarily run at a future time.  For example, if a task follows a
   conditional gateway, which path is taken won't be known until the gateway is reached and the conditions evaluated.  There
@@ -50,7 +50,7 @@ Understanding Task States
   - **MAYBE**: The task is part of a conditional path
   - **LIKELY** : The task is the default output on a conditional path
 
-* **Definite Tasks**
+* **DEFINITE** Tasks
 
   Definite tasks are certain to run as the workflow pregresses.
 
@@ -59,7 +59,7 @@ Understanding Task States
   - **READY**: The preconditions for running this task have been met
   - **STARTED**: The task has started running but has not finished
 
-* **Finished Tasks**
+* **FINISHED** Tasks
 
   A finished task is one where no further action will be taken.
 
@@ -67,8 +67,16 @@ Understanding Task States
   - **ERROR**: The task finished unsucessfully.
   - **CANCELLED**: The task was cancelled before it ran or while it was running.
 
+
+
 Tasks start in either a **PREDICTED** or **FUTURE** state, move through one or more **DEFINITE** states, and end in a
 **FINISHED** state.  State changes are determined by several task spec methods:
+
+Hooks
+=======
+
+SpiffWorkflow executes a Task by calling a series of hooks that are tightly coupled
+to Task State. These hooks are:
 
 * `_update_hook`: This method will be run by a task's predecessor when the predecessor completes.  The method checks the
   preconditions for running the task and returns a boolean indicating whether a task should become **READY**.  Otherwise,
@@ -81,7 +89,7 @@ Tasks start in either a **PREDICTED** or **FUTURE** state, move through one or m
   - :code:`True` if the task completed successfully.  The state will transition to **COMPLETED**.
   - :code:`False` if the task completed unsucessfully.  The state will transition to **ERRROR**.
   - :code:`None` if the task has not completed.  The state will transition to **STARTED**.
-  
+
 * `_on_complete_hook`: This method will be run when the task's state is changed to **COMPLETED**.
 
 * `_on_error_hook`: This method will be run when the task's state is changed to **ERROR**.

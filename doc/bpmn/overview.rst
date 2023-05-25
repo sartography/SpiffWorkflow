@@ -19,7 +19,7 @@ processes. BPMN links the realms of business and IT, and creates a common proces
 can be shared between the two.
 
 BPMN describes details of process behaviors efficiently in a diagram. The meaning is precise enough
-to describe the technical details that control process execution in an automation engine. 
+to describe the technical details that control process execution in an automation engine.
 SpiffWorkflow allows you to create code to directly execute a BPMN diagram.
 
 When using SpiffWorkflow, a client can manipulate the BPMN diagram and still have their product work
@@ -27,18 +27,22 @@ without a need for you to edit the Python code, improving response and turnaroun
 
 .. sidebar:: BPMN Modelers
 
-  There are a number of modelers in existence, and any BPMN compliant modeler should work.
-  SpiffWorkflow has some basic support for the free Camunda modeler, in particular, its
-  form building capabilities.
 
-  Our `modeler <https://github.com/sartography/bpmn-js-spiffworkflow>`_ provides several,
-  extensions, including form specifications via JSON Schema.
+  Currently the best way to build BPMN diagrams is through our SpiffArena project
+  which provides a custom BPMN Modeler, along with ways to test and run BPMN diagrams
+  from within a web browser.  Please see our `getting started guide <https://www.spiffworkflow.org/posts/articles/get_started/>`_
+  for more information.
+
+  It is also possible to use version 7 of the Camunda Modeler to create BPMN diagrams.
+  However, be cautious of the properies panel settings, as many of these settings are
+  not a part of the BPMN Standard, and are not handled in the same way within SpiffWorkflow.
+  You can download the Camunda Modeler from `Camunda <https://camunda.com/download/modeler/>`_.
 
 Today, nearly every process modeling tool supports BPMN in some fashion making it a great tool to
-learn and use.  This page provides a brief overview, and the following section provides a more 
+learn and use.  This page provides a brief overview, and the following section provides a more
 in-depth look. There are many resources for additional information about BPMN.
 
-Most of the examples in this guide have been created with 
+Most of the examples in this guide have been created with
 `our modeler <https://github.com/sartography/bpmn-js-spiffworkflow>`_, which is based on
 `bpmn.js <https://bpmn.io/toolkit/bpmn-js/>`_.
 
@@ -83,17 +87,25 @@ the other based on some data condition. BPMN has other gateway types.
 The important point is that we can use a gateway to add a branch in the
 workflow **without** creating an explicit branch in our Python code.
 
-Events
+An Even More Complicated Workflow
 ------
+BPMN is a rich language that can describe many different types of processes. In
+the following pages we'll cover lanes (a way to distribute work across different
+roles) events (a way to handle asynchronous events), multi-instance tasks (that
+can be executed many times in parallel or in sequence) and decomposition (the
+many ways you can interconnect diagrams to build larger more complex processes)
+We are just scratching the surface.  For now let's take one more step and look
+at what Events make possible.
 
+Events
+^^^^^^^
 In the above simple workflows, all of the transitions are deterministic and we
 have direct connections between tasks.  We need to handle the cases where an event
-may or may not happen and link these events in different parts of the workflow or
+may or may not happen, and link these events in different parts of the workflow or
 across different workflows.
 
-BPMN has a comprehensive suite of event elements that can used for this purpose.
-SpiffWorkflow does not support every single BPMN event type, but it can handle
-many of them.
+BPMN has a comprehensive suite of event elements. SpiffWorkflow does not support
+every single BPMN event type, but it can handle many of them.
 
 .. figure:: figures/overview/events.png
    :scale: 25%
@@ -102,7 +114,7 @@ many of them.
    A workflow containing events
 
 
-We've already seen plain Start and End Events.  BPMN also include the concepts
+We've already seen plain Start and End Events.  BPMN also includes the concept
 of Intermediate Events (standalone events that may be Throwing or Catching) as well
 as Boundary Events (which are exclusively Catching).
 

@@ -5,14 +5,14 @@ In this section we'll be discussing the overall structure of the workflow
 runner we developed in `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
 Our example application contains two different workflow runners, one that uses tasks with with Spiff extensions
-(`spiff-bpmn-runner.py <https://github.com/sartography/spiff-example-cli/blob/main/spiff-bpmn-runner.py>`_) 
-and one that uses tasks Camunda extensions
+(`spiff-bpmn-runner.py <https://github.com/sartography/spiff-example-cli/blob/main/spiff-bpmn-runner.py>`_)
+and one that uses the **deprecated** Camunda extensions
 (`camunda-bpmn-runner.py <https://github.com/sartography/spiff-example-cli/blob/main/camunda-bpmn-runner.py>`_).
 
 The primary differences between the two are in handling User and MultiInstance Tasks.  We have some documentation
 about how we interpret Camunda forms in :doc:`camunda/tasks`.  That particular page comes from an earlier version of
 our documentation, and `camunda-bpmn-runner.py` can run workflows with these tasks.  However, we are not actively
-maintaining the :code:`camunda` package any longer.
+maintaining the :code:`camunda` package, and it should be considered deprecated.
 
 Base Application Runner
 -----------------------
@@ -23,7 +23,7 @@ The core functions your application will have to accomodate are
 * serializing workflows
 * running workflows
 
-Task specs define how tasks are executed, and creating the task specs depends on a parser which initializes a spec of 
+Task specs define how tasks are executed, and creating the task specs depends on a parser which initializes a spec of
 the appropriate class.  And of course serialization is also heavily dependent on the same information needed to create
 the instance.  To that end, our BPMN runner requires that you provide a parser and serializer; it can't operate unless
 it knows what to do with each task spec it runs across.
@@ -48,7 +48,7 @@ will probably need to extend (or restrict) it in some way.  See :doc:`advanced` 
 ability to optionally pass one in.
 
 The `handlers` argument allows us to let our application know what to do with specific task spec types.  It's a mapping
-of task spec class to its handler.  Most task specs won't need handlers outside of how SpiffWorkflow executes them 
+of task spec class to its handler.  Most task specs won't need handlers outside of how SpiffWorkflow executes them
 (that's probably why you are using this library).  You'll only have to be concerned with the task spec types that
 require human interaction; Spiff will not handle those for you.  In your application, these will probably be built into
 it and you won't need to pass anything in.
@@ -82,16 +82,16 @@ model.
 
 SpiffWorkflow needs at least one spec to create a workflow; this will be created from the name of the process passed
 into the method.  It also needs specs for any subprocesses or call activities.  The method
-:code:`parser.get_subprocess_specs` will search recursively through a starting spec and collect specs for all 
+:code:`parser.get_subprocess_specs` will search recursively through a starting spec and collect specs for all
 referenced resources.
 
-It is possible to have two processes defined in a single model, via a Collaboration.  In this case, there is no "top 
+It is possible to have two processes defined in a single model, via a Collaboration.  In this case, there is no "top
 level spec".  We can use :code:`self.parser.get_collaboration` to handle this case.
 
 .. note::
 
     The only required argument to :code:`BpmnWorkflow` is a single workflow spec, in this case `top_level`.  The
-    parser returns an empty dict if no subprocesses are present, but it is not required to pass this in.  If there 
+    parser returns an empty dict if no subprocesses are present, but it is not required to pass this in.  If there
     are subprocess present, `subprocess_specs` will be a mapping of process ID to :code:`BpmnWorkflowSpec`.
 
 In :code:`simple_bpmn_runner.py` we create the parser like this:
@@ -164,7 +164,7 @@ The serializer has a companion method :code:`serialize_json` but we're bypassing
 output readable.
 
 The heart of the serialization process actually happens in :code:`workflow_to_dict`.  This method returns a
-dictionary representation of the workflow that contains only JSON-serializable items.  All :code:`serialize_json` 
+dictionary representation of the workflow that contains only JSON-serializable items.  All :code:`serialize_json`
 does is add a serializer version and call :code:`json.dumps` on the returned dict.  If you are developing a serious
 application, it is unlikely you want to store the entire workflow as a string, so you should be aware that this method
 exists.
@@ -224,7 +224,7 @@ complete.
                     input("\nPress any key to update task list")
 
 In the code above we first get the list of all `READY` or `WAITING` tasks; these are the currently active tasks.
-`READY` tasks can be run, and `WAITING` tasks may change to `READY` (see :doc:`../concepts` for a discussion of task 
+`READY` tasks can be run, and `WAITING` tasks may change to `READY` (see :doc:`../concepts` for a discussion of task
 states).  We aren't going to do anything with the `WAITING` tasks except display them.
 
 We can further filter our runnable tasks on the :code:`task_spec.manual` attribute.  If we're stepping though the
@@ -260,7 +260,7 @@ We'll skip over most of the options in :code:`run_workflow` since they are prett
 
     self.workflow.refresh_waiting_tasks()
 
-At the end of each iteeration, we call :code:`refresh_waiting_tasks` to ensure that any currently `WAITING` tasks
+At the end of each iteration, we call :code:`refresh_waiting_tasks` to ensure that any currently `WAITING` tasks
 will move to `READY` if they are able to do so.
 
 After the workflow finishes, we'll give the user a few options for looking at the end state.
@@ -272,7 +272,7 @@ After the workflow finishes, we'll give the user a few options for looking at th
                 'a': 'List all tasks',
                 'v': 'View workflow data',
                 'q': 'Quit',
-            }) 
+            })
             if action == 'a':
             self.list_tasks([t for t in self.workflow.get_tasks() if t.task_spec.bpmn_id is not None], "All Tasks")
             elif action == 'v':
@@ -288,7 +288,7 @@ and we'll omit them from the displays.  If a task is visible on a diagram it wil
 When a workflow completes, the task data from the "End" task, which has built up through the operation of the
 workflow, is copied into the workflow data, so we want to give the option to display this end state.  We're using
 the serializer's `data_converter` to handle the workflow data (the `registry`) we passed in earlier, because
-it may arbitrary data.
+it may contain arbitrary data.
 
 Let's take a brief look at the advance method:
 
@@ -306,7 +306,7 @@ This method is really just a condensed version of :code:`run_workflow` that igno
 present a menu.  We use it to get to a point in our workflow where there are only human tasks left to run.
 
 In general, an application that uses SpiffWorkflow will use these methods as a template.  It will consist of a
-loop that: 
+loop that:
 
 * runs any `READY` engine tasks (where :code:`task_spec.manual == False`)
 * presents `READY` human tasks to users (if any)
