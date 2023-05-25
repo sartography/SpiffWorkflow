@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'SpiffWorkflow'
-copyright = '2022, Sartography'
+copyright = '2023, Sartography'
 author = 'Sartography'
 
 # The full version, including alpha/beta/rc tags
-release = '1.2.1'
+release = '2.0'
 
 # -- General configuration ---------------------------------------------------
 

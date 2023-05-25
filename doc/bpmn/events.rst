@@ -6,14 +6,14 @@ BPMN Model
 
 We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
-- `transaction <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/transaction.bpmn>`_ workflow
-- `signal_event <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/signal_event.bpmn>`_ workflow
-- `events <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/events.bpmn>`_ workflow
-- `call activity <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/call_activity.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/product_prices.dmn>`_ DMN table
-- `shipping_costs <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
+- `transaction <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/transaction.bpmn>`_ workflow
+- `signal_event <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/signal_event.bpmn>`_ workflow
+- `events <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/events.bpmn>`_ workflow
+- `call activity <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/call_activity.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/product_prices.dmn>`_ DMN table
+- `shipping_costs <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/shipping_costs.dmn>`_ DMN table
 
-A general overview of events in BPMN can be found in the :doc:`/intro`
+A general overview of events in BPMN can be found in the :doc:`overview`
 section of the documentation.
 
 SpiffWorkflow supports the following Event Definitions:
@@ -28,11 +28,16 @@ SpiffWorkflow supports the following Event Definitions:
 
 We'll include examples of all of these types in this section.
 
+.. note::
+
+   SpiffWorflow can also support Multiple Event definitions, but our modeler does not allow you to create them,
+   so we will not delve into them further here.
+
 Transactions
 ^^^^^^^^^^^^
 
 We also need to introduce the concept of a Transaction because certain events
-can only be used in that context.  A Transaction is essentially a subprocess, but
+can only be used in that context.  A Transaction is essentially a Subprocess, but
 it must fully complete before it affects its outer workflow.
 
 We'll make our customer's ordering process through the point they review their order
@@ -46,20 +51,20 @@ only be used in Transactions.
 Cancel Events
 ^^^^^^^^^^^^^
 
-.. figure:: figures/transaction.png
+.. figure:: figures/events/transaction.png
    :scale: 30%
    :align: center
 
-   Workflow with a transaction and Cancel Event
+   Workflow with a Transaction and Cancel Event
 
 We changed our 'Review Order' Task to be a User Task and have added a form, so
 that we can give the customer the option of cancelling the order.  If the customer
 answers 'Y', then the workflow ends normally and we proceed to collecting
 payment information.
 
-However, if the user elects to cancel their order, we use a 'Cancel End Event'
-instead, which generates a Cancel Event.  We can then attach a 'Cancel Boundary
-Event' to the Transaction, and execute that path if the event occurs.  Instead of
+However, if the user elects to cancel their order, we use a Cancel End Event
+instead, which generates a Cancel Event.  We can then attach a Cancel Boundary
+Event to the Transaction, and execute that path if the event occurs.  Instead of
 asking the customer for their payment info, we'll direct them to a form and ask
 them why they cancelled their order.
 
@@ -70,15 +75,15 @@ To run this workflow
 
 .. code-block:: console
 
-   ./run.py -p order_product \
-        -d bpmn/product_prices.dmn bpmn/shipping_costs.dmn \
-        -b bpmn/transaction.bpmn bpmn/call_activity.bpmn
+   ./spiff-bpmn-runner.py -p order_product \
+        -d bpmn/tutorial/product_prices.dmn bpmn/tutorial/shipping_costs.dmn \
+        -b bpmn/tutorial/transaction.bpmn bpmn/tutorial/call_activity.bpmn
 
 
 Signal Events
 ^^^^^^^^^^^^^
 
-.. figure:: figures/signal_event.png
+.. figure:: figures/events/signal_event.png
    :scale: 30%
    :align: center
 
@@ -91,43 +96,41 @@ Once the charge is placed, the task that provides the option to cancel will
 itself be cancelled when the charge event is received.
 
 We'll also need to detect the case that the customer cancels their order and
-cancel the charge task if it occurs; we'll use a separate signal for that.
+cancel the charge task if it occurs; we'll use a separate Signal for that.
 
-Multiple tasks can catch the same signal event.  Suppose we add a Manager role
-to our workflow, and allow the Employee to refer unsuccessful charges to the
+Multiple tasks can catch the same Signal Event.  Suppose we add a Manager role
+to our Process, and allow the Employee to refer unsuccessful charges to the
 Manager for resolution.  The Manager's task will also need to catch the 'Order
-Cancelled' signal event.
+Cancelled' Signal Event.
 
 Signals are referred to by name.
 
-.. figure:: figures/throw_signal_event.png
-   :scale: 30%
+.. figure:: figures/events/throw_signal_event.png
+   :scale: 60%
    :align: center
 
    Signal Event configuration
-
-.. Terminate Events:
 
 Terminate Events
 ^^^^^^^^^^^^^^^^
 
 We also added a Terminate Event to the Manager Workflow.  A regular End Event
 simply marks the end of a path.  A Terminate Event will indicate that the
-entire workflow is complete and any remaining tasks should be cancelled.  Our
+entire Process is complete and any remaining tasks should be cancelled.  Our
 customer cannot cancel an order that has already been cancelled, and we won't ask
-them for feedback about it (we know it wasn't completed), so we do not want to
-execute either of those tasks.
-
-We'll now modify our workflow to add an example of each of the other types of
-events that SpiffWorkflow Supports.
+them for feedback about it (we know that is was because we were unable to charge
+them for it), so we do not want to execute either of those tasks.
 
 To run this workflow
 
 .. code-block:: console
 
-   ./run.py -p order_product \
-        -d bpmn/product_prices.dmn bpmn/shipping_costs.dmn \
-        -b bpmn/signal_event.bpmn bpmn/call_activity.bpmn
+   ./spiff-bpmn-runner.py -p order_product \
+        -d bpmn/tutorial/product_prices.dmn bpmn/tutorial/shipping_costs.dmn \
+        -b bpmn/tutorial/signal_event.bpmn bpmn/tutorial/call_activity.bpmn
+
+We'll now modify our workflow to add an example of each of the other types of
+events that SpiffWorkflow supports.
 
 Error Events
 ^^^^^^^^^^^^
@@ -135,7 +138,7 @@ Error Events
 Let's turn to our order fulfillment subprocess.  Either of these steps could
 potentially fail, and we may want to handle each case differently.
 
-.. figure:: figures/events.png
+.. figure:: figures/events/events.png
    :scale: 30%
    :align: center
 
@@ -170,16 +173,16 @@ Escalation Boundary Event.
 Both Error and Escalation Events can be optionally associated with a code.  Here is
 Throw Event for our `product_not_shipped` Escalation.
 
-.. figure:: figures/throw_escalation_event.png
-   :scale: 30%
+.. figure:: figures/events/throw_escalation_event.png
+   :scale: 60%
    :align: center
 
    Throw Escalation Event configuration
 
 Error Event configuration is similar.
 
-If no code is provided in a Catch event, any event of the corresponding type will catch
-the event.
+If no code is provided in a Catch event, it can be caught by any Escalation with the same
+name.
 
 Timer Events
 ^^^^^^^^^^^^
@@ -191,17 +194,21 @@ amount of time before continuing.  We can use this as a regular Intermediate Eve
 this case, we simply want to notify the customer of the delay while continuing to process
 their order, so we use a Non-Interrupting Event.
 
-.. figure:: figures/timer_event.png
-   :scale: 30%
+.. figure:: figures/events/timer_event.png
+   :scale: 60%
    :align: center
 
    Duration Timer Event configuration
 
-We express the duration as a Python :code:`timedelta`.  We show the configuration for the Boundary
-Event.
+We express the duration as an ISO8601 duration.
 
-It is also possible to use a static datetime to trigger an event.  It will need to be parseable
-as a date by Python.
+.. note::
+
+   We enclosed the string in quotes, because it is possible to use a variable to determine
+   how long the timer should wait.
+
+It is also possible to use a static date and time to trigger an event.  It will also need to be
+specified in ISO8601 format.
 
 Timer events can only be caught, that is waited on.  The timer begins implicitly when we
 reach the event.
@@ -210,44 +217,63 @@ Message Events
 ^^^^^^^^^^^^^^
 
 In BPMN, Messages are used to communicate across processes.  Technically, Messages are not
-intended to be used inside a single process, but Spiff does support this use.
+intended to be used inside a single Process, but Spiff does support this use.
 
-Messages are similar to signals, in that they are referenced by name, but they have the
-additional property that they may contain a payload.
+Messages are similar to Signals, in that they are referenced by name, but they have the
+additional property that they may contain a payload.  The payload is a bit of python code that will be
+evaluated against the task data and sent along with the Message.  In the corresponding Message Catch
+Event or Receive Task, we define a variable name where we'll store the result.
 
-We've added a QA process to our model, which will be initiated whenever an order takes to long
-to fulfill.  We'll send the reason for the delay in the message.
+We've added a QA process to our model, which will be initiated whenever an order takes too long
+to fulfill.  We'll send the reason for the delay in the Message.
 
-.. note::
+Spiff Messages can also optionally use Correlation Keys.  The Correlation Key is an expression or set of
+expressions that are evaluated against a Message payload to create an additional identifier for associating
+messages with Processes.
 
-   This example depends on some Camunda-specific features in our implementation; there is
-   an alternate messaging implementation in the Spiff extensions package, described in
-   :doc:`spiff-extensions`.
+In our example, it is possible that multiple QA processes could be started (the timer event will fire every
+two minutes until the order fulfillment process is complete, or more realistically, they could be
+investigating many entirely different orders, even if our simple runner does not handle that case).
+In this case, the Message name is insufficient, as there will be multiple Processes that can accept
+Messages based on the name.
 
-.. figure:: figures/throw_message_event.png
-   :scale: 30%
+.. figure:: figures/events/correlation.png
+   :scale: 50%
    :align: center
 
-   Throw Message Event configuration
+   Defining a correlation key
 
-The Throw Message Event Implementation should be 'Expression' and the Expression should
-be a Python statement that can be evaluated.  In this example, we'll just send the contents
-of the :code:`reason_delayed` variable, which contains the response from the 'Investigate Delay'
-Task.
+We use the timestamp of the Message creation as a unique key that can be used to distinguish between multiple
+QA Processes.
 
-We can provide a name for the result variable, but I have not done that here, as it does not
-make sense to me for the generator of the event to tell the handler what to call the value.
-If you *do* specify a result variable, the message payload (the expression evaluated in the
-context of the Throwing task) will be added to the handling task's data in a variable of that
-name; if you leave it blank, SpiffWorkflow will create a variable of the form <Handling
-Task Name>_Response.
+.. figure:: figures/events/throw_message_event.png
+   :scale: 50%
+   :align: center
+
+   Configuring a message throw event
+
+When we receive the event, we assign the payload to :code:`order_info`.
+
+.. figure:: figures/events/catch_message_event.png
+   :scale: 50%
+   :align: center
+
+   Configuring a message catch event
+
+The correlation is visible on both the Throw and Catch Events, but it is associated with the message rather
+than the tasks themselves; if you update the expression on either event, the changes will appear in both places.
+
 
 Running The Model
 ^^^^^^^^^^^^^^^^^
 
 .. code-block:: console
 
-   ./run.py -p order_product \
-        -d bpmn/product_prices.dmn bpmn/shipping_costs.dmn \
-        -b bpmn/events.bpmn bpmn/call_activity.bpmn
+   ./spiff-bpmn-runner.py -c order_collaboration \
+        -d bpmn/tutorial/product_prices.dmn bpmn/tutorial/shipping_costs.dmn \
+        -b bpmn/tutorial/events.bpmn bpmn/tutorial/call_activity.bpmn
 
+.. note::
+
+   We're specifying a collaboration rather than a process so that SpiffWorkflow knows that there is more than
+   one top-level process.

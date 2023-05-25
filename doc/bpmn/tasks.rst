@@ -4,46 +4,46 @@ Tasks
 BPMN Model
 ----------
 
-In this example, we'll model a customer selecting a product to illustrate
-the basic task types that can be used with SpiffWorkflow.
+In this example, we'll model a customer selecting a product to illustrate the basic task types that
+can be used with SpiffWorkflow.
 
-We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
+We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_:
 
-- `task_types <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/task_types.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/product_prices.dmn>`_ DMN table
+- `task_types <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/task_types.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/product_prices.dmn>`_ DMN table
 
 User Tasks
 ^^^^^^^^^^
 
-User tasks would typically be used in the case where the task would be
-completed from within the application.
-
-User tasks can include forms that ask the user questions. When you click on a
-user task in a BPMN modeler, the Properties Panel includes a form tab. Use this
-tab to build your questions.
+User Tasks would typically be used in the case where the task would be completed from within the
+application. Our User tasks present forms that collect data from users.
 
 We'll ask our hypothetical user to choose a product and quantity.
 
-The following example shows how a form might be set up in Camumda.
+.. figure:: figures/tasks/user_task.png
+    :scale: 30%
+    :align: center
 
-.. figure:: figures/user_task.png
-   :scale: 30%
-   :align: center
+    User Task
 
-   User Task configuration
+We can use the form builder to create the form.
 
-.. note::
+.. figure:: figures/tasks/user_task_form.png
+    :scale: 30%
+    :align: center
 
-  SpiffWorkflow has some basic support for the free Camunda modeler, to use its
-  form building capabilities, but we intend to encapsulate this support in an
-  extension module and remove it from the core library eventually.
+    User Task form
 
 See the `Handling User Tasks`_ section for a discussion of sample code.
+
+We have also retained some limited support for the now deprecated
+camunda forms, which you can read about in our Camunda Specific section on :doc:`camunda/tasks`.
+
 
 Business Rule Tasks
 ^^^^^^^^^^^^^^^^^^^
 
-In our business rule task, we'll use a DMN table to look up the price of the
+In our Business Rule Task, we'll use a DMN table to look up the price of the
 product the user chose.
 
 We'll need to create a DMN table.
@@ -67,7 +67,7 @@ the decision lookup allows the next gateway or activity to route the flow.
 
 Our Business Rule Task will make use of a DMN table.
 
-.. figure:: figures/dmn_table.png
+.. figure:: figures/tasks/dmn_table.png
    :scale: 30%
    :align: center
 
@@ -81,7 +81,7 @@ Our Business Rule Task will make use of a DMN table.
 
 Then we'll refer to this table in the task configuration.
 
-.. figure:: figures/business_rule_task.png
+.. figure:: figures/tasks/business_rule_task.png
    :scale: 30%
    :align: center
 
@@ -91,9 +91,9 @@ Script Tasks
 ^^^^^^^^^^^^
 
 The total order cost will need to be calculated on the fly.  We can do this in
-a script task.  We'll configure the task with some simple Python code.
+a Script Task.  We'll configure the task with some simple Python code.
 
-.. figure:: figures/script_task.png
+.. figure:: figures/tasks/script_task.png
    :scale: 30%
    :align: center
 
@@ -105,36 +105,45 @@ have been defined previously will be available to it.
 Manual Tasks
 ^^^^^^^^^^^^
 
-Our final task type is a manual task.  We would use this task in the situation
-where the application might simply need to mark a task that requires user
-involvement complete without gathering any additional information from them.
+Our final task type is a Manual Task.  Manual Tasks represent work that occures
+outside of SpiffWorkflow's control.  Say that you need to include a step in a
+process where the participant needs to stand up, walk over to the coffee maker,
+and poor the cup of coffee.  Manual Tasks pause the process, and wait for
+confirmation that the step was completed.
 
-There is no special configuration for manual tasks.  However, this is a good
-place to note that we can use the BPMN element Documentation field to display
-more information about the context of the item.
+Text that will be displayed to the user is added in the "Instructions" panel.
 
-Spiff is set up in a way that you could use any templating library you want, but
-we have used `Jinja <https://jinja.palletsprojects.com/en/3.0.x/>`_.
-
-In this example, we'll present an order summary to our customer.
-
-.. figure:: figures/documentation.png
+.. figure:: figures/tasks/manual_task.png
    :scale: 30%
    :align: center
 
-   Element Documentation
+   Manual Task
+
+Spiff's manual tasks may contain references to data inside the workflow.  We have used
+`Jinja <https://jinja.palletsprojects.com/en/3.0.x/>`_, but Spiff is set up in a way that
+you could use any templating library you want, as well as Markdown formatting directives
+(we won't implement those here though, because it doesn't make sense for a command
+line app).
+
+.. figure:: figures/tasks/manual_task_instructions.png
+   :scale: 30%
+   :align: center
+
+   Editing Instructions
 
 See the `Handling Manual Tasks`_ section for a discussion of sample code.
+
+For information about how Spiff handles Manual Tasks created with Camunda please
+refer to the Camunda Specific section on :doc:`camunda/tasks`.
 
 Running The Model
 ^^^^^^^^^^^^^^^^^
 
-If you have set up our example repository, this model can be run with the
-following command:
+If you have set up our example repository, this model can be run with the following command:
 
 .. code-block:: console
 
-   ./run.py -p order_product -d bpmn/product_prices.dmn -b bpmn/task_types.bpmn
+   ./spiff-bpmn-runner.py -p order_product -d bpmn/tutorial/product_prices.dmn -b bpmn/tutorial/task_types.bpmn
 
 Example Application Code
 ------------------------
@@ -147,50 +156,49 @@ responses.
 
 .. code:: python
 
-    for field in task.task_spec.form.fields:
-        if isinstance(field, EnumFormField):
-            option_map = dict([ (opt.name, opt.id) for opt in field.options ])
-            options = "(" + ', '.join(option_map) + ")"
-            prompt = f"{field.label} {options} "
-            option = select_option(prompt, option_map.keys())
-            response = option_map[option]
-        else:
-            response = input(f"{field.label} ")
-            if field.type == "long":
-                response = int(response)
-        task.update_data_var(field.id, response)
+        filename = task.task_spec.extensions['properties']['formJsonSchemaFilename']
+        schema = json.load(open(os.path.join(forms_dir, filename)))
+        for field, config in schema['properties'].items():
+            if 'oneOf' in config:
+                option_map = dict([ (v['title'], v['const']) for v in config['oneOf'] ])
+                options = "(" + ', '.join(option_map) + ")"
+                prompt = f"{field} {options} "
+                option = input(prompt)
+                while option not in option_map:
+                    print(f'Invalid selection!')
+                    option = input(prompt)
+                response = option_map[option]
+            else:
+                response = input(f"{config['title']} ")
+                if config['type'] == 'integer':
+                    response = int(response)
+            task.data[field] = response
 
-The list of form fields for a task is stored in :code:`task.task_spec.form_fields`.
+SpiffWorkflow uses JSON Schema to represent forms, specifically
+`react-jsonschema-form <https://react-jsonschema-form.readthedocs.io/en/latest/>`_.
+Our forms are really intended to be displayed in a browser, and attempting to handle them in a command
+line appliction is a little awkward.  The form specifications can be quite complex.
 
-For Enumerated fields, we want to get the possible options and present them to the
-user.  The variable names of the fields were stored in :code:`field.id`, but since
-we set labels for each of the fields, we'd like to display those instead, and map
-the user's selection back to the variable name.
+This simple implementation will present a list of options for simple enumerated fields and simply
+directly stores whatever the user enters otherwise, with integer conversions if the field is so
+specified.  This is robust enough to collect enough information from a user to make it through our example.
 
-Our :code:`select_option` function simply repeats the prompt until the user
-enters a value contained in the option list.
-
-For other fields, we'll just store whatever the user enters, although in the case
-where the data type was specified to be a :code:`long`, we'll convert it to a
-number.
-
-Finally, we need to explicitly store the user-provided response in a variable
-with the expected name with :code:`task.update_data_var(field.id, response)`.
+SpiffWorkflow provides a mechanism for you to provide your own form specification and leaves it up to you
+to decide how to present it.
 
 
 Handling Business Rule Tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We do not need to do any special configuration to handle these business rule
-tasks.  SpiffWorkflow does it all for us.
+We do not need to do any special configuration to handle these Business Rule Tasks.  SpiffWorkflow does it all for us.
 
 Handling Script Tasks
 ^^^^^^^^^^^^^^^^^^^^^
 
-We do not need to do any special configuration to handle script tasks, although it
+We do not need to do any special configuration to handle Script Tasks, although it
 is possible to implement a custom script engine.  We demonstrate that process in
 Custom Script Engines section :doc:`advanced` features.  However, the default script
-engine will work in many cases.
+engine will be adequate for now.
 
 Handling Manual Tasks
 ^^^^^^^^^^^^^^^^^^^^^
@@ -201,21 +209,26 @@ completed.
 .. code:: python
 
     def complete_manual_task(task):
-        display_task(task)
+        display_instructions(task)
         input("Press any key to mark task complete")
 
-:code:`display_task()` is the code for converting the Documentation property of the task
-into something that can be presented to the user.
+:code:`display_instructions` handles presenting the task to the user.
 
 .. code:: python
 
-    def display_task(task):
-        print(f'\n{task.task_spec.description}')
-        if task.task_spec.documentation is not None:
-            template = Template(task.task_spec.documentation)
+    def display_instructions(task):
+        text = task.task_spec.extensions.get('instructionsForEndUser')
+        print(f'\n{task.task_spec.bpmn_name}')
+        if text is not None:
+            template = Template(text)
             print(template.render(task.data))
 
-The template string can be obtained from :code:`task.task_spec.documentation`.
+The template string can be obtained from :code:`task.task_spec.extensions.get('instructionsForEndUser')`.
 
 As noted above, our template class comes from Jinja.  We render the template
 using the task data, which is just a dictionary.
+
+.. note::
+
+    Most of Spiff's task specifications contain this extension, not just Manual Tasks.  We also use it to display
+    information along with forms, and about certain events.

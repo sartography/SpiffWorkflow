@@ -115,6 +115,8 @@ class SpiffTaskParser(TaskParser):
         super()._copy_task_attrs(original)
         self.task.prescript = original.prescript
         self.task.postscript = original.postscript
+        original.prescript = None
+        original.postscript = None
 
     def create_task(self):
         # The main task parser already calls this, and even sets an attribute, but

@@ -1,48 +1,91 @@
 A More In-Depth Look at Some of SpiffWorkflow's Features
 ========================================================
 
+BPMN Task Specs
+---------------
+
+BPMN Tasks inherit quite a few attributes from :code:`SpiffWorkflow.specs.base.TaskSpec`, but only a few are used.
+
+* `name`: the unique id of the TaskSpec, and it will correspond to the BPMN ID if that is present
+* `description`: we use this attribute to provide a description of the BPMN type (the text that appears here can be overridden in the parser)
+* `inputs`: a list of TaskSpec `names` that are parents of this TaskSpec
+* `outputs`:  a list of TaskSpec `names` that are children of this TaskSpec
+* `manual`: :code:`True` if human input is required to complete tasks associated with this TaskSpec
+
+BPMN Tasks have the following additional attributes.
+
+* `bpmn_id`: the ID of the BPMN Task (this will be :code:`None` if the task is not visible on the diagram)
+* `bpmn_name`: the BPMN name of the Task
+* `lane`: the lane of the BPMN Task
+* `documentation`: the contents of the BPMN `documentation` element for the Task
+* `data_input_associations`: a list of incoming data object references
+* `data_output_associtions`: a list of outgoing data object references
+* `io_specification`: the BPMN IO specification of the Task
+
 Filtering Tasks
 ---------------
 
-In our earlier example, all we did was check the lane a task was in and display
-it along with the task name and state.
+Tasks by Lane
+^^^^^^^^^^^^^
 
-Let's take a look at a sample workflow with lanes:
-
-.. figure:: figures/lanes.png
-   :scale: 30%
-   :align: center
-
-   Workflow with lanes
-
-To get all the tasks that are ready for the 'Customer' workflow, we could
-specify the lane when retrieving ready user tasks:
+The :code:`workflow.get_ready_user_tasks` method optionally takes the argument `lane`, which can be used to
+restrict the tasks returned to only tasks in that lane.
 
 .. code:: python
 
      ready_tasks = workflow.get_ready_user_tasks(lane='Customer')
 
-If there were no tasks ready for the 'Customer' lane, you would get an empty list,
-and of course if you had no lane that was labeled 'Customer' you would *always* get an
-empty list.
+will return only tasks in the 'Customer' lane in our example workflow.
 
-We can also get a list of tasks by state.
+Tasks by Spec Name
+^^^^^^^^^^^^^^^^^^
 
-We need to import the :code:`Task` object (unless you want to memorize which numbers
-correspond to which states).
+To retrieve a list of tasks associated with a particular task spec, use :code:`workflow.get_tasks_from_spec_name`
+
+.. code:: python
+
+    tasks = workflow.get_tasks_from_spec_name('customize_product')
+
+will return a list containing the Call Actitivities for the customization of a product in our example workflow.
+
+.. note::
+
+    The `name` paramter here refers to the task spec name, not the BPMN name (for visible tasks, this will
+    be the same as the `bpmn_id`)
+
+Tasks by State
+^^^^^^^^^^^^^^
+
+We need to import the :code:`TaskState` object (unless you want to memorize which numbers correspond to which states).
 
 .. code:: python
 
     from SpiffWorkflow.task import TaskState
+    tasks = workflow.get_tasks(TaskState.COMPLETED)
 
-To get a list of completed tasks
+will return a list of completed tasks.
+
+See :doc:`../concepts` for more information about task states.
+
+Tasks in a Subprocess or Call Activity
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The :code:`BpmnWorkflow` class maintains a dictionary of subprocesses (the key is the `id` of the Call Activity or
+Subprocess Task).  :code:`workflow.get_tasks` will start at the top level workflow and recurse through the subprocesses
+to create a list of all tasks.  It is also possible to start from a particular subprocess:
 
 .. code:: python
 
-    tasks = workflow.get_tasks(TaskState.COMPLETED)
+    tasks = workflow.get_tasks_from_spec_name('customize_product')
+    subprocess = workflow.get_subprocess(tasks[0])
+    subprocess_tasks = workflow.get_tasks(workflow=subprocess)
 
-The tasks themselves are not particularly intuitive to work with.  So SpiffWorkflow
-provides some facilities for obtaining a more user-friendly version of upcoming tasks.
+will limit the list of returned tasks to only those in the first product customization.
+
+.. note::
+
+    Each :code:`Task` object has a reference to its workflow; so with a Task inside a subprocess, we can call
+    :code:`workflow.get_tasks(workflow=task.workflow)` to start from our current workflow.
 
 Logging
 -------
@@ -50,7 +93,7 @@ Logging
 Spiff provides several loggers:
  - the :code:`spiff` logger, which emits messages when a workflow is initialized and when tasks change state
  - the :code:`spiff.metrics` logger, which emits messages containing the elapsed duration of tasks
- - the :code:`spiff.data` logger, which emits a message when task or workflow data is updated.
+ - the :code:`spiff.data` logger, which emits a message when :code:`task.update_data` is called or workflow data is retrieved or set.
 
 Log level :code:`INFO` will provide reasonably detailed information about state changes.
 
@@ -62,203 +105,164 @@ we define a custom log level
 
 .. code:: python
 
-    logging.addLevelName(15, 'DATA_LOG')
+    logging.addLevelName(15, 'DATA')
 
 so that we can see the task data in the logs without fully enabling debugging.
 
-The workflow runners take an `-l` argument that can be used to specify the logging level used
-when running the example workflows.
+The workflow runners take an `-l` argument that can be used to specify the logging level used when running the example workflows.
+
+We'll write the logs to a file called `data.log` instead of the console to avoid printing very long messages during the workflow.
+
+Our logging configuration code can be found in `runner/shared.py`.  Most of the code is about logging
+configuration in Python rather than anything specific to SpiffWorkflow, so we won't go over it in depth.
+
+Parsing
+-------
+
+Each of the BPMN pacakges (:code:`bpmn`, :code:`spiff`, or :code:`camunda`) has a parser that is preconfigured with
+the specs in that package (if a particular TaskSpec is not implemented in the package, :code:`bpmn` TaskSpec is used).
+
+See the example in :doc:`synthesis` for the basics of creating a parser.  The parser can optionally be initialized with
+
+- a set of namespaces (useful if you have custom extensions)
+- a BPMN Validator (the one in the :code:`bpmn` package validates against the BPMN 2.0 spec)
+- a mapping of XML tag to Task Spec Descriptions.  The default set of descriptions can be found in
+  :code:`SpiffWorkflow.bpmn.parser.spec_descriptions`.  These values will be added to the Task Spec in the `description` attribute
+  and are intended as a user-friendly description of what the task is.
+
+The :code:`BpmnValidator` can be used and extended independently of the parser as well; call :code:`validate` with
+an :code:`lxml` parsed tree.
+
+Loading BPMN Files
+^^^^^^^^^^^^^^^^^^
+
+In addition to :code:`load_bpmn_file`, there are similar functions :code:`load_bpmn_str` which can load the XML from a string, and
+:code:`load_bpmn_io`, which can load XML from any object implementing the IO interface, and :code:`add_bpmn_xml`, which can load
+BPMN specs from an :code:`lxml` parsed tree.
+
+Dependencies
+^^^^^^^^^^^^
+
+The following methods are available for discovering the names of processes and DMN files that may be defined externally:
+
+- :code:`get_subprocess_specs`: Returns a mapping of name -> :code:`BpmnWorkflowSpec` for any Call Activities referenced by the
+  provided spec (searches recursively)
+- :code:`find_all_spec`: Returns a mapping of name -> :code:`BpmnWorkflowSpec` for all processes used in all files that have been
+  provided to the parser at that point.
+- :code:`get_process_dependences`: Returns a list of process IDs referenced by the provided process ID
+- :code:`get_dmn_dependencies`: Returns a list of DMN IDs referenced by the provided process ID
+
 
 Serialization
 -------------
 
-.. warning::
+The :code:`BpmnWorkflowSerializer` has two components
 
-   Serialization Changed in Version 1.1.7.
-   Support for pre-1.1.7 serialization will be dropped in a future release.
-   The old serialization method still works, but it is deprecated.
-   To migrate your system to the new version, see "Migrating between
-   serialization versions" below.
+* the `workflow_spec_converter` (which handles serialization of objects that SpiffWorkflow knows about)
+* the `data_converter` (which handles serialization of custom objects)
 
-So far, we've only considered the context where we will run the workflow from beginning to end in one
-setting. This may not always be the case, we may be executing the workflow in the context of a web server where we
-may have a user request a web page where we open a specific workflow that we may be in the middle of, do one step of
-that workflow and then the user may be back in a few minutes, or maybe a few hours depending on the application.
+Unless you have overriden any of TaskSpecs with custom specs, you should be able to use the serializer
+configuration from the package you are importing the parser from (:code:`bpmn`, :code:`spiff`, or :code:`camunda`).
+See :doc:`synthesis` for an example.
 
-The :code:`BpmnWorkflowSerializer` class contains a serializer for a workflow containing only standard BPMN Tasks.
-Since we are using custom task classes (the Camunda :code:`UserTask` and the DMN :code:`BusinessRuleTask`),
-we'll need to supply serializers for those task specs as well.
+Serializing Custom Objects
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Strictly speaking, these are not serializers per se: they actually convert the tasks into dictionaries of
-JSON-serializable objects.  Conversion to JSON is done only as the last step and could easily be replaced with some
-other output format.
+In `Custom Script Engines`_ , we add some custom methods and objects to our scripting environment.  We create a simple
+class (a :code:`namedtuple`) that holds the product information for each product.
 
-We'll need to configure a Workflow Spec Converter with our custom classes, as well as an optional
-custom data converter.
+We'd like to be able to save and restore our custom object.
 
 .. code:: python
 
-    def create_serializer(task_types, data_converter=None):
+    ProductInfo = namedtuple('ProductInfo', ['color', 'size', 'style', 'price'])
 
-        wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter(task_types)
-        return BpmnWorkflowSerializer(wf_spec_converter, data_converter)
+    def product_info_to_dict(obj):
+        return {
+            'color': obj.color,
+            'size': obj.size,
+            'style': obj.style,
+            'price': obj.price,
+        }
 
-We'll call this from our main script:
+    def product_info_from_dict(dct):
+        return ProductInfo(**dct)
 
-.. code:: python
+    registry = DictionaryConverter()
+    registry.register(ProductInfo, product_info_to_dict, product_info_from_dict)
 
-    serializer = create_serializer([ UserTaskConverter, BusinessRuleTaskConverter ], custom_data_converter)
+Here we define two functions, one for turning our object into a dictionary of serializable objects, and one for recreating
+the object from the dictionary representation we created.
 
-We first configure a workflow spec converter that uses our custom task converters, and then we create
-a :code:`BpmnWorkflowSerializer` from our workflow spec and data converters.
+We initialize a :code:`DictionaryConverter` and `register` the class and methods.
 
-We'll give the user the option of dumping the workflow at any time.
+Registering an object sets up relationships between the class and the serialization and deserialization methods.  We go
+over how this works in a little more detail in `Custom Serialization in More Depth`_.
 
-.. code:: python
+It is also possible to bypass using a :code:`DictionaryConverter` at all for the data serialization process (but not for
+the spec serialization process).  The only requirement for the the `data_converter` is that it implement the methods
 
-    filename = input('Enter filename: ')
-    state = serializer.serialize_json(workflow)
-    with open(filename, 'w') as dump:
-        dump.write(state)
+- `convert`, which takes an object and returns something JSON-serializable
+- `restore`, which takes a serialized version and returns an object
 
-We'll ask them for a filename and use the serializer to dump the state to that file.
+Serialization Versions
+^^^^^^^^^^^^^^^^^^^^^^
 
-To restore the workflow:
+As we make changes to Spiff, we may change the serialization format.  For example, in 1.2.1, we changed
+how subprocesses were handled interally in BPMN workflows and updated how they are serialized and we upraded the
+serializer version to 1.1.
 
-.. code:: python
+As we release SpiffWorkflow 2.0, there are several more substantial changes, and we'll upgrade the serializer version to 1.2.
 
-    if args.restore is not None:
-        with open(args.restore) as state:
-            wf = serializer.deserialize_json(state.read())
+Since workflows can contain arbitrary data, and even SpiffWorkflow's internal classes are designed to be customized in ways
+that might require special serialization and deserialization, it is possible to override the default version number, to
+provide users with a way of tracking their own changes.  This can be accomplished by setting the `VERSION` attribute on
+the :code:`BpmnWorkflowSerializer` class.
 
-The workflow serializer is designed to be flexible and modular, and as such is a little complicated.  It has
-two components:
-
-- a workflow spec converter (which handles workflow and task specs)
-- a data converter (which handles workflow and task data).
-
-The default workflow spec converter likely to meet your needs, either on its own, or with the inclusion of
-:code:`UserTask` and :code:`BusinessRuleTask` in the :code:`camnuda` or :code:`spiff` and :code:`dmn` subpackages
-of this library, and all you'll need to do is add them to the list of task converters, as we did above.
-
-However, the default data converter is very simple, adding only JSON-serializable conversions of :code:`datetime`
-and :code:`timedelta` objects (we make these available in our default script engine) and UUIDs.  If your
-workflow or task data contains objects that are not JSON-serializable, you'll need to extend ours, or extend
-its base class to create one of your own.
-
-To extend ours:
-
-1.  Subclass the base data converter
-2.  Register classes along with functions for converting them to and from dictionaries
-
-.. code:: python
-
-    from SpiffWorkflow.bpmn.serializer.dictionary import DictionaryConverter
-
-    class MyDataConverter(DictionaryConverter):
-
-        def __init__(self):
-            super().__init__()
-            self.register(MyClass, self.my_class_to_dict, self.my_class_from_dict)
-
-        def my_class_to_dict(self, obj):
-            return obj.__dict__
-
-        def my_class_from_dict(self, dct):
-            return MyClass(**dct)
-
-More information can be found in the class documentation for the
-`default converter <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/bpmn_converters.py>`_
-and its `base class <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/dictionary.py>`_
-.
-
-You can also replace ours entirely with one of your own.  If you do so, you'll need to implement `convert` and
-`restore` methods.  The former should return a JSON-serializable representation of your workflow data; the
-latter should recreate your data from the serialization.
-
-If you have written any custom task specs, you'll need to implement task spec converters for those as well.
-
-Task Spec converters are also based on the :code:`DictionaryConverter`.  You should be able to use the
-`BpmnTaskSpecConverter <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/bpmn_converters.py>`_
-as a basis for your custom specs.  It provides some methods for extracting attributes from Spiff base classes as well as
-standard BPNN attributes from tasks that inherit from :code:`BMPNSpecMixin`.
-
-The `Camunda User Task Converter <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/camunda/serializer/task_spec_converters.py>`_
-should provide a simple example of how you might create such a converter.
-
-Migrating Between Serialization Versions
-----------------------------------------
-
-Old (Non-Versioned) Serializer
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Prior to Spiff 1.1.7, the serialized output did not contain a version number.
-
-.. code:: python
-
-    old_serializer = BpmnSerializer() # the deprecated serializer.
-    # new serializer, which can be customized as described above.
-    serializer = BpmnWorkflowSerializer(version="MY_APP_V_1.0")
-
-The new serializer has a :code:`get_version` method that will read the version
-back out of the serialized json.  If the version isn't found, it will return
-:code:`None`, and you can then assume it is using the old style serializer.
-
-.. code:: python
-
-   version = serializer.get_version(some_json)
-   if version == "MY_APP_V_1.0":
-        workflow = serializer.deserialize_json(some_json)
-   else:
-        workflow = old_serializer.deserialize_workflow(some_json, workflow_spec=spec)
-
-
-If you are not using any custom tasks and do not require custom serialization, then you'll be able to
-serialize the workflow in the new format:
-
-.. code:: python
-
-    new_json = serializer.serialize_json(workflow)
-
-However, if you use custom tasks or data serialization, you'll also need to specify workflow spec or data
-serializers, as in the examples in the previous section, before you'll be able to serialize with the new serializer.
-The code would then look more like this:
-
-.. code:: python
-
-    from SpiffWorkflow.camunda.serializer import UserTaskConverter
-
-    old_serializer = BpmnSerializer() # the deprecated serializer.
-
-    # new serializer, with customizations
-    wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter([UserTaskConverter])
-    data_converter = MyDataConverter
-    serializer = BpmnWorkflowSerializer(wf_spec_converter, data_converter, version="MY_APP_V_1.0")
-
-    version = serializer.get_version(some_json)
-    if version == "MY_APP_V_1.0":
-         workflow = serializer.deserialize_json(some_json)
-    else:
-         workflow = old_serializer.deserialize_workflow(some_json, workflow_spec=spec)
-
-    new_json = serializer.serialize_json(workflow)
-
-Because the serializer is highly customizable, we've made it possible for you to manage your own versions of the
-serialization.  You can do this by passing a version number into the serializer, which will be embedded in the
-json of all workflows.  This allows you to modify the serialization and customize it over time, and still manage
-the different forms as you make adjustments without leaving people behind.
-
-Versioned Serializer
-^^^^^^^^^^^^^^^^^^^^
-
-As we make changes to Spiff, we may change the serialization format.  For example, in 1.1.8, we changed
-how subprocesses were handled interally in BPMN workflows and updated how they are serialized.   If you have
-not overridden our version number with one of your own, the serializer will transform the 1.0 format to the
-new 1.1 format.
+If you have not provided a custom version number, SpiffWorkflow wil attempt to migrate your workflows from one version
+to the next if they were serialized in an earlier format.
 
 If you've overridden the serializer version, you may need to incorporate our serialization changes with
 your own.  You can find our conversions in
-`version_migrations.py <https://github.com/sartography/SpiffWorkflow/blob/main/SpiffWorkflow/bpmn/serializer/version_migration.py>`_
+`SpiffWorkflow/bpmn/serilaizer/migrations <https://github.com/sartography/SpiffWorkflow/tree/main/SpiffWorkflow/bpmn/serializer/migration>`_
+
+These are broken up into functions that handle each individual change, which will hopefully make it easier to incoporate them
+into your upgrade process, and also provides some documentation on what has changed.
+
+Custom Serialization in More Depth
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Both of the serializer components mentioned in `Serialization`_ are based on the :code:`DictionaryConverter`.  Let's import
+it and create one and register a type:
+
+.. code:: python
+
+    from datetime import datetime
+
+    from SpiffWorkflow.bpmn.serializer.helpers.dictionary import DictionaryConverter
+    registry = DictionaryConverter()
+    registry.register(
+        datetime.
+        lambda dt: {'value': dt.isoformat() },
+        lambda dct: datetime.fromisoformat(dct['value'])
+    )
+
+The arguemnts to :code:`register` are:
+
+* `cls`: the class to be converted
+* `to_dict`: a function that returns a dictionary containing JSON-serializable objects
+* `from_dict`: a function that take the output of `to_dict` and restores the original object
+
+When the :code:`register` method is called, a `typename` is created  and maps are set up between `cls` and `to_dict`
+function, `cls` and `typename`, and `typename` and `from_dict`.
+
+When :code:`registry.convert` is called on an object, the `cls` is use to retrieve the `to_dict` function and the
+`typename`.  The `to_dict` funciton is called on the object and the `typename` is added to the resulting dictionary.
+
+When :code:`registry.restore` is called with a dictionary, it is checked for a `typename` key, and if one exists, it
+is used to retrieve the `from_dict` function and the dictionary is passed to it.
+
+If an object is not recognized, it will be passed on as-is.
 
 Custom Script Engines
 ---------------------
@@ -269,20 +273,30 @@ security reasons.
 
 .. warning::
 
-   The default script engine does little to no sanitization and uses :code:`eval`
-   and :code:`exec`!  If you have security concerns, you should definitely investigate
-   replacing the default with your own implementation.
+   By default, the scripting environment passes input directly to :code:`eval` and :code:`exec`!  In most
+   cases, you'll want to replace the default scripting environment with one of your own.
 
-We'll cover a simple extension of custom script engine here.  There is also an example of
-a similar engine based on `RestrictedPython <https://restrictedpython.readthedocs.io/en/latest/>`_
-included alongside this example.
+Files referenced in this section:
 
-The default script engine does not import any objects.
+* `script_engine.py <https://github.com/sartography/spiff-example-cli/blob/main/runner/script_engine.py>`_
+* `product_info.py <https://github.com/sartography/spiff-example-cli/blob/main/runner/product_info.py>`_
+* `subprocess.py <https://github.com/sartography/spiff-example-cli/blob/main/runner/subprocess.py>`_
+* `spiff-bpmn-runner.py <https://github.com/sartography/spiff-example-cli/blob/main/spiff-bpmn-runner.py>`_
 
-You could add functions or classes from the standard python modules or any code you've
-implemented yourself.  Your global environment can be passed in using the `default_globals`
-argument when initializing the script engine.  In our RestrictedPython example, we use their
-`safe_globals` which prevents users from executing some potentially unsafe operations.
+The following example replaces the default global enviroment with the one provided by
+`RestrictedPython <https://restrictedpython.readthedocs.io/en/latest/>`_
+
+.. code:: python
+
+    from RestrictedPython import safe_globals
+    from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+    from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
+
+    restricted_env = TaskDataEnvironment(safe_globals)
+    restricted_script_engine = PythonScriptEngine(environment=restricted_env)
+
+Another reason you might want to customize the scripting environment is to provide access to custom
+classes or functions.
 
 In our example models so far, we've been using DMN tables to obtain product information.  DMN
 tables have a **lot** of uses so we wanted to feature them prominently, but in a simple way.
@@ -293,19 +307,20 @@ our diagram (although it is much easier to modify the BPMN diagram than to chang
 itself!).  Our shipping costs would not be static, but would depend on the size of the order and
 where it was being shipped -- maybe we'd query an API provided by our shipper.
 
-SpiffWorkflow is obviously **not** going to know how to make a call to **your** database or
-make API calls to **your** vendors.  However, you can implement the calls yourself and make them
-available as a method that can be used within a script task.
+SpiffWorkflow is obviously **not** going to know how to query **your** database or make API calls to
+**your** vendors.  However, one way of making this functionality available inside your diagram is to
+implement the calls in functions and add those functions to the scripting environment, where they
+can be called by Script Tasks.
 
 We are not going to actually include a database or API and write code for connecting to and querying
-it, but we can model our database with a simple dictionary lookup since we only have 7 products
+it, but since we only have 7 products we can model our database with a simple dictionary lookup
 and just return the same static info for shipping for the purposes of the tutorial.
+
+We'll define some resources in `product_info.py`
 
 .. code:: python
 
     from collections import namedtuple
-
-    from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 
     ProductInfo = namedtuple('ProductInfo', ['color', 'size', 'style', 'price'])
 
@@ -325,92 +340,153 @@ and just return the same static info for shipping for the purposes of the tutori
     def lookup_shipping_cost(shipping_method):
         return 25.00 if shipping_method == 'Overnight' else 5.00
 
-    additions = {
-        'lookup_product_info': lookup_product_info,
-        'lookup_shipping_cost': lookup_shipping_cost
-    }
-
-    CustomScriptEngine = PythonScriptEngine(scripting_additions=additions)
-
-We pass the script engine we created to the workflow when we load it.
+We'll add these functions to our scripting environment in `script_engine.py`
 
 .. code:: python
 
-    return BpmnWorkflow(parser.get_spec(process), script_engine=CustomScriptEngine)
+    env_globals = {
+        'lookup_product_info': lookup_product_info,
+        'lookup_shipping_cost': lookup_shipping_cost,
+        'datetime': datetime,
+    }
+    custom_env = TaskDataEnvironment(env_globals)
+    custom_script_engine = PythonScriptEngine(environment=custom_env)
 
-We can use the custom functions in script tasks like any normal function:
+.. note::
 
-.. figure:: figures/custom_script_usage.png
+    We're also adding :code:`datetime`, because we added the timestamp to the payload of our message when we
+    set up the Message Event (see :doc:`events`)
+
+When we initialize the runner in `spiff-bpmn-runner.py`, we'll import and use `cusrom_script_engine` as our
+script engine.
+
+We can use the custom functions in script tasks like any normal function.  We've replaced the Business Rule
+Task that determines product price with a script that simply checks the `price` field on our product.
+
+.. figure:: figures/script_engine/top_level.png
    :scale: 30%
    :align: center
 
-   Workflow with lanes
+   Top Level Workflow with Custom Script Engine
 
-And we can simplify our 'Call Activity' flows:
+And we can simplify the gateways in our 'Call Activity' flows as well now too:
 
-.. figure:: figures/call_activity_script_flow.png
+.. figure:: figures/script_engine/call_activity.png
    :scale: 30%
    :align: center
 
-   Workflow with lanes
+   Call Activity with Custom Script Engine
 
-To run this workflow:
+To run this workflow (you'll have to manually change which script engine you import):
 
 .. code-block:: console
 
-    ./run.py -p order_product -b bpmn/call_activity_script.bpmn bpmn/top_level_script.bpmn
+    ./spiff-bpmn-runner.py -p order_product -b bpmn/tutorial/top_level_script.bpmn bpmn/tutorial/call_activity_script.bpmn
 
-It is also possible to completely replace `exec` and `eval` with something else, or to
-execute or evaluate statements in a completely separate environment by subclassing the
-:code:`PythonScriptEngine` and overriding `_execute` and `_evaluate`.  We have examples of
-executing code inside a docker container or in a celery task i this repo.
+Another reason to customize the scripting enviroment is to allow it to run completely separately from
+SpiffWorkflow.  You might wish to do this for performance or security reasons.
 
-MultiInstance Notes
--------------------
+In our example repo, we've created a simple command line script in `runner/subprocess.py` that takes serialized global
+and local environments and a script or expression to execute or evaluate.  In `runner/script_engine.py`, we create
+a scripting environment that runs the current :code:`execute` or :code:`evaluate` request in a subprocess with this
+script.  We've imported our custom methods into `subprocess.py` so they are automatically available when it is used.
 
-**loopCardinality** - This variable can be a text representation of a
-number - for example '2' or it can be the name of a variable in
-task.data that resolves to a text representation of a number.
-It can also be a collection such as a list or a dictionary. In the
-case that it is a list, the loop cardinality is equal to the length of
-the list and in the case of a dictionary, it is equal to the list of
-the keys of the dictionary.
+This example is needlessly complex for the work we're doing in this case, but the point of the example is to demonstrate
+that this could be a Docker container with a complex environment, an HTTP API running somewhere else entirely.
 
-If loopCardinality is left blank and the Collection is defined, or if
-loopCardinality and Collection are the same collection, then the
-MultiInstance will loop over the collection and update each element of
-that collection with the new information. In this case, it is assumed
-that the incoming collection is a dictionary, currently behavior for
-working with a list in this manner is not defined and will raise an error.
+.. note::
 
-**Collection** This is the name of the collection that is created from
-the data generated when the task is run. Examples of this would be
-form data that is generated from a UserTask or data that is generated
-from a script that is run. Currently the collection is built up to be
-a dictionary with a numeric key that corresponds to the place in the
-loopCardinality. For example, if we set the loopCardinality to be a
-list such as ['a','b','c] the resulting collection would be {1:'result
-from a',2:'result from b',3:'result from c'} - and this would be true
-even if it is a parallel MultiInstance where it was filled out in a
-different order.
+    Note that our execute method returns :code:`True`.  We could check the status of our process here and return
+    :code:`False` to force our task into an `ERROR` state if the task failed to execute.
 
-**Element Variable** This is the variable name for the current
-iteration of the MultiInstance. In the case of the loopCardinality
-being just a number, this would be 1,2,3, . . .  If the
-loopCardinality variable is mapped to a collection it would be either
-the list value from that position, or it would be the value from the
-dictionary where the keys are in sorted order.  It is the content of the
-element variable that should be updated in the task.data. This content
-will then be added to the collection each time the task is completed.
+    We could also return :code:`None`
+    if the task is not finished; this will cause the task to go into the `STARTED` state.  You would have to manually
+    complete a task that has been `STARTED`.  The purpose of the state is to tell SpiffWorkflow your application will
+    handle monitoring and updating this task and other branches that do not depend on this task may proceed.  It is
+    intended to be used with potentially long-running tasks.
 
-Example:
-  In a sequential MultiInstance, loop cardinality is ['a','b','c'] and elementVariable is 'myvar'
-  then in the case of a sequential multiinstance the first call would
-  have 'myvar':'a' in the first run of the task and 'myvar':'b' in the
-  second.
+    See :doc:`../concepts` for more information about Task States and Workflow execution.
 
-Example:
-  In a Parallel MultiInstance, Loop cardinality is a variable that contains
-  {'a':'A','b':'B','c':'C'} and elementVariable is 'myvar' - when the multiinstance is ready, there
-  will be 3 tasks. If we choose the second task, the task.data will
-  contain 'myvar':'B'.
+Service Tasks
+-------------
+
+Service Tasks are also executed by the workflow's script engine, but through a different method, with the help of some
+custom extensions in the :code:`spiff` package:
+
+- `operation_name`, the name assigned to the service being called
+- `operation_params`, the parameters the operation requires
+
+
+This is our script engine and scripting environment:
+
+.. code:: python
+
+    service_task_env = TaskDataEnvironment({
+        'product_info_from_dict': product_info_from_dict,
+        'datetime': datetime,
+    })
+
+    class ServiceTaskEngine(PythonScriptEngine):
+
+        def __init__(self):
+            super().__init__(environment=service_task_env)
+
+        def call_service(self, operation_name, operation_params, task_data):
+            if operation_name == 'lookup_product_info':
+                product_info = lookup_product_info(operation_params['product_name']['value'])
+                result = product_info_to_dict(product_info)
+            elif operation_name == 'lookup_shipping_cost':
+                result = lookup_shipping_cost(operation_params['shipping_method']['value'])
+            else:
+                raise Exception("Unknown Service!")
+            return json.dumps(result)
+
+    service_task_engine = ServiceTaskEngine()
+
+Instead of adding our custom functions to the enviroment, we'll override :code:`call_service` and call them directly
+according to the `operation_name` that was given.  The :code:`spiff` Service Task also evaluates the parameters
+against the task data for us, so we can pass those in directly.  The Service Task will also store our result in
+a user-specified variable.
+
+We need to send the result back as json, so we'll reuse the functions we wrote for the serializer.
+
+The Service Task will assign the dictionary as the operation result, so we'll add a `postScript` to the Service Task
+that retrieves the product information that creates a :code:`ProductInfo` instance from the dictionary, so we need to
+import that too.
+
+The XML for the Service Task looks like this:
+
+.. code:: xml
+
+    <bpmn:serviceTask id="Activity_1ln3xkw" name="Lookup Product Info">
+      <bpmn:extensionElements>
+        <spiffworkflow:serviceTaskOperator id="lookup_product_info" resultVariable="product_info">
+          <spiffworkflow:parameters>
+            <spiffworkflow:parameter id="product_name" type="str" value="product_name"/>
+          </spiffworkflow:parameters>
+        </spiffworkflow:serviceTaskOperator>
+        <spiffworkflow:postScript>product_info = product_info_from_dict(product_info)</spiffworkflow:postScript>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_104dmrv</bpmn:incoming>
+      <bpmn:outgoing>Flow_06k811b</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+Getting this information into the XML is a little bit beyond the scope of this tutorial, as it involves more than
+just SpiffWorkflow.  I hand edited it for this case, but you can hardly ask your BPMN authors to do that!
+
+Our `modeler <https://github.com/sartography/bpmn-js-spiffworkflow>`_ has a means of providing a list of services and
+their parameters that can be displayed to a BPMN author in the Service Task configurtion panel.  There is an example of
+hard-coding a list of services in
+`app.js <https://github.com/sartography/bpmn-js-spiffworkflow/blob/0a9db509a0e85aa7adecc8301d8fbca9db75ac7c/app/app.js#L47>`_
+and as suggested, it would be reasonably straightforward to replace this with a API call.  `SpiffArena <https://www.spiffworkflow.org/posts/articles/get_started/>`_
+has robust mechanisms for handling this that might serve as a model for you.
+
+How this all works is obviously heavily dependent on your application, so we won't go into further detail here, except
+to give you a bare bones starting point for implementing something yourself that meets your own needs.
+
+To run this workflow (you'll have to manually change which script engine you import):
+
+.. code-block:: console
+
+    ./spiff-bpmn-runner.py -p order_product -b bpmn/tutorial/top_level_service_task.bpmn bpmn/tutorial/call_activity_service_task.bpmn
+

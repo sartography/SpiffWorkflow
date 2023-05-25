@@ -43,10 +43,8 @@ class BpmnTaskSpec(TaskSpec):
         self.data_input_associations = data_input_associations or []
         self.data_output_associations = data_output_associations or []
         self.io_specification = None
-
-    @property
-    def spec_type(self):
-        return 'BPMN Task'
+        if self.description is None:
+            self.description = 'BPMN Task'
 
     def connect_outgoing_if(self, condition, taskspec):
         """

@@ -6,107 +6,138 @@ BPMN Model
 
 We'll be using the following files from `spiff-example-cli <https://github.com/sartography/spiff-example-cli>`_.
 
-- `multiinstance <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/multiinstance.bpmn>`_ workflow
-- `call activity multi <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/call_activity_multi.bpmn>`_ workflow
-- `product_prices <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/product_prices.dmn>`_ DMN table
-- `shipping_costs <https://github.com/sartography/spiff-example-cli/blob/master/bpmn/shipping_costs.dmn>`_ DMN table
+- `multiinstance <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/top_level_multi.bpmn>`_ workflow
+- `call activity multi <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/call_activity_multi.bpmn>`_ workflow
+- `product_prices <https://github.com/sartography/spiff-example-cli/blob/main/bpmn/tutorial/product_prices.dmn>`_ DMN table
+- `shipping_costs <https://github.com/sartography/spiff-example-cli/blob/main/bpmntutorial//shipping_costs.dmn>`_ DMN table
+
+Loop Task
+^^^^^^^^^
 
 Suppose we want our customer to be able to select more than one product.
 
-If we knew how many products they would select at the beginning of the workflow, we could
-configure 'Select and Customize Product' as a Sequential MultiInstance Task.  We would
-specify the name of the collection and each iteration of the task would add a new item
-to it.
+We'll run our 'Select and Customize Product' Call Activity as a Loop Task.
 
-Since we can't know in advance how many products the order, we'll need to modify that
-workflow to ask them whether they want to continue shopping and maintain their product
-selections in a collection.
+First we'll update the Call Activity's model to ask the customer if they would like to continue shopping.
 
-.. figure:: figures/call_activity_multi.png
+.. figure:: figures/multiinstance/call_activity_multi.png
    :scale: 30%
    :align: center
 
    Selecting more than one product
 
-We'll also need to update our element documentation to display all products.
+We've also added a *postScript* to the user task.  Spiffworkflow provides extensions that allow scripts to be
+run before and after tasks.  It is often the case that data needs to be manipulated before and after a task.
+We could add regular Script Tasks before and after, but diagrams quickly become cluttered with scripts, and
+these extensions are intended to alleviate that.
 
-.. figure:: figures/documentation_multi.png
+We use a *postScript* to add the current product to a list of products.
+
+.. code:: python
+
+   products.append({
+   'product_name': product_name,
+   'product_quantity': product_quantity,
+   'product_color': product_color,
+   'product_size': product_size,
+   'product_style': product_style,
+   'product_price': product_price,
+   })
+
+We'll use a *preScript* on the first User Task (Select Product and Quantity) to initialize these variables to
+:code:`None` each time we execute the task.
+
+Loop Tasks run either a specified number of times or until a completion condition is met.  Since we can't
+know in advance how many products the customer will select, we'll add :code:`continue_shopping == 'Y'` as a 
+completion condition.  We'll re-run this Call Activity as long as the customer indicates they want to choose
+another product.  We'll also set up the list of products that we plan on appending to.
+
+We also added a postscript to this activity to delete the customization values so that we won't have to
+look at them for the remainder of the workflow.
+
+.. figure:: figures/multiinstance/loop_task.png
    :scale: 30%
    :align: center
 
-   Updated Documentation for 'Review Order'
+   Call Activity with Loop
 
-.. note::
+We also needed to update our Script Task and the Instructions of the Review Order Task to handle an array
+of products rather than a single product.
 
-   Note that we are using a dot instead of the typical python dictionary access to obtain
-   the values.  Spiff automatically generates such a representation, which simplifies creating the
-   documentation strings; however regular Python syntax will work as well.
+Here is our new script
+
+.. code:: python
+
+   order_total = sum([ p['product_quantity'] * p['product_price'] for p in products ]) + shipping_cost
+
+And our order summary
+
+.. code:: python
+
+   Order Summary
+   {% for product in products %}
+   {{ product['product_name'] }}
+   Quantity: {{ product['product_quantity'] }}
+   Price: {{ product['product_price'] }}
+   {% endfor %}
+   Shipping Cost: {{ shipping_cost }}
+   Order Total: {{ order_total }}
 
 Parallel MultiInstance
 ^^^^^^^^^^^^^^^^^^^^^^
 
-We'll also update our 'Retrieve Product' task and 'Product Not Available' flows to
+We'll also update our 'Retrieve Product' Task and 'Product Not Available' flows to
 accommodate multiple products.  We can use a Parallel MultiInstance for this, since
 it does not matter what order our Employee retrieves the products in.
 
-.. figure:: figures/multiinstance_task_configuration.png
+.. figure:: figures/multiinstance/multiinstance_task_configuration.png
    :scale: 30%
    :align: center
 
-   MultiInstance task configuration
+   MultiInstance Task configuration
 
-Spiff will generate a task for each of the items in the collection.  Because of the way
-SpiffWorkflow manages the data for these tasks, the collection MUST be a dictionary.
+We've specified :code:`products` as our Input Collection and :code:`product` as our Input Item.  The
+Input Collection should be an existing collection.  We'll create a task instance for each element of
+the collection, and copy the value into the Input Item; this is how we'll access the data of the
+element.
 
-Each value in the dictionary will be copied into a variable with the name specified in
-the 'Element Variable' field, so you'll need to specify this as well.
+.. :code::
 
-.. figure:: figures/multiinstance_form_configuration.png
-   :scale: 30%
+   Item: {{product['product_quantity']}} of {{product['product_name']}}
+
+We also specified :code:`availability` as our Output Collection.  Since this variable does not exist,
+SpiffWorkflow will automatically create it.  You can use an existing variable as an Output Collection;
+in this case, its contents will be updated with new values.  The Output Item will be copied out of the
+child task into the Output Collection.
+
+The 'Retrieve Product' task creates :code:`product_available` from the form input.
+
+Since our input is a list, our output will also be a list.  It is possible to generate different output
+types if you create the output collections before referring to them.
+
+We have to update our gateway condition to handle the list:
+
+.. figure:: figures/multiinstance/availability_flow.png
+   :scale: 60%
    :align: center
 
-   MultiInstance form configuration
+   Gateway Condition
 
-We'll also need to update the form field id so that the results will be added to the
-item of the collection rather than the top level of the task data.  This is where the
-'Element Variable' field comes in: we'll need to change `product_available` to
-`product.product_available`, because we set up `product` as our reference to the
-current item.
-
-.. figure:: figures/multiinstance_flow_configuration.png
-   :scale: 30%
-   :align: center
-
-   Product available flow configuration
-
-Finally, we'll need to update our 'No' flow to check all items in the collection for
-availability.
-
-.. note::
-
-   In our form configuration, we used `product.product_available` but when we reference
-   it in the flow, we use the standard python dictionary syntax.  We can't use that
-   notation in form fields, so in this case we need to use SpiffWorkflow's dot notation
-   conversion.
 
 Sequential MultiInstance
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-SpiffWorkflow also supports Sequential MultiInstance Tasks for previously defined
-collections, or if the loopCardinality is known in advance, although we have not added an
-example of this to our workflow.
-
-For more information about MultiInstance Tasks and SpiffWorkflow, see :doc:`/bpmn/advanced`.
+SpiffWorkflow also supports Sequential MultiInstance Tasks for collections, or if the loopCardinality
+is known in advance, although we have not added an example of this to our workflow.  Their configuraiton
+is almost idenitcal to the configuration for Parallel MultiInstance Tasks.
 
 Running The Model
 ^^^^^^^^^^^^^^^^^
 
-If you have set up our example repository, this model can be run with the
-following command:
+If you have set up our example repository, this model can be run with the following command:
 
 .. code-block:: console
 
-   ./run.py -p order_product \
-        -d bpmn/product_prices.dmn bpmn/shipping_costs.dmn \
-        -b bpmn/multiinstance.bpmn bpmn/call_activity_multi.bpmn
-
+   ./spiff-bpmn-runner.py -p order_product \
+      -d bpmn/tutorial/product_prices.dmn bpmn/tutorial/shipping_costs.dmn \
+      -b bpmn/tutorial/top_level_multi.bpmn bpmn/tutorial/call_activity_multi.bpmn

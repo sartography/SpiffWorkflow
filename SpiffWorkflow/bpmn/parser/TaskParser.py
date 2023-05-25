@@ -17,10 +17,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import TransactionSubprocess
+from SpiffWorkflow.bpmn.specs.mixins.exclusive_gateway import ExclusiveGateway
+from SpiffWorkflow.bpmn.specs.mixins.inclusive_gateway import InclusiveGateway
 from SpiffWorkflow.bpmn.specs.defaults import (
-    ExclusiveGateway,
-    InclusiveGateway,
-    TransactionSubprocess,
     StandardLoopTask,
     SequentialMultiInstanceTask,
     ParallelMultiInstanceTask
