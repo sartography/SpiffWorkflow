@@ -19,7 +19,7 @@ strategy for building Low-Code applications.
 
 ## Build status
 [![Build Status](https://travis-ci.com/sartography/SpiffWorkflow.svg?branch=master)](https://travis-ci.org/sartography/SpiffWorkflow)
-
+[![SpiffWorkflow](https://github.com/sartography/SpiffWorkflow/actions/workflows/tests.yaml/badge.svg)](https://github.com/sartography/SpiffWorkflow/actions/workflows/tests.yaml)
 [![Documentation Status](https://readthedocs.org/projects/spiffworkflow/badge/?version=latest)](http://spiffworkflow.readthedocs.io/en/latest/?badge=latest)
 [![Issues](https://img.shields.io/github/issues/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/issues)
 [![Pull Requests](https://img.shields.io/github/issues-pr/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/pulls)
