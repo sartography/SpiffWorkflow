@@ -1,10 +1,12 @@
 ## What's Changed
 
 We've done a lot of work over the last 8 months to the SpiffWorkflow library as we've developed [SpiffArena](https://www.spiffworkflow.org/), a general purpose workflow management system built on top of this library.
-This has resulted in just a handful of new features. Our main focus was on making SpiffWorkflow more predictable, easier to use, and internally consistent.
+This has resulted in just a handful of new features.
+Our main focus was on making SpiffWorkflow more predictable, easier to use, and internally consistent.
 
 ## Breaking Changes from 1.x:
 * We heavily refactored the way we handle multi-instance tasks internally.  This will break any serialized workflows that contain multi-instance tasks.
+* Internal structure of our code, the names classes, and common methods have changed.  Please see our [ReadTheDocs] (https://readthedocs.org/projects/spiffworkflow/) documenation for version 2.0.0.
 
 ## Features and Improvements
 

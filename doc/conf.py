@@ -22,7 +22,7 @@ copyright = '2023, Sartography'
 author = 'Sartography'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0'
+release = '2.0.0rc0'
 
 # -- General configuration ---------------------------------------------------
 
