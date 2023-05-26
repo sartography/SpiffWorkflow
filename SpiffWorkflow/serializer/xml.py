@@ -487,7 +487,7 @@ class XmlSerializer(Serializer):
 
     def deserialize_multi_instance(self, wf_spec, elem, cls=None,
                                    **kwargs):
-        if cls == None:
+        if cls is None:
             cls = MultiInstance
             #cls = MultiInstance(wf_spec,elem.find('name'),elem.find('times'))
         times = self.deserialize_value(elem.find('times'))

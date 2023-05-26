@@ -27,7 +27,6 @@ class ProcessDependencyTest(BpmnWorkflowTestCase):
     def actual_test(self, parser):
         # We ought to test the parsers in the packages they belong to, not here.
         filename = 'call_activity_nested'
-        process_name = 'Level1'
         base_dir = os.path.join(os.path.dirname(__file__), 'data', filename)
         parser.add_bpmn_file(os.path.join(base_dir, 'call_activity_nested.bpmn'))
         dependencies = parser.get_dependencies()

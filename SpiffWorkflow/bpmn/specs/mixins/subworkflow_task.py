@@ -119,7 +119,7 @@ class CallActivity(SubWorkflowTask):
             for var in subworkflow.spec.io_specification.data_outputs:
                 if var.bpmn_id not in end[0].data:
                     raise WorkflowDataException(
-                        f"The Data Output was not available in the subprocess output.",
+                        "The Data Output was not available in the subprocess output.",
                         task=my_task,
                         data_output=var,
                     )

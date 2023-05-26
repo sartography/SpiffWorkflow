@@ -153,7 +153,7 @@ class BpmnWorkflowSerializer:
             dct = self.__get_dict(serialization, use_gzip)
             if self.VERSION_KEY in dct:
                 return dct[self.VERSION_KEY]
-        except:  # Don't bail out trying to get a version, just return none.
+        except Exception:  # Don't bail out trying to get a version, just return none.
             return None
 
     def workflow_to_dict(self, workflow):
@@ -279,7 +279,7 @@ class BpmnWorkflowSerializer:
 
         for child_task_id in task_dict['children']:
             if child_task_id in process_dct['tasks']:
-                child = process_dct['tasks'][child_task_id]
+                process_dct['tasks'][child_task_id]
                 self.task_tree_from_dict(process_dct, child_task_id, task, process, top, top_dct)
             else:
                 raise ValueError(f"Task {task_id} ({task_spec.name}) has child {child_task_id}, but no such task exists")

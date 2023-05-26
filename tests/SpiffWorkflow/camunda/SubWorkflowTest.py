@@ -34,7 +34,8 @@ class SubWorkflowTest(BaseTestCase):
             task.run()
             self.workflow.do_engine_steps()
             self.complete_subworkflow()
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
 
         self.assertEqual(self.workflow.last_task.data,{'FieldA': 'A',
                                                         'FieldA1': 'A1',

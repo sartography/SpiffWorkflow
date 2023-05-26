@@ -69,7 +69,7 @@ class BpmnTaskSpec(TaskSpec):
             data = {}
             for var in self.io_specification.data_inputs:
                 if var.bpmn_id not in my_task.data:
-                    raise WorkflowDataException(f"Missing data input", task=my_task, data_input=var)
+                    raise WorkflowDataException("Missing data input", task=my_task, data_input=var)
                 data[var.bpmn_id] = my_task.data[var.bpmn_id]
             my_task.data = data
 
@@ -84,7 +84,7 @@ class BpmnTaskSpec(TaskSpec):
             data = {}
             for var in self.io_specification.data_outputs:
                 if var.bpmn_id not in my_task.data:
-                    raise WorkflowDataException(f"Missing data ouput", task=my_task, data_output=var)
+                    raise WorkflowDataException("Missing data ouput", task=my_task, data_output=var)
                 data[var.bpmn_id] = my_task.data[var.bpmn_id]
             my_task.data = data
 

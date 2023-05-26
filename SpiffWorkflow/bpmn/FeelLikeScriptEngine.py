@@ -79,8 +79,8 @@ class FeelNot():
 
 def feelConcatenate(*lst):
     ilist = []
-    for l in lst:
-        ilist = ilist + l
+    for list_item in lst:
+        ilist = ilist + list_item
     return ilist
 
 def feelAppend(lst,item):
@@ -144,7 +144,7 @@ def feelFilter(var,a,b,op,column=None):
                 newvar.append({'key':key,'value':var[key]})
         var = newvar
 
-    if column!=None:
+    if column is not None:
         return [x.get(column) for x in var if opmap[op](x.get(a), b)]
     else:
         return [x for x in var if opmap[op](x.get(a), b)]

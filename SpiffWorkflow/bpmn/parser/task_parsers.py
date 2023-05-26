@@ -120,6 +120,6 @@ class ScriptTaskParser(TaskParser):
             return one(self.xpath('.//bpmn:script')).text
         except AssertionError as ae:
             raise ValidationException(
-                f"Invalid Script Task.  No Script Provided. " + str(ae),
+                "Invalid Script Task.  No Script Provided. " + str(ae),
                 node=self.node, file_name=self.filename)
 

@@ -42,7 +42,8 @@ class CallActivityMessageTest(BaseTestCase):
             current_task.run()
             self.workflow.do_engine_steps()
             self.complete_subworkflow()
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
             ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(self.workflow.is_completed(),True,'Expected the workflow to be complete at this point')
         self.assertEqual(self.workflow.last_task.data,{'plan_details': 'Best',

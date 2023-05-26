@@ -28,7 +28,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
         Reset somewhere in the middle. It should complete the row that we
         Reset to, and retain all previous answers.
         """
-        
+
         self.workflow.do_engine_steps()
         firsttaskid = None
         steps = [{'taskname':'First',
@@ -47,7 +47,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
 
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
-            if firsttaskid == None and step['taskname']=='FormA1':
+            if firsttaskid is None and step['taskname']=='FormA1':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
@@ -122,16 +122,17 @@ class ResetTokenTestSubProcess(BaseTestCase):
                   'formvar': 'B2',
                   'answer': 'xb2'},
                  ]
-                 
+
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
-            if firsttaskid == None and step['taskname']=='FormA2':
+            if firsttaskid is None and step['taskname']=='FormA2':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
 
         self.workflow.reset_from_task_id(firsttaskid)
         #NB - this won't test random access
@@ -167,7 +168,8 @@ class ResetTokenTestSubProcess(BaseTestCase):
             task.update_data({step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
 
         self.assertTrue(self.workflow.is_completed())
 

@@ -13,7 +13,8 @@ class ScriptUnitTestExtensionsTest(BaseTestCase):
 
     def task_test(self, save_restore=False):
 
-        spec, subprocesses = self.load_workflow_spec('script_task_with_unit_tests.bpmn', 'Process_ScriptTaskWithUnitTests')
+        spec, subprocesses = self.load_workflow_spec('script_task_with_unit_tests.bpmn',
+                                                     'Process_ScriptTaskWithUnitTests')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
         if save_restore:

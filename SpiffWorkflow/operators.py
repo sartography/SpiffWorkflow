@@ -199,8 +199,8 @@ def valueof(scope, op, default=None):
 
 def is_number(text):
     try:
-        x = int(text)
-    except:
+        int(text)
+    except Exception:
         return False
     return True
 

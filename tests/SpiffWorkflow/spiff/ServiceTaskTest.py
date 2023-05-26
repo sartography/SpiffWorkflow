@@ -3,13 +3,13 @@ import json
 import os
 import sys
 import unittest
+from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from .BaseTestCase import BaseTestCase
 
 dirname = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from .BaseTestCase import BaseTestCase
 
 class ServiceTaskDelegate:
     @staticmethod

@@ -71,7 +71,10 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         try:
             self.assertRaises(TypeError, self.serializer.serialize_json, self.workflow)
             wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter()
-            custom_serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION,json_encoder_cls=MyJsonEncoder, json_decoder_cls=MyJsonDecoder)
+            custom_serializer = BpmnWorkflowSerializer(wf_spec_converter,
+                                                       version=self.SERIALIZER_VERSION,
+                                                       json_encoder_cls=MyJsonEncoder,
+                                                       json_decoder_cls=MyJsonDecoder)
             serialized_workflow = custom_serializer.serialize_json(self.workflow)
         finally:
             a_task.data.pop('jsonTest',None)
@@ -144,7 +147,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         ready_tasks = self.workflow.get_ready_user_tasks()
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
-        results = self.serializer.serialize_json(self.workflow)
+        self.serializer.serialize_json(self.workflow)
         assert self.workflow.is_completed()
         assert 'y' in self.workflow.last_task.data
         assert 'x' not in self.workflow.last_task.data

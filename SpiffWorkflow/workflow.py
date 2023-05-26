@@ -98,7 +98,7 @@ class Workflow(object):
         mask = TaskState.NOT_FINISHED_MASK
         iter = Task.Iterator(self.task_tree, mask)
         try:
-            nexttask = next(iter)
+            next(iter)
         except StopIteration:
             # No waiting tasks found.
             return True

@@ -41,8 +41,8 @@ class PythonScriptEngine(object):
     def __init__(self, default_globals=None, scripting_additions=None, environment=None):
 
         if default_globals is not None or scripting_additions is not None:
-            warnings.warn(f'default_globals and scripting_additions are deprecated.  '
-                          f'Please provide an environment such as TaskDataEnvrionment',
+            warnings.warn('default_globals and scripting_additions are deprecated.  '
+                          'Please provide an environment such as TaskDataEnvrionment',
                           DeprecationWarning, stacklevel=2)
 
         if environment is None:

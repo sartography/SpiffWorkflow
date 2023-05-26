@@ -200,8 +200,8 @@ class BpmnWorkflow(Workflow):
         conversation = task.task_spec.event_definition.conversation()
         if not conversation:
             raise WorkflowTaskException(
-                f"The waiting task and message payload can not be matched to any correlation key (conversation topic).  "
-                f"And is therefor unable to respond to the given message.", task)
+                "The waiting task and message payload can not be matched to any correlation key (conversation topic).  "
+                "And is therefor unable to respond to the given message.", task)
         updated_props = self._correlate(conversation, payload, task)
         task.task_spec.catch(task, event_definition)
         self.refresh_waiting_tasks()
