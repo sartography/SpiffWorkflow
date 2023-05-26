@@ -1,6 +1,6 @@
 ## What's Changed
 
-We've done a lot of work over the last 8 months to the SpiffWorkflow library as we've developed [SpiffArena](https://www.spiffworkflow.org/), a general purpose workflow managment system built ontop of this library.
+We've done a lot of work over the last 8 months to the SpiffWorkflow library as we've developed [SpiffArena](https://www.spiffworkflow.org/), a general purpose workflow management system built on top of this library.
 This has resulted in just a handful of new features. Our main focus was on making SpiffWorkflow more predictable, easier to use, and internally consistent.
 
 ## Breaking Changes from 1.x:
@@ -9,10 +9,10 @@ This has resulted in just a handful of new features. Our main focus was on makin
 ## Features and Improvements
 
 ### Task States, Transitions, Hooks, and Execution
-Previous to 2.0, SpiffWorklow was a little weird about it's states, performing the actual execution in the on_complete() hook.
+Previous to 2.0, SpiffWorklow was a little weird about its states, performing the actual execution in the on_complete() hook.
 This was VERY confusing.
 Tasks now have a _run() command separate from state change hooks.
-The return value of the _run() command can be true (worked), false (failure) or None (not yet done).
+The return value of the _run() command can be true (worked), false (failure), or None (not yet done).
 This opens the door for better overall state management at the moment it is most critical (when the task is actually executing).
 We also added new task state called "STARTED" that describes when a task was started, but hasn't finished yet, an oddly missing state in previous versions.
 
@@ -31,14 +31,14 @@ Timer events are now parsed according to the [ISO 8601 standard](https://en.wiki
 * reset boundary events in loops by @essweine in https://github.com/sartography/SpiffWorkflow/pull/294
 * Bugfix/execute event gateways on ready by @essweine in https://github.com/sartography/SpiffWorkflow/pull/308
 
-### Improved Muliti-Instance Tasks
+### Improved Multi-Instance Tasks
 We refactored how Multi-instance tasks are handled internally, vastly simplifying their representation during execution and serialization.
-No more 'phantom gateways'.
+No more 'phantom gateways.'
 * Feature/multiinstance refactor by @essweine in https://github.com/sartography/SpiffWorkflow/pull/292
 
-### Improved Sub-Processes
-SpiffWorkflow did not previously distinguish between a Call Activity and a SubProcess however they handle Data Objects very differently.
-A Sub Process is now able to access it's parent data objects, a Call Activity can not.
+### Improved SubProcesses
+SpiffWorkflow did not previously distinguish between a Call Activity and a SubProcess, but they handle Data Objects very differently.
+A SubProcess is now able to access its parent data objects, a Call Activity can not.
 We also wanted the ability to execute Call Activities independently of the parent process.
 
 * Bugfix/subprocess access to data objects by @essweine in https://github.com/sartography/SpiffWorkflow/pull/296
@@ -46,7 +46,7 @@ We also wanted the ability to execute Call Activities independently of the paren
 * use same data objects & references in subprocesses after deserialization by @essweine in https://github.com/sartography/SpiffWorkflow/pull/314
 
 ### Improved Data Objects / Data Stores
-This work will continue in subsequent releases, but we have added support for Data Stores, and it is possible provide your own implementations.
+This work will continue in subsequent releases, but we have added support for Data Stores, and it is possible to provide your own implementations.
 * Data stores by @jbirddog in https://github.com/sartography/SpiffWorkflow/pull/298
 * make data objects available to gateways by @essweine in https://github.com/sartography/SpiffWorkflow/pull/325
 
@@ -62,9 +62,9 @@ We previously supported adding a pre-script or post-script to any task but there
 
 ### DMN Improvements
 We now support a new hit policy of "COLLECT" which allows you to match on an array of items.  DMN support is still limited, but
-we are making headway.  Would love to know if people are using these features.
+we are making headway.  We would love to know if people are using these features.
 * Support for the "COLLECT" hit policy. by @danfunk in https://github.com/sartography/SpiffWorkflow/pull/267
-* Bugfix/handle dash in dmn by @essweine in https://github.com/sartography/SpiffWorkflow/pull/323
+* Bugfix/handle dash in DMN by @essweine in https://github.com/sartography/SpiffWorkflow/pull/323
 
 ### BPMN Validation
 We improved validation of BPMN and DMN Files to catch errors earlier.
@@ -76,7 +76,7 @@ your serialized workflows to the new format, but you will definitely encounter i
 * update serializer version by @essweine in https://github.com/sartography/SpiffWorkflow/pull/277
 * Feature/remove old serializer by @essweine in https://github.com/sartography/SpiffWorkflow/pull/278
 
-### Lightening Fast, Stable Tests
+### Lightning Fast, Stable Tests
 * Fix ResourceWarning: unclosed file BpmnParser.py:60 by @jbirddog in https://github.com/sartography/SpiffWorkflow/pull/270
 * Option to run tests in parallel by @jbirddog in https://github.com/sartography/SpiffWorkflow/pull/271
 
@@ -95,10 +95,10 @@ Make it easier to reference SpiffWorkflow library classes from your own code.
 * cleaning up code smell by @danfunk in https://github.com/sartography/SpiffWorkflow/pull/261
 * Feature/cleanup task completion by @essweine in https://github.com/sartography/SpiffWorkflow/pull/263
 * disambiguate DMN expressions by @essweine in https://github.com/sartography/SpiffWorkflow/pull/264
-* Add in memory bpmn/dmn parser functions by @jbirddog in https://github.com/sartography/SpiffWorkflow/pull/320
+* Add in memory BPMN/DMN parser functions by @jbirddog in https://github.com/sartography/SpiffWorkflow/pull/320
 
 ### Better Introspection
-Added the abilty to ask SpiffWorkflow some useful questions about a specification such as "What call activities does this depend on?",
+Added the ability to ask SpiffWorkflow some useful questions about a specification such as, "What call activities does this depend on?",
 "What messages does this process send and receive", and "What lanes exist on this workflow specification?"
 * Parser Information about messages, correlation keys, and the presence of lanes by @danfunk in https://github.com/sartography/SpiffWorkflow/pull/262
 * Called elements by @jbirddog in https://github.com/sartography/SpiffWorkflow/pull/316
@@ -106,7 +106,7 @@ Added the abilty to ask SpiffWorkflow some useful questions about a specificatio
 ### Code Cleanup
 * Improvement/task spec attributes by @essweine in https://github.com/sartography/SpiffWorkflow/pull/328
 * update license by @essweine in https://github.com/sartography/SpiffWorkflow/pull/324
-* Feature/remove unused bpmn attributes and methods by @essweine in https://github.com/sartography/SpiffWorkflow/pull/280
+* Feature/remove unused BPMN attributes and methods by @essweine in https://github.com/sartography/SpiffWorkflow/pull/280
 * Improvement/remove camunda from base and misc cleanup by @essweine in https://github.com/sartography/SpiffWorkflow/pull/295
 * remove minidom by @essweine in https://github.com/sartography/SpiffWorkflow/pull/300
 * Feature/remove loop reset by @essweine in https://github.com/sartography/SpiffWorkflow/pull/305
@@ -118,7 +118,7 @@ Added the abilty to ask SpiffWorkflow some useful questions about a specificatio
 ### Improved Documentation
 * Fixes grammar, typos, and spellings by @rachfop in https://github.com/sartography/SpiffWorkflow/pull/291
 * Updates for 2.0 release by @essweine in https://github.com/sartography/SpiffWorkflow/pull/330
-* Bugfix/non bpmn tutorial by @essweine in https://github.com/sartography/SpiffWorkflow/pull/317
+* Bugfix/non BPMN tutorial by @essweine in https://github.com/sartography/SpiffWorkflow/pull/317
 
 ### Bug Fixes
 * correct xpath for extensions by @essweine in https://github.com/sartography/SpiffWorkflow/pull/265
