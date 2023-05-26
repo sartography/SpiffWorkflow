@@ -1,12 +1,8 @@
 .. image:: https://travis-ci.com/sartography/SpiffWorkflow.svg?branch=master
     :target: https://travis-ci.org/sartography/SpiffWorkflow
 
-.. image:: https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=alert_status
-    :target: https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow
-
-.. image:: https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=coverage
-    :target: https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow
-    :alt: Coverage
+.. image:: https://github.com/sartography/SpiffWorkflow/actions/workflows/tests.yaml/badge.svg
+    :target: https://github.com/sartography/SpiffWorkflow/actions/workflows/tests.yaml
 
 .. image:: https://img.shields.io/github/stars/sartography/SpiffWorkflow.svg
     :target: https://github.com/sartography/SpiffWorkflow/stargazers
