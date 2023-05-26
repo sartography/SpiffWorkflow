@@ -19,9 +19,7 @@ strategy for building Low-Code applications.
 
 ## Build status
 [![Build Status](https://travis-ci.com/sartography/SpiffWorkflow.svg?branch=master)](https://travis-ci.org/sartography/SpiffWorkflow)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=alert_status)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=coverage)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
+
 [![Documentation Status](https://readthedocs.org/projects/spiffworkflow/badge/?version=latest)](http://spiffworkflow.readthedocs.io/en/latest/?badge=latest)
 [![Issues](https://img.shields.io/github/issues/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/issues)
 [![Pull Requests](https://img.shields.io/github/issues-pr/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/pulls)
