@@ -94,7 +94,7 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         self.assertEqual(
             1, len([t for t in new_workflow.get_tasks() if t.task_spec.name == 'Root']))
 
-    def testDeserialization(self):
+    def testDeserialization2(self):
         """
         Tests the that deserialized workflow can be completed.
         """

@@ -95,7 +95,7 @@ def run_workflow(test, wf_spec, expected_path, expected_data, workflow=None):
             if workflow.is_completed():
                 break
             time.sleep(0.5)
-    except:
+    except Exception:
         workflow.task_tree.dump()
         raise
 

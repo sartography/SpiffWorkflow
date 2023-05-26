@@ -41,7 +41,7 @@ class PythonScriptEngineTest(BpmnWorkflowTestCase):
         # calling an exec that references testvar, in the context of the
         # start task should fail.
         with self.assertRaises(WorkflowTaskException):
-            result = self.workflow.script_engine.evaluate(startTask, 'testvar == True')
+            self.workflow.script_engine.evaluate(startTask, 'testvar == True')
 
     def testFunctionsAndGlobalsAreRemoved(self):
         self.workflow.do_engine_steps()

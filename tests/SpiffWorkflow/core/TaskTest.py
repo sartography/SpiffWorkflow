@@ -36,10 +36,10 @@ class TaskTest(unittest.TestCase):
         c1 = root._add_child(task2)
         c11 = c1._add_child(task3)
         c111 = c11._add_child(task4)
-        c1111 = Task(workflow, task5, c111)
-        c112 = Task(workflow, task6, c11)
-        c12 = Task(workflow, task7, c1)
-        c2 = Task(workflow, task8, root)
+        Task(workflow, task5, c111)
+        Task(workflow, task6, c11)
+        Task(workflow, task7, c1)
+        Task(workflow, task8, root)
         c3 = Task(workflow, task9, root)
         c3.state = TaskState.COMPLETED
 

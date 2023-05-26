@@ -58,7 +58,7 @@ class Transform(TaskSpec):
 
         if self.transforms:
             for transform in self.transforms:
-                logger.debug(f'Execute transform', extra=my_task.log_info({'transform': transform}))
+                logger.debug('Execute transform', extra=my_task.log_info({'transform': transform}))
                 exec(transform)
         return True
 

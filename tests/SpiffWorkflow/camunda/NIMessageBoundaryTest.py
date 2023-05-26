@@ -37,7 +37,7 @@ class NIMessageBoundaryTest(BaseTestCase):
             ready_tasks = self.workflow.get_tasks(TaskState.READY)
             for task in ready_tasks:
                 response = answers.get(task.task_spec.name,None)
-                self.assertEqual(response==None,
+                self.assertEqual(response is None,
                                  False,
                                  'We got a ready task that we did not expect - %s'%(
                                  task.task_spec.name))
@@ -58,14 +58,15 @@ class NIMessageBoundaryTest(BaseTestCase):
             ready_tasks = self.workflow.get_tasks(TaskState.READY)
             for task in ready_tasks:
                 response = answers.get(task.task_spec.name,None)
-                self.assertEqual(response==None,
+                self.assertEqual(response is None,
                                  False,
                                  'We got a ready task that we did not expect - %s'%(
                                  task.task_spec.name))
                 task.data[response[0]] = response[1]
                 self.workflow.run_task_from_id(task.id)
                 self.workflow.do_engine_steps()
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
 
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(len(ready_tasks),1)

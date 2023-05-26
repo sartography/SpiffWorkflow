@@ -19,7 +19,7 @@ class WorkflowTest(unittest.TestCase):
     def testConstructor(self):
         wf_spec = WorkflowSpec()
         wf_spec.start.connect(Cancel(wf_spec, 'name'))
-        workflow = Workflow(wf_spec)
+        Workflow(wf_spec)
 
     def testBeginWorkflowStepByStep(self):
         """

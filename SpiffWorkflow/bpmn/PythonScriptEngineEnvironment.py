@@ -115,7 +115,7 @@ class Box(dict):
     def __getattr__(self, attr):
         try:
             output = self[attr]
-        except:
+        except Exception:
             raise AttributeError(
                 "Dictionary has no attribute '%s' " % str(attr))
         return output

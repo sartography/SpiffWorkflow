@@ -93,7 +93,8 @@ class WorkflowPatternTestCase:
 
     def test_xml_serializer(self):
 
-        prepare_result = lambda item: etree.tostring(item, pretty_print=True)
+        def prepare_result(item):
+            return etree.tostring(item, pretty_print=True)
 
         before, after = self.serialize(self.spec, xml_serializer)
         self.assertEqual(prepare_result(before), prepare_result(after))

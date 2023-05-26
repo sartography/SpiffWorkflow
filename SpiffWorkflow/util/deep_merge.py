@@ -31,7 +31,8 @@ class DeepMerge(object):
     @staticmethod
     def merge(a, b, path=None):
         "merges b into a"
-        if path is None: path = []
+        if path is None:
+            path = []
         for key in b:
             if key in a:
                 if a[key] == b[key]:

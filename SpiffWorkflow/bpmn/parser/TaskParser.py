@@ -98,15 +98,17 @@ class TaskParser(NodeParser):
         self._copy_task_attrs(original)
 
     def _add_multiinstance_task(self, loop_characteristics):
-        
+
         sequential = loop_characteristics.get('isSequential') == 'true'
         prefix = 'bpmn:multiInstanceLoopCharacteristics'
         cardinality = self.xpath(f'./{prefix}/bpmn:loopCardinality')
         loop_input = self.xpath(f'./{prefix}/bpmn:loopDataInputRef')
         if len(cardinality) == 0 and len(loop_input) == 0:
-            self.raise_validation_exception("A multiinstance task must specify a cardinality or a loop input data reference")
+            self.raise_validation_exception(
+                "A multiinstance task must specify a cardinality or a loop input data reference")
         elif len(cardinality) > 0 and len(loop_input) > 0:
-            self.raise_validation_exception("A multiinstance task must specify exactly one of cardinality or loop input data reference")
+            self.raise_validation_exception(
+                "A multiinstance task must specify exactly one of cardinality or loop input data reference")
         cardinality = cardinality[0].text if len(cardinality) > 0 else None
 
         loop_input = loop_input[0].text if len(loop_input) > 0 else None
@@ -114,7 +116,7 @@ class TaskParser(NodeParser):
             if self.task.io_specification is not None:
                 try:
                     loop_input = [v for v in self.task.io_specification.data_inputs if v.name == loop_input][0]
-                except:
+                except Exception:
                     self.raise_validation_exception('The loop input data reference is missing from the IO specification')
             else:
                 loop_input = TaskDataReference(loop_input)
@@ -129,7 +131,7 @@ class TaskParser(NodeParser):
                 try:
                     refs = set(self.task.io_specification.data_inputs + self.task.io_specification.data_outputs)
                     loop_output = [v for v in refs if v.name == loop_output][0]
-                except:
+                except Exception:
                     self.raise_validation_exception('The loop output data reference is missing from the IO specification')
             else:
                 loop_output = TaskDataReference(loop_output)
@@ -142,8 +144,8 @@ class TaskParser(NodeParser):
 
         original = self.spec.task_specs.pop(self.task.name)
         params = {
-            'task_spec': '', 
-            'cardinality': cardinality, 
+            'task_spec': '',
+            'cardinality': cardinality,
             'data_input': loop_input,
             'data_output':loop_output,
             'input_item': input_item,
@@ -207,7 +209,7 @@ class TaskParser(NodeParser):
                 target_ref = sequence_flow.get('targetRef')
                 try:
                     target_node = one(self.doc_xpath('.//bpmn:*[@id="%s"]'% target_ref))
-                except:
+                except Exception:
                     self.raise_validation_exception('When looking for a task spec, we found two items, '
                         'perhaps a form has the same ID? (%s)' % target_ref)
 

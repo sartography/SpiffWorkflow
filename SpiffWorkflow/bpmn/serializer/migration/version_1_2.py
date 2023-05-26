@@ -48,7 +48,7 @@ def convert_timer_expressions(dct):
             elif isinstance(dt, timedelta):
                 spec['event_definition']['expression'] = f"'{td_to_iso(dt)}'"
                 spec['event_definition']['typename'] = 'DurationTimerEventDefinition'
-        except:
+        except Exception:
             raise VersionMigrationError(message.format(spec=spec['name']))
 
     def convert_cycle(spec, task):
@@ -66,7 +66,7 @@ def convert_timer_expressions(dct):
                         'next': datetime.combine(dt.date(), dt.time(), LOCALTZ).isoformat(),
                         'duration': duration.total_seconds(),
                     }
-        except:
+        except Exception:
             raise VersionMigrationError(message.format(spec=spec['name']))
 
         if spec['typename'] == 'StartEvent':
@@ -84,7 +84,8 @@ def convert_timer_expressions(dct):
                 task['children'].remove(remove['id'])
                 dct['tasks'].pop(remove['id'])
 
-    has_timer = lambda ts: 'event_definition' in ts and ts['event_definition']['typename'] in [ 'CycleTimerEventDefinition', 'TimerEventDefinition']
+    def has_timer(ts):
+        return "event_definition" in ts and ts["event_definition"]["typename"] in ["CycleTimerEventDefinition", "TimerEventDefinition"]
     for spec in [ ts for ts in dct['spec']['task_specs'].values() if has_timer(ts) ]:
         spec['event_definition']['name'] = spec['event_definition'].pop('label')
         if spec['event_definition']['typename'] == 'TimerEventDefinition':
@@ -132,7 +133,7 @@ def create_data_objects_and_io_specs(dct):
             item['typename'] = 'DataObject'
 
 def check_multiinstance(dct):
-    
+
     specs = [ spec for spec in dct['spec']['task_specs'].values() if 'prevtaskclass' in spec ]
     if len(specs) > 0:
         raise VersionMigrationError("This workflow cannot be migrated because it contains MultiInstance Tasks")
@@ -225,7 +226,7 @@ def update_bpmn_attributes(dct):
             if spec['typename'] not in ['BpmnStartTask', 'SimpleBpmnTask', '_EndJoin', '_BoundaryEventParent']:
                 spec['bpmn_id'] = spec['name']
                 spec['bpmn_name'] = spec['description'] or None
-                if 'event_definition' in spec and spec['event_definition']['typename'] in descriptions:    
+                if 'event_definition' in spec and spec['event_definition']['typename'] in descriptions:
                     spec_desc = descriptions.get(spec['typename'])
                     event_desc = descriptions.get(spec['event_definition']['typename'])
                     cancelling = spec.get('cancel_activity')

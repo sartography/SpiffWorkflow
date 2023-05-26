@@ -52,7 +52,7 @@ class PrescriptPostsciptTest(BaseTestCase):
         self.workflow = BpmnWorkflow(spec, subprocesses)
         if save_restore:
             self.save_restore()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        self.workflow.get_tasks(TaskState.READY)
         # Calling do-engine steps without setting variables will raise an exception.
         with self.assertRaises(SpiffWorkflowException) as se:
             self.workflow.do_engine_steps()

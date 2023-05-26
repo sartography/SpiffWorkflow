@@ -56,7 +56,7 @@ class DMNEngine:
             for rule in matched_rules:
                 rule_output = rule.output_as_dict(task)
                 for key in rule_output.keys():
-                    if not key in result:
+                    if key not in result:
                         result[key] = []
                     result[key].append(rule_output[key])
         elif len(matched_rules) > 0:

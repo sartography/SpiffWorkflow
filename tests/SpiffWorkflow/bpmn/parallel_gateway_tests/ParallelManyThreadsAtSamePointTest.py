@@ -21,7 +21,7 @@ class ParallelManyThreadsAtSamePointTest(BaseParallelTestCase):
         self._do_test(['1', 'Done', '2', 'Done', '3', 'Done',  '4', 'Done'],
                       only_one_instance=False, save_restore=True)
 
-    def test2(self):
+    def test3(self):
         self._do_test(['1', '2', 'Done', '3', '4', 'Done', 'Done', 'Done'],
                       only_one_instance=False, save_restore=True)
 

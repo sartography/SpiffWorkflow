@@ -96,7 +96,7 @@ class BpmnValidator:
         except ValidationException as ve:
             ve.file_name = filename
             ve.line_number = self.validator.error_log.last_error.line
-        except LxmlError as le:
+        except LxmlError:
             last_error = self.validator.error_log.last_error
             raise ValidationException(last_error.message, file_name=filename,
                                       line_number=last_error.line)

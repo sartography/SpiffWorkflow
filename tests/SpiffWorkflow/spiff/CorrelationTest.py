@@ -22,7 +22,7 @@ class CorrelationTest(BaseTestCase):
         for idx, task in enumerate(self.workflow.get_ready_user_tasks()):
             task.data['task_num'] = idx
             task.data['task_name'] = f'subprocess {idx}'
-            task.data['extra_data'] = f'unused data'
+            task.data['extra_data'] = 'unused data'
             task.run()
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_ready_user_tasks()
@@ -47,11 +47,12 @@ class DualConversationTest(BaseTestCase):
         workflow.do_engine_steps()
         messages = workflow.get_bpmn_messages()
         self.assertEqual(len(messages), 2)
-        message_one = [ msg for msg in messages if msg.name== 'Message Send One' ][0]
-        message_two = [ msg for msg in messages if msg.name== 'Message Send Two' ][0]
+        [ msg for msg in messages if msg.name== 'Message Send One' ][0]
+        [ msg for msg in messages if msg.name== 'Message Send Two' ][0]
 
         # fixme:  This seemed to test that we get a nested structure of correlation keys and correlation properties
-        # Perhaps there should be a way to get the keys and thier associated properties - but things should not default to a nested structure.
+        # Perhaps there should be a way to get the keys and thier associated properties -
+        # but things should not default to a nested structure.
 
         # self.assertIn('message_correlation_key_one', message_one.correlations)
         # self.assertNotIn('message_correlation_key_one', message_two.correlations)

@@ -21,7 +21,6 @@ from copy import deepcopy
 
 import logging
 import time
-import warnings
 from uuid import uuid4
 
 from .util.deep_merge import DeepMerge

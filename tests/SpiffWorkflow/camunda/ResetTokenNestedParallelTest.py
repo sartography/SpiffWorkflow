@@ -69,13 +69,14 @@ class ResetTokenTestNestedParallel(BaseTestCase):
                  ]
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
-            if firsttaskid == None and step['taskname']=='FormB2':
+            if firsttaskid is None and step['taskname']=='FormB2':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
         self.workflow.reset_from_task_id(firsttaskid)
         self.workflow.do_engine_steps()
         #NB - this won't test random access
@@ -93,8 +94,9 @@ class ResetTokenTestNestedParallel(BaseTestCase):
             task.update_data({step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
-            if save_restore: self.save_restore()
-        notworking = self.workflow.get_ready_user_tasks()
+            if save_restore:
+                self.save_restore()
+        self.workflow.get_ready_user_tasks()
         self.assertTrue(self.workflow.is_completed())
         self.assertEqual({'First': 'Yes',
                           'A1': 'xa1',
@@ -144,13 +146,14 @@ class ResetTokenTestNestedParallel(BaseTestCase):
                  ]
         for step in steps:
             task = self.workflow.get_ready_user_tasks()[0]
-            if firsttaskid == None and step['taskname']=='FormA2':
+            if firsttaskid is None and step['taskname']=='FormA2':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
 
         self.workflow.reset_from_task_id(firsttaskid)
         #NB - this won't test random access
@@ -184,7 +187,8 @@ class ResetTokenTestNestedParallel(BaseTestCase):
             task.update_data({step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
-            if save_restore: self.save_restore()
+            if save_restore:
+                self.save_restore()
 
         self.assertTrue(self.workflow.is_completed())
 

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import pathlib
 import sys
+from setuptools import setup, find_packages
 
 sys.path.insert(0, '.')
 sys.path.insert(0, 'SpiffWorkflow')
-from setuptools import setup, find_packages
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
