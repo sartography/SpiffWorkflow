@@ -30,7 +30,7 @@ class LoopTask(TaskSpec):
 
     def process_children(self, my_task):
         """
-        Handle any newly completed children and update merged tasks. 
+        Handle any newly completed children and update merged tasks.
         Returns a boolean indicating whether there is a child currently running
         """
         merged = my_task.internal_data.get('merged') or []
@@ -42,7 +42,7 @@ class LoopTask(TaskSpec):
             elif not child._has_state(TaskState.FINISHED_MASK):
                 child_running = True
         my_task.internal_data['merged'] = merged
-        return child_running    
+        return child_running
 
     def child_completed_action(self, my_task, child):
         raise NotImplementedError
@@ -94,7 +94,7 @@ class StandardLoopTask(LoopTask):
 
 class MultiInstanceTask(LoopTask):
 
-    def __init__(self, wf_spec, bpmn_id, task_spec, cardinality=None, data_input=None, 
+    def __init__(self, wf_spec, bpmn_id, task_spec, cardinality=None, data_input=None,
                  data_output=None, input_item=None, output_item=None, condition=None,
                  **kwargs):
 
@@ -117,7 +117,7 @@ class MultiInstanceTask(LoopTask):
             key_or_index = child.internal_data.get('key_or_index')
             data_output = my_task.data[self.data_output.bpmn_id]
             data_input = my_task.data[self.data_input.bpmn_id] if self.data_input is not None else None
-            if isinstance(data_output, Mapping) or data_input is data_output:
+            if key_or_index is not None and (isinstance(data_output, Mapping) or data_input is data_output):
                 data_output[key_or_index] = item
             else:
                 data_output.append(item)
@@ -272,7 +272,7 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
 
 
 class ParallelMultiInstanceTask(MultiInstanceTask):
-    
+
     def _update_hook(self, my_task):
 
         if my_task.state != TaskState.WAITING:
