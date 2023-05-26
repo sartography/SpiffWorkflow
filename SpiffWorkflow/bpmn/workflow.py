@@ -188,7 +188,9 @@ class BpmnWorkflow(Workflow):
 
         # There should be one and only be one task that can accept the message
         # (messages are one to one, not one to many)
-        tasks = [t for t in self.get_waiting_tasks() if t.task_spec.event_definition == event_definition]
+        tasks = [t for t in self.get_catching_tasks() if
+                 t.task_spec.event_definition == event_definition and
+                 t._has_state(TaskState.WAITING)]
         if len(tasks) == 0:
             raise WorkflowException(
                 f"This process is not waiting on a message named '{event_definition.name}'")
@@ -212,6 +214,11 @@ class BpmnWorkflow(Workflow):
         task's event definition and this workflows own correlation
         properties.  Returning an updated property list if successful"""
         receive_event = task.task_spec.event_definition
+        # import pdb; pdb.set_trace()
+        # if task.task_spec.event_definition.name == 'Message Response Two':
+        #     import pdb; pdb.set_trace()
+        #     print("HEY")
+
         current_props = self.correlations.get(conversation, {})
         updated_props = copy.copy(current_props)
         for prop in receive_event.correlation_properties:
@@ -223,12 +230,15 @@ class BpmnWorkflow(Workflow):
                 raise WorkflowTaskException("Unable to accept the BPMN message. "
                                             "The payload must contain "
                                             f"'{prop.retrieval_expression}'", task, e)
-            if prop.name in current_props and \
-                new_val != updated_props[prop.name]:
+            if prop.name in current_props and new_val != updated_props[prop.name]:
+                # import pdb; pdb.set_trace()
                 raise WorkflowTaskException("Unable to accept the BPMN message. "
                                             "The payload does not match. Expected "
                                             f"'{prop.retrieval_expression}' to equal "
-                                            f"{current_props[prop.name]}.", task)
+                                            f"{updated_props[prop.name]} but "
+                                            f"was {new_val}. current: {current_props} "
+                                            f"updated_props: {updated_props} prop: {prop} retr: {prop.retrieval_expression} payload: {payload}"
+                                            , task)
             else:
                 updated_props[prop.name] = new_val
         return updated_props
@@ -324,7 +334,7 @@ class BpmnWorkflow(Workflow):
     def get_ready_user_tasks(self, lane=None, workflow=None):
         """Returns a list of User Tasks that are READY for user action"""
         if lane is not None:
-            return [t for t in self.get_tasks(TaskState.READY, workflow) 
+            return [t for t in self.get_tasks(TaskState.READY, workflow)
                         if t.task_spec.manual and t.task_spec.lane == lane]
         else:
             return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual]
@@ -386,7 +396,7 @@ class BpmnWorkflow(Workflow):
         for sp_id, sp in top.subprocesses.items():
             if sp_id in cancelled_ids:
                 to_cancel.append(sp)
-        
+
         for sp in to_cancel:
             cancelled.extend(self.cancel(sp))
 
