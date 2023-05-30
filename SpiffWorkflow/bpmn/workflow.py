@@ -17,12 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import copy
-
 from SpiffWorkflow.task import TaskState, Task
 from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.exceptions import WorkflowException, TaskNotFoundException
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 
 from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
@@ -53,7 +50,7 @@ class BpmnWorkflow(Workflow):
     Spiff Workflow class with a few extra methods and attributes.
     """
 
-    def __init__(self, top_level_spec, subprocess_specs=None, name=None, script_engine=None, **kwargs):
+    def __init__(self, top_level_spec, subprocess_specs=None, script_engine=None, **kwargs):
         """
         Constructor.
 
@@ -62,7 +59,7 @@ class BpmnWorkflow(Workflow):
         most workflow, or to the PythonScriptEngine if none is provided.
         """
         super(BpmnWorkflow, self).__init__(top_level_spec, **kwargs)
-        self.name = name or top_level_spec.name
+        self.parent = kwargs.get('parent')
         self.subprocess_specs = subprocess_specs or {}
         self.subprocesses = {}
         self.bpmn_messages = []
@@ -80,11 +77,17 @@ class BpmnWorkflow(Workflow):
     def script_engine(self, engine):
         self.__script_engine = engine
 
+    def _get_outermost_workflow(self, task=None):
+        workflow = task.workflow if task is not None else self
+        while workflow.parent is not None:
+            workflow = workflow.parent
+        return workflow
+
     def create_subprocess(self, my_task, spec_name, name):
         # This creates a subprocess for an existing task
         workflow = self._get_outermost_workflow(my_task)
         subprocess = BpmnWorkflow(
-            workflow.subprocess_specs[spec_name], name=name,
+            workflow.subprocess_specs[spec_name],
             script_engine=self.script_engine,
             parent=my_task.workflow)
         workflow.subprocesses[my_task.id] = subprocess
@@ -123,8 +126,8 @@ class BpmnWorkflow(Workflow):
 
     def _get_outermost_workflow(self, task=None):
         workflow = task.workflow if task is not None else self
-        while workflow != workflow.outer_workflow:
-            workflow = workflow.outer_workflow
+        while workflow.parent is not None:
+            workflow = workflow.parent
         return workflow
 
     def _get_or_create_subprocess(self, task_spec, wf_spec):
@@ -137,7 +140,6 @@ class BpmnWorkflow(Workflow):
 
     def catch(self, event_definition, correlations=None):
         """
-
         Tasks can always catch events, regardless of their state.  The
         event information is stored in the tasks internal data and processed
         when the task is reached in the workflow.  If a task should only
@@ -172,66 +174,39 @@ class BpmnWorkflow(Workflow):
 
         # Figure out if we need to create an external message
         if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
-            self.bpmn_messages.append(
-                BpmnMessage(correlations, event_definition.name, event_definition.payload))
+            self.bpmn_messages.append(BpmnMessage(correlations, event_definition.name, event_definition.payload))
 
     def get_bpmn_messages(self):
         messages = self.bpmn_messages
         self.bpmn_messages = []
         return messages
 
-    def catch_bpmn_message(self, name, payload):
-        """Allows this workflow to catch an externally generated bpmn message.
-        Raises an error if this workflow is not waiting on the given message."""
-        event_definition = MessageEventDefinition(name)
-        event_definition.payload = payload
+    def catch_bpmn_message(self, message):
+        """Allows this workflow to catch an externally generated bpmn message."""
+
+        event_definition = MessageEventDefinition(message.name)
+        event_definition.payload = message.payload
 
         # There should be one and only be one task that can accept the message
         # (messages are one to one, not one to many)
-        tasks = [t for t in self.get_waiting_tasks() if t.task_spec.event_definition == event_definition]
+        tasks = [t for t in self.get_catching_tasks() if t.task_spec.event_definition == event_definition]
         if len(tasks) == 0:
-            raise WorkflowException(
-                f"This process is not waiting on a message named '{event_definition.name}'")
+            raise WorkflowException(f"This process is not waiting on a message named '{event_definition.name}'")
         if len(tasks) > 1:
+            # Why?  Inclined to delete this check, as it seems unnecessarily restrictive.
+            # 1:1 applies to processes, not messages (an identical message can't be sent to two processes, but I don't
+            # see any reason why multiple tasks in a process with the required corrlations coulnd't have multiple waiting
+            # tasks).
             raise WorkflowException(
                 f"This process has multiple tasks waiting on the same message '{event_definition.name}', which is not supported. ")
 
         task = tasks[0]
-        conversation = task.task_spec.event_definition.conversation()
-        if not conversation:
-            raise WorkflowTaskException(
-                "The waiting task and message payload can not be matched to any correlation key (conversation topic).  "
-                "And is therefor unable to respond to the given message.", task)
-        updated_props = self._correlate(conversation, payload, task)
-        task.task_spec.catch(task, event_definition)
-        self.refresh_waiting_tasks()
-        self.correlations[conversation] = updated_props
-
-    def _correlate(self, conversation, payload, task):
-        """Assures that the provided payload correlates to the given
-        task's event definition and this workflows own correlation
-        properties.  Returning an updated property list if successful"""
-        receive_event = task.task_spec.event_definition
-        current_props = self.correlations.get(conversation, {})
-        updated_props = copy.copy(current_props)
-        for prop in receive_event.correlation_properties:
-            try:
-                new_val = self.script_engine._evaluate(
-                    prop.retrieval_expression, payload
-                )
-            except Exception as e:
-                raise WorkflowTaskException("Unable to accept the BPMN message. "
-                                            "The payload must contain "
-                                            f"'{prop.retrieval_expression}'", task, e)
-            if prop.name in current_props and \
-                new_val != updated_props[prop.name]:
-                raise WorkflowTaskException("Unable to accept the BPMN message. "
-                                            "The payload does not match. Expected "
-                                            f"'{prop.retrieval_expression}' to equal "
-                                            f"{current_props[prop.name]}.", task)
-            else:
-                updated_props[prop.name] = new_val
-        return updated_props
+        # Need a better way of extracting these
+        event_definition.correlation_properties = task.task_spec.event_definition.correlation_properties
+        correlations = event_definition.get_correlations(task, message.payload)
+        if len(correlations) == 0:
+            raise WorkflowException(f'No matching correlations for {message.name}')
+        self.catch(event_definition, correlations)
 
     def waiting_events(self):
         # Ultimately I'd like to add an event class so that EventDefinitions would not so double duty as both specs

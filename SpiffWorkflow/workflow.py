@@ -29,14 +29,13 @@ logger = logging.getLogger('spiff')
 
 
 class Workflow(object):
-
     """
     The engine that executes a workflow.
     It is a essentially a facility for managing all branches.
     A Workflow is also the place that holds the data of a running workflow.
     """
 
-    def __init__(self, workflow_spec, deserializing=False, **kwargs):
+    def __init__(self, workflow_spec, deserializing=False, parent=None):
         """
         Constructor.
 
@@ -47,11 +46,9 @@ class Workflow(object):
           generating tasks twice (and associated problems with multiple
           hierarchies of tasks)
         """
-        self.name = None
         assert workflow_spec is not None
         self.spec = workflow_spec
         self.data = {}
-        self.outer_workflow = kwargs.get('parent', self)
         self.locks = {}
         self.last_task = None
         if 'Root' in workflow_spec.task_specs:
@@ -63,24 +60,20 @@ class Workflow(object):
         self.task_tree = Task(self, root, state=TaskState.COMPLETED)
         start = self.task_tree._add_child(self.spec.start, state=TaskState.FUTURE)
         self.success = True
-        self.debug = False
 
         # Events.
         self.completed_event = Event()
 
         if not deserializing:
             self._predict()
-            if 'parent' not in kwargs:
+            if parent is None:
                 start.task_spec._update(start)
             logger.info('Initialize', extra=self.log_info())
-
-        self.task_mapping = self._get_task_mapping()
 
     def log_info(self, dct=None):
         extra = dct or {}
         extra.update({
             'workflow_spec': self.spec.name,
-            'workflow_name': self.spec.description,
             'task_spec': '-',
             'task_type': None,
             'task_id': None,
@@ -95,8 +88,7 @@ class Workflow(object):
         :rtype: bool
         :return: Whether the workflow is completed.
         """
-        mask = TaskState.NOT_FINISHED_MASK
-        iter = Task.Iterator(self.task_tree, mask)
+        iter = Task.Iterator(self.task_tree, TaskState.NOT_FINISHED_MASK)
         try:
             next(iter)
         except StopIteration:
@@ -108,15 +100,11 @@ class Workflow(object):
         for task in Workflow.get_tasks(self,TaskState.NOT_FINISHED_MASK):
             task.task_spec._predict(task, mask=mask)
 
-    def _get_waiting_tasks(self):
-        waiting = Task.Iterator(self.task_tree, TaskState.WAITING)
-        return [w for w in waiting]
-
     def _task_completed_notify(self, task):
         if task.get_name() == 'End':
             self.data.update(task.data)
-        # Update the state of every WAITING task.
-        for thetask in self._get_waiting_tasks():
+        # Update the state of every WAITING task
+        for thetask in self.get_tasks_iterator(TaskState.WAITING):
             thetask.task_spec._update(thetask)
         if self.completed_event.n_subscribers() == 0:
             # Since is_completed() is expensive it makes sense to bail
@@ -130,7 +118,7 @@ class Workflow(object):
             self.locks[name] = mutex()
         return self.locks[name]
 
-    def _get_task_mapping(self):
+    def get_task_mapping(self):
         task_mapping = {}
         for task in self.task_tree:
             thread_task_mapping = task_mapping.get(task.thread_id, {})
@@ -140,17 +128,8 @@ class Workflow(object):
             task_mapping[task.thread_id] = thread_task_mapping
         return task_mapping
 
-    def update_task_mapping(self):
-        """
-        Update the task_mapping of workflow, make sure the method is called
-        every time you reconstruct task instance.
-        """
-        self.task_mapping = self._get_task_mapping()
-
     def set_data(self, **kwargs):
-        """
-        Defines the given attribute/value pairs.
-        """
+        """Defines the given attribute/value pairs."""
         self.data.update(kwargs)
 
     def get_data(self, name, default=None):
@@ -183,27 +162,16 @@ class Workflow(object):
         logger.info(f'Cancel with {len(cancel)} remaining', extra=self.log_info())
         return cancel
 
-    def get_task_spec_from_name(self, name):
+    def get_tasks_iterator(self, state=TaskState.ANY_MASK):
         """
-        Returns the task spec with the given name.
+        Returns a iterator of Task objects with the given state.
 
-        :type  name: str
-        :param name: The name of the task.
-        :rtype:  TaskSpec
-        :returns: The task spec with the given name.
+        :type  state: integer
+        :param state: A bitmask of states.
+        :rtype:  Task.Iterator
+        :returns: A list of tasks.
         """
-        return self.spec.get_task_spec_from_name(name)
-
-    def get_tasks_from_spec_name(self, name):
-        """
-        Returns all tasks whose spec has the given name.
-
-        :type name: str
-        :param name: The name of a task spec.
-        :rtype: list[Task]
-        :returns: A list of tasks that relate to the spec with the given name.
-        """
-        return [task for task in self.get_tasks_iterator() if task.task_spec.name == name]
+        return Task.Iterator(self.task_tree, state)
 
     def get_tasks(self, state=TaskState.ANY_MASK):
         """
@@ -216,16 +184,16 @@ class Workflow(object):
         """
         return [t for t in Task.Iterator(self.task_tree, state)]
 
-    def get_tasks_iterator(self, state=TaskState.ANY_MASK):
+    def get_tasks_from_spec_name(self, name):
         """
-        Returns a iterator of Task objects with the given state.
+        Returns all tasks whose spec has the given name.
 
-        :type  state: integer
-        :param state: A bitmask of states.
-        :rtype:  Task.Iterator
-        :returns: A list of tasks.
+        :type name: str
+        :param name: The name of a task spec.
+        :rtype: list[Task]
+        :returns: A list of tasks that relate to the spec with the given name.
         """
-        return Task.Iterator(self.task_tree, state)
+        return [task for task in self.get_tasks_iterator() if task.task_spec.name == name]
 
     def get_task_from_id(self, task_id, tasklist=None):
         """

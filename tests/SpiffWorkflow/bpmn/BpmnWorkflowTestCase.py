@@ -76,7 +76,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
                     if (p.task_spec.name == parent_name or p.task_spec.bpmn_name == parent_name):
                         found = True
                         break
-                    if p.parent is None and p.workflow != p.workflow.outer_workflow:
+                    if p.parent is None and p.workflow != p.workflow.parent:
                         p = switch_workflow(p)
                     else:
                         p = p.parent

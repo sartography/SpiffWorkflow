@@ -45,7 +45,7 @@ class MessageEventDefinition(MessageEventDefinition):
         # We can't update our own payload, because if this task is reached again
         # we have to evaluate it again so we have to create a new event
         event = MessageEventDefinition(self.name, payload=result, result_var=self.result_var)
-        self._throw(event, my_task.workflow, my_task.workflow.outer_workflow)
+        self._throw(event, my_task.workflow, my_task.workflow.parent)
 
     def update_internal_data(self, my_task, event_definition):
         if event_definition.result_var is None:

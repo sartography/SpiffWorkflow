@@ -18,7 +18,7 @@ class CamundaExtensionsTest(BaseTestCase):
 
     def assertMyExtension(self):
         """Assure that we have a very specific extension on specific task."""
-        task = self.workflow.get_task_spec_from_name("Task_User_Select_Type")
+        task = self.workflow.spec.get_task_spec_from_name("Task_User_Select_Type")
         self.assertIsNotNone(task)
         self.assertTrue(hasattr(task, 'extensions'))
         self.assertTrue("my_extension" in task.extensions)

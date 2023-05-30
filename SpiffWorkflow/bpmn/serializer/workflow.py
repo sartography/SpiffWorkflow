@@ -225,7 +225,6 @@ class BpmnWorkflowSerializer:
             'state': task.state,
             'task_spec': task.task_spec.name,
             'triggered': task.triggered,
-            'workflow_name': task.workflow.name,
             'internal_data': self.data_converter.convert(task.internal_data),
             'data': self.data_converter.convert(task.data),
         }
@@ -265,7 +264,7 @@ class BpmnWorkflowSerializer:
 
         if isinstance(task_spec, SubWorkflowTask) and task_id in top_dct.get('subprocesses', {}):
             subprocess_spec = top.subprocess_specs[task_spec.spec]
-            subprocess = self.wf_class(subprocess_spec, {}, name=task_spec.name, parent=process, deserializing=True)
+            subprocess = self.wf_class(subprocess_spec, {}, parent=process, deserializing=True)
             subprocess_dct = top_dct['subprocesses'].get(task_id, {})
             subprocess.spec.data_objects.update(process.spec.data_objects)
             if len(subprocess.spec.data_objects) > 0:

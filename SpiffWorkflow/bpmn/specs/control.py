@@ -89,8 +89,8 @@ class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
             w = task.workflow
             if w == my_task.workflow:
                 is_mine = True
-            while w and w.outer_workflow != w:
-                w = w.outer_workflow
+            while w and w.parent is not None:
+                w = w.parent
                 if w == my_task.workflow:
                     is_mine = True
             if is_mine:

@@ -63,11 +63,15 @@ class WorkflowTaskException(WorkflowException):
     @staticmethod
     def get_task_trace(task):
         task_trace = [f"{task.task_spec.bpmn_name} ({task.workflow.spec.file})"]
-        workflow = task.workflow
-        while workflow != workflow.outer_workflow:
-            caller = workflow.name
-            workflow = workflow.outer_workflow
-            task_trace.append(f"{workflow.spec.task_specs[caller].bpmn_name} ({workflow.spec.file})")
+        caller = task.workflow.spec.name
+        parent = task.workflow.parent
+        while parent is not None:
+            for spec in parent.spec.task_specs.values():
+                if hasattr(spec, 'spec') and spec.spec == caller:
+                    task_trace.append(f"{spec.bpmn_name} ({parent.spec.file})")
+                    break
+            caller = parent.spec.name
+            parent = parent.parent
         return task_trace
 
     @staticmethod

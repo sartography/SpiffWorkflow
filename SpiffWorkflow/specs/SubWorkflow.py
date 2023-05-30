@@ -98,8 +98,7 @@ class SubWorkflow(TaskSpec):
         with open(file_name) as fp:
             xml = etree.parse(fp).getroot()
         wf_spec = WorkflowSpec.deserialize(serializer, xml, filename=file_name)
-        outer_workflow = my_task.workflow.outer_workflow
-        subworkflow = Workflow(wf_spec, parent=outer_workflow)
+        subworkflow = Workflow(wf_spec)
         my_task._sync_children(self.outputs, TaskState.FUTURE)
         for child in subworkflow.task_tree.children:
             my_task.children.insert(0, child)
