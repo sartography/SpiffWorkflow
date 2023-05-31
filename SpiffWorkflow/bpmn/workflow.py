@@ -44,13 +44,35 @@ class BpmnMessage:
         self.payload = payload
 
 
+class BpmnSubWorkflow(Workflow):
+
+    def __init__(self, spec, parent, top_workflow, **kwargs):
+        super().__init__(spec, **kwargs)
+        self.parent = parent
+        self.top_workflow = top_workflow
+        self.correlations = {}
+
+    @property
+    def script_engine(self):
+        return self.top_workflow.script_engine
+
+    @property
+    def parent_workflow(self):
+        task = self.top_workflow.get_task_from_id(self.parent)
+        return task.workflow
+
+    def catch(self, event_definition, target=None, correlations=None):
+        self.top_workflow.catch(event_definition, target, correlations)
+
+
+
 class BpmnWorkflow(Workflow):
     """
     The engine that executes a BPMN workflow. This specialises the standard
     Spiff Workflow class with a few extra methods and attributes.
     """
 
-    def __init__(self, top_level_spec, subprocess_specs=None, script_engine=None, **kwargs):
+    def __init__(self, spec, subprocess_specs=None, script_engine=None, **kwargs):
         """
         Constructor.
 
@@ -58,49 +80,60 @@ class BpmnWorkflow(Workflow):
         need a specialised version. Defaults to the script engine of the top
         most workflow, or to the PythonScriptEngine if none is provided.
         """
-        super(BpmnWorkflow, self).__init__(top_level_spec, **kwargs)
-        self.parent = kwargs.get('parent')
+        super(BpmnWorkflow, self).__init__(spec, **kwargs)
         self.subprocess_specs = subprocess_specs or {}
         self.subprocesses = {}
         self.bpmn_messages = []
         self.correlations = {}
+
         self.__script_engine = script_engine or PythonScriptEngine()
 
     @property
     def script_engine(self):
-        # The outermost script engine always takes precedence.
-        # All call activities, sub-workflows and DMNs should use the
-        # workflow engine of the outermost workflow.
-        return self._get_outermost_workflow().__script_engine
+        return self.__script_engine
 
     @script_engine.setter
     def script_engine(self, engine):
         self.__script_engine = engine
 
-    def _get_outermost_workflow(self, task=None):
-        workflow = task.workflow if task is not None else self
-        while workflow.parent is not None:
-            workflow = workflow.parent
-        return workflow
+    @property
+    def top_workflow(self):
+        return self
 
-    def create_subprocess(self, my_task, spec_name, name):
+    @property
+    def parent(self):
+        return None
+    
+    @property
+    def parent_workflow(self):
+        return None
+
+    def get_tasks(self, state=TaskState.ANY_MASK, workflow=None):
+        tasks = []
+        wf = workflow or self
+        for task in Workflow.get_tasks_iterator(wf):
+            subprocess = self.subprocesses.get(task.id)
+            if task._has_state(state):
+                tasks.append(task)
+            if subprocess is not None:
+                tasks.extend(self.get_tasks(state, subprocess))
+        return tasks
+
+    def create_subprocess(self, my_task, spec_name):
         # This creates a subprocess for an existing task
-        workflow = self._get_outermost_workflow(my_task)
-        subprocess = BpmnWorkflow(
-            workflow.subprocess_specs[spec_name],
-            script_engine=self.script_engine,
-            parent=my_task.workflow)
-        workflow.subprocesses[my_task.id] = subprocess
+        subprocess = BpmnSubWorkflow(
+            self.subprocess_specs[spec_name],
+            parent=my_task.id,
+            top_workflow=self)
+        self.subprocesses[my_task.id] = subprocess
         return subprocess
 
     def delete_subprocess(self, my_task):
-        workflow = self._get_outermost_workflow(my_task)
-        if my_task.id in workflow.subprocesses:
-            del workflow.subprocesses[my_task.id]
+        if my_task.id in self.subprocesses:
+            del self.subprocesses[my_task.id]
 
     def get_subprocess(self, my_task):
-        workflow = self._get_outermost_workflow(my_task)
-        return workflow.subprocesses.get(my_task.id)
+        return self.subprocesses.get(my_task.id)
 
     def connect_subprocess(self, spec_name, name):
         # This creates a new task associated with a process when an event that kicks of a process is received
@@ -124,12 +157,6 @@ class BpmnWorkflow(Workflow):
         task.task_spec._update(task)
         return self.subprocesses[task.id]
 
-    def _get_outermost_workflow(self, task=None):
-        workflow = task.workflow if task is not None else self
-        while workflow.parent is not None:
-            workflow = workflow.parent
-        return workflow
-
     def _get_or_create_subprocess(self, task_spec, wf_spec):
         if isinstance(task_spec.event_definition, MultipleEventDefinition):
             for sp in self.subprocesses.values():
@@ -138,43 +165,38 @@ class BpmnWorkflow(Workflow):
                     return sp
         return self.connect_subprocess(wf_spec.name, f'{wf_spec.name}_{len(self.subprocesses)}')
 
-    def catch(self, event_definition, correlations=None):
+    def catch(self, event_definition, target=None, correlations=None):
         """
-        Tasks can always catch events, regardless of their state.  The
-        event information is stored in the tasks internal data and processed
-        when the task is reached in the workflow.  If a task should only
-        receive messages while it is running (eg a boundary event), the task
-        should call the event_definition's reset method before executing to
-        clear out a stale message.
-
-        We might be catching an event that was thrown from some other part of
-        our own workflow, and it needs to continue out, but if it originated
-        externally, we should not pass it on.
+        Tasks can always catch events, regardless of their state.  The event information is stored in the task's
+        internal data and processed when the task is reached in the workflow.  If a task should only receive messages
+        while it is running (eg a boundary event), the task should call the event_definition's reset method before
+        executing to clear out a stale message.
 
         :param event_definition: the thrown event
         """
-        # Start a subprocess for known specs with start events that catch this
-        # This is totally hypocritical of me given how I've argued that specs should
-        # be immutable, but I see no other way of doing this.
-        for name, spec in self.subprocess_specs.items():
-            for task_spec in list(spec.task_specs.values()):
-                if isinstance(task_spec, StartEvent) and task_spec.event_definition == event_definition:
-                    subprocess = self._get_or_create_subprocess(task_spec, spec)
-                    subprocess.correlations.update(correlations or {})
+        if target is None:
+            # Start a subprocess for known specs with start events that catch this
+            for spec in self.subprocess_specs.values():
+                for task_spec in spec.task_specs.values():
+                    if isinstance(task_spec, StartEvent) and task_spec.event_definition == event_definition:
+                        subprocess = self._get_or_create_subprocess(task_spec, spec)
+                        subprocess.correlations.update(correlations)
 
-        # We need to get all the tasks that catch an event before completing any of them
-        # in order to prevent the scenario where multiple boundary events catch the
-        # same event and the first executed cancels the rest
-        tasks = [ t for t in self.get_catching_tasks() if t.task_spec.catches(t, event_definition, correlations or {}) ]
+            tasks = [t for t in self.get_catching_tasks() if t.task_spec.catches(t, event_definition, correlations)]
+
+            # Figure out if we need to create an external message
+            if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
+                self.bpmn_messages.append(BpmnMessage(correlations, event_definition.name, event_definition.payload))
+
+        else:
+            catches = lambda t: isinstance(t.task_spec, CatchingEvent) and t.task_spec.catches(t, event_definition, correlations)
+            tasks = [t for t in target.get_tasks_iterator(TaskState.NOT_FINISHED_MASK) if catches(t)]
+
         for task in tasks:
             task.task_spec.catch(task, event_definition)
 
         # Move any tasks that received message to READY
         self.refresh_waiting_tasks()
-
-        # Figure out if we need to create an external message
-        if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
-            self.bpmn_messages.append(BpmnMessage(correlations, event_definition.name, event_definition.payload))
 
     def get_bpmn_messages(self):
         messages = self.bpmn_messages
@@ -193,10 +215,7 @@ class BpmnWorkflow(Workflow):
         if len(tasks) == 0:
             raise WorkflowException(f"This process is not waiting on a message named '{event_definition.name}'")
         if len(tasks) > 1:
-            # Why?  Inclined to delete this check, as it seems unnecessarily restrictive.
-            # 1:1 applies to processes, not messages (an identical message can't be sent to two processes, but I don't
-            # see any reason why multiple tasks in a process with the required corrlations coulnd't have multiple waiting
-            # tasks).
+            # Is this really a valid check?
             raise WorkflowException(
                 f"This process has multiple tasks waiting on the same message '{event_definition.name}', which is not supported. ")
 
@@ -206,7 +225,7 @@ class BpmnWorkflow(Workflow):
         correlations = event_definition.get_correlations(task, message.payload)
         if len(correlations) == 0:
             raise WorkflowException(f'No matching correlations for {message.name}')
-        self.catch(event_definition, correlations)
+        self.catch(event_definition, correlations=correlations)
 
     def waiting_events(self):
         # Ultimately I'd like to add an event class so that EventDefinitions would not so double duty as both specs
@@ -227,7 +246,7 @@ class BpmnWorkflow(Workflow):
             })
         return events
 
-    def do_engine_steps(self, exit_at = None, will_complete_task=None, did_complete_task=None):
+    def do_engine_steps(self, exit_at=None, will_complete_task=None, did_complete_task=None):
         """
         Execute any READY tasks that are engine specific (for example, gateways
         or script tasks). This is done in a loop, so it will keep completing
@@ -250,9 +269,7 @@ class BpmnWorkflow(Workflow):
                     return task
             engine_steps = list([t for t in self.get_tasks(TaskState.READY) if not t.task_spec.manual])
 
-    def refresh_waiting_tasks(self,
-        will_refresh_task=None,
-        did_refresh_task=None):
+    def refresh_waiting_tasks(self, will_refresh_task=None, did_refresh_task=None):
         """
         Refresh the state of all WAITING tasks. This will, for example, update
         Catching Timer Events whose waiting time has passed.
@@ -273,23 +290,6 @@ class BpmnWorkflow(Workflow):
     def get_tasks_from_spec_name(self, name, workflow=None):
         return [t for t in self.get_tasks(workflow=workflow) if t.task_spec.name == name]
 
-    def get_tasks(self, state=TaskState.ANY_MASK, workflow=None):
-        # Now that I've revisited and had to ask myself what the hell was I doing, I realize I should comment this
-        tasks = []
-        top = self._get_outermost_workflow()
-        # I think it makes more sense to start with the current workflow, which is probably going to be the top
-        # most of the time anyway
-        wf = workflow or self
-        # We can't filter the iterator on the state because we have to subprocesses, and the subprocess task will
-        # almost surely be in a different state than the tasks we want
-        for task in Workflow.get_tasks_iterator(wf):
-            subprocess = top.subprocesses.get(task.id)
-            if task._has_state(state):
-                tasks.append(task)
-            if subprocess is not None:
-                tasks.extend(subprocess.get_tasks(state, subprocess))
-        return tasks
-
     def get_task_from_id(self, task_id, workflow=None):
         for task in self.get_tasks(workflow=workflow):
             if task.id == task_id:
@@ -299,8 +299,7 @@ class BpmnWorkflow(Workflow):
     def get_ready_user_tasks(self, lane=None, workflow=None):
         """Returns a list of User Tasks that are READY for user action"""
         if lane is not None:
-            return [t for t in self.get_tasks(TaskState.READY, workflow) 
-                        if t.task_spec.manual and t.task_spec.lane == lane]
+            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual and t.task_spec.lane == lane]
         else:
             return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual]
 
@@ -326,19 +325,18 @@ class BpmnWorkflow(Workflow):
 
         descendants = super().reset_from_task_id(task_id, data)
         descendant_ids = [t.id for t in descendants]
-        top = self._get_outermost_workflow()
 
         delete, reset = [], []
-        for sp_id, sp in top.subprocesses.items():
+        for sp_id, sp in self.subprocesses.items():
             if sp_id in descendant_ids:
                 delete.append(sp_id)
-                delete.extend([t.id for t in sp.get_tasks() if t.id in top.subprocesses])
+                delete.extend([t.id for t in sp.get_tasks() if t.id in self.subprocesses])
             if task in sp.get_tasks():
                 reset.append(sp_id)
 
         # Remove any subprocesses for removed tasks
         for sp_id in delete:
-            del top.subprocesses[sp_id]
+            del self.subprocesses[sp_id]
 
         # Reset any containing subprocesses
         for sp_id in reset:
@@ -356,9 +354,8 @@ class BpmnWorkflow(Workflow):
         wf = workflow or self
         cancelled = Workflow.cancel(wf)
         cancelled_ids = [t.id for t in cancelled]
-        top = self._get_outermost_workflow()
         to_cancel = []
-        for sp_id, sp in top.subprocesses.items():
+        for sp_id, sp in self.subprocesses.items():
             if sp_id in cancelled_ids:
                 to_cancel.append(sp)
         

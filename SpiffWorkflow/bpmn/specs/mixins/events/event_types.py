@@ -35,6 +35,7 @@ class CatchingEvent(TaskSpec):
         self.event_definition = event_definition
 
     def catches(self, my_task, event_definition, correlations=None):
+        correlations = correlations or {}
         if self.event_definition == event_definition:
             return all([correlations.get(key) == my_task.workflow.correlations.get(key) for key in correlations ])
         else:

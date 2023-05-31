@@ -42,10 +42,6 @@ class _BoundaryEventParent(BpmnTaskSpec):
         super(_BoundaryEventParent, self).__init__(wf_spec, name, **kwargs)
         self.main_child_task_spec = main_child_task_spec
 
-    @property
-    def spec_type(self):
-        return 'Boundary Event Parent'
-
     def _run_hook(self, my_task):
         # Clear any events that our children might have received and wait for new events
         for child in my_task.children:
@@ -89,10 +85,6 @@ class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
             w = task.workflow
             if w == my_task.workflow:
                 is_mine = True
-            while w and w.parent is not None:
-                w = w.parent
-                if w == my_task.workflow:
-                    is_mine = True
             if is_mine:
                 waiting_tasks.append(task)
 

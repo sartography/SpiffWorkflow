@@ -16,6 +16,7 @@ class Workflow:
         self.script_engine = script_engine
         self.parent = None
         self.spec = WorkflowSpec()
+        self.top_workflow = self
 
 class TaskSpec:
     def __init__(self):
