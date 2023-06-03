@@ -26,7 +26,6 @@ from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
 from SpiffWorkflow.bpmn.specs.event_definitions import (
     MessageEventDefinition,
-    MultipleEventDefinition,
     NamedEventDefinition,
     TimerEventDefinition,
 )
@@ -63,7 +62,6 @@ class BpmnSubWorkflow(Workflow):
 
     def catch(self, event_definition, target=None, correlations=None):
         self.top_workflow.catch(event_definition, target, correlations)
-
 
 
 class BpmnWorkflow(Workflow):
@@ -128,42 +126,12 @@ class BpmnWorkflow(Workflow):
         self.subprocesses[my_task.id] = subprocess
         return subprocess
 
-    def delete_subprocess(self, my_task):
-        if my_task.id in self.subprocesses:
-            del self.subprocesses[my_task.id]
-
     def get_subprocess(self, my_task):
         return self.subprocesses.get(my_task.id)
 
-    def connect_subprocess(self, spec_name, name):
-        # This creates a new task associated with a process when an event that kicks of a process is received
-        # I need to know what class is being used to create new processes in this case, and this seems slightly
-        # less bad than adding yet another argument.  Still sucks though.
-        # TODO: Make collaborations a class rather than trying to shoehorn them into a process.
-        for spec in self.spec.task_specs.values():
-            if isinstance(spec, CallActivity):
-                spec_class = spec.__class__
-                break
-        else:
-            # Default to the mixin class, which will probably fail in many cases.
-            spec_class = CallActivity
-        new = spec_class(self.spec, name, spec_name)
-        self.spec.start.connect(new)
-        task = Task(self, new)
-        start = self.get_tasks_from_spec_name('Start', workflow=self)[0]
-        start.children.append(task)
-        task.parent = start
-        # This (indirectly) calls create_subprocess
-        task.task_spec._update(task)
-        return self.subprocesses[task.id]
-
-    def _get_or_create_subprocess(self, task_spec, wf_spec):
-        if isinstance(task_spec.event_definition, MultipleEventDefinition):
-            for sp in self.subprocesses.values():
-                start = sp.get_tasks_from_spec_name(task_spec.name)
-                if len(start) and start[0].state == TaskState.WAITING:
-                    return sp
-        return self.connect_subprocess(wf_spec.name, f'{wf_spec.name}_{len(self.subprocesses)}')
+    def delete_subprocess(self, my_task):
+        if my_task.id in self.subprocesses:
+            del self.subprocesses[my_task.id]
 
     def catch(self, event_definition, target=None, correlations=None):
         """
@@ -175,13 +143,7 @@ class BpmnWorkflow(Workflow):
         :param event_definition: the thrown event
         """
         if target is None:
-            # Start a subprocess for known specs with start events that catch this
-            for spec in self.subprocess_specs.values():
-                for task_spec in spec.task_specs.values():
-                    if isinstance(task_spec, StartEvent) and task_spec.event_definition == event_definition:
-                        subprocess = self._get_or_create_subprocess(task_spec, spec)
-                        subprocess.correlations.update(correlations)
-
+            self.update_collaboration(event_definition, correlations)
             tasks = [t for t in self.get_catching_tasks() if t.task_spec.catches(t, event_definition, correlations)]
 
             # Figure out if we need to create an external message
@@ -209,8 +171,7 @@ class BpmnWorkflow(Workflow):
         event_definition = MessageEventDefinition(message.name)
         event_definition.payload = message.payload
 
-        # There should be one and only be one task that can accept the message
-        # (messages are one to one, not one to many)
+        # There should be one and only be one task that can accept the message (messages are one to one, not one to many)
         tasks = [t for t in self.get_catching_tasks() if t.task_spec.event_definition == event_definition]
         if len(tasks) == 0:
             raise WorkflowException(f"This process is not waiting on a message named '{event_definition.name}'")
@@ -363,3 +324,41 @@ class BpmnWorkflow(Workflow):
             cancelled.extend(self.cancel(sp))
 
         return cancelled
+
+    def update_collaboration(self, event_definition, correlations):
+
+        def get_or_create_subprocess(task_spec, wf_spec):
+
+            for sp in self.subprocesses.values():
+                start = sp.get_tasks_from_spec_name(task_spec.name)
+                if len(start) and start[0].state == TaskState.WAITING:
+                    return sp
+
+            # This creates a new task associated with a process when an event that kicks of a process is received
+            # I need to know what class is being used to create new processes in this case, and this seems slightly
+            # less bad than adding yet another argument.  Still sucks though.
+            # TODO: Make collaborations a class rather than trying to shoehorn them into a process.
+            for spec in self.spec.task_specs.values():
+                if isinstance(spec, CallActivity):
+                    spec_class = spec.__class__
+                    break
+            else:
+                # Default to the mixin class, which will probably fail in many cases.
+                spec_class = CallActivity
+
+            new = spec_class(self.spec, f'{wf_spec.name}_{len(self.subprocesses)}', wf_spec.name)
+            self.spec.start.connect(new)
+            task = Task(self, new)
+            start = self.get_tasks_from_spec_name('Start', workflow=self)[0]
+            start.children.append(task)
+            task.parent = start
+            # This (indirectly) calls create_subprocess
+            task.task_spec._update(task)
+            return self.subprocesses[task.id]
+
+        # Start a subprocess for known specs with start events that catch this
+        for spec in self.subprocess_specs.values():
+            for task_spec in spec.task_specs.values():
+                if isinstance(task_spec, StartEvent) and task_spec.event_definition == event_definition:
+                    subprocess = get_or_create_subprocess(task_spec, spec)
+                    subprocess.correlations.update(correlations)
