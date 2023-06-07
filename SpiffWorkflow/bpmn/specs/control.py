@@ -53,11 +53,15 @@ class _BoundaryEventParent(BpmnTaskSpec):
     def _child_complete_hook(self, child_task):
         # If the main child completes, or a cancelling event occurs, cancel any unfinished children
         if child_task.task_spec == self.main_child_task_spec or child_task.task_spec.cancel_activity:
-            for sibling in child_task.parent.children:
-                if sibling == child_task:
+            for task in child_task.parent.children:
+                if task == child_task:
                     continue
-                if sibling.task_spec == self.main_child_task_spec or not sibling._is_finished():
-                    sibling.cancel()
+                if task.task_spec != self.main_child_task_spec and task._has_state(TaskState.READY):
+                    # Don't cancel boundary events that became ready while this task was running
+                    # Not clear that this is really the appropriate behavior but we have tests that depend on it
+                    continue
+                if task.task_spec == self.main_child_task_spec or not task._is_finished():
+                    task.cancel()
 
     def _predict_hook(self, my_task):
         # Events attached to the main task might occur

@@ -60,8 +60,19 @@ class BpmnSubWorkflow(Workflow):
         task = self.top_workflow.get_task_from_id(self.parent)
         return task.workflow
 
-    def catch(self, event_definition, target=None, correlations=None):
-        self.top_workflow.catch(event_definition, target, correlations)
+    @property
+    def depth(self):
+        current, depth = self, 0
+        while current.parent_workflow is not None:
+            depth += 1
+            current = current.parent_workflow
+        return depth
+
+    def get_task_from_id(self, task_id):
+        try:
+            return super().get_task_from_id(task_id)
+        except TaskNotFoundException as exc:
+            pass
 
 
 class BpmnWorkflow(Workflow):
@@ -78,11 +89,11 @@ class BpmnWorkflow(Workflow):
         need a specialised version. Defaults to the script engine of the top
         most workflow, or to the PythonScriptEngine if none is provided.
         """
-        super(BpmnWorkflow, self).__init__(spec, **kwargs)
         self.subprocess_specs = subprocess_specs or {}
         self.subprocesses = {}
         self.bpmn_messages = []
         self.correlations = {}
+        super(BpmnWorkflow, self).__init__(spec, **kwargs)
 
         self.__script_engine = script_engine or PythonScriptEngine()
 
@@ -105,6 +116,10 @@ class BpmnWorkflow(Workflow):
     @property
     def parent_workflow(self):
         return None
+    
+    @property
+    def depth(self):
+        return 0
 
     def get_tasks(self, state=TaskState.ANY_MASK, workflow=None):
         tasks = []
@@ -116,6 +131,23 @@ class BpmnWorkflow(Workflow):
             if subprocess is not None:
                 tasks.extend(self.get_tasks(state, subprocess))
         return tasks
+
+    def get_tasks_from_spec_name(self, name, workflow=None):
+        return [t for t in self.get_tasks(workflow=workflow) if t.task_spec.name == name]
+
+    def get_ready_user_tasks(self, lane=None, workflow=None):
+        """Returns a list of User Tasks that are READY for user action"""
+        if lane is not None:
+            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual and t.task_spec.lane == lane]
+        else:
+            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual]
+
+    def get_waiting_tasks(self, workflow=None):
+        """Returns a list of all WAITING tasks"""
+        return self.get_tasks(TaskState.WAITING, workflow)
+
+    def get_catching_tasks(self, workflow=None):
+        return [task for task in self.get_tasks(workflow=workflow) if isinstance(task.task_spec, CatchingEvent)]
 
     def create_subprocess(self, my_task, spec_name):
         # This creates a subprocess for an existing task
@@ -130,8 +162,15 @@ class BpmnWorkflow(Workflow):
         return self.subprocesses.get(my_task.id)
 
     def delete_subprocess(self, my_task):
-        if my_task.id in self.subprocesses:
-            del self.subprocesses[my_task.id]
+        subprocess = self.subprocesses.get(my_task.id)
+        tasks = subprocess.get_tasks()
+        for sp in [c for c in self.subprocesses.values() if c.parent_workflow == subprocess]:
+            tasks.extend(self.delete_subprocess(self.get_task_from_id(sp.parent)))
+        del self.subprocesses[my_task.id]
+        return tasks
+
+    def get_active_subprocesses(self):
+        return [sp for sp in self.subprocesses.values() if not sp.is_completed()]
 
     def catch(self, event_definition, target=None, correlations=None):
         """
@@ -207,28 +246,41 @@ class BpmnWorkflow(Workflow):
             })
         return events
 
-    def do_engine_steps(self, exit_at=None, will_complete_task=None, did_complete_task=None):
+    def do_engine_steps(self, will_complete_task=None, did_complete_task=None):
         """
         Execute any READY tasks that are engine specific (for example, gateways
         or script tasks). This is done in a loop, so it will keep completing
         those tasks until there are only READY User tasks, or WAITING tasks
         left.
 
-        :param exit_at: After executing a task with a name matching this param return the task object
         :param will_complete_task: Callback that will be called prior to completing a task
         :param did_complete_task: Callback that will be called after completing a task
         """
-        engine_steps = list([t for t in self.get_tasks(TaskState.READY) if not t.task_spec.manual])
-        while engine_steps:
-            for task in engine_steps:
-                if will_complete_task is not None:
-                    will_complete_task(task)
-                task.run()
-                if did_complete_task is not None:
-                    did_complete_task(task)
-                if task.task_spec.name == exit_at:
-                    return task
-            engine_steps = list([t for t in self.get_tasks(TaskState.READY) if not t.task_spec.manual])
+        def update_workflow(wf):
+            count = 0
+            # Wanted to use the iterator method here, but at least this is a shorter list
+            for task in wf.get_tasks(TaskState.READY):
+                if not task.task_spec.manual:
+                    if will_complete_task is not None:
+                        will_complete_task(task)
+                    task.run()
+                    count += 1
+                    if did_complete_task is not None:
+                        did_complete_task(task)
+            return count
+
+        active_subprocesses = self.get_active_subprocesses()
+        for subprocess in sorted(active_subprocesses, key=lambda v: v.depth, reverse=True):
+            count = None
+            while count is None or count > 0:
+                count = update_workflow(subprocess)
+            if subprocess.parent is not None:
+                task = self.get_task_from_id(subprocess.parent)
+                task.task_spec._update(task)
+
+        count = update_workflow(self)
+        if count > 0 or len(self.get_active_subprocesses()) > len(active_subprocesses):
+            self.do_engine_steps(will_complete_task, did_complete_task)
 
     def refresh_waiting_tasks(self, will_refresh_task=None, did_refresh_task=None):
         """
@@ -238,72 +290,50 @@ class BpmnWorkflow(Workflow):
         :param will_refresh_task: Callback that will be called prior to refreshing a task
         :param did_refresh_task: Callback that will be called after refreshing a task
         """
-        for my_task in self.get_tasks(TaskState.WAITING):
+        def update_task(task):
             if will_refresh_task is not None:
-                will_refresh_task(my_task)
-            # This seems redundant, but the state could have been updated by another waiting task and no longer be waiting.
-            # Someday, I would like to get rid of this method, and also do_engine_steps
-            if my_task.state == TaskState.WAITING:
-                my_task.task_spec._update(my_task)
+                will_refresh_task(task)
+            task.task_spec._update(task)
             if did_refresh_task is not None:
-                did_refresh_task(my_task)
+                did_refresh_task(task)           
+ 
+        for subprocess in sorted(self.get_active_subprocesses(), key=lambda v: v.depth, reverse=True):
+            for task in subprocess.get_tasks_iterator(TaskState.WAITING):
+                update_task(task)
 
-    def get_tasks_from_spec_name(self, name, workflow=None):
-        return [t for t in self.get_tasks(workflow=workflow) if t.task_spec.name == name]
+        for task in self.get_tasks_iterator(TaskState.WAITING):
+            update_task(task)
 
-    def get_task_from_id(self, task_id, workflow=None):
-        for task in self.get_tasks(workflow=workflow):
-            if task.id == task_id:
+    def get_task_from_id(self, task_id):
+        for subprocess in self.subprocesses.values():
+            task = subprocess.get_task_from_id(task_id)
+            if task is not None:
                 return task
-        raise TaskNotFoundException(f'A task with the given task_id ({task_id}) was not found', task_spec=self.spec)
+        return super().get_task_from_id(task_id)
 
-    def get_ready_user_tasks(self, lane=None, workflow=None):
-        """Returns a list of User Tasks that are READY for user action"""
-        if lane is not None:
-            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual and t.task_spec.lane == lane]
-        else:
-            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual]
-
-    def get_waiting_tasks(self, workflow=None):
-        """Returns a list of all WAITING tasks"""
-        return self.get_tasks(TaskState.WAITING, workflow)
-
-    def get_catching_tasks(self, workflow=None):
-        return [task for task in self.get_tasks(workflow=workflow) if isinstance(task.task_spec, CatchingEvent)]
-
-    def reset_from_task_id(self, task_id, data=None):
-        """Override method from base class, and assures that if the task
-        being reset has a boundary event parent, we reset that parent and
-        run it rather than resetting to the current task.  This assures
-        our boundary events are set to the correct state."""
+    def reset_from_task_id(self, task_id, data=None, remove_subprocess=True):
 
         task = self.get_task_from_id(task_id)
         run_task_at_end = False
-
         if isinstance(task.parent.task_spec, _BoundaryEventParent):
             task = task.parent
             run_task_at_end = True # we jumped up one level, so exectute so we are on the correct task as requested.
 
-        descendants = super().reset_from_task_id(task_id, data)
-        descendant_ids = [t.id for t in descendants]
+        descendants = []
+        # Since recursive deletion of subprocesses requires access to the tasks, we have to delete any subprocesses first
+        # We also need diffeent behavior for the case where we explictly reset to a subprocess (in which case we delete it)
+        # vs resetting inside (where we leave it and reset the tasks that descend from it)
+        for item in task:
+            if item == task and not remove_subprocess:
+                continue
+            if item.id in self.subprocesses:
+                descendants.extend(self.delete_subprocess(item))
+        descendants.extend(super().reset_from_task_id(task_id, data))
 
-        delete, reset = [], []
-        for sp_id, sp in self.subprocesses.items():
-            if sp_id in descendant_ids:
-                delete.append(sp_id)
-                delete.extend([t.id for t in sp.get_tasks() if t.id in self.subprocesses])
-            if task in sp.get_tasks():
-                reset.append(sp_id)
-
-        # Remove any subprocesses for removed tasks
-        for sp_id in delete:
-            del self.subprocesses[sp_id]
-
-        # Reset any containing subprocesses
-        for sp_id in reset:
-            descendants.extend(self.reset_from_task_id(sp_id))
-            sp_task = self.get_task_from_id(sp_id)
-            sp_task.state = TaskState.WAITING
+        if task.workflow.parent is not None:
+            sp_task = self.get_task_from_id(task.workflow.parent)
+            descendants.extend(self.reset_from_task_id(sp_task.id, remove_subprocess=False))
+            sp_task._set_state(TaskState.WAITING)
 
         if run_task_at_end:
             task.run()

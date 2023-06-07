@@ -195,26 +195,21 @@ class Workflow(object):
         """
         return [task for task in self.get_tasks_iterator() if task.task_spec.name == name]
 
-    def get_task_from_id(self, task_id, tasklist=None):
+    def get_task_from_id(self, task_id):
         """
         Returns the task with the given id.
 
         :type id:integer
         :param id: The id of a task.
-        :param tasklist: Optional cache of get_tasks for operations
-                         where we are calling multiple times as when we
-                         are deserializing the workflow
         :rtype: Task
         :returns: The task with the given id.
         """
         if task_id is None:
             raise WorkflowException('task_id is None', task_spec=self.spec)
-        tasklist = tasklist or self.task_tree
         for task in self.task_tree:
             if task.id == task_id:
-                return task
-        msg = 'A task with the given task_id (%s) was not found' % task_id
-        raise TaskNotFoundException(msg, task_spec=self.spec)
+                return task    
+        raise TaskNotFoundException(f'A task with id {task_id} was not found', task_spec=self.spec)
 
     def run_task_from_id(self, task_id):
         """
@@ -235,6 +230,7 @@ class Workflow(object):
         :param data: optionall set the task data
         """
         task = self.get_task_from_id(task_id)
+        self.last_task = task.parent
         return task.reset_token(data)
 
     def run_next(self, pick_up=True, halt_on_manual=True):

@@ -69,7 +69,7 @@ class EventDefinition(object):
             target = None
 
         event_definition = kwargs.pop('event', my_task.task_spec.event_definition)
-        my_task.workflow.catch(event_definition, target, **kwargs)
+        my_task.workflow.top_workflow.catch(event_definition, target, **kwargs)
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__
