@@ -77,7 +77,6 @@ class ResetTokenTestSubProcess(BaseTestCase):
             task.update_data({step['formvar']: step['answer']})
             task.run()
             self.workflow.do_engine_steps()
-            self.complete_subworkflow()
             if save_restore:
                 self.save_restore()
 

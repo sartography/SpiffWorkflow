@@ -46,8 +46,6 @@ class ApprovalsTest(BpmnWorkflowTestCase):
     def testRunThroughHappy(self):
 
         self.do_next_named_step('First_Approval_Wins.Manager_Approval')
-        self.complete_subworkflow()
-        self.complete_subworkflow()
         self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
 
         self.do_next_named_step('Approvals.Manager_Approval__P_')
@@ -57,15 +55,11 @@ class ApprovalsTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Parallel_Approvals_SP.Step1')
         self.do_next_named_step('Parallel_Approvals_SP.Manager_Approval')
         self.do_next_named_step('Parallel_Approvals_SP.Supervisor_Approval')
-        self.complete_subworkflow()
-        self.complete_subworkflow()
         self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
 
     def testRunThroughHappyOtherOrders(self):
 
         self.do_next_named_step('First_Approval_Wins.Supervisor_Approval')
-        self.complete_subworkflow()
-        self.complete_subworkflow()
         self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
 
         self.do_next_named_step('Approvals.Supervisor_Approval__P_')
@@ -75,15 +69,11 @@ class ApprovalsTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Parallel_Approvals_SP.Manager_Approval')
         self.do_next_named_step('Parallel_Approvals_SP.Step1')
         self.do_next_named_step('Parallel_Approvals_SP.Supervisor_Approval')
-        self.complete_subworkflow()
-        self.complete_subworkflow()
         self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
 
     def testSaveRestore(self):
 
         self.do_next_named_step('First_Approval_Wins.Manager_Approval')
-        self.complete_subworkflow()
-        self.complete_subworkflow()
         self.save_restore()
         self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
 
@@ -96,16 +86,12 @@ class ApprovalsTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Parallel_Approvals_SP.Manager_Approval')
         self.do_next_exclusive_step('Parallel_Approvals_SP.Step1')
         self.do_next_exclusive_step('Parallel_Approvals_SP.Supervisor_Approval')
-        self.complete_subworkflow()
-        self.complete_subworkflow()
         self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
 
     def testSaveRestoreWaiting(self):
 
         self.do_next_named_step('First_Approval_Wins.Manager_Approval')
         self.save_restore()
-        self.complete_subworkflow()
-        self.complete_subworkflow()
         self.do_next_exclusive_step('Approvals.First_Approval_Wins_Done')
 
         self.save_restore()
@@ -122,8 +108,6 @@ class ApprovalsTest(BpmnWorkflowTestCase):
         self.save_restore()
         self.do_next_exclusive_step('Parallel_Approvals_SP.Supervisor_Approval')
         self.save_restore()
-        self.complete_subworkflow()
-        self.complete_subworkflow()
         self.do_next_exclusive_step('Approvals.Parallel_SP_Done')
 
 

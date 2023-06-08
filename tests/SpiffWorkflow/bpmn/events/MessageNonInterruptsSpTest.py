@@ -28,7 +28,6 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
         self.do_next_exclusive_step('Do Something In a Subprocess')
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.save_restore()
 
         self.do_next_exclusive_step('Ack Subprocess Done')
@@ -53,7 +52,6 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
         self.do_next_named_step('Do Something In a Subprocess')
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.save_restore()
 
         self.do_next_named_step('Ack Subprocess Done')
@@ -81,7 +79,6 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.workflow.catch(MessageEventDefinition('Test Message'))
         self.do_next_named_step('Do Something In a Subprocess')
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.save_restore()
 
         self.do_next_named_step('Acknowledge SP Parallel Message')
@@ -114,7 +111,6 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
 
         self.do_next_named_step('Do Something In a Subprocess')
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.save_restore()
 
         self.do_next_named_step('Ack Subprocess Done')

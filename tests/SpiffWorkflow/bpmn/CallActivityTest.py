@@ -17,7 +17,6 @@ class CallActivityTest(BpmnWorkflowTestCase):
 
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.assertDictEqual(self.workflow.data, {'pre_var': 'some string', 'my_var': 'World', 'my_other_var': 'Mike'})
 
     def test_call_activity_has_same_script_engine(self):
@@ -26,7 +25,6 @@ class CallActivityTest(BpmnWorkflowTestCase):
 
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=CustomScriptEngine())
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.assertTrue(self.workflow.is_completed())
         self.assertIsInstance(self.workflow.script_engine, CustomScriptEngine)
 
@@ -42,7 +40,6 @@ class CallActivityTest(BpmnWorkflowTestCase):
         # data should be removed in the final output as well.
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.assertTrue(self.workflow.is_completed())
         self.assertNotIn('remove_this_var', self.workflow.last_task.data.keys())
 

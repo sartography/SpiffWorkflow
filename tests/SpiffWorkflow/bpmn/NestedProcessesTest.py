@@ -75,5 +75,5 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
     def complete_task(self, name, save_restore=False):
         self.do_next_named_step(name)
         self.workflow.do_engine_steps()
-        #if save_restore:
-        #    self.save_restore()
+        if save_restore:
+            self.save_restore()

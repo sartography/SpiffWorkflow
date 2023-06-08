@@ -29,7 +29,6 @@ class MessageInterruptsSpTest(BpmnWorkflowTestCase):
 
         self.do_next_exclusive_step('Do Something In a Subprocess')
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.save_restore()
 
         self.do_next_exclusive_step('Ack Subprocess Done')

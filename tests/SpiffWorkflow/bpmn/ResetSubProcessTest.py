@@ -70,7 +70,6 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.assertEqual(task.get_name(),'Subtask2A')
         task.run()
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'Task2')
         task.run()
