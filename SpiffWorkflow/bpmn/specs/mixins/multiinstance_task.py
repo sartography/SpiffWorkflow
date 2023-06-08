@@ -75,6 +75,7 @@ class StandardLoopTask(LoopTask):
                 my_task._set_state(TaskState.WAITING)
             task_spec = my_task.workflow.spec.task_specs[self.task_spec]
             child = my_task._add_child(task_spec, TaskState.WAITING)
+            child.triggered = True
             child.data = deepcopy(my_task.data)
 
     def child_completed_action(self, my_task, child):
@@ -128,6 +129,7 @@ class MultiInstanceTask(LoopTask):
 
         task_spec = my_task.workflow.spec.task_specs[self.task_spec]
         child = my_task._add_child(task_spec, TaskState.WAITING)
+        child.triggered = True
         child.data = deepcopy(my_task.data)
         if self.input_item is not None:
             child.data[self.input_item.bpmn_id] = deepcopy(item)
