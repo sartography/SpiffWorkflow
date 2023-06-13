@@ -217,14 +217,12 @@ class BpmnWorkflow(Workflow):
         if len(tasks) > 1:
             # Is this really a valid check?
             raise WorkflowException(
-                f"This process has multiple tasks waiting on the same message '{event_definition.name}', which is not supported. ")
+                f"This process has multiple tasks waiting on the same message '{event_definition.name}', which is not supported.")
 
         task = tasks[0]
         # Need a better way of extracting these
-        event_definition.correlation_properties = task.task_spec.event_definition.correlation_properties
         correlations = event_definition.get_correlations(task, message.payload)
-        if len(correlations) == 0:
-            raise WorkflowException(f'No matching correlations for {message.name}')
+        task.workflow.correlations.update(correlations)
         self.catch(event_definition, correlations=correlations)
 
     def waiting_events(self):
