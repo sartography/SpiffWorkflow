@@ -41,7 +41,6 @@ class CallActivityMessageTest(BaseTestCase):
             current_task.update_data(step[1])
             current_task.run()
             self.workflow.do_engine_steps()
-            self.complete_subworkflow()
             if save_restore:
                 self.save_restore()
             ready_tasks = self.workflow.get_tasks(TaskState.READY)

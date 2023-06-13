@@ -95,9 +95,9 @@ class MultiChoice(TaskSpec):
             if self.choice is not None and output not in self.choice:
                 continue
             if condition is None:
-                unconditional.append(self._wf_spec.get_task_spec_from_name(output))
+                unconditional.append(my_task.workflow.spec.get_task_spec_from_name(output))
             else:
-                conditional.append(self._wf_spec.get_task_spec_from_name(output))
+                conditional.append(my_task.workflow.spec.get_task_spec_from_name(output))
         state = TaskState.MAYBE if my_task.state == TaskState.MAYBE else TaskState.LIKELY
         my_task._sync_children(unconditional, state)
         for spec in conditional:
@@ -109,7 +109,7 @@ class MultiChoice(TaskSpec):
             if self.choice is not None and output not in self.choice:
                 continue
             if condition is None or condition._matches(my_task):
-                outputs.append(self._wf_spec.get_task_spec_from_name(output))
+                outputs.append(my_task.workflow.spec.get_task_spec_from_name(output))
         return outputs
 
     def _run_hook(self, my_task):

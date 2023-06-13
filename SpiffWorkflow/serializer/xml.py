@@ -656,9 +656,6 @@ class XmlSerializer(Serializer):
         if workflow.last_task is not None:
             SubElement(elem, 'last-task').text = str(workflow.last_task.id)
 
-        # outer_workflow
-        # SubElement(elem, 'outer-workflow').text = workflow.outer_workflow.id
-
         if workflow.success:
             SubElement(elem, 'success')
         task_tree_elem = SubElement(elem, 'task-tree')
@@ -673,10 +670,6 @@ class XmlSerializer(Serializer):
 
         workflow.data = self.deserialize_value_map(elem.find('data'))
         workflow.success = elem.find('success') is not None
-
-        # outer_workflow
-        # workflow.outer_workflow =
-        # find_workflow_by_id(remap_workflow_id(elem['outer_workflow']))
 
         task_tree_elem = elem.find('task-tree')
         workflow.task_tree = self.deserialize_task(workflow, task_tree_elem[0])
@@ -731,7 +724,7 @@ class XmlSerializer(Serializer):
         assert isinstance(workflow, Workflow)
 
         task_spec_name = elem.findtext('spec')
-        task_spec = workflow.get_task_spec_from_name(task_spec_name)
+        task_spec = workflow.spec.get_task_spec_from_name(task_spec_name)
         task = Task(workflow, task_spec)
         task.id = elem.findtext('id')
         # The parent is later resolved by the workflow deserializer

@@ -259,7 +259,6 @@ class Task(object):
         extra = dct or {}
         extra.update({
             'workflow_spec': self.workflow.spec.name,
-            'workflow_name': self.workflow.spec.description,
             'task_spec': self.task_spec.name,
             'task_name': self.task_spec.description,
             'task_id': self.id,

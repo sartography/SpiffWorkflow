@@ -2,16 +2,21 @@ import os
 
 from lxml import etree
 
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import Box
 from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
 from SpiffWorkflow.dmn.parser.DMNParser import DMNParser, get_dmn_ns
 
+class WorkflowSpec:
+    def __init__(self):
+        self.file = 'my_mock_file'
+        self.name = 'Mock Workflow Spec'
+        self.task_specs = {}
 
 class Workflow:
     def __init__(self, script_engine):
         self.script_engine = script_engine
-        self.outer_workflow = self
-        self.spec = Box({'file': 'my_mock_file'})
+        self.parent = None
+        self.spec = WorkflowSpec()
+        self.top_workflow = self
 
 class TaskSpec:
     def __init__(self):

@@ -24,7 +24,7 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         state = self.serializer.serialize_json(self.workflow)
         self.workflow = self.serializer.deserialize_json(state)
         self.workflow.spec = spec
-        self.workflow.subprocesses = subprocesses
+        self.workflow.subprocess_specs = subprocesses
 
     def testSaveRestore(self):
         self.actualTest(True)
@@ -38,13 +38,10 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         task = self.workflow.get_ready_user_tasks()[0]
         self.save_restore()
         top_level_task = self.workflow.get_tasks_from_spec_name('Task1')[0]
-#        top_level_task.reset_token({}, reset_data=True)
         self.workflow.reset_from_task_id(top_level_task.id)
         task = self.workflow.get_ready_user_tasks()[0]
-        self.assertEqual(len(self.workflow.get_ready_user_tasks()), 1,
-                         "There should only be one task in a ready state.")
+        self.assertEqual(len(self.workflow.get_ready_user_tasks()), 1, "There should only be one task in a ready state.")
         self.assertEqual(task.get_name(), 'Task1')
-
 
     def actualTest(self, save_restore=False):
 
@@ -73,7 +70,6 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.assertEqual(task.get_name(),'Subtask2A')
         task.run()
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(task.get_name(),'Task2')
         task.run()

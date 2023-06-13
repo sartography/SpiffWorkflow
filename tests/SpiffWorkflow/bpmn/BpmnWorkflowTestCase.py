@@ -76,7 +76,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
                     if (p.task_spec.name == parent_name or p.task_spec.bpmn_name == parent_name):
                         found = True
                         break
-                    if p.parent is None and p.workflow != p.workflow.outer_workflow:
+                    if p.parent is None and p.workflow != p.workflow.parent:
                         p = switch_workflow(p)
                     else:
                         p = p.parent
@@ -116,13 +116,6 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         if set_attribs:
             tasks[0].set_data(**set_attribs)
         tasks[0].run()
-
-    def complete_subworkflow(self):
-        # A side effect of finer grained contol over task execution is that tasks require more explicit intervention
-        # to change states.  Subworkflows tasks no longer go directly to ready when the subworkflow completes.
-        # So they may need to explicitly refreshed to become ready, and then run.
-        self.workflow.refresh_waiting_tasks()
-        self.workflow.do_engine_steps()
 
     def save_restore(self):
 

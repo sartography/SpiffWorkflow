@@ -32,7 +32,7 @@ class CancelTask(Trigger):
 
     def _run_hook(self, my_task):
         for task_name in self.context:
-            cancel_tasks = my_task.workflow.get_task_spec_from_name(task_name)
+            cancel_tasks = my_task.workflow.spec.get_task_spec_from_name(task_name)
             for cancel_task in my_task._get_root()._find_any(cancel_tasks):
                 cancel_task.cancel()
         return True

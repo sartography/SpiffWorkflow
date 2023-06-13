@@ -48,10 +48,6 @@ class EventDefinition(object):
         self.internal, self.external = True, True
         self.description = description
 
-    @property
-    def event_type(self):
-        return f'{self.__class__.__module__}.{self.__class__.__name__}'
-
     def has_fired(self, my_task):
         return my_task._get_internal_data('event_fired', False)
 
@@ -59,26 +55,21 @@ class EventDefinition(object):
         my_task._set_internal_data(event_fired=True)
 
     def throw(self, my_task):
-        self._throw(
-            event=my_task.task_spec.event_definition,
-            workflow=my_task.workflow,
-            outer_workflow=my_task.workflow.outer_workflow
-        )
+        self._throw(my_task)
 
     def reset(self, my_task):
         my_task._set_internal_data(event_fired=False)
 
-    def _throw(self, event, workflow, outer_workflow, correlations=None):
-        # This method exists because usually we just want to send the event in our
-        # own task spec, but we can't do that for message events.
-        # We also don't have a more sophisticated method for addressing events to
-        # a particular process, but this at least provides a mechanism for distinguishing
-        # between processes and subprocesses.
-        if self.external and outer_workflow != workflow:
-            top = workflow._get_outermost_workflow()
-            top.catch(event, correlations)
+    def _throw(self, my_task, **kwargs):
+        if 'target' in kwargs:
+            target = kwargs.pop('target')
+        elif self.internal and not self.external:
+            target = my_task.workflow
         else:
-            workflow.catch(event)
+            target = None
+
+        event_definition = kwargs.pop('event', my_task.task_spec.event_definition)
+        my_task.workflow.top_workflow.catch(event_definition, target, **kwargs)
 
     def __eq__(self, other):
         return self.__class__.__name__ == other.__class__.__name__
@@ -91,7 +82,6 @@ class NamedEventDefinition(EventDefinition):
 
     :param name: the name of this event
     """
-
     def __init__(self, name, **kwargs):
         super(NamedEventDefinition, self).__init__(**kwargs)
         self.name = name
@@ -112,6 +102,8 @@ class CancelEventDefinition(EventDefinition):
         super(CancelEventDefinition, self).__init__(**kwargs)
         self.internal = False
 
+    def _throw(self, my_task, **kwargs):
+        return super()._throw(my_task, target=my_task.workflow.parent_workflow)
 
 class ErrorEventDefinition(NamedEventDefinition):
     """
@@ -151,10 +143,11 @@ class EscalationEventDefinition(NamedEventDefinition):
 class CorrelationProperty:
     """Rules for generating a correlation key when a message is sent or received."""
 
-    def __init__(self, name, retrieval_expression, correlation_keys, expected_value=None):
-        self.name = name                            # This is the property name
-        self.retrieval_expression = retrieval_expression  # This is how it's generated
-        self.correlation_keys = correlation_keys    # These are the keys it's used by
+    def __init__(self, name, retrieval_expression, correlation_keys):
+        self.name = name                                    # This is the property name
+        self.retrieval_expression = retrieval_expression    # This is how it's generated
+        self.correlation_keys = correlation_keys            # These are the keys it's used by
+
 
 class MessageEventDefinition(NamedEventDefinition):
     """The default message event."""
@@ -179,7 +172,7 @@ class MessageEventDefinition(NamedEventDefinition):
         event.payload = deepcopy(my_task.data)
         correlations = self.get_correlations(my_task, event.payload)
         my_task.workflow.correlations.update(correlations)
-        self._throw(event, my_task.workflow, my_task.workflow.outer_workflow, correlations)
+        self._throw(my_task, event=event, correlations=correlations)
 
     def update_internal_data(self, my_task, event_definition):
         my_task.internal_data[event_definition.name] = event_definition.payload
@@ -192,35 +185,17 @@ class MessageEventDefinition(NamedEventDefinition):
             my_task.set_data(**payload)
 
     def get_correlations(self, task, payload):
-        correlation_keys = {}
+        correlations = {}
         for property in self.correlation_properties:
             for key in property.correlation_keys:
-                if key not in correlation_keys:
-                    correlation_keys[key] = {}
+                if key not in correlations:
+                    correlations[key] = {}
                 try:
-                    correlation_keys[key][property.name] = task.workflow.script_engine._evaluate(property.retrieval_expression, payload)
-                except WorkflowException as we:
-                    we.add_note(
-                        f"Failed to evaluate correlation property '{property.name}'"
-                        f" invalid expression '{property.retrieval_expression}'")
-                    we.task_spec = task.task_spec
-                    raise we
-        return correlation_keys
-
-    def conversation(self):
-        """An event may have many correlation properties, this figures out
-        which conversation exists across all of them, or return None if they
-        do not share a topic. """
-        conversation = None
-        if len(self.correlation_properties) > 0:
-            for prop in self.correlation_properties:
-                for key in prop.correlation_keys:
-                    conversation = key
-                    for prop in self.correlation_properties:
-                        if conversation not in prop.correlation_keys:
-                            break
-                    return conversation
-        return None
+                    correlations[key][property.name] = task.workflow.script_engine._evaluate(property.retrieval_expression, payload)
+                except WorkflowException:
+                    # Just ignore missing keys.  The dictionaries have to match exactly
+                    pass
+        return correlations
 
 
 class NoneEventDefinition(EventDefinition):
@@ -493,8 +468,4 @@ class MultipleEventDefinition(EventDefinition):
     def throw(self, my_task):
         # Mutiple events throw all associated events when they fire
         for event_definition in self.event_definitions:
-            self._throw(
-                event=event_definition,
-                workflow=my_task.workflow,
-                outer_workflow=my_task.workflow.outer_workflow
-            )
+            event_definition.throw(my_task)

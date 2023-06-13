@@ -64,10 +64,10 @@ class ExclusiveChoice(MultiChoice):
 
     def _run_hook(self, my_task):
 
-        output = self._wf_spec.get_task_spec_from_name(self.default_task_spec)
+        output = my_task.workflow.spec.get_task_spec_from_name(self.default_task_spec)
         for condition, spec_name in self.cond_task_specs:
             if condition is not None and condition._matches(my_task):
-                output = self._wf_spec.get_task_spec_from_name(spec_name)
+                output = my_task.workflow.spec.get_task_spec_from_name(spec_name)
                 break
 
         if output is None:

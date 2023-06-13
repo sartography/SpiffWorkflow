@@ -162,7 +162,6 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         self.assertIsInstance(w1, BpmnWorkflow)
         self.assertIsInstance(w2, BpmnWorkflow)
         self.assertEqual(w1.data, w2.data)
-        self.assertEqual(w1.name, w2.name)
         for task in w1.get_ready_user_tasks():
             w2_task = w2.get_task_from_id(task.id)
             self.assertIsNotNone(w2_task)

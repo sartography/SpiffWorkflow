@@ -30,7 +30,6 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.assertEqual('Test Message', self.workflow.get_tasks(TaskState.READY)[0].task_spec.bpmn_name)
 
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
 
     def testRunThroughSaveAndRestore(self):
@@ -51,5 +50,4 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))

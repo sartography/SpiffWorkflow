@@ -17,19 +17,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import copy
-
 from SpiffWorkflow.task import TaskState, Task
 from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.exceptions import WorkflowException, TaskNotFoundException
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 
 from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
 from SpiffWorkflow.bpmn.specs.event_definitions import (
     MessageEventDefinition,
-    MultipleEventDefinition,
     NamedEventDefinition,
     TimerEventDefinition,
 )
@@ -47,13 +43,45 @@ class BpmnMessage:
         self.payload = payload
 
 
+class BpmnSubWorkflow(Workflow):
+
+    def __init__(self, spec, parent_task_id, top_workflow, **kwargs):
+        super().__init__(spec, **kwargs)
+        self.parent_task_id = parent_task_id
+        self.top_workflow = top_workflow
+        self.correlations = {}
+
+    @property
+    def script_engine(self):
+        return self.top_workflow.script_engine
+
+    @property
+    def parent_workflow(self):
+        task = self.top_workflow.get_task_from_id(self.parent_task_id)
+        return task.workflow
+
+    @property
+    def depth(self):
+        current, depth = self, 0
+        while current.parent_workflow is not None:
+            depth += 1
+            current = current.parent_workflow
+        return depth
+
+    def get_task_from_id(self, task_id):
+        try:
+            return super().get_task_from_id(task_id)
+        except TaskNotFoundException as exc:
+            pass
+
+
 class BpmnWorkflow(Workflow):
     """
     The engine that executes a BPMN workflow. This specialises the standard
     Spiff Workflow class with a few extra methods and attributes.
     """
 
-    def __init__(self, top_level_spec, subprocess_specs=None, name=None, script_engine=None, **kwargs):
+    def __init__(self, spec, subprocess_specs=None, script_engine=None, **kwargs):
         """
         Constructor.
 
@@ -61,177 +89,141 @@ class BpmnWorkflow(Workflow):
         need a specialised version. Defaults to the script engine of the top
         most workflow, or to the PythonScriptEngine if none is provided.
         """
-        super(BpmnWorkflow, self).__init__(top_level_spec, **kwargs)
-        self.name = name or top_level_spec.name
         self.subprocess_specs = subprocess_specs or {}
         self.subprocesses = {}
         self.bpmn_messages = []
         self.correlations = {}
+        super(BpmnWorkflow, self).__init__(spec, **kwargs)
+
         self.__script_engine = script_engine or PythonScriptEngine()
 
     @property
     def script_engine(self):
-        # The outermost script engine always takes precedence.
-        # All call activities, sub-workflows and DMNs should use the
-        # workflow engine of the outermost workflow.
-        return self._get_outermost_workflow().__script_engine
+        return self.__script_engine
 
     @script_engine.setter
     def script_engine(self, engine):
         self.__script_engine = engine
 
-    def create_subprocess(self, my_task, spec_name, name):
+    @property
+    def top_workflow(self):
+        return self
+
+    @property
+    def parent_task_id(self):
+        return None
+    
+    @property
+    def parent_workflow(self):
+        return None
+    
+    @property
+    def depth(self):
+        return 0
+
+    def get_tasks(self, state=TaskState.ANY_MASK, workflow=None):
+        tasks = []
+        wf = workflow or self
+        for task in Workflow.get_tasks_iterator(wf):
+            subprocess = self.subprocesses.get(task.id)
+            if task._has_state(state):
+                tasks.append(task)
+            if subprocess is not None:
+                tasks.extend(self.get_tasks(state, subprocess))
+        return tasks
+
+    def get_tasks_from_spec_name(self, name, workflow=None):
+        return [t for t in self.get_tasks(workflow=workflow) if t.task_spec.name == name]
+
+    def get_ready_user_tasks(self, lane=None, workflow=None):
+        """Returns a list of User Tasks that are READY for user action"""
+        if lane is not None:
+            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual and t.task_spec.lane == lane]
+        else:
+            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual]
+
+    def get_waiting_tasks(self, workflow=None):
+        """Returns a list of all WAITING tasks"""
+        return self.get_tasks(TaskState.WAITING, workflow)
+
+    def get_catching_tasks(self, workflow=None):
+        return [task for task in self.get_tasks(workflow=workflow) if isinstance(task.task_spec, CatchingEvent)]
+
+    def create_subprocess(self, my_task, spec_name):
         # This creates a subprocess for an existing task
-        workflow = self._get_outermost_workflow(my_task)
-        subprocess = BpmnWorkflow(
-            workflow.subprocess_specs[spec_name], name=name,
-            script_engine=self.script_engine,
-            parent=my_task.workflow)
-        workflow.subprocesses[my_task.id] = subprocess
+        subprocess = BpmnSubWorkflow(
+            self.subprocess_specs[spec_name],
+            parent_task_id=my_task.id,
+            top_workflow=self)
+        self.subprocesses[my_task.id] = subprocess
         return subprocess
 
-    def delete_subprocess(self, my_task):
-        workflow = self._get_outermost_workflow(my_task)
-        if my_task.id in workflow.subprocesses:
-            del workflow.subprocesses[my_task.id]
-
     def get_subprocess(self, my_task):
-        workflow = self._get_outermost_workflow(my_task)
-        return workflow.subprocesses.get(my_task.id)
+        return self.subprocesses.get(my_task.id)
 
-    def connect_subprocess(self, spec_name, name):
-        # This creates a new task associated with a process when an event that kicks of a process is received
-        # I need to know what class is being used to create new processes in this case, and this seems slightly
-        # less bad than adding yet another argument.  Still sucks though.
-        # TODO: Make collaborations a class rather than trying to shoehorn them into a process.
-        for spec in self.spec.task_specs.values():
-            if isinstance(spec, CallActivity):
-                spec_class = spec.__class__
-                break
-        else:
-            # Default to the mixin class, which will probably fail in many cases.
-            spec_class = CallActivity
-        new = spec_class(self.spec, name, spec_name)
-        self.spec.start.connect(new)
-        task = Task(self, new)
-        start = self.get_tasks_from_spec_name('Start', workflow=self)[0]
-        start.children.append(task)
-        task.parent = start
-        # This (indirectly) calls create_subprocess
-        task.task_spec._update(task)
-        return self.subprocesses[task.id]
+    def delete_subprocess(self, my_task):
+        subprocess = self.subprocesses.get(my_task.id)
+        tasks = subprocess.get_tasks()
+        for sp in [c for c in self.subprocesses.values() if c.parent_workflow == subprocess]:
+            tasks.extend(self.delete_subprocess(self.get_task_from_id(sp.parent_task_id)))
+        del self.subprocesses[my_task.id]
+        return tasks
 
-    def _get_outermost_workflow(self, task=None):
-        workflow = task.workflow if task is not None else self
-        while workflow != workflow.outer_workflow:
-            workflow = workflow.outer_workflow
-        return workflow
+    def get_active_subprocesses(self):
+        return [sp for sp in self.subprocesses.values() if not sp.is_completed()]
 
-    def _get_or_create_subprocess(self, task_spec, wf_spec):
-        if isinstance(task_spec.event_definition, MultipleEventDefinition):
-            for sp in self.subprocesses.values():
-                start = sp.get_tasks_from_spec_name(task_spec.name)
-                if len(start) and start[0].state == TaskState.WAITING:
-                    return sp
-        return self.connect_subprocess(wf_spec.name, f'{wf_spec.name}_{len(self.subprocesses)}')
-
-    def catch(self, event_definition, correlations=None):
+    def catch(self, event_definition, target=None, correlations=None):
         """
-
-        Tasks can always catch events, regardless of their state.  The
-        event information is stored in the tasks internal data and processed
-        when the task is reached in the workflow.  If a task should only
-        receive messages while it is running (eg a boundary event), the task
-        should call the event_definition's reset method before executing to
-        clear out a stale message.
-
-        We might be catching an event that was thrown from some other part of
-        our own workflow, and it needs to continue out, but if it originated
-        externally, we should not pass it on.
+        Tasks can always catch events, regardless of their state.  The event information is stored in the task's
+        internal data and processed when the task is reached in the workflow.  If a task should only receive messages
+        while it is running (eg a boundary event), the task should call the event_definition's reset method before
+        executing to clear out a stale message.
 
         :param event_definition: the thrown event
         """
-        # Start a subprocess for known specs with start events that catch this
-        # This is totally hypocritical of me given how I've argued that specs should
-        # be immutable, but I see no other way of doing this.
-        for name, spec in self.subprocess_specs.items():
-            for task_spec in list(spec.task_specs.values()):
-                if isinstance(task_spec, StartEvent) and task_spec.event_definition == event_definition:
-                    subprocess = self._get_or_create_subprocess(task_spec, spec)
-                    subprocess.correlations.update(correlations or {})
+        if target is None:
+            self.update_collaboration(event_definition, correlations)
+            tasks = [t for t in self.get_catching_tasks() if t.task_spec.catches(t, event_definition, correlations)]
 
-        # We need to get all the tasks that catch an event before completing any of them
-        # in order to prevent the scenario where multiple boundary events catch the
-        # same event and the first executed cancels the rest
-        tasks = [ t for t in self.get_catching_tasks() if t.task_spec.catches(t, event_definition, correlations or {}) ]
+            # Figure out if we need to create an external message
+            if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
+                self.bpmn_messages.append(BpmnMessage(correlations, event_definition.name, event_definition.payload))
+
+        else:
+            catches = lambda t: isinstance(t.task_spec, CatchingEvent) and t.task_spec.catches(t, event_definition, correlations)
+            tasks = [t for t in target.get_tasks_iterator(TaskState.NOT_FINISHED_MASK) if catches(t)]
+
         for task in tasks:
             task.task_spec.catch(task, event_definition)
 
         # Move any tasks that received message to READY
         self.refresh_waiting_tasks()
 
-        # Figure out if we need to create an external message
-        if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
-            self.bpmn_messages.append(
-                BpmnMessage(correlations, event_definition.name, event_definition.payload))
-
     def get_bpmn_messages(self):
         messages = self.bpmn_messages
         self.bpmn_messages = []
         return messages
 
-    def catch_bpmn_message(self, name, payload):
-        """Allows this workflow to catch an externally generated bpmn message.
-        Raises an error if this workflow is not waiting on the given message."""
-        event_definition = MessageEventDefinition(name)
-        event_definition.payload = payload
+    def catch_bpmn_message(self, message):
+        """Allows this workflow to catch an externally generated bpmn message."""
 
-        # There should be one and only be one task that can accept the message
-        # (messages are one to one, not one to many)
-        tasks = [t for t in self.get_waiting_tasks() if t.task_spec.event_definition == event_definition]
+        event_definition = MessageEventDefinition(message.name)
+        event_definition.payload = message.payload
+
+        # There should be one and only be one task that can accept the message (messages are one to one, not one to many)
+        tasks = [t for t in self.get_catching_tasks() if t.task_spec.event_definition == event_definition]
         if len(tasks) == 0:
-            raise WorkflowException(
-                f"This process is not waiting on a message named '{event_definition.name}'")
+            raise WorkflowException(f"This process is not waiting on a message named '{event_definition.name}'")
         if len(tasks) > 1:
+            # Is this really a valid check?
             raise WorkflowException(
-                f"This process has multiple tasks waiting on the same message '{event_definition.name}', which is not supported. ")
+                f"This process has multiple tasks waiting on the same message '{event_definition.name}', which is not supported.")
 
         task = tasks[0]
-        conversation = task.task_spec.event_definition.conversation()
-        if not conversation:
-            raise WorkflowTaskException(
-                "The waiting task and message payload can not be matched to any correlation key (conversation topic).  "
-                "And is therefor unable to respond to the given message.", task)
-        updated_props = self._correlate(conversation, payload, task)
-        task.task_spec.catch(task, event_definition)
-        self.refresh_waiting_tasks()
-        self.correlations[conversation] = updated_props
-
-    def _correlate(self, conversation, payload, task):
-        """Assures that the provided payload correlates to the given
-        task's event definition and this workflows own correlation
-        properties.  Returning an updated property list if successful"""
-        receive_event = task.task_spec.event_definition
-        current_props = self.correlations.get(conversation, {})
-        updated_props = copy.copy(current_props)
-        for prop in receive_event.correlation_properties:
-            try:
-                new_val = self.script_engine._evaluate(
-                    prop.retrieval_expression, payload
-                )
-            except Exception as e:
-                raise WorkflowTaskException("Unable to accept the BPMN message. "
-                                            "The payload must contain "
-                                            f"'{prop.retrieval_expression}'", task, e)
-            if prop.name in current_props and \
-                new_val != updated_props[prop.name]:
-                raise WorkflowTaskException("Unable to accept the BPMN message. "
-                                            "The payload does not match. Expected "
-                                            f"'{prop.retrieval_expression}' to equal "
-                                            f"{current_props[prop.name]}.", task)
-            else:
-                updated_props[prop.name] = new_val
-        return updated_props
+        # Need a better way of extracting these
+        correlations = event_definition.get_correlations(task, message.payload)
+        task.workflow.correlations.update(correlations)
+        self.catch(event_definition, correlations=correlations)
 
     def waiting_events(self):
         # Ultimately I'd like to add an event class so that EventDefinitions would not so double duty as both specs
@@ -252,32 +244,43 @@ class BpmnWorkflow(Workflow):
             })
         return events
 
-    def do_engine_steps(self, exit_at = None, will_complete_task=None, did_complete_task=None):
+    def do_engine_steps(self, will_complete_task=None, did_complete_task=None):
         """
         Execute any READY tasks that are engine specific (for example, gateways
         or script tasks). This is done in a loop, so it will keep completing
         those tasks until there are only READY User tasks, or WAITING tasks
         left.
 
-        :param exit_at: After executing a task with a name matching this param return the task object
         :param will_complete_task: Callback that will be called prior to completing a task
         :param did_complete_task: Callback that will be called after completing a task
         """
-        engine_steps = list([t for t in self.get_tasks(TaskState.READY) if not t.task_spec.manual])
-        while engine_steps:
-            for task in engine_steps:
-                if will_complete_task is not None:
-                    will_complete_task(task)
-                task.run()
-                if did_complete_task is not None:
-                    did_complete_task(task)
-                if task.task_spec.name == exit_at:
-                    return task
-            engine_steps = list([t for t in self.get_tasks(TaskState.READY) if not t.task_spec.manual])
+        def update_workflow(wf):
+            count = 0
+            # Wanted to use the iterator method here, but at least this is a shorter list
+            for task in wf.get_tasks(TaskState.READY):
+                if not task.task_spec.manual:
+                    if will_complete_task is not None:
+                        will_complete_task(task)
+                    task.run()
+                    count += 1
+                    if did_complete_task is not None:
+                        did_complete_task(task)
+            return count
 
-    def refresh_waiting_tasks(self,
-        will_refresh_task=None,
-        did_refresh_task=None):
+        active_subprocesses = self.get_active_subprocesses()
+        for subprocess in sorted(active_subprocesses, key=lambda v: v.depth, reverse=True):
+            count = None
+            while count is None or count > 0:
+                count = update_workflow(subprocess)
+            if subprocess.parent_task_id is not None:
+                task = self.get_task_from_id(subprocess.parent_task_id)
+                task.task_spec._update(task)
+
+        count = update_workflow(self)
+        if count > 0 or len(self.get_active_subprocesses()) > len(active_subprocesses):
+            self.do_engine_steps(will_complete_task, did_complete_task)
+
+    def refresh_waiting_tasks(self, will_refresh_task=None, did_refresh_task=None):
         """
         Refresh the state of all WAITING tasks. This will, for example, update
         Catching Timer Events whose waiting time has passed.
@@ -285,91 +288,50 @@ class BpmnWorkflow(Workflow):
         :param will_refresh_task: Callback that will be called prior to refreshing a task
         :param did_refresh_task: Callback that will be called after refreshing a task
         """
-        for my_task in self.get_tasks(TaskState.WAITING):
+        def update_task(task):
             if will_refresh_task is not None:
-                will_refresh_task(my_task)
-            # This seems redundant, but the state could have been updated by another waiting task and no longer be waiting.
-            # Someday, I would like to get rid of this method, and also do_engine_steps
-            if my_task.state == TaskState.WAITING:
-                my_task.task_spec._update(my_task)
+                will_refresh_task(task)
+            task.task_spec._update(task)
             if did_refresh_task is not None:
-                did_refresh_task(my_task)
+                did_refresh_task(task)           
+ 
+        for subprocess in sorted(self.get_active_subprocesses(), key=lambda v: v.depth, reverse=True):
+            for task in subprocess.get_tasks_iterator(TaskState.WAITING):
+                update_task(task)
 
-    def get_tasks_from_spec_name(self, name, workflow=None):
-        return [t for t in self.get_tasks(workflow=workflow) if t.task_spec.name == name]
+        for task in self.get_tasks_iterator(TaskState.WAITING):
+            update_task(task)
 
-    def get_tasks(self, state=TaskState.ANY_MASK, workflow=None):
-        # Now that I've revisited and had to ask myself what the hell was I doing, I realize I should comment this
-        tasks = []
-        top = self._get_outermost_workflow()
-        # I think it makes more sense to start with the current workflow, which is probably going to be the top
-        # most of the time anyway
-        wf = workflow or self
-        # We can't filter the iterator on the state because we have to subprocesses, and the subprocess task will
-        # almost surely be in a different state than the tasks we want
-        for task in Workflow.get_tasks_iterator(wf):
-            subprocess = top.subprocesses.get(task.id)
-            if task._has_state(state):
-                tasks.append(task)
-            if subprocess is not None:
-                tasks.extend(subprocess.get_tasks(state, subprocess))
-        return tasks
-
-    def get_task_from_id(self, task_id, workflow=None):
-        for task in self.get_tasks(workflow=workflow):
-            if task.id == task_id:
+    def get_task_from_id(self, task_id):
+        for subprocess in self.subprocesses.values():
+            task = subprocess.get_task_from_id(task_id)
+            if task is not None:
                 return task
-        raise TaskNotFoundException(f'A task with the given task_id ({task_id}) was not found', task_spec=self.spec)
+        return super().get_task_from_id(task_id)
 
-    def get_ready_user_tasks(self, lane=None, workflow=None):
-        """Returns a list of User Tasks that are READY for user action"""
-        if lane is not None:
-            return [t for t in self.get_tasks(TaskState.READY, workflow) 
-                        if t.task_spec.manual and t.task_spec.lane == lane]
-        else:
-            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual]
-
-    def get_waiting_tasks(self, workflow=None):
-        """Returns a list of all WAITING tasks"""
-        return self.get_tasks(TaskState.WAITING, workflow)
-
-    def get_catching_tasks(self, workflow=None):
-        return [task for task in self.get_tasks(workflow=workflow) if isinstance(task.task_spec, CatchingEvent)]
-
-    def reset_from_task_id(self, task_id, data=None):
-        """Override method from base class, and assures that if the task
-        being reset has a boundary event parent, we reset that parent and
-        run it rather than resetting to the current task.  This assures
-        our boundary events are set to the correct state."""
+    def reset_from_task_id(self, task_id, data=None, remove_subprocess=True):
 
         task = self.get_task_from_id(task_id)
         run_task_at_end = False
-
         if isinstance(task.parent.task_spec, _BoundaryEventParent):
             task = task.parent
             run_task_at_end = True # we jumped up one level, so exectute so we are on the correct task as requested.
 
-        descendants = super().reset_from_task_id(task_id, data)
-        descendant_ids = [t.id for t in descendants]
-        top = self._get_outermost_workflow()
+        descendants = []
+        # Since recursive deletion of subprocesses requires access to the tasks, we have to delete any subprocesses first
+        # We also need diffeent behavior for the case where we explictly reset to a subprocess (in which case we delete it)
+        # vs resetting inside (where we leave it and reset the tasks that descend from it)
+        for item in task:
+            if item == task and not remove_subprocess:
+                continue
+            if item.id in self.subprocesses:
+                descendants.extend(self.delete_subprocess(item))
+        descendants.extend(super().reset_from_task_id(task_id, data))
 
-        delete, reset = [], []
-        for sp_id, sp in top.subprocesses.items():
-            if sp_id in descendant_ids:
-                delete.append(sp_id)
-                delete.extend([t.id for t in sp.get_tasks() if t.id in top.subprocesses])
-            if task in sp.get_tasks():
-                reset.append(sp_id)
-
-        # Remove any subprocesses for removed tasks
-        for sp_id in delete:
-            del top.subprocesses[sp_id]
-
-        # Reset any containing subprocesses
-        for sp_id in reset:
-            descendants.extend(self.reset_from_task_id(sp_id))
-            sp_task = self.get_task_from_id(sp_id)
-            sp_task.state = TaskState.WAITING
+        if task.workflow.parent_task_id is not None:
+            sp_task = self.get_task_from_id(task.workflow.parent_task_id)
+            descendants.extend(self.reset_from_task_id(sp_task.id, remove_subprocess=False))
+            sp_task._set_state(TaskState.WAITING)
 
         if run_task_at_end:
             task.run()
@@ -381,9 +343,8 @@ class BpmnWorkflow(Workflow):
         wf = workflow or self
         cancelled = Workflow.cancel(wf)
         cancelled_ids = [t.id for t in cancelled]
-        top = self._get_outermost_workflow()
         to_cancel = []
-        for sp_id, sp in top.subprocesses.items():
+        for sp_id, sp in self.subprocesses.items():
             if sp_id in cancelled_ids:
                 to_cancel.append(sp)
         
@@ -391,3 +352,41 @@ class BpmnWorkflow(Workflow):
             cancelled.extend(self.cancel(sp))
 
         return cancelled
+
+    def update_collaboration(self, event_definition, correlations):
+
+        def get_or_create_subprocess(task_spec, wf_spec):
+
+            for sp in self.subprocesses.values():
+                start = sp.get_tasks_from_spec_name(task_spec.name)
+                if len(start) and start[0].state == TaskState.WAITING:
+                    return sp
+
+            # This creates a new task associated with a process when an event that kicks of a process is received
+            # I need to know what class is being used to create new processes in this case, and this seems slightly
+            # less bad than adding yet another argument.  Still sucks though.
+            # TODO: Make collaborations a class rather than trying to shoehorn them into a process.
+            for spec in self.spec.task_specs.values():
+                if isinstance(spec, CallActivity):
+                    spec_class = spec.__class__
+                    break
+            else:
+                # Default to the mixin class, which will probably fail in many cases.
+                spec_class = CallActivity
+
+            new = spec_class(self.spec, f'{wf_spec.name}_{len(self.subprocesses)}', wf_spec.name)
+            self.spec.start.connect(new)
+            task = Task(self, new)
+            start = self.get_tasks_from_spec_name('Start', workflow=self)[0]
+            start.children.append(task)
+            task.parent = start
+            # This (indirectly) calls create_subprocess
+            task.task_spec._update(task)
+            return self.subprocesses[task.id]
+
+        # Start a subprocess for known specs with start events that catch this
+        for spec in self.subprocess_specs.values():
+            for task_spec in spec.task_specs.values():
+                if isinstance(task_spec, StartEvent) and task_spec.event_definition == event_definition:
+                    subprocess = get_or_create_subprocess(task_spec, spec)
+                    subprocess.correlations.update(correlations)

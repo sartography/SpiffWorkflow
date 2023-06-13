@@ -505,12 +505,11 @@ class DictionarySerializer(Serializer):
         workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'], reset_specs)
 
         # Re-connect parents and update states if necessary
-        tasklist = workflow.get_tasks()
         root = workflow.get_tasks_from_spec_name('Root')[0]
         update_state = root.state != TaskState.COMPLETED
-        for task in tasklist:
+        for task in workflow.get_tasks_iterator():
             if task.parent is not None:
-                task.parent = workflow.get_task_from_id(task.parent, tasklist)
+                task.parent = workflow.get_task_from_id(task.parent)
             if update_state:
                 if task.state == 32:
                     task.state = TaskState.COMPLETED
@@ -518,8 +517,7 @@ class DictionarySerializer(Serializer):
                     task.state = TaskState.CANCELLED
 
         if workflow.last_task is not None:
-            workflow.last_task = workflow.get_task_from_id(s_state['last_task'],tasklist)
-        workflow.update_task_mapping()
+            workflow.last_task = workflow.get_task_from_id(s_state['last_task'])
 
         return workflow
 
@@ -531,7 +529,6 @@ class DictionarySerializer(Serializer):
                 " internal_data to store the subworkflow).")
         s_state = dict()
         s_state['id'] = task.id
-        s_state['workflow_name'] = task.workflow.name
         s_state['parent'] = task.parent.id if task.parent is not None else None
         if not skip_children:
             s_state['children'] = [self.serialize_task(child) for child in task.children]
@@ -548,7 +545,7 @@ class DictionarySerializer(Serializer):
         old_spec_name = s_state['task_spec']
         if old_spec_name in ignored_specs:
             return None
-        task_spec = workflow.get_task_spec_from_name(old_spec_name)
+        task_spec = workflow.spec.get_task_spec_from_name(old_spec_name)
         if task_spec is None:
             raise MissingSpecError("Unknown task spec: " + old_spec_name)
         task = Task(workflow, task_spec)

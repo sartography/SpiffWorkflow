@@ -20,7 +20,7 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
         self.complete_task('Action2', True)
         self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
         self.complete_task('Action3', True)
-        self.complete_workflow()
+        self.assertTrue(self.workflow.is_completed())
 
     def testResetToTop(self):
 
@@ -36,7 +36,7 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
 
         self.complete_task('Action2')
         self.complete_task('Action3')
-        self.complete_workflow()
+        self.assertTrue(self.workflow.is_completed())
 
     def testResetToIntermediate(self):
 
@@ -53,16 +53,27 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
         task.run()
 
         self.complete_task('Action3')
-        self.complete_workflow()
+        self.assertTrue(self.workflow.is_completed())
+
+    def testResetToSubworkflow(self):
+
+        self.complete_task('Action1', True)
+        self.complete_task('Action2', True)
+        self.complete_task('Action3', True)
+
+        # "Nested level 1"
+        task = self.workflow.get_tasks_from_spec_name('sid-C014B4B9-889F-4EE9-9949-C89502C35CF0')[0]
+        self.workflow.reset_from_task_id(task.id)
+
+        self.workflow.do_engine_steps()
+        self.assertEqual(len(self.workflow.subprocesses), 1)
+        self.assertEqual(task.state, TaskState.WAITING)
+        self.complete_task('Action2', True)
+        self.complete_task('Action3', True)
+        self.assertTrue(self.workflow.is_completed())
 
     def complete_task(self, name, save_restore=False):
         self.do_next_named_step(name)
         self.workflow.do_engine_steps()
         if save_restore:
             self.save_restore()
-
-    def complete_workflow(self):
-        self.complete_subworkflow()
-        self.complete_subworkflow()
-        self.complete_subworkflow()
-        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))

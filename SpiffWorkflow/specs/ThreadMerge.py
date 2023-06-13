@@ -105,7 +105,7 @@ class ThreadMerge(Join):
             my_task._set_state(TaskState.WAITING)
             return
 
-        split_task_spec = my_task.workflow.get_task_spec_from_name(self.split_task)
+        split_task_spec = my_task.workflow.spec.get_task_spec_from_name(self.split_task)
         split_task = my_task._find_ancestor(split_task_spec)
 
         # Find the inbound task that was completed last.

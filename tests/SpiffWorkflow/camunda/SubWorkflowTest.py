@@ -33,7 +33,6 @@ class SubWorkflowTest(BaseTestCase):
             task.update_data({"Field"+answer: answer})
             task.run()
             self.workflow.do_engine_steps()
-            self.complete_subworkflow()
             if save_restore:
                 self.save_restore()
 

@@ -35,7 +35,7 @@ class MessageEventDefinition(MessageEventDefinition):
         event.payload = my_task.workflow.script_engine.evaluate(my_task, self.expression)
         correlations = self.get_correlations(my_task, event.payload)
         my_task.workflow.correlations.update(correlations)
-        self._throw(event, my_task.workflow, my_task.workflow.outer_workflow, correlations)
+        self._throw(my_task, event=event, correlations=correlations)
 
     def update_task_data(self, my_task):
         my_task.data[self.message_var] = my_task.internal_data[self.name]

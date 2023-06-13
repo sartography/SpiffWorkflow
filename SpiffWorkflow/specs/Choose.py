@@ -57,7 +57,7 @@ class Choose(Trigger):
         self.choice = choice is not None and choice or []
 
     def _run_hook(self, my_task):
-        context = my_task.workflow.get_task_spec_from_name(self.context)
+        context = my_task.workflow.spec.get_task_spec_from_name(self.context)
         triggered = []
         for task in my_task.workflow.task_tree:
             if task.thread_id != my_task.thread_id:

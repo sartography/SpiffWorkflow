@@ -84,4 +84,3 @@ class PrescriptPostsciptTest(BaseTestCase):
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         ready_tasks[0].set_data(**data)
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()

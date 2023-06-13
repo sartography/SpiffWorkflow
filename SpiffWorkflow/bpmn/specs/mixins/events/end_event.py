@@ -49,7 +49,7 @@ class EndEvent(ThrowingEvent):
 
             # We are finished.  Set the workflow data and cancel all tasks
             my_task.workflow.set_data(**my_task.data)
-            for task in my_task.workflow.get_tasks(TaskState.NOT_FINISHED_MASK, workflow=my_task.workflow):
+            for task in my_task.workflow.get_tasks(TaskState.NOT_FINISHED_MASK):
                 task.cancel()
 
         elif isinstance(self.event_definition, CancelEventDefinition):

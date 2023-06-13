@@ -42,10 +42,6 @@ class _BoundaryEventParent(BpmnTaskSpec):
         super(_BoundaryEventParent, self).__init__(wf_spec, name, **kwargs)
         self.main_child_task_spec = main_child_task_spec
 
-    @property
-    def spec_type(self):
-        return 'Boundary Event Parent'
-
     def _run_hook(self, my_task):
         # Clear any events that our children might have received and wait for new events
         for child in my_task.children:
@@ -57,11 +53,15 @@ class _BoundaryEventParent(BpmnTaskSpec):
     def _child_complete_hook(self, child_task):
         # If the main child completes, or a cancelling event occurs, cancel any unfinished children
         if child_task.task_spec == self.main_child_task_spec or child_task.task_spec.cancel_activity:
-            for sibling in child_task.parent.children:
-                if sibling == child_task:
+            for task in child_task.parent.children:
+                if task == child_task:
                     continue
-                if sibling.task_spec == self.main_child_task_spec or not sibling._is_finished():
-                    sibling.cancel()
+                if task.task_spec != self.main_child_task_spec and task._has_state(TaskState.READY):
+                    # Don't cancel boundary events that became ready while this task was running
+                    # Not clear that this is really the appropriate behavior but we have tests that depend on it
+                    continue
+                if task.task_spec == self.main_child_task_spec or not task._is_finished():
+                    task.cancel()
 
     def _predict_hook(self, my_task):
         # Events attached to the main task might occur
@@ -89,10 +89,6 @@ class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
             w = task.workflow
             if w == my_task.workflow:
                 is_mine = True
-            while w and w.outer_workflow != w:
-                w = w.outer_workflow
-                if w == my_task.workflow:
-                    is_mine = True
             if is_mine:
                 waiting_tasks.append(task)
 

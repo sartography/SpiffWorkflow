@@ -139,7 +139,7 @@ class Join(TaskSpec):
         # We are looking for all task instances that must be joined.
         # We limit our search by starting at the split point.
         if self.split_task:
-            task_spec = my_task.workflow.get_task_spec_from_name(self.split_task)
+            task_spec = my_task.workflow.spec.get_task_spec_from_name(self.split_task)
             split_task = my_task._find_ancestor(task_spec)
         else:
             split_task = my_task.workflow.task_tree

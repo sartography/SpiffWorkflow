@@ -23,7 +23,7 @@ from copy import deepcopy
 from uuid import UUID
 
 from SpiffWorkflow.task import Task
-from SpiffWorkflow.bpmn.workflow import BpmnMessage, BpmnWorkflow
+from SpiffWorkflow.bpmn.workflow import BpmnMessage, BpmnWorkflow, BpmnSubWorkflow
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask
 
 from .migration.version_migration import MIGRATIONS
@@ -104,13 +104,14 @@ class BpmnWorkflowSerializer:
             cls(spec_converter)
         return spec_converter
 
-    def __init__(self, spec_converter=None, data_converter=None, wf_class=None, version=VERSION,
+    def __init__(self, spec_converter=None, data_converter=None, wf_class=None, sub_wf_class=None, version=VERSION,
                  json_encoder_cls=DEFAULT_JSON_ENCODER_CLS, json_decoder_cls=DEFAULT_JSON_DECODER_CLS):
         """Intializes a Workflow Serializer with the given Workflow, Task and Data Converters.
 
         :param spec_converter: the workflow spec converter
         :param data_converter: the data converter
         :param wf_class: the workflow class
+        :param sub_wf_class: the subworkflow class
         :param json_encoder_cls: JSON encoder class to be used for dumps/dump operations
         :param json_decoder_cls: JSON decoder class to be used for loads/load operations
         """
@@ -118,6 +119,7 @@ class BpmnWorkflowSerializer:
         self.spec_converter = spec_converter if spec_converter is not None else self.configure_workflow_spec_converter()
         self.data_converter = data_converter if data_converter is not None else DefaultRegistry()
         self.wf_class = wf_class if wf_class is not None else BpmnWorkflow
+        self.sub_wf_class = sub_wf_class if sub_wf_class is not None else BpmnSubWorkflow
         self.json_encoder_cls = json_encoder_cls
         self.json_decoder_cls = json_decoder_cls
         self.VERSION = version
@@ -166,17 +168,14 @@ class BpmnWorkflowSerializer:
         """
         # These properties are applicable to top level & subprocesses
         dct = self.process_to_dict(workflow)
-        # These are only used at the top-level
-        dct['spec'] = self.spec_converter.convert(workflow.spec)
+        # These are only used at the top-level      
         dct['subprocess_specs'] = dict(
             (name, self.spec_converter.convert(spec)) for name, spec in workflow.subprocess_specs.items()
         )
         dct['subprocesses'] = dict(
-            (str(task_id), self.process_to_dict(sp)) for task_id, sp in workflow.subprocesses.items()
+            (str(task_id), self.subworkflow_to_dict(sp)) for task_id, sp in workflow.subprocesses.items()
         )
         dct['bpmn_messages'] = [self.message_to_dict(msg) for msg in workflow.bpmn_messages]
-
-        dct['correlations'] = workflow.correlations
         return dct
 
     def workflow_from_dict(self, dct):
@@ -216,6 +215,11 @@ class BpmnWorkflowSerializer:
 
         return workflow
 
+    def subworkflow_to_dict(self, workflow):
+        dct = self.process_to_dict(workflow)
+        dct['parent_task_id'] = str(workflow.parent_task_id)
+        return dct
+
     def task_to_dict(self, task):
         return {
             'id': str(task.id),
@@ -225,7 +229,6 @@ class BpmnWorkflowSerializer:
             'state': task.state,
             'task_spec': task.task_spec.name,
             'triggered': task.triggered,
-            'workflow_name': task.workflow.name,
             'internal_data': self.data_converter.convert(task.internal_data),
             'data': self.data_converter.convert(task.data),
         }
@@ -265,7 +268,7 @@ class BpmnWorkflowSerializer:
 
         if isinstance(task_spec, SubWorkflowTask) and task_id in top_dct.get('subprocesses', {}):
             subprocess_spec = top.subprocess_specs[task_spec.spec]
-            subprocess = self.wf_class(subprocess_spec, {}, name=task_spec.name, parent=process, deserializing=True)
+            subprocess = self.sub_wf_class(subprocess_spec, task.id, top_level_workflow, deserializing=True)
             subprocess_dct = top_dct['subprocesses'].get(task_id, {})
             subprocess.spec.data_objects.update(process.spec.data_objects)
             if len(subprocess.spec.data_objects) > 0:
@@ -273,6 +276,7 @@ class BpmnWorkflowSerializer:
             else:
                 subprocess.data = self.data_converter.restore(subprocess_dct.pop('data'))
             subprocess.success = subprocess_dct.pop('success')
+            subprocess.correlations = subprocess_dct.pop('correlations', {})
             subprocess.task_tree = self.task_tree_from_dict(subprocess_dct, subprocess_dct.pop('root'), None, subprocess, top, top_dct)
             subprocess.completed_event.connect(task_spec._on_subworkflow_completed, task)
             top_level_workflow.subprocesses[task.id] = subprocess
@@ -288,7 +292,9 @@ class BpmnWorkflowSerializer:
 
     def process_to_dict(self, process):
         return {
+            'spec': self.spec_converter.convert(process.spec),
             'data': self.data_converter.convert(process.data),
+            'correlations': process.correlations,
             'last_task': str(process.last_task.id) if process.last_task is not None else None,
             'success': process.success,
             'tasks': self.task_tree_to_dict(process.task_tree),

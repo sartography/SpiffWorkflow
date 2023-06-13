@@ -80,7 +80,6 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
         for task in self.workflow.get_tasks(TaskState.READY):
             task.set_data(should_escalate=False)
         self.workflow.do_engine_steps()
-        self.complete_subworkflow()
         self.save_restore()
         self.workflow.run_all()
         self.assertEqual(True, self.workflow.is_completed())
