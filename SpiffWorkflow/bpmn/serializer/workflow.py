@@ -217,7 +217,7 @@ class BpmnWorkflowSerializer:
 
     def subworkflow_to_dict(self, workflow):
         dct = self.process_to_dict(workflow)
-        dct['parent'] = str(workflow.parent)
+        dct['parent_task_id'] = str(workflow.parent_task_id)
         return dct
 
     def task_to_dict(self, task):

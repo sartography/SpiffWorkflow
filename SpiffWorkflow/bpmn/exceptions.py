@@ -66,7 +66,7 @@ class WorkflowTaskException(WorkflowException):
         top = task.workflow.top_workflow
         parent = None if task.workflow is top else task.workflow.parent_workflow
         while parent is not None:
-            caller = parent.get_task_from_id(task.workflow.parent)
+            caller = parent.get_task_from_id(task.workflow.parent_task_id)
             task_trace.append(f"{caller.task_spec.bpmn_name} ({parent.spec.file})")
             parent = None if caller.workflow is top else caller.workflow.parent_workflow
         return task_trace

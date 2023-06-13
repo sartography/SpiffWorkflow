@@ -45,9 +45,9 @@ class BpmnMessage:
 
 class BpmnSubWorkflow(Workflow):
 
-    def __init__(self, spec, parent, top_workflow, **kwargs):
+    def __init__(self, spec, parent_task_id, top_workflow, **kwargs):
         super().__init__(spec, **kwargs)
-        self.parent = parent
+        self.parent_task_id = parent_task_id
         self.top_workflow = top_workflow
         self.correlations = {}
 
@@ -57,7 +57,7 @@ class BpmnSubWorkflow(Workflow):
 
     @property
     def parent_workflow(self):
-        task = self.top_workflow.get_task_from_id(self.parent)
+        task = self.top_workflow.get_task_from_id(self.parent_task_id)
         return task.workflow
 
     @property
@@ -110,7 +110,7 @@ class BpmnWorkflow(Workflow):
         return self
 
     @property
-    def parent(self):
+    def parent_task_id(self):
         return None
     
     @property
@@ -153,7 +153,7 @@ class BpmnWorkflow(Workflow):
         # This creates a subprocess for an existing task
         subprocess = BpmnSubWorkflow(
             self.subprocess_specs[spec_name],
-            parent=my_task.id,
+            parent_task_id=my_task.id,
             top_workflow=self)
         self.subprocesses[my_task.id] = subprocess
         return subprocess
@@ -165,7 +165,7 @@ class BpmnWorkflow(Workflow):
         subprocess = self.subprocesses.get(my_task.id)
         tasks = subprocess.get_tasks()
         for sp in [c for c in self.subprocesses.values() if c.parent_workflow == subprocess]:
-            tasks.extend(self.delete_subprocess(self.get_task_from_id(sp.parent)))
+            tasks.extend(self.delete_subprocess(self.get_task_from_id(sp.parent_task_id)))
         del self.subprocesses[my_task.id]
         return tasks
 
@@ -272,8 +272,8 @@ class BpmnWorkflow(Workflow):
             count = None
             while count is None or count > 0:
                 count = update_workflow(subprocess)
-            if subprocess.parent is not None:
-                task = self.get_task_from_id(subprocess.parent)
+            if subprocess.parent_task_id is not None:
+                task = self.get_task_from_id(subprocess.parent_task_id)
                 task.task_spec._update(task)
 
         count = update_workflow(self)
@@ -328,8 +328,8 @@ class BpmnWorkflow(Workflow):
                 descendants.extend(self.delete_subprocess(item))
         descendants.extend(super().reset_from_task_id(task_id, data))
 
-        if task.workflow.parent is not None:
-            sp_task = self.get_task_from_id(task.workflow.parent)
+        if task.workflow.parent_task_id is not None:
+            sp_task = self.get_task_from_id(task.workflow.parent_task_id)
             descendants.extend(self.reset_from_task_id(sp_task.id, remove_subprocess=False))
             sp_task._set_state(TaskState.WAITING)
 
