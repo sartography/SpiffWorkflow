@@ -1,5 +1,5 @@
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

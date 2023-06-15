@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
 
 class MessageEventDefinition(MessageEventDefinition):
     """
@@ -34,10 +34,6 @@ class MessageEventDefinition(MessageEventDefinition):
         super(MessageEventDefinition, self).__init__(name, correlation_properties, **kwargs)
         self.payload = payload
         self.result_var = result_var
-
-        # The BPMN spec says that Messages should not be used within a process; however
-        # our camunda workflows depend on it
-        self.internal = True
 
     def throw(self, my_task):
         # We need to evaluate the message payload in the context of this task

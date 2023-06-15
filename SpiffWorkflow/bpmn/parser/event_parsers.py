@@ -22,20 +22,28 @@ from lxml import etree
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
 from .util import first, one
-from ..specs.event_definitions import (
-    MultipleEventDefinition,
+
+from SpiffWorkflow.bpmn.specs.event_definitions.simple import (
+    NoneEventDefinition,
+    CancelEventDefinition,
+    TerminateEventDefinition
+)
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import (
     TimeDateEventDefinition,
     DurationTimerEventDefinition,
-    CycleTimerEventDefinition,
-    MessageEventDefinition,
-    ErrorEventDefinition,
-    EscalationEventDefinition,
+    CycleTimerEventDefinition
+)
+from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import (
     SignalEventDefinition,
-    CancelEventDefinition,
-    TerminateEventDefinition,
-    NoneEventDefinition,
+    ErrorEventDefinition,
+    EscalationEventDefinition
+)
+from SpiffWorkflow.bpmn.specs.event_definitions.message import (
+    MessageEventDefinition,
     CorrelationProperty
 )
+from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
+
 
 CANCEL_EVENT_XPATH = './/bpmn:cancelEventDefinition'
 ERROR_EVENT_XPATH = './/bpmn:errorEventDefinition'

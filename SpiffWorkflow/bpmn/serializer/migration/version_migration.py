@@ -30,6 +30,13 @@ from .version_1_2 import (
     convert_simple_tasks,
     update_bpmn_attributes,
 )
+from .version_1_3 import update_event_definition_attributes
+
+def from_version_1_2(old):
+    new = deepcopy(old)
+    update_event_definition_attributes(new)
+    new['VERSION'] = "1.3"
+    return new
 
 def from_version_1_1(old):
     """
@@ -62,7 +69,7 @@ def from_version_1_1(old):
     convert_simple_tasks(new)
     update_bpmn_attributes(new)
     new['VERSION'] = "1.2"
-    return new
+    return from_version_1_2(new)
 
 def from_version_1_0(old):
     """
@@ -85,4 +92,5 @@ def from_version_1_0(old):
 MIGRATIONS = {
     '1.0': from_version_1_0,
     '1.1': from_version_1_1,
+    '1.2': from_version_1_2,
 }

@@ -22,11 +22,8 @@ from functools import partial
 from SpiffWorkflow.operators import Attrib, PathAttrib
 
 from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
-from SpiffWorkflow.bpmn.specs.event_definitions import (
-    NamedEventDefinition,
-    TimerEventDefinition,
-    CorrelationProperty
-)
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.message import CorrelationProperty
 
 
 class BpmnSpecConverter:
@@ -96,19 +93,13 @@ class EventDefinitionConverter(BpmnSpecConverter):
 
     def to_dict(self, event_definition):
         dct = {
-            'internal': event_definition.internal,
-            'external': event_definition.external,
             'description': event_definition.description,
+            'name': event_definition.name
         }
-        if isinstance(event_definition, (NamedEventDefinition, TimerEventDefinition)):
-            dct['name'] = event_definition.name
         return dct
 
     def from_dict(self, dct):
-        internal, external = dct.pop('internal'), dct.pop('external')
         event_definition = self.spec_class(**dct)
-        event_definition.internal = internal
-        event_definition.external = external
         return event_definition
 
     def correlation_properties_to_dict(self, props):

@@ -45,7 +45,8 @@ from SpiffWorkflow.bpmn.specs.defaults import (
     BoundaryEvent,
     EventBasedGateway
 )
-from SpiffWorkflow.bpmn.specs.event_definitions import NoneEventDefinition, TimerEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.simple import NoneEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask as SubWorkflowTaskMixin
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent as StartEventMixin
 

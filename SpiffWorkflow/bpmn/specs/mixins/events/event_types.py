@@ -19,7 +19,10 @@
 import time
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.specs.base import TaskSpec
-from ...event_definitions import MessageEventDefinition, NoneEventDefinition, CycleTimerEventDefinition
+
+from SpiffWorkflow.bpmn.specs.event_definitions.simple import NoneEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import CycleTimerEventDefinition
 
 
 class CatchingEvent(TaskSpec):

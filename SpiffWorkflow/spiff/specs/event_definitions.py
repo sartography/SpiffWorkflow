@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
 
 class MessageEventDefinition(MessageEventDefinition):
 
@@ -26,7 +26,6 @@ class MessageEventDefinition(MessageEventDefinition):
         super(MessageEventDefinition, self).__init__(name, correlation_properties, **kwargs)
         self.expression = expression
         self.message_var = message_var
-        self.internal = False
 
     def throw(self, my_task):
         # We can't update our own payload, because if this task is reached again

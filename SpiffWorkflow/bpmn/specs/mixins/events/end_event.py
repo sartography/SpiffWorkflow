@@ -18,8 +18,8 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.bpmn.specs.event_definitions.simple import TerminateEventDefinition, CancelEventDefinition
 from .event_types import ThrowingEvent
-from ...event_definitions import TerminateEventDefinition, CancelEventDefinition
 
 
 class EndEvent(ThrowingEvent):

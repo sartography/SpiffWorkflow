@@ -3,7 +3,7 @@ from datetime import timedelta
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
-from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
 from SpiffWorkflow.task import TaskState
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase

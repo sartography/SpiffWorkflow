@@ -24,11 +24,8 @@ from SpiffWorkflow.exceptions import WorkflowException, TaskNotFoundException
 from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
-from SpiffWorkflow.bpmn.specs.event_definitions import (
-    MessageEventDefinition,
-    NamedEventDefinition,
-    TimerEventDefinition,
-)
+from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
 
 from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
 from .PythonScriptEngine import PythonScriptEngine
@@ -239,7 +236,7 @@ class BpmnWorkflow(Workflow):
                 value = event_definition.correlation_properties
             events.append({
                 'event_type': event_definition.__class__.__name__,
-                'name': event_definition.name if isinstance(event_definition, NamedEventDefinition) else None,
+                'name': event_definition.name,
                 'value': value
             })
         return events
