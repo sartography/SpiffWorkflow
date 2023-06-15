@@ -24,20 +24,9 @@ from SpiffWorkflow.exceptions import WorkflowException, TaskNotFoundException
 from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
-from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
-from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
 
 from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
 from .PythonScriptEngine import PythonScriptEngine
-
-
-class BpmnMessage:
-
-    def __init__(self, correlations, name, payload):
-
-        self.correlations = correlations or {}
-        self.name = name
-        self.payload = payload
 
 
 class BpmnSubWorkflow(Workflow):
@@ -88,7 +77,7 @@ class BpmnWorkflow(Workflow):
         """
         self.subprocess_specs = subprocess_specs or {}
         self.subprocesses = {}
-        self.bpmn_messages = []
+        self.bpmn_events = []
         self.correlations = {}
         super(BpmnWorkflow, self).__init__(spec, **kwargs)
 
@@ -169,77 +158,50 @@ class BpmnWorkflow(Workflow):
     def get_active_subprocesses(self):
         return [sp for sp in self.subprocesses.values() if not sp.is_completed()]
 
-    def catch(self, event_definition, target=None, correlations=None):
+    def catch(self, event):
         """
         Tasks can always catch events, regardless of their state.  The event information is stored in the task's
         internal data and processed when the task is reached in the workflow.  If a task should only receive messages
         while it is running (eg a boundary event), the task should call the event_definition's reset method before
         executing to clear out a stale message.
 
-        :param event_definition: the thrown event
+        :param event: the thrown event
         """
-        if target is None:
-            self.update_collaboration(event_definition, correlations)
-            tasks = [t for t in self.get_catching_tasks() if t.task_spec.catches(t, event_definition, correlations)]
-
-            # Figure out if we need to create an external message
-            if len(tasks) == 0 and isinstance(event_definition, MessageEventDefinition):
-                self.bpmn_messages.append(BpmnMessage(correlations, event_definition.name, event_definition.payload))
-
+        if event.target is None:
+            self.update_collaboration(event)
+            tasks = [t for t in self.get_catching_tasks() if t.task_spec.catches(t, event)]
+           # Figure out if we need to create an external event
+            if len(tasks) == 0:
+                self.bpmn_events.append(event)
         else:
-            catches = lambda t: isinstance(t.task_spec, CatchingEvent) and t.task_spec.catches(t, event_definition, correlations)
-            tasks = [t for t in target.get_tasks_iterator(TaskState.NOT_FINISHED_MASK) if catches(t)]
+            catches = lambda t: isinstance(t.task_spec, CatchingEvent) and t.task_spec.catches(t, event)
+            tasks = [t for t in event.target.get_tasks_iterator(TaskState.NOT_FINISHED_MASK) if catches(t)]
 
         for task in tasks:
-            task.task_spec.catch(task, event_definition)
+            task.task_spec.catch(task, event)
 
-        # Move any tasks that received message to READY
         self.refresh_waiting_tasks()
 
-    def get_bpmn_messages(self):
-        messages = self.bpmn_messages
-        self.bpmn_messages = []
-        return messages
+    def send_event(self, event):
+        """Allows this workflow to catch an externally generated event."""
 
-    def catch_bpmn_message(self, message):
-        """Allows this workflow to catch an externally generated bpmn message."""
-
-        event_definition = MessageEventDefinition(message.name)
-        event_definition.payload = message.payload
-
-        # There should be one and only be one task that can accept the message (messages are one to one, not one to many)
-        tasks = [t for t in self.get_catching_tasks() if t.task_spec.event_definition == event_definition]
+        tasks = tasks = [t for t in self.get_catching_tasks() if t.task_spec.catches(t, event)]
         if len(tasks) == 0:
-            raise WorkflowException(f"This process is not waiting on a message named '{event_definition.name}'")
-        if len(tasks) > 1:
-            # Is this really a valid check?
-            raise WorkflowException(
-                f"This process has multiple tasks waiting on the same message '{event_definition.name}', which is not supported.")
+            raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
+        for task in tasks:
+            task.task_spec.catch(task, event)
 
-        task = tasks[0]
-        # Need a better way of extracting these
-        correlations = event_definition.get_correlations(task, message.payload)
-        task.workflow.correlations.update(correlations)
-        self.catch(event_definition, correlations=correlations)
+        self.refresh_waiting_tasks()
+
+    def get_events(self):
+        """Returns the list of events that cannot be handled from within this workflow."""
+        events = self.bpmn_events
+        self.bpmn_events = []
+        return events
 
     def waiting_events(self):
-        # Ultimately I'd like to add an event class so that EventDefinitions would not so double duty as both specs
-        # and instantiations, and this method would return that.  However, I think that's beyond the scope of the
-        # current request.
-        events = []
-        for task in [t for t in self.get_waiting_tasks() if isinstance(t.task_spec, CatchingEvent)]:
-            event_definition = task.task_spec.event_definition
-            value = None
-            if isinstance(event_definition, TimerEventDefinition):
-                value = event_definition.timer_value(task)
-            elif isinstance(event_definition, MessageEventDefinition):
-                value = event_definition.correlation_properties
-            events.append({
-                'event_type': event_definition.__class__.__name__,
-                'name': event_definition.name,
-                'value': value
-            })
-        return events
+        return [t.task_spec.event_definition.details(t) for t in self.get_waiting_tasks() 
+                if isinstance(t.task_spec, CatchingEvent)]
 
     def do_engine_steps(self, will_complete_task=None, did_complete_task=None):
         """
@@ -350,7 +312,7 @@ class BpmnWorkflow(Workflow):
 
         return cancelled
 
-    def update_collaboration(self, event_definition, correlations):
+    def update_collaboration(self, event):
 
         def get_or_create_subprocess(task_spec, wf_spec):
 
@@ -384,6 +346,6 @@ class BpmnWorkflow(Workflow):
         # Start a subprocess for known specs with start events that catch this
         for spec in self.subprocess_specs.values():
             for task_spec in spec.task_specs.values():
-                if isinstance(task_spec, StartEvent) and task_spec.event_definition == event_definition:
+                if isinstance(task_spec, StartEvent) and task_spec.event_definition == event.event_definition:
                     subprocess = get_or_create_subprocess(task_spec, spec)
-                    subprocess.correlations.update(correlations)
+                    subprocess.correlations.update(event.correlations)

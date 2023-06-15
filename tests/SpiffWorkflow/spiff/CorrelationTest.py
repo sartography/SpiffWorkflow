@@ -45,16 +45,11 @@ class DualConversationTest(BaseTestCase):
         spec, subprocesses = self.load_workflow_spec('correlation_two_conversations.bpmn', 'message_send_process')
         workflow = BpmnWorkflow(spec, subprocesses)
         workflow.do_engine_steps()
-        messages = workflow.get_bpmn_messages()
+        messages = workflow.get_events()
         self.assertEqual(len(messages), 2)
-        [ msg for msg in messages if msg.name== 'Message Send One' ][0]
-        [ msg for msg in messages if msg.name== 'Message Send Two' ][0]
-
-        # fixme:  This seemed to test that we get a nested structure of correlation keys and correlation properties
-        # Perhaps there should be a way to get the keys and thier associated properties -
-        # but things should not default to a nested structure.
-
-        # self.assertIn('message_correlation_key_one', message_one.correlations)
-        # self.assertNotIn('message_correlation_key_one', message_two.correlations)
-        # self.assertIn('message_correlation_key_two', message_two.correlations)
-        # self.assertNotIn('message_correlation_key_two', message_one.correlations)
+        self.assertEqual('Message Send One', messages[0].event_definition.name)
+        self.assertEqual('Message Send Two', messages[1].event_definition.name)
+        self.assertIn('message_correlation_key_one', messages[0].correlations)
+        self.assertNotIn('message_correlation_key_one', messages[1].correlations)
+        self.assertIn('message_correlation_key_two', messages[1].correlations)
+        self.assertNotIn('message_correlation_key_two', messages[0].correlations)

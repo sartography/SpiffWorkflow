@@ -1,3 +1,5 @@
+from SpiffWorkflow.bpmn.event import BpmnEvent
+
 from .base import EventDefinition
 
 class NoneEventDefinition(EventDefinition):
@@ -21,8 +23,9 @@ class CancelEventDefinition(EventDefinition):
     def __init__(self, **kwargs):
         super(CancelEventDefinition, self).__init__(**kwargs)
 
-    def _throw(self, my_task, **kwargs):
-        return super()._throw(my_task, target=my_task.workflow.parent_workflow)
+    def throw(self, my_task, **kwargs):
+        event = BpmnEvent(self, target=my_task.workflow.parent_workflow)
+        my_task.workflow.top_workflow.catch(event)
 
 
 class TerminateEventDefinition(EventDefinition):
@@ -30,3 +33,7 @@ class TerminateEventDefinition(EventDefinition):
 
     def __init__(self, **kwargs):
         super(TerminateEventDefinition, self).__init__(**kwargs)
+
+    def throw(self, my_task):
+        event = BpmnEvent(my_task.task_spec.event_definition, target=my_task.workflow)
+        my_task.workflow.top_workflow.catch(event)

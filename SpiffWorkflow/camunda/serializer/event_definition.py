@@ -29,7 +29,7 @@ class MessageEventDefinitionConverter(EventDefinitionConverter):
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
         dct['correlation_properties'] = self.correlation_properties_to_dict(event_definition.correlation_properties)
-        dct['payload'] = event_definition.payload
+        dct['expression'] = event_definition.expression
         dct['result_var'] = event_definition.result_var
         return dct
 

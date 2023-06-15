@@ -1,4 +1,5 @@
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.event import BpmnEvent
 from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -28,7 +29,7 @@ class MultipleStartEventTest(BpmnWorkflowTestCase):
         self.assertEqual(len(waiting_tasks), 1)
         self.assertEqual(waiting_tasks[0].task_spec.name, 'StartEvent_1')
 
-        self.workflow.catch(MessageEventDefinition('message_1'))
+        self.workflow.catch(BpmnEvent(MessageEventDefinition('message_1'), {}))
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
 
@@ -62,7 +63,7 @@ class ParallelStartEventTest(BpmnWorkflowTestCase):
         self.assertEqual(len(waiting_tasks), 1)
         self.assertEqual(waiting_tasks[0].task_spec.name, 'StartEvent_1')
 
-        self.workflow.catch(MessageEventDefinition('message_1'))
+        self.workflow.catch(BpmnEvent(MessageEventDefinition('message_1'), {}))
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
 
@@ -71,7 +72,7 @@ class ParallelStartEventTest(BpmnWorkflowTestCase):
         self.assertEqual(len(waiting_tasks), 1)
         self.assertEqual(waiting_tasks[0].task_spec.name, 'StartEvent_1')
 
-        self.workflow.catch(MessageEventDefinition('message_2'))
+        self.workflow.catch(BpmnEvent(MessageEventDefinition('message_2'), {}))
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
 

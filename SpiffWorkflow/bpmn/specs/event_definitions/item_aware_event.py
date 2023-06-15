@@ -1,9 +1,17 @@
+from copy import deepcopy
+
+from SpiffWorkflow.bpmn.event import BpmnEvent, PendingBpmnEvent
 from .base import EventDefinition
 
 class ItemAwareEventDefinition(EventDefinition):
 
     def __init__(self, name, description=None):
         super().__init__(name, description)
+
+    def throw(self, my_task):
+        payload = deepcopy(my_task.data)
+        event = BpmnEvent(self, payload=payload)
+        my_task.workflow.top_workflow.catch(event)
 
 
 class ErrorEventDefinition(ItemAwareEventDefinition):
@@ -15,6 +23,9 @@ class ErrorEventDefinition(ItemAwareEventDefinition):
     def __init__(self, name, code=None, **kwargs):
         super(ErrorEventDefinition, self).__init__(name, **kwargs)
         self.code = code
+
+    def details(self, my_task):
+        return PendingBpmnEvent(self.name, self.__class__.__name__, self.code)
 
     def __eq__(self, other):
         return super().__eq__(other) and self.code in [None, other.code]
@@ -35,6 +46,9 @@ class EscalationEventDefinition(ItemAwareEventDefinition):
         """
         super(EscalationEventDefinition, self).__init__(name, **kwargs)
         self.code = code
+
+    def details(self, my_task):
+        return PendingBpmnEvent(self.name, self.__class__.__name__, self.code)
 
     def __eq__(self, other):
         return super().__eq__(other) and self.code in [None, other.code]

@@ -18,6 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
+from SpiffWorkflow.bpmn.event import BpmnEvent
 
 class MessageEventDefinition(MessageEventDefinition):
 
@@ -30,11 +31,11 @@ class MessageEventDefinition(MessageEventDefinition):
     def throw(self, my_task):
         # We can't update our own payload, because if this task is reached again
         # we have to evaluate it again so we have to create a new event
-        event = MessageEventDefinition(self.name, self.correlation_properties, self.expression, self.message_var)
-        event.payload = my_task.workflow.script_engine.evaluate(my_task, self.expression)
-        correlations = self.get_correlations(my_task, event.payload)
+        payload = my_task.workflow.script_engine.evaluate(my_task, self.expression)
+        correlations = self.get_correlations(my_task, payload)
+        event = BpmnEvent(self, payload=payload, correlations=correlations)
         my_task.workflow.correlations.update(correlations)
-        self._throw(my_task, event=event, correlations=correlations)
+        my_task.workflow.top_workflow.catch(event)
 
     def update_task_data(self, my_task):
         my_task.data[self.message_var] = my_task.internal_data[self.name]

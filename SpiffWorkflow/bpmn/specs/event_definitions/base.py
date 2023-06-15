@@ -1,3 +1,5 @@
+from SpiffWorkflow.bpmn.event import BpmnEvent, PendingBpmnEvent
+
 class EventDefinition(object):
     """
     This is the base class for Event Definitions.  It implements the default throw/catch
@@ -17,18 +19,21 @@ class EventDefinition(object):
     def has_fired(self, my_task):
         return my_task._get_internal_data('event_fired', False)
 
-    def catch(self, my_task, event_definition=None):
+    def catches(self, my_task, event):
+        return self == event.event_definition
+
+    def catch(self, my_task, event=None):
         my_task._set_internal_data(event_fired=True)
 
     def throw(self, my_task):
-        self._throw(my_task)
+        event = BpmnEvent(self)
+        my_task.workflow.top_workflow.catch(event)
 
     def reset(self, my_task):
         my_task._set_internal_data(event_fired=False)
 
-    def _throw(self, my_task, target=None, **kwargs):
-        event_definition = kwargs.pop('event', my_task.task_spec.event_definition)
-        my_task.workflow.top_workflow.catch(event_definition, target, **kwargs)
+    def details(self, my_task):
+        return PendingBpmnEvent(self.name, self.__class__.__name__)
 
     def __eq__(self, other):
         return self.__class__ is other.__class__

@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from calendar import monthrange
 from time import timezone as tzoffset, altzone as dstoffset, daylight as isdst
 
+from SpiffWorkflow.bpmn.event import PendingBpmnEvent
 from .base import EventDefinition
 
 seconds_from_utc = dstoffset if isdst else tzoffset
@@ -147,8 +148,8 @@ class TimeDateEventDefinition(TimerEventDefinition):
             my_task._set_internal_data(event_fired=True)
         return my_task._get_internal_data('event_fired', False)
 
-    def timer_value(self, my_task):
-        return my_task._get_internal_data('event_value')
+    def details(self, my_task):
+        return PendingBpmnEvent(self.name, self.__class__.__name__, my_task._get_internal_data('event_value'))
 
 
 class DurationTimerEventDefinition(TimerEventDefinition):
@@ -165,8 +166,8 @@ class DurationTimerEventDefinition(TimerEventDefinition):
             my_task._set_internal_data(event_fired=True)
         return my_task._get_internal_data('event_fired', False)
 
-    def timer_value(self, my_task):
-        return my_task._get_internal_data("event_value")
+    def details(self, my_task):
+        return PendingBpmnEvent(self.name, self.__class__.__name__, my_task._get_internal_data('event_value'))
 
 
 class CycleTimerEventDefinition(TimerEventDefinition):
@@ -198,7 +199,8 @@ class CycleTimerEventDefinition(TimerEventDefinition):
         my_task._set_internal_data(event_value=event_value)
         return ready
 
-    def timer_value(self, my_task):
+    def details(self, my_task):
         event_value = my_task._get_internal_data('event_value')
         if event_value is not None and event_value['cycles'] != 0:
-            return event_value['next']
+            event_value = event_value['next']
+        return PendingBpmnEvent(self.name, self.__class__.__name__, event_value)

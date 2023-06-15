@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 from SpiffWorkflow.exceptions import WorkflowException
+from SpiffWorkflow.bpmn.event import BpmnEvent, PendingBpmnEvent
 from .base import EventDefinition
 
 class CorrelationProperty:
@@ -18,26 +19,25 @@ class MessageEventDefinition(EventDefinition):
     def __init__(self, name, correlation_properties=None, **kwargs):
         super().__init__(name, **kwargs)
         self.correlation_properties = correlation_properties or []
-        self.payload = None
 
-    def catch(self, my_task, event_definition=None):
-        self.update_internal_data(my_task, event_definition)
-        super(MessageEventDefinition, self).catch(my_task, event_definition)
+    def catches(self, my_task, event):
+        correlations = my_task.workflow.correlations
+        return (self == event.event_definition 
+                and all([event.correlations.get(key) == correlations.get(key) for key in event.correlations ]))
+
+    def catch(self, my_task, event=None):
+        self.update_internal_data(my_task, event)
+        super().catch(my_task, event)
 
     def throw(self, my_task):
-        # We can't update our own payload, because if this task is reached again
-        # we have to evaluate it again so we have to create a new event
-        event = MessageEventDefinition(self.name, self.correlation_properties)
-        # Generating a payload unfortunately needs to be handled using custom extensions
-        # However, there needs to be something to apply the correlations to in the
-        # standard case and this is line with the way Spiff works otherwise
-        event.payload = deepcopy(my_task.data)
-        correlations = self.get_correlations(my_task, event.payload)
+        payload = deepcopy(my_task.data)
+        correlations = self.get_correlations(my_task, payload)
         my_task.workflow.correlations.update(correlations)
-        self._throw(my_task, event=event, correlations=correlations)
+        event = BpmnEvent(self, payload=payload, correlations=correlations)
+        my_task.workflow.top_workflow.catch(event)
 
-    def update_internal_data(self, my_task, event_definition):
-        my_task.internal_data[event_definition.name] = event_definition.payload
+    def update_internal_data(self, my_task, event):
+        my_task.internal_data[event.event_definition.name] = event.payload
 
     def update_task_data(self, my_task):
         # I've added this method so that different message implementations can handle
@@ -58,6 +58,9 @@ class MessageEventDefinition(EventDefinition):
                     # Just ignore missing keys.  The dictionaries have to match exactly
                     pass
         return correlations
+
+    def details(self, my_task):
+        return PendingBpmnEvent(self.name, self.__class__.__name__, self.correlation_properties)
 
     def __eq__(self, other):
         return super().__eq__(other) and self.name == other.name

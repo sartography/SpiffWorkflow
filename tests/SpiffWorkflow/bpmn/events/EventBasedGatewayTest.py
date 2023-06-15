@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.event import BpmnEvent, BpmnEvent
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
@@ -29,7 +30,7 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
             self.save_restore()
             self.workflow.script_engine = self.script_engine
         self.assertEqual(len(waiting_tasks), 2)
-        self.workflow.catch(MessageEventDefinition('message_1'))
+        self.workflow.catch(BpmnEvent(MessageEventDefinition('message_1'), {}))
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
         self.assertEqual(self.workflow.is_completed(), True)
@@ -42,8 +43,8 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         waiting_tasks = self.workflow.get_waiting_tasks()
         self.assertEqual(len(waiting_tasks), 2)
-        timer_event = waiting_tasks[0].task_spec.event_definition.event_definitions[-1]
-        self.workflow.catch(timer_event)
+        timer_event_definition = waiting_tasks[0].task_spec.event_definition.event_definitions[-1]
+        self.workflow.catch(BpmnEvent(timer_event_definition))
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.is_completed(), True)
@@ -55,7 +56,7 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
         spec, subprocess = self.load_workflow_spec('multiple-start-parallel.bpmn', 'main')
         workflow = BpmnWorkflow(spec)
         workflow.do_engine_steps()
-        workflow.catch(MessageEventDefinition('message_1'))
-        workflow.catch(MessageEventDefinition('message_2'))
+        workflow.catch(BpmnEvent(MessageEventDefinition('message_1'), {}))
+        workflow.catch(BpmnEvent(MessageEventDefinition('message_2'), {}))
         workflow.refresh_waiting_tasks()
         workflow.do_engine_steps()

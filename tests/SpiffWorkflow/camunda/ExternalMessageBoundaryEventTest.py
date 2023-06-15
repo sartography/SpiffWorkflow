@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.event import BpmnEvent
 from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
 from .BaseTestCase import BaseTestCase
 
@@ -19,19 +19,19 @@ class ExternalMessageBoundaryTest(BaseTestCase):
     def testThroughSaveRestore(self):
         self.actual_test(save_restore=True)
 
-
-    def actual_test(self,save_restore = False):
+    def actual_test(self, save_restore=False):
 
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(1, len(ready_tasks),'Expected to have only one ready task')
-        self.workflow.catch(MessageEventDefinition('Interrupt', payload='SomethingImportant', result_var='interrupt_var'))
+        self.workflow.catch(BpmnEvent(
+            MessageEventDefinition('Interrupt'),
+            {'result_var': 'interrupt_var', 'payload': 'SomethingImportant'}
+        ))
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         self.assertEqual(2,len(ready_tasks),'Expected to have two ready tasks')
 
-        # here because the thread just dies and doesn't lead to a task, we expect the data
-        # to die with it.
         # item 1 should be at 'Pause'
         self.assertEqual('Pause',ready_tasks[1].task_spec.bpmn_name)
         self.assertEqual('SomethingImportant', ready_tasks[1].data['interrupt_var'])
@@ -40,11 +40,11 @@ class ExternalMessageBoundaryTest(BaseTestCase):
         self.assertEqual(False, ready_tasks[0].data['caughtinterrupt'])
         ready_tasks[1].run()
         self.workflow.do_engine_steps()
-        # what I think is going on here is that when we hit the reset, it is updating the
-        # last_task and appending the data to whatever happened there, so it would make sense that
-        # we have the extra variables that happened in 'pause'
-        # if on the other hand, we went on from 'meaningless task' those variables would not get added.
-        self.workflow.catch(MessageEventDefinition('reset', payload='SomethingDrastic', result_var='reset_var'))
+
+        self.workflow.catch(BpmnEvent(
+            MessageEventDefinition('reset'),
+            {'result_var': 'reset_var', 'payload': 'SomethingDrastic'}
+        ))
         ready_tasks = self.workflow.get_tasks(TaskState.READY)
         # The user activity was cancelled and we should continue from the boundary event
         self.assertEqual(2, len(ready_tasks), 'Expected to have two ready tasks')

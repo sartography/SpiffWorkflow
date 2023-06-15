@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-
-import unittest
-
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from .BaseTestCase import BaseTestCase
+
 __author__ = 'kellym'
 
 
@@ -62,9 +59,3 @@ class StartMessageTest(BaseTestCase):
                 'ApprovalResult': 'Yes',
                 'Done': 'OK!'
             })
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(StartMessageTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

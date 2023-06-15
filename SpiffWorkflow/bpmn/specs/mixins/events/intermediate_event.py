@@ -46,9 +46,9 @@ class BoundaryEvent(CatchingEvent):
         super(BoundaryEvent, self).__init__(wf_spec, bpmn_id, event_definition, **kwargs)
         self.cancel_activity = cancel_activity
 
-    def catches(self, my_task, event_definition, correlations=None):
+    def catches(self, my_task, event):
         # Boundary events should only be caught while waiting
-        return super(BoundaryEvent, self).catches(my_task, event_definition, correlations) and my_task.state == TaskState.WAITING
+        return my_task.state == TaskState.WAITING and super().catches(my_task, event)
 
 
 class EventBasedGateway(CatchingEvent):
@@ -57,7 +57,6 @@ class EventBasedGateway(CatchingEvent):
         my_task._sync_children(self.outputs, state=TaskState.MAYBE)
 
     def _on_ready_hook(self, my_task):
-        seen_events =  my_task.internal_data.get('seen_events', [])
         for child in my_task.children:
-            if child.task_spec.event_definition not in seen_events:
+            if not child.internal_data.get('event_fired'):
                 child.cancel()

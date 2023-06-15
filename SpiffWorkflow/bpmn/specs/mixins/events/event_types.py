@@ -37,19 +37,15 @@ class CatchingEvent(TaskSpec):
         super(CatchingEvent, self).__init__(wf_spec, bpmn_id, **kwargs)
         self.event_definition = event_definition
 
-    def catches(self, my_task, event_definition, correlations=None):
-        correlations = correlations or {}
-        if self.event_definition == event_definition:
-            return all([correlations.get(key) == my_task.workflow.correlations.get(key) for key in correlations ])
-        else:
-            return False
+    def catches(self, my_task, event):
+        return my_task.task_spec.event_definition.catches(my_task, event)
 
-    def catch(self, my_task, event_definition):
+    def catch(self, my_task, event):
         """
         Catch is called by the workflow when the task has matched an event
         definition, at which point we can update our task's state.
         """
-        self.event_definition.catch(my_task, event_definition)
+        self.event_definition.catch(my_task, event)
         my_task.last_update_time = time.time()
         my_task._set_state(TaskState.WAITING)
 
