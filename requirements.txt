@@ -1,4 +1,2 @@
-# Can remove this limitation when bug is resolved, or we drop support for python 3.7
-coverage
 lxml
 .

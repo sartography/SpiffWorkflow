@@ -31,11 +31,9 @@ strategy for building Low-Code applications.
 
 ## Dependencies
 We've worked to minimize external dependencies.  We rely on lxml for parsing
-XML Documents, and there is some legacy support for Celery, but it is not
-core to the implementation, it is just a way to interconnect these systems.
+XML Documents.
 <b>Built with</b>
 - [lxml](https://lxml.de/)
-- [celery](https://docs.celeryproject.org/en/stable/)
 
 ## Features
 * __BPMN__ - support for parsing BPMN diagrams, including the more complex
