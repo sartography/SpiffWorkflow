@@ -1,5 +1,5 @@
 ## SpiffWorkflow
-![Logo](./graphics/logo_med.png)
+![Logo](https://www.spiffworkflow.org/images/logos/spiffworkflow_logo.png)
 
 Spiff Workflow is a workflow engine implemented in pure Python. It is based on
 the excellent work of the Workflow Patterns initiative. In 2020 and 2021,
@@ -16,12 +16,9 @@ While multiple tools exist for doing this in Java, we believe that wide
 adoption of the Python Language, and it's ease of use, create a winning
 strategy for building Low-Code applications.
 
-
 ## Build status
 [![Build Status](https://travis-ci.com/sartography/SpiffWorkflow.svg?branch=master)](https://travis-ci.org/sartography/SpiffWorkflow)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=alert_status)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=coverage)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=sartography_SpiffWorkflow&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=sartography_SpiffWorkflow)
+[![SpiffWorkflow](https://github.com/sartography/SpiffWorkflow/actions/workflows/tests.yaml/badge.svg)](https://github.com/sartography/SpiffWorkflow/actions/workflows/tests.yaml)
 [![Documentation Status](https://readthedocs.org/projects/spiffworkflow/badge/?version=latest)](http://spiffworkflow.readthedocs.io/en/latest/?badge=latest)
 [![Issues](https://img.shields.io/github/issues/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/issues)
 [![Pull Requests](https://img.shields.io/github/issues-pr/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/pulls)
