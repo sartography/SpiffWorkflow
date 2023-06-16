@@ -111,10 +111,6 @@ class TaskSpec(object):
         self._wf_spec._add_notify(self)
         self.data.update(self.defines)
 
-    @property
-    def spec_type(self):
-        return f'{self.__class__.__module__}.{self.__class__.__name__}'
-
     def _connect_notify(self, taskspec):
         """
         Called by the previous task to let us know that it exists.
