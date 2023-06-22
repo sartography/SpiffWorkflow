@@ -34,7 +34,7 @@ class CatchingEvent(TaskSpec):
 
         :param event_definition: the EventDefinition that we must wait for.
         """
-        super(CatchingEvent, self).__init__(wf_spec, bpmn_id, **kwargs)
+        super().__init__(wf_spec, bpmn_id, **kwargs)
         self.event_definition = event_definition
 
     def catches(self, my_task, event):
@@ -73,7 +73,11 @@ class CatchingEvent(TaskSpec):
         if isinstance(self.event_definition, MessageEventDefinition):
             self.event_definition.update_task_data(my_task)
         self.event_definition.reset(my_task)
-        return super(CatchingEvent, self)._run_hook(my_task)
+        return super()._run_hook(my_task)
+
+    def _predict_hook(self, my_task):
+        if not isinstance(self.event_definition, CycleTimerEventDefinition):
+            super()._predict_hook(my_task)
 
 
 class ThrowingEvent(TaskSpec):
@@ -85,10 +89,10 @@ class ThrowingEvent(TaskSpec):
 
         :param event_definition: the EventDefinition to be thrown.
         """
-        super(ThrowingEvent, self).__init__(wf_spec, bpmn_id, **kwargs)
+        super().__init__(wf_spec, bpmn_id, **kwargs)
         self.event_definition = event_definition
 
     def _run_hook(self, my_task):
-        super(ThrowingEvent, self)._run_hook(my_task)
+        super()._run_hook(my_task)
         self.event_definition.throw(my_task)
         return True

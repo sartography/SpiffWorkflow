@@ -25,7 +25,7 @@ from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
 
-from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
 from .PythonScriptEngine import PythonScriptEngine
 
 
@@ -272,7 +272,7 @@ class BpmnWorkflow(Workflow):
 
         task = self.get_task_from_id(task_id)
         run_task_at_end = False
-        if isinstance(task.parent.task_spec, _BoundaryEventParent):
+        if isinstance(task.parent.task_spec, BoundaryEventSplit):
             task = task.parent
             run_task_at_end = True # we jumped up one level, so exectute so we are on the correct task as requested.
 
@@ -285,7 +285,7 @@ class BpmnWorkflow(Workflow):
                 continue
             if item.id in self.subprocesses:
                 descendants.extend(self.delete_subprocess(item))
-        descendants.extend(super().reset_from_task_id(task_id, data))
+        descendants.extend(super().reset_from_task_id(task.id, data))
 
         if task.workflow.parent_task_id is not None:
             sp_task = self.get_task_from_id(task.workflow.parent_task_id)

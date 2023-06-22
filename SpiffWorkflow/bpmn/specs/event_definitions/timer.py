@@ -176,9 +176,6 @@ class CycleTimerEventDefinition(TimerEventDefinition):
 
         event_value = my_task._get_internal_data('event_value')
         if event_value is None:
-            # Don't necessarily like this, but it's a lot more staightforward than trying to only create
-            # a child task on loop iterations after the first
-            my_task._drop_children()
             expression = my_task.workflow.script_engine.evaluate(my_task, self.expression)
             cycles, start, duration = TimerEventDefinition.parse_iso_recurring_interval(expression)
             event_value = {'cycles': cycles, 'next': start.isoformat(), 'duration': duration.total_seconds()}

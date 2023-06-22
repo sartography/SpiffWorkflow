@@ -77,9 +77,6 @@ class BpmnTaskSpec(TaskSpec):
 
     def _on_complete_hook(self, my_task):
 
-        if my_task.parent:
-            my_task.parent.task_spec._child_complete_hook(my_task)
-
         if self.io_specification is not None and len(self.io_specification.data_outputs) > 0:
             data = {}
             for var in self.io_specification.data_outputs:
@@ -96,6 +93,3 @@ class BpmnTaskSpec(TaskSpec):
             my_task.data.pop(obj.bpmn_id, None)
 
         super()._on_complete_hook(my_task)
-
-    def _child_complete_hook(self, child_task):
-        pass

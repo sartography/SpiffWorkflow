@@ -18,7 +18,6 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.specs.bpmn_process_spec import BpmnProcessSpec
-from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
 
 from .helpers.spec import WorkflowSpecConverter
 
@@ -89,8 +88,6 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
 
         # Now we have to go back and fix all the circular references to everything
         for task_spec in spec.task_specs.values():
-            if isinstance(task_spec, _BoundaryEventParent):
-                task_spec.main_child_task_spec = spec.get_task_spec_from_name(task_spec.main_child_task_spec)
             task_spec.inputs = [ spec.get_task_spec_from_name(name) for name in task_spec.inputs ]
             task_spec.outputs = [ spec.get_task_spec_from_name(name) for name in task_spec.outputs ]
 

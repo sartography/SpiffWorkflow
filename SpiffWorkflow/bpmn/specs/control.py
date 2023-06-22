@@ -1,4 +1,3 @@
-
 # Copyright (C) 2023 Sartography
 #
 # This file is part of SpiffWorkflow.
@@ -18,8 +17,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.specs.StartTask import StartTask
+from SpiffWorkflow.specs.Join import Join
+
 from SpiffWorkflow.bpmn.specs.bpmn_task_spec import BpmnTaskSpec
 from SpiffWorkflow.bpmn.specs.mixins.unstructured_join import UnstructuredJoin
 from SpiffWorkflow.bpmn.specs.mixins.events.intermediate_event import BoundaryEvent
@@ -31,37 +33,8 @@ class BpmnStartTask(BpmnTaskSpec, StartTask):
 class SimpleBpmnTask(BpmnTaskSpec):
     pass
 
-class _BoundaryEventParent(BpmnTaskSpec):
-    """This task is inserted before a task with boundary events."""
 
-    # I wonder if this would be better modelled as some type of join.
-    # It would make more sense to have the boundary events and the task
-    # they're attached to be inputs rather than outputs.
-
-    def __init__(self, wf_spec, name, main_child_task_spec, **kwargs):
-        super(_BoundaryEventParent, self).__init__(wf_spec, name, **kwargs)
-        self.main_child_task_spec = main_child_task_spec
-
-    def _run_hook(self, my_task):
-        # Clear any events that our children might have received and wait for new events
-        for child in my_task.children:
-            if isinstance(child.task_spec, BoundaryEvent):
-                child.task_spec.event_definition.reset(child)
-                child._set_state(TaskState.WAITING)
-        return True
-
-    def _child_complete_hook(self, child_task):
-        # If the main child completes, or a cancelling event occurs, cancel any unfinished children
-        if child_task.task_spec == self.main_child_task_spec or child_task.task_spec.cancel_activity:
-            for task in child_task.parent.children:
-                if task == child_task:
-                    continue
-                if task.task_spec != self.main_child_task_spec and task._has_state(TaskState.READY):
-                    # Don't cancel boundary events that became ready while this task was running
-                    # Not clear that this is really the appropriate behavior but we have tests that depend on it
-                    continue
-                if task.task_spec == self.main_child_task_spec or not task._is_finished():
-                    task.cancel()
+class BoundaryEventSplit(SimpleBpmnTask):
 
     def _predict_hook(self, my_task):
         # Events attached to the main task might occur
@@ -69,8 +42,52 @@ class _BoundaryEventParent(BpmnTaskSpec):
         # The main child's state is based on this task's state
         state = TaskState.FUTURE if my_task._is_definite() else my_task.state
         for child in my_task.children:
-            if child.task_spec == self.main_child_task_spec:
+            if not isinstance(child.task_spec, BoundaryEvent):
                 child._set_state(state)
+
+    def _update_hook(self, my_task):
+        super()._update_hook(my_task)
+        for task in my_task.children:
+            if isinstance(task.task_spec, BoundaryEvent) and task._is_predicted():
+                task._set_state(TaskState.WAITING)
+                task.task_spec._predict(task)
+        return True
+        
+
+class BoundaryEventJoin(Join, BpmnTaskSpec):
+    """This task is inserted before a task with boundary events."""
+
+    def __init__(self, wf_spec, name, **kwargs):
+        super().__init__(wf_spec, name, **kwargs)
+
+    def _check_threshold_structured(self, my_task, force=False):
+        # Retrieve a list of all activated tasks from the associated
+        # task that did the conditional parallel split.
+        split_task = my_task._find_ancestor_from_name(self.split_task)
+        if split_task is None:
+            raise WorkflowException(f'Split at {self.split_task} was not reached', task_spec=self)
+
+        main, interrupting, noninterrupting = None, [], []
+        for task in split_task.children:
+            if not isinstance(task.task_spec, BoundaryEvent):
+                main = task
+            elif task.task_spec.cancel_activity:
+                interrupting.append(task)
+            else:
+                noninterrupting.append(task)
+
+        if main is None:
+            raise WorkflowException(f'No main task found', task_spec=self)
+
+        interrupt = any([t._has_state(TaskState.READY|TaskState.COMPLETED) for t in interrupting])
+        finished = main._is_finished() or interrupt
+        if finished:
+            cancel = [t for t in interrupting + noninterrupting if t.state == TaskState.WAITING]
+            if interrupt:
+                cancel += [main]
+        else:
+            cancel = []
+        return force or finished, cancel
 
 
 class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
@@ -84,13 +101,7 @@ class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
                 continue
             if task.task_spec == my_task.task_spec:
                 continue
-
-            is_mine = False
-            w = task.workflow
-            if w == my_task.workflow:
-                is_mine = True
-            if is_mine:
-                waiting_tasks.append(task)
+            waiting_tasks.append(task)
 
         return force or len(waiting_tasks) == 0, waiting_tasks
 

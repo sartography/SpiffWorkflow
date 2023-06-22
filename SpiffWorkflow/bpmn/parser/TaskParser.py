@@ -25,7 +25,7 @@ from SpiffWorkflow.bpmn.specs.defaults import (
     SequentialMultiInstanceTask,
     ParallelMultiInstanceTask
 )
-from SpiffWorkflow.bpmn.specs.control import _BoundaryEventParent
+from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit, BoundaryEventJoin
 from SpiffWorkflow.bpmn.specs.event_definitions.simple import CancelEventDefinition
 from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
 
@@ -160,18 +160,23 @@ class TaskParser(NodeParser):
 
     def _add_boundary_event(self, children):
 
-        parent = _BoundaryEventParent(
-            self.spec, '%s.BoundaryEventParent' % self.bpmn_id,
-            self.task, lane=self.task.lane)
-        self.process_parser.parsed_nodes[self.node.get('id')] = parent
-        parent.connect(self.task)
+        split_task = BoundaryEventSplit(self.spec, f'{self.bpmn_id}.BoundaryEventSplit', lane=self.task.lane)
+        join_task = BoundaryEventJoin(
+            self.spec,
+            f'{self.bpmn_id}.BoundaryEventJoin',
+            lane=self.task.lane,
+            split_task=split_task.name,
+            cancel=True
+        )
+        split_task.connect(self.task)
+        self.task.connect(join_task)
         for event in children:
             child = self.process_parser.parse_node(event)
-            if isinstance(child.event_definition, CancelEventDefinition) \
-              and not isinstance(self.task, TransactionSubprocess):
+            if isinstance(child.event_definition, CancelEventDefinition) and not isinstance(self.task, TransactionSubprocess):
                 self.raise_validation_exception('Cancel Events may only be used with transactions')
-            parent.connect(child)
-        return parent
+            split_task.connect(child)
+            child.connect(join_task)
+        return split_task
 
     def parse_node(self):
         """
@@ -198,8 +203,7 @@ class TaskParser(NodeParser):
             boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.bpmn_id)
             if boundary_event_nodes:
                 parent = self._add_boundary_event(boundary_event_nodes)
-            else:
-                self.process_parser.parsed_nodes[self.node.get('id')] = self.task
+            self.process_parser.parsed_nodes[self.node.get('id')] = self.task
 
             children = []
             outgoing = self.doc_xpath('.//bpmn:sequenceFlow[@sourceRef="%s"]' % self.bpmn_id)
