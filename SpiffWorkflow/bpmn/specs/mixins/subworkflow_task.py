@@ -56,7 +56,7 @@ class SubWorkflowTask(TaskSpec):
             return subprocess.is_completed()
 
     def _on_cancel(self, my_task):
-        subworkflow = my_task.workflow.get_subprocess(my_task)
+        subworkflow = my_task.workflow.top_workflow.get_subprocess(my_task)
         if subworkflow is not None:
             subworkflow.cancel()
 
