@@ -8,11 +8,23 @@ class ItemAwareEventDefinition(EventDefinition):
     def __init__(self, name, description=None):
         super().__init__(name, description)
 
+    def catch(self, my_task, event=None):
+        my_task.internal_data[self.name] = event.payload
+        super().catch(my_task, event)
+
     def throw(self, my_task):
         payload = deepcopy(my_task.data)
         event = BpmnEvent(self, payload=payload)
         my_task.workflow.top_workflow.catch(event)
 
+    def update_task_data(self, my_task):
+        payload = my_task.internal_data.get(self.name)
+        if payload is not None:
+            my_task.set_data(**payload)
+
+    def reset(self, my_task):
+        my_task.internal_data.pop(self.name, None)
+        super().reset(my_task)
 
 class ErrorEventDefinition(ItemAwareEventDefinition):
     """

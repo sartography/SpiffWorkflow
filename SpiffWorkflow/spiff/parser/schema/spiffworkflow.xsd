@@ -3,6 +3,8 @@
   <xsd:element name="instructionsForEndUser" type="xsd:string"/>
   <xsd:element name="messagePayload" type="xsd:string"/>
   <xsd:element name="messageVariable" type="xsd:string"/>
+  <xsd:element name="payloadExpression" type="xsd:string"/>
+  <xsd:element name="variableName" type="xsd:string"/>
   <xsd:element name="preScript" type="xsd:string"/>
   <xsd:element name="postScript" type="xsd:string"/>
   <xsd:element name="properties">

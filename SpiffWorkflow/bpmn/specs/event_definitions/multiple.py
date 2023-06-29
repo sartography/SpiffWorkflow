@@ -1,4 +1,3 @@
-from SpiffWorkflow.bpmn.event import BpmnEvent
 from .timer import TimerEventDefinition, EventDefinition
 
 class MultipleEventDefinition(EventDefinition):

@@ -18,19 +18,22 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import (
+    ItemAwareEventDefinition,
+    ErrorEventDefinition,
+    EscalationEventDefinition,
+)
+
 from SpiffWorkflow.bpmn.event import BpmnEvent
 
 class MessageEventDefinition(MessageEventDefinition):
 
     def __init__(self, name, correlation_properties=None, expression=None, message_var=None, **kwargs):
-
         super(MessageEventDefinition, self).__init__(name, correlation_properties, **kwargs)
         self.expression = expression
         self.message_var = message_var
 
     def throw(self, my_task):
-        # We can't update our own payload, because if this task is reached again
-        # we have to evaluate it again so we have to create a new event
         payload = my_task.workflow.script_engine.evaluate(my_task, self.expression)
         correlations = self.get_correlations(my_task, payload)
         event = BpmnEvent(self, payload=payload, correlations=correlations)
@@ -38,8 +41,43 @@ class MessageEventDefinition(MessageEventDefinition):
         my_task.workflow.top_workflow.catch(event)
 
     def update_task_data(self, my_task):
-        my_task.data[self.message_var] = my_task.internal_data[self.name]
+        if self.message_var is not None:
+            my_task.data[self.message_var] = my_task.internal_data.pop(self.name)
 
     def reset(self, my_task):
         my_task.internal_data.pop(self.message_var, None)
         super(MessageEventDefinition, self).reset(my_task)
+
+
+class SpiffItemAwareEventDefinition(ItemAwareEventDefinition):
+
+    def __init__(self, name, expression=None, variable=None, **kwargs):
+        super().__init__(name, **kwargs)
+        self.expression = expression
+        self.variable = variable
+
+    def throw(self, my_task):
+        if self.expression is not None:
+            payload = my_task.workflow.script_engine.evaluate(my_task, self.expression)
+        else:
+            payload = None
+        event = BpmnEvent(self, payload=payload)
+        my_task.workflow.top_workflow.catch(event)
+
+    def update_task_data(self, my_task):
+        if self.variable is not None:
+            my_task.data[self.variable] = my_task.internal_data.pop(self.name, None)
+
+    def reset(self, my_task):
+        my_task.internal_data.pop(self.name, None)
+        super().reset(my_task)
+
+
+class SignalEventDefinition(SpiffItemAwareEventDefinition):
+    pass
+
+class ErrorEventDefinition(SpiffItemAwareEventDefinition, ErrorEventDefinition):
+    pass
+
+class EscalationEventDefinition(SpiffItemAwareEventDefinition, EscalationEventDefinition):
+    pass

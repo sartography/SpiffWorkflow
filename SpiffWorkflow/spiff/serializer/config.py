@@ -54,8 +54,19 @@ from .task_spec import (
     BusinessRuleTaskConverter,
 )
 
-from SpiffWorkflow.bpmn.serializer.event_definition import MessageEventDefinitionConverter as DefaultMessageEventDefinitionConverter
-from .event_definition import MessageEventDefinitionConverter
+from SpiffWorkflow.bpmn.serializer.event_definition import (
+    MessageEventDefinitionConverter as DefaultMessageEventDefinitionConverter,
+    SignalEventDefinitionConverter as DefaultSignalEventDefinitionConverter,
+    ErrorEventDefinitionConverter as DefaultErrorEventDefinitionConverter,
+    EscalationEventDefinitionConverter as DefaultEscalationEventDefinitionConverter,
+)
+
+from .event_definition import (
+    MessageEventDefinitionConverter,
+    SignalEventDefinitionConverter,
+    ErrorEventDefinitionConverter,
+    EscalationEventDefinitionConverter,
+)
 
 SPIFF_SPEC_CONFIG = deepcopy(DEFAULT_SPEC_CONFIG)
 SPIFF_SPEC_CONFIG['task_specs'] = [
@@ -89,4 +100,10 @@ SPIFF_SPEC_CONFIG['task_specs'] = [
     BusinessRuleTaskConverter
 ]
 SPIFF_SPEC_CONFIG['event_definitions'].remove(DefaultMessageEventDefinitionConverter)
+SPIFF_SPEC_CONFIG['event_definitions'].remove(DefaultSignalEventDefinitionConverter)
+SPIFF_SPEC_CONFIG['event_definitions'].remove(DefaultErrorEventDefinitionConverter)
+SPIFF_SPEC_CONFIG['event_definitions'].remove(DefaultEscalationEventDefinitionConverter)
 SPIFF_SPEC_CONFIG['event_definitions'].append(MessageEventDefinitionConverter)
+SPIFF_SPEC_CONFIG['event_definitions'].append(SignalEventDefinitionConverter)
+SPIFF_SPEC_CONFIG['event_definitions'].append(ErrorEventDefinitionConverter)
+SPIFF_SPEC_CONFIG['event_definitions'].append(EscalationEventDefinitionConverter)

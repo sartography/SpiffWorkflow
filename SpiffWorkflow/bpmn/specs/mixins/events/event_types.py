@@ -21,7 +21,6 @@ from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.specs.base import TaskSpec
 
 from SpiffWorkflow.bpmn.specs.event_definitions.simple import NoneEventDefinition
-from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
 from SpiffWorkflow.bpmn.specs.event_definitions.timer import CycleTimerEventDefinition
 
 
@@ -70,8 +69,7 @@ class CatchingEvent(TaskSpec):
 
     def _run_hook(self, my_task):
 
-        if isinstance(self.event_definition, MessageEventDefinition):
-            self.event_definition.update_task_data(my_task)
+        self.event_definition.update_task_data(my_task)
         self.event_definition.reset(my_task)
         return super()._run_hook(my_task)
 
