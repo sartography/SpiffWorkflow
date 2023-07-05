@@ -1,0 +1,1372 @@
+{
+  "serializer_version": "1.2",
+  "spec": {
+    "name": "Main_Process", 
+    "description": "Main_Process", 
+    "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/transaction.bpmn", 
+    "task_specs": {
+      "Root": {
+        "name": "Root", 
+        "description": "BPMN Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [], 
+        "bpmn_id": null, 
+        "bpmn_name": null, 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "SimpleBpmnTask"
+      }, 
+      "Start": {
+        "name": "Start", 
+        "description": "BPMN Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [
+          "Start_Event"
+        ], 
+        "bpmn_id": null, 
+        "bpmn_name": null, 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "BpmnStartTask"
+      }, 
+      "Main_Process.EndJoin": {
+        "name": "Main_Process.EndJoin", 
+        "description": "BPMN Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "End_Event"
+        ], 
+        "outputs": [
+          "End"
+        ], 
+        "bpmn_id": null, 
+        "bpmn_name": null, 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "_EndJoin"
+      }, 
+      "End": {
+        "name": "End", 
+        "description": "BPMN Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Main_Process.EndJoin"
+        ], 
+        "outputs": [], 
+        "bpmn_id": null, 
+        "bpmn_name": null, 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "SimpleBpmnTask"
+      }, 
+      "Start_Event": {
+        "name": "Start_Event", 
+        "description": "Default Start Event", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Start"
+        ], 
+        "outputs": [
+          "Subprocess.BoundaryEventParent"
+        ], 
+        "bpmn_id": "Start_Event", 
+        "bpmn_name": "Start", 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "description": "Default", 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "StartEvent", 
+        "extensions": {}
+      }, 
+      "Subprocess": {
+        "name": "Subprocess", 
+        "description": "Transaction", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Subprocess.BoundaryEventParent"
+        ], 
+        "outputs": [
+          "Activity_Print_Data"
+        ], 
+        "bpmn_id": "Subprocess", 
+        "bpmn_name": "Collect Data", 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "spec": "Subprocess", 
+        "typename": "TransactionSubprocess", 
+        "extensions": {}
+      }, 
+      "Subprocess.BoundaryEventParent": {
+        "name": "Subprocess.BoundaryEventParent", 
+        "description": "BPMN Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Start_Event"
+        ], 
+        "outputs": [
+          "Subprocess", 
+          "Catch_Error_1", 
+          "Catch_Error_None", 
+          "Catch_Cancel_Event"
+        ], 
+        "bpmn_id": null, 
+        "bpmn_name": null, 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "main_child_task_spec": "Subprocess", 
+        "typename": "_BoundaryEventParent"
+      }, 
+      "Catch_Error_1": {
+        "name": "Catch_Error_1", 
+        "description": "Interrupting Error Boundary Event", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Subprocess.BoundaryEventParent"
+        ], 
+        "outputs": [
+          "Error_1_Action"
+        ], 
+        "bpmn_id": "Catch_Error_1", 
+        "bpmn_name": "Catch Error 1", 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": true, 
+          "description": "Error", 
+          "name": "TransactionError", 
+          "error_code": "1", 
+          "typename": "ErrorEventDefinition"
+        }, 
+        "cancel_activity": true, 
+        "typename": "BoundaryEvent", 
+        "extensions": {}
+      }, 
+      "Error_1_Action": {
+        "name": "Error_1_Action", 
+        "description": "Script Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Catch_Error_1"
+        ], 
+        "outputs": [], 
+        "bpmn_id": "Error_1_Action", 
+        "bpmn_name": "Error 1 Action", 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "script": "reason = \"Error 1\"", 
+        "typename": "ScriptTask", 
+        "extensions": {}
+      }, 
+      "Catch_Error_None": {
+        "name": "Catch_Error_None", 
+        "description": "Interrupting Error Boundary Event", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Subprocess.BoundaryEventParent"
+        ], 
+        "outputs": [
+          "Error_None_Action"
+        ], 
+        "bpmn_id": "Catch_Error_None", 
+        "bpmn_name": "Catch Error None", 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": true, 
+          "description": "Error", 
+          "name": "None Error Event", 
+          "error_code": null, 
+          "typename": "ErrorEventDefinition"
+        }, 
+        "cancel_activity": true, 
+        "typename": "BoundaryEvent", 
+        "extensions": {}
+      }, 
+      "Error_None_Action": {
+        "name": "Error_None_Action", 
+        "description": "Script Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Catch_Error_None"
+        ], 
+        "outputs": [], 
+        "bpmn_id": "Error_None_Action", 
+        "bpmn_name": "Error None Action", 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "script": "reason = \"Error None\"", 
+        "typename": "ScriptTask", 
+        "extensions": {}
+      }, 
+      "Catch_Cancel_Event": {
+        "name": "Catch_Cancel_Event", 
+        "description": "Interrupting Cancel Boundary Event", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Subprocess.BoundaryEventParent"
+        ], 
+        "outputs": [
+          "Cancel_Action"
+        ], 
+        "bpmn_id": "Catch_Cancel_Event", 
+        "bpmn_name": "Catch Cancel Event", 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": true, 
+          "description": "Cancel", 
+          "typename": "CancelEventDefinition"
+        }, 
+        "cancel_activity": true, 
+        "typename": "BoundaryEvent", 
+        "extensions": {}
+      }, 
+      "Cancel_Action": {
+        "name": "Cancel_Action", 
+        "description": "Script Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Catch_Cancel_Event"
+        ], 
+        "outputs": [], 
+        "bpmn_id": "Cancel_Action", 
+        "bpmn_name": "Cancel Action", 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "script": "reason = \"Cancel\"", 
+        "typename": "ScriptTask", 
+        "extensions": {}
+      }, 
+      "Activity_Print_Data": {
+        "name": "Activity_Print_Data", 
+        "description": "Script Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Subprocess"
+        ], 
+        "outputs": [
+          "End_Event"
+        ], 
+        "bpmn_id": "Activity_Print_Data", 
+        "bpmn_name": "Print Data", 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "script": "print(f\"Value: {value} / Quantity {quantity}\")", 
+        "typename": "ScriptTask", 
+        "extensions": {}
+      }, 
+      "End_Event": {
+        "name": "End_Event", 
+        "description": "Default End Event", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Activity_Print_Data"
+        ], 
+        "outputs": [
+          "Main_Process.EndJoin"
+        ], 
+        "bpmn_id": "End_Event", 
+        "bpmn_name": "End Event", 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "description": "Default", 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "EndEvent", 
+        "extensions": {}
+      }
+    }, 
+    "io_specification": null, 
+    "data_objects": {}, 
+    "correlation_keys": {}, 
+    "typename": "BpmnProcessSpec"
+  }, 
+  "data": {}, 
+  "correlations": {}, 
+  "last_task": "5454ac95-fcfb-4c6d-a0fb-ef62cfcaefbe", 
+  "success": true, 
+  "tasks": {
+    "2a762523-3704-4b78-ba94-0533c9dc9acd": {
+      "id": "2a762523-3704-4b78-ba94-0533c9dc9acd", 
+      "parent": null, 
+      "children": [
+        "541ca877-058e-4301-8442-d9500e9d549a"
+      ], 
+      "last_state_change": 1688572736.163045, 
+      "state": 64, 
+      "task_spec": "Root", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "541ca877-058e-4301-8442-d9500e9d549a": {
+      "id": "541ca877-058e-4301-8442-d9500e9d549a", 
+      "parent": "2a762523-3704-4b78-ba94-0533c9dc9acd", 
+      "children": [
+        "2c84c432-7ee9-427c-a878-2c6aac21f849"
+      ], 
+      "last_state_change": 1688572736.1688027, 
+      "state": 64, 
+      "task_spec": "Start", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "2c84c432-7ee9-427c-a878-2c6aac21f849": {
+      "id": "2c84c432-7ee9-427c-a878-2c6aac21f849", 
+      "parent": "541ca877-058e-4301-8442-d9500e9d549a", 
+      "children": [
+        "5454ac95-fcfb-4c6d-a0fb-ef62cfcaefbe"
+      ], 
+      "last_state_change": 1688572736.1705842, 
+      "state": 64, 
+      "task_spec": "Start_Event", 
+      "triggered": false, 
+      "internal_data": {
+        "event_fired": true
+      }, 
+      "data": {}
+    }, 
+    "5454ac95-fcfb-4c6d-a0fb-ef62cfcaefbe": {
+      "id": "5454ac95-fcfb-4c6d-a0fb-ef62cfcaefbe", 
+      "parent": "2c84c432-7ee9-427c-a878-2c6aac21f849", 
+      "children": [
+        "ff5f617b-a248-44fb-bf9c-963aec03af7b", 
+        "84c2b1ee-259e-4d9d-9a14-99c438dff736", 
+        "421748df-542d-4ca3-87b6-1df8f1d8c35c", 
+        "871f66d7-6d53-4482-8e99-a17cdf3c3e5f"
+      ], 
+      "last_state_change": 1688572736.1722405, 
+      "state": 64, 
+      "task_spec": "Subprocess.BoundaryEventParent", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "ff5f617b-a248-44fb-bf9c-963aec03af7b": {
+      "id": "ff5f617b-a248-44fb-bf9c-963aec03af7b", 
+      "parent": "5454ac95-fcfb-4c6d-a0fb-ef62cfcaefbe", 
+      "children": [
+        "adbfc6e5-82d1-4f32-bb0c-4460ba1a6a2e"
+      ], 
+      "last_state_change": 1688572736.1745574, 
+      "state": 8, 
+      "task_spec": "Subprocess", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "adbfc6e5-82d1-4f32-bb0c-4460ba1a6a2e": {
+      "id": "adbfc6e5-82d1-4f32-bb0c-4460ba1a6a2e", 
+      "parent": "ff5f617b-a248-44fb-bf9c-963aec03af7b", 
+      "children": [
+        "e6fd033a-c011-4fbb-80f2-ddc29b48d2d6"
+      ], 
+      "last_state_change": 1688572736.166182, 
+      "state": 4, 
+      "task_spec": "Activity_Print_Data", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "e6fd033a-c011-4fbb-80f2-ddc29b48d2d6": {
+      "id": "e6fd033a-c011-4fbb-80f2-ddc29b48d2d6", 
+      "parent": "adbfc6e5-82d1-4f32-bb0c-4460ba1a6a2e", 
+      "children": [
+        "0d88c93f-7862-4049-ad7d-b80b1b4bff33"
+      ], 
+      "last_state_change": 1688572736.1663244, 
+      "state": 4, 
+      "task_spec": "End_Event", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "0d88c93f-7862-4049-ad7d-b80b1b4bff33": {
+      "id": "0d88c93f-7862-4049-ad7d-b80b1b4bff33", 
+      "parent": "e6fd033a-c011-4fbb-80f2-ddc29b48d2d6", 
+      "children": [
+        "e3a90cc9-0e9e-48a7-a702-322155ecdaf9"
+      ], 
+      "last_state_change": 1688572736.1664557, 
+      "state": 4, 
+      "task_spec": "Main_Process.EndJoin", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "e3a90cc9-0e9e-48a7-a702-322155ecdaf9": {
+      "id": "e3a90cc9-0e9e-48a7-a702-322155ecdaf9", 
+      "parent": "0d88c93f-7862-4049-ad7d-b80b1b4bff33", 
+      "children": [], 
+      "last_state_change": 1688572736.1665893, 
+      "state": 4, 
+      "task_spec": "End", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "84c2b1ee-259e-4d9d-9a14-99c438dff736": {
+      "id": "84c2b1ee-259e-4d9d-9a14-99c438dff736", 
+      "parent": "5454ac95-fcfb-4c6d-a0fb-ef62cfcaefbe", 
+      "children": [
+        "70aacb1b-0763-4927-93f9-322dc5331d59"
+      ], 
+      "last_state_change": 1688572736.1720812, 
+      "state": 8, 
+      "task_spec": "Catch_Error_1", 
+      "triggered": false, 
+      "internal_data": {
+        "event_fired": false
+      }, 
+      "data": {}
+    }, 
+    "70aacb1b-0763-4927-93f9-322dc5331d59": {
+      "id": "70aacb1b-0763-4927-93f9-322dc5331d59", 
+      "parent": "84c2b1ee-259e-4d9d-9a14-99c438dff736", 
+      "children": [], 
+      "last_state_change": 1688572736.1668055, 
+      "state": 1, 
+      "task_spec": "Error_1_Action", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "421748df-542d-4ca3-87b6-1df8f1d8c35c": {
+      "id": "421748df-542d-4ca3-87b6-1df8f1d8c35c", 
+      "parent": "5454ac95-fcfb-4c6d-a0fb-ef62cfcaefbe", 
+      "children": [
+        "9bc1d28a-d4d7-4b77-a1e9-8b7fdd89cea2"
+      ], 
+      "last_state_change": 1688572736.1721296, 
+      "state": 8, 
+      "task_spec": "Catch_Error_None", 
+      "triggered": false, 
+      "internal_data": {
+        "event_fired": false
+      }, 
+      "data": {}
+    }, 
+    "9bc1d28a-d4d7-4b77-a1e9-8b7fdd89cea2": {
+      "id": "9bc1d28a-d4d7-4b77-a1e9-8b7fdd89cea2", 
+      "parent": "421748df-542d-4ca3-87b6-1df8f1d8c35c", 
+      "children": [], 
+      "last_state_change": 1688572736.1669466, 
+      "state": 1, 
+      "task_spec": "Error_None_Action", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "871f66d7-6d53-4482-8e99-a17cdf3c3e5f": {
+      "id": "871f66d7-6d53-4482-8e99-a17cdf3c3e5f", 
+      "parent": "5454ac95-fcfb-4c6d-a0fb-ef62cfcaefbe", 
+      "children": [
+        "40acea69-ed93-4bdc-84e3-cd7fdc1d3501"
+      ], 
+      "last_state_change": 1688572736.17217, 
+      "state": 8, 
+      "task_spec": "Catch_Cancel_Event", 
+      "triggered": false, 
+      "internal_data": {
+        "event_fired": false
+      }, 
+      "data": {}
+    }, 
+    "40acea69-ed93-4bdc-84e3-cd7fdc1d3501": {
+      "id": "40acea69-ed93-4bdc-84e3-cd7fdc1d3501", 
+      "parent": "871f66d7-6d53-4482-8e99-a17cdf3c3e5f", 
+      "children": [], 
+      "last_state_change": 1688572736.16709, 
+      "state": 1, 
+      "task_spec": "Cancel_Action", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }
+  }, 
+  "root": "2a762523-3704-4b78-ba94-0533c9dc9acd", 
+  "subprocess_specs": {
+    "Subprocess": {
+      "name": "Subprocess", 
+      "description": "Collect Data", 
+      "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/transaction.bpmn", 
+      "task_specs": {
+        "Root": {
+          "name": "Root", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "SimpleBpmnTask"
+        }, 
+        "Start": {
+          "name": "Start", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [
+            "Start_Subprocess"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "BpmnStartTask"
+        }, 
+        "Subprocess.EndJoin": {
+          "name": "Subprocess.EndJoin", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "End_Subprocess", 
+            "Error_1", 
+            "Error_None", 
+            "Cancel_Event"
+          ], 
+          "outputs": [
+            "End"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "_EndJoin"
+        }, 
+        "End": {
+          "name": "End", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Subprocess.EndJoin"
+          ], 
+          "outputs": [], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "SimpleBpmnTask"
+        }, 
+        "Start_Subprocess": {
+          "name": "Start_Subprocess", 
+          "description": "Default Start Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Start"
+          ], 
+          "outputs": [
+            "Activity_Get_Data"
+          ], 
+          "bpmn_id": "Start_Subprocess", 
+          "bpmn_name": "Start Subprocess", 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "description": "Default", 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "StartEvent", 
+          "extensions": {}
+        }, 
+        "Activity_Get_Data": {
+          "name": "Activity_Get_Data", 
+          "description": "User Task", 
+          "manual": true, 
+          "lookahead": 2, 
+          "inputs": [
+            "Start_Subprocess"
+          ], 
+          "outputs": [
+            "Check_Data"
+          ], 
+          "bpmn_id": "Activity_Get_Data", 
+          "bpmn_name": "Get Data", 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "UserTask", 
+          "extensions": {}
+        }, 
+        "Check_Data": {
+          "name": "Check_Data", 
+          "description": "Exclusive Gateway", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Activity_Get_Data"
+          ], 
+          "outputs": [
+            "Activity_Get_Quantity", 
+            "Cancel_Event"
+          ], 
+          "bpmn_id": "Check_Data", 
+          "bpmn_name": "Check Data", 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "cond_task_specs": [
+            {
+              "condition": null, 
+              "task_spec": "Activity_Get_Quantity"
+            }, 
+            {
+              "condition": "value == \"\"", 
+              "task_spec": "Cancel_Event"
+            }
+          ], 
+          "choice": null, 
+          "default_task_spec": "Activity_Get_Quantity", 
+          "typename": "ExclusiveGateway", 
+          "extensions": {}
+        }, 
+        "Activity_Get_Quantity": {
+          "name": "Activity_Get_Quantity", 
+          "description": "User Task", 
+          "manual": true, 
+          "lookahead": 2, 
+          "inputs": [
+            "Check_Data"
+          ], 
+          "outputs": [
+            "Check_Quantity"
+          ], 
+          "bpmn_id": "Activity_Get_Quantity", 
+          "bpmn_name": "Get Quantity", 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "UserTask", 
+          "extensions": {}
+        }, 
+        "Check_Quantity": {
+          "name": "Check_Quantity", 
+          "description": "Exclusive Gateway", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Activity_Get_Quantity"
+          ], 
+          "outputs": [
+            "End_Subprocess", 
+            "Error_1", 
+            "Error_None"
+          ], 
+          "bpmn_id": "Check_Quantity", 
+          "bpmn_name": "Check Quantity", 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "cond_task_specs": [
+            {
+              "condition": null, 
+              "task_spec": "End_Subprocess"
+            }, 
+            {
+              "condition": "quantity < 0", 
+              "task_spec": "Error_1"
+            }, 
+            {
+              "condition": "quantity == 0", 
+              "task_spec": "Error_None"
+            }
+          ], 
+          "choice": null, 
+          "default_task_spec": "End_Subprocess", 
+          "typename": "ExclusiveGateway", 
+          "extensions": {}
+        }, 
+        "End_Subprocess": {
+          "name": "End_Subprocess", 
+          "description": "Default End Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Check_Quantity"
+          ], 
+          "outputs": [
+            "Subprocess.EndJoin"
+          ], 
+          "bpmn_id": "End_Subprocess", 
+          "bpmn_name": "End Subprocess", 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "description": "Default", 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "EndEvent", 
+          "extensions": {}
+        }, 
+        "Error_1": {
+          "name": "Error_1", 
+          "description": "Error End Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Check_Quantity"
+          ], 
+          "outputs": [
+            "Subprocess.EndJoin"
+          ], 
+          "bpmn_id": "Error_1", 
+          "bpmn_name": "Error 1", 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": true, 
+            "description": "Error", 
+            "name": "TransactionError", 
+            "error_code": "1", 
+            "typename": "ErrorEventDefinition"
+          }, 
+          "typename": "EndEvent", 
+          "extensions": {}
+        }, 
+        "Error_None": {
+          "name": "Error_None", 
+          "description": "Error End Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Check_Quantity"
+          ], 
+          "outputs": [
+            "Subprocess.EndJoin"
+          ], 
+          "bpmn_id": "Error_None", 
+          "bpmn_name": "Error_None", 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": true, 
+            "description": "Error", 
+            "name": "None Error Event", 
+            "error_code": null, 
+            "typename": "ErrorEventDefinition"
+          }, 
+          "typename": "EndEvent", 
+          "extensions": {}
+        }, 
+        "Cancel_Event": {
+          "name": "Cancel_Event", 
+          "description": "Cancel End Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Check_Data"
+          ], 
+          "outputs": [
+            "Subprocess.EndJoin"
+          ], 
+          "bpmn_id": "Cancel_Event", 
+          "bpmn_name": "Cancel Event", 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": true, 
+            "description": "Cancel", 
+            "typename": "CancelEventDefinition"
+          }, 
+          "typename": "EndEvent", 
+          "extensions": {}
+        }
+      }, 
+      "io_specification": null, 
+      "data_objects": {}, 
+      "correlation_keys": {}, 
+      "typename": "BpmnProcessSpec"
+    }
+  }, 
+  "subprocesses": {
+    "ff5f617b-a248-44fb-bf9c-963aec03af7b": {
+      "spec": {
+        "name": "Subprocess", 
+        "description": "Collect Data", 
+        "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/transaction.bpmn", 
+        "task_specs": {
+          "Root": {
+            "name": "Root", 
+            "description": "BPMN Task", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [], 
+            "outputs": [], 
+            "bpmn_id": null, 
+            "bpmn_name": null, 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "SimpleBpmnTask"
+          }, 
+          "Start": {
+            "name": "Start", 
+            "description": "BPMN Task", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [], 
+            "outputs": [
+              "Start_Subprocess"
+            ], 
+            "bpmn_id": null, 
+            "bpmn_name": null, 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "BpmnStartTask"
+          }, 
+          "Subprocess.EndJoin": {
+            "name": "Subprocess.EndJoin", 
+            "description": "BPMN Task", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "End_Subprocess", 
+              "Error_1", 
+              "Error_None", 
+              "Cancel_Event"
+            ], 
+            "outputs": [
+              "End"
+            ], 
+            "bpmn_id": null, 
+            "bpmn_name": null, 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "_EndJoin"
+          }, 
+          "End": {
+            "name": "End", 
+            "description": "BPMN Task", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "Subprocess.EndJoin"
+            ], 
+            "outputs": [], 
+            "bpmn_id": null, 
+            "bpmn_name": null, 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "SimpleBpmnTask"
+          }, 
+          "Start_Subprocess": {
+            "name": "Start_Subprocess", 
+            "description": "Default Start Event", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "Start"
+            ], 
+            "outputs": [
+              "Activity_Get_Data"
+            ], 
+            "bpmn_id": "Start_Subprocess", 
+            "bpmn_name": "Start Subprocess", 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "event_definition": {
+              "internal": false, 
+              "external": false, 
+              "description": "Default", 
+              "typename": "NoneEventDefinition"
+            }, 
+            "typename": "StartEvent", 
+            "extensions": {}
+          }, 
+          "Activity_Get_Data": {
+            "name": "Activity_Get_Data", 
+            "description": "User Task", 
+            "manual": true, 
+            "lookahead": 2, 
+            "inputs": [
+              "Start_Subprocess"
+            ], 
+            "outputs": [
+              "Check_Data"
+            ], 
+            "bpmn_id": "Activity_Get_Data", 
+            "bpmn_name": "Get Data", 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "UserTask", 
+            "extensions": {}
+          }, 
+          "Check_Data": {
+            "name": "Check_Data", 
+            "description": "Exclusive Gateway", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "Activity_Get_Data"
+            ], 
+            "outputs": [
+              "Activity_Get_Quantity", 
+              "Cancel_Event"
+            ], 
+            "bpmn_id": "Check_Data", 
+            "bpmn_name": "Check Data", 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "cond_task_specs": [
+              {
+                "condition": null, 
+                "task_spec": "Activity_Get_Quantity"
+              }, 
+              {
+                "condition": "value == \"\"", 
+                "task_spec": "Cancel_Event"
+              }
+            ], 
+            "choice": null, 
+            "default_task_spec": "Activity_Get_Quantity", 
+            "typename": "ExclusiveGateway", 
+            "extensions": {}
+          }, 
+          "Activity_Get_Quantity": {
+            "name": "Activity_Get_Quantity", 
+            "description": "User Task", 
+            "manual": true, 
+            "lookahead": 2, 
+            "inputs": [
+              "Check_Data"
+            ], 
+            "outputs": [
+              "Check_Quantity"
+            ], 
+            "bpmn_id": "Activity_Get_Quantity", 
+            "bpmn_name": "Get Quantity", 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "UserTask", 
+            "extensions": {}
+          }, 
+          "Check_Quantity": {
+            "name": "Check_Quantity", 
+            "description": "Exclusive Gateway", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "Activity_Get_Quantity"
+            ], 
+            "outputs": [
+              "End_Subprocess", 
+              "Error_1", 
+              "Error_None"
+            ], 
+            "bpmn_id": "Check_Quantity", 
+            "bpmn_name": "Check Quantity", 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "cond_task_specs": [
+              {
+                "condition": null, 
+                "task_spec": "End_Subprocess"
+              }, 
+              {
+                "condition": "quantity < 0", 
+                "task_spec": "Error_1"
+              }, 
+              {
+                "condition": "quantity == 0", 
+                "task_spec": "Error_None"
+              }
+            ], 
+            "choice": null, 
+            "default_task_spec": "End_Subprocess", 
+            "typename": "ExclusiveGateway", 
+            "extensions": {}
+          }, 
+          "End_Subprocess": {
+            "name": "End_Subprocess", 
+            "description": "Default End Event", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "Check_Quantity"
+            ], 
+            "outputs": [
+              "Subprocess.EndJoin"
+            ], 
+            "bpmn_id": "End_Subprocess", 
+            "bpmn_name": "End Subprocess", 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "event_definition": {
+              "internal": false, 
+              "external": false, 
+              "description": "Default", 
+              "typename": "NoneEventDefinition"
+            }, 
+            "typename": "EndEvent", 
+            "extensions": {}
+          }, 
+          "Error_1": {
+            "name": "Error_1", 
+            "description": "Error End Event", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "Check_Quantity"
+            ], 
+            "outputs": [
+              "Subprocess.EndJoin"
+            ], 
+            "bpmn_id": "Error_1", 
+            "bpmn_name": "Error 1", 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "event_definition": {
+              "internal": false, 
+              "external": true, 
+              "description": "Error", 
+              "name": "TransactionError", 
+              "error_code": "1", 
+              "typename": "ErrorEventDefinition"
+            }, 
+            "typename": "EndEvent", 
+            "extensions": {}
+          }, 
+          "Error_None": {
+            "name": "Error_None", 
+            "description": "Error End Event", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "Check_Quantity"
+            ], 
+            "outputs": [
+              "Subprocess.EndJoin"
+            ], 
+            "bpmn_id": "Error_None", 
+            "bpmn_name": "Error_None", 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "event_definition": {
+              "internal": false, 
+              "external": true, 
+              "description": "Error", 
+              "name": "None Error Event", 
+              "error_code": null, 
+              "typename": "ErrorEventDefinition"
+            }, 
+            "typename": "EndEvent", 
+            "extensions": {}
+          }, 
+          "Cancel_Event": {
+            "name": "Cancel_Event", 
+            "description": "Cancel End Event", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "Check_Data"
+            ], 
+            "outputs": [
+              "Subprocess.EndJoin"
+            ], 
+            "bpmn_id": "Cancel_Event", 
+            "bpmn_name": "Cancel Event", 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "event_definition": {
+              "internal": false, 
+              "external": true, 
+              "description": "Cancel", 
+              "typename": "CancelEventDefinition"
+            }, 
+            "typename": "EndEvent", 
+            "extensions": {}
+          }
+        }, 
+        "io_specification": null, 
+        "data_objects": {}, 
+        "correlation_keys": {}, 
+        "typename": "BpmnProcessSpec"
+      }, 
+      "data": {}, 
+      "correlations": {}, 
+      "last_task": "e26ab40a-2da9-4cd3-aa63-dba5bdc54a41", 
+      "success": true, 
+      "tasks": {
+        "0981472d-b16c-49b1-a1a7-1057fcf76ccb": {
+          "id": "0981472d-b16c-49b1-a1a7-1057fcf76ccb", 
+          "parent": null, 
+          "children": [
+            "30f56386-ecf0-4ecd-96b8-b7bbd968b948"
+          ], 
+          "last_state_change": 1688572736.1725495, 
+          "state": 64, 
+          "task_spec": "Root", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "30f56386-ecf0-4ecd-96b8-b7bbd968b948": {
+          "id": "30f56386-ecf0-4ecd-96b8-b7bbd968b948", 
+          "parent": "0981472d-b16c-49b1-a1a7-1057fcf76ccb", 
+          "children": [
+            "e26ab40a-2da9-4cd3-aa63-dba5bdc54a41"
+          ], 
+          "last_state_change": 1688572736.1771119, 
+          "state": 64, 
+          "task_spec": "Start", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "e26ab40a-2da9-4cd3-aa63-dba5bdc54a41": {
+          "id": "e26ab40a-2da9-4cd3-aa63-dba5bdc54a41", 
+          "parent": "30f56386-ecf0-4ecd-96b8-b7bbd968b948", 
+          "children": [
+            "9d265678-2025-40a5-81b9-a15f2b0d7efe"
+          ], 
+          "last_state_change": 1688572736.1782155, 
+          "state": 64, 
+          "task_spec": "Start_Subprocess", 
+          "triggered": false, 
+          "internal_data": {
+            "event_fired": true
+          }, 
+          "data": {}
+        }, 
+        "9d265678-2025-40a5-81b9-a15f2b0d7efe": {
+          "id": "9d265678-2025-40a5-81b9-a15f2b0d7efe", 
+          "parent": "e26ab40a-2da9-4cd3-aa63-dba5bdc54a41", 
+          "children": [
+            "44799bd2-3c87-4f91-8503-6e83ae0fa103"
+          ], 
+          "last_state_change": 1688572736.1784077, 
+          "state": 16, 
+          "task_spec": "Activity_Get_Data", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "44799bd2-3c87-4f91-8503-6e83ae0fa103": {
+          "id": "44799bd2-3c87-4f91-8503-6e83ae0fa103", 
+          "parent": "9d265678-2025-40a5-81b9-a15f2b0d7efe", 
+          "children": [
+            "4d6d3ec0-3bdc-4385-b70e-a028dd59c4f1", 
+            "9345ade1-3acc-40aa-9ee1-0d8725e92e4a"
+          ], 
+          "last_state_change": 1688572736.1730845, 
+          "state": 4, 
+          "task_spec": "Check_Data", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "4d6d3ec0-3bdc-4385-b70e-a028dd59c4f1": {
+          "id": "4d6d3ec0-3bdc-4385-b70e-a028dd59c4f1", 
+          "parent": "44799bd2-3c87-4f91-8503-6e83ae0fa103", 
+          "children": [
+            "28bcba71-8185-46ca-9a5a-fae211889591"
+          ], 
+          "last_state_change": 1688572736.1732779, 
+          "state": 2, 
+          "task_spec": "Activity_Get_Quantity", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "28bcba71-8185-46ca-9a5a-fae211889591": {
+          "id": "28bcba71-8185-46ca-9a5a-fae211889591", 
+          "parent": "4d6d3ec0-3bdc-4385-b70e-a028dd59c4f1", 
+          "children": [], 
+          "last_state_change": 1688572736.1734755, 
+          "state": 2, 
+          "task_spec": "Check_Quantity", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "9345ade1-3acc-40aa-9ee1-0d8725e92e4a": {
+          "id": "9345ade1-3acc-40aa-9ee1-0d8725e92e4a", 
+          "parent": "44799bd2-3c87-4f91-8503-6e83ae0fa103", 
+          "children": [
+            "eaf10263-49d3-4670-bd41-7eceb9aabc93"
+          ], 
+          "last_state_change": 1688572736.173326, 
+          "state": 1, 
+          "task_spec": "Cancel_Event", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "eaf10263-49d3-4670-bd41-7eceb9aabc93": {
+          "id": "eaf10263-49d3-4670-bd41-7eceb9aabc93", 
+          "parent": "9345ade1-3acc-40aa-9ee1-0d8725e92e4a", 
+          "children": [], 
+          "last_state_change": 1688572736.1736495, 
+          "state": 1, 
+          "task_spec": "Subprocess.EndJoin", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }
+      }, 
+      "root": "0981472d-b16c-49b1-a1a7-1057fcf76ccb", 
+      "parent_task_id": "ff5f617b-a248-44fb-bf9c-963aec03af7b"
+    }
+  }, 
+  "bpmn_messages": []
+}

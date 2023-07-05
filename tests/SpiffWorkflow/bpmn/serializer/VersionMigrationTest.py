@@ -11,8 +11,6 @@ from .BaseTestCase import BaseTestCase
 
 class Version_1_0_Test(BaseTestCase):
 
-    SERIALIZER_VERSION = "1.2"
-
     def test_convert_subprocess(self):
         # The serialization used here comes from NestedSubprocessTest saved at line 25 with version 1.0
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.0.json')
@@ -92,3 +90,33 @@ class Version_1_1_Test(BaseTestCase):
             ready_tasks[0].run()
             ready_tasks = wf.get_tasks(TaskState.READY)
         self.assertTrue(wf.is_completed())
+
+
+class Version1_2_Test(BaseTestCase):
+
+    def test_remove_boundary_events(self):
+        fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.2-boundary-events.json')
+        wf = self.serializer.deserialize_json(open(fn).read())
+        ready_tasks = wf.get_tasks(TaskState.READY)
+        ready_tasks[0].update_data({'value': 'asdf'})
+        ready_tasks[0].run()
+        wf.do_engine_steps()
+        ready_tasks = wf.get_tasks(TaskState.READY)
+        ready_tasks[0].update_data({'quantity': 2})
+        ready_tasks[0].run()
+        wf.do_engine_steps()
+        self.assertIn('value', wf.last_task.data)
+
+        # Check that workflow and next task completed
+        subprocess = wf.get_tasks_from_spec_name('Subprocess')[0]
+        self.assertEqual(subprocess.state, TaskState.COMPLETED)
+        print_task = wf.get_tasks_from_spec_name("Activity_Print_Data")[0]
+        self.assertEqual(print_task.state, TaskState.COMPLETED)
+
+        # Check that the boundary events were cancelled
+        cancel_task = wf.get_tasks_from_spec_name("Catch_Cancel_Event")[0]
+        self.assertEqual(cancel_task.state, TaskState.CANCELLED)
+        error_1_task = wf.get_tasks_from_spec_name("Catch_Error_1")[0]
+        self.assertEqual(error_1_task.state, TaskState.CANCELLED)
+        error_none_task = wf.get_tasks_from_spec_name("Catch_Error_None")[0]
+        self.assertEqual(error_none_task.state, TaskState.CANCELLED)
