@@ -92,7 +92,7 @@ class ProcessParser(NodeParser):
         """
         Returns a list of ids referenced by `bpmn:callActivity` nodes.
         """
-        return self.xpath("./bpmn:callActivity/@calledElement")
+        return self.xpath(".//bpmn:callActivity/@calledElement")
 
     def parse_node(self, node):
         """
