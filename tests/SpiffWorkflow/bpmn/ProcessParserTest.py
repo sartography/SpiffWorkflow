@@ -24,6 +24,10 @@ class ProcessParserTest(unittest.TestCase):
         parser = _process_parser("multiple_call_activities.bpmn", "Process_90mmqlw")
         assert parser.called_element_ids() == ["Process_sypm122", "Process_diu8ta2", "Process_l14lar1"]
 
+    def testHandlesNestedCallActivity(self):
+        parser = _process_parser("nested_call_activity.bpmn", "Process_expand_call_activity")
+        assert parser.called_element_ids() == ["is_this_missing", "set_permissions_process"]
+
     def testCanAddDmnFromString(self):
         parser = BpmnDmnParser()
         parser.add_dmn_str(EMPTY_DMN)
