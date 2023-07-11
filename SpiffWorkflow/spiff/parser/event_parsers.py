@@ -30,6 +30,7 @@ from SpiffWorkflow.spiff.specs.event_definitions import (
     MessageEventDefinition,
     SignalEventDefinition,
     ErrorEventDefinition,
+    EscalationEventDefinition,
 )
 from SpiffWorkflow.bpmn.parser.util import one
 from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser
@@ -76,6 +77,17 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
         expression = extensions.get('payloadExpression')
         variable = extensions.get('variableName')
         return ErrorEventDefinition(name, expression=expression, variable=variable, code=code)
+
+    def parse_escalation_event(self, escalation_event):
+        """Parse a Spiff error event"""
+        escalation_ref = escalation_event.get('escalationRef')
+        escalation = one(self.doc_xpath(f'.//bpmn:escalation[@id="{escalation_ref}"]'))
+        name = escalation.get('name')
+        code = escalation.get('escalationCode')
+        extensions = self.parse_extensions(escalation)
+        expression = extensions.get('payloadExpression')
+        variable = extensions.get('variableName')
+        return EscalationEventDefinition(name, expression=expression, variable=variable, code=code)
 
 
 class SpiffStartEventParser(SpiffEventDefinitionParser, StartEventParser):

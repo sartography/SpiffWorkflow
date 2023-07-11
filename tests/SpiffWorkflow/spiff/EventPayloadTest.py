@@ -36,3 +36,15 @@ class EventPayloadTest(BaseTestCase):
         self.assertTrue(self.workflow.is_completed())
         self.assertEqual(self.workflow.data, {'result': 'ERROR!'})
 
+    def testEscalationEvent(self):
+        spec, subprocesses = self.load_workflow_spec('escalation_event_payload.bpmn', 'event_test')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
+        self.save_restore()
+        set_data = self.workflow.get_tasks_from_spec_name('set_data')[0]
+        # Throw event creates payload from v1 & v2
+        set_data.data = {'escalation': True, 'payload': 'ERROR!'}
+        set_data.run()
+        self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.is_completed())
+        self.assertEqual(self.workflow.data, {'result': 'ERROR!'})
