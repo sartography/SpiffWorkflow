@@ -185,7 +185,7 @@ class BpmnWorkflow(Workflow):
     def send_event(self, event):
         """Allows this workflow to catch an externally generated event."""
 
-        tasks = tasks = [t for t in self.get_catching_tasks() if t.task_spec.catches(t, event)]
+        tasks = [t for t in self.get_catching_tasks() if t.task_spec.catches(t, event)]
         if len(tasks) == 0:
             raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
         for task in tasks:

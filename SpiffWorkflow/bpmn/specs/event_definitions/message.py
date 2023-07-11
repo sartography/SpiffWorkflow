@@ -22,8 +22,13 @@ class MessageEventDefinition(EventDefinition):
 
     def catches(self, my_task, event):
         correlations = my_task.workflow.correlations
-        return (self == event.event_definition 
-                and all([event.correlations.get(key) == correlations.get(key) for key in event.correlations ]))
+        if len(self.correlation_properties) == 0 or not correlations:
+            # If we are not checking correlations (eg in lots of older workflows) OR this is the first message this is True
+            correlated = True
+        else:
+            # Otherwise we have to check to make sure any existing keys match
+            correlated = all([event.correlations.get(key) == correlations.get(key) for key in event.correlations ])
+        return self == event.event_definition and correlated
 
     def catch(self, my_task, event=None):
         self.update_internal_data(my_task, event)
