@@ -1,0 +1,1772 @@
+{
+  "serializer_version": "1.2",
+  "spec": {
+    "name": "sid-b0903a88-fe74-4f93-b912-47b815ea8d1c", 
+    "description": "Test Workflows", 
+    "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/Test-Workflows/Test-Workflows.bpmn20.xml", 
+    "task_specs": {
+      "Root": {
+        "name": "Root", 
+        "description": "BPMN Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [], 
+        "bpmn_id": null, 
+        "bpmn_name": null, 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "SimpleBpmnTask"
+      }, 
+      "Start": {
+        "name": "Start", 
+        "description": "BPMN Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [], 
+        "outputs": [
+          "sid-2C69C7A6-BD02-428F-B5AA-0BB10EC514C2"
+        ], 
+        "bpmn_id": null, 
+        "bpmn_name": null, 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "BpmnStartTask"
+      }, 
+      "sid-b0903a88-fe74-4f93-b912-47b815ea8d1c.EndJoin": {
+        "name": "sid-b0903a88-fe74-4f93-b912-47b815ea8d1c.EndJoin", 
+        "description": "BPMN Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "sid-464B8E64-10B4-4158-BDEE-11144CE20306"
+        ], 
+        "outputs": [
+          "End"
+        ], 
+        "bpmn_id": null, 
+        "bpmn_name": null, 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "_EndJoin"
+      }, 
+      "End": {
+        "name": "End", 
+        "description": "BPMN Task", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "sid-b0903a88-fe74-4f93-b912-47b815ea8d1c.EndJoin"
+        ], 
+        "outputs": [], 
+        "bpmn_id": null, 
+        "bpmn_name": null, 
+        "lane": null, 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "SimpleBpmnTask"
+      }, 
+      "sid-2C69C7A6-BD02-428F-B5AA-0BB10EC514C2": {
+        "name": "sid-2C69C7A6-BD02-428F-B5AA-0BB10EC514C2", 
+        "description": "Default Start Event", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "Start"
+        ], 
+        "outputs": [
+          "USER_INPUT_SELECT_TEST"
+        ], 
+        "bpmn_id": "sid-2C69C7A6-BD02-428F-B5AA-0BB10EC514C2", 
+        "bpmn_name": "", 
+        "lane": "Test Runner", 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "description": "Default", 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "StartEvent", 
+        "extensions": {}
+      }, 
+      "USER_INPUT_SELECT_TEST": {
+        "name": "USER_INPUT_SELECT_TEST", 
+        "description": "User Task", 
+        "manual": true, 
+        "lookahead": 2, 
+        "inputs": [
+          "sid-2C69C7A6-BD02-428F-B5AA-0BB10EC514C2"
+        ], 
+        "outputs": [
+          "GATEWAY_SELECTED_TEST"
+        ], 
+        "bpmn_id": "USER_INPUT_SELECT_TEST", 
+        "bpmn_name": "Select Test", 
+        "lane": "Test Runner", 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "typename": "UserTask", 
+        "extensions": {}
+      }, 
+      "GATEWAY_SELECTED_TEST": {
+        "name": "GATEWAY_SELECTED_TEST", 
+        "description": "Exclusive Gateway", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "USER_INPUT_SELECT_TEST"
+        ], 
+        "outputs": [
+          "sid-464B8E64-10B4-4158-BDEE-11144CE20306", 
+          "MESSAGES_SUB", 
+          "SCRIPTS_SUB", 
+          "MESSAGE_INTERRUPTS_SUB", 
+          "MESSAGE_NON_INTERRUPT_SUB"
+        ], 
+        "bpmn_id": "GATEWAY_SELECTED_TEST", 
+        "bpmn_name": "", 
+        "lane": "Test Runner", 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "cond_task_specs": [
+          {
+            "condition": "choice == 'Tests Done'", 
+            "task_spec": "sid-464B8E64-10B4-4158-BDEE-11144CE20306"
+          }, 
+          {
+            "condition": "choice == 'Messages'", 
+            "task_spec": "MESSAGES_SUB"
+          }, 
+          {
+            "condition": "choice == 'Scripts'", 
+            "task_spec": "SCRIPTS_SUB"
+          }, 
+          {
+            "condition": "choice == 'Message Interrupts'", 
+            "task_spec": "MESSAGE_INTERRUPTS_SUB"
+          }, 
+          {
+            "condition": "choice == 'Message Non Interrupt'", 
+            "task_spec": "MESSAGE_NON_INTERRUPT_SUB"
+          }
+        ], 
+        "choice": null, 
+        "default_task_spec": null, 
+        "typename": "ExclusiveGateway", 
+        "extensions": {}
+      }, 
+      "MESSAGE_NON_INTERRUPT_SUB": {
+        "name": "MESSAGE_NON_INTERRUPT_SUB", 
+        "description": "Call Activity", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "GATEWAY_SELECTED_TEST"
+        ], 
+        "outputs": [
+          "sid-464B8E64-10B4-4158-BDEE-11144CE20306"
+        ], 
+        "bpmn_id": "MESSAGE_NON_INTERRUPT_SUB", 
+        "bpmn_name": "Message Non Interrupt", 
+        "lane": "Test Runner", 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "spec": "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9", 
+        "typename": "CallActivity", 
+        "extensions": {}
+      }, 
+      "sid-464B8E64-10B4-4158-BDEE-11144CE20306": {
+        "name": "sid-464B8E64-10B4-4158-BDEE-11144CE20306", 
+        "description": "Default End Event", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "MESSAGE_NON_INTERRUPT_SUB", 
+          "SCRIPTS_SUB", 
+          "MESSAGE_INTERRUPTS_SUB", 
+          "MESSAGES_SUB", 
+          "GATEWAY_SELECTED_TEST"
+        ], 
+        "outputs": [
+          "sid-b0903a88-fe74-4f93-b912-47b815ea8d1c.EndJoin"
+        ], 
+        "bpmn_id": "sid-464B8E64-10B4-4158-BDEE-11144CE20306", 
+        "bpmn_name": "", 
+        "lane": "Test Runner", 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "event_definition": {
+          "internal": false, 
+          "external": false, 
+          "description": "Default", 
+          "typename": "NoneEventDefinition"
+        }, 
+        "typename": "EndEvent", 
+        "extensions": {}
+      }, 
+      "SCRIPTS_SUB": {
+        "name": "SCRIPTS_SUB", 
+        "description": "Call Activity", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "GATEWAY_SELECTED_TEST"
+        ], 
+        "outputs": [
+          "sid-464B8E64-10B4-4158-BDEE-11144CE20306"
+        ], 
+        "bpmn_id": "SCRIPTS_SUB", 
+        "bpmn_name": "Scripts", 
+        "lane": "Test Runner", 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "spec": "sid-e6cdd73d-0fd2-49b9-99f1-031f81f99545", 
+        "typename": "CallActivity", 
+        "extensions": {}
+      }, 
+      "MESSAGE_INTERRUPTS_SUB": {
+        "name": "MESSAGE_INTERRUPTS_SUB", 
+        "description": "Call Activity", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "GATEWAY_SELECTED_TEST"
+        ], 
+        "outputs": [
+          "sid-464B8E64-10B4-4158-BDEE-11144CE20306"
+        ], 
+        "bpmn_id": "MESSAGE_INTERRUPTS_SUB", 
+        "bpmn_name": "Message Interrupts", 
+        "lane": "Test Runner", 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "spec": "sid-db1e1749-03ee-46aa-8674-bba07b1bd167", 
+        "typename": "CallActivity", 
+        "extensions": {}
+      }, 
+      "MESSAGES_SUB": {
+        "name": "MESSAGES_SUB", 
+        "description": "Call Activity", 
+        "manual": false, 
+        "lookahead": 2, 
+        "inputs": [
+          "GATEWAY_SELECTED_TEST"
+        ], 
+        "outputs": [
+          "sid-464B8E64-10B4-4158-BDEE-11144CE20306"
+        ], 
+        "bpmn_id": "MESSAGES_SUB", 
+        "bpmn_name": "Messages", 
+        "lane": "Test Runner", 
+        "documentation": null, 
+        "data_input_associations": [], 
+        "data_output_associations": [], 
+        "io_specification": null, 
+        "spec": "sid-4a1f10ab-316f-4cd8-836d-65aa3d178fff", 
+        "typename": "CallActivity", 
+        "extensions": {}
+      }
+    }, 
+    "io_specification": null, 
+    "data_objects": {}, 
+    "correlation_keys": {}, 
+    "typename": "BpmnProcessSpec"
+  }, 
+  "data": {}, 
+  "correlations": {}, 
+  "last_task": "7b159aef-caf0-45dc-9b39-f0ff0d81cd1c", 
+  "success": true, 
+  "tasks": {
+    "d8fe3899-d96f-40ed-ba9a-278ddf61a493": {
+      "id": "d8fe3899-d96f-40ed-ba9a-278ddf61a493", 
+      "parent": null, 
+      "children": [
+        "bc0cd59c-c9b0-4164-8a97-53679003135f"
+      ], 
+      "last_state_change": 1689261505.3256323, 
+      "state": 64, 
+      "task_spec": "Root", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "bc0cd59c-c9b0-4164-8a97-53679003135f": {
+      "id": "bc0cd59c-c9b0-4164-8a97-53679003135f", 
+      "parent": "d8fe3899-d96f-40ed-ba9a-278ddf61a493", 
+      "children": [
+        "e944535a-f4eb-4cda-8ea3-314d8c1896fd"
+      ], 
+      "last_state_change": 1689261505.3295662, 
+      "state": 64, 
+      "task_spec": "Start", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "e944535a-f4eb-4cda-8ea3-314d8c1896fd": {
+      "id": "e944535a-f4eb-4cda-8ea3-314d8c1896fd", 
+      "parent": "bc0cd59c-c9b0-4164-8a97-53679003135f", 
+      "children": [
+        "4d30911b-0753-4831-a555-3d534bd60e4b"
+      ], 
+      "last_state_change": 1689261505.331921, 
+      "state": 64, 
+      "task_spec": "sid-2C69C7A6-BD02-428F-B5AA-0BB10EC514C2", 
+      "triggered": false, 
+      "internal_data": {
+        "event_fired": true
+      }, 
+      "data": {}
+    }, 
+    "4d30911b-0753-4831-a555-3d534bd60e4b": {
+      "id": "4d30911b-0753-4831-a555-3d534bd60e4b", 
+      "parent": "e944535a-f4eb-4cda-8ea3-314d8c1896fd", 
+      "children": [
+        "7b159aef-caf0-45dc-9b39-f0ff0d81cd1c"
+      ], 
+      "last_state_change": 1689261505.3349278, 
+      "state": 64, 
+      "task_spec": "USER_INPUT_SELECT_TEST", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {
+        "choice": "Message Non Interrupt"
+      }
+    }, 
+    "7b159aef-caf0-45dc-9b39-f0ff0d81cd1c": {
+      "id": "7b159aef-caf0-45dc-9b39-f0ff0d81cd1c", 
+      "parent": "4d30911b-0753-4831-a555-3d534bd60e4b", 
+      "children": [
+        "c590d85a-9dc4-4499-959b-0be0823dcc5e"
+      ], 
+      "last_state_change": 1689261505.3381038, 
+      "state": 64, 
+      "task_spec": "GATEWAY_SELECTED_TEST", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {
+        "choice": "Message Non Interrupt"
+      }
+    }, 
+    "c590d85a-9dc4-4499-959b-0be0823dcc5e": {
+      "id": "c590d85a-9dc4-4499-959b-0be0823dcc5e", 
+      "parent": "7b159aef-caf0-45dc-9b39-f0ff0d81cd1c", 
+      "children": [
+        "aae34a1e-f1b4-441c-a7d5-6072bdb5a2e4"
+      ], 
+      "last_state_change": 1689261505.341215, 
+      "state": 8, 
+      "task_spec": "MESSAGE_NON_INTERRUPT_SUB", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {
+        "choice": "Message Non Interrupt"
+      }
+    }, 
+    "aae34a1e-f1b4-441c-a7d5-6072bdb5a2e4": {
+      "id": "aae34a1e-f1b4-441c-a7d5-6072bdb5a2e4", 
+      "parent": "c590d85a-9dc4-4499-959b-0be0823dcc5e", 
+      "children": [
+        "324acc39-71d7-4be5-82c6-ffb2d5158c2e"
+      ], 
+      "last_state_change": 1689261505.337358, 
+      "state": 4, 
+      "task_spec": "sid-464B8E64-10B4-4158-BDEE-11144CE20306", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "324acc39-71d7-4be5-82c6-ffb2d5158c2e": {
+      "id": "324acc39-71d7-4be5-82c6-ffb2d5158c2e", 
+      "parent": "aae34a1e-f1b4-441c-a7d5-6072bdb5a2e4", 
+      "children": [
+        "b8bdd007-9099-4d47-b4aa-13772de65ff5"
+      ], 
+      "last_state_change": 1689261505.3377411, 
+      "state": 4, 
+      "task_spec": "sid-b0903a88-fe74-4f93-b912-47b815ea8d1c.EndJoin", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }, 
+    "b8bdd007-9099-4d47-b4aa-13772de65ff5": {
+      "id": "b8bdd007-9099-4d47-b4aa-13772de65ff5", 
+      "parent": "324acc39-71d7-4be5-82c6-ffb2d5158c2e", 
+      "children": [], 
+      "last_state_change": 1689261505.3378844, 
+      "state": 4, 
+      "task_spec": "End", 
+      "triggered": false, 
+      "internal_data": {}, 
+      "data": {}
+    }
+  }, 
+  "root": "d8fe3899-d96f-40ed-ba9a-278ddf61a493", 
+  "subprocess_specs": {
+    "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9": {
+      "name": "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9", 
+      "description": "Message Non Interrupt", 
+      "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/Test-Workflows/Message-Non-Interrupt.bpmn20.xml", 
+      "task_specs": {
+        "Root": {
+          "name": "Root", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "SimpleBpmnTask"
+        }, 
+        "Start": {
+          "name": "Start", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [
+            "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "BpmnStartTask"
+        }, 
+        "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9.EndJoin": {
+          "name": "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9.EndJoin", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+          ], 
+          "outputs": [
+            "End"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "_EndJoin"
+        }, 
+        "End": {
+          "name": "End", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9.EndJoin"
+          ], 
+          "outputs": [], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "SimpleBpmnTask"
+        }, 
+        "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F": {
+          "name": "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F", 
+          "description": "Default Start Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Start"
+          ], 
+          "outputs": [
+            "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent"
+          ], 
+          "bpmn_id": "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F", 
+          "bpmn_name": "", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "description": "Default", 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "StartEvent", 
+          "extensions": {}
+        }, 
+        "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992": {
+          "name": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+          "description": "User Task", 
+          "manual": true, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent"
+          ], 
+          "outputs": [
+            "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+          ], 
+          "bpmn_id": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+          "bpmn_name": "Do Something That Takes A Long Time", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "UserTask", 
+          "extensions": {}
+        }, 
+        "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent": {
+          "name": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F"
+          ], 
+          "outputs": [
+            "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+            "sid-067AF0E4-F644-4962-BC02-E767C63647D5"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "main_child_task_spec": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+          "typename": "_BoundaryEventParent"
+        }, 
+        "sid-067AF0E4-F644-4962-BC02-E767C63647D5": {
+          "name": "sid-067AF0E4-F644-4962-BC02-E767C63647D5", 
+          "description": "Non-Interrupting Message Boundary Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent"
+          ], 
+          "outputs": [
+            "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE"
+          ], 
+          "bpmn_id": "sid-067AF0E4-F644-4962-BC02-E767C63647D5", 
+          "bpmn_name": "Test Message", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": true, 
+            "description": "Message", 
+            "name": "Test Message", 
+            "correlation_properties": [], 
+            "typename": "MessageEventDefinition"
+          }, 
+          "cancel_activity": false, 
+          "typename": "BoundaryEvent", 
+          "extensions": {}
+        }, 
+        "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE": {
+          "name": "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE", 
+          "description": "User Task", 
+          "manual": true, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-067AF0E4-F644-4962-BC02-E767C63647D5"
+          ], 
+          "outputs": [
+            "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+          ], 
+          "bpmn_id": "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE", 
+          "bpmn_name": "Acknowledge Non-Interrupt Message", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "UserTask", 
+          "extensions": {}
+        }, 
+        "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A": {
+          "name": "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A", 
+          "description": "Default End Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE", 
+            "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992"
+          ], 
+          "outputs": [
+            "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9.EndJoin"
+          ], 
+          "bpmn_id": "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A", 
+          "bpmn_name": "", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "description": "Default", 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "EndEvent", 
+          "extensions": {}
+        }
+      }, 
+      "io_specification": null, 
+      "data_objects": {}, 
+      "correlation_keys": {}, 
+      "typename": "BpmnProcessSpec"
+    }, 
+    "sid-e6cdd73d-0fd2-49b9-99f1-031f81f99545": {
+      "name": "sid-e6cdd73d-0fd2-49b9-99f1-031f81f99545", 
+      "description": "Scripts", 
+      "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/Test-Workflows/Scripts.bpmn20.xml", 
+      "task_specs": {
+        "Root": {
+          "name": "Root", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "SimpleBpmnTask"
+        }, 
+        "Start": {
+          "name": "Start", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [
+            "sid-8FEAF795-94B2-440D-802F-A1E3D06B2E8D"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "BpmnStartTask"
+        }, 
+        "sid-e6cdd73d-0fd2-49b9-99f1-031f81f99545.EndJoin": {
+          "name": "sid-e6cdd73d-0fd2-49b9-99f1-031f81f99545.EndJoin", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-11DD8628-C125-439E-B207-AE898139650B"
+          ], 
+          "outputs": [
+            "End"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "_EndJoin"
+        }, 
+        "End": {
+          "name": "End", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-e6cdd73d-0fd2-49b9-99f1-031f81f99545.EndJoin"
+          ], 
+          "outputs": [], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "SimpleBpmnTask"
+        }, 
+        "sid-8FEAF795-94B2-440D-802F-A1E3D06B2E8D": {
+          "name": "sid-8FEAF795-94B2-440D-802F-A1E3D06B2E8D", 
+          "description": "Default Start Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Start"
+          ], 
+          "outputs": [
+            "sid-6C039219-F210-4984-B366-11C77DB35229"
+          ], 
+          "bpmn_id": "sid-8FEAF795-94B2-440D-802F-A1E3D06B2E8D", 
+          "bpmn_name": "", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "description": "Default", 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "StartEvent", 
+          "extensions": {}
+        }, 
+        "sid-6C039219-F210-4984-B366-11C77DB35229": {
+          "name": "sid-6C039219-F210-4984-B366-11C77DB35229", 
+          "description": "User Task", 
+          "manual": true, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-8FEAF795-94B2-440D-802F-A1E3D06B2E8D"
+          ], 
+          "outputs": [
+            "sid-8BB6CFC5-D636-47D8-9AF6-0E45FD2F3B39"
+          ], 
+          "bpmn_id": "sid-6C039219-F210-4984-B366-11C77DB35229", 
+          "bpmn_name": "Select Type Of Change", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "UserTask", 
+          "extensions": {}
+        }, 
+        "sid-8BB6CFC5-D636-47D8-9AF6-0E45FD2F3B39": {
+          "name": "sid-8BB6CFC5-D636-47D8-9AF6-0E45FD2F3B39", 
+          "description": "Exclusive Gateway", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-6C039219-F210-4984-B366-11C77DB35229"
+          ], 
+          "outputs": [
+            "sid-F7545D0E-08BD-4415-968E-CEF57C5261A9", 
+            "sid-26E89636-8D64-4086-A71F-A225A5AA8F81"
+          ], 
+          "bpmn_id": "sid-8BB6CFC5-D636-47D8-9AF6-0E45FD2F3B39", 
+          "bpmn_name": "", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "cond_task_specs": [
+            {
+              "condition": "choice == 'Temporary'", 
+              "task_spec": "sid-F7545D0E-08BD-4415-968E-CEF57C5261A9"
+            }, 
+            {
+              "condition": "choice == 'Permanent'", 
+              "task_spec": "sid-26E89636-8D64-4086-A71F-A225A5AA8F81"
+            }
+          ], 
+          "choice": null, 
+          "default_task_spec": null, 
+          "typename": "ExclusiveGateway", 
+          "extensions": {}
+        }, 
+        "sid-26E89636-8D64-4086-A71F-A225A5AA8F81": {
+          "name": "sid-26E89636-8D64-4086-A71F-A225A5AA8F81", 
+          "description": "Script Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-8BB6CFC5-D636-47D8-9AF6-0E45FD2F3B39"
+          ], 
+          "outputs": [
+            "sid-C621B8FC-0E3E-409C-A9D2-55188512C4CC"
+          ], 
+          "bpmn_id": "sid-26E89636-8D64-4086-A71F-A225A5AA8F81", 
+          "bpmn_name": "Permanent Script", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "script": "record.log_some_interesting_value(sa_session, choice); record.change_type = choice", 
+          "typename": "ScriptTask", 
+          "extensions": {}
+        }, 
+        "sid-C621B8FC-0E3E-409C-A9D2-55188512C4CC": {
+          "name": "sid-C621B8FC-0E3E-409C-A9D2-55188512C4CC", 
+          "description": "Exclusive Gateway", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-26E89636-8D64-4086-A71F-A225A5AA8F81", 
+            "sid-F7545D0E-08BD-4415-968E-CEF57C5261A9"
+          ], 
+          "outputs": [
+            "sid-F4C7A6CA-3D30-43FE-BDCE-17DFBE8C102E", 
+            "sid-11DD8628-C125-439E-B207-AE898139650B"
+          ], 
+          "bpmn_id": "sid-C621B8FC-0E3E-409C-A9D2-55188512C4CC", 
+          "bpmn_name": "Emergency?", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "cond_task_specs": [
+            {
+              "condition": "priority = 'Emergency'", 
+              "task_spec": "sid-F4C7A6CA-3D30-43FE-BDCE-17DFBE8C102E"
+            }, 
+            {
+              "condition": null, 
+              "task_spec": "sid-11DD8628-C125-439E-B207-AE898139650B"
+            }
+          ], 
+          "choice": null, 
+          "default_task_spec": "sid-11DD8628-C125-439E-B207-AE898139650B", 
+          "typename": "ExclusiveGateway", 
+          "extensions": {}
+        }, 
+        "sid-11DD8628-C125-439E-B207-AE898139650B": {
+          "name": "sid-11DD8628-C125-439E-B207-AE898139650B", 
+          "description": "Default End Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-F4C7A6CA-3D30-43FE-BDCE-17DFBE8C102E", 
+            "sid-C621B8FC-0E3E-409C-A9D2-55188512C4CC"
+          ], 
+          "outputs": [
+            "sid-e6cdd73d-0fd2-49b9-99f1-031f81f99545.EndJoin"
+          ], 
+          "bpmn_id": "sid-11DD8628-C125-439E-B207-AE898139650B", 
+          "bpmn_name": "", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "description": "Default", 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "EndEvent", 
+          "extensions": {}
+        }, 
+        "sid-F4C7A6CA-3D30-43FE-BDCE-17DFBE8C102E": {
+          "name": "sid-F4C7A6CA-3D30-43FE-BDCE-17DFBE8C102E", 
+          "description": "User Task", 
+          "manual": true, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-C621B8FC-0E3E-409C-A9D2-55188512C4CC"
+          ], 
+          "outputs": [
+            "sid-11DD8628-C125-439E-B207-AE898139650B"
+          ], 
+          "bpmn_id": "sid-F4C7A6CA-3D30-43FE-BDCE-17DFBE8C102E", 
+          "bpmn_name": "Acknowledge Emergency", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "UserTask", 
+          "extensions": {}
+        }, 
+        "sid-F7545D0E-08BD-4415-968E-CEF57C5261A9": {
+          "name": "sid-F7545D0E-08BD-4415-968E-CEF57C5261A9", 
+          "description": "Script Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-8BB6CFC5-D636-47D8-9AF6-0E45FD2F3B39"
+          ], 
+          "outputs": [
+            "sid-C621B8FC-0E3E-409C-A9D2-55188512C4CC"
+          ], 
+          "bpmn_id": "sid-F7545D0E-08BD-4415-968E-CEF57C5261A9", 
+          "bpmn_name": "Temp Script", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "script": "record.log_some_interesting_value(sa_session, choice); record.change_type = choice", 
+          "typename": "ScriptTask", 
+          "extensions": {}
+        }
+      }, 
+      "io_specification": null, 
+      "data_objects": {}, 
+      "correlation_keys": {}, 
+      "typename": "BpmnProcessSpec"
+    }, 
+    "sid-db1e1749-03ee-46aa-8674-bba07b1bd167": {
+      "name": "sid-db1e1749-03ee-46aa-8674-bba07b1bd167", 
+      "description": "Message Interrupts", 
+      "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/Test-Workflows/Message-Interrupts.bpmn20.xml", 
+      "task_specs": {
+        "Root": {
+          "name": "Root", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "SimpleBpmnTask"
+        }, 
+        "Start": {
+          "name": "Start", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [
+            "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "BpmnStartTask"
+        }, 
+        "sid-db1e1749-03ee-46aa-8674-bba07b1bd167.EndJoin": {
+          "name": "sid-db1e1749-03ee-46aa-8674-bba07b1bd167.EndJoin", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+          ], 
+          "outputs": [
+            "End"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "_EndJoin"
+        }, 
+        "End": {
+          "name": "End", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-db1e1749-03ee-46aa-8674-bba07b1bd167.EndJoin"
+          ], 
+          "outputs": [], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "SimpleBpmnTask"
+        }, 
+        "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F": {
+          "name": "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F", 
+          "description": "Default Start Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Start"
+          ], 
+          "outputs": [
+            "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent"
+          ], 
+          "bpmn_id": "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F", 
+          "bpmn_name": "", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "description": "Default", 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "StartEvent", 
+          "extensions": {}
+        }, 
+        "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992": {
+          "name": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+          "description": "User Task", 
+          "manual": true, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent"
+          ], 
+          "outputs": [
+            "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+          ], 
+          "bpmn_id": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+          "bpmn_name": "Do Something That Takes A Long Time", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "UserTask", 
+          "extensions": {}
+        }, 
+        "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent": {
+          "name": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F"
+          ], 
+          "outputs": [
+            "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+            "sid-067AF0E4-F644-4962-BC02-E767C63647D5"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "main_child_task_spec": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+          "typename": "_BoundaryEventParent"
+        }, 
+        "sid-067AF0E4-F644-4962-BC02-E767C63647D5": {
+          "name": "sid-067AF0E4-F644-4962-BC02-E767C63647D5", 
+          "description": "Interrupting Message Boundary Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent"
+          ], 
+          "outputs": [
+            "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE"
+          ], 
+          "bpmn_id": "sid-067AF0E4-F644-4962-BC02-E767C63647D5", 
+          "bpmn_name": "Test Message", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": true, 
+            "description": "Message", 
+            "name": "Test Message", 
+            "correlation_properties": [], 
+            "typename": "MessageEventDefinition"
+          }, 
+          "cancel_activity": true, 
+          "typename": "BoundaryEvent", 
+          "extensions": {}
+        }, 
+        "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE": {
+          "name": "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE", 
+          "description": "User Task", 
+          "manual": true, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-067AF0E4-F644-4962-BC02-E767C63647D5"
+          ], 
+          "outputs": [
+            "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+          ], 
+          "bpmn_id": "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE", 
+          "bpmn_name": "Acknowledge Interrupt Message", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "UserTask", 
+          "extensions": {}
+        }, 
+        "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A": {
+          "name": "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A", 
+          "description": "Default End Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE", 
+            "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992"
+          ], 
+          "outputs": [
+            "sid-db1e1749-03ee-46aa-8674-bba07b1bd167.EndJoin"
+          ], 
+          "bpmn_id": "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A", 
+          "bpmn_name": "", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "description": "Default", 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "EndEvent", 
+          "extensions": {}
+        }
+      }, 
+      "io_specification": null, 
+      "data_objects": {}, 
+      "correlation_keys": {}, 
+      "typename": "BpmnProcessSpec"
+    }, 
+    "sid-4a1f10ab-316f-4cd8-836d-65aa3d178fff": {
+      "name": "sid-4a1f10ab-316f-4cd8-836d-65aa3d178fff", 
+      "description": "Messages", 
+      "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/Test-Workflows/Messages.bpmn20.xml", 
+      "task_specs": {
+        "Root": {
+          "name": "Root", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "SimpleBpmnTask"
+        }, 
+        "Start": {
+          "name": "Start", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [], 
+          "outputs": [
+            "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "BpmnStartTask"
+        }, 
+        "sid-4a1f10ab-316f-4cd8-836d-65aa3d178fff.EndJoin": {
+          "name": "sid-4a1f10ab-316f-4cd8-836d-65aa3d178fff.EndJoin", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+          ], 
+          "outputs": [
+            "End"
+          ], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "_EndJoin"
+        }, 
+        "End": {
+          "name": "End", 
+          "description": "BPMN Task", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-4a1f10ab-316f-4cd8-836d-65aa3d178fff.EndJoin"
+          ], 
+          "outputs": [], 
+          "bpmn_id": null, 
+          "bpmn_name": null, 
+          "lane": null, 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "typename": "SimpleBpmnTask"
+        }, 
+        "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F": {
+          "name": "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F", 
+          "description": "Default Start Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "Start"
+          ], 
+          "outputs": [
+            "sid-DF69AC93-16C3-405D-9FB1-9B2539519372"
+          ], 
+          "bpmn_id": "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F", 
+          "bpmn_name": "", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "description": "Default", 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "StartEvent", 
+          "extensions": {}
+        }, 
+        "sid-DF69AC93-16C3-405D-9FB1-9B2539519372": {
+          "name": "sid-DF69AC93-16C3-405D-9FB1-9B2539519372", 
+          "description": "Message Intermediate Catch Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F"
+          ], 
+          "outputs": [
+            "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+          ], 
+          "bpmn_id": "sid-DF69AC93-16C3-405D-9FB1-9B2539519372", 
+          "bpmn_name": "Test Message", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": true, 
+            "description": "Message", 
+            "name": "Test Message", 
+            "correlation_properties": [], 
+            "typename": "MessageEventDefinition"
+          }, 
+          "typename": "IntermediateCatchEvent", 
+          "extensions": {}
+        }, 
+        "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A": {
+          "name": "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A", 
+          "description": "Default End Event", 
+          "manual": false, 
+          "lookahead": 2, 
+          "inputs": [
+            "sid-DF69AC93-16C3-405D-9FB1-9B2539519372"
+          ], 
+          "outputs": [
+            "sid-4a1f10ab-316f-4cd8-836d-65aa3d178fff.EndJoin"
+          ], 
+          "bpmn_id": "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A", 
+          "bpmn_name": "", 
+          "lane": "Tester", 
+          "documentation": null, 
+          "data_input_associations": [], 
+          "data_output_associations": [], 
+          "io_specification": null, 
+          "event_definition": {
+            "internal": false, 
+            "external": false, 
+            "description": "Default", 
+            "typename": "NoneEventDefinition"
+          }, 
+          "typename": "EndEvent", 
+          "extensions": {}
+        }
+      }, 
+      "io_specification": null, 
+      "data_objects": {}, 
+      "correlation_keys": {}, 
+      "typename": "BpmnProcessSpec"
+    }
+  }, 
+  "subprocesses": {
+    "c590d85a-9dc4-4499-959b-0be0823dcc5e": {
+      "spec": {
+        "name": "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9", 
+        "description": "Message Non Interrupt", 
+        "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/Test-Workflows/Message-Non-Interrupt.bpmn20.xml", 
+        "task_specs": {
+          "Root": {
+            "name": "Root", 
+            "description": "BPMN Task", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [], 
+            "outputs": [], 
+            "bpmn_id": null, 
+            "bpmn_name": null, 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "SimpleBpmnTask"
+          }, 
+          "Start": {
+            "name": "Start", 
+            "description": "BPMN Task", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [], 
+            "outputs": [
+              "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F"
+            ], 
+            "bpmn_id": null, 
+            "bpmn_name": null, 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "BpmnStartTask"
+          }, 
+          "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9.EndJoin": {
+            "name": "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9.EndJoin", 
+            "description": "BPMN Task", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+            ], 
+            "outputs": [
+              "End"
+            ], 
+            "bpmn_id": null, 
+            "bpmn_name": null, 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "_EndJoin"
+          }, 
+          "End": {
+            "name": "End", 
+            "description": "BPMN Task", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9.EndJoin"
+            ], 
+            "outputs": [], 
+            "bpmn_id": null, 
+            "bpmn_name": null, 
+            "lane": null, 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "SimpleBpmnTask"
+          }, 
+          "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F": {
+            "name": "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F", 
+            "description": "Default Start Event", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "Start"
+            ], 
+            "outputs": [
+              "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent"
+            ], 
+            "bpmn_id": "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F", 
+            "bpmn_name": "", 
+            "lane": "Tester", 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "event_definition": {
+              "internal": false, 
+              "external": false, 
+              "description": "Default", 
+              "typename": "NoneEventDefinition"
+            }, 
+            "typename": "StartEvent", 
+            "extensions": {}
+          }, 
+          "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992": {
+            "name": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+            "description": "User Task", 
+            "manual": true, 
+            "lookahead": 2, 
+            "inputs": [
+              "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent"
+            ], 
+            "outputs": [
+              "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+            ], 
+            "bpmn_id": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+            "bpmn_name": "Do Something That Takes A Long Time", 
+            "lane": "Tester", 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "UserTask", 
+            "extensions": {}
+          }, 
+          "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent": {
+            "name": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent", 
+            "description": "BPMN Task", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F"
+            ], 
+            "outputs": [
+              "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+              "sid-067AF0E4-F644-4962-BC02-E767C63647D5"
+            ], 
+            "bpmn_id": null, 
+            "bpmn_name": null, 
+            "lane": "Tester", 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "main_child_task_spec": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+            "typename": "_BoundaryEventParent"
+          }, 
+          "sid-067AF0E4-F644-4962-BC02-E767C63647D5": {
+            "name": "sid-067AF0E4-F644-4962-BC02-E767C63647D5", 
+            "description": "Non-Interrupting Message Boundary Event", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent"
+            ], 
+            "outputs": [
+              "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE"
+            ], 
+            "bpmn_id": "sid-067AF0E4-F644-4962-BC02-E767C63647D5", 
+            "bpmn_name": "Test Message", 
+            "lane": "Tester", 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "event_definition": {
+              "internal": false, 
+              "external": true, 
+              "description": "Message", 
+              "name": "Test Message", 
+              "correlation_properties": [], 
+              "typename": "MessageEventDefinition"
+            }, 
+            "cancel_activity": false, 
+            "typename": "BoundaryEvent", 
+            "extensions": {}
+          }, 
+          "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE": {
+            "name": "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE", 
+            "description": "User Task", 
+            "manual": true, 
+            "lookahead": 2, 
+            "inputs": [
+              "sid-067AF0E4-F644-4962-BC02-E767C63647D5"
+            ], 
+            "outputs": [
+              "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A"
+            ], 
+            "bpmn_id": "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE", 
+            "bpmn_name": "Acknowledge Non-Interrupt Message", 
+            "lane": "Tester", 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "typename": "UserTask", 
+            "extensions": {}
+          }, 
+          "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A": {
+            "name": "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A", 
+            "description": "Default End Event", 
+            "manual": false, 
+            "lookahead": 2, 
+            "inputs": [
+              "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE", 
+              "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992"
+            ], 
+            "outputs": [
+              "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9.EndJoin"
+            ], 
+            "bpmn_id": "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A", 
+            "bpmn_name": "", 
+            "lane": "Tester", 
+            "documentation": null, 
+            "data_input_associations": [], 
+            "data_output_associations": [], 
+            "io_specification": null, 
+            "event_definition": {
+              "internal": false, 
+              "external": false, 
+              "description": "Default", 
+              "typename": "NoneEventDefinition"
+            }, 
+            "typename": "EndEvent", 
+            "extensions": {}
+          }
+        }, 
+        "io_specification": null, 
+        "data_objects": {}, 
+        "correlation_keys": {}, 
+        "typename": "BpmnProcessSpec"
+      }, 
+      "data": {}, 
+      "correlations": {}, 
+      "last_task": "cf31adfe-fb24-4687-8f3b-1287deccb634", 
+      "success": true, 
+      "tasks": {
+        "e1771268-c75d-492c-9ab8-0f80cf357602": {
+          "id": "e1771268-c75d-492c-9ab8-0f80cf357602", 
+          "parent": null, 
+          "children": [
+            "791948d6-2a96-4422-94f7-48cc252aa244"
+          ], 
+          "last_state_change": 1689261505.338456, 
+          "state": 64, 
+          "task_spec": "Root", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "791948d6-2a96-4422-94f7-48cc252aa244": {
+          "id": "791948d6-2a96-4422-94f7-48cc252aa244", 
+          "parent": "e1771268-c75d-492c-9ab8-0f80cf357602", 
+          "children": [
+            "d0244ae0-84c3-42ef-9121-5382839f569e"
+          ], 
+          "last_state_change": 1689261505.343374, 
+          "state": 64, 
+          "task_spec": "Start", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {
+            "choice": "Message Non Interrupt"
+          }
+        }, 
+        "d0244ae0-84c3-42ef-9121-5382839f569e": {
+          "id": "d0244ae0-84c3-42ef-9121-5382839f569e", 
+          "parent": "791948d6-2a96-4422-94f7-48cc252aa244", 
+          "children": [
+            "a9f73167-0062-481e-a9c0-b98b1d4ba620"
+          ], 
+          "last_state_change": 1689261505.3443537, 
+          "state": 64, 
+          "task_spec": "sid-516421BF-6D56-4D23-87A5-6E8FC1E2636F", 
+          "triggered": false, 
+          "internal_data": {
+            "event_fired": true
+          }, 
+          "data": {
+            "choice": "Message Non Interrupt"
+          }
+        }, 
+        "a9f73167-0062-481e-a9c0-b98b1d4ba620": {
+          "id": "a9f73167-0062-481e-a9c0-b98b1d4ba620", 
+          "parent": "d0244ae0-84c3-42ef-9121-5382839f569e", 
+          "children": [
+            "91b8bbe4-cfba-4b11-89ce-0893355eb08c", 
+            "cf31adfe-fb24-4687-8f3b-1287deccb634"
+          ], 
+          "last_state_change": 1689261505.3454466, 
+          "state": 64, 
+          "task_spec": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992.BoundaryEventParent", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {
+            "choice": "Message Non Interrupt"
+          }
+        }, 
+        "91b8bbe4-cfba-4b11-89ce-0893355eb08c": {
+          "id": "91b8bbe4-cfba-4b11-89ce-0893355eb08c", 
+          "parent": "a9f73167-0062-481e-a9c0-b98b1d4ba620", 
+          "children": [
+            "ae0582d6-f3dc-460e-8ecd-8c06e6cac64e"
+          ], 
+          "last_state_change": 1689261505.345582, 
+          "state": 16, 
+          "task_spec": "sid-6FBBB56D-00CD-4C2B-9345-486986BB4992", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {
+            "choice": "Message Non Interrupt"
+          }
+        }, 
+        "ae0582d6-f3dc-460e-8ecd-8c06e6cac64e": {
+          "id": "ae0582d6-f3dc-460e-8ecd-8c06e6cac64e", 
+          "parent": "91b8bbe4-cfba-4b11-89ce-0893355eb08c", 
+          "children": [
+            "bc41c0b2-780b-4efd-8096-6cd1a0ce815a"
+          ], 
+          "last_state_change": 1689261505.339256, 
+          "state": 4, 
+          "task_spec": "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "bc41c0b2-780b-4efd-8096-6cd1a0ce815a": {
+          "id": "bc41c0b2-780b-4efd-8096-6cd1a0ce815a", 
+          "parent": "ae0582d6-f3dc-460e-8ecd-8c06e6cac64e", 
+          "children": [
+            "b2707ce4-5e5e-4980-9d79-c5183af78cbf"
+          ], 
+          "last_state_change": 1689261505.3393846, 
+          "state": 4, 
+          "task_spec": "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9.EndJoin", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "b2707ce4-5e5e-4980-9d79-c5183af78cbf": {
+          "id": "b2707ce4-5e5e-4980-9d79-c5183af78cbf", 
+          "parent": "bc41c0b2-780b-4efd-8096-6cd1a0ce815a", 
+          "children": [], 
+          "last_state_change": 1689261505.3395112, 
+          "state": 4, 
+          "task_spec": "End", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "cf31adfe-fb24-4687-8f3b-1287deccb634": {
+          "id": "cf31adfe-fb24-4687-8f3b-1287deccb634", 
+          "parent": "a9f73167-0062-481e-a9c0-b98b1d4ba620", 
+          "children": [
+            "01e3fcd8-6648-4795-b1dc-c6f3f9c522bc"
+          ], 
+          "last_state_change": 1689261505.360199, 
+          "state": 64, 
+          "task_spec": "sid-067AF0E4-F644-4962-BC02-E767C63647D5", 
+          "triggered": false, 
+          "internal_data": {
+            "event_fired": false, 
+            "Test Message": null
+          }, 
+          "data": {
+            "choice": "Message Non Interrupt"
+          }
+        }, 
+        "01e3fcd8-6648-4795-b1dc-c6f3f9c522bc": {
+          "id": "01e3fcd8-6648-4795-b1dc-c6f3f9c522bc", 
+          "parent": "cf31adfe-fb24-4687-8f3b-1287deccb634", 
+          "children": [
+            "3436cf00-5ef4-4752-bdec-77560af42f69"
+          ], 
+          "last_state_change": 1689261505.3609872, 
+          "state": 16, 
+          "task_spec": "sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {
+            "choice": "Message Non Interrupt"
+          }
+        }, 
+        "3436cf00-5ef4-4752-bdec-77560af42f69": {
+          "id": "3436cf00-5ef4-4752-bdec-77560af42f69", 
+          "parent": "01e3fcd8-6648-4795-b1dc-c6f3f9c522bc", 
+          "children": [
+            "de3587c9-52a2-477b-b978-d438de5721fc"
+          ], 
+          "last_state_change": 1689261505.360624, 
+          "state": 1, 
+          "task_spec": "sid-B0D398F3-C33A-4113-B8BB-D7ABF6990C4A", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }, 
+        "de3587c9-52a2-477b-b978-d438de5721fc": {
+          "id": "de3587c9-52a2-477b-b978-d438de5721fc", 
+          "parent": "3436cf00-5ef4-4752-bdec-77560af42f69", 
+          "children": [], 
+          "last_state_change": 1689261505.3608468, 
+          "state": 1, 
+          "task_spec": "sid-60e2cc58-68c9-4cb5-a95c-22e3e311b6b9.EndJoin", 
+          "triggered": false, 
+          "internal_data": {}, 
+          "data": {}
+        }
+      }, 
+      "root": "e1771268-c75d-492c-9ab8-0f80cf357602", 
+      "parent_task_id": "c590d85a-9dc4-4499-959b-0be0823dcc5e"
+    }
+  }, 
+  "bpmn_messages": []
+}

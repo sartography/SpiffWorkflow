@@ -120,3 +120,16 @@ class Version1_2_Test(BaseTestCase):
         self.assertEqual(error_1_task.state, TaskState.CANCELLED)
         error_none_task = wf.get_tasks_from_spec_name("Catch_Error_None")[0]
         self.assertEqual(error_none_task.state, TaskState.CANCELLED)
+
+    def test_remove_noninterrupting_boundary_events(self):
+        fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.2-boundary-events-noninterrupting.json')
+        wf = self.serializer.deserialize_json(open(fn).read())
+
+        wf.get_tasks_from_spec_name('sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE')[0].run()
+        wf.do_engine_steps()
+        self.assertEqual(1, len(wf.get_tasks(TaskState.READY)))
+        self.assertEqual(3, len(wf.get_tasks(TaskState.WAITING)))
+
+        wf.get_tasks_from_spec_name('sid-6FBBB56D-00CD-4C2B-9345-486986BB4992')[0].run()
+        wf.do_engine_steps()
+        self.assertTrue(wf.is_completed())

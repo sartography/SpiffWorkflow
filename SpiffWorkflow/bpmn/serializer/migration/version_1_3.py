@@ -59,16 +59,24 @@ def remove_boundary_event_parent(dct):
         for task in wf['tasks'].values():
             if task['task_spec'].endswith('BoundaryEventParent'):
                 task['task_spec'] = task['task_spec'].replace('BoundaryEventParent', 'BoundaryEventSplit')
+                completed = all([ wf['tasks'][child]['state'] in [64, 256] for child in task['children'] ])
                 for child in task['children']:
                     child_task = wf['tasks'][child]
-                    if child_task['state'] == 256:
-                        continue
+                    if child_task['state'] < 8:
+                        # MAYBE, LIKELY, FUTURE: use parent state
+                        state = child_task['state']
+                    elif child_task['state'] < 64:
+                        # WAITING, READY, STARTED (definite): join is FUTURE
+                        state = 4
                     elif child_task['state'] == 64:
-                        state = 64
-                    elif child_task['state'] == 1:
-                        state = 1
-                    else:
+                        # COMPLETED: if the join is not finished, WAITING, otherwise COMPLETED
+                        state = 64 if completed else 8
+                    elif child_task['state'] == 128:
+                        # ERROR: we don't know what the original state was, but we can't proceed through the gateway
                         state = 8
+                    else:
+                        # Cancelled tasks don't have children
+                        continue
                     new_task = {
                         'id': str(uuid4()),
                         'parent': child_task['id'],
@@ -82,6 +90,7 @@ def remove_boundary_event_parent(dct):
                     }
                     child_task['children'].append(new_task['id'])
                     new_tasks[new_task['id']] = new_task
+        
         wf['tasks'].update(new_tasks)
         pass
 
