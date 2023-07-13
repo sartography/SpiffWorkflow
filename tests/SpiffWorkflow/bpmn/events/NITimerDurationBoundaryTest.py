@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
-import unittest
 import datetime
 import time
+
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -38,9 +36,10 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         starttime = datetime.datetime.now()
         # test bpmn has a timeout of .2s; we should terminate loop before that.
         # The subprocess will also wait
-        while len(self.workflow.get_waiting_tasks()) == 2 and loopcount < 10:
+        while event.state == TaskState.WAITING and loopcount < 10:
             if save_restore:
                 self.save_restore()
+                event = self.workflow.get_tasks_from_spec_name('Event_0jyy8ao')[0]
             time.sleep(0.1)
             ready_tasks = self.workflow.get_tasks(TaskState.READY)
             # There should be one ready task until the boundary event fires
@@ -68,9 +67,3 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.is_completed(), True)
         self.assertEqual(self.workflow.last_task.data, {'work_done': 'Yes', 'delay_reason': 'Just Because'})
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(NITimerDurationTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

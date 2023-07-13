@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 import datetime
-import unittest
 import time
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
@@ -70,7 +67,3 @@ class TimerCycleTest(BpmnWorkflowTestCase):
         self.assertEqual(timer.state, TaskState.COMPLETED)
         self.assertEqual(counter, 2)
 
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TimerCycleTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

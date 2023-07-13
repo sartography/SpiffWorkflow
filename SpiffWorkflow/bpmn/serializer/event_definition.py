@@ -17,19 +17,24 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.event_definitions import (
+from SpiffWorkflow.bpmn.specs.event_definitions.simple import (
+    NoneEventDefinition,
     CancelEventDefinition,
+    TerminateEventDefinition,
+)
+from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import (
+    SignalEventDefinition,
     ErrorEventDefinition,
     EscalationEventDefinition,
-    MessageEventDefinition,
-    NoneEventDefinition,
-    SignalEventDefinition,
-    TerminateEventDefinition,
+)
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import (
     TimeDateEventDefinition,
     DurationTimerEventDefinition,
     CycleTimerEventDefinition,
-    MultipleEventDefinition,
 )
+from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
+
 from .helpers.spec import EventDefinitionConverter
 
 class CancelEventDefinitionConverter(EventDefinitionConverter):
@@ -44,7 +49,7 @@ class ErrorEventDefinitionConverter(EventDefinitionConverter):
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
-        dct['error_code'] = event_definition.error_code
+        dct['code'] = event_definition.code
         return dct
 
 
@@ -55,7 +60,7 @@ class EscalationEventDefinitionConverter(EventDefinitionConverter):
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
-        dct['escalation_code'] = event_definition.escalation_code
+        dct['code'] = event_definition.code
         return dct
 
 

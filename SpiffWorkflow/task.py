@@ -151,12 +151,10 @@ class Task(object):
                 raise StopIteration()
 
             current = self.path[-1]
-
             # Assure we don't recurse forever.
             self.count += 1
             if self.count > self.MAX_ITERATIONS:
                 raise WorkflowException("Task Iterator entered infinite recursion loop", task_spec=current)
-
 
             # If the current task has children, the first child is the next
             # item. If the current task is LIKELY, and predicted tasks are not
@@ -169,21 +167,22 @@ class Task(object):
                 ignore_task = is_predicted and not search_predicted
             if current.children and not ignore_task:
                 self.path.append(current.children[0])
-                if (self.filter is not None and
-                        current.state & self.filter == 0):
+                if (self.filter is not None and current.state & self.filter == 0):
                     return None
                 return current
 
             # Ending up here, this task has no children. Crop the path until we
-            # reach a task that has unvisited children, or until we hit the
-            # end.
+            # reach a task that has unvisited children, or until we hit the end.
             while True:
                 old_child = self.path.pop(-1)
                 if len(self.path) == 0:
                     break
-
                 # If this task has a sibling, choose it.
                 parent = self.path[-1]
+                # We might have updated a task while iterating over the workflow and its children would have been dropped
+                # Not sure I like this change, but it hasn't caused anything to break
+                if parent.state == TaskState.CANCELLED:
+                    continue
                 pos = parent.children.index(old_child)
                 if len(parent.children) > pos + 1:
                     self.path.append(parent.children[pos + 1])

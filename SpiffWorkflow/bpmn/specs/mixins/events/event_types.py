@@ -19,7 +19,9 @@
 import time
 from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.specs.base import TaskSpec
-from ...event_definitions import MessageEventDefinition, NoneEventDefinition, CycleTimerEventDefinition
+
+from SpiffWorkflow.bpmn.specs.event_definitions.simple import NoneEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import CycleTimerEventDefinition
 
 
 class CatchingEvent(TaskSpec):
@@ -31,22 +33,18 @@ class CatchingEvent(TaskSpec):
 
         :param event_definition: the EventDefinition that we must wait for.
         """
-        super(CatchingEvent, self).__init__(wf_spec, bpmn_id, **kwargs)
+        super().__init__(wf_spec, bpmn_id, **kwargs)
         self.event_definition = event_definition
 
-    def catches(self, my_task, event_definition, correlations=None):
-        correlations = correlations or {}
-        if self.event_definition == event_definition:
-            return all([correlations.get(key) == my_task.workflow.correlations.get(key) for key in correlations ])
-        else:
-            return False
+    def catches(self, my_task, event):
+        return my_task.task_spec.event_definition.catches(my_task, event)
 
-    def catch(self, my_task, event_definition):
+    def catch(self, my_task, event):
         """
         Catch is called by the workflow when the task has matched an event
         definition, at which point we can update our task's state.
         """
-        self.event_definition.catch(my_task, event_definition)
+        self.event_definition.catch(my_task, event)
         my_task.last_update_time = time.time()
         my_task._set_state(TaskState.WAITING)
 
@@ -71,10 +69,13 @@ class CatchingEvent(TaskSpec):
 
     def _run_hook(self, my_task):
 
-        if isinstance(self.event_definition, MessageEventDefinition):
-            self.event_definition.update_task_data(my_task)
+        self.event_definition.update_task_data(my_task)
         self.event_definition.reset(my_task)
-        return super(CatchingEvent, self)._run_hook(my_task)
+        return super()._run_hook(my_task)
+
+    def _predict_hook(self, my_task):
+        if not isinstance(self.event_definition, CycleTimerEventDefinition):
+            super()._predict_hook(my_task)
 
 
 class ThrowingEvent(TaskSpec):
@@ -86,10 +87,10 @@ class ThrowingEvent(TaskSpec):
 
         :param event_definition: the EventDefinition to be thrown.
         """
-        super(ThrowingEvent, self).__init__(wf_spec, bpmn_id, **kwargs)
+        super().__init__(wf_spec, bpmn_id, **kwargs)
         self.event_definition = event_definition
 
     def _run_hook(self, my_task):
-        super(ThrowingEvent, self)._run_hook(my_task)
+        super()._run_hook(my_task)
         self.event_definition.throw(my_task)
         return True

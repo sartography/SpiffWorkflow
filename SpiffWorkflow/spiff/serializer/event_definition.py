@@ -19,7 +19,12 @@
 
 from SpiffWorkflow.bpmn.serializer.helpers.spec import EventDefinitionConverter
 
-from SpiffWorkflow.spiff.specs.event_definitions import MessageEventDefinition
+from SpiffWorkflow.spiff.specs.event_definitions import (
+    MessageEventDefinition,
+    SignalEventDefinition,
+    ErrorEventDefinition,
+    EscalationEventDefinition,
+)
 
 class MessageEventDefinitionConverter(EventDefinitionConverter):
 
@@ -37,3 +42,38 @@ class MessageEventDefinitionConverter(EventDefinitionConverter):
         dct['correlation_properties'] = self.correlation_properties_from_dict(dct['correlation_properties'])
         event_definition = super().from_dict(dct)
         return event_definition
+
+
+class ItemAwareEventDefinitionConverter(EventDefinitionConverter):
+
+    def to_dict(self, event_definition):
+        dct = super().to_dict(event_definition)
+        dct['expression'] = event_definition.expression
+        dct['variable'] = event_definition.variable
+        return dct
+
+
+class SignalEventDefinitionConverter(ItemAwareEventDefinitionConverter):
+    def __init__(self, registry):
+        super().__init__(SignalEventDefinition, registry)
+
+
+class ErrorEventDefinitionConverter(ItemAwareEventDefinitionConverter):
+
+    def __init__(self, registry):
+        super().__init__(ErrorEventDefinition, registry)
+
+    def to_dict(self, event_definition):
+        dct = super().to_dict(event_definition)
+        dct['code'] = event_definition.code
+        return dct
+    
+class EscalationEventDefinitionConverter(ItemAwareEventDefinitionConverter):
+
+    def __init__(self, registry):
+        super().__init__(EscalationEventDefinition, registry)
+
+    def to_dict(self, event_definition):
+        dct = super().to_dict(event_definition)
+        dct['code'] = event_definition.code
+        return dct

@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
-import unittest
 import time
 from datetime import timedelta
 from SpiffWorkflow.task import TaskState
@@ -25,8 +21,6 @@ class MessageBoundaryTest(BaseTestCase):
 
     def testThroughSaveRestore(self):
         self.actual_test(save_restore=True)
-
-
 
     def actual_test(self,save_restore = False):
         steps = [('Activity_Interrupt', {'interrupt_task':'No'}),
@@ -54,9 +48,3 @@ class MessageBoundaryTest(BaseTestCase):
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.is_completed(),True,'Expected the workflow to be complete at this point')
 
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(MessageBoundaryTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

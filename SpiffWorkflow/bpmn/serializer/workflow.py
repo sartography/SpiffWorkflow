@@ -23,7 +23,8 @@ from copy import deepcopy
 from uuid import UUID
 
 from SpiffWorkflow.task import Task
-from SpiffWorkflow.bpmn.workflow import BpmnMessage, BpmnWorkflow, BpmnSubWorkflow
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow, BpmnSubWorkflow
+from SpiffWorkflow.bpmn.event import BpmnEvent
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask
 
 from .migration.version_migration import MIGRATIONS
@@ -70,9 +71,8 @@ class BpmnWorkflowSerializer:
     overhead of converting or restoring the entire thing.
     """
 
-    # This is the default version set on the workflow, it can be overwritten
-    # using the configure_workflow_spec_converter.
-    VERSION = "1.2"
+    # This is the default version set on the workflow, it can be overwritten in init
+    VERSION = "1.3"
     VERSION_KEY = "serializer_version"
     DEFAULT_JSON_ENCODER_CLS = None
     DEFAULT_JSON_DECODER_CLS = None
@@ -175,7 +175,7 @@ class BpmnWorkflowSerializer:
         dct['subprocesses'] = dict(
             (str(task_id), self.subworkflow_to_dict(sp)) for task_id, sp in workflow.subprocesses.items()
         )
-        dct['bpmn_messages'] = [self.message_to_dict(msg) for msg in workflow.bpmn_messages]
+        dct['bpmn_events'] = [self.event_to_dict(event) for event in workflow.bpmn_events]
         return dct
 
     def workflow_from_dict(self, dct):
@@ -204,7 +204,7 @@ class BpmnWorkflowSerializer:
         workflow = self.wf_class(spec, subprocess_specs, deserializing=True)
 
         # Restore any unretrieve messages
-        workflow.bpmn_messages = [ self.message_from_dict(msg) for msg in dct.get('bpmn_messages', []) ]
+        workflow.bpmn_events = [ self.event_from_dict(msg) for msg in dct.get('bpmn_events', []) ]
 
         workflow.correlations = dct_copy.pop('correlations', {})
 
@@ -301,17 +301,17 @@ class BpmnWorkflowSerializer:
             'root': str(process.task_tree.id),
         }
 
-    def message_to_dict(self, message):
+    def event_to_dict(self, event):
         dct = {
-            'correlations': dict([ (k, self.data_converter.convert(v)) for k, v in message.correlations.items() ]),
-            'name': message.name,
-            'payload': self.spec_converter.convert(message.payload),
+            'event_definition': self.spec_converter.convert(event.event_definition),
+            'payload': self.data_converter.convert(event.payload),
+            'correlations': dict([ (k, self.data_converter.convert(v)) for k, v in event.correlations.items() ]),
         }
         return dct
 
-    def message_from_dict(self, dct):
-        return BpmnMessage(
+    def event_from_dict(self, dct):
+        return BpmnEvent(
+            self.spec_converter.restore(dct['event_definition']),
+            self.data_converter.restore(dct['payload']),
             dict([ (k, self.data_converter.restore(v)) for k, v in dct['correlations'].items() ]),
-            dct['name'],
-            self.spec_converter.restore(dct['payload'])
         )

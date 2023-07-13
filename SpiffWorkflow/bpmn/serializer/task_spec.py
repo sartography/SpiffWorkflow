@@ -17,8 +17,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.control import BpmnStartTask, _EndJoin, _BoundaryEventParent, SimpleBpmnTask
+
 from SpiffWorkflow.bpmn.specs.bpmn_task_spec import _BpmnCondition
+from SpiffWorkflow.bpmn.specs.control import (
+    BpmnStartTask,
+    _EndJoin,
+    BoundaryEventSplit,
+    BoundaryEventJoin,
+    SimpleBpmnTask
+)
 from SpiffWorkflow.bpmn.specs.defaults import (
     UserTask,
     ManualTask,
@@ -137,16 +144,19 @@ class SequentialMultiInstanceTaskConverter(MultiInstanceTaskConverter):
         super().__init__(SequentialMultiInstanceTask, registry)
 
 
-class BoundaryEventParentConverter(BpmnTaskSpecConverter):
+class BoundaryEventSplitConverter(BpmnTaskSpecConverter):
+    def __init__(self, registry):
+        super().__init__(BoundaryEventSplit, registry)
+
+class BoundaryEventJoinConverter(BpmnTaskSpecConverter):
 
     def __init__(self, registry):
-        super().__init__(_BoundaryEventParent, registry)
+        super().__init__(BoundaryEventJoin, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
-        dct['main_child_task_spec'] = spec.main_child_task_spec.name
+        dct.update(self.get_join_attributes(spec))
         return dct
-
 
 class SubWorkflowConverter(BpmnTaskSpecConverter):
 
@@ -319,7 +329,8 @@ DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
     IntermediateThrowEventConverter,
     EventBasedGatewayConverter,
     BoundaryEventConverter,
-    BoundaryEventParentConverter,
+    BoundaryEventSplitConverter,
+    BoundaryEventJoinConverter,
     ParallelGatewayConverter,
     ExclusiveGatewayConverter,
     InclusiveGatewayConverter,

@@ -133,7 +133,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         self.assertEqual(before_state, after_state)
         self.workflow = after
         self.workflow.script_engine = script_engine
-
+        
     def restore(self, state):
         self.workflow = self.serializer.workflow_from_dict(state)
 

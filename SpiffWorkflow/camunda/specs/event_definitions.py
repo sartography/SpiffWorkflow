@@ -17,7 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
+from SpiffWorkflow.bpmn.event import BpmnEvent
 
 class MessageEventDefinition(MessageEventDefinition):
     """
@@ -29,34 +30,25 @@ class MessageEventDefinition(MessageEventDefinition):
     # this should be revisited: for one thing, we're relying on some Camunda-specific
     # properties.
 
-    def __init__(self, name, correlation_properties=None, payload=None, result_var=None, **kwargs):
+    def __init__(self, name, correlation_properties=None, expression=None, result_var=None, **kwargs):
 
         super(MessageEventDefinition, self).__init__(name, correlation_properties, **kwargs)
-        self.payload = payload
+        self.expression = expression
         self.result_var = result_var
 
-        # The BPMN spec says that Messages should not be used within a process; however
-        # our camunda workflows depend on it
-        self.internal = True
-
     def throw(self, my_task):
-        # We need to evaluate the message payload in the context of this task
-        result = my_task.workflow.script_engine.evaluate(my_task, self.payload)
-        # We can't update our own payload, because if this task is reached again
-        # we have to evaluate it again so we have to create a new event
-        event = MessageEventDefinition(self.name, payload=result, result_var=self.result_var)
-        self._throw(my_task, event=event)
-
-    def update_internal_data(self, my_task, event_definition):
-        if event_definition.result_var is None:
-            result_var = f'{my_task.task_spec.name}_Response'
-        else:
-            result_var = event_definition.result_var
-        # Prevent this from conflicting 
-        my_task.internal_data[self.name] = {
-            'payload': event_definition.payload,
-            'result_var': result_var
+        result = my_task.workflow.script_engine.evaluate(my_task, self.expression)
+        payload = {
+            'payload': result,
+            'result_var': self.result_var
         }
+        event = BpmnEvent(self, payload=payload)
+        my_task.workflow.top_workflow.catch(event)
+
+    def update_internal_data(self, my_task, event):
+        if event.payload.get('result_var') is None:
+            event.payload['result_var'] = f'{my_task.task_spec.name}_Response'
+        my_task.internal_data[self.name] = event.payload
 
     def update_task_data(self, my_task):
         event_data = my_task.internal_data.get(self.name)
