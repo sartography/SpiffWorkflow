@@ -26,22 +26,6 @@ class UnstructuredJoin(Join):
     A helper subclass of Join that makes it work in a slightly friendlier way
     for the BPMN style threading
     """
-    def _get_inputs_with_tokens(self, my_task):
-        # Look at the tree to find all places where this task is used.
-        tasks = [ t for t in my_task.workflow.get_tasks_from_spec_name(self.name) if t.workflow == my_task.workflow ]
-
-        # Look up which tasks have parents completed.
-        waiting_tasks = []
-        completed_inputs = set()
-        for task in tasks:
-            if task.parent.state == TaskState.COMPLETED:
-                completed_inputs.add(task.parent.task_spec)
-            # Ignore predicted tasks; we don't care about anything not definite
-            elif task.parent._has_state(TaskState.READY | TaskState.FUTURE | TaskState.WAITING):
-                waiting_tasks.append(task.parent)
-
-        return completed_inputs, waiting_tasks
-
     def _do_join(self, my_task):
         split_task = self._get_split_task(my_task)
 

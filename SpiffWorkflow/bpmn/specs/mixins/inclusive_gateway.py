@@ -69,14 +69,19 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
         UnstructuredJoin.test(self)
 
     def _check_threshold_unstructured(self, my_task, force=False):
+        # Look at the tree to find all places where this task is used.
+        tasks = my_task.workflow.get_tasks_from_spec_name(self.name)
 
-        completed_inputs, waiting_tasks = self._get_inputs_with_tokens(my_task)
-        uncompleted_inputs = [i for i in self.inputs if i not in completed_inputs]
+        # Look up which tasks have parents completed.
+        completed_inputs = set([ task.parent.task_spec for task in tasks if task.parent.state == TaskState.COMPLETED ])
 
-        # We only have to complete a task once for it to count, even if's on multiple paths
-        for task in waiting_tasks:
-            if task.task_spec in completed_inputs:
-                waiting_tasks.remove(task)
+        # Find waiting tasks 
+        # Exclude tasks whose specs have already been completed
+        # A spec only has to complete once, even if on multiple paths
+        waiting_tasks = []
+        for task in tasks:
+            if task.parent._has_state(TaskState.DEFINITE_MASK) and task.parent.task_spec not in completed_inputs:
+                waiting_tasks.append(task.parent)
 
         if force:
             # If force is true, complete the task
@@ -85,9 +90,9 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
             # If we have waiting tasks, we're obviously not done
             complete = False
         else:
-            # Handle the case where there are paths from active tasks that must go through uncompleted inputs
-            tasks = my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING, workflow=my_task.workflow)
-            sources = [t.task_spec for t in tasks]
+            # Handle the case where there are paths from active tasks that must go through waiting inputs
+            waiting_inputs = [i for i in self.inputs if i not in completed_inputs]
+            sources = [t.task_spec for t in my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING)]
 
             # This will go back through a task spec's ancestors and return the source, if applicable
             def check(spec): 
@@ -100,9 +105,9 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
                 if source is not None:
                     sources.remove(source)
 
-            # Now check the rest of the uncompleted inputs and see if they can be reached from any of the remaining tasks
+            # Now check the rest of the waiting inputs and see if they can be reached from any of the remaining tasks
             unfinished_paths = []
-            for spec in uncompleted_inputs:
+            for spec in waiting_inputs:
                 if check(spec) is not None:
                     unfinished_paths.append(spec)
                     break

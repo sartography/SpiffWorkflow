@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from SpiffWorkflow.task import TaskState
 from .unstructured_join import UnstructuredJoin
 
 
@@ -40,7 +41,28 @@ class ParallelGateway(UnstructuredJoin):
     Essentially, this means that we must wait until we have a completed parent
     task on each incoming sequence.
     """
-
     def _check_threshold_unstructured(self, my_task, force=False):
-        completed_inputs, waiting_tasks = self._get_inputs_with_tokens(my_task)
-        return force or len(completed_inputs) >= len(self.inputs), waiting_tasks
+
+        tasks = my_task.workflow.get_tasks_from_spec_name(self.name)    
+        # Look up which tasks have parents completed.
+        waiting_tasks = []
+        waiting_inputs = set(self.inputs)
+
+        def remove_ancestor(task):
+            # This traces a tasks parents until it finds a spec in the list of sources
+            if task.task_spec in waiting_inputs:
+                waiting_inputs.remove(task.task_spec)
+            elif task.parent is not None:
+                remove_ancestor(task.parent)
+
+        for task in tasks:
+            if task.parent.state == TaskState.COMPLETED and task.parent.task_spec in waiting_inputs:
+                waiting_inputs.remove(task.parent.task_spec)
+            # Do not wait for descendants of this task
+            elif task._is_descendant_of(my_task):
+                remove_ancestor(task)
+            # Ignore predicted tasks; we don't care about anything not definite
+            elif task.parent._has_state(TaskState.DEFINITE_MASK):
+                waiting_tasks.append(task.parent)
+
+        return force or len(waiting_inputs) == 0, waiting_tasks
