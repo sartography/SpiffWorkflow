@@ -58,7 +58,8 @@ class SubprocessParser:
         workflow_start_event = task_parser.xpath('./bpmn:startEvent')
         workflow_end_event = task_parser.xpath('./bpmn:endEvent')
         if len(workflow_start_event) != 1:
-            raise ValidationException('Multiple Start points are not allowed in SubWorkflow Task',
+            raise ValidationException(
+                f'Exactly one start event is required in a SubWorkflow Task; found {len(workflow_start_event)}.',
                 node=task_parser.node,
                 file_name=task_parser.filename)
         if len(workflow_end_event) == 0:
