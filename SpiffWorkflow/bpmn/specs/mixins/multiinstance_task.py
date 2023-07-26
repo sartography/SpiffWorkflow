@@ -130,8 +130,11 @@ class MultiInstanceTask(LoopTask):
         task_spec = my_task.workflow.spec.task_specs[self.task_spec]
         child = my_task._add_child(task_spec, TaskState.WAITING)
         child.triggered = True
-        child.data = deepcopy(my_task.data)
-        if self.input_item is not None:
+        if self.input_item is not None and self.input_item.bpmn_id in my_task.data:
+            raise WorkflowDataException(f'Multiinstance input item {self.input_item.bpmn_id} already exists.', my_task)
+        if self.output_item is not None and self.output_item.bpmn_id in my_task.data:
+            raise WorkflowDataException(f'Multiinstance output item {self.output_item.bpmn_id} already exists.', my_task)
+        if self.input_item is not None:                
             child.data[self.input_item.bpmn_id] = deepcopy(item)
         if key_or_index is not None:
             child.internal_data['key_or_index'] = key_or_index
