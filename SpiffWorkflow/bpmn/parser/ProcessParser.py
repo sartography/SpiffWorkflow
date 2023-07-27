@@ -43,7 +43,6 @@ class ProcessParser(NodeParser):
         """
         super().__init__(node, nsmap, filename=filename, lane=lane)
         self.parser = p
-        self.parsed_nodes = {}
         self.lane = lane
         self.spec = None
         self.process_executable = self.is_executable()
@@ -100,8 +99,8 @@ class ProcessParser(NodeParser):
         can be called by a TaskParser instance, that is owned by this
         ProcessParser.
         """
-        if node.get('id') in self.parsed_nodes:
-            return self.parsed_nodes[node.get('id')]
+        if node.get('id') in self.spec.task_specs:
+            return self.spec.task_specs[node.get('id')]
 
         (node_parser, spec_class) = self.parser._get_parser_class(node.tag)
         if not node_parser or not spec_class:
