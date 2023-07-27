@@ -46,3 +46,16 @@ class ParserTest(unittest.TestCase):
         self.assertRaisesRegex(
             ValidationException, "The process '\w+' was not found*",
             self.parser.get_spec, "Process")
+
+    def testBoundaryEvent(self):
+        bpmn_file = os.path.join(os.path.dirname(__file__), 'data', 'boundary_event_split.bpmn')
+        self.parser.add_bpmn_file(bpmn_file)
+        spec = self.parser.get_spec('Process_0ymnx41')
+        gw1 = spec.task_specs.get('gw_1')
+        gw2 = spec.task_specs.get('gw_2')
+        task = spec.task_specs.get('task_2')
+        split_task = spec.task_specs.get(f'{task.name}.BoundaryEventSplit')
+        self.assertNotIn(task, gw1.outputs)
+        self.assertIn(split_task, gw1.outputs)
+        self.assertNotIn(task, gw2.outputs)
+        self.assertIn(split_task, gw2.outputs)

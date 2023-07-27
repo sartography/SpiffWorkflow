@@ -216,7 +216,8 @@ class TaskParser(NodeParser):
                     self.raise_validation_exception('When looking for a task spec, we found two items, '
                         'perhaps a form has the same ID? (%s)' % target_ref)
 
-                c = self.process_parser.parse_node(target_node)
+                split_task = self.spec.task_specs.get(f'{target_ref}.BoundaryEventSplit')
+                c = self.process_parser.parse_node(target_node) if split_task is None else split_task
                 position = self.get_position(target_node)
                 children.append((position, c, sequence_flow))
 
