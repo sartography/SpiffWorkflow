@@ -203,7 +203,6 @@ class TaskParser(NodeParser):
             boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.bpmn_id)
             if boundary_event_nodes:
                 parent = self._add_boundary_event(boundary_event_nodes)
-            self.process_parser.parsed_nodes[self.node.get('id')] = self.task
 
             children = []
             outgoing = self.doc_xpath('.//bpmn:sequenceFlow[@sourceRef="%s"]' % self.bpmn_id)
@@ -217,9 +216,10 @@ class TaskParser(NodeParser):
                     self.raise_validation_exception('When looking for a task spec, we found two items, '
                         'perhaps a form has the same ID? (%s)' % target_ref)
 
-                c = self.process_parser.parse_node(target_node)
+                split_task = self.spec.task_specs.get(f'{target_ref}.BoundaryEventSplit')
+                c = self.process_parser.parse_node(target_node) if split_task is None else split_task
                 position = self.get_position(target_node)
-                children.append((position, c, target_node, sequence_flow))
+                children.append((position, c, sequence_flow))
 
             if children:
                 # Sort children by their y coordinate.
@@ -229,11 +229,11 @@ class TaskParser(NodeParser):
 
                 default_outgoing = self.node.get('default')
                 if len(children) == 1 and isinstance(self.task, (ExclusiveGateway, InclusiveGateway)):
-                    (position, c, target_node, sequence_flow) = children[0]
+                    (position, c, sequence_flow) = children[0]
                     if self.parse_condition(sequence_flow) is None:
                         default_outgoing = sequence_flow.get('id')
 
-                for (position, c, target_node, sequence_flow) in children:
+                for (position, c, sequence_flow) in children:
                     self.connect_outgoing(c, sequence_flow, sequence_flow.get('id') == default_outgoing)
 
             return parent if boundary_event_nodes else self.task
