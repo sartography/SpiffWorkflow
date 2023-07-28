@@ -15,6 +15,13 @@ class StandardLoopTest(BpmnWorkflowTestCase):
 
         start = self.workflow.get_tasks_from_spec_name('StartEvent_1')
         start[0].data['done'] = False
+
+        any_task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        task_info = any_task.task_spec.task_info(any_task)
+        self.assertEqual(task_info['iterations_completed'], 0)
+        self.assertEqual(task_info['iterations_remaining'], 3)
+        self.assertEqual(len(task_info['instance_map']), 0)
+
         for idx in range(3):
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
@@ -22,8 +29,16 @@ class StandardLoopTest(BpmnWorkflowTestCase):
             self.assertEqual(len(ready_tasks), 1)
             ready_tasks[0].data[str(idx)] = True
             ready_tasks[0].run()
+            task_info = ready_tasks[0].task_spec.task_info(ready_tasks[0])
+            self.assertEqual(task_info['iteration'], idx)
 
         self.workflow.do_engine_steps()
+        any_task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        task_info = any_task.task_spec.task_info(any_task)
+        self.assertEqual(task_info['iterations_completed'], 3)
+        self.assertEqual(task_info['iterations_remaining'], 0)
+        self.assertEqual(len(task_info['instance_map']), 3)
+
         self.assertTrue(self.workflow.is_completed())
 
     def testLoopCondition(self):
