@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_19o7vxg" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <bpmn:process id="Process_1" isExecutable="true">
+    <bpmn:startEvent id="Event_1ftsuzw">
+      <bpmn:outgoing>Flow_1hjrex4</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="any_task" name="Any Task">
+      <bpmn:extensionElements>
+        <spiffworkflow:preScript>input_item += 1</spiffworkflow:preScript>
+        <spiffworkflow:postScript>output_item -= 1</spiffworkflow:postScript>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1hjrex4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xndbxy</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics spiffworkflow:scriptsOnInstances="true">
+        <bpmn:loopDataInputRef>input_data</bpmn:loopDataInputRef>
+        <bpmn:loopDataOutputRef>output_data</bpmn:loopDataOutputRef>
+        <bpmn:inputDataItem id="input_item" name="input item" />
+        <bpmn:outputDataItem id="output_item" name="output item" />
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1hjrex4" sourceRef="Event_1ftsuzw" targetRef="any_task" />
+    <bpmn:endEvent id="Event_0c80924">
+      <bpmn:incoming>Flow_1xndbxy</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1xndbxy" sourceRef="any_task" targetRef="Event_0c80924" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNEdge id="Flow_1xndbxy_di" bpmnElement="Flow_1xndbxy">
+        <di:waypoint x="380" y="120" />
+        <di:waypoint x="432" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hjrex4_di" bpmnElement="Flow_1hjrex4">
+        <di:waypoint x="228" y="120" />
+        <di:waypoint x="280" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1ftsuzw_di" bpmnElement="Event_1ftsuzw">
+        <dc:Bounds x="192" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1iqs4li_di" bpmnElement="any_task">
+        <dc:Bounds x="280" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0c80924_di" bpmnElement="Event_0c80924">
+        <dc:Bounds x="432" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

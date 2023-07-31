@@ -64,7 +64,7 @@ class TaskParser(NodeParser):
         self.spec_class = spec_class
         self.spec = self.process_parser.spec
 
-    def _copy_task_attrs(self, original):
+    def _copy_task_attrs(self, original, loop_characteristics=None):
 
         self.task.inputs = original.inputs
         self.task.outputs = original.outputs
@@ -95,7 +95,7 @@ class TaskParser(NodeParser):
 
         original = self.spec.task_specs.pop(self.task.name)
         self.task = self.STANDARD_LOOP_CLASS(self.spec, original.name, '', maximum, condition, test_before)
-        self._copy_task_attrs(original)
+        self._copy_task_attrs(original, loop_characteristics)
 
     def _add_multiinstance_task(self, loop_characteristics):
 
@@ -156,7 +156,7 @@ class TaskParser(NodeParser):
             self.task = self.SEQUENTIAL_MI_CLASS(self.spec, original.name, **params)
         else:
             self.task = self.PARALLEL_MI_CLASS(self.spec, original.name, **params)
-        self._copy_task_attrs(original)
+        self._copy_task_attrs(original, loop_characteristics)
 
     def _add_boundary_event(self, children):
 

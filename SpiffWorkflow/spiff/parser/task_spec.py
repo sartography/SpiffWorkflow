@@ -110,13 +110,14 @@ class SpiffTaskParser(TaskParser):
         operator['parameters'] = parameters
         return operator
 
-    def _copy_task_attrs(self, original):
+    def _copy_task_attrs(self, original, loop_characteristics):
         # I am so disappointed I have to do this.
         super()._copy_task_attrs(original)
-        self.task.prescript = original.prescript
-        self.task.postscript = original.postscript
-        original.prescript = None
-        original.postscript = None
+        if loop_characteristics.attrib.get('{' + SPIFFWORKFLOW_MODEL_NS + '}' + 'scriptsOnInstances') != 'true':
+            self.task.prescript = original.prescript
+            self.task.postscript = original.postscript
+            original.prescript = None
+            original.postscript = None
 
     def create_task(self):
         # The main task parser already calls this, and even sets an attribute, but

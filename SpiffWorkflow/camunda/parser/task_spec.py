@@ -75,7 +75,7 @@ class CamundaTaskParser(TaskParser):
             self.task = SequentialMultiInstanceTask(self.spec, original.name, **params)
         else:
             self.task = ParallelMultiInstanceTask(self.spec, original.name, **params)
-        self._copy_task_attrs(original)
+        self._copy_task_attrs(original, loop_characteristics)
 
 
 class BusinessRuleTaskParser(CamundaTaskParser):
