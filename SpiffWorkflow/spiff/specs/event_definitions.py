@@ -22,6 +22,7 @@ from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import (
     ItemAwareEventDefinition,
     ErrorEventDefinition,
     EscalationEventDefinition,
+    SignalEventDefinition,
 )
 
 from SpiffWorkflow.bpmn.event import BpmnEvent
@@ -73,7 +74,7 @@ class SpiffItemAwareEventDefinition(ItemAwareEventDefinition):
         super().reset(my_task)
 
 
-class SignalEventDefinition(SpiffItemAwareEventDefinition):
+class SignalEventDefinition(SpiffItemAwareEventDefinition, SignalEventDefinition):
     pass
 
 class ErrorEventDefinition(SpiffItemAwareEventDefinition, ErrorEventDefinition):
