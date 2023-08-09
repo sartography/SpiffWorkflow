@@ -505,8 +505,7 @@ class DictionarySerializer(Serializer):
         workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'], reset_specs)
 
         # Re-connect parents and update states if necessary
-        root = workflow.get_tasks_from_spec_name('Root')[0]
-        update_state = root.state != TaskState.COMPLETED
+        update_state = workflow.task_tree.state != TaskState.COMPLETED
         for task in workflow.get_tasks_iterator():
             if task.parent is not None:
                 task.parent = workflow.get_task_from_id(task.parent)

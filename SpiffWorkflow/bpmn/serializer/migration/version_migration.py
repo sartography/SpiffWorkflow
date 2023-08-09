@@ -30,12 +30,17 @@ from .version_1_2 import (
     convert_simple_tasks,
     update_bpmn_attributes,
 )
-from .version_1_3 import update_event_definition_attributes, remove_boundary_event_parent
+from .version_1_3 import (
+    update_event_definition_attributes,
+    remove_boundary_event_parent,
+    remove_root_task,
+)
 
 def from_version_1_2(old):
     new = deepcopy(old)
     update_event_definition_attributes(new)
     remove_boundary_event_parent(new)
+    remove_root_task(new)
     new['VERSION'] = "1.3"
     return new
 

@@ -36,9 +36,6 @@ class BpmnProcessSpec(WorkflowSpec):
         LXML node. (optional)
         """
         super(BpmnProcessSpec, self).__init__(name=name, filename=filename, nostart=True)
-        # Add a root task to ensure all tasks in the workflow are bpmn tasks
-        # The serializer ignores this task
-        SimpleBpmnTask(self, 'Root')
         self.start = BpmnStartTask(self, 'Start')
         self.end = _EndJoin(self, '%s.EndJoin' % (self.name))
         self.end.connect(SimpleBpmnTask(self, 'End'))
