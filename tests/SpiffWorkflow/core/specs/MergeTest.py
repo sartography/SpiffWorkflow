@@ -11,13 +11,11 @@ class MergeTest(JoinTest):
         if 'testtask' in self.wf_spec.task_specs:
             del self.wf_spec.task_specs['testtask']
 
-        return Merge(self.wf_spec,
-                     'testtask',
-                     description='foo')
+        return Merge(self.wf_spec, 'testtask', description='foo')
 
     def test_Merge_data_merging(self):
         """Test that Merge task actually merges data"""
-        wf_spec = WorkflowSpec()
+        wf_spec = WorkflowSpec(addstart=True)
         first = Simple(wf_spec, 'first')
         second = Simple(wf_spec, 'second')
         third = Simple(wf_spec, 'third')

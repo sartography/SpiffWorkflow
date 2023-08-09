@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from SpiffWorkflow.specs.Join import Join
 
 from .TaskSpecTest import TaskSpecTest
@@ -10,6 +8,4 @@ class JoinTest(TaskSpecTest):
         if 'testtask' in self.wf_spec.task_specs:
             del self.wf_spec.task_specs['testtask']
 
-        return Join(self.wf_spec,
-                    'testtask',
-                    description='foo')
+        return Join(self.wf_spec, 'testtask', description='foo')

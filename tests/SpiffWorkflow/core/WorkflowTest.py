@@ -17,7 +17,7 @@ data_dir = os.path.join(os.path.dirname(__file__), 'data')
 class WorkflowTest(unittest.TestCase):
 
     def testConstructor(self):
-        wf_spec = WorkflowSpec()
+        wf_spec = WorkflowSpec(addstart=True)
         wf_spec.start.connect(Cancel(wf_spec, 'name'))
         Workflow(wf_spec)
 

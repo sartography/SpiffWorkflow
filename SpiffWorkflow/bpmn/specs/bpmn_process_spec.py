@@ -35,7 +35,7 @@ class BpmnProcessSpec(WorkflowSpec):
         :param svg: This provides the SVG representation of the workflow as an
         LXML node. (optional)
         """
-        super(BpmnProcessSpec, self).__init__(name=name, filename=filename, nostart=True)
+        super(BpmnProcessSpec, self).__init__(name=name, filename=filename)
         self.start = BpmnStartTask(self, 'Start')
         self.end = _EndJoin(self, '%s.EndJoin' % (self.name))
         self.end.connect(SimpleBpmnTask(self, 'End'))

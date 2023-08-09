@@ -13,7 +13,7 @@ from SpiffWorkflow.serializer.dict import DictionarySerializer
 class ASmallWorkflow(WorkflowSpec):
 
     def __init__(self):
-        super(ASmallWorkflow, self).__init__(name="asmallworkflow")
+        super(ASmallWorkflow, self).__init__(name="asmallworkflow", addstart=True)
 
         multichoice = MultiChoice(self, 'multi_choice_1')
         self.start.connect(multichoice)

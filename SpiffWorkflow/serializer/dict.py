@@ -446,8 +446,6 @@ class DictionarySerializer(Serializer):
         spec.description = s_state['description']
 
         # Handle Start Task
-        spec.start = None
-        del spec.task_specs['Start']
         start_task_spec_state = s_state['task_specs']['Start']
         start_task_spec = StartTask.deserialize(self, spec, start_task_spec_state)
         spec.start = start_task_spec
