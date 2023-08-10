@@ -168,6 +168,7 @@ class BpmnWorkflowSerializer:
         """
         # These properties are applicable to top level & subprocesses
         dct = self.process_to_dict(workflow)
+        dct['spec'] = self.spec_converter.convert(workflow.spec)
         # These are only used at the top-level      
         dct['subprocess_specs'] = dict(
             (name, self.spec_converter.convert(spec)) for name, spec in workflow.subprocess_specs.items()
@@ -218,6 +219,7 @@ class BpmnWorkflowSerializer:
     def subworkflow_to_dict(self, workflow):
         dct = self.process_to_dict(workflow)
         dct['parent_task_id'] = str(workflow.parent_task_id)
+        dct['spec'] = workflow.spec.name
         return dct
 
     def task_to_dict(self, task):
@@ -292,7 +294,6 @@ class BpmnWorkflowSerializer:
 
     def process_to_dict(self, process):
         return {
-            'spec': self.spec_converter.convert(process.spec),
             'data': self.data_converter.convert(process.data),
             'correlations': process.correlations,
             'last_task': str(process.last_task.id) if process.last_task is not None else None,
