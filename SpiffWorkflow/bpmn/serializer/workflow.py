@@ -205,16 +205,35 @@ class BpmnWorkflowSerializer:
         workflow = self.wf_class(spec, subprocess_specs, deserializing=True)
 
         # Restore any unretrieve messages
-        workflow.bpmn_events = [ self.event_from_dict(msg) for msg in dct.get('bpmn_events', []) ]
+        workflow.bpmn_events = [ self.event_from_dict(msg) for msg in dct_copy.get('bpmn_events', []) ]
 
         workflow.correlations = dct_copy.pop('correlations', {})
 
         # Restore the remainder of the workflow
         workflow.data = self.data_converter.restore(dct_copy.pop('data'))
         workflow.success = dct_copy.pop('success')
-        workflow.task_tree = self.task_tree_from_dict(dct_copy, dct_copy.pop('root'), None, workflow)
+        workflow.tasks = dict(
+            (UUID(task['id']), self.task_from_dict(task, workflow, workflow.spec)) 
+            for task in dct_copy['tasks'].values()
+        )
+        workflow.task_tree = workflow.tasks.get(UUID(dct_copy['root']))
+        if dct_copy['last_task'] is not None:
+            workflow.last_task = workflow.tasks.get(UUID(dct_copy['last_task']))
 
+        self.subprocesses_from_dict(dct_copy['subprocesses'], workflow)
         return workflow
+
+    def subprocesses_from_dict(self, dct, workflow, top_workflow=None):
+        # This ensures we create parent workflows before their children
+        top_workflow = top_workflow or workflow
+        for task in workflow.tasks.values():
+            if isinstance(task.task_spec, SubWorkflowTask) and str(task.id) in dct:
+                sp = self.subworkflow_from_dict(dct.pop(str(task.id)), task, top_workflow)
+                top_workflow.subprocesses[task.id] = sp
+                sp.completed_event.connect(task.task_spec._on_subworkflow_completed, task)
+                if len(sp.spec.data_objects) > 0:
+                    sp.data = task.workflow.data
+                self.subprocesses_from_dict(dct, sp, top_workflow)
 
     def subworkflow_to_dict(self, workflow):
         dct = self.process_to_dict(workflow)
@@ -222,11 +241,26 @@ class BpmnWorkflowSerializer:
         dct['spec'] = workflow.spec.name
         return dct
 
+    def subworkflow_from_dict(self, dct, task, top_workflow):
+        spec = top_workflow.subprocess_specs.get(task.task_spec.spec)
+        subprocess = self.sub_wf_class(spec, task.id, top_workflow, deserializing=True)
+        subprocess.correlations = dct.pop('correlations', {})
+        subprocess.tasks = dict(
+            (UUID(task['id']), self.task_from_dict(task, subprocess, spec)) 
+            for task in dct['tasks'].values()
+        )
+        subprocess.task_tree = subprocess.tasks.get(UUID(dct['root']))
+        if isinstance(dct['last_task'], str):
+            subprocess.last_task = subprocess.tasks.get(UUID(dct['last_task']))
+        subprocess.success = dct['success']
+        subprocess.data = self.data_converter.restore(dct['data'])
+        return subprocess
+
     def task_to_dict(self, task):
         return {
             'id': str(task.id),
-            'parent': str(task.parent.id) if task.parent is not None else None,
-            'children': [ str(child.id) for child in task.children ],
+            'parent': str(task._parent) if task.parent is not None else None,
+            'children': [ str(child) for child in task._children ],
             'last_state_change': task.last_state_change,
             'state': task.state,
             'task_spec': task.task_spec.name,
@@ -235,61 +269,16 @@ class BpmnWorkflowSerializer:
             'data': self.data_converter.convert(task.data),
         }
 
-    def task_from_dict(self, dct, workflow, task_spec, parent):
+    def task_from_dict(self, dct, workflow, spec):
 
-        task = Task(workflow, task_spec, parent, dct['state'])
-        task.id = UUID(dct['id'])
+        task_spec = spec.task_specs.get(dct['task_spec'])
+        task = Task(workflow, task_spec, state=dct['state'], id=UUID(dct['id']))
+        task._parent = UUID(dct['parent']) if dct['parent'] is not None else None
+        task._children = [UUID(child) for child in dct['children']]
         task.last_state_change = dct['last_state_change']
         task.triggered = dct['triggered']
         task.internal_data = self.data_converter.restore(dct['internal_data'])
         task.data = self.data_converter.restore(dct['data'])
-        return task
-
-    def task_tree_to_dict(self, root):
-
-        tasks = { }
-        def add_task(task):
-            dct = self.task_to_dict(task)
-            tasks[dct['id']] = dct
-            for child in task.children:
-                add_task(child)
-
-        add_task(root)
-        return tasks
-
-    def task_tree_from_dict(self, process_dct, task_id, parent_task, process, top_level_workflow=None, top_level_dct=None):
-
-        top = top_level_workflow or process
-        top_dct = top_level_dct or process_dct
-
-        task_dict = process_dct['tasks'][task_id]
-        task_spec = process.spec.task_specs[task_dict['task_spec']]
-        task = self.task_from_dict(task_dict, process, task_spec, parent_task)
-        if task_id == process_dct['last_task']:
-            process.last_task = task
-
-        if isinstance(task_spec, SubWorkflowTask) and task_id in top_dct.get('subprocesses', {}):
-            subprocess_spec = top.subprocess_specs[task_spec.spec]
-            subprocess = self.sub_wf_class(subprocess_spec, task.id, top_level_workflow, deserializing=True)
-            subprocess_dct = top_dct['subprocesses'].get(task_id, {})
-            subprocess.spec.data_objects.update(process.spec.data_objects)
-            if len(subprocess.spec.data_objects) > 0:
-                subprocess.data = process.data
-            else:
-                subprocess.data = self.data_converter.restore(subprocess_dct.pop('data'))
-            subprocess.success = subprocess_dct.pop('success')
-            subprocess.correlations = subprocess_dct.pop('correlations', {})
-            subprocess.task_tree = self.task_tree_from_dict(subprocess_dct, subprocess_dct.pop('root'), None, subprocess, top, top_dct)
-            subprocess.completed_event.connect(task_spec._on_subworkflow_completed, task)
-            top_level_workflow.subprocesses[task.id] = subprocess
-
-        for child_task_id in task_dict['children']:
-            if child_task_id in process_dct['tasks']:
-                process_dct['tasks'][child_task_id]
-                self.task_tree_from_dict(process_dct, child_task_id, task, process, top, top_dct)
-            else:
-                raise ValueError(f"Task {task_id} ({task_spec.name}) has child {child_task_id}, but no such task exists")
-
         return task
 
     def process_to_dict(self, process):
@@ -298,7 +287,7 @@ class BpmnWorkflowSerializer:
             'correlations': process.correlations,
             'last_task': str(process.last_task.id) if process.last_task is not None else None,
             'success': process.success,
-            'tasks': self.task_tree_to_dict(process.task_tree),
+            'tasks': dict((str(task.id), self.task_to_dict(task)) for task in process.tasks.values()),
             'root': str(process.task_tree.id),
         }
 

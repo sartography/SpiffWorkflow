@@ -16,6 +16,8 @@
 # 02110-1301  USA
 
 import warnings
+from uuid import UUID
+
 from lxml import etree
 from lxml.etree import SubElement
 from ..workflow import Workflow
@@ -674,11 +676,6 @@ class XmlSerializer(Serializer):
         task_tree_elem = elem.find('task-tree')
         workflow.task_tree = self.deserialize_task(workflow, task_tree_elem[0])
 
-        # Re-connect parents
-        for task in workflow.get_tasks_iterator():
-            if task.parent is not None:
-                task.parent = workflow.get_task_from_id(task.parent)
-
         # last_task
         last_task = elem.findtext('last-task')
         if last_task is not None:
@@ -725,10 +722,14 @@ class XmlSerializer(Serializer):
 
         task_spec_name = elem.findtext('spec')
         task_spec = workflow.spec.get_task_spec_from_name(task_spec_name)
-        task = Task(workflow, task_spec)
-        task.id = elem.findtext('id')
-        # The parent is later resolved by the workflow deserializer
-        task.parent = elem.findtext('parent')
+        task_id = elem.findtext('id')
+        if task_id is not None:
+            task_id = UUID(task_id)
+        # Deserialization is done by traversing the tree, the parent should already exist
+        # when children are deserialized
+        parent_id = elem.findtext('parent')
+        parent = workflow.tasks[UUID(parent_id)] if parent_id is not None else None
+        task = Task(workflow, task_spec, parent, id=task_id)
 
         for child_elem in elem.find('children'):
             child_task = self.deserialize_task(workflow, child_elem)

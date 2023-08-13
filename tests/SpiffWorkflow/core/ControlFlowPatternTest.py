@@ -158,15 +158,8 @@ class RecursionTest(TestCase, WorkflowPatternTestCase):
     def setUp(self):
         self.load_from_xml('control-flow/recursion')
 
-    # I am disabling this test becuse I have wasted an entire day trying to make it pass
-    # The workflow completes and the task tree is as expected, but the subworkflow tasks
-    # no longer appear in the taken path.  This is because they are connected to the subworkflow 
-    # in on_reached_cb, which now occurs after they are executed.
-    # Moving subworkflow creation to predict would likely fix the problem, but there are problems
-    # with prediction that also need to be fixed as well.
-
-    #def test_run_workflow(self):
-    #    pass
+    def test_run_workflow(self):
+        pass
 
 class ImplicitTerminationTest(TestCase, WorkflowPatternTestCase):
     def setUp(self):

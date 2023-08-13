@@ -16,12 +16,13 @@
 # 02110-1301  USA
 
 import json
-
 import pickle
+import warnings
 from base64 import b64encode, b64decode
+
 from ..workflow import Workflow
 from ..util.impl import get_class
-from ..task import Task, TaskState
+from ..task import Task
 from ..operators import Attrib, PathAttrib, Equal, NotEqual, Operator, GreaterThan, LessThan, Match
 from ..specs.base import TaskSpec
 from ..specs.AcquireMutex import AcquireMutex
@@ -46,7 +47,7 @@ from ..specs.Trigger import Trigger
 from ..specs.WorkflowSpec import WorkflowSpec
 from .base import Serializer
 from .exceptions import TaskNotSupportedError, MissingSpecError
-import warnings
+
 
 class DictionarySerializer(Serializer):
 
@@ -502,17 +503,6 @@ class DictionarySerializer(Serializer):
         workflow.spec = wf_spec
         workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'], reset_specs)
 
-        # Re-connect parents and update states if necessary
-        update_state = workflow.task_tree.state != TaskState.COMPLETED
-        for task in workflow.get_tasks_iterator():
-            if task.parent is not None:
-                task.parent = workflow.get_task_from_id(task.parent)
-            if update_state:
-                if task.state == 32:
-                    task.state = TaskState.COMPLETED
-                elif task.state == 64:
-                    task.state = TaskState.CANCELLED
-
         if workflow.last_task is not None:
             workflow.last_task = workflow.get_task_from_id(s_state['last_task'])
 
@@ -545,12 +535,11 @@ class DictionarySerializer(Serializer):
         task_spec = workflow.spec.get_task_spec_from_name(old_spec_name)
         if task_spec is None:
             raise MissingSpecError("Unknown task spec: " + old_spec_name)
-        task = Task(workflow, task_spec)
+        task_id = s_state['id']
+        parent_id = s_state['parent']
+        parent = workflow.get_task_from_id(parent_id) if parent_id is not None else None
+        task = Task(workflow, task_spec, parent, id=task_id)
 
-        task.id = s_state['id']
-        # as the task_tree might not be complete yet
-        # keep the ids so they can be processed at the end
-        task.parent = s_state['parent']
         task.children = self._deserialize_task_children(task, s_state, ignored_specs)
         task._state = s_state['state']
         task.triggered = s_state['triggered']

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 import re
 
@@ -11,6 +9,7 @@ from SpiffWorkflow.specs.Simple import Simple
 class MockWorkflow(object):
     def __init__(self, spec):
         self.spec = spec
+        self.tasks = {}
 
 
 class TaskTest(unittest.TestCase):
@@ -74,11 +73,3 @@ class TaskTest(unittest.TestCase):
         self.assertTrue(expected2.match(result),
                         'Expected:\n' + repr(expected2.pattern) + '\n' +
                         'but got:\n' + repr(result))
-
-
-def suite():
-    taskSuite = unittest.TestLoader().loadTestsFromTestCase(TaskTest)
-    return unittest.TestSuite([taskSuite])
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
