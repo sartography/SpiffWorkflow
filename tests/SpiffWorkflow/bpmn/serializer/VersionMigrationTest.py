@@ -92,7 +92,7 @@ class Version_1_1_Test(BaseTestCase):
         self.assertTrue(wf.is_completed())
 
 
-class Version1_2_Test(BaseTestCase):
+class Version_1_2_Test(BaseTestCase):
 
     def test_remove_boundary_events(self):
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.2-boundary-events.json')

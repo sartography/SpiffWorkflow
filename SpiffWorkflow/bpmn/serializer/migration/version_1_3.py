@@ -44,6 +44,10 @@ def remove_boundary_event_parent(dct):
                 for parent in spec['inputs']:
                     parent_spec = wf_spec['task_specs'][parent]
                     parent_spec['outputs'] = [name.replace('BoundaryEventParent', 'BoundaryEventSplit') for name in parent_spec['outputs']]
+                    if "default_task_spec" in parent_spec:
+                        parent_spec["default_task_spec"] = parent_spec["default_task_spec"].replace('BoundaryEventParent', 'BoundaryEventSplit')
+                    for condition in parent_spec.get("cond_task_specs", []):
+                        condition["task_spec"] = condition["task_spec"].replace('BoundaryEventParent', 'BoundaryEventSplit')
 
                 for child in spec['outputs']:
                     child_spec = wf_spec['task_specs'][child]
@@ -92,7 +96,6 @@ def remove_boundary_event_parent(dct):
                     new_tasks[new_task['id']] = new_task
         
         wf['tasks'].update(new_tasks)
-        pass
 
     update_specs(dct['spec'])
     for sp_spec in dct['subprocess_specs'].values():
