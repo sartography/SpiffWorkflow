@@ -104,3 +104,21 @@ def remove_boundary_event_parent(dct):
     update_tasks(dct)
     for sp in dct['subprocesses'].values():
         update_tasks(sp)
+
+def remove_root_task(dct):
+    
+    def update(wf):
+        root = wf['tasks'].get(wf['root'])
+        if root['task_spec'] == 'Root':
+            wf['tasks'].pop(root['id'])
+            start = wf['tasks'].get(root['children'][0])
+            start['parent'] = None
+            wf['root'] = start['id']
+
+    update(dct)          
+    for sp in dct['subprocesses'].values():
+        update(sp)
+
+    dct['spec']['task_specs'].pop('Root', None)
+    for spec in dct['subprocess_specs'].values():
+        spec['task_specs'].pop('Root', None)

@@ -335,10 +335,8 @@ class BpmnWorkflow(Workflow):
 
             new = spec_class(self.spec, f'{wf_spec.name}_{len(self.subprocesses)}', wf_spec.name)
             self.spec.start.connect(new)
-            task = Task(self, new)
             start = self.get_tasks_from_spec_name('Start', workflow=self)[0]
-            start.children.append(task)
-            task.parent = start
+            task = Task(self, new, parent=start)
             # This (indirectly) calls create_subprocess
             task.task_spec._update(task)
             return self.subprocesses[task.id]

@@ -100,10 +100,8 @@ class SubWorkflow(TaskSpec):
         wf_spec = WorkflowSpec.deserialize(serializer, xml, filename=file_name)
         subworkflow = Workflow(wf_spec)
         my_task._sync_children(self.outputs, TaskState.FUTURE)
-        for child in subworkflow.task_tree.children:
-            my_task.children.insert(0, child)
-            child.parent = my_task
-            child.state = TaskState.READY
+        subworkflow.task_tree.parent = my_task
+        my_task.children.insert(0, subworkflow.task_tree)
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
         my_task._set_internal_data(subworkflow=subworkflow)
         my_task._set_state(TaskState.WAITING)

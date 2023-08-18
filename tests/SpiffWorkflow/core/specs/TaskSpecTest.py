@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 
 from SpiffWorkflow.specs.Join import Join
@@ -17,7 +16,7 @@ class TaskSpecTest(unittest.TestCase):
         return TaskSpec(self.wf_spec, 'testtask', description='foo')
 
     def setUp(self):
-        self.wf_spec = WorkflowSpec()
+        self.wf_spec = WorkflowSpec(addstart=True)
         self.spec = self.create_instance()
 
     def testConstructor(self):

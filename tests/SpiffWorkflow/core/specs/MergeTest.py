@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .JoinTest import JoinTest
 from SpiffWorkflow.specs.Merge import Merge
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
@@ -13,13 +11,11 @@ class MergeTest(JoinTest):
         if 'testtask' in self.wf_spec.task_specs:
             del self.wf_spec.task_specs['testtask']
 
-        return Merge(self.wf_spec,
-                     'testtask',
-                     description='foo')
+        return Merge(self.wf_spec, 'testtask', description='foo')
 
     def test_Merge_data_merging(self):
         """Test that Merge task actually merges data"""
-        wf_spec = WorkflowSpec()
+        wf_spec = WorkflowSpec(addstart=True)
         first = Simple(wf_spec, 'first')
         second = Simple(wf_spec, 'second')
         third = Simple(wf_spec, 'third')
@@ -60,7 +56,7 @@ class MergeTest(JoinTest):
             if task.task_spec is simple1:
                 self.assertIn('first', task.data)
                 self.assertIn('second', task.data)
-                self.assertEqual(task.data, {'Start': 1,
+                self.assertEqual(task.data, {'everywhere': 1, 'Start': 1,
                                              'merge 1': 1, 'name': 'Start', 'simple 1': 1,
                                              'second': 1, 'first': 1})
                 found['simple1'] = task
@@ -69,12 +65,12 @@ class MergeTest(JoinTest):
                 self.assertIn('second', task.data)
                 self.assertIn('third', task.data)
                 self.assertIn('fourth', task.data)
-                self.assertEqual(task.data, {'merge 2': 1,
+                self.assertEqual(task.data, {'everywhere': 1, 'merge 2': 1,
                                              'simple 2': 1, 'name': 'Start', 'third': 1, 'bump': 1,
                                              'Start': 1, 'second': 1, 'first': 1, 'fourth': 1})
                 found['simple2'] = task
             if task.task_spec is unmerged:
-                self.assertEqual(task.data, {'Start': 1,
+                self.assertEqual(task.data, {'everywhere': 1, 'Start': 1,
                                              'second': 1, 'name': 'Start', 'unmerged': 1})
                 found['unmerged'] = task
         self.assertIn('simple1', found)

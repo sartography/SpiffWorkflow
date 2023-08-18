@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 import os
 import pickle
@@ -22,10 +21,10 @@ data_file = 'data.pkl'
 class WorkflowSpecTest(unittest.TestCase):
 
     def setUp(self):
-        self.wf_spec = WorkflowSpec()
+        self.wf_spec = WorkflowSpec(addstart=True)
 
     def testConstructor(self):
-        spec = WorkflowSpec('my spec')
+        spec = WorkflowSpec('my spec', addstart=True)
         self.assertEqual('my spec', spec.name)
 
     def testGetTaskSpecFromName(self):

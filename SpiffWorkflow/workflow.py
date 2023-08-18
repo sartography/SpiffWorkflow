@@ -19,7 +19,6 @@
 
 import logging
 
-from .specs.Simple import Simple
 from .task import Task, TaskState
 from .util.compat import mutex
 from .util.event import Event
@@ -35,7 +34,7 @@ class Workflow(object):
     A Workflow is also the place that holds the data of a running workflow.
     """
 
-    def __init__(self, workflow_spec, deserializing=False, parent=None):
+    def __init__(self, workflow_spec, deserializing=False):
         """
         Constructor.
 
@@ -51,23 +50,15 @@ class Workflow(object):
         self.data = {}
         self.locks = {}
         self.last_task = None
-        if 'Root' in workflow_spec.task_specs:
-            root = workflow_spec.task_specs['Root']
-        else:
-            root = Simple(workflow_spec, 'Root')
-
-        # Setting TaskState.COMPLETED prevents the root task from being executed.
-        self.task_tree = Task(self, root, state=TaskState.COMPLETED)
-        start = self.task_tree._add_child(self.spec.start, state=TaskState.FUTURE)
         self.success = True
 
         # Events.
         self.completed_event = Event()
 
         if not deserializing:
+            self.task_tree = Task(self, self.spec.start, state=TaskState.READY)
+            self.task_tree._ready()
             self._predict()
-            if parent is None:
-                start.task_spec._update(start)
             logger.info('Initialize', extra=self.log_info())
 
     def log_info(self, dct=None):

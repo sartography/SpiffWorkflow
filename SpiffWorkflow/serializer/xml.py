@@ -624,7 +624,7 @@ class XmlSerializer(Serializer):
     def deserialize_workflow_spec(self, elem, **kwargs):
         name = elem.findtext('name')
         filename = elem.findtext('filename')
-        spec = WorkflowSpec(name, filename=filename, nostart=True)
+        spec = WorkflowSpec(name, filename=filename)
         spec.description = elem.findtext('description')
 
         # Add all tasks.

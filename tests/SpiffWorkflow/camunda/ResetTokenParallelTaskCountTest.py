@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import unittest
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
@@ -23,7 +19,7 @@ class ResetTokenParallelTaskCountTest(BaseTestCase):
         self.actual_test(save_restore=True)
 
     def actual_test(self, save_restore=False):
-        total = 10  # I would expect there to be 9 tasks, but we get 10.
+        total = 9
 
         # Set the workflow in motion, and assure we have the right
         # number of tasks
@@ -44,9 +40,3 @@ class ResetTokenParallelTaskCountTest(BaseTestCase):
         task.reset_token(data)
         self.assertEquals(total, len(self.workflow.get_tasks()))
         self.assertEquals(1, len(self.workflow.get_ready_user_tasks()))
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ResetTokenParallelTaskCountTest)
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

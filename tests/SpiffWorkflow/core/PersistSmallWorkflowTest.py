@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 
 from SpiffWorkflow.workflow import Workflow
@@ -14,7 +13,7 @@ from SpiffWorkflow.serializer.dict import DictionarySerializer
 class ASmallWorkflow(WorkflowSpec):
 
     def __init__(self):
-        super(ASmallWorkflow, self).__init__(name="asmallworkflow")
+        super(ASmallWorkflow, self).__init__(name="asmallworkflow", addstart=True)
 
         multichoice = MultiChoice(self, 'multi_choice_1')
         self.start.connect(multichoice)
@@ -89,10 +88,7 @@ class PersistSmallWorkflowTest(unittest.TestCase):
             len(new_workflow.get_tasks()), len(old_workflow.get_tasks()))
         self.assertEqual(new_workflow.spec.start.get_data(
             'marker'), old_workflow.spec.start.get_data('marker'))
-        self.assertEqual(
-            1, len([t for t in new_workflow.get_tasks() if t.task_spec.name == 'Start']))
-        self.assertEqual(
-            1, len([t for t in new_workflow.get_tasks() if t.task_spec.name == 'Root']))
+        self.assertEqual(1, len([t for t in new_workflow.get_tasks() if t.task_spec.name == 'Start']))
 
     def testDeserialization2(self):
         """
@@ -110,9 +106,3 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         self.assertEqual('task_a2', old_workflow.last_task.get_name())
         new_workflow.run_all()
         self.assertEqual('task_a2', old_workflow.last_task.get_name())
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(PersistSmallWorkflowTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

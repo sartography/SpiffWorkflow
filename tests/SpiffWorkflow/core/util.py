@@ -42,7 +42,7 @@ def on_reached_cb(workflow, task, taken_path):
 
 def on_complete_cb(workflow, task, taken_path):
     # Record the path.
-    indent = '  ' * (task._get_depth() - 1)
+    indent = '  ' * task._get_depth()
     taken_path.append('%s%s' % (indent, task.get_name()))
     # In workflows that load a subworkflow, the newly loaded children
     # will not have on_reached_cb() assigned. By using this function, we

@@ -35,10 +35,7 @@ class BpmnProcessSpec(WorkflowSpec):
         :param svg: This provides the SVG representation of the workflow as an
         LXML node. (optional)
         """
-        super(BpmnProcessSpec, self).__init__(name=name, filename=filename, nostart=True)
-        # Add a root task to ensure all tasks in the workflow are bpmn tasks
-        # The serializer ignores this task
-        SimpleBpmnTask(self, 'Root')
+        super(BpmnProcessSpec, self).__init__(name=name, filename=filename)
         self.start = BpmnStartTask(self, 'Start')
         self.end = _EndJoin(self, '%s.EndJoin' % (self.name))
         self.end.connect(SimpleBpmnTask(self, 'End'))
