@@ -147,8 +147,8 @@ class DictionarySerializer(Serializer):
                        lookahead=spec.lookahead)
         module_name = spec.__class__.__module__
         s_state['class'] = module_name + '.' + spec.__class__.__name__
-        s_state['inputs'] = [t.name for t in spec.inputs]
-        s_state['outputs'] = [t.name for t in spec.outputs]
+        s_state['inputs'] = spec._inputs
+        s_state['outputs'] = spec._outputs
         s_state['data'] = self.serialize_dict(spec.data)
         s_state['defines'] = self.serialize_dict(spec.defines)
         s_state['pre_assign'] = self.serialize_list(spec.pre_assign)
@@ -165,10 +165,8 @@ class DictionarySerializer(Serializer):
         spec.defines = self.deserialize_dict(s_state.get('defines', {}))
         spec.pre_assign = self.deserialize_list(s_state.get('pre_assign', []))
         spec.post_assign = self.deserialize_list(s_state.get('post_assign', []))
-        # We can't restore inputs and outputs yet because they may not be
-        # deserialized yet. So keep the names, and resolve them in the end.
-        spec.inputs = s_state.get('inputs', [])[:]
-        spec.outputs = s_state.get('outputs', [])[:]
+        spec._inputs = s_state.get('inputs', [])
+        spec._outputs = s_state.get('outputs', [])
         return spec
 
     def serialize_acquire_mutex(self, spec):
@@ -438,10 +436,6 @@ class DictionarySerializer(Serializer):
         )
         return s_state
 
-    def _deserialize_workflow_spec_task_spec(self, spec, task_spec, name):
-        task_spec.inputs = [spec.get_task_spec_from_name(t) for t in task_spec.inputs]
-        task_spec.outputs = [spec.get_task_spec_from_name(t) for t in task_spec.outputs]
-
     def deserialize_workflow_spec(self, s_state, **kwargs):
         spec = WorkflowSpec(s_state['name'], filename=s_state['file'])
         spec.description = s_state['description']
@@ -458,9 +452,6 @@ class DictionarySerializer(Serializer):
             task_spec_cls = get_class(task_spec_state['class'])
             task_spec = task_spec_cls.deserialize(self, spec, task_spec_state)
             spec.task_specs[name] = task_spec
-
-        for name, task_spec in list(spec.task_specs.items()):
-            self._deserialize_workflow_spec_task_spec(spec, task_spec, name)
 
         if s_state.get('end', None):
             spec.end = spec.get_task_spec_from_name(s_state['end'])

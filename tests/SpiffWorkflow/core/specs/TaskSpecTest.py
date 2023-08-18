@@ -38,12 +38,12 @@ class TaskSpecTest(unittest.TestCase):
         return self.testSetData()
 
     def testConnect(self):
-        self.assertEqual(self.spec.outputs, [])
-        self.assertEqual(self.spec.inputs, [])
+        self.assertEqual(self.spec._outputs, [])
+        self.assertEqual(self.spec._inputs, [])
         spec = self.create_instance()
         self.spec.connect(spec)
-        self.assertEqual(self.spec.outputs, [spec])
-        self.assertEqual(spec.inputs, [self.spec])
+        self.assertEqual(self.spec._outputs, [spec.name])
+        self.assertEqual(spec._inputs, [self.spec.name])
 
     def testTest(self):
         # Should fail because the TaskSpec has no id yet.

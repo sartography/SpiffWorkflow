@@ -135,8 +135,8 @@ class TaskSpecConverter(BpmnSpecConverter):
             'description': spec.description,
             'manual': spec.manual,
             'lookahead': spec.lookahead,
-            'inputs': [task.name for task in spec.inputs],
-            'outputs': [task.name for task in spec.outputs],
+            'inputs': spec._inputs,
+            'outputs': spec._outputs,
             'bpmn_id': spec.bpmn_id,
             'bpmn_name': spec.bpmn_name,
             'lane': spec.lane,
@@ -206,8 +206,8 @@ class TaskSpecConverter(BpmnSpecConverter):
         bpmn_id = dct.pop('bpmn_id')
 
         spec = self.spec_class(wf_spec, name, **dct)
-        spec.inputs = inputs
-        spec.outputs = outputs
+        spec._inputs = inputs
+        spec._outputs = outputs
 
         if issubclass(self.spec_class, BpmnSpecMixin) and bpmn_id != name:
             # This is a hack for multiinstance tasks :(  At least it is simple.

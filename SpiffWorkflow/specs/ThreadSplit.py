@@ -62,7 +62,7 @@ class ThreadSplit(TaskSpec):
         self.times = times
         if not suppress_threadstart_creation:
             self.thread_starter = ThreadStart(wf_spec, **kwargs)
-            self.outputs.append(self.thread_starter)
+            self._outputs.append(self.thread_starter.name)
             self.thread_starter._connect_notify(self)
         else:
             self.thread_starter = None
@@ -74,7 +74,7 @@ class ThreadSplit(TaskSpec):
 
         task -- the task to connect to.
         """
-        self.thread_starter.outputs.append(task_spec)
+        self.thread_starter._outputs.append(task_spec.name)
         task_spec._connect_notify(self.thread_starter)
 
     def _get_activated_tasks(self, my_task, destination):
