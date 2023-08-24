@@ -103,6 +103,72 @@ TaskStateMasks = {
 }
 
 
+class TaskIterator:
+
+    def __init__(self, task, state=TaskState.ANY_MASK, updated_after=0, end_at=None, max_depth=1000, depth_first=True):
+        """Iterate over the task tree and return the tasks matching the filter parameters.
+
+        Args:
+            task (Task): the task to start from
+
+        Keyword Args:
+            state (TaskState): limit results to state or mask
+            updated_after (float): limit results to tasks updated after this timestamp
+            end_at (str): stop when a task spec with this name is reached
+            max_depth (int): stop when this depth is reached
+            depth_first (boolean): return results in depth first order
+        """
+
+        self.state = state
+        self.updated_after = updated_after
+        self.end_at = end_at
+        self.max_depth = max_depth
+        self.depth_first = depth_first
+
+        self.queue = [task]
+        self.depth = 0
+        # Figure out which states need to be traversed.
+        # Predicted tasks can follow definite tasks but not vice versa; definite tasks can follow finished tasks but not vice versa
+        # The dream is for a child task to always have a lower task state than its parent; currently we have parents that need to
+        # wait for their children
+        if state & TaskState.PREDICTED_MASK:
+            self.min_state = TaskState.MAYBE
+        elif state & TaskState.DEFINITE_MASK:
+            self.min_state = TaskState.FUTURE
+        else:
+            self.min_state = TaskState.COMPLETED
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        task = self._next()
+        while not task._has_state(self.state) or task.last_state_change < self.updated_after:
+            task = self._next()
+        return task
+
+    def _next(self):
+
+        if len(self.queue) == 0:
+            raise StopIteration()
+
+        task = self.queue.pop(-1)
+        if all([
+            len(task._children) > 0,
+            task.state >= self.min_state,
+            self.depth < self.max_depth,
+            task.task_spec.name != self.end_at,
+        ]):
+            if self.depth_first:
+                self.queue.extend(reversed(task.children))
+            else:
+                self.queue = reversed(task.children) + self.queue
+            self.depth += 1
+        elif len(self.queue) > 0 and task.parent != self.queue[0].parent:
+            self.depth -= 1
+        return task
+
+
 class Task(object):
     """
     Used internally for composing a tree that represents the path that
@@ -123,84 +189,6 @@ class Task(object):
 
     See TaskStates for the available states on a Task.
     """
-
-    class Iterator(object):
-
-        MAX_ITERATIONS = 10000
-
-        """
-        This is a tree iterator that supports filtering such that a client
-        may walk through all tasks that have a specific state.
-        """
-
-        def __init__(self, current, filter=None):
-            """
-            Constructor.
-            """
-            self.filter = filter
-            self.path = [current]
-            self.count = 1
-
-        def __iter__(self):
-            return self
-
-        def _next(self):
-
-            # Make sure that the end is not yet reached.
-            if len(self.path) == 0:
-                raise StopIteration()
-
-            current = self.path[-1]
-            # Assure we don't recurse forever.
-            self.count += 1
-            if self.count > self.MAX_ITERATIONS:
-                raise WorkflowException("Task Iterator entered infinite recursion loop", task_spec=current)
-
-            # If the current task has children, the first child is the next
-            # item. If the current task is LIKELY, and predicted tasks are not
-            # specificly searched, we can ignore the children, because
-            # predicted tasks should only have predicted children.
-            ignore_task = False
-            if self.filter is not None:
-                search_predicted = self.filter & TaskState.LIKELY != 0
-                is_predicted = current.state & TaskState.LIKELY != 0
-                ignore_task = is_predicted and not search_predicted
-            if current.children and not ignore_task:
-                self.path.append(current.children[0])
-                if (self.filter is not None and current.state & self.filter == 0):
-                    return None
-                return current
-
-            # Ending up here, this task has no children. Crop the path until we
-            # reach a task that has unvisited children, or until we hit the end.
-            while True:
-                old_child = self.path.pop(-1)
-                if len(self.path) == 0:
-                    break
-                # If this task has a sibling, choose it.
-                parent = self.path[-1]
-                # We might have updated a task while iterating over the workflow and its children would have been dropped
-                # Not sure I like this change, but it hasn't caused anything to break
-                if parent.state == TaskState.CANCELLED:
-                    continue
-                pos = parent.children.index(old_child)
-                if len(parent.children) > pos + 1:
-                    self.path.append(parent.children[pos + 1])
-                    break
-            if self.filter is not None and current.state & self.filter == 0:
-                return None
-            return current
-
-        def __next__(self):
-            # By using this loop we avoid an (expensive) recursive call.
-            while True:
-                next = self._next()
-                if next is not None:
-                    return next
-
-        # Python 3 iterator protocol
-        next = __next__
-
     # Pool for assigning a unique thread id to every new Task.
     thread_id_pool = 0
 
@@ -297,9 +285,6 @@ class Task(object):
         """
         self.data = DeepMerge.merge(self.data, data)
         data_log.info('Data update', extra=self.log_info())
-
-    def __iter__(self):
-        return Task.Iterator(self)
 
     def _get_root(self):
         """
@@ -656,6 +641,9 @@ class Task(object):
         If recursive is True, the state is applied to the tree recursively.
         """
         self.task_spec._on_trigger(self, *args)
+
+    def __iter__(self):
+            return TaskIterator(self)
 
     def get_dump(self, indent=0, recursive=True):
         """

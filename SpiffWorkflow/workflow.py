@@ -19,7 +19,7 @@
 
 import logging
 
-from .task import Task, TaskState
+from .task import Task, TaskState, TaskIterator
 from .util.compat import mutex
 from .util.event import Event
 from .exceptions import TaskNotFoundException, WorkflowException
@@ -57,9 +57,9 @@ class Workflow(object):
         self.completed_event = Event()
 
         if not deserializing:
-            self.task_tree = Task(self, self.spec.start, state=TaskState.READY)
+            self.task_tree = Task(self, self.spec.start, state=TaskState.FUTURE)
+            self.task_tree.task_spec._predict(self.task_tree, mask=TaskState.NOT_FINISHED_MASK)
             self.task_tree._ready()
-            self._predict()
             logger.info('Initialize', extra=self.log_info())
 
     def log_info(self, dct=None):
@@ -80,7 +80,7 @@ class Workflow(object):
         :rtype: bool
         :return: Whether the workflow is completed.
         """
-        iter = Task.Iterator(self.task_tree, TaskState.NOT_FINISHED_MASK)
+        iter = TaskIterator(self.task_tree, TaskState.NOT_FINISHED_MASK)
         try:
             next(iter)
         except StopIteration:
@@ -89,7 +89,7 @@ class Workflow(object):
         return False
 
     def _predict(self, mask=TaskState.NOT_FINISHED_MASK):
-        for task in Workflow.get_tasks(self,TaskState.NOT_FINISHED_MASK):
+        for task in Workflow.get_tasks(self, TaskState.NOT_FINISHED_MASK):
             task.task_spec._predict(task, mask=mask)
 
     def _task_completed_notify(self, task):
@@ -147,34 +147,30 @@ class Workflow(object):
         """
         self.success = success
         cancel = []
-        for task in Task.Iterator(self.task_tree, TaskState.NOT_FINISHED_MASK):
+        for task in TaskIterator(self.task_tree, TaskState.NOT_FINISHED_MASK):
             cancel.append(task)
         for task in cancel:
             task.cancel()
         logger.info(f'Cancel with {len(cancel)} remaining', extra=self.log_info())
         return cancel
 
-    def get_tasks_iterator(self, state=TaskState.ANY_MASK):
+    def get_tasks_iterator(self, state=TaskState.ANY_MASK, **kwargs):
         """
         Returns a iterator of Task objects with the given state.
 
-        :type  state: integer
-        :param state: A bitmask of states.
         :rtype:  Task.Iterator
         :returns: A list of tasks.
         """
-        return Task.Iterator(self.task_tree, state)
+        return TaskIterator(self.task_tree, state, **kwargs)
 
-    def get_tasks(self, state=TaskState.ANY_MASK):
+    def get_tasks(self, state=TaskState.ANY_MASK, **kwargs):
         """
         Returns a list of Task objects with the given state.
 
-        :type  state: integer
-        :param state: A bitmask of states.
         :rtype:  list[Task]
         :returns: A list of tasks.
         """
-        return [t for t in Task.Iterator(self.task_tree, state)]
+        return [t for t in TaskIterator(self.task_tree, state, **kwargs)]
 
     def get_tasks_from_spec_name(self, name):
         """
@@ -245,7 +241,7 @@ class Workflow(object):
         blacklist = []
         if pick_up and self.last_task is not None:
             try:
-                iter = Task.Iterator(self.last_task, TaskState.READY)
+                iter = TaskIterator(self.last_task, TaskState.READY)
                 task = next(iter)
             except StopIteration:
                 task = None
@@ -258,7 +254,7 @@ class Workflow(object):
                 blacklist.append(task)
 
         # Walk through all ready tasks.
-        for task in Task.Iterator(self.task_tree, TaskState.READY):
+        for task in TaskIterator(self.task_tree, TaskState.READY):
             for blacklisted_task in blacklist:
                 if task._is_descendant_of(blacklisted_task):
                     continue
@@ -269,7 +265,7 @@ class Workflow(object):
             blacklist.append(task)
 
         # Walk through all waiting tasks.
-        for task in Task.Iterator(self.task_tree, TaskState.WAITING):
+        for task in TaskIterator(self.task_tree, TaskState.WAITING):
             task.task_spec._update(task)
             if not task._has_state(TaskState.WAITING):
                 self.last_task = task

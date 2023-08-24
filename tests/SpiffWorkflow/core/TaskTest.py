@@ -1,7 +1,7 @@
 import unittest
 import re
 
-from SpiffWorkflow.task import Task, TaskState
+from SpiffWorkflow.task import Task, TaskState,TaskIterator
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.specs.Simple import Simple
 
@@ -68,7 +68,7 @@ class TaskTest(unittest.TestCase):
 
         # Run the iterator test.
         result = ''
-        for thetask in Task.Iterator(root, TaskState.MAYBE):
+        for thetask in TaskIterator(root, TaskState.MAYBE):
             result += thetask.get_dump(0, False) + '\n'
         self.assertTrue(expected2.match(result),
                         'Expected:\n' + repr(expected2.pattern) + '\n' +

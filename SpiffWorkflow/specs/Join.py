@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ..task import Task, TaskState
+from ..task import Task, TaskState, TaskIterator
 from ..exceptions import WorkflowException
 from .base import TaskSpec
 from ..operators import valueof
@@ -100,7 +100,7 @@ class Join(TaskSpec):
         # Determine whether that branch is now completed by checking whether
         # it has any waiting items other than myself in it.
         skip = None
-        for task in Task.Iterator(my_task, TaskState.NOT_FINISHED_MASK):
+        for task in TaskIterator(my_task, TaskState.NOT_FINISHED_MASK):
             # If the current task is a child of myself, ignore it.
             if skip is not None and task._is_descendant_of(skip):
                 continue

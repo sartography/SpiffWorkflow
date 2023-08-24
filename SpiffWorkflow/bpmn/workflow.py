@@ -107,10 +107,10 @@ class BpmnWorkflow(Workflow):
     def depth(self):
         return 0
 
-    def get_tasks(self, state=TaskState.ANY_MASK, workflow=None):
+    def get_tasks(self, state=TaskState.ANY_MASK, workflow=None, **kwargs):
         tasks = []
         wf = workflow or self
-        for task in Workflow.get_tasks_iterator(wf):
+        for task in Workflow.get_tasks_iterator(wf, **kwargs):
             subprocess = self.subprocesses.get(task.id)
             if task._has_state(state):
                 tasks.append(task)
