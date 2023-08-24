@@ -87,7 +87,7 @@ def remove_boundary_event_parent(dct):
                         'children': [],
                         'state': state,
                         'task_spec': task['task_spec'].replace('BoundaryEventSplit', 'BoundaryEventJoin'),
-                        'last_state_change': None,
+                        'last_state_change': child_task['last_state_change'],
                         'triggered': False,
                         'internal_data': {},
                         'data': {},
