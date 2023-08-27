@@ -22,7 +22,7 @@ class BusinessRuleTaskParserTest(BaseTestCase):
 
     def testDmnRaisesTaskErrors(self):
         self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
+        self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].set_data(x=3)
         try:
             self.workflow.do_engine_steps()
             self.assertTrue(False, "An error should have been raised.")
@@ -31,10 +31,3 @@ class BusinessRuleTaskParserTest(BaseTestCase):
             self.assertEqual("InvalidDecisionTaskId", we.task_spec.name)
             self.maxDiff = 1000
             self.assertEqual("Error evaluating expression 'spam= 1'. Rule failed on row 1. Business Rule Task 'Invalid Decision'.", str(we))
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(BusinessRuleTaskParserTest)
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

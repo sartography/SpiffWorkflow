@@ -19,7 +19,7 @@ class SpiffPropertiesTest(BaseTestCase):
         self.workflow.do_engine_steps()
         if save_restore:
             self.save_restore()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         # The ready task's spec should contain extension properties
         # with name/value pairs.
         task = ready_tasks[0]

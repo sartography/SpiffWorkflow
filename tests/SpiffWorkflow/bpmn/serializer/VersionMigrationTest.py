@@ -17,7 +17,7 @@ class Version_1_0_Test(BaseTestCase):
         with open(fn) as fh:
             wf = self.serializer.deserialize_json(fh.read())
         # We should be able to finish the workflow from this point
-        ready_tasks = wf.get_tasks(TaskState.READY)
+        ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
         self.assertEqual('Action3', ready_tasks[0].task_spec.bpmn_name)
         ready_tasks[0].run()
         wf.do_engine_steps()
@@ -85,10 +85,10 @@ class Version_1_1_Test(BaseTestCase):
         self.assertEqual(start.state, TaskState.COMPLETED)
         signal = wf.get_tasks_from_spec_name('signal')[0]
         self.assertEqual(signal.state, TaskState.CANCELLED)
-        ready_tasks = wf.get_tasks(TaskState.READY)
+        ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
         while len(ready_tasks) > 0:
             ready_tasks[0].run()
-            ready_tasks = wf.get_tasks(TaskState.READY)
+            ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
         self.assertTrue(wf.is_completed())
 
 
@@ -97,11 +97,11 @@ class Version1_2_Test(BaseTestCase):
     def test_remove_boundary_events(self):
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.2-boundary-events.json')
         wf = self.serializer.deserialize_json(open(fn).read())
-        ready_tasks = wf.get_tasks(TaskState.READY)
+        ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].run()
         wf.do_engine_steps()
-        ready_tasks = wf.get_tasks(TaskState.READY)
+        ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
         ready_tasks[0].update_data({'quantity': 2})
         ready_tasks[0].run()
         wf.do_engine_steps()
@@ -127,8 +127,8 @@ class Version1_2_Test(BaseTestCase):
 
         wf.get_tasks_from_spec_name('sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE')[0].run()
         wf.do_engine_steps()
-        self.assertEqual(1, len(wf.get_tasks(TaskState.READY)))
-        self.assertEqual(3, len(wf.get_tasks(TaskState.WAITING)))
+        self.assertEqual(1, len(wf.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(3, len(wf.get_tasks(task_filter=self.waiting_task_filter)))
 
         wf.get_tasks_from_spec_name('sid-6FBBB56D-00CD-4C2B-9345-486986BB4992')[0].run()
         wf.do_engine_steps()

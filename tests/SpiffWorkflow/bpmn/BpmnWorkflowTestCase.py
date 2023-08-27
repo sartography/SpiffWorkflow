@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import json
 import os
 import unittest
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.task import TaskState, TaskFilter
 
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer, DEFAULT_SPEC_CONFIG
 from .BpmnLoaderForTests import TestUserTaskConverter, TestBpmnParser, TestDataStoreConverter
@@ -20,6 +18,10 @@ wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter(spe
 class BpmnWorkflowTestCase(unittest.TestCase):
 
     serializer = BpmnWorkflowSerializer(wf_spec_converter)
+
+    ready_task_filter = TaskFilter(state=TaskState.READY)
+    waiting_task_filter = TaskFilter(state=TaskState.WAITING)
+    ready_or_waiting_filter = TaskFilter(state=TaskState.READY|TaskState.WAITING)
 
     def get_parser(self, filename, validate=True):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
@@ -51,7 +53,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             self.save_restore_all()
 
         self.workflow.do_engine_steps()
-        tasks = self.workflow.get_tasks(TaskState.READY)
+        tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         self._do_single_step(step_name, tasks, set_attribs, choice)
 
     def do_next_named_step(self, step_name, with_save_load=False, set_attribs=None, choice=None, only_one_instance=True):
@@ -84,13 +86,13 @@ class BpmnWorkflowTestCase(unittest.TestCase):
                     return False
             return True
 
-        tasks = [t for t in self.workflow.get_tasks(TaskState.READY) if is_match(t)]
+        tasks = [t for t in self.workflow.get_tasks(task_filter=self.ready_task_filter) if is_match(t)]
 
         self._do_single_step(
             step_name_path[-1], tasks, set_attribs, choice, only_one_instance=only_one_instance)
 
     def assertTaskNotReady(self, step_name):
-        tasks = list([t for t in self.workflow.get_tasks(TaskState.READY)
+        tasks = list([t for t in self.workflow.get_tasks(task_filter=self.ready_task_filter)
                      if t.task_spec.name == step_name or t.task_spec.bpmn_name == step_name])
         self.assertEqual([], tasks)
 

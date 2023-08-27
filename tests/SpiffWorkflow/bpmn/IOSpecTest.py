@@ -33,7 +33,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         script_task.script = """in_1, in_2, unused = 1, "hello world", True"""
 
         self.advance_to_subprocess()
-        task = self.workflow.get_tasks(TaskState.READY)[0]
+        task = self.workflow.get_tasks(task_filter=self.ready_task_filter)[0]
         transform_task = task.workflow.spec.task_specs['Activity_04d94ee']
         transform_task.script = """out_1, unused = in_1 * 2, False"""
 
@@ -52,7 +52,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
 
         self.advance_to_subprocess()
         # This will be the first task of the subprocess
-        task = self.workflow.get_tasks(TaskState.READY)[0]
+        task = self.workflow.get_tasks(task_filter=self.ready_task_filter)[0]
 
         # These should be copied
         self.assertIn('in_1', task.data)
@@ -63,7 +63,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         self.complete_subprocess()
         # Refreshing causes the subprocess to become ready
         self.workflow.refresh_waiting_tasks()
-        task = self.workflow.get_tasks(TaskState.READY)[0]
+        task = self.workflow.get_tasks(task_filter=self.ready_task_filter)[0]
         # Originals should not change
         self.assertEqual(task.data['in_1'], 1)
         self.assertEqual(task.data['in_2'], "hello world")
@@ -74,18 +74,18 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
 
     def advance_to_subprocess(self):
         # Once we enter the subworkflow it becomes a waiting task
-        waiting = self.workflow.get_tasks(TaskState.WAITING)
+        waiting = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
         while len(waiting) == 0:
-            next_task = self.workflow.get_tasks(TaskState.READY)[0]
+            next_task = self.workflow.get_tasks(task_filter=self.ready_task_filter)[0]
             next_task.run()
-            waiting = self.workflow.get_tasks(TaskState.WAITING)
+            waiting = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
 
     def complete_subprocess(self):
         # Complete the ready tasks in the subprocess
-        ready = self.workflow.get_tasks(TaskState.READY)
+        ready = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         while len(ready) > 0:
             ready[0].run()
-            ready = self.workflow.get_tasks(TaskState.READY)
+            ready = self.workflow.get_tasks(task_filter=self.ready_task_filter)
 
 class IOSpecOnTaskTest(BpmnWorkflowTestCase):
 

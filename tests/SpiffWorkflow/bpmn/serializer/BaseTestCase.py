@@ -4,12 +4,16 @@ import os
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
+from SpiffWorkflow.task import TaskState, TaskFilter
 
 
 class BaseTestCase(unittest.TestCase):
 
     SERIALIZER_VERSION = "100.1.ANY"
     DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
+
+    ready_task_filter = TaskFilter(state=TaskState.READY)
+    waiting_task_filter = TaskFilter(state=TaskState.WAITING)
 
     def load_workflow_spec(self, filename, process_name):
         parser = BpmnParser()

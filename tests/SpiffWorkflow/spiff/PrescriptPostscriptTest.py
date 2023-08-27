@@ -25,7 +25,7 @@ class PrescriptPostsciptTest(BaseTestCase):
         # Set a on the workflow and b in the first task.
         self.workflow.data['a'] = 1
         self.set_process_data({'b': 2})
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         # This execute the same script as task_test
         ready_tasks[0].run()
         # a should be removed, b should be unchanged, and c and z should be present (but not x & y)
@@ -39,7 +39,7 @@ class PrescriptPostsciptTest(BaseTestCase):
             self.save_restore()
 
         self.set_process_data({'a': 1, 'b': 2})
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         # The prescript sets x, y = a * 2, b * 2 and creates the variable z = x + y
         # The postscript sets c = z * 2 and deletes x and y
         # a and b should remain unchanged, and c and z should be added
@@ -52,7 +52,7 @@ class PrescriptPostsciptTest(BaseTestCase):
         self.workflow = BpmnWorkflow(spec, subprocesses)
         if save_restore:
             self.save_restore()
-        self.workflow.get_tasks(TaskState.READY)
+        self.workflow.get_tasks(task_filter=self.ready_task_filter)
         # Calling do-engine steps without setting variables will raise an exception.
         with self.assertRaises(SpiffWorkflowException) as se:
             self.workflow.do_engine_steps()
@@ -81,6 +81,6 @@ class PrescriptPostsciptTest(BaseTestCase):
         self.assertEqual(task.data.get('new'), 'HELLO')
 
     def set_process_data(self, data):
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         ready_tasks[0].set_data(**data)
         self.workflow.do_engine_steps()

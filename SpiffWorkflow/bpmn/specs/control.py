@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.task import TaskState, TaskFilter
 from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.specs.Join import Join
 
@@ -96,7 +96,7 @@ class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
         # Look at the tree to find all ready and waiting tasks (excluding
         # ourself). The EndJoin waits for everyone!
         waiting_tasks = []
-        for task in my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING):
+        for task in my_task.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.READY|TaskState.WAITING)):
             if task.thread_id != my_task.thread_id:
                 continue
             if task.task_spec == my_task.task_spec:

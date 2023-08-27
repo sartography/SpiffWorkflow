@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 import time
 
@@ -23,7 +21,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
 
@@ -33,7 +31,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
             if save_restore:
                 self.save_restore()
             time.sleep(0.01)
-            self.assertEqual(len(self.workflow.get_tasks(TaskState.READY)), 1)
+            self.assertEqual(len(self.workflow.get_tasks(task_filter=self.ready_task_filter)), 1)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
             loopcount += 1
@@ -50,9 +48,3 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         # Assure that the loopcount is less than 10, and the timer interrupt fired, rather
         # than allowing us to continue to loop the full 10 times.
         self.assertTrue(loopcount < 10)
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TimerDurationTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

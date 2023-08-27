@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
 from SpiffWorkflow.task import TaskState
@@ -47,7 +45,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
     def testShouldEscalate(self):
         completed_set = set()
         track_workflow(self.spec, completed_set)
-        for task in self.workflow.get_tasks(TaskState.READY):
+        for task in self.workflow.get_tasks(task_filter=self.ready_task_filter):
             task.set_data(should_escalate=True)
         self.workflow.do_engine_steps()
         self.save_restore()
@@ -77,7 +75,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
     def testShouldNotEscalate(self):
         completed_set = set()
         track_workflow(self.spec, completed_set)
-        for task in self.workflow.get_tasks(TaskState.READY):
+        for task in self.workflow.get_tasks(task_filter=self.ready_task_filter):
             task.set_data(should_escalate=False)
         self.workflow.do_engine_steps()
         self.save_restore()
@@ -136,18 +134,3 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
 class CallActivityEscalationWithoutSaveRestoreTest(CallActivityEscalationTest):
     def save_restore(self):
         pass # disabling save_restore for this test case
-
-
-def suite():
-    loader = unittest.TestLoader()
-    return unittest.TestSuite([
-        loader.loadTestsFromTestCase(cls)
-        for cls in [
-            CallActivityEscalationTest,
-            CallActivityEscalationWithoutSaveRestoreTest,
-        ]
-    ])
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -28,7 +28,7 @@ class MessageBoundaryTest(BaseTestCase):
                  ('Activity_Interrupt', {'interrupt_task': 'Yes'}),
                  ]
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         self.assertEqual(2, len(ready_tasks),'Expected to have two ready tasks')
         for step in steps:
             for task in ready_tasks:
@@ -42,7 +42,7 @@ class MessageBoundaryTest(BaseTestCase):
                 if save_restore:
                     self.save_restore()
                     self.workflow.script_engine = self.script_engine
-            ready_tasks = self.workflow.get_tasks(TaskState.READY)
+            ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         time.sleep(.01)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()

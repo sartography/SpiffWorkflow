@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.task import TaskState, Task
+from SpiffWorkflow.task import TaskState, Task, TaskFilter
 from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.exceptions import WorkflowException, TaskNotFoundException
 
@@ -107,15 +107,16 @@ class BpmnWorkflow(Workflow):
     def depth(self):
         return 0
 
-    def get_tasks(self, state=TaskState.ANY_MASK, workflow=None, **kwargs):
+    def get_tasks(self, workflow=None, **kwargs):
         tasks = []
         wf = workflow or self
-        for task in Workflow.get_tasks_iterator(wf, **kwargs):
+        task_filter = kwargs.get('task_filter') or TaskFilter()
+        for task in Workflow.get_tasks_iterator(wf):
             subprocess = self.subprocesses.get(task.id)
-            if task._has_state(state):
+            if task_filter.matches(task):
                 tasks.append(task)
             if subprocess is not None:
-                tasks.extend(self.get_tasks(state, subprocess))
+                tasks.extend(self.get_tasks(subprocess, **kwargs))
         return tasks
 
     def get_tasks_from_spec_name(self, name, workflow=None):
@@ -123,14 +124,15 @@ class BpmnWorkflow(Workflow):
 
     def get_ready_user_tasks(self, lane=None, workflow=None):
         """Returns a list of User Tasks that are READY for user action"""
+        ready_task_filter = TaskFilter(state=TaskState.READY)
         if lane is not None:
-            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual and t.task_spec.lane == lane]
+            return [t for t in self.get_tasks(workflow, task_filter=ready_task_filter) if t.task_spec.manual and t.task_spec.lane == lane]
         else:
-            return [t for t in self.get_tasks(TaskState.READY, workflow) if t.task_spec.manual]
+            return [t for t in self.get_tasks(workflow, task_filter=ready_task_filter) if t.task_spec.manual]
 
     def get_waiting_tasks(self, workflow=None):
         """Returns a list of all WAITING tasks"""
-        return self.get_tasks(TaskState.WAITING, workflow)
+        return self.get_tasks(workflow, task_filter=TaskFilter(state=TaskState.WAITING))
 
     def get_catching_tasks(self, workflow=None):
         return [task for task in self.get_tasks(workflow=workflow) if isinstance(task.task_spec, CatchingEvent)]
@@ -175,7 +177,7 @@ class BpmnWorkflow(Workflow):
                 self.bpmn_events.append(event)
         else:
             catches = lambda t: isinstance(t.task_spec, CatchingEvent) and t.task_spec.catches(t, event)
-            tasks = [t for t in event.target.get_tasks_iterator(TaskState.NOT_FINISHED_MASK) if catches(t)]
+            tasks = [t for t in event.target.get_tasks_iterator(task_filter=TaskFilter(state=TaskState.NOT_FINISHED_MASK)) if catches(t)]
 
         for task in tasks:
             task.task_spec.catch(task, event)
@@ -216,7 +218,7 @@ class BpmnWorkflow(Workflow):
         def update_workflow(wf):
             count = 0
             # Wanted to use the iterator method here, but at least this is a shorter list
-            for task in wf.get_tasks(TaskState.READY):
+            for task in wf.get_tasks(task_filter=TaskFilter(state=TaskState.READY)):
                 if not task.task_spec.manual:
                     if will_complete_task is not None:
                         will_complete_task(task)
@@ -255,10 +257,10 @@ class BpmnWorkflow(Workflow):
                 did_refresh_task(task)           
  
         for subprocess in sorted(self.get_active_subprocesses(), key=lambda v: v.depth, reverse=True):
-            for task in subprocess.get_tasks_iterator(TaskState.WAITING):
+            for task in subprocess.get_tasks_iterator(task_filter=TaskFilter(state=TaskState.WAITING)):
                 update_task(task)
 
-        for task in self.get_tasks_iterator(TaskState.WAITING):
+        for task in self.get_tasks_iterator(task_filter=TaskFilter(state=TaskState.WAITING)):
             update_task(task)
 
     def get_task_from_id(self, task_id):

@@ -5,7 +5,7 @@ from SpiffWorkflow.specs.Join import Join
 from SpiffWorkflow.specs.MultiChoice import MultiChoice
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.operators import Attrib, Equal, PathAttrib
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.task import TaskState, TaskFilter
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.serializer.dict import DictionarySerializer
 
@@ -37,6 +37,8 @@ class PersistSmallWorkflowTest(unittest.TestCase):
 
     """Runs persistency tests agains a small and easy to inspect workflowdefinition"""
 
+    ready_task_filter = TaskFilter(state=TaskState.READY)
+
     def setUp(self):
         self.wf_spec = ASmallWorkflow()
         self.workflow = self._advance_to_a1(self.wf_spec)
@@ -44,15 +46,15 @@ class PersistSmallWorkflowTest(unittest.TestCase):
     def _advance_to_a1(self, wf_spec):
         workflow = Workflow(wf_spec)
 
-        tasks = workflow.get_tasks(TaskState.READY)
+        tasks = workflow.get_tasks(task_filter=self.ready_task_filter)
         task_start = tasks[0]
         workflow.run_task_from_id(task_start.id)
 
-        tasks = workflow.get_tasks(TaskState.READY)
+        tasks = workflow.get_tasks(task_filter=self.ready_task_filter)
         multichoice = tasks[0]
         workflow.run_task_from_id(multichoice.id)
 
-        tasks = workflow.get_tasks(TaskState.READY)
+        tasks = workflow.get_tasks(task_filter=self.ready_task_filter)
         task_a1 = tasks[0]
         workflow.run_task_from_id(task_a1.id)
         return workflow

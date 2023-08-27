@@ -14,11 +14,11 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def testNormalCompletion(self):
 
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         ready_tasks[0].update_data({'quantity': 2})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
@@ -40,7 +40,7 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def testSubworkflowCancelEvent(self):
 
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
 
         # If value == '', we cancel
         ready_tasks[0].update_data({'value': ''})
@@ -67,11 +67,11 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def testSubworkflowErrorCodeNone(self):
 
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
 
         # If quantity == 0, we throw an error with no error code
         ready_tasks[0].update_data({'quantity': 0})
@@ -99,11 +99,11 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
 
     def testSubworkflowErrorCodeOne(self):
 
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
 
         # If quantity < 0, we throw 'Error 1'
         ready_tasks[0].update_data({'quantity': -1})

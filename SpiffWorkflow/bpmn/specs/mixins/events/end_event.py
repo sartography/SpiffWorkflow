@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.task import TaskState, TaskFilter
 from SpiffWorkflow.bpmn.specs.event_definitions.simple import TerminateEventDefinition, CancelEventDefinition
 from .event_types import ThrowingEvent
 
@@ -49,7 +49,7 @@ class EndEvent(ThrowingEvent):
 
             # We are finished.  Set the workflow data and cancel all tasks
             my_task.workflow.set_data(**my_task.data)
-            for task in my_task.workflow.get_tasks(TaskState.NOT_FINISHED_MASK):
+            for task in my_task.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.NOT_FINISHED_MASK)):
                 task.cancel()
 
         elif isinstance(self.event_definition, CancelEventDefinition):

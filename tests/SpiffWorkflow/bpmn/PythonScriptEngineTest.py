@@ -31,7 +31,7 @@ class PythonScriptEngineTest(BpmnWorkflowTestCase):
         """Ran into an issue where data from one run of a workflow could
         bleed into a separate execution.  It will think a variable is there
         when it should not be there"""
-        startTask = self.workflow.get_tasks(TaskState.READY)[0]
+        startTask = self.workflow.get_tasks(task_filter=self.ready_task_filter)[0]
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
         self.assertTrue("testvar" in self.workflow.last_task.data)

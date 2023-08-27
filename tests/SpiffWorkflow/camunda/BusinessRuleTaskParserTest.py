@@ -17,13 +17,13 @@ class BusinessRuleTaskParserTest(BaseTestCase):
         self.workflow = BpmnWorkflow(self.spec)
 
     def testDmnHappy(self):
-        self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
+        self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].set_data(x=3)
         self.workflow.do_engine_steps()
         self.assertDictEqual(self.workflow.data, {'x': 3, 'y': 'A'})
         self.assertDictEqual(self.workflow.last_task.data, {'x': 3, 'y': 'A'})
 
     def testDmnSaveRestore(self):
-        self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
+        self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].set_data(x=3)
         self.save_restore()
         self.workflow.do_engine_steps()
         self.save_restore()
@@ -36,14 +36,14 @@ class BusinessRuleTaskParserTest(BaseTestCase):
         but the DMN evaluate method did not get a task object.  While this is
         an optional argument, it should always exist if executed in the context
         of a BPMNWorkflow"""
-        self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
+        self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].set_data(x=3)
         self.workflow.do_engine_steps()
         task = self.workflow.get_tasks_from_spec_name('TaskDecision')[0]
         name, args, kwargs = mock_engine.mock_calls[0]
         self.assertIn(task, args)
 
     def testDmnUsesSameScriptEngineAsBPMN(self):
-        self.workflow.get_tasks(TaskState.READY)[0].set_data(x=3)
+        self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].set_data(x=3)
         self.workflow.do_engine_steps()
 
 

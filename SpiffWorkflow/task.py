@@ -103,24 +103,47 @@ TaskStateMasks = {
 }
 
 
+class TaskFilter:
+
+    def __init__(self, state=TaskState.ANY_MASK, updated_after=0):
+        """
+        Parameters:
+            state (TaskState): limit results to state or mask
+            updated_after (float): limit results to tasks updated after this timestamp
+        """
+        self.state = state
+        self.updated_after = updated_after
+
+    def matches(self, task):
+        """Check if the task matches this filter
+
+        Args:
+            task (Task): the task to check
+
+        Returns:
+            bool: indicates whether the task matches
+        """
+        return all([
+            task._has_state(self.state),
+            task.last_state_change > self.updated_after,
+        ])
+
+
 class TaskIterator:
 
-    def __init__(self, task, state=TaskState.ANY_MASK, updated_after=0, end_at=None, max_depth=1000, depth_first=True):
+    def __init__(self, task, task_filter=None, end_at=None, max_depth=1000, depth_first=True):
         """Iterate over the task tree and return the tasks matching the filter parameters.
 
         Args:
             task (Task): the task to start from
 
         Keyword Args:
-            state (TaskState): limit results to state or mask
-            updated_after (float): limit results to tasks updated after this timestamp
+            task_filter (TaskFilter): return only tasks matching this filter
             end_at (str): stop when a task spec with this name is reached
             max_depth (int): stop when this depth is reached
-            depth_first (boolean): return results in depth first order
+            depth_first (bool): return results in depth first order
         """
-
-        self.state = state
-        self.updated_after = updated_after
+        self.task_filter = task_filter or TaskFilter()
         self.end_at = end_at
         self.max_depth = max_depth
         self.depth_first = depth_first
@@ -129,11 +152,11 @@ class TaskIterator:
         self.depth = 0
         # Figure out which states need to be traversed.
         # Predicted tasks can follow definite tasks but not vice versa; definite tasks can follow finished tasks but not vice versa
-        # The dream is for a child task to always have a lower task state than its parent; currently we have parents that need to
-        # wait for their children
-        if state & TaskState.PREDICTED_MASK:
+        # The dream is for a child task to always have a lower task state than its parent; currently we have parents that wait for
+        # their children
+        if self.task_filter.state & TaskState.PREDICTED_MASK:
             self.min_state = TaskState.MAYBE
-        elif state & TaskState.DEFINITE_MASK:
+        elif self.task_filter.state & TaskState.DEFINITE_MASK:
             self.min_state = TaskState.FUTURE
         else:
             self.min_state = TaskState.COMPLETED
@@ -143,7 +166,7 @@ class TaskIterator:
 
     def __next__(self):
         task = self._next()
-        while not task._has_state(self.state) or task.last_state_change < self.updated_after:
+        while not self.task_filter.matches(task):
             task = self._next()
         return task
 

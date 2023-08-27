@@ -36,8 +36,8 @@ class StartMessageTest(BaseTestCase):
                  ('Activity_ApproveOrDeny', {'approved':'Yes'}),
                  ('Activity_EnablePlan',{'Done':'OK!'})]
         self.workflow.do_engine_steps() # get around start task
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)
+        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+        waiting_tasks = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
         self.assertEqual(1, len(ready_tasks),'Expected to have one ready task')
         self.assertEqual(1, len(waiting_tasks), 'Expected to have one waiting task')
 
@@ -50,7 +50,7 @@ class StartMessageTest(BaseTestCase):
             self.workflow.refresh_waiting_tasks()
             if save_restore:
                 self.save_restore()
-            ready_tasks = self.workflow.get_tasks(TaskState.READY)
+            ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
 
         self.assertEqual(self.workflow.is_completed(),True,'Expected the workflow to be complete at this point')
         self.assertEqual(self.workflow.last_task.data,

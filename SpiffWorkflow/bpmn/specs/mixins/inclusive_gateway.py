@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.task import TaskState, TaskFilter
 from SpiffWorkflow.specs.MultiChoice import MultiChoice
 from .unstructured_join import UnstructuredJoin
 
@@ -92,7 +92,8 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
         else:
             # Handle the case where there are paths from active tasks that must go through waiting inputs
             waiting_inputs = [i for i in self.inputs if i not in completed_inputs]
-            sources = [t.task_spec for t in my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING)]
+            task_filter = TaskFilter(state=TaskState.READY|TaskState.WAITING)
+            sources = [t.task_spec for t in my_task.workflow.get_tasks(task_filter=task_filter)]
 
             # This will go back through a task spec's ancestors and return the source, if applicable
             def check(spec): 

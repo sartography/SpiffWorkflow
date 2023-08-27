@@ -16,9 +16,9 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
     def testRunThroughHappy(self):
 
         self.complete_task('Action1', True)
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
         self.complete_task('Action2', True)
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
         self.complete_task('Action3', True)
         self.assertTrue(self.workflow.is_completed())
 
