@@ -82,7 +82,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         ready_tasks[0].data['obj_1'] = 'hello again'
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
-        sp = self.workflow.get_tasks_from_spec_name('subprocess')[0]
+        sp = self.get_first_task_from_spec_name('subprocess')
         # It was copied out
         self.assertNotIn('obj_1', sp.data)
         # The update should persist in the main process

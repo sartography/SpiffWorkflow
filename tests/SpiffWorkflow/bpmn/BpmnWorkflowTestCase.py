@@ -48,6 +48,12 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         parser.add_bpmn_files_by_glob(f)
         return parser.find_all_specs()
 
+    def filter_tasks_by_spec_name(self, spec_name):
+        return self.workflow.get_tasks(task_filter=TaskFilter(spec_name=spec_name))
+
+    def get_first_task_from_spec_name(self, spec_name):
+        return self.workflow.get_tasks(task_filter=TaskFilter(spec_name=spec_name))[0]
+
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:
             self.save_restore_all()

@@ -60,10 +60,10 @@ class TimerCycleTest(BpmnWorkflowTestCase):
                 self.assertEqual(len(events), 0)
 
         # Get coffee still ready
-        coffee = self.workflow.get_tasks_from_spec_name('Get_Coffee')[0]
+        coffee = self.get_first_task_from_spec_name('Get_Coffee')
         self.assertEqual(coffee.state, TaskState.READY)
         # Timer completed
-        timer = self.workflow.get_tasks_from_spec_name('CatchMessage')[0]
+        timer = self.get_first_task_from_spec_name('CatchMessage')
         self.assertEqual(timer.state, TaskState.COMPLETED)
         self.assertEqual(counter, 2)
 

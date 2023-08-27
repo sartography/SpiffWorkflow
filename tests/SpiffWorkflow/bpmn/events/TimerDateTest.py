@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 import datetime
 import time
@@ -34,7 +32,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
         loopcount = 0
         starttime = datetime.datetime.now()
         # test bpmn has a timeout of .05s; we should terminate loop before that.
-        while len(self.workflow.get_waiting_tasks()) > 0 and loopcount < 8:
+        while len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)) > 0 and loopcount < 8:
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = self.script_engine
@@ -45,10 +43,3 @@ class TimerDateTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
         self.assertTrue((endtime-starttime) > datetime.timedelta(seconds=.02))
-
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TimerDateTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

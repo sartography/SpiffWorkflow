@@ -48,7 +48,7 @@ class ExternalMessageBoundaryTest(BaseTestCase):
         ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         # The user activity was cancelled and we should continue from the boundary event
         self.assertEqual(2, len(ready_tasks), 'Expected to have two ready tasks')
-        event = self.workflow.get_tasks_from_spec_name('Event_19detfv')[0]
+        event = self.get_first_task_from_spec_name('Event_19detfv')
         event.run()
         self.assertEqual('SomethingDrastic', event.data['reset_var'])
         self.assertEqual(False, event.data['caughtinterrupt'])

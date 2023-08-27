@@ -9,7 +9,7 @@ class EventPayloadTest(BaseTestCase):
         self.workflow = BpmnWorkflow(spec)
         self.workflow.do_engine_steps()
         self.save_restore()
-        set_data = self.workflow.get_tasks_from_spec_name('set_data')[0]
+        set_data = self.get_first_task_from_spec_name('set_data')
         # Throw event creates payload from v1 & v2
         set_data.data = {'v1': 1, 'v2': 2, 'v3': 3}
         set_data.run()
@@ -27,7 +27,7 @@ class EventPayloadTest(BaseTestCase):
         self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
         self.save_restore()
-        set_data = self.workflow.get_tasks_from_spec_name('set_data')[0]
+        set_data = self.get_first_task_from_spec_name('set_data')
         # Throw event creates payload from v1 & v2
         set_data.data = {'error': True, 'payload': 'ERROR!'}
         set_data.run()
@@ -40,7 +40,7 @@ class EventPayloadTest(BaseTestCase):
         self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
         self.save_restore()
-        set_data = self.workflow.get_tasks_from_spec_name('set_data')[0]
+        set_data = self.get_first_task_from_spec_name('set_data')
         # Throw event creates payload from v1 & v2
         set_data.data = {'escalation': True, 'payload': 'ERROR!'}
         set_data.run()

@@ -19,7 +19,7 @@
 
 from copy import deepcopy
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.task import TaskState, TaskFilter
 from SpiffWorkflow.specs.base import TaskSpec
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 
@@ -64,7 +64,7 @@ class SubWorkflowTask(TaskSpec):
         # But our data management is already hopelessly messed up and in dire needs of reconsideration
         if len(subworkflow.spec.data_objects) > 0:
             subworkflow.data = my_task.workflow.data
-        start = subworkflow.get_tasks_from_spec_name('Start')
+        start = subworkflow.get_tasks(task_filter=TaskFilter(spec_name='Start'))
         start[0].set_data(**my_task.data)
 
     def update_data(self, my_task, subworkflow):
@@ -89,7 +89,7 @@ class CallActivity(SubWorkflowTask):
 
     def copy_data(self, my_task, subworkflow):
 
-        start = subworkflow.get_tasks_from_spec_name('Start')
+        start = subworkflow.get_tasks(task_filter=TaskFilter(spec_name='Start'))
         if subworkflow.spec.io_specification is None or len(subworkflow.spec.io_specification.data_inputs) == 0:
             # Copy all task data into start task if no inputs specified
             start[0].set_data(**my_task.data)
@@ -110,7 +110,7 @@ class CallActivity(SubWorkflowTask):
             # Copy all workflow data if no outputs are specified
             my_task.data = deepcopy(subworkflow.last_task.data)
         else:
-            end = subworkflow.get_tasks_from_spec_name('End')
+            end = subworkflow.get_tasks(task_filter=TaskFilter(spec_name='End'))
             # Otherwise only copy data with the specified names
             for var in subworkflow.spec.io_specification.data_outputs:
                 if var.bpmn_id not in end[0].data:

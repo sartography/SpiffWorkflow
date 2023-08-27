@@ -105,14 +105,23 @@ TaskStateMasks = {
 
 class TaskFilter:
 
-    def __init__(self, state=TaskState.ANY_MASK, updated_after=0):
+    def __init__(self, state=TaskState.ANY_MASK, updated_after=0, manual=None, spec_name=None, spec_class=None):
         """
         Parameters:
             state (TaskState): limit results to state or mask
             updated_after (float): limit results to tasks updated after this timestamp
+            manual (bool): match the value of the task's spec's manual attribute
+            spec_name (str): match the value of the task's spec's name
+            spec_class (TaskSpec): match the value of the task's spec's class
+
+        Notes:
+            If no parameter value is provided, all tasks will match
         """
         self.state = state
         self.updated_after = updated_after
+        self.manual = manual
+        self.spec_name = spec_name
+        self.spec_class = spec_class
 
     def matches(self, task):
         """Check if the task matches this filter
@@ -126,12 +135,15 @@ class TaskFilter:
         return all([
             task._has_state(self.state),
             task.last_state_change > self.updated_after,
+            self.manual is None or task.task_spec.manual == self.manual,
+            self.spec_name is None or task.task_spec.name == self.spec_name,
+            self.spec_class is None or isinstance(task.task_spec, self.spec_class),
         ])
 
 
 class TaskIterator:
 
-    def __init__(self, task, task_filter=None, end_at=None, max_depth=1000, depth_first=True):
+    def __init__(self, task, task_filter=None, end_at_spec=None, max_depth=1000, depth_first=True):
         """Iterate over the task tree and return the tasks matching the filter parameters.
 
         Args:
@@ -144,7 +156,7 @@ class TaskIterator:
             depth_first (bool): return results in depth first order
         """
         self.task_filter = task_filter or TaskFilter()
-        self.end_at = end_at
+        self.end_at_spec = end_at_spec
         self.max_depth = max_depth
         self.depth_first = depth_first
 
@@ -180,7 +192,7 @@ class TaskIterator:
             len(task._children) > 0,
             task.state >= self.min_state,
             self.depth < self.max_depth,
-            task.task_spec.name != self.end_at,
+            task.task_spec.name != self.end_at_spec,
         ]):
             if self.depth_first:
                 self.queue.extend(reversed(task.children))

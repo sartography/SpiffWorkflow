@@ -58,7 +58,7 @@ class PrescriptPostsciptTest(BaseTestCase):
             self.workflow.do_engine_steps()
         ex = se.exception
         self.assertIn("Error occurred in the Pre-Script", str(ex))
-        task = self.workflow.get_tasks_from_spec_name('Activity_1iqs4li')[0]
+        task = self.get_first_task_from_spec_name('Activity_1iqs4li')
         self.assertEqual(task.state, TaskState.ERROR)
 
     def call_activity_test(self, save_restore=False):
@@ -74,7 +74,7 @@ class PrescriptPostsciptTest(BaseTestCase):
         # we did not explicitly remove them.  We don't implicitly remove them because this would be
         # the wrong behavior for regular tasks.
         self.set_process_data({'old': 'hello'})
-        task = self.workflow.get_tasks_from_spec_name('Activity_0g9bcsc')[0]
+        task = self.get_first_task_from_spec_name('Activity_0g9bcsc')
         # The original data is still present and unchanged
         self.assertEqual(task.data.get('old'), 'hello')
         # The new data has been added

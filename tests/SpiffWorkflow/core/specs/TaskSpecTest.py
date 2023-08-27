@@ -1,5 +1,6 @@
 import unittest
 
+from SpiffWorkflow.task import TaskFilter
 from SpiffWorkflow.specs.Join import Join
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
@@ -14,6 +15,9 @@ class TaskSpecTest(unittest.TestCase):
         if 'testtask' in self.wf_spec.task_specs:
             del self.wf_spec.task_specs['testtask']
         return TaskSpec(self.wf_spec, 'testtask', description='foo')
+
+    def get_first_task_from_spec_name(self, workflow, spec_name):
+        return workflow.get_tasks(task_filter=TaskFilter(spec_name=spec_name))[0]
 
     def setUp(self):
         self.wf_spec = WorkflowSpec(addstart=True)

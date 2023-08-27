@@ -1,7 +1,7 @@
 import os
 import time
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.task import TaskState, TaskFilter
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.serializer.migration.exceptions import VersionMigrationError
@@ -52,7 +52,7 @@ class Version_1_1_Test(BaseTestCase):
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.1-gateways.json')
         wf = self.serializer.deserialize_json(open(fn).read())
         wf.do_engine_steps()
-        task = wf.get_tasks_from_spec_name('Gateway_askQuestion')[0]
+        task = self.get_first_task_from_spec_name(wf, 'Gateway_askQuestion')
         self.assertEqual(len(task.task_spec.cond_task_specs), 2)
         ready_task = wf.get_ready_user_tasks()[0]
         ready_task.data['NeedClarification'] = 'Yes'
@@ -81,9 +81,9 @@ class Version_1_1_Test(BaseTestCase):
     def test_update_task_states(self):
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.1-task-states.json')
         wf = self.serializer.deserialize_json(open(fn).read())
-        start = wf.get_tasks_from_spec_name('Start')[0]
+        start = wf.get_tasks(end_at_spec='Start')[0]
         self.assertEqual(start.state, TaskState.COMPLETED)
-        signal = wf.get_tasks_from_spec_name('signal')[0]
+        signal = self.get_first_task_from_spec_name(wf, 'signal')
         self.assertEqual(signal.state, TaskState.CANCELLED)
         ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
         while len(ready_tasks) > 0:
@@ -108,28 +108,28 @@ class Version1_2_Test(BaseTestCase):
         self.assertIn('value', wf.last_task.data)
 
         # Check that workflow and next task completed
-        subprocess = wf.get_tasks_from_spec_name('Subprocess')[0]
+        subprocess = self.get_first_task_from_spec_name(wf, 'Subprocess')
         self.assertEqual(subprocess.state, TaskState.COMPLETED)
-        print_task = wf.get_tasks_from_spec_name("Activity_Print_Data")[0]
+        print_task = self.get_first_task_from_spec_name(wf, "Activity_Print_Data")
         self.assertEqual(print_task.state, TaskState.COMPLETED)
 
         # Check that the boundary events were cancelled
-        cancel_task = wf.get_tasks_from_spec_name("Catch_Cancel_Event")[0]
+        cancel_task = self.get_first_task_from_spec_name(wf, "Catch_Cancel_Event")
         self.assertEqual(cancel_task.state, TaskState.CANCELLED)
-        error_1_task = wf.get_tasks_from_spec_name("Catch_Error_1")[0]
+        error_1_task = self.get_first_task_from_spec_name(wf, "Catch_Error_1")
         self.assertEqual(error_1_task.state, TaskState.CANCELLED)
-        error_none_task = wf.get_tasks_from_spec_name("Catch_Error_None")[0]
+        error_none_task = self.get_first_task_from_spec_name(wf, "Catch_Error_None")
         self.assertEqual(error_none_task.state, TaskState.CANCELLED)
 
     def test_remove_noninterrupting_boundary_events(self):
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.2-boundary-events-noninterrupting.json')
         wf = self.serializer.deserialize_json(open(fn).read())
 
-        wf.get_tasks_from_spec_name('sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE')[0].run()
+        self.get_first_task_from_spec_name(wf, 'sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE').run()
         wf.do_engine_steps()
         self.assertEqual(1, len(wf.get_tasks(task_filter=self.ready_task_filter)))
         self.assertEqual(3, len(wf.get_tasks(task_filter=self.waiting_task_filter)))
 
-        wf.get_tasks_from_spec_name('sid-6FBBB56D-00CD-4C2B-9345-486986BB4992')[0].run()
+        self.get_first_task_from_spec_name(wf, 'sid-6FBBB56D-00CD-4C2B-9345-486986BB4992').run()
         wf.do_engine_steps()
         self.assertTrue(wf.is_completed())

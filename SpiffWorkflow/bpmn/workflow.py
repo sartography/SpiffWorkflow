@@ -119,9 +119,6 @@ class BpmnWorkflow(Workflow):
                 tasks.extend(self.get_tasks(subprocess, **kwargs))
         return tasks
 
-    def get_tasks_from_spec_name(self, name, workflow=None):
-        return [t for t in self.get_tasks(workflow=workflow) if t.task_spec.name == name]
-
     def get_ready_user_tasks(self, lane=None, workflow=None):
         """Returns a list of User Tasks that are READY for user action"""
         ready_task_filter = TaskFilter(state=TaskState.READY)
@@ -129,10 +126,6 @@ class BpmnWorkflow(Workflow):
             return [t for t in self.get_tasks(workflow, task_filter=ready_task_filter) if t.task_spec.manual and t.task_spec.lane == lane]
         else:
             return [t for t in self.get_tasks(workflow, task_filter=ready_task_filter) if t.task_spec.manual]
-
-    def get_waiting_tasks(self, workflow=None):
-        """Returns a list of all WAITING tasks"""
-        return self.get_tasks(workflow, task_filter=TaskFilter(state=TaskState.WAITING))
 
     def get_catching_tasks(self, workflow=None):
         return [task for task in self.get_tasks(workflow=workflow) if isinstance(task.task_spec, CatchingEvent)]
@@ -202,8 +195,8 @@ class BpmnWorkflow(Workflow):
         return events
 
     def waiting_events(self):
-        return [t.task_spec.event_definition.details(t) for t in self.get_waiting_tasks() 
-                if isinstance(t.task_spec, CatchingEvent)]
+        task_filter = TaskFilter(state=TaskState.WAITING, spec_class=CatchingEvent)
+        return [t.task_spec.event_definition.details(t) for t in self.get_tasks(task_filter=task_filter)]
 
     def do_engine_steps(self, will_complete_task=None, did_complete_task=None):
         """
@@ -319,8 +312,8 @@ class BpmnWorkflow(Workflow):
         def get_or_create_subprocess(task_spec, wf_spec):
 
             for sp in self.subprocesses.values():
-                start = sp.get_tasks_from_spec_name(task_spec.name)
-                if len(start) and start[0].state == TaskState.WAITING:
+                start = sp.get_tasks(task_filter=TaskFilter(state=TaskState.WAITING, spec_name=task_spec.name))
+                if len(start):
                     return sp
 
             # This creates a new task associated with a process when an event that kicks of a process is received
@@ -337,7 +330,7 @@ class BpmnWorkflow(Workflow):
 
             new = spec_class(self.spec, f'{wf_spec.name}_{len(self.subprocesses)}', wf_spec.name)
             self.spec.start.connect(new)
-            start = self.get_tasks_from_spec_name('Start', workflow=self)[0]
+            start = self.get_tasks(workflow=self, end_at_spec='Start')[0]
             task = Task(self, new, parent=start)
             # This (indirectly) calls create_subprocess
             task.task_spec._update(task)

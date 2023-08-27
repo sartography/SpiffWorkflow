@@ -38,7 +38,7 @@ class BusinessRuleTaskParserTest(BaseTestCase):
         of a BPMNWorkflow"""
         self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].set_data(x=3)
         self.workflow.do_engine_steps()
-        task = self.workflow.get_tasks_from_spec_name('TaskDecision')[0]
+        task = self.get_first_task_from_spec_name('TaskDecision')
         name, args, kwargs = mock_engine.mock_calls[0]
         self.assertIn(task, args)
 

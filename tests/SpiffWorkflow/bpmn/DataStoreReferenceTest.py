@@ -10,7 +10,7 @@ class DataStoreReferenceTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
     def _check_last_script_task_data(self):
-        last_script_task_data = self.workflow.get_tasks_from_spec_name("Activity_1skgyn9")[0].data
+        last_script_task_data = self.get_first_task_from_spec_name("Activity_1skgyn9").data
         self.assertEqual(len(last_script_task_data), 1)
         self.assertEqual(last_script_task_data["x"], "Sue")
 

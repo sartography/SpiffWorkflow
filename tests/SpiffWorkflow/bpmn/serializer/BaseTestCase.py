@@ -15,6 +15,9 @@ class BaseTestCase(unittest.TestCase):
     ready_task_filter = TaskFilter(state=TaskState.READY)
     waiting_task_filter = TaskFilter(state=TaskState.WAITING)
 
+    def get_first_task_from_spec_name(self, wf, spec_name):
+        return wf.get_tasks(task_filter=TaskFilter(spec_name=spec_name))[0]
+
     def load_workflow_spec(self, filename, process_name):
         parser = BpmnParser()
         parser.add_bpmn_files_by_glob(os.path.join(self.DATA_DIR, filename))

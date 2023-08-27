@@ -70,7 +70,7 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
 
     def _check_threshold_unstructured(self, my_task, force=False):
         # Look at the tree to find all places where this task is used.
-        tasks = my_task.workflow.get_tasks_from_spec_name(self.name)
+        tasks = my_task.workflow.get_tasks(task_filter=TaskFilter(spec_name=self.name))
 
         # Look up which tasks have parents completed.
         completed_inputs = set([ task.parent.task_spec for task in tasks if task.parent.state == TaskState.COMPLETED ])

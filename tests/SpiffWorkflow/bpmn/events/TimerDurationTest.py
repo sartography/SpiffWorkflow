@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 import time
 from datetime import datetime, timedelta
@@ -31,7 +29,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         loopcount = 0
         starttime = datetime.now()
         # test bpmn has a timeout of .25s; we should terminate loop before that.
-        while len(self.workflow.get_waiting_tasks()) > 0 and loopcount < 10:
+        while len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)) > 0 and loopcount < 10:
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = self.script_engine
@@ -43,9 +41,3 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         self.assertEqual(duration < timedelta(seconds=.5), True)
         self.assertEqual(duration > timedelta(seconds=.2), True)
         self.assertEqual(len(self.workflow.waiting_events()), 0)
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TimerDurationTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

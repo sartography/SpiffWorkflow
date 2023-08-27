@@ -25,17 +25,17 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         self.assertIn('value', self.workflow.last_task.data)
 
         # Check that workflow and next task completed
-        subprocess = self.workflow.get_tasks_from_spec_name('Subprocess')[0]
+        subprocess = self.get_first_task_from_spec_name('Subprocess')
         self.assertEqual(subprocess.state, TaskState.COMPLETED)
-        print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")[0]
+        print_task = self.get_first_task_from_spec_name("Activity_Print_Data")
         self.assertEqual(print_task.state, TaskState.COMPLETED)
 
         # Check that the boundary events were cancelled
-        cancel_task = self.workflow.get_tasks_from_spec_name("Catch_Cancel_Event")[0]
+        cancel_task = self.get_first_task_from_spec_name("Catch_Cancel_Event")
         self.assertEqual(cancel_task.state, TaskState.CANCELLED)
-        error_1_task = self.workflow.get_tasks_from_spec_name("Catch_Error_1")[0]
+        error_1_task = self.get_first_task_from_spec_name("Catch_Error_1")
         self.assertEqual(error_1_task.state, TaskState.CANCELLED)
-        error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
+        error_none_task = self.get_first_task_from_spec_name("Catch_Error_None")
         self.assertEqual(error_none_task.state, TaskState.CANCELLED)
 
     def testSubworkflowCancelEvent(self):
@@ -51,17 +51,17 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         self.assertNotIn('value', self.workflow.last_task.data)
 
         # Check that we completed the Cancel Task
-        cancel_task = self.workflow.get_tasks_from_spec_name("Cancel_Action")[0]
+        cancel_task = self.get_first_task_from_spec_name("Cancel_Action")
         self.assertEqual(cancel_task.state, TaskState.COMPLETED)
 
         # And cancelled the remaining tasks
-        error_1_task = self.workflow.get_tasks_from_spec_name("Catch_Error_1")[0]
+        error_1_task = self.get_first_task_from_spec_name("Catch_Error_1")
         self.assertEqual(error_1_task.state, TaskState.CANCELLED)
-        error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
+        error_none_task = self.get_first_task_from_spec_name("Catch_Error_None")
         self.assertEqual(error_none_task.state, TaskState.CANCELLED)
 
         # We should not have this task, as we followed the 'cancel branch'
-        print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")
+        print_task = self.filter_tasks_by_spec_name("Activity_Print_Data")
         self.assertEqual(len(print_task), 1)
         self.assertEqual(print_task[0].state, TaskState.CANCELLED)
 
@@ -83,17 +83,17 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         # of the event in later steps
 
         # The cancel boundary event should be cancelled
-        cancel_task = self.workflow.get_tasks_from_spec_name("Catch_Cancel_Event")[0]
+        cancel_task = self.get_first_task_from_spec_name("Catch_Cancel_Event")
         self.assertEqual(cancel_task.state, TaskState.CANCELLED)
 
         # We should catch the None Error, but not Error 1
-        error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
+        error_none_task = self.get_first_task_from_spec_name("Catch_Error_None")
         self.assertEqual(error_none_task.state, TaskState.COMPLETED)
-        error_1_task = self.workflow.get_tasks_from_spec_name("Catch_Error_1")[0]
+        error_1_task = self.get_first_task_from_spec_name("Catch_Error_1")
         self.assertEqual(error_1_task.state, TaskState.CANCELLED)
 
         # Make sure this branch didn't getfollowed
-        print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")
+        print_task = self.filter_tasks_by_spec_name("Activity_Print_Data")
         self.assertEqual(len(print_task), 1)
         self.assertEqual(print_task[0].state, TaskState.CANCELLED)
 
@@ -114,11 +114,11 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         # I've removed this check, see previous test for rationale
 
         # Both boundary events should complete
-        error_none_task = self.workflow.get_tasks_from_spec_name("Catch_Error_None")[0]
+        error_none_task = self.get_first_task_from_spec_name("Catch_Error_None")
         self.assertEqual(error_none_task.state, TaskState.COMPLETED)
-        error_1_task = self.workflow.get_tasks_from_spec_name("Catch_Error_1")[0]
+        error_1_task = self.get_first_task_from_spec_name("Catch_Error_1")
         self.assertEqual(error_1_task.state, TaskState.COMPLETED)
 
-        print_task = self.workflow.get_tasks_from_spec_name("Activity_Print_Data")
+        print_task = self.filter_tasks_by_spec_name("Activity_Print_Data")
         self.assertEqual(len(print_task), 1)
         self.assertEqual(print_task[0].state, TaskState.CANCELLED)

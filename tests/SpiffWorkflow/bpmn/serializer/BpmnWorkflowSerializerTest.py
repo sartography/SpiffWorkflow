@@ -2,6 +2,7 @@ import unittest
 import os
 import json
 
+from SpiffWorkflow.task import TaskFilter
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -65,7 +66,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         unserializable = MyCls()
 
         a_task_spec = self.workflow.spec.task_specs[list(self.workflow.spec.task_specs)[0]]
-        a_task = self.workflow.get_tasks_from_spec_name(a_task_spec.name)[0]
+        a_task = self.workflow.get_tasks(task_filter=TaskFilter(spec_name=a_task_spec.name))[0]
         a_task.data['jsonTest'] = unserializable
 
         try:
@@ -83,7 +84,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         self.assertEqual(serialized_task['data']['jsonTest'], {'a': 1, 'my_type': 'mycls'})
 
         deserialized_workflow = custom_serializer.deserialize_json(serialized_workflow)
-        deserialized_task = deserialized_workflow.get_tasks_from_spec_name(a_task_spec.name)[0]
+        deserialized_task = deserialized_workflow.get_tasks(task_filter=TaskFilter(spec_name=a_task_spec.name))[0]
         self.assertTrue(isinstance(deserialized_task.data['jsonTest'], MyCls))
 
     def testDeserializeWorkflow(self):

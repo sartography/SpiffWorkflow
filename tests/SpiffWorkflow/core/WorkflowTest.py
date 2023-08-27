@@ -67,7 +67,7 @@ class WorkflowTest(unittest.TestCase):
 
     def test_get_tasks_updated_after(self):
 
-        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start = self.workflow.get_tasks(end_at_spec='Start')[0]
         start.run()
         updated = datetime.now().timestamp()
         for task in self.workflow.get_tasks(task_filter=self.ready_task_filter):
@@ -77,7 +77,7 @@ class WorkflowTest(unittest.TestCase):
 
     def test_get_tasks_end_at(self):
 
-        tasks = self.workflow.get_tasks(end_at='excl_choice_1')
+        tasks = self.workflow.get_tasks(end_at_spec='excl_choice_1')
         spec_names = [t.task_spec.name for t in tasks]
         self.assertEqual(len([name for name in spec_names if name == 'excl_choice_1']), 2)
         self.assertNotIn('task_c1', spec_names)

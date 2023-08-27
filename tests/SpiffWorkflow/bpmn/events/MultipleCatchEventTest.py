@@ -20,7 +20,7 @@ class MultipleStartEventTest(BpmnWorkflowTestCase):
     def actual_test(self, save_restore=False):
 
         self.workflow.do_engine_steps()
-        waiting_tasks = self.workflow.get_waiting_tasks()
+        waiting_tasks = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
 
         if save_restore:
             self.save_restore()
@@ -54,7 +54,7 @@ class ParallelStartEventTest(BpmnWorkflowTestCase):
     def actual_test(self, save_restore=False):
 
         self.workflow.do_engine_steps()
-        waiting_tasks = self.workflow.get_waiting_tasks()
+        waiting_tasks = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
 
         if save_restore:
             self.save_restore()
@@ -68,7 +68,7 @@ class ParallelStartEventTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         # It should still be waiting because it has to receive both messages
-        waiting_tasks = self.workflow.get_waiting_tasks()
+        waiting_tasks = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
         self.assertEqual(len(waiting_tasks), 1)
         self.assertEqual(waiting_tasks[0].task_spec.name, 'StartEvent_1')
 

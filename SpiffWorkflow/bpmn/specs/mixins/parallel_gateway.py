@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.task import TaskState, TaskFilter
 from .unstructured_join import UnstructuredJoin
 
 
@@ -43,7 +43,7 @@ class ParallelGateway(UnstructuredJoin):
     """
     def _check_threshold_unstructured(self, my_task, force=False):
 
-        tasks = my_task.workflow.get_tasks_from_spec_name(self.name)    
+        tasks = my_task.workflow.get_tasks(task_filter=TaskFilter(spec_name=self.name)) 
         # Look up which tasks have parents completed.
         waiting_tasks = []
         waiting_inputs = set(self.inputs)

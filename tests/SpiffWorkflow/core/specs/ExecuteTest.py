@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import unittest
 
@@ -35,12 +34,6 @@ class ExecuteTest(TaskSpecTest):
         self.wf_spec.start.connect(self.spec)
         expected = 'Start\n  testtask\n'
         workflow = run_workflow(self, self.wf_spec, expected, '')
-        task = workflow.get_tasks_from_spec_name('testtask')[0]
+        task = self.get_first_task_from_spec_name(workflow, 'testtask')
         self.assertEqual(task.state, TaskState.COMPLETED)
         self.assertIn(b'127.0.0.1', task.results[0])
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ExecuteTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

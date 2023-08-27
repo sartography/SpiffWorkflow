@@ -100,12 +100,12 @@ class StartedTaskTest(BpmnWorkflowTestCase):
         script_engine = PythonScriptEngine(environment=script_engine_environemnt)
         self.workflow.script_engine = script_engine
         self.workflow.do_engine_steps()
-        script_task = self.workflow.get_tasks_from_spec_name('script')[0]
+        script_task = self.get_first_task_from_spec_name('script')
         self.assertEqual(script_task.state, TaskState.STARTED)
         script_task.complete()
-        manual_task = self.workflow.get_tasks_from_spec_name('manual')[0]
+        manual_task = self.get_first_task_from_spec_name('manual')
         manual_task.run()
         self.workflow.do_engine_steps()
-        end = self.workflow.get_tasks_from_spec_name('End')[0]
+        end = self.get_first_task_from_spec_name('End')
         self.assertDictEqual(end.data, {'x': 1, 'y': 2, 'z': 3})
         self.assertTrue(self.workflow.is_completed())

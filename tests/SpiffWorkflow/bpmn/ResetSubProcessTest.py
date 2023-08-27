@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -37,7 +35,7 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         task = self.workflow.get_ready_user_tasks()[0]
         self.save_restore()
-        top_level_task = self.workflow.get_tasks_from_spec_name('Task1')[0]
+        top_level_task = self.get_first_task_from_spec_name('Task1')
         self.workflow.reset_from_task_id(top_level_task.id)
         task = self.workflow.get_ready_user_tasks()[0]
         self.assertEqual(len(self.workflow.get_ready_user_tasks()), 1, "There should only be one task in a ready state.")
@@ -54,7 +52,7 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
         self.assertEqual(task.get_name(),'SubTask2')
         task.run()
         self.workflow.do_engine_steps()
-        task = self.workflow.get_tasks_from_spec_name('Task1')[0]
+        task = self.get_first_task_from_spec_name('Task1')
         task.reset_token(self.workflow.last_task.data)
         self.workflow.do_engine_steps()
         self.reload_save_restore()

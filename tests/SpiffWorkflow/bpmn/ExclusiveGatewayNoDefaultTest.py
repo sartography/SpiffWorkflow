@@ -19,10 +19,10 @@ class ExclusiveGatewayNoDefaultTest(BpmnWorkflowTestCase):
 
     def testRunThroughHappy(self):
 
-        first = self.workflow.get_tasks_from_spec_name('StartEvent_1')[0]
+        first = self.workflow.get_tasks(end_at_spec='StartEvent_1')[0]
         first.data = { 'x': 1 }
         self.assertRaises(WorkflowException, self.workflow.do_engine_steps)
-        task = self.workflow.get_tasks_from_spec_name('Gateway_CheckValue')[0]
+        task = self.get_first_task_from_spec_name('Gateway_CheckValue')
         self.assertEqual(task.state, TaskState.ERROR)
 
 def suite():

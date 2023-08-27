@@ -172,17 +172,6 @@ class Workflow(object):
         """
         return [t for t in TaskIterator(self.task_tree, **kwargs)]
 
-    def get_tasks_from_spec_name(self, name):
-        """
-        Returns all tasks whose spec has the given name.
-
-        :type name: str
-        :param name: The name of a task spec.
-        :rtype: list[Task]
-        :returns: A list of tasks that relate to the spec with the given name.
-        """
-        return [task for task in self.get_tasks_iterator() if task.task_spec.name == name]
-
     def get_task_from_id(self, task_id):
         """
         Returns the task with the given id.

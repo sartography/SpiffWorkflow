@@ -109,7 +109,7 @@ class IOSpecOnTaskTest(BpmnWorkflowTestCase):
     def testIOSpecOnTaskMissingOutput(self):
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.workflow.do_engine_steps()
-        task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        task = self.get_first_task_from_spec_name('any_task')
         task.data.update({'out_1': 1})
         with self.assertRaises(WorkflowDataException) as exc:
             task.run()
@@ -120,7 +120,7 @@ class IOSpecOnTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         if save_restore:
             self.save_restore()
-        task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        task = self.get_first_task_from_spec_name('any_task')
         self.assertDictEqual(task.data, {'in_1': 1, 'in_2': 'hello world'})
         task.data.update({'out_1': 1, 'out_2': 'bye', 'extra': True})
         task.run()

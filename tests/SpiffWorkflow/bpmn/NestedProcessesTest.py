@@ -62,7 +62,7 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
         self.complete_task('Action3', True)
 
         # "Nested level 1"
-        task = self.workflow.get_tasks_from_spec_name('sid-C014B4B9-889F-4EE9-9949-C89502C35CF0')[0]
+        task = self.get_first_task_from_spec_name('sid-C014B4B9-889F-4EE9-9949-C89502C35CF0')
         self.workflow.reset_from_task_id(task.id)
 
         self.workflow.do_engine_steps()

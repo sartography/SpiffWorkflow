@@ -19,7 +19,7 @@ class MultipleThrowEventIntermediateCatchTest(BpmnWorkflowTestCase):
         if save_restore:
             self.save_restore()
         self.workflow.do_engine_steps()
-        self.assertEqual(len(self.workflow.get_waiting_tasks()), 0)
+        self.assertEqual(len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)), 0)
         self.assertEqual(self.workflow.is_completed(), True)
 
 

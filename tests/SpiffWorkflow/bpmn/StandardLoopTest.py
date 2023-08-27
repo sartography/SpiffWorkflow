@@ -13,7 +13,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
 
     def testLoopMaximum(self):
 
-        start = self.workflow.get_tasks_from_spec_name('StartEvent_1')
+        start = self.workflow.get_tasks(end_at_spec='StartEvent_1')
         start[0].data['done'] = False
         for idx in range(3):
             self.workflow.do_engine_steps()
@@ -28,7 +28,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
 
     def testLoopCondition(self):
 
-        start = self.workflow.get_tasks_from_spec_name('StartEvent_1')
+        start = self.workflow.get_tasks(end_at_spec='StartEvent_1')
         start[0].data['done'] = False
 
         self.workflow.do_engine_steps()
@@ -44,7 +44,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
     def testSkipLoop(self):
 
         # This is called "skip loop" because I thought "testTestBefore" was a terrible name
-        start = self.workflow.get_tasks_from_spec_name('StartEvent_1')
+        start = self.workflow.get_tasks(end_at_spec='StartEvent_1')
         start[0].data['done'] = True
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
