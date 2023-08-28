@@ -30,7 +30,7 @@ class ResetTokenParallelTaskCountTest(BaseTestCase):
         # Tell the exclusive gateway to skip the parallel tasks section.
         # We should still have the same number of tasks.
         data = {'skipParallel': True}
-        task = self.workflow.get_ready_user_tasks()[0]
+        task = self.get_ready_user_tasks()[0]
         task.data = data
         self.workflow.run_task_from_id(task.id)
         self.assertEquals(total, len(self.workflow.get_tasks()))
@@ -39,4 +39,4 @@ class ResetTokenParallelTaskCountTest(BaseTestCase):
         # We should still have the same number of tasks.
         task.reset_token(data)
         self.assertEquals(total, len(self.workflow.get_tasks()))
-        self.assertEquals(1, len(self.workflow.get_ready_user_tasks()))
+        self.assertEquals(1, len(self.get_ready_user_tasks()))

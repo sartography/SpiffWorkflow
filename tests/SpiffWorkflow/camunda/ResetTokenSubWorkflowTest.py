@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -46,7 +44,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
                  ]
 
         for step in steps:
-            task = self.workflow.get_ready_user_tasks()[0]
+            task = self.get_ready_user_tasks()[0]
             if firsttaskid is None and step['taskname']=='FormA1':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
@@ -72,7 +70,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
                   'answer': 'd'},
                  ]
         for step in steps:
-            task = self.workflow.get_ready_user_tasks()[0]
+            task = self.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
             task.run()
@@ -123,7 +121,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
                  ]
 
         for step in steps:
-            task = self.workflow.get_ready_user_tasks()[0]
+            task = self.get_ready_user_tasks()[0]
             if firsttaskid is None and step['taskname']=='FormA2':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
@@ -159,10 +157,10 @@ class ResetTokenTestSubProcess(BaseTestCase):
                   'formvar': 'D',
                   'answer': 'd'},
                  ]
-        readytasks = [t.task_spec.name for t in self.workflow.get_ready_user_tasks()]
+        readytasks = [t.task_spec.name for t in self.get_ready_user_tasks()]
         self.assertEqual(readytasks,['FormA2','FormB3','FormC1'])
         for step in steps:
-            task = self.workflow.get_ready_user_tasks()[0]
+            task = self.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
@@ -186,13 +184,3 @@ class ResetTokenTestSubProcess(BaseTestCase):
 
                           self.workflow.last_task.data)
 
-
-
-
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ResetTokenTestSubProcess)
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

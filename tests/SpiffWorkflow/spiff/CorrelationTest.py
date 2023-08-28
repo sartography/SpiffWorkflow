@@ -19,13 +19,13 @@ class CorrelationTest(BaseTestCase):
             self.save_restore()
         self.workflow.do_engine_steps()
         # Set up some data to evaluate the payload expression against
-        for idx, task in enumerate(self.workflow.get_ready_user_tasks()):
+        for idx, task in enumerate(self.get_ready_user_tasks()):
             task.data['task_num'] = idx
             task.data['task_name'] = f'subprocess {idx}'
             task.data['extra_data'] = 'unused data'
             task.run()
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         for task in ready_tasks:
             self.assertEqual(task.task_spec.name, 'prepare_response')
             response = 'OK' if task.data['source_task']['num'] else 'No'
@@ -33,7 +33,7 @@ class CorrelationTest(BaseTestCase):
             task.run()
         self.workflow.do_engine_steps()
         # If the messages were routed properly, the task number should match the response id
-        for task in self.filter_tasks_by_spec_name('subprocess_end'):
+        for task in self.get_tasks_from_spec_name('subprocess_end'):
             self.assertEqual(task.data['response']['init_id'], task.data['task_num'])
             self.assertEqual(task.data['response']['response'], 'OK' if task.data['task_num'] else 'No')
 

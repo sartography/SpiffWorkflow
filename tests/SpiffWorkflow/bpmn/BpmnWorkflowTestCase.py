@@ -3,7 +3,8 @@ import os
 import unittest
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator
 
-from SpiffWorkflow.task import TaskState, TaskFilter
+from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.bpmn.workflow import BpmnTaskFilter
 
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer, DEFAULT_SPEC_CONFIG
 from .BpmnLoaderForTests import TestUserTaskConverter, TestBpmnParser, TestDataStoreConverter
@@ -19,9 +20,9 @@ class BpmnWorkflowTestCase(unittest.TestCase):
 
     serializer = BpmnWorkflowSerializer(wf_spec_converter)
 
-    ready_task_filter = TaskFilter(state=TaskState.READY)
-    waiting_task_filter = TaskFilter(state=TaskState.WAITING)
-    ready_or_waiting_filter = TaskFilter(state=TaskState.READY|TaskState.WAITING)
+    ready_task_filter = BpmnTaskFilter(state=TaskState.READY)
+    waiting_task_filter = BpmnTaskFilter(state=TaskState.WAITING)
+    ready_or_waiting_filter = BpmnTaskFilter(state=TaskState.READY|TaskState.WAITING)
 
     def get_parser(self, filename, validate=True):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
@@ -48,11 +49,14 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         parser.add_bpmn_files_by_glob(f)
         return parser.find_all_specs()
 
-    def filter_tasks_by_spec_name(self, spec_name):
-        return self.workflow.get_tasks(task_filter=TaskFilter(spec_name=spec_name))
+    def get_tasks_from_spec_name(self, spec_name):
+        return self.workflow.get_tasks(task_filter=BpmnTaskFilter(spec_name=spec_name))
 
     def get_first_task_from_spec_name(self, spec_name):
-        return self.workflow.get_tasks(task_filter=TaskFilter(spec_name=spec_name))[0]
+        return self.workflow.get_tasks(task_filter=BpmnTaskFilter(spec_name=spec_name))[0]
+
+    def get_ready_user_tasks(self, lane=None):
+        return self.workflow.get_tasks(task_filter=BpmnTaskFilter(state=TaskState.READY, manual=True, lane=lane))
 
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:

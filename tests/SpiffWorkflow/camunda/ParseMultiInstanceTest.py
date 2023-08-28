@@ -25,10 +25,10 @@ class ParseMultiInstanceTest(BaseTestCase):
         self.assertEqual(task_spec.input_item.bpmn_id, 'output_item')
         self.assertEqual(task_spec.output_item.bpmn_id, 'output_item')
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
         for task in ready_tasks:
             task.data['output_item'] = task.data['output_item'] * 2
@@ -54,7 +54,7 @@ class ParseMultiInstanceTest(BaseTestCase):
         self.assertEqual(task_spec.data_input, None)
         self.assertEqual(task_spec.input_item.bpmn_id, 'output_item')
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
         for task in ready_tasks:
             task.data['output_item'] = task.data['output_item'] * 2
@@ -80,7 +80,7 @@ class ParseMultiInstanceTest(BaseTestCase):
         self.assertEqual(task_spec.input_item.bpmn_id, 'input_item')
         self.assertEqual(task_spec.output_item.bpmn_id, 'input_item')
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
         for task in ready_tasks:
             task.data['input_item'] = task.data['input_item'] * 2

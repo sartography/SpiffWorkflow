@@ -18,7 +18,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
         for idx in range(3):
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
-            ready_tasks = self.workflow.get_ready_user_tasks()
+            ready_tasks = self.get_ready_user_tasks()
             self.assertEqual(len(ready_tasks), 1)
             ready_tasks[0].data[str(idx)] = True
             ready_tasks[0].run()
@@ -33,7 +33,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 1)
         ready_tasks[0].data['done'] = True
         ready_tasks[0].run()

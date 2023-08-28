@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -68,7 +66,7 @@ class ResetTokenTestNestedParallel(BaseTestCase):
 
                  ]
         for step in steps:
-            task = self.workflow.get_ready_user_tasks()[0]
+            task = self.get_ready_user_tasks()[0]
             if firsttaskid is None and step['taskname']=='FormB2':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
@@ -89,14 +87,14 @@ class ResetTokenTestNestedParallel(BaseTestCase):
                  ]
 
         for step in steps:
-            task = self.workflow.get_ready_user_tasks()[0]
+            task = self.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore:
                 self.save_restore()
-        self.workflow.get_ready_user_tasks()
+        self.get_ready_user_tasks()
         self.assertTrue(self.workflow.is_completed())
         self.assertEqual({'First': 'Yes',
                           'A1': 'xa1',
@@ -145,7 +143,7 @@ class ResetTokenTestNestedParallel(BaseTestCase):
 
                  ]
         for step in steps:
-            task = self.workflow.get_ready_user_tasks()[0]
+            task = self.get_ready_user_tasks()[0]
             if firsttaskid is None and step['taskname']=='FormA2':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
@@ -179,10 +177,10 @@ class ResetTokenTestNestedParallel(BaseTestCase):
                   'formvar': 'D',
                   'answer': 'd'},
                  ]
-        readytasks = [t.task_spec.name for t in self.workflow.get_ready_user_tasks()]
+        readytasks = [t.task_spec.name for t in self.get_ready_user_tasks()]
         self.assertEqual(readytasks,['FormA2','FormB3','FormC1','FormC2','FormC3'])
         for step in steps:
-            task = self.workflow.get_ready_user_tasks()[0]
+            task = self.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
             task.update_data({step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
@@ -205,14 +203,3 @@ class ResetTokenTestNestedParallel(BaseTestCase):
                           'D': 'd'},
 
                           self.workflow.last_task.data)
-
-
-
-
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ResetTokenTestNestedParallel)
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

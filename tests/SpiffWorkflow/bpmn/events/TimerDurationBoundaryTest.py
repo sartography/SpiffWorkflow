@@ -39,10 +39,10 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         subworkflow = self.get_first_task_from_spec_name('Subworkflow')
         self.assertEqual(subworkflow.state, TaskState.CANCELLED)
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         while len(ready_tasks) > 0:
             ready_tasks[0].run()
-            ready_tasks = self.workflow.get_ready_user_tasks()
+            ready_tasks = self.get_ready_user_tasks()
             self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
         # Assure that the loopcount is less than 10, and the timer interrupt fired, rather

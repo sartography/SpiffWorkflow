@@ -37,6 +37,6 @@ class InclusiveGatewayTest(BpmnWorkflowTestCase):
         self.assertDictEqual(self.workflow.data, {'v': 0, 'u': 1, 'w': 1})
 
     def set_data(self, value):
-        task = self.workflow.get_ready_user_tasks()[0]
+        task = self.get_ready_user_tasks()[0]
         task.data = value
         task.run()

@@ -34,7 +34,7 @@ class MultipleStartEventTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         # Now the first task should be ready
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 1)
         self.assertEqual(ready_tasks[0].task_spec.name, 'any_task')
 
@@ -77,6 +77,6 @@ class ParallelStartEventTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         # Now the first task should be ready
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 1)
         self.assertEqual(ready_tasks[0].task_spec.name, 'any_task')

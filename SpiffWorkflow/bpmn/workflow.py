@@ -29,6 +29,26 @@ from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
 from .PythonScriptEngine import PythonScriptEngine
 
 
+class BpmnTaskFilter(TaskFilter):
+
+    def __init__(self, catches_event=None, lane=None, **kwargs):
+        super().__init__(**kwargs)
+        self.catches_event = catches_event
+        self.lane = lane
+
+    def matches(self, task):
+
+        def _catches_event(task):
+            return isinstance(task.task_spec, CatchingEvent) and task.task_spec.catches(task, self.catches_event)
+
+        return all([
+            super().matches(task),
+            self.catches_event is None or _catches_event(task),
+            self.lane is None or task.task_spec.lane == self.lane,
+        ])
+
+
+
 class BpmnSubWorkflow(Workflow):
 
     def __init__(self, spec, parent_task_id, top_workflow, **kwargs):
@@ -110,7 +130,7 @@ class BpmnWorkflow(Workflow):
     def get_tasks(self, workflow=None, **kwargs):
         tasks = []
         wf = workflow or self
-        task_filter = kwargs.get('task_filter') or TaskFilter()
+        task_filter = kwargs.get('task_filter') or BpmnTaskFilter()
         for task in Workflow.get_tasks_iterator(wf):
             subprocess = self.subprocesses.get(task.id)
             if task_filter.matches(task):
@@ -118,17 +138,6 @@ class BpmnWorkflow(Workflow):
             if subprocess is not None:
                 tasks.extend(self.get_tasks(subprocess, **kwargs))
         return tasks
-
-    def get_ready_user_tasks(self, lane=None, workflow=None):
-        """Returns a list of User Tasks that are READY for user action"""
-        ready_task_filter = TaskFilter(state=TaskState.READY)
-        if lane is not None:
-            return [t for t in self.get_tasks(workflow, task_filter=ready_task_filter) if t.task_spec.manual and t.task_spec.lane == lane]
-        else:
-            return [t for t in self.get_tasks(workflow, task_filter=ready_task_filter) if t.task_spec.manual]
-
-    def get_catching_tasks(self, workflow=None):
-        return [task for task in self.get_tasks(workflow=workflow) if isinstance(task.task_spec, CatchingEvent)]
 
     def create_subprocess(self, my_task, spec_name):
         # This creates a subprocess for an existing task
@@ -164,13 +173,12 @@ class BpmnWorkflow(Workflow):
         """
         if event.target is None:
             self.update_collaboration(event)
-            tasks = [t for t in self.get_catching_tasks() if t.task_spec.catches(t, event)]
+            tasks = [t for t in self.get_tasks(task_filter=BpmnTaskFilter(spec_class=CatchingEvent, catches_event=event))]
            # Figure out if we need to create an external event
             if len(tasks) == 0:
                 self.bpmn_events.append(event)
         else:
-            catches = lambda t: isinstance(t.task_spec, CatchingEvent) and t.task_spec.catches(t, event)
-            tasks = [t for t in event.target.get_tasks_iterator(task_filter=TaskFilter(state=TaskState.NOT_FINISHED_MASK)) if catches(t)]
+            tasks = self.get_tasks(task_filter=BpmnTaskFilter(state=TaskState.NOT_FINISHED_MASK, catches_event=event))
 
         for task in tasks:
             task.task_spec.catch(task, event)
@@ -180,7 +188,7 @@ class BpmnWorkflow(Workflow):
     def send_event(self, event):
         """Allows this workflow to catch an externally generated event."""
 
-        tasks = [t for t in self.get_catching_tasks() if t.task_spec.catches(t, event)]
+        tasks = [t for t in self.get_tasks(task_filter=BpmnTaskFilter(spec_class=CatchingEvent, catches_event=event))]
         if len(tasks) == 0:
             raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
         for task in tasks:
@@ -195,7 +203,7 @@ class BpmnWorkflow(Workflow):
         return events
 
     def waiting_events(self):
-        task_filter = TaskFilter(state=TaskState.WAITING, spec_class=CatchingEvent)
+        task_filter = BpmnTaskFilter(state=TaskState.WAITING, spec_class=CatchingEvent)
         return [t.task_spec.event_definition.details(t) for t in self.get_tasks(task_filter=task_filter)]
 
     def do_engine_steps(self, will_complete_task=None, did_complete_task=None):
@@ -211,7 +219,7 @@ class BpmnWorkflow(Workflow):
         def update_workflow(wf):
             count = 0
             # Wanted to use the iterator method here, but at least this is a shorter list
-            for task in wf.get_tasks(task_filter=TaskFilter(state=TaskState.READY)):
+            for task in wf.get_tasks(task_filter=BpmnTaskFilter(state=TaskState.READY)):
                 if not task.task_spec.manual:
                     if will_complete_task is not None:
                         will_complete_task(task)
@@ -250,10 +258,10 @@ class BpmnWorkflow(Workflow):
                 did_refresh_task(task)           
  
         for subprocess in sorted(self.get_active_subprocesses(), key=lambda v: v.depth, reverse=True):
-            for task in subprocess.get_tasks_iterator(task_filter=TaskFilter(state=TaskState.WAITING)):
+            for task in subprocess.get_tasks_iterator(task_filter=BpmnTaskFilter(state=TaskState.WAITING)):
                 update_task(task)
 
-        for task in self.get_tasks_iterator(task_filter=TaskFilter(state=TaskState.WAITING)):
+        for task in self.get_tasks_iterator(task_filter=BpmnTaskFilter(state=TaskState.WAITING)):
             update_task(task)
 
     def get_task_from_id(self, task_id):
@@ -312,7 +320,7 @@ class BpmnWorkflow(Workflow):
         def get_or_create_subprocess(task_spec, wf_spec):
 
             for sp in self.subprocesses.values():
-                start = sp.get_tasks(task_filter=TaskFilter(state=TaskState.WAITING, spec_name=task_spec.name))
+                start = sp.get_tasks(task_filter=BpmnTaskFilter(state=TaskState.WAITING, spec_name=task_spec.name))
                 if len(start):
                     return sp
 

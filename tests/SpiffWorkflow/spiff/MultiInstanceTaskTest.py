@@ -16,7 +16,7 @@ class MultiInstanceTaskTest(BaseTestCase):
 
         self.save_restore()
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         for task in ready_tasks:
             task.data['output_item'] = task.data['input_item'] * 2
             task.run()

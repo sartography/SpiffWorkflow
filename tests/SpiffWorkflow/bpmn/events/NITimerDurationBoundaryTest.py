@@ -43,7 +43,7 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
             time.sleep(0.1)
             ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
             # There should be one ready task until the boundary event fires
-            self.assertEqual(len(self.workflow.get_ready_user_tasks()), 1)
+            self.assertEqual(len(self.get_ready_user_tasks()), 1)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
             loopcount += 1
@@ -53,7 +53,7 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         # appropriate time here is .5 seconds due to the .3 seconds that we loop and then
         self.assertEqual(duration < datetime.timedelta(seconds=.5), True)
         self.assertEqual(duration > datetime.timedelta(seconds=.2), True)
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         # Now there should be two.
         self.assertEqual(len(ready_tasks), 2)
         for task in ready_tasks:

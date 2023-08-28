@@ -61,7 +61,7 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         self.assertEqual(error_none_task.state, TaskState.CANCELLED)
 
         # We should not have this task, as we followed the 'cancel branch'
-        print_task = self.filter_tasks_by_spec_name("Activity_Print_Data")
+        print_task = self.get_tasks_from_spec_name("Activity_Print_Data")
         self.assertEqual(len(print_task), 1)
         self.assertEqual(print_task[0].state, TaskState.CANCELLED)
 
@@ -93,7 +93,7 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         self.assertEqual(error_1_task.state, TaskState.CANCELLED)
 
         # Make sure this branch didn't getfollowed
-        print_task = self.filter_tasks_by_spec_name("Activity_Print_Data")
+        print_task = self.get_tasks_from_spec_name("Activity_Print_Data")
         self.assertEqual(len(print_task), 1)
         self.assertEqual(print_task[0].state, TaskState.CANCELLED)
 
@@ -119,6 +119,6 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         error_1_task = self.get_first_task_from_spec_name("Catch_Error_1")
         self.assertEqual(error_1_task.state, TaskState.COMPLETED)
 
-        print_task = self.filter_tasks_by_spec_name("Activity_Print_Data")
+        print_task = self.get_tasks_from_spec_name("Activity_Print_Data")
         self.assertEqual(len(print_task), 1)
         self.assertEqual(print_task[0].state, TaskState.CANCELLED)

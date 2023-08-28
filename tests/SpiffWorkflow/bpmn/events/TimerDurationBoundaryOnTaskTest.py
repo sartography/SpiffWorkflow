@@ -38,7 +38,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         self.assertEqual(self.workflow.last_task.data['timer_called'],True)
 
         # Make sure the task can still be called.
-        task = self.workflow.get_ready_user_tasks()[0]
+        task = self.get_ready_user_tasks()[0]
         task.run()
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())

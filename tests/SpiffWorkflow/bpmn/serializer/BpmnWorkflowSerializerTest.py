@@ -2,10 +2,9 @@ import unittest
 import os
 import json
 
-from SpiffWorkflow.task import TaskFilter
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.workflow import BpmnWorkflow, BpmnTaskFilter
 
 from .BaseTestCase import BaseTestCase
 
@@ -66,7 +65,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         unserializable = MyCls()
 
         a_task_spec = self.workflow.spec.task_specs[list(self.workflow.spec.task_specs)[0]]
-        a_task = self.workflow.get_tasks(task_filter=TaskFilter(spec_name=a_task_spec.name))[0]
+        a_task = self.workflow.get_tasks(task_filter=BpmnTaskFilter(spec_name=a_task_spec.name))[0]
         a_task.data['jsonTest'] = unserializable
 
         try:
@@ -84,7 +83,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         self.assertEqual(serialized_task['data']['jsonTest'], {'a': 1, 'my_type': 'mycls'})
 
         deserialized_workflow = custom_serializer.deserialize_json(serialized_workflow)
-        deserialized_task = deserialized_workflow.get_tasks(task_filter=TaskFilter(spec_name=a_task_spec.name))[0]
+        deserialized_task = deserialized_workflow.get_tasks(task_filter=BpmnTaskFilter(spec_name=a_task_spec.name))[0]
         self.assertTrue(isinstance(deserialized_task.data['jsonTest'], MyCls))
 
     def testDeserializeWorkflow(self):
@@ -121,13 +120,13 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
 
     def testDeserializeWithDataOnTask(self):
         self.workflow.do_engine_steps()
-        user_task = self.workflow.get_ready_user_tasks()[0]
+        user_task = self.get_ready_user_tasks()[0]
         user_task.data = {"test":"my_test"}
         self._compare_with_deserialized_copy(self.workflow)
 
     def testSerializeIgnoresCallable(self):
         self.workflow.do_engine_steps()
-        user_task = self.workflow.get_ready_user_tasks()[0]
+        user_task = self.get_ready_user_tasks()[0]
         def f(n):
             return n + 1
         user_task.data = { 'f': f }
@@ -145,7 +144,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
 
     def test_serialize_workflow_where_script_task_includes_function(self):
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
         self.serializer.serialize_json(self.workflow)
@@ -163,15 +162,8 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         self.assertIsInstance(w1, BpmnWorkflow)
         self.assertIsInstance(w2, BpmnWorkflow)
         self.assertEqual(w1.data, w2.data)
-        for task in w1.get_ready_user_tasks():
+
+        for task in w1.get_tasks():
             w2_task = w2.get_task_from_id(task.id)
             self.assertIsNotNone(w2_task)
             self.assertEqual(task.data, w2_task.data)
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(BpmnWorkflowSerializerTest)
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

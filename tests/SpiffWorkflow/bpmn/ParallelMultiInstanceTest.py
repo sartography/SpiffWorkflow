@@ -19,7 +19,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
         any_task.task_spec.data_output = TaskDataReference(data_output) if data_output is not None else None
 
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
         while len(ready_tasks) > 0:
             task = ready_tasks[0]
@@ -29,7 +29,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
             task.run()
             if save_restore:
                 self.save_restore()
-            ready_tasks = self.workflow.get_ready_user_tasks()
+            ready_tasks = self.get_ready_user_tasks()
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
@@ -43,7 +43,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
         task.task_spec.condition = "input_item == 2"
 
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
         task = [t for t in ready_tasks if t.data['input_item'] == 2][0]
         task.data['output_item'] = task.data['input_item'] * 2

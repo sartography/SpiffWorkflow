@@ -40,7 +40,7 @@ class MultipleThrowEventStartsEventTest(BpmnWorkflowTestCase):
         if save_restore:
             self.save_restore()
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 1)
         ready_tasks[0].run()
         self.workflow.do_engine_steps()

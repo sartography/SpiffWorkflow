@@ -1,7 +1,8 @@
 import os
 import time
 
-from SpiffWorkflow.task import TaskState, TaskFilter
+from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.bpmn.workflow import BpmnTaskFilter
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.serializer.migration.exceptions import VersionMigrationError
@@ -54,11 +55,12 @@ class Version_1_1_Test(BaseTestCase):
         wf.do_engine_steps()
         task = self.get_first_task_from_spec_name(wf, 'Gateway_askQuestion')
         self.assertEqual(len(task.task_spec.cond_task_specs), 2)
-        ready_task = wf.get_ready_user_tasks()[0]
+        task_filter = BpmnTaskFilter(state=TaskState.READY, manual=True)
+        ready_task = wf.get_tasks(task_filter=task_filter)[0]
         ready_task.data['NeedClarification'] = 'Yes'
         ready_task.run()
         wf.do_engine_steps()
-        ready_task = wf.get_ready_user_tasks()[0]
+        ready_task = wf.get_tasks(task_filter=task_filter)[0]
         self.assertEqual(ready_task.task_spec.name, 'Activity_A2')
 
     def test_check_multiinstance(self):

@@ -18,7 +18,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
 
         while len(ready_tasks) > 0:
             self.assertEqual(len(ready_tasks), 1)
@@ -29,10 +29,10 @@ class BaseTestCase(BpmnWorkflowTestCase):
             task.run()
             if save_restore:
                 self.save_restore()
-            ready_tasks = self.workflow.get_ready_user_tasks()
+            ready_tasks = self.get_ready_user_tasks()
 
         self.workflow.do_engine_steps()
-        children = self.filter_tasks_by_spec_name('any_task [child]')
+        children = self.get_tasks_from_spec_name('any_task [child]')
         self.assertEqual(len(children), 3)
         self.assertTrue(self.workflow.is_completed()) 
 
@@ -46,7 +46,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
 
         while len(ready_tasks) > 0:
             ready = ready_tasks[0]
@@ -56,10 +56,10 @@ class BaseTestCase(BpmnWorkflowTestCase):
             ready.run()
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
-            ready_tasks = self.workflow.get_ready_user_tasks()
+            ready_tasks = self.get_ready_user_tasks()
 
         self.workflow.do_engine_steps()
-        children = self.filter_tasks_by_spec_name('any_task [child]')
+        children = self.get_tasks_from_spec_name('any_task [child]')
         self.assertEqual(len(children), 2)
         self.assertTrue(self.workflow.is_completed())
 
