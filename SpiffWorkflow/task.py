@@ -82,25 +82,25 @@ class TaskState:
     NOT_FINISHED_MASK = PREDICTED_MASK | DEFINITE_MASK
     ANY_MASK = FINISHED_MASK | NOT_FINISHED_MASK
 
+    _names = ['MAYBE', 'LIKELY', 'FUTURE', 'WAITING', 'READY', 'STARTED', 'COMPLETED', 'ERROR', 'CANCELLED']
+    _values = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 
-TaskStateNames = {
-    TaskState.FUTURE: 'FUTURE',
-    TaskState.WAITING: 'WAITING',
-    TaskState.READY: 'READY',
-    TaskState.STARTED: 'STARTED',
-    TaskState.CANCELLED: 'CANCELLED',
-    TaskState.COMPLETED: 'COMPLETED',
-    TaskState.ERROR: 'ERROR',
-    TaskState.LIKELY: 'LIKELY',
-    TaskState.MAYBE: 'MAYBE'
-}
-TaskStateMasks = {
-    TaskState.FINISHED_MASK: 'FINISHED_MASK',
-    TaskState.DEFINITE_MASK: 'DEFINITE_MASK',
-    TaskState.PREDICTED_MASK: 'PREDICTED_MASK',
-    TaskState.NOT_FINISHED_MASK: 'NOT_FINISHED_MASK',
-    TaskState.ANY_MASK: 'ANY_MASK',
-}
+    @classmethod
+    def get_name(cls, state):
+        names = dict(zip(cls._values, cls._names))
+        names.update({
+            TaskState.FINISHED_MASK: 'FINISHED_MASK',
+            TaskState.DEFINITE_MASK: 'DEFINITE_MASK',
+            TaskState.PREDICTED_MASK: 'PREDICTED_MASK',
+            TaskState.NOT_FINISHED_MASK: 'NOT_FINISHED_MASK',
+            TaskState.ANY_MASK: 'ANY_MASK',
+        })
+        return names.get(state)
+
+    @classmethod
+    def get_value(cls, name):
+        values = dict(zip(cls._names, cls._values))
+        return values.get(name)
 
 
 class TaskFilter:
@@ -260,7 +260,7 @@ class Task(object):
     def state(self, value):
         if value < self._state:
             raise WorkflowException(
-                'state went from %s to %s!' % (self.get_state_name(), TaskStateNames[value]),
+                'state went from %s to %s!' % (TaskState.get_name(self._state), TaskState.get_name(value)),
                 task_spec=self.task_spec
             )
         self._set_state(value)
@@ -286,16 +286,16 @@ class Task(object):
         Call this method directly to force the state change.
         """
         if value != self.state:
-            logger.info(f'State change to {TaskStateNames[value]}', extra=self.log_info())
+            logger.info(f'State change to {TaskState.get_name(value)}', extra=self.log_info())
             self.last_state_change = time.time()
             self._state = value
         else:
-            logger.debug(f'State set to {TaskStateNames[value]}', extra=self.log_info())
+            logger.debug(f'State set to {TaskState.get_name(value)}', extra=self.log_info())
 
     def __repr__(self):
         return '<Task object (%s) in state %s at %s>' % (
             self.task_spec.name,
-            self.get_state_name(),
+            TaskState.get_name(self._state),
             hex(id(self)))
 
     def log_info(self, dct=None):
@@ -553,12 +553,6 @@ class Task(object):
     def get_description(self):
         return str(self.task_spec.description)
 
-    def get_state_name(self):
-        """Returns a textual representation of this Task's state."""
-        for state, name in list(TaskStateNames.items()):
-            if self._has_state(state):
-                return name
-
     def get_spec_data(self, name=None, default=None):
         """
         Returns the value of the spec data with the given name, or the given
@@ -678,7 +672,7 @@ class Task(object):
         self.task_spec._on_trigger(self, *args)
 
     def __iter__(self):
-            return TaskIterator(self)
+        return TaskIterator(self)
 
     def get_dump(self, indent=0, recursive=True):
         """
@@ -693,7 +687,7 @@ class Task(object):
         dbg += ' Task of %s' % self.get_name()
         if self.task_spec.description:
             dbg += ' (%s)' % self.get_description()
-        dbg += ' State: %s' % self.get_state_name()
+        dbg += ' State: %s' % TaskState.get_name(self._state)
         dbg += ' Children: %s' % len(self.children)
         if recursive:
             for child in self.children:
