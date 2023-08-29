@@ -22,7 +22,7 @@ class BusinessRuleTaskParserTest(BaseTestCase):
 
     def testDmnRaisesTaskErrors(self):
         self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].set_data(x=3)
+        self.workflow.get_next_task(task_filter=self.ready_task_filter).set_data(x=3)
         try:
             self.workflow.do_engine_steps()
             self.assertTrue(False, "An error should have been raised.")

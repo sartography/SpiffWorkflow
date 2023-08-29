@@ -13,7 +13,7 @@ class ParseMultiInstanceTest(BaseTestCase):
 
         spec, subprocesses = self.load_workflow_spec('parallel_multiinstance_cardinality.bpmn', 'main')
         self.workflow = BpmnWorkflow(spec)
-        start = self.workflow.get_tasks(end_at_spec='Start')[0]
+        start = self.workflow.get_next_task(end_at_spec='Start')
         start.data = {'input_data': [1, 2, 3]}
         self.workflow.do_engine_steps()
 
@@ -45,7 +45,7 @@ class ParseMultiInstanceTest(BaseTestCase):
         task_spec = self.get_first_task_from_spec_name('any_task').task_spec
         task_spec.cardinality = 'len(input_data)'
 
-        start = self.workflow.get_tasks(end_at_spec='Start')[0]
+        start = self.workflow.get_next_task(end_at_spec='Start')
         start.data = {'input_data': [1, 2, 3]}
         self.workflow.do_engine_steps()
 
@@ -68,7 +68,7 @@ class ParseMultiInstanceTest(BaseTestCase):
 
         spec, subprocesses = self.load_workflow_spec('parallel_multiinstance_collection.bpmn', 'main')
         self.workflow = BpmnWorkflow(spec)
-        start = self.workflow.get_tasks(end_at_spec='Start')[0]
+        start = self.workflow.get_next_task(end_at_spec='Start')
         start.data = {'input_data': [1, 2, 3]}
         self.workflow.do_engine_steps()
 

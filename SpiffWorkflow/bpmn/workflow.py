@@ -48,7 +48,6 @@ class BpmnTaskFilter(TaskFilter):
         ])
 
 
-
 class BpmnSubWorkflow(Workflow):
 
     def __init__(self, spec, parent_task_id, top_workflow, **kwargs):

@@ -11,7 +11,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
 
     def set_io_and_run_workflow(self, data, data_input=None, data_output=None, save_restore=False):
 
-        start = self.workflow.get_tasks(end_at_spec='Start')[0]
+        start = self.workflow.get_next_task(end_at_spec='Start')
         start.data = data
 
         any_task = self.get_first_task_from_spec_name('any_task')
@@ -36,7 +36,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
 
     def run_workflow_with_condition(self, data):
 
-        start = self.workflow.get_tasks(end_at_spec='Start')[0]
+        start = self.workflow.get_next_task(end_at_spec='Start')
         start.data = data
 
         task = self.get_first_task_from_spec_name('any_task')
@@ -151,7 +151,7 @@ class ParallelMultiInstanceNewOutputTest(BaseTestCase):
 
     def testEmptyCollection(self):
 
-        start = self.workflow.get_tasks(end_at_spec='Start')[0]
+        start = self.workflow.get_next_task(end_at_spec='Start')
         start.data = {'input_data': []}
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())

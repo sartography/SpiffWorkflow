@@ -67,7 +67,7 @@ class WorkflowTest(unittest.TestCase):
 
     def test_get_tasks_updated_after(self):
 
-        start = self.workflow.get_tasks(end_at_spec='Start')[0]
+        start = self.workflow.get_next_task(end_at_spec='Start')
         start.run()
         updated = datetime.now().timestamp()
         for task in self.workflow.get_tasks(task_filter=self.ready_task_filter):

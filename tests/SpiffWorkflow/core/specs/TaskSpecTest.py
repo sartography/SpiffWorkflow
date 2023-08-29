@@ -17,7 +17,7 @@ class TaskSpecTest(unittest.TestCase):
         return TaskSpec(self.wf_spec, 'testtask', description='foo')
 
     def get_first_task_from_spec_name(self, workflow, spec_name):
-        return workflow.get_tasks(task_filter=TaskFilter(spec_name=spec_name))[0]
+        return workflow.get_next_task(task_filter=TaskFilter(spec_name=spec_name))
 
     def setUp(self):
         self.wf_spec = WorkflowSpec(addstart=True)

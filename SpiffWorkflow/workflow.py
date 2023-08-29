@@ -74,17 +74,29 @@ class Workflow(object):
         return extra
 
     def is_completed(self):
-        """
-        Returns True if the entire Workflow is completed, False otherwise.
+        """Checks whether the workflow is complete.
 
-        :rtype: bool
-        :return: Whether the workflow is completed.
+        Returns:
+            bool: True if the workflow has no unfinished tasks
         """
         iter = TaskIterator(self.task_tree, task_filter=TaskFilter(state=TaskState.NOT_FINISHED_MASK))
         try:
             next(iter)
         except StopIteration:
             # No waiting tasks found.
+            return True
+        return False
+
+    def manual_input_required(self):
+        """Checks whether the workflow requires manual input.
+
+        Returns:
+            bool: True if the workflow cannot proceed until manual tasks are complete
+        """
+        iter = TaskIterator(self.task_tree, task_filter=TaskFilter(state=TaskState.READY, manual=False))
+        try:
+            next(iter)
+        except StopIteration:
             return True
         return False
 
@@ -95,14 +107,9 @@ class Workflow(object):
     def _task_completed_notify(self, task):
         if task.get_name() == 'End':
             self.data.update(task.data)
-        # Update the state of every WAITING task
-        for thetask in self.get_tasks_iterator(task_filter=TaskFilter(state=TaskState.WAITING)):
-            thetask.task_spec._update(thetask)
-        if self.completed_event.n_subscribers() == 0:
-            # Since is_completed() is expensive it makes sense to bail
-            # out if calling it is not necessary.
-            return
-        if self.is_completed():
+        self.update_waiting_tasks()
+        if self.completed_event.n_subscribers() > 0 and self.is_completed():
+            # Since is_completed() is expensive it makes sense to bail out if calling it is not necessary.
             self.completed_event(self)
 
     def _get_mutex(self, name):
@@ -147,7 +154,7 @@ class Workflow(object):
         """
         self.success = success
         cancel = []
-        for task in TaskIterator(self.task_tree):
+        for task in self.task_tree:
             cancel.append(task)
         for task in cancel:
             task.cancel()
@@ -171,6 +178,24 @@ class Workflow(object):
         :returns: A list of tasks.
         """
         return [t for t in TaskIterator(self.task_tree, **kwargs)]
+
+    def get_next_task(self, first_task=None, **kwargs):
+        """Returns the next task that meets the iteration conditions, starting from the root by default.
+
+        Parameters:
+            first_task (Task): search beginning from this task
+
+        Notes:
+            Other keyword args are passed directly into `TaskIterator`
+
+        Returns:
+            Task or None: the first task that meets the conditions or None if no tasks match        
+        """
+        iter = TaskIterator(first_task or self.task_tree, **kwargs)
+        try:
+            return next(iter)
+        except StopIteration:
+            return None
 
     def get_task_from_id(self, task_id):
         """
@@ -209,74 +234,47 @@ class Workflow(object):
         self.last_task = task.parent
         return task.reset_token(data)
 
-    def run_next(self, pick_up=True, halt_on_manual=True):
+    def run_next(self, use_last_task=True, halt_on_manual=True):
+        """Runs the next task, starting from the branch containing the last completed task by default.
+
+        Parameters:
+            use_last_task (bool): start with the currently running branch
+            halt_on_manual (bool): do not run tasks whose spec's have the `manual` attribute set
+
+        Returns:
+            bool: True when a task runs sucessfully
         """
-        Runs the next task.
-        Returns True if completed, False otherwise.
+        first_task = self.last_task if use_last_task and self.last_task is not None else self.task_tree
+        task_filter = TaskFilter(
+            state=TaskState.READY,
+            manual=False if halt_on_manual else None,
+        )
+        task = self.get_next_task(first_task, task_filter=task_filter)
+        # If we didn't execute anything on the current branch, retry from the root task
+        if task is None and use_last_task:
+            task = self.get_next_task(self.task_tree, task_filter=task_filter)
 
-        :type  pick_up: bool
-        :param pick_up: When True, this method attempts to choose the next
-                        task not by searching beginning at the root, but by
-                        searching from the position at which the last call
-                        of complete_next() left off.
-        :type  halt_on_manual: bool
-        :param halt_on_manual: When True, this method will not attempt to
-                        complete any tasks that have manual=True.
-                        See :meth:`SpiffWorkflow.specs.TaskSpec.__init__`
-        :rtype:  bool
-        :returns: True if all tasks were completed, False otherwise.
+        if task is None:
+            # If no task was found, update any waiting tasks
+            self.update_waiting_tasks()
+        else:
+            return task.run()
+
+    def run_all(self, use_last_task=True, halt_on_manual=True):
+        """Runs all possible tasks, starting from the current branch by default.
+
+        Parameters:
+            use_last_task (bool): start with the currently running branch
+            halt_on_manual (bool): do not run tasks whose spec's have the `manual` attribute set
         """
-        ready_task_filter = TaskFilter(state=TaskState.READY)
-        # Try to pick up where we left off.
-        blacklist = []
-        if pick_up and self.last_task is not None:
-            try:
-                iter = TaskIterator(self.last_task, task_filter=ready_task_filter)
-                task = next(iter)
-            except StopIteration:
-                task = None
-            self.last_task = None
-            if task is not None:
-                if not (halt_on_manual and task.task_spec.manual):
-                    if task.run():
-                        self.last_task = task
-                        return True
-                blacklist.append(task)
+        while self.run_next(use_last_task, halt_on_manual):
+            pass
 
-        # Walk through all ready tasks.
-        for task in TaskIterator(self.task_tree, task_filter=ready_task_filter):
-            for blacklisted_task in blacklist:
-                if task._is_descendant_of(blacklisted_task):
-                    continue
-            if not (halt_on_manual and task.task_spec.manual):
-                if task.run():
-                    self.last_task = task
-                    return True
-            blacklist.append(task)
+    def update_waiting_tasks(self):
+        """Update all tasks in the WAITING state"""
 
-        # Walk through all waiting tasks.
         for task in TaskIterator(self.task_tree, task_filter=TaskFilter(state=TaskState.WAITING)):
             task.task_spec._update(task)
-            if not task._has_state(TaskState.WAITING):
-                self.last_task = task
-                return True
-        return False
-
-    def run_all(self, pick_up=True, halt_on_manual=True):
-        """
-        Runs all branches until completion. This is a convenience wrapper
-        around :meth:`complete_next`, and the pick_up argument is passed
-        along.
-
-        :type  pick_up: bool
-        :param pick_up: Passed on to each call of complete_next().
-        :type  halt_on_manual: bool
-        :param halt_on_manual: When True, this method will not attempt to
-                        complete any tasks that have manual=True.
-                        See :meth:`SpiffWorkflow.specs.TaskSpec.__init__`
-        """
-        while self.run_next(pick_up, halt_on_manual):
-            pass
 
     def get_dump(self):
         """

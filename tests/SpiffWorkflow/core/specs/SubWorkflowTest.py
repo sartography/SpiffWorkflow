@@ -33,8 +33,7 @@ class TaskSpecTest(unittest.TestCase):
     def do_next_unique_task(self, name):
         # This method asserts that there is only one ready task! The specified
         # one - and then completes it
-        for task in self.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.WAITING)):
-            task.task_spec._update(task)
+        self.workflow.update_waiting_tasks()
         ready_tasks = self.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.READY))
         self.assertEqual(1, len(ready_tasks))
         task = ready_tasks[0]
@@ -106,10 +105,8 @@ class TaskSpecTest(unittest.TestCase):
         self.do_next_unique_task('Start')
         self.do_next_unique_task('first')
 
-        # Now refresh waiting tasks:
         # Update the state of every WAITING task.
-        for thetask in [t for t in self.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.WAITING))]:
-            thetask.task_spec._update(thetask)
+        self.workflow.update_waiting_tasks()
 
         self.do_next_unique_task('last')
         self.do_next_unique_task('End')

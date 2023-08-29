@@ -63,7 +63,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         self.complete_subprocess()
         # Refreshing causes the subprocess to become ready
         self.workflow.refresh_waiting_tasks()
-        task = self.workflow.get_tasks(task_filter=self.ready_task_filter)[0]
+        task = self.workflow.get_next_task(task_filter=self.ready_task_filter)
         # Originals should not change
         self.assertEqual(task.data['in_1'], 1)
         self.assertEqual(task.data['in_2'], "hello world")
@@ -76,7 +76,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         # Once we enter the subworkflow it becomes a waiting task
         waiting = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
         while len(waiting) == 0:
-            next_task = self.workflow.get_tasks(task_filter=self.ready_task_filter)[0]
+            next_task = self.workflow.get_next_task(task_filter=self.ready_task_filter)
             next_task.run()
             waiting = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
 

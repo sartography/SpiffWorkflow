@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -19,14 +18,8 @@ class ExclusiveGatewayNoDefaultTest(BpmnWorkflowTestCase):
 
     def testRunThroughHappy(self):
 
-        first = self.workflow.get_tasks(end_at_spec='StartEvent_1')[0]
+        first = self.workflow.get_next_task(end_at_spec='StartEvent_1')
         first.data = { 'x': 1 }
         self.assertRaises(WorkflowException, self.workflow.do_engine_steps)
         task = self.get_first_task_from_spec_name('Gateway_CheckValue')
         self.assertEqual(task.state, TaskState.ERROR)
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ExclusiveGatewayNoDefaultTest)
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -135,9 +135,7 @@ class SubWorkflow(TaskSpec):
                     child.data = subworkflow.last_task.data
                 for assignment in self.out_assign:
                     assignment.assign(subworkflow, child)
-
-                # Alright, abusing that hook is just evil but it works.
-                child.task_spec._update_hook(child)
+        my_task.task_spec._update(my_task)
 
     def serialize(self, serializer):
         return serializer.serialize_sub_workflow(self)
