@@ -4,7 +4,7 @@ import os
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow, BpmnTaskFilter
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 
 
 class BaseTestCase(unittest.TestCase):

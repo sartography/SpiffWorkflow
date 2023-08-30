@@ -60,7 +60,7 @@ We need to import the :code:`TaskState` object (unless you want to memorize whic
 
 .. code:: python
 
-    from SpiffWorkflow.task import TaskState
+    from SpiffWorkflow.util.task import TaskState
     tasks = workflow.get_tasks(TaskState.COMPLETED)
 
 will return a list of completed tasks.

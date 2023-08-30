@@ -5,7 +5,7 @@ from SpiffWorkflow.bpmn.event import BpmnEvent, BpmnEvent
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

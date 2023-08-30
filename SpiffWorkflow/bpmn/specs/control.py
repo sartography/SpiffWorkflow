@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState, TaskFilter
 from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.specs.Join import Join
 

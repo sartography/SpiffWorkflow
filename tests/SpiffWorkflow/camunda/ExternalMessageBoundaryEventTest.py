@@ -1,4 +1,4 @@
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.event import BpmnEvent
 from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition

@@ -5,7 +5,7 @@ from lxml import etree
 
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
-from SpiffWorkflow.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState, TaskFilter
 from SpiffWorkflow.workflow import Workflow
 
 

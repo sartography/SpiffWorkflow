@@ -1,6 +1,6 @@
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

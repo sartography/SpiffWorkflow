@@ -5,7 +5,7 @@ from SpiffWorkflow.specs.Join import Join
 from SpiffWorkflow.specs.MultiChoice import MultiChoice
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.operators import Attrib, Equal, PathAttrib
-from SpiffWorkflow.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState, TaskFilter
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.serializer.dict import DictionarySerializer
 

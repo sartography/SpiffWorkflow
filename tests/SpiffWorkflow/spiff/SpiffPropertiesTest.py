@@ -1,4 +1,4 @@
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from .BaseTestCase import BaseTestCase
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 

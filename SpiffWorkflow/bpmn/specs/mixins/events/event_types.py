@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 import time
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.specs.base import TaskSpec
 
 from SpiffWorkflow.bpmn.specs.event_definitions.simple import NoneEventDefinition

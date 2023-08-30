@@ -19,7 +19,7 @@
 
 from copy import deepcopy
 
-from SpiffWorkflow.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState, TaskFilter
 from SpiffWorkflow.specs.base import TaskSpec
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 

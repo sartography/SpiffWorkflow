@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState, TaskFilter
 from .unstructured_join import UnstructuredJoin
 
 

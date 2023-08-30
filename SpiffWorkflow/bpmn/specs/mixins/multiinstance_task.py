@@ -20,7 +20,7 @@
 from copy import deepcopy
 from collections.abc import Iterable, Sequence, Mapping, MutableSequence, MutableMapping
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.specs.base import TaskSpec
 from SpiffWorkflow.util.deep_merge import DeepMerge
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException

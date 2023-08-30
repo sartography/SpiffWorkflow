@@ -19,7 +19,8 @@
 
 import logging
 
-from .task import Task, TaskState, TaskIterator, TaskFilter
+from .task import Task
+from .util.task import TaskState, TaskIterator, TaskFilter
 from .util.compat import mutex
 from .util.event import Event
 from .exceptions import TaskNotFoundException, WorkflowException
@@ -79,7 +80,7 @@ class Workflow(object):
         Returns:
             bool: True if the workflow has no unfinished tasks
         """
-        iter = TaskIterator(self.task_tree, task_filter=TaskFilter(state=TaskState.NOT_FINISHED_MASK))
+        iter = TaskIterator(self.task_tree, state=TaskState.NOT_FINISHED_MASK)
         try:
             next(iter)
         except StopIteration:
@@ -93,7 +94,7 @@ class Workflow(object):
         Returns:
             bool: True if the workflow cannot proceed until manual tasks are complete
         """
-        iter = TaskIterator(self.task_tree, task_filter=TaskFilter(state=TaskState.READY, manual=False))
+        iter = TaskIterator(self.task_tree, state=TaskState.READY, manual=False)
         try:
             next(iter)
         except StopIteration:
@@ -101,7 +102,7 @@ class Workflow(object):
         return False
 
     def _predict(self, mask=TaskState.NOT_FINISHED_MASK):
-        for task in Workflow.get_tasks(self, task_filter=TaskFilter(state=TaskState.NOT_FINISHED_MASK)):
+        for task in Workflow.get_tasks(self, state=TaskState.NOT_FINISHED_MASK):
             task.task_spec._predict(task, mask=mask)
 
     def _task_completed_notify(self, task):
@@ -161,23 +162,30 @@ class Workflow(object):
         logger.info(f'Cancel with {len(cancel)} remaining', extra=self.log_info())
         return cancel
 
-    def get_tasks_iterator(self, **kwargs):
-        """
-        Returns a iterator of Task objects with the given state.
+    def get_tasks_iterator(self, first_task=None, **kwargs):
+        """Returns an iterator of Tasks that meet the conditions specified `kwargs`, starting from the root by default.
 
-        :rtype:  Task.Iterator
-        :returns: A list of tasks.
-        """
-        return TaskIterator(self.task_tree, **kwargs)
+        Parameters:
+            first_task (Task): search beginning from this task
 
-    def get_tasks(self, **kwargs):
-        """
-        Returns a list of Task objects with the given state.
+        Notes:
+            Other keyword args are passed directly into `TaskIterator`        
 
-        :rtype:  list[Task]
-        :returns: A list of tasks.
+        Returns:
+            TaskIterator: an iterator over the matching tasks
         """
-        return [t for t in TaskIterator(self.task_tree, **kwargs)]
+        return TaskIterator(first_task or self.task_tree, **kwargs)
+
+    def get_tasks(self, first_task=None, **kwargs):
+        """Returns a list of Tasks hat meet the conditions specified `kwargs`, starting from the root by default.
+
+        Notes:
+            Keyword args are passed directly to `get_tasks_iterator`
+
+        Returns:
+            list[Task]: the tasks that match the filtering conditions
+        """
+        return [t for t in self.get_tasks_iterator(first_task, **kwargs)]
 
     def get_next_task(self, first_task=None, **kwargs):
         """Returns the next task that meets the iteration conditions, starting from the root by default.
@@ -191,7 +199,7 @@ class Workflow(object):
         Returns:
             Task or None: the first task that meets the conditions or None if no tasks match        
         """
-        iter = TaskIterator(first_task or self.task_tree, **kwargs)
+        iter = self.get_tasks_iterator(first_task, **kwargs)
         try:
             return next(iter)
         except StopIteration:
@@ -273,7 +281,7 @@ class Workflow(object):
     def update_waiting_tasks(self):
         """Update all tasks in the WAITING state"""
 
-        for task in TaskIterator(self.task_tree, task_filter=TaskFilter(state=TaskState.WAITING)):
+        for task in TaskIterator(self.task_tree, state=TaskState.WAITING):
             task.task_spec._update(task)
 
     def get_dump(self):

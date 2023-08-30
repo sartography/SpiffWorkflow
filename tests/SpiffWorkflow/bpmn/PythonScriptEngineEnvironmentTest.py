@@ -3,7 +3,7 @@ import json
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import BasePythonScriptEngineEnvironment, TaskDataEnvironment
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState, TaskFilter
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

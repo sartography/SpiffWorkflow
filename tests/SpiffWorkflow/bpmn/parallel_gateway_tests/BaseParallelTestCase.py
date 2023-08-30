@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'

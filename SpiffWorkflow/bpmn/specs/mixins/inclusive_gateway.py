@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
-from SpiffWorkflow.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState, TaskFilter
 from SpiffWorkflow.specs.MultiChoice import MultiChoice
 from .unstructured_join import UnstructuredJoin
 
