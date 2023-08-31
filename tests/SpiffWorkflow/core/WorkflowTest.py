@@ -72,7 +72,7 @@ class WorkflowTest(unittest.TestCase):
         updated = datetime.now().timestamp()
         for task in self.workflow.get_tasks(task_filter=self.ready_task_filter):
             task.run()
-        tasks = self.workflow.get_tasks(task_filter=TaskFilter(updated_after=updated))
+        tasks = self.workflow.get_tasks(task_filter=TaskFilter(updated_ts=updated))
         self.assertListEqual([t.task_spec.name for t in tasks], ['task_a1', 'task_a2', 'task_b1', 'task_b2'])
 
     def test_get_tasks_end_at(self):

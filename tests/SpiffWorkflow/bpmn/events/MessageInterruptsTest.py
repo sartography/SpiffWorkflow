@@ -25,19 +25,19 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.do_next_exclusive_step('Do Something That Takes A Long Time')
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(task_filter=self.ready_or_waiting_filter)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
 
     def testRunThroughMessageInterruptSaveAndRestore(self):
 
@@ -47,23 +47,23 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.workflow.catch(BpmnEvent(MessageEventDefinition('Test Message'), {}))
         self.save_restore()
 
         self.workflow.do_engine_steps()
         self.save_restore()
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_exclusive_step('Acknowledge Interrupt Message')
         self.save_restore()
 
         self.workflow.do_engine_steps()
         self.save_restore()
-        self.assertEqual(0, len(self.workflow.get_tasks(task_filter=self.ready_or_waiting_filter)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
 
     def testRunThroughHappy(self):
 
@@ -71,16 +71,16 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Select Test', choice='Message Interrupts')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.do_next_exclusive_step('Do Something That Takes A Long Time')
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(task_filter=self.ready_or_waiting_filter)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
 
     def testRunThroughMessageInterrupt(self):
 
@@ -88,16 +88,16 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Select Test', choice='Message Interrupts')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.workflow.catch(BpmnEvent(MessageEventDefinition('Test Message'), {}))
 
         self.workflow.do_engine_steps()
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_exclusive_step('Acknowledge Interrupt Message')
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(task_filter=self.ready_or_waiting_filter)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))

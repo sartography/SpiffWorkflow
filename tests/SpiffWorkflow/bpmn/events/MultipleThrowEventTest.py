@@ -1,3 +1,4 @@
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -19,7 +20,7 @@ class MultipleThrowEventIntermediateCatchTest(BpmnWorkflowTestCase):
         if save_restore:
             self.save_restore()
         self.workflow.do_engine_steps()
-        self.assertEqual(len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)), 0)
+        self.assertEqual(len(self.workflow.get_tasks(state=TaskState.WAITING)), 0)
         self.assertEqual(self.workflow.is_completed(), True)
 
 

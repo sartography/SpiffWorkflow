@@ -80,7 +80,7 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
         # A spec only has to complete once, even if on multiple paths
         waiting_tasks = []
         for task in tasks:
-            if task.parent._has_state(TaskState.DEFINITE_MASK) and task.parent.task_spec not in completed_inputs:
+            if task.parent.has_state(TaskState.DEFINITE_MASK) and task.parent.task_spec not in completed_inputs:
                 waiting_tasks.append(task.parent)
 
         if force:

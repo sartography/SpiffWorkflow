@@ -83,7 +83,7 @@ class SubWorkflow(TaskSpec):
         for output in self.outputs:
             if output not in outputs:
                 outputs.insert(0, output)
-        if my_task._is_definite():
+        if my_task.has_state(TaskState.DEFINITE_MASK):
             # This prevents errors with sync children
             my_task._sync_children(outputs, TaskState.LIKELY)
         else:

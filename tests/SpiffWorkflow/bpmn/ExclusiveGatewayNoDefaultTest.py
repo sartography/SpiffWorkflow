@@ -21,5 +21,5 @@ class ExclusiveGatewayNoDefaultTest(BpmnWorkflowTestCase):
         first = self.workflow.get_next_task(end_at_spec='StartEvent_1')
         first.data = { 'x': 1 }
         self.assertRaises(WorkflowException, self.workflow.do_engine_steps)
-        task = self.get_first_task_from_spec_name('Gateway_CheckValue')
+        task = self.workflow.get_next_task(spec_name='Gateway_CheckValue')
         self.assertEqual(task.state, TaskState.ERROR)

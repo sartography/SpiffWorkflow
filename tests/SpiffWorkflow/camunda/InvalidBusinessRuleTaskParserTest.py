@@ -16,13 +16,11 @@ class BusinessRuleTaskParserTest(BaseTestCase):
 
     def testExceptionPrint(self):
         e1 = Exception("test 1")
-        print (e1)
         e = SpiffWorkflowException("test")
-        print (e)
 
     def testDmnRaisesTaskErrors(self):
         self.workflow = BpmnWorkflow(self.spec)
-        self.workflow.get_next_task(task_filter=self.ready_task_filter).set_data(x=3)
+        self.workflow.get_next_task(state=TaskState.READY).set_data(x=3)
         try:
             self.workflow.do_engine_steps()
             self.assertTrue(False, "An error should have been raised.")

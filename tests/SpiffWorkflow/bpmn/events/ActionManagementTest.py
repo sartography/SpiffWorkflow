@@ -23,23 +23,23 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         start_time = self.now_plus_seconds(self.START_TIME_DELTA)
         finish_time = self.now_plus_seconds(self.FINISH_TIME_DELTA)
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
-        self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].set_data(start_time=start_time, finish_time=finish_time)
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.workflow.get_tasks(state=TaskState.READY)[0].set_data(start_time=start_time, finish_time=finish_time)
 
     def testRunThroughHappy(self):
         self.do_next_exclusive_step("Review Action", choice='Approve')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
-        self.assertEqual('NEW ACTION', self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].get_data('script_output'))
-        self.assertEqual('Cancel Action (if necessary)', self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].task_spec.bpmn_name)
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.assertEqual('NEW ACTION', self.workflow.get_tasks(state=TaskState.READY)[0].get_data('script_output'))
+        self.assertEqual('Cancel Action (if necessary)', self.workflow.get_tasks(state=TaskState.READY)[0].task_spec.bpmn_name)
 
         time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step("Start Work")
         self.workflow.do_engine_steps()
@@ -53,26 +53,26 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step("Review Action", choice='Approve')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
-        self.assertEqual('Cancel Action (if necessary)', self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].task_spec.bpmn_name)
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.assertEqual('Cancel Action (if necessary)', self.workflow.get_tasks(state=TaskState.READY)[0].task_spec.bpmn_name)
 
         time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step("Start Work")
         self.workflow.do_engine_steps()
 
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertEqual('Finish Time', self.workflow.get_tasks(task_filter=self.waiting_task_filter)[1].task_spec.bpmn_name)
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual('Finish Time', self.workflow.get_tasks(state=TaskState.WAITING)[1].task_spec.bpmn_name)
         time.sleep(self.FINISH_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(3, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertNotEqual('Finish Time', self.workflow.get_tasks(task_filter=self.waiting_task_filter)[0].task_spec.bpmn_name)
+        self.assertEqual(3, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertNotEqual('Finish Time', self.workflow.get_tasks(state=TaskState.WAITING)[0].task_spec.bpmn_name)
 
         overdue_escalation_task = [
             t for t in self.workflow.get_tasks() if t.task_spec.bpmn_name == 'Overdue Escalation']
@@ -105,13 +105,13 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step("Review Action", choice='Approve')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
         time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step("Start Work")
         self.workflow.do_engine_steps()

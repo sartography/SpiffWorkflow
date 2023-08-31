@@ -59,10 +59,10 @@ class ParallelGateway(UnstructuredJoin):
             if task.parent.state == TaskState.COMPLETED and task.parent.task_spec in waiting_inputs:
                 waiting_inputs.remove(task.parent.task_spec)
             # Do not wait for descendants of this task
-            elif task._is_descendant_of(my_task):
+            elif task.is_descendant_of(my_task):
                 remove_ancestor(task)
             # Ignore predicted tasks; we don't care about anything not definite
-            elif task.parent._has_state(TaskState.DEFINITE_MASK):
+            elif task.parent.has_state(TaskState.DEFINITE_MASK):
                 waiting_tasks.append(task.parent)
 
         return force or len(waiting_inputs) == 0, waiting_tasks

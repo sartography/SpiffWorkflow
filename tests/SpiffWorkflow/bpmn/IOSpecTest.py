@@ -33,7 +33,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         script_task.script = """in_1, in_2, unused = 1, "hello world", True"""
 
         self.advance_to_subprocess()
-        task = self.workflow.get_tasks(task_filter=self.ready_task_filter)[0]
+        task = self.workflow.get_tasks(state=TaskState.READY)[0]
         transform_task = task.workflow.spec.task_specs['Activity_04d94ee']
         transform_task.script = """out_1, unused = in_1 * 2, False"""
 
@@ -52,7 +52,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
 
         self.advance_to_subprocess()
         # This will be the first task of the subprocess
-        task = self.workflow.get_tasks(task_filter=self.ready_task_filter)[0]
+        task = self.workflow.get_tasks(state=TaskState.READY)[0]
 
         # These should be copied
         self.assertIn('in_1', task.data)
@@ -63,7 +63,7 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
         self.complete_subprocess()
         # Refreshing causes the subprocess to become ready
         self.workflow.refresh_waiting_tasks()
-        task = self.workflow.get_next_task(task_filter=self.ready_task_filter)
+        task = self.workflow.get_next_task(state=TaskState.READY)
         # Originals should not change
         self.assertEqual(task.data['in_1'], 1)
         self.assertEqual(task.data['in_2'], "hello world")
@@ -74,18 +74,18 @@ class CallActivityDataTest(BpmnWorkflowTestCase):
 
     def advance_to_subprocess(self):
         # Once we enter the subworkflow it becomes a waiting task
-        waiting = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
+        waiting = self.workflow.get_tasks(state=TaskState.WAITING)
         while len(waiting) == 0:
-            next_task = self.workflow.get_next_task(task_filter=self.ready_task_filter)
+            next_task = self.workflow.get_next_task(state=TaskState.READY)
             next_task.run()
-            waiting = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
+            waiting = self.workflow.get_tasks(state=TaskState.WAITING)
 
     def complete_subprocess(self):
         # Complete the ready tasks in the subprocess
-        ready = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+        ready = self.workflow.get_tasks(state=TaskState.READY)
         while len(ready) > 0:
             ready[0].run()
-            ready = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+            ready = self.workflow.get_tasks(state=TaskState.READY)
 
 class IOSpecOnTaskTest(BpmnWorkflowTestCase):
 
@@ -109,7 +109,7 @@ class IOSpecOnTaskTest(BpmnWorkflowTestCase):
     def testIOSpecOnTaskMissingOutput(self):
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.workflow.do_engine_steps()
-        task = self.get_first_task_from_spec_name('any_task')
+        task = self.workflow.get_next_task(spec_name='any_task')
         task.data.update({'out_1': 1})
         with self.assertRaises(WorkflowDataException) as exc:
             task.run()
@@ -120,7 +120,7 @@ class IOSpecOnTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         if save_restore:
             self.save_restore()
-        task = self.get_first_task_from_spec_name('any_task')
+        task = self.workflow.get_next_task(spec_name='any_task')
         self.assertDictEqual(task.data, {'in_1': 1, 'in_2': 'hello world'})
         task.data.update({'out_1': 1, 'out_2': 'bye', 'extra': True})
         task.run()

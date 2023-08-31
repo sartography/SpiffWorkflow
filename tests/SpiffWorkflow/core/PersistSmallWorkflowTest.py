@@ -99,12 +99,12 @@ class PersistSmallWorkflowTest(unittest.TestCase):
         old_workflow = self.workflow
 
         old_workflow.run_next()
-        self.assertEqual('task_a2', old_workflow.last_task.get_name())
+        self.assertEqual('task_a2', old_workflow.last_task.task_spec.name)
         serializer = DictionarySerializer()
         serialized_workflow = old_workflow.serialize(serializer)
 
         serializer = DictionarySerializer()
         new_workflow = Workflow.deserialize(serializer, serialized_workflow)
-        self.assertEqual('task_a2', old_workflow.last_task.get_name())
+        self.assertEqual('task_a2', old_workflow.last_task.task_spec.name)
         new_workflow.run_all()
-        self.assertEqual('task_a2', old_workflow.last_task.get_name())
+        self.assertEqual('task_a2', old_workflow.last_task.task_spec.name)

@@ -27,7 +27,7 @@ class InclusiveGatewayTest(BpmnWorkflowTestCase):
     def testNoPathFromSecondGateway(self):
         self.set_data({'v': 0, 'u': -1, 'w': -1})
         self.assertRaises(WorkflowTaskException, self.workflow.do_engine_steps)
-        task = self.get_first_task_from_spec_name('second')
+        task = self.workflow.get_next_task(spec_name='second')
         self.assertEqual(task.state, TaskState.ERROR)
 
     def testParallelCondition(self):

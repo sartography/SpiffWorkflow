@@ -25,24 +25,24 @@ class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
 
         # Advance insie the subworkflow
         self.advance_to_task('Last')
-        sub = self.get_first_task_from_spec_name('subprocess')
-        timer_event = self.get_first_task_from_spec_name('Event_My_Timer')
+        sub = self.workflow.get_next_task(spec_name='subprocess')
+        timer_event = self.workflow.get_next_task(spec_name='Event_My_Timer')
         self.assertEqual(TaskState.CANCELLED, timer_event.state)
 
         if save_restore:
             self.save_restore()
 
         # Here we reset back to the first task
-        first = self.get_first_task_from_spec_name('First')
+        first = self.workflow.get_next_task(spec_name='First')
         self.workflow.reset_from_task_id(first.id)
 
         if save_restore:
             self.save_restore()
 
         # At which point, the timer event should return to a waiting state, the subprocess shoud have been removed
-        task = self.get_first_task_from_spec_name('First')
+        task = self.workflow.get_next_task(spec_name='First')
         self.assertEqual(task.state, TaskState.READY)
-        timer_event = self.get_first_task_from_spec_name('Event_My_Timer')
+        timer_event = self.workflow.get_next_task(spec_name='Event_My_Timer')
         self.assertEqual(timer_event.state, TaskState.WAITING)
         self.assertNotIn(sub.id, self.workflow.subprocesses)
 
@@ -58,17 +58,17 @@ class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
             self.save_restore()
 
         # Reset to a task inside the subworkflow
-        task = self.get_first_task_from_spec_name('Last')
+        task = self.workflow.get_next_task(spec_name='Last')
         self.workflow.reset_from_task_id(task.id)
 
         if save_restore:
             self.save_restore()
 
         # The task we returned to should be ready, the subprocess should be waiting, the final task should be future
-        sub = self.get_first_task_from_spec_name('subprocess')
+        sub = self.workflow.get_next_task(spec_name='subprocess')
         self.assertEqual(sub.state, TaskState.WAITING)
         self.assertEqual(task.state, TaskState.READY)
-        final = self.get_first_task_from_spec_name('Final')
+        final = self.workflow.get_next_task(spec_name='Final')
         self.assertEqual(final.state, TaskState.FUTURE)
 
         # Ensure the workflow can be completed without being stuck on stranded tasks        
@@ -78,18 +78,18 @@ class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
     def advance_to_task(self, name):
 
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         while ready_tasks[0].task_spec.name != name:
             ready_tasks[0].run()
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
-            ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+            ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
 
     def complete_workflow(self):
 
-        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         while len(ready_tasks) > 0:
             ready_tasks[0].run()
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
-            ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+            ready_tasks = self.workflow.get_tasks(state=TaskState.READY)

@@ -44,10 +44,10 @@ class CustomInlineScriptTest(BpmnWorkflowTestCase):
         self.assertEqual(data['c3'], 'ARRIVEDERCI')
 
     def test_overwrite_function_with_local_variable(self):
-        ready_task = self.workflow.get_tasks(task_filter=self.ready_task_filter)[0]
+        ready_task = self.workflow.get_tasks(state=TaskState.READY)[0]
         ready_task.data = {'custom_function': "bill"}
         with self.assertRaises(WorkflowTaskException) as e:
             self.workflow.do_engine_steps()
         self.assertTrue('custom_function' in str(e.exception))
-        task = self.get_first_task_from_spec_name('Activity_1y303ko')
+        task = self.workflow.get_next_task(spec_name='Activity_1y303ko')
         self.assertEqual(task.state, TaskState.ERROR)

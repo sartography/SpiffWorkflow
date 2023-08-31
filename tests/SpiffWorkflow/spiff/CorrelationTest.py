@@ -33,7 +33,7 @@ class CorrelationTest(BaseTestCase):
             task.run()
         self.workflow.do_engine_steps()
         # If the messages were routed properly, the task number should match the response id
-        for task in self.get_tasks_from_spec_name('subprocess_end'):
+        for task in self.workflow.get_tasks(spec_name='subprocess_end'):
             self.assertEqual(task.data['response']['init_id'], task.data['task_num'])
             self.assertEqual(task.data['response']['response'], 'OK' if task.data['task_num'] else 'No')
 

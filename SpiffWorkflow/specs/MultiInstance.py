@@ -67,7 +67,7 @@ class MultiInstance(TaskSpec):
         """
         # Find a Task for this TaskSpec.
         my_task = self._find_my_task(task_spec)
-        if my_task._has_state(TaskState.COMPLETED):
+        if my_task.has_state(TaskState.COMPLETED):
             state = TaskState.READY
         else:
             state = TaskState.FUTURE
@@ -82,7 +82,7 @@ class MultiInstance(TaskSpec):
 
     def _predict_hook(self, my_task):
         outputs = self._get_predicted_outputs(my_task)
-        if my_task._is_definite():
+        if my_task.has_state(TaskState.DEFINITE_MASK):
             my_task._sync_children(outputs, TaskState.FUTURE)
         else:
             my_task._sync_children(outputs, TaskState.LIKELY)

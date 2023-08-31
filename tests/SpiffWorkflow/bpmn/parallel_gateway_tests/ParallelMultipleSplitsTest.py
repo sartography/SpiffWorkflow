@@ -15,7 +15,7 @@ class ParallelMultipleSplitsTest(BpmnWorkflowTestCase):
 
     def testRunThroughAlternating(self):
 
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step('Do First')
         self.workflow.do_engine_steps()
@@ -35,4 +35,4 @@ class ParallelMultipleSplitsTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done')
         self.workflow.do_engine_steps()
 
-        self.assertEqual(0, len(self.workflow.get_tasks(task_filter=self.ready_or_waiting_filter)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))

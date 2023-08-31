@@ -14,7 +14,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
         start = self.workflow.get_next_task(end_at_spec='Start')
         start.data = data
 
-        any_task = self.get_first_task_from_spec_name('any_task')
+        any_task = self.workflow.get_next_task(spec_name='any_task')
         any_task.task_spec.data_input = TaskDataReference(data_input) if data_input is not None else None
         any_task.task_spec.data_output = TaskDataReference(data_output) if data_output is not None else None
 
@@ -39,7 +39,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
         start = self.workflow.get_next_task(end_at_spec='Start')
         start.data = data
 
-        task = self.get_first_task_from_spec_name('any_task')
+        task = self.workflow.get_next_task(spec_name='any_task')
         task.task_spec.condition = "input_item == 2"
 
         self.workflow.do_engine_steps()
@@ -212,7 +212,7 @@ class ParallelMultiInstanceTaskTest(BpmnWorkflowTestCase):
     def testParseInputOutput(self):
         spec, subprocess = self.load_workflow_spec('parallel_multiinstance_loop_input.bpmn', 'main')
         self.workflow = BpmnWorkflow(spec)
-        task_spec = self.get_first_task_from_spec_name('any_task').task_spec
+        task_spec = self.workflow.get_next_task(spec_name='any_task').task_spec
         self.check_reference(task_spec.data_input, 'input_data')
         self.check_reference(task_spec.data_output, 'output_data')
         self.check_reference(task_spec.input_item, 'input_item')
@@ -222,7 +222,7 @@ class ParallelMultiInstanceTaskTest(BpmnWorkflowTestCase):
     def testParseCardinality(self):
         spec, subprocess = self.load_workflow_spec('parallel_multiinstance_cardinality.bpmn', 'main')
         self.workflow = BpmnWorkflow(spec)
-        task_spec = self.get_first_task_from_spec_name('any_task').task_spec
+        task_spec = self.workflow.get_next_task(spec_name='any_task').task_spec
         self.assertIsNone(task_spec.data_input)
         self.assertEqual(task_spec.cardinality, '3')
 

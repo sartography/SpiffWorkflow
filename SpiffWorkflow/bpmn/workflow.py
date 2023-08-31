@@ -58,10 +58,10 @@ class BpmnTaskIterator(TaskIterator):
 
     def _next(self):
 
-        if len(self.queue) == 0:
+        if len(self.task_list) == 0:
             raise StopIteration()
 
-        task = self.queue.pop(-1)
+        task = self.task_list.pop(-1)
         subprocess = task.workflow.top_workflow.subprocesses.get(task.id)
 
         if all([
@@ -74,13 +74,13 @@ class BpmnTaskIterator(TaskIterator):
             if self.depth_first:
                 if subprocess is not None:
                     add_tasks.append(subprocess.task_tree)
-                self.queue.extend(add_tasks)
+                self.task_list.extend(add_tasks)
             else:
                 if subprocess is not None:
                     add_tasks = [subprocess.task_tree] + add_tasks
-                self.queue = add_tasks + self.queue
+                self.task_list = add_tasks + self.task_list
             self.depth += 1
-        elif len(self.queue) > 0 and task.parent != self.queue[0].parent:
+        elif len(self.task_list) > 0 and task.parent != self.task_list[0].parent:
             self.depth -= 1
         return task
 

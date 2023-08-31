@@ -12,14 +12,8 @@ class BaseTestCase(unittest.TestCase):
     SERIALIZER_VERSION = "100.1.ANY"
     DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
 
-    ready_task_filter = BpmnTaskFilter(state=TaskState.READY)
-    waiting_task_filter = BpmnTaskFilter(state=TaskState.WAITING)
-
     def get_ready_user_tasks(self, lane=None):
         return self.workflow.get_tasks(task_filter=BpmnTaskFilter(state=TaskState.READY, manual=True, lane=lane))
-
-    def get_first_task_from_spec_name(self, wf, spec_name):
-        return wf.get_tasks(task_filter=BpmnTaskFilter(spec_name=spec_name))[0]
 
     def load_workflow_spec(self, filename, process_name):
         parser = BpmnParser()

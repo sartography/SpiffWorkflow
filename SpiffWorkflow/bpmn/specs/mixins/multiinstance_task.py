@@ -36,10 +36,10 @@ class LoopTask(TaskSpec):
         merged = my_task.internal_data.get('merged') or []
         child_running = False
         for child in filter(lambda c: c.task_spec.name == self.task_spec, my_task.children):
-            if child._has_state(TaskState.FINISHED_MASK) and str(child.id) not in merged:
+            if child.has_state(TaskState.FINISHED_MASK) and str(child.id) not in merged:
                 self.child_completed_action(my_task, child)
                 merged.append(str(child.id))
-            elif not child._has_state(TaskState.FINISHED_MASK):
+            elif not child.has_state(TaskState.FINISHED_MASK):
                 child_running = True
         my_task.internal_data['merged'] = merged
         return child_running

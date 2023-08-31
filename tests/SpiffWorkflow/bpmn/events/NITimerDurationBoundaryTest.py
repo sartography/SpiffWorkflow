@@ -28,8 +28,8 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
     def actual_test(self,save_restore = False):
 
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
-        event = self.get_first_task_from_spec_name('Event_0jyy8ao')
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
+        event = self.workflow.get_next_task(spec_name='Event_0jyy8ao')
         self.assertEqual(event.state, TaskState.WAITING)
 
         loopcount = 0
@@ -39,9 +39,9 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         while event.state == TaskState.WAITING and loopcount < 10:
             if save_restore:
                 self.save_restore()
-                event = self.get_first_task_from_spec_name('Event_0jyy8ao')
+                event = self.workflow.get_next_task(spec_name='Event_0jyy8ao')
             time.sleep(0.1)
-            ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+            ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
             # There should be one ready task until the boundary event fires
             self.assertEqual(len(self.get_ready_user_tasks()), 1)
             self.workflow.refresh_waiting_tasks()

@@ -15,7 +15,7 @@ class ParallelJoinLongInclusiveTest(BpmnWorkflowTestCase):
 
     def testRunThroughThread1FirstThenNo(self):
 
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step('Thread 1 - Choose', choice='Yes', with_save_load=True)
         self.workflow.do_engine_steps()
@@ -24,7 +24,7 @@ class ParallelJoinLongInclusiveTest(BpmnWorkflowTestCase):
             self.workflow.do_engine_steps()
 
         self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.do_next_named_step('Thread 2 - Choose', choice='No', with_save_load=True)
         self.workflow.do_engine_steps()
@@ -34,11 +34,11 @@ class ParallelJoinLongInclusiveTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         self.assertEqual(
-            0, len(self.workflow.get_tasks(task_filter=self.ready_or_waiting_filter)))
+            0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
 
     def testNoFirstThenThread1(self):
 
-        self.assertEqual(2, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step('Thread 2 - Choose', choice='No', with_save_load=True)
         self.workflow.do_engine_steps()
@@ -55,4 +55,4 @@ class ParallelJoinLongInclusiveTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Thread 2 - No Task', with_save_load=True)
         self.workflow.do_engine_steps()
 
-        self.assertEqual(0, len(self.workflow.get_tasks(task_filter=self.ready_or_waiting_filter)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))

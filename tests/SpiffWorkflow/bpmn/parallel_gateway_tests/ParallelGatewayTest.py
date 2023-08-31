@@ -15,14 +15,14 @@ class ParallelFromCamunda(BpmnWorkflowTestCase):
     def testRunThroughParallelTaskFirst(self):
 
         # 1 first task
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
         self.do_next_named_step('First Task')
         self.save_restore()
         self.workflow.do_engine_steps()
         self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
 
         # 3 parallel tasks
-        self.assertEqual(3, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(3, len(self.workflow.get_tasks(state=TaskState.READY)))
         self.do_next_named_step('Parallel Task A')
         self.save_restore()
         self.workflow.do_engine_steps()
@@ -36,7 +36,7 @@ class ParallelFromCamunda(BpmnWorkflowTestCase):
         self.save_restore()
 
         # 1 last task
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
         self.do_next_named_step('Last Task')
         self.save_restore()
         self.workflow.do_engine_steps()

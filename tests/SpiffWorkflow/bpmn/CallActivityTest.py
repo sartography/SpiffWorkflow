@@ -29,7 +29,7 @@ class CallActivityTest(BpmnWorkflowTestCase):
         self.assertIsInstance(self.workflow.script_engine, CustomScriptEngine)
 
         # Get the subworkflow
-        sub_task = self.get_first_task_from_spec_name('Sub_Bpmn_Task')
+        sub_task = self.workflow.get_next_task(spec_name='Sub_Bpmn_Task')
         sub_workflow = sub_task.workflow
         self.assertNotEqual(sub_workflow, self.workflow)
         self.assertIsInstance(self.workflow.script_engine, CustomScriptEngine)
@@ -52,7 +52,7 @@ class CallActivityTest(BpmnWorkflowTestCase):
         self.assertEquals(2, len(context.exception.task_trace))
         self.assertRegexpMatches(context.exception.task_trace[0], 'Create Data \(.*?call_activity_call_activity.bpmn\)')
         self.assertRegexpMatches(context.exception.task_trace[1], 'Get Data Call Activity \(.*?call_activity_with_error.bpmn\)')
-        task = self.get_first_task_from_spec_name('Sub_Bpmn_Task')
+        task = self.workflow.get_next_task(spec_name='Sub_Bpmn_Task')
         self.assertEqual(task.state, TaskState.ERROR)
 
     def test_order_of_tasks_in_get_task_is_call_acitivty_task_first_then_sub_tasks(self):

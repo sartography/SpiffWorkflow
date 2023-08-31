@@ -23,7 +23,7 @@ class NIMessageBoundaryTest(BaseTestCase):
 
     def actual_test(self,save_restore = False):
 
-        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         self.workflow.run_task_from_id(ready_tasks[0].id)
         self.workflow.do_engine_steps()
@@ -33,7 +33,7 @@ class NIMessageBoundaryTest(BaseTestCase):
         answers = {'Activity_WorkLate':('flag_task','No'),
                    'Activity_DoWork': ('work_done','No')}
         for x in range(3):
-            ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+            ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
             for task in ready_tasks:
                 response = answers.get(task.task_spec.name,None)
                 self.assertEqual(response is None,
@@ -54,7 +54,7 @@ class NIMessageBoundaryTest(BaseTestCase):
                    'Activity_DoWork': ('work_done','No'),
                    'Activity_WorkLateReason':('work_late_reason','covid-19')}
         for x in range(3):
-            ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+            ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
             for task in ready_tasks:
                 response = answers.get(task.task_spec.name,None)
                 self.assertEqual(response is None,
@@ -67,14 +67,14 @@ class NIMessageBoundaryTest(BaseTestCase):
             if save_restore:
                 self.save_restore()
 
-        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(len(ready_tasks),1)
         task = ready_tasks[0]
         self.assertEqual(task.task_spec.name,'Activity_DoWork')
         task.data['work_done'] = 'Yes'
         self.workflow.run_task_from_id(task.id)
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(len(ready_tasks), 1)
         task = ready_tasks[0]
         self.assertEqual(task.task_spec.name, 'Activity_WorkCompleted')

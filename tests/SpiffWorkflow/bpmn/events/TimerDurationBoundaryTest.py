@@ -21,23 +21,23 @@ class TimerDurationTest(BpmnWorkflowTestCase):
 
     def actual_test(self,save_restore = False):
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
 
         loopcount = 0
         # test bpmn has a timeout of .03s; we should terminate loop before that.
-        while len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)) == 2 and loopcount < 11:
+        while len(self.workflow.get_tasks(state=TaskState.WAITING)) == 2 and loopcount < 11:
             if save_restore:
                 self.save_restore()
             time.sleep(0.01)
-            self.assertEqual(len(self.workflow.get_tasks(task_filter=self.ready_task_filter)), 1)
+            self.assertEqual(len(self.workflow.get_tasks(state=TaskState.READY)), 1)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
             loopcount += 1
 
         self.workflow.do_engine_steps()
-        subworkflow = self.get_first_task_from_spec_name('Subworkflow')
+        subworkflow = self.workflow.get_next_task(spec_name='Subworkflow')
         self.assertEqual(subworkflow.state, TaskState.CANCELLED)
         ready_tasks = self.get_ready_user_tasks()
         while len(ready_tasks) > 0:

@@ -11,7 +11,7 @@ class ParallelGatewayLoopInputTest(BpmnWorkflowTestCase):
     def test_loop_input(self):
 
         self.workflow.do_engine_steps()
-        ready = self.workflow.get_tasks(task_filter=self.ready_task_filter)
+        ready = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(len(ready), 1)
         ready[0].run()
         self.workflow.do_engine_steps()

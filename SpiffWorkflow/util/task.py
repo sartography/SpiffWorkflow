@@ -1,36 +1,63 @@
+# Copyright (C) 2007 Samuel Abels, 2023 Sartography
+#
+# This file is part of SpiffWorkflow.
+#
+# SpiffWorkflow is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 3.0 of the License, or (at your option) any later version.
+#
+# SpiffWorkflow is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301  USA
+
+
 class TaskState:
-    """
+    """Int values corresponding to `Task` states.
+    
     The following states may exist:
 
-    - FUTURE: The task will definitely be reached in the future,
-      regardless of which choices the user makes within the workflow.
+    - LIKELY: The task is a descendant of the default branch of a Choice task.
 
-    - LIKELY: The task may or may not be reached in the future. It
-      is likely because the specification lists it as the default
-      option for the ExclusiveChoice.
+    - MAYBE: The task is a descendant of a conditional branch of a Choice task.
 
-    - MAYBE: The task may or may not be reached in the future. It
-      is not LIKELY, because the specification does not list it as the
-      default choice for the ExclusiveChoice.
+    - FUTURE: The task will definitely be reached in the future, regardless of
+      which choices the user makes within the workflow.
 
-    - WAITING: The task is still waiting for an event before it
-      completes. For example, a Join task will be WAITING until all
-      predecessors are completed.
+    - WAITING: The task has been reached but the conditions for running this
+      task have not been met. For example, a Join task will be WAITING until
+      all predecessors are completed.
 
-    - READY: The conditions for completing the task are now satisfied.
-      Usually this means that all predecessors have completed and the
-      task may now be completed using
-      :class:`Workflow.complete_task_from_id()`.
+    - READY: The conditions for running the task are now satisfied.  All
+      predecessors have completed and the task may now be run using `Task.run`.
 
-    - CANCELLED: The task was cancelled by a CancelTask or
-      CancelWorkflow task.
+    - STARTED: `Task.run` has been called, but the task returned
+      before finishing.  SpiffWorkflow does not track tasks in this state, as
+      it is currently unused by any of the included task specs.
 
     - COMPLETED: The task was regularily completed.
 
-    Note that the LIKELY and MAYBE tasks are merely predicted/guessed, so
-    those tasks may be removed from the tree at runtime later. They are
-    created to allow for visualizing the workflow at a time where
-    the required decisions have not yet been made.
+    - ERROR: The task did not complete because an error occurred when it was run.
+
+    - CANCELLED: The task was cancelled.
+
+    Notes:
+    
+        - LIKELY and MAYBE tasks are merely predicted/guessed, so those tasks may be
+          removed from the tree at runtime later.
+
+        - The STARTED state will eventually be used by SpiffWorkflow.   The intention
+          is that this state would be used if a time-consuming and/or resource intensive
+          operation was being carried out external to the workflow.  The task could
+          return immediately and its branch would not proceed until the workflow application
+          called `Task.complete`, but without blocking other branches that were ready to
+          execute.
     """
     MAYBE = 1
     LIKELY = 2
@@ -53,6 +80,14 @@ class TaskState:
 
     @classmethod
     def get_name(cls, state):
+        """Get the name of the state or mask from the value.
+
+        Args:
+            state (int): a `TaskState` value
+        
+        Returns:
+            str: the name of the state
+        """
         names = dict(zip(cls._values, cls._names))
         names.update({
             TaskState.FINISHED_MASK: 'FINISHED_MASK',
@@ -65,42 +100,52 @@ class TaskState:
 
     @classmethod
     def get_value(cls, name):
+        """Get the value for the state name (case insensitive).
+
+        Args:
+            name (str): the state name
+
+        Returns:
+            int: the value of the state
+        """
         values = dict(zip(cls._names, cls._values))
-        return values.get(name)
+        return values.get(name.upper())
 
  
 class TaskFilter:
+    """This is the default class for filtering during task iteration.
 
-    def __init__(self, state=TaskState.ANY_MASK, updated_after=0, manual=None, spec_name=None, spec_class=None):
+    Note:
+        All filter values must match.  Default filter values match any task.
+    """
+
+    def __init__(self, state=TaskState.ANY_MASK, updated_ts=0, manual=None, spec_name=None, spec_class=None):
         """
         Parameters:
-            state (TaskState): limit results to state or mask
-            updated_after (float): limit results to tasks updated after this timestamp
-            manual (bool): match the value of the task's spec's manual attribute
-            spec_name (str): match the value of the task's spec's name
-            spec_class (TaskSpec): match the value of the task's spec's class
-
-        Notes:
-            If no parameter value is provided, all tasks will match
+            state (`TaskState`):      limit results to state or mask
+            updated_ts (float):     limit results to tasks updated at or after this timestamp
+            manual (bool):          match the value of the `TaskSpec`'s manual attribute
+            spec_name (str):        match the value of the `TaskSpec`'s name
+            spec_class (`TaskSpec`):   match the value of the `TaskSpec`'s class
         """
         self.state = state
-        self.updated_after = updated_after
+        self.updated_ts = updated_ts
         self.manual = manual
         self.spec_name = spec_name
         self.spec_class = spec_class
 
     def matches(self, task):
-        """Check if the task matches this filter
+        """Check if the task matches this filter.
 
         Args:
-            task (Task): the task to check
+            task (`Task`): the task to check
 
         Returns:
             bool: indicates whether the task matches
         """
         return all([
-            task._has_state(self.state),
-            task.last_state_change > self.updated_after,
+            task.has_state(self.state),
+            task.last_state_change >= self.updated_ts,
             self.manual is None or task.task_spec.manual == self.manual,
             self.spec_name is None or task.task_spec.name == self.spec_name,
             self.spec_class is None or isinstance(task.task_spec, self.spec_class),
@@ -108,28 +153,31 @@ class TaskFilter:
 
 
 class TaskIterator:
+    """Default task iteration class."""
 
     def __init__(self, task, end_at_spec=None, max_depth=1000, depth_first=True, task_filter=None, **kwargs):
         """Iterate over the task tree and return the tasks matching the filter parameters.
 
         Args:
-            task (Task): the task to start from
+            task (`Task`):    the task to start from
 
         Keyword Args:
-            end_at (str): stop when a task spec with this name is reached
+            end_at (str):stop when a task spec with this name is reached
             max_depth (int): stop when this depth is reached
             depth_first (bool): return results in depth first order
-            task_filter (TaskFilter): return only tasks matching this filter
+            task_filter (`TaskFilter`): return only tasks matching this filter
         
         Notes:
-            Remaining keyword args will be passed into the default `TaskFilter` class if no `task_filter` is provided.
+            Keyword args not used by this class will be passed into `TaskFilter` if no `task_filter` is provided.
+            This is for convenience (filter values can be used directly from `Workflow.get_tasks`) as well as
+            backwards compatilibity for queries about `TaskState`.
         """
         self.task_filter = task_filter or TaskFilter(**kwargs)
         self.end_at_spec = end_at_spec
         self.max_depth = max_depth
         self.depth_first = depth_first
 
-        self.queue = [task]
+        self.task_list = [task]
         self.depth = 0
         # Figure out which states need to be traversed.
         # Predicted tasks can follow definite tasks but not vice versa; definite tasks can follow finished tasks but not vice versa
@@ -153,10 +201,10 @@ class TaskIterator:
 
     def _next(self):
 
-        if len(self.queue) == 0:
+        if len(self.task_list) == 0:
             raise StopIteration()
 
-        task = self.queue.pop(-1)
+        task = self.task_list.pop(-1)
         if all([
             len(task._children) > 0,
             task.state >= self.min_state,
@@ -164,11 +212,11 @@ class TaskIterator:
             task.task_spec.name != self.end_at_spec,
         ]):
             if self.depth_first:
-                self.queue.extend(reversed(task.children))
+                self.task_list.extend(reversed(task.children))
             else:
-                self.queue = reversed(task.children) + self.queue
+                self.task_list = reversed(task.children) + self.task_list
             self.depth += 1
-        elif len(self.queue) > 0 and task.parent != self.queue[0].parent:
+        elif len(self.task_list) > 0 and task.parent != self.task_list[0].parent:
             self.depth -= 1
         return task
 

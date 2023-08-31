@@ -18,7 +18,7 @@ class Version_1_0_Test(BaseTestCase):
         with open(fn) as fh:
             wf = self.serializer.deserialize_json(fh.read())
         # We should be able to finish the workflow from this point
-        ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
+        ready_tasks = wf.get_tasks(state=TaskState.READY)
         self.assertEqual('Action3', ready_tasks[0].task_spec.bpmn_name)
         ready_tasks[0].run()
         wf.do_engine_steps()
@@ -53,7 +53,7 @@ class Version_1_1_Test(BaseTestCase):
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.1-gateways.json')
         wf = self.serializer.deserialize_json(open(fn).read())
         wf.do_engine_steps()
-        task = self.get_first_task_from_spec_name(wf, 'Gateway_askQuestion')
+        task = wf.get_next_task(spec_name='Gateway_askQuestion')
         self.assertEqual(len(task.task_spec.cond_task_specs), 2)
         task_filter = BpmnTaskFilter(state=TaskState.READY, manual=True)
         ready_task = wf.get_tasks(task_filter=task_filter)[0]
@@ -85,12 +85,12 @@ class Version_1_1_Test(BaseTestCase):
         wf = self.serializer.deserialize_json(open(fn).read())
         start = wf.get_tasks(end_at_spec='Start')[0]
         self.assertEqual(start.state, TaskState.COMPLETED)
-        signal = self.get_first_task_from_spec_name(wf, 'signal')
+        signal = wf.get_next_task(spec_name='signal')
         self.assertEqual(signal.state, TaskState.CANCELLED)
-        ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
+        ready_tasks = wf.get_tasks(state=TaskState.READY)
         while len(ready_tasks) > 0:
             ready_tasks[0].run()
-            ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
+            ready_tasks = wf.get_tasks(state=TaskState.READY)
         self.assertTrue(wf.is_completed())
 
 
@@ -99,39 +99,39 @@ class Version1_2_Test(BaseTestCase):
     def test_remove_boundary_events(self):
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.2-boundary-events.json')
         wf = self.serializer.deserialize_json(open(fn).read())
-        ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
+        ready_tasks = wf.get_tasks(state=TaskState.READY)
         ready_tasks[0].update_data({'value': 'asdf'})
         ready_tasks[0].run()
         wf.do_engine_steps()
-        ready_tasks = wf.get_tasks(task_filter=self.ready_task_filter)
+        ready_tasks = wf.get_tasks(state=TaskState.READY)
         ready_tasks[0].update_data({'quantity': 2})
         ready_tasks[0].run()
         wf.do_engine_steps()
         self.assertIn('value', wf.last_task.data)
 
         # Check that workflow and next task completed
-        subprocess = self.get_first_task_from_spec_name(wf, 'Subprocess')
+        subprocess = wf.get_next_task(spec_name='Subprocess')
         self.assertEqual(subprocess.state, TaskState.COMPLETED)
-        print_task = self.get_first_task_from_spec_name(wf, "Activity_Print_Data")
+        print_task = wf.get_next_task(spec_name="Activity_Print_Data")
         self.assertEqual(print_task.state, TaskState.COMPLETED)
 
         # Check that the boundary events were cancelled
-        cancel_task = self.get_first_task_from_spec_name(wf, "Catch_Cancel_Event")
+        cancel_task = wf.get_next_task(spec_name="Catch_Cancel_Event")
         self.assertEqual(cancel_task.state, TaskState.CANCELLED)
-        error_1_task = self.get_first_task_from_spec_name(wf, "Catch_Error_1")
+        error_1_task = wf.get_next_task(spec_name="Catch_Error_1")
         self.assertEqual(error_1_task.state, TaskState.CANCELLED)
-        error_none_task = self.get_first_task_from_spec_name(wf, "Catch_Error_None")
+        error_none_task = wf.get_next_task(spec_name="Catch_Error_None")
         self.assertEqual(error_none_task.state, TaskState.CANCELLED)
 
     def test_remove_noninterrupting_boundary_events(self):
         fn = os.path.join(self.DATA_DIR, 'serialization', 'v1.2-boundary-events-noninterrupting.json')
         wf = self.serializer.deserialize_json(open(fn).read())
 
-        self.get_first_task_from_spec_name(wf, 'sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE').run()
+        wf.get_next_task(spec_name='sid-D3365C47-2FAE-4D17-98F4-E68B345E18CE').run()
         wf.do_engine_steps()
-        self.assertEqual(1, len(wf.get_tasks(task_filter=self.ready_task_filter)))
-        self.assertEqual(3, len(wf.get_tasks(task_filter=self.waiting_task_filter)))
+        self.assertEqual(1, len(wf.get_tasks(state=TaskState.READY)))
+        self.assertEqual(3, len(wf.get_tasks(state=TaskState.WAITING)))
 
-        self.get_first_task_from_spec_name(wf, 'sid-6FBBB56D-00CD-4C2B-9345-486986BB4992').run()
+        wf.get_next_task(spec_name='sid-6FBBB56D-00CD-4C2B-9345-486986BB4992').run()
         wf.do_engine_steps()
         self.assertTrue(wf.is_completed())

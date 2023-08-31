@@ -1,3 +1,4 @@
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.event import BpmnEvent
 from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
@@ -20,7 +21,7 @@ class MultipleStartEventTest(BpmnWorkflowTestCase):
     def actual_test(self, save_restore=False):
 
         self.workflow.do_engine_steps()
-        waiting_tasks = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
+        waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
 
         if save_restore:
             self.save_restore()
@@ -54,7 +55,7 @@ class ParallelStartEventTest(BpmnWorkflowTestCase):
     def actual_test(self, save_restore=False):
 
         self.workflow.do_engine_steps()
-        waiting_tasks = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
+        waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
 
         if save_restore:
             self.save_restore()
@@ -68,7 +69,7 @@ class ParallelStartEventTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         # It should still be waiting because it has to receive both messages
-        waiting_tasks = self.workflow.get_tasks(task_filter=self.waiting_task_filter)
+        waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
         self.assertEqual(len(waiting_tasks), 1)
         self.assertEqual(waiting_tasks[0].task_spec.name, 'StartEvent_1')
 

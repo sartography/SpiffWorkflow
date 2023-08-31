@@ -9,10 +9,10 @@ class BaseTestCase(BpmnWorkflowTestCase):
 
     def set_io_and_run_workflow(self, data, data_input=None, data_output=None, save_restore=False):
 
-        start = self.workflow.get_next_task(end_at_spec='Start')
+        start = self.workflow.task_tree
         start.data = data
 
-        any_task = self.get_first_task_from_spec_name('any_task')
+        any_task = self.workflow.get_next_task(spec_name='any_task')
         any_task.task_spec.data_input = TaskDataReference(data_input) if data_input is not None else None
         any_task.task_spec.data_output = TaskDataReference(data_output) if data_output is not None else None
 
@@ -32,16 +32,16 @@ class BaseTestCase(BpmnWorkflowTestCase):
             ready_tasks = self.get_ready_user_tasks()
 
         self.workflow.do_engine_steps()
-        children = self.get_tasks_from_spec_name('any_task [child]')
+        children = self.workflow.get_tasks(spec_name='any_task [child]')
         self.assertEqual(len(children), 3)
         self.assertTrue(self.workflow.is_completed()) 
 
     def run_workflow_with_condition(self, data, condition):
 
-        start = self.workflow.get_next_task(end_at_spec='Start')
+        start = self.workflow.task_tree
         start.data = data
 
-        task = self.get_first_task_from_spec_name('any_task')
+        task = self.workflow.get_next_task(spec_name='any_task')
         task.task_spec.condition = condition
 
         self.workflow.do_engine_steps()
@@ -59,7 +59,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
             ready_tasks = self.get_ready_user_tasks()
 
         self.workflow.do_engine_steps()
-        children = self.get_tasks_from_spec_name('any_task [child]')
+        children = self.workflow.get_tasks(spec_name='any_task [child]')
         self.assertEqual(len(children), 2)
         self.assertTrue(self.workflow.is_completed())
 
@@ -160,7 +160,7 @@ class SequentialMultiInstanceNewOutputTest(BaseTestCase):
 
     def testEmptyCollection(self):
 
-        start = self.workflow.get_next_task(end_at_spec='Start')
+        start = self.workflow.task_tree
         start.data = {'input_data': []}
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())

@@ -45,7 +45,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
     def testShouldEscalate(self):
         completed_set = set()
         track_workflow(self.spec, completed_set)
-        for task in self.workflow.get_tasks(task_filter=self.ready_task_filter):
+        for task in self.workflow.get_tasks(state=TaskState.READY):
             task.set_data(should_escalate=True)
         self.workflow.do_engine_steps()
         self.save_restore()
@@ -75,7 +75,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
     def testShouldNotEscalate(self):
         completed_set = set()
         track_workflow(self.spec, completed_set)
-        for task in self.workflow.get_tasks(task_filter=self.ready_task_filter):
+        for task in self.workflow.get_tasks(state=TaskState.READY):
             task.set_data(should_escalate=False)
         self.workflow.do_engine_steps()
         self.save_restore()

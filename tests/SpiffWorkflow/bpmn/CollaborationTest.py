@@ -27,13 +27,13 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertIn('process_buddy', subprocesses)
         self.assertNotIn('random_person_process', subprocesses)
         self.workflow = BpmnWorkflow(spec, subprocesses)
-        start = self.workflow.get_tasks(end_at_spec='Start')[0]
+        start = self.workflow.task_tree
         # Set up some data to be evaluated so that the workflow can proceed
         start.data['lover_name'] = 'Peggy'
         self.workflow.do_engine_steps()
 
         # Call activities should be created for executable processes and be reachable
-        buddy = self.get_first_task_from_spec_name('process_buddy')
+        buddy = self.workflow.get_next_task(spec_name='process_buddy')
         self.assertIsInstance(buddy.task_spec, CallActivity)
         self.assertEqual(buddy.task_spec.spec, 'process_buddy')
         self.assertEqual(buddy.state, TaskState.WAITING)
@@ -50,7 +50,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         messages = self.workflow.get_events()
         self.assertEqual(len(messages), 1)
         self.assertEqual(len(self.workflow.bpmn_events), 0)
-        receive = self.get_first_task_from_spec_name('EventReceiveLetter')
+        receive = self.workflow.get_next_task(spec_name='EventReceiveLetter')
 
         # Waiting Events should contain details about what we are no waiting on.
         events = self.workflow.waiting_events()
@@ -83,7 +83,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
             task.run()
         self.workflow.do_engine_steps()
         ready_tasks = self.get_ready_user_tasks()
-        waiting = self.get_tasks_from_spec_name('get_response')
+        waiting = self.workflow.get_tasks(spec_name='get_response')
         # Two processes should have been started and two corresponding catch events should be waiting
         self.assertEqual(len(ready_tasks), 2)
         self.assertEqual(len(waiting), 2)
@@ -95,7 +95,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
             task.run()
         self.workflow.do_engine_steps()
         # If the messages were routed properly, the id should match
-        for task in self.get_tasks_from_spec_name('subprocess_end'):
+        for task in self.workflow.get_next_task(spec_name='subprocess_end'):
             self.assertEqual(task.data['task_num'], task.data['init_id'])
 
     def testTwoCorrelationKeys(self):
@@ -111,7 +111,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
 
         # Two processes should have been started and two corresponding catch events should be waiting
         ready_tasks = self.get_ready_user_tasks()
-        waiting = self.get_tasks_from_spec_name('get_response_one')
+        waiting = self.workflow.get_tasks(spec_name='get_response_one')
         self.assertEqual(len(ready_tasks), 2)
         self.assertEqual(len(waiting), 2)
         for task in waiting:
@@ -129,7 +129,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
 
         # Repeat for the other process, using a different mapped name
         ready_tasks = self.get_ready_user_tasks()
-        waiting = self.get_tasks_from_spec_name('get_response_two')
+        waiting = self.workflow.get_tasks(spec_name='get_response_two')
         self.assertEqual(len(ready_tasks), 2)
         self.assertEqual(len(waiting), 2)
         for task in ready_tasks:
@@ -138,7 +138,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
 
         # If the messages were routed properly, the id should match
-        for task in self.get_tasks_from_spec_name('subprocess_end'):
+        for task in self.workflow.get_tasks(spec_name='subprocess_end'):
             self.assertEqual(task.data['task_num'], task.data['init_id'])
             self.assertEqual(task.data['task_num'], task.data['subprocess'])
 

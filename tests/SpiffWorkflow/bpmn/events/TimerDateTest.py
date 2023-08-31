@@ -2,6 +2,7 @@ import unittest
 import datetime
 import time
 
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
@@ -32,7 +33,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
         loopcount = 0
         starttime = datetime.datetime.now()
         # test bpmn has a timeout of .05s; we should terminate loop before that.
-        while len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)) > 0 and loopcount < 8:
+        while len(self.workflow.get_tasks(state=TaskState.WAITING)) > 0 and loopcount < 8:
             if save_restore:
                 self.save_restore()
                 self.workflow.script_engine = self.script_engine

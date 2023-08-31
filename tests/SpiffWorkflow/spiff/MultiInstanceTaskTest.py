@@ -8,10 +8,10 @@ class MultiInstanceTaskTest(BaseTestCase):
     def testMultiInstanceTask(self):
         spec, subprocesses = self.load_workflow_spec('spiff_multiinstance.bpmn', 'Process_1')
         self.workflow = BpmnWorkflow(spec, subprocesses)
-        start = self.workflow.get_next_task(end_at_spec='Start')
+        start = self.workflow.task_tree
         start.data = {'input_data': [1, 2, 3]}
         self.workflow.do_engine_steps()
-        task = self.get_first_task_from_spec_name('any_task')
+        task = self.workflow.get_next_task(spec_name='any_task')
         self.workflow.do_engine_steps()
 
         self.save_restore()

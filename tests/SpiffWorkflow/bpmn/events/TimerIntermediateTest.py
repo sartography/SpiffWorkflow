@@ -21,19 +21,19 @@ class TimerIntermediateTest(BpmnWorkflowTestCase):
 
         due_time = (datetime.datetime.now() + datetime.timedelta(seconds=0.01)).isoformat()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
-        self.workflow.get_tasks(task_filter=self.ready_task_filter)[0].set_data(due_time=due_time)
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.workflow.get_tasks(state=TaskState.READY)[0].set_data(due_time=due_time)
 
         self.workflow.do_engine_steps()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         time.sleep(0.02)
 
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
         self.workflow.refresh_waiting_tasks()
-        self.assertEqual(0, len(self.workflow.get_tasks(task_filter=self.waiting_task_filter)))
-        self.assertEqual(1, len(self.workflow.get_tasks(task_filter=self.ready_task_filter)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(task_filter=self.ready_or_waiting_filter)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
