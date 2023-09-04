@@ -1,4 +1,4 @@
-from SpiffWorkflow.specs import WorkflowSpec
+from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.serializer.json import JSONSerializer
 
 serializer = JSONSerializer()
