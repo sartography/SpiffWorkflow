@@ -1,4 +1,7 @@
-from SpiffWorkflow.specs import WorkflowSpec, ExclusiveChoice, Simple, Cancel
+from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
+from SpiffWorkflow.specs.ExclusiveChoice import ExclusiveChoice
+from SpiffWorkflow.specs.Simple import Simple
+from SpiffWorkflow.specs.Cancel import Cancel
 from SpiffWorkflow.operators import Equal, Attrib
 
 def my_nuclear_strike(msg):
