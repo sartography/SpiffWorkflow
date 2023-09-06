@@ -17,14 +17,23 @@ class BaseTestCase(BpmnWorkflowTestCase):
         any_task = self.workflow.get_next_task(spec_name='any_task')
         any_task.task_spec.data_input = TaskDataReference(data_input) if data_input is not None else None
         any_task.task_spec.data_output = TaskDataReference(data_output) if data_output is not None else None
-
         self.workflow.do_engine_steps()
+
+        task_info = any_task.task_spec.task_info(any_task)
+        self.assertEqual(len(task_info['completed']), 0)
+        self.assertEqual(len(task_info['running']), 3)
+        self.assertEqual(len(task_info['future']), 0)
+        self.assertEqual(len(task_info['instance_map']), 3)
+        instance_map = task_info['instance_map']
+
         ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
         while len(ready_tasks) > 0:
             task = ready_tasks[0]
+            task_info = task.task_spec.task_info(task)
             self.assertEqual(task.task_spec.name, 'any_task [child]')
             self.assertIn('input_item', task.data)
+            self.assertEqual(instance_map[task_info['instance']], str(task.id))
             task.data['output_item'] = task.data['input_item'] * 2
             task.run()
             if save_restore:
@@ -32,6 +41,12 @@ class BaseTestCase(BpmnWorkflowTestCase):
             ready_tasks = self.get_ready_user_tasks()
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
+
+        any_task = self.workflow.get_next_task(spec_name='any_task')
+        task_info = any_task.task_spec.task_info(any_task)
+        self.assertEqual(len(task_info['completed']), 3)
+        self.assertEqual(len(task_info['running']), 0)
+        self.assertEqual(len(task_info['future']), 0)
         self.assertTrue(self.workflow.is_completed())
 
     def run_workflow_with_condition(self, data):

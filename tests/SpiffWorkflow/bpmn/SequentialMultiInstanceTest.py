@@ -20,6 +20,13 @@ class BaseTestCase(BpmnWorkflowTestCase):
         self.workflow.refresh_waiting_tasks()
         ready_tasks = self.get_ready_user_tasks()
 
+        task_info = any_task.task_spec.task_info(any_task)
+        self.assertEqual(len(task_info['completed']), 0)
+        self.assertEqual(len(task_info['running']), 1)
+        self.assertEqual(len(task_info['future']), 2)
+        self.assertEqual(len(task_info['instance_map']), 1)
+
+        ready_tasks = self.get_ready_user_tasks()
         while len(ready_tasks) > 0:
             self.assertEqual(len(ready_tasks), 1)
             task = ready_tasks[0]
@@ -32,7 +39,19 @@ class BaseTestCase(BpmnWorkflowTestCase):
             ready_tasks = self.get_ready_user_tasks()
 
         self.workflow.do_engine_steps()
+
+        any_task = self.workflow.get_next_task(spec_name='any_task')
+        task_info = any_task.task_spec.task_info(any_task)
+        self.assertEqual(len(task_info['completed']), 3)
+        self.assertEqual(len(task_info['running']), 0)
+        self.assertEqual(len(task_info['future']), 0)
+        self.assertEqual(len(task_info['instance_map']), 3)
+
         children = self.workflow.get_tasks(spec_name='any_task [child]')
+        for child in children:
+            info = child.task_spec.task_info(child)
+            instance = info['instance']
+            self.assertEqual(task_info['instance_map'][instance], str(child.id))
         self.assertEqual(len(children), 3)
         self.assertTrue(self.workflow.is_completed()) 
 

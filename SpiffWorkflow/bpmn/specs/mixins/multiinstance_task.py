@@ -20,22 +20,23 @@
 from copy import deepcopy
 from collections.abc import Iterable, Sequence, Mapping, MutableSequence, MutableMapping
 
-from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.specs.base import TaskSpec
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.util.deep_merge import DeepMerge
+from SpiffWorkflow.bpmn.specs.bpmn_task_spec import BpmnTaskSpec
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 
 
-class LoopTask(TaskSpec):
+class LoopTask(BpmnTaskSpec):
 
     def process_children(self, my_task):
         """
         Handle any newly completed children and update merged tasks.
         Returns a boolean indicating whether there is a child currently running
         """
-        merged = my_task.internal_data.get('merged') or []
+        merged = self._merged_children(my_task)
         child_running = False
-        for child in filter(lambda c: c.task_spec.name == self.task_spec, my_task.children):
+        for child in self._instances(my_task):
             if child.has_state(TaskState.FINISHED_MASK) and str(child.id) not in merged:
                 self.child_completed_action(my_task, child)
                 merged.append(str(child.id))
@@ -47,6 +48,12 @@ class LoopTask(TaskSpec):
     def child_completed_action(self, my_task, child):
         raise NotImplementedError
 
+    def _merged_children(self, my_task):
+        return my_task.internal_data.get('merged', [])
+    
+    def _instances(self, my_task):
+        return filter(lambda c: c.task_spec.name == self.task_spec, my_task.children)
+
 
 class StandardLoopTask(LoopTask):
 
@@ -56,6 +63,14 @@ class StandardLoopTask(LoopTask):
         self.maximum = maximum
         self.condition = condition
         self.test_before = test_before
+
+    def task_info(self, my_task):
+        info = super().task_info(my_task)
+        info['iterations_completed'] = len(self._merged_children(my_task))
+        if self.maximum:
+            info['iterations_remaining'] = self.maximum - info['iterations_completed']
+        info['instance_map'] = dict((idx, str(t.id)) for idx, t in enumerate(self._instances(my_task)))
+        return info
 
     def _update_hook(self, my_task):
 
@@ -77,12 +92,13 @@ class StandardLoopTask(LoopTask):
             child = my_task._add_child(task_spec, TaskState.WAITING)
             child.triggered = True
             child.data = deepcopy(my_task.data)
+            child.internal_data['iteration'] = len(self._merged_children(my_task))
 
     def child_completed_action(self, my_task, child):
         DeepMerge.merge(my_task.data, child.data)
 
     def loop_complete(self, my_task):
-        merged = my_task.internal_data.get('merged') or []
+        merged = self._merged_children(my_task)
         if not self.test_before and len(merged) == 0:
             # "test before" isn't really compatible our execution model in a transparent way
             # This guarantees that the task will run at least once if test_before is False
@@ -108,6 +124,27 @@ class MultiInstanceTask(LoopTask):
         self.output_item = output_item
         self.condition = condition
 
+    def task_info(self, my_task):
+        info = super().task_info(my_task)
+        info.update({
+            'completed': [],
+            'running': [],
+            'future': my_task.internal_data.get('remaining', []),
+            'instance_map': {},
+        })
+        for task in self._instances(my_task):
+            key_or_index = task.internal_data.get('key_or_index')
+            value = task.internal_data.get('item') if key_or_index is None else key_or_index
+            if task.has_state(TaskState.FINISHED_MASK):
+                info['completed'].append(value)
+            else:
+                info['running'].append(value)
+            try:
+                info['instance_map'][value] = str(task.id)
+            except TypeError:
+                info['instance_map'][str(value)] = str(task.id)
+        return info
+
     def child_completed_action(self, my_task, child):
         """This merges child data into this task's data."""
 
@@ -130,16 +167,21 @@ class MultiInstanceTask(LoopTask):
         task_spec = my_task.workflow.spec.task_specs[self.task_spec]
         child = my_task._add_child(task_spec, TaskState.WAITING)
         child.triggered = True
-        child.data = deepcopy(my_task.data)
-        if self.input_item is not None:
+        if self.input_item is not None and self.input_item.bpmn_id in my_task.data:
+            raise WorkflowDataException(f'Multiinstance input item {self.input_item.bpmn_id} already exists.', my_task)
+        if self.output_item is not None and self.output_item.bpmn_id in my_task.data:
+            raise WorkflowDataException(f'Multiinstance output item {self.output_item.bpmn_id} already exists.', my_task)
+        if self.input_item is not None:                
             child.data[self.input_item.bpmn_id] = deepcopy(item)
         if key_or_index is not None:
             child.internal_data['key_or_index'] = key_or_index
+        else:
+            child.internal_data['item'] = item
         child.task_spec._update(child)
 
     def check_completion_condition(self, my_task):
 
-        merged = my_task.internal_data.get('merged', [])
+        merged = self._merged_children(my_task)
         if len(merged) > 0:
             last_child = [c for c in my_task.children if str(c.id) == merged[-1]][0]
             return my_task.workflow.script_engine.evaluate(last_child, self.condition)
@@ -194,6 +236,13 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
             return True
         else:
             return self.add_next_child(my_task)
+
+    def task_info(self, my_task):
+        info = super().task_info(my_task)
+        cardinality = my_task.internal_data.get('cardinality')
+        if cardinality is not None:
+            info['future'] = [v for v in range(len(info['completed']) + len(info['running']), cardinality)]
+        return info
 
     def add_next_child(self, my_task):
 
@@ -304,7 +353,7 @@ class ParallelMultiInstanceTask(MultiInstanceTask):
         else:
             # For tasks specifying the cardinality, use the index as the "item"
             cardinality = my_task.workflow.script_engine.evaluate(my_task, self.cardinality)
-            children = ((None, idx) for idx in range(cardinality))
+            children = ((idx, idx) for idx in range(cardinality))
 
         if not my_task.internal_data.get('started', False):
 
@@ -320,4 +369,4 @@ class ParallelMultiInstanceTask(MultiInstanceTask):
 
             my_task.internal_data['started'] = True
         else:
-            return len(my_task.internal_data.get('merged', [])) == len(children)
+            return len(self._merged_children(my_task)) == len(children)

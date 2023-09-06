@@ -93,3 +93,15 @@ class BpmnTaskSpec(TaskSpec):
             my_task.data.pop(obj.bpmn_id, None)
 
         super()._on_complete_hook(my_task)
+
+    def task_info(self, my_task):
+        # This method can be extended to provide task specific info for different spec types
+        # Since almost all spec types can be MI, add instance info here if present
+        info = {}
+        if 'key_or_index' in my_task.internal_data:
+            info['instance'] = my_task.internal_data.get('key_or_index')
+        if 'item' in my_task.internal_data:
+            info['instance'] = my_task.internal_data.get('item')
+        if 'iteration' in my_task.internal_data:
+            info['iteration'] = my_task.internal_data.get('iteration')
+        return info
