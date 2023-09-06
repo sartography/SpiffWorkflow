@@ -16,12 +16,13 @@
 # 02110-1301  USA
 
 import json
-
 import pickle
+import warnings
 from base64 import b64encode, b64decode
+
 from ..workflow import Workflow
 from ..util.impl import get_class
-from ..task import Task, TaskState
+from ..task import Task
 from ..operators import Attrib, PathAttrib, Equal, NotEqual, Operator, GreaterThan, LessThan, Match
 from ..specs.base import TaskSpec
 from ..specs.AcquireMutex import AcquireMutex
@@ -46,7 +47,7 @@ from ..specs.Trigger import Trigger
 from ..specs.WorkflowSpec import WorkflowSpec
 from .base import Serializer
 from .exceptions import TaskNotSupportedError, MissingSpecError
-import warnings
+
 
 class DictionarySerializer(Serializer):
 
@@ -146,8 +147,8 @@ class DictionarySerializer(Serializer):
                        lookahead=spec.lookahead)
         module_name = spec.__class__.__module__
         s_state['class'] = module_name + '.' + spec.__class__.__name__
-        s_state['inputs'] = [t.name for t in spec.inputs]
-        s_state['outputs'] = [t.name for t in spec.outputs]
+        s_state['inputs'] = spec._inputs
+        s_state['outputs'] = spec._outputs
         s_state['data'] = self.serialize_dict(spec.data)
         s_state['defines'] = self.serialize_dict(spec.defines)
         s_state['pre_assign'] = self.serialize_list(spec.pre_assign)
@@ -164,10 +165,8 @@ class DictionarySerializer(Serializer):
         spec.defines = self.deserialize_dict(s_state.get('defines', {}))
         spec.pre_assign = self.deserialize_list(s_state.get('pre_assign', []))
         spec.post_assign = self.deserialize_list(s_state.get('post_assign', []))
-        # We can't restore inputs and outputs yet because they may not be
-        # deserialized yet. So keep the names, and resolve them in the end.
-        spec.inputs = s_state.get('inputs', [])[:]
-        spec.outputs = s_state.get('outputs', [])[:]
+        spec._inputs = s_state.get('inputs', [])
+        spec._outputs = s_state.get('outputs', [])
         return spec
 
     def serialize_acquire_mutex(self, spec):
@@ -437,10 +436,6 @@ class DictionarySerializer(Serializer):
         )
         return s_state
 
-    def _deserialize_workflow_spec_task_spec(self, spec, task_spec, name):
-        task_spec.inputs = [spec.get_task_spec_from_name(t) for t in task_spec.inputs]
-        task_spec.outputs = [spec.get_task_spec_from_name(t) for t in task_spec.outputs]
-
     def deserialize_workflow_spec(self, s_state, **kwargs):
         spec = WorkflowSpec(s_state['name'], filename=s_state['file'])
         spec.description = s_state['description']
@@ -457,9 +452,6 @@ class DictionarySerializer(Serializer):
             task_spec_cls = get_class(task_spec_state['class'])
             task_spec = task_spec_cls.deserialize(self, spec, task_spec_state)
             spec.task_specs[name] = task_spec
-
-        for name, task_spec in list(spec.task_specs.items()):
-            self._deserialize_workflow_spec_task_spec(spec, task_spec, name)
 
         if s_state.get('end', None):
             spec.end = spec.get_task_spec_from_name(s_state['end'])
@@ -502,17 +494,6 @@ class DictionarySerializer(Serializer):
         workflow.spec = wf_spec
         workflow.task_tree = self.deserialize_task(workflow, s_state['task_tree'], reset_specs)
 
-        # Re-connect parents and update states if necessary
-        update_state = workflow.task_tree.state != TaskState.COMPLETED
-        for task in workflow.get_tasks_iterator():
-            if task.parent is not None:
-                task.parent = workflow.get_task_from_id(task.parent)
-            if update_state:
-                if task.state == 32:
-                    task.state = TaskState.COMPLETED
-                elif task.state == 64:
-                    task.state = TaskState.CANCELLED
-
         if workflow.last_task is not None:
             workflow.last_task = workflow.get_task_from_id(s_state['last_task'])
 
@@ -545,12 +526,11 @@ class DictionarySerializer(Serializer):
         task_spec = workflow.spec.get_task_spec_from_name(old_spec_name)
         if task_spec is None:
             raise MissingSpecError("Unknown task spec: " + old_spec_name)
-        task = Task(workflow, task_spec)
+        task_id = s_state['id']
+        parent_id = s_state['parent']
+        parent = workflow.get_task_from_id(parent_id) if parent_id is not None else None
+        task = Task(workflow, task_spec, parent, id=task_id)
 
-        task.id = s_state['id']
-        # as the task_tree might not be complete yet
-        # keep the ids so they can be processed at the end
-        task.parent = s_state['parent']
         task.children = self._deserialize_task_children(task, s_state, ignored_specs)
         task._state = s_state['state']
         task.triggered = s_state['triggered']

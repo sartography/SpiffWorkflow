@@ -16,6 +16,8 @@
 # 02110-1301  USA
 
 import warnings
+from uuid import UUID
+
 from lxml import etree
 from lxml.etree import SubElement
 from ..workflow import Workflow
@@ -292,16 +294,12 @@ class XmlSerializer(Serializer):
         if spec.manual:
             SubElement(elem, 'manual')
         SubElement(elem, 'lookahead').text = str(spec.lookahead)
-        inputs = [t.name for t in spec.inputs]
-        outputs = [t.name for t in spec.outputs]
-        self.serialize_value_list(SubElement(elem, 'inputs'), inputs)
-        self.serialize_value_list(SubElement(elem, 'outputs'), outputs)
+        self.serialize_value_list(SubElement(elem, 'inputs'), spec._inputs)
+        self.serialize_value_list(SubElement(elem, 'outputs'), spec._outputs)
         self.serialize_value_map(SubElement(elem, 'data'), spec.data)
         self.serialize_value_map(SubElement(elem, 'defines'), spec.defines)
-        self.serialize_value_list(SubElement(elem, 'pre-assign'),
-                                  spec.pre_assign)
-        self.serialize_value_list(SubElement(elem, 'post-assign'),
-                                  spec.post_assign)
+        self.serialize_value_list(SubElement(elem, 'pre-assign'), spec.pre_assign)
+        self.serialize_value_list(SubElement(elem, 'post-assign'), spec.post_assign)
 
         # Note: Events are not serialized; this is documented in
         # the TaskSpec API docs.
@@ -327,12 +325,8 @@ class XmlSerializer(Serializer):
         post_assign_elem = elem.find('post-assign')
         if post_assign_elem is not None:
             spec.post_assign = self.deserialize_value_list(post_assign_elem)
-
-        # We can't restore inputs and outputs yet because they may not be
-        # deserialized yet. So keep the names, and resolve them in the
-        # workflowspec deserializer.
-        spec.inputs = self.deserialize_value_list(elem.find('inputs'))
-        spec.outputs = self.deserialize_value_list(elem.find('outputs'))
+        spec._inputs = self.deserialize_value_list(elem.find('inputs'))
+        spec._outputs = self.deserialize_value_list(elem.find('outputs'))
 
         return spec
 
@@ -634,13 +628,6 @@ class XmlSerializer(Serializer):
             task_spec = cls.deserialize(self, spec, task_elem)
             spec.task_specs[task_spec.name] = task_spec
         spec.start = spec.task_specs['Start']
-
-        # Connect the tasks.
-        for name, task_spec in list(spec.task_specs.items()):
-            task_spec.inputs = [spec.get_task_spec_from_name(t)
-                                for t in task_spec.inputs]
-            task_spec.outputs = [spec.get_task_spec_from_name(t)
-                                 for t in task_spec.outputs]
         return spec
 
     def serialize_workflow(self, workflow, **kwargs):
@@ -673,11 +660,6 @@ class XmlSerializer(Serializer):
 
         task_tree_elem = elem.find('task-tree')
         workflow.task_tree = self.deserialize_task(workflow, task_tree_elem[0])
-
-        # Re-connect parents
-        for task in workflow.get_tasks_iterator():
-            if task.parent is not None:
-                task.parent = workflow.get_task_from_id(task.parent)
 
         # last_task
         last_task = elem.findtext('last-task')
@@ -725,10 +707,14 @@ class XmlSerializer(Serializer):
 
         task_spec_name = elem.findtext('spec')
         task_spec = workflow.spec.get_task_spec_from_name(task_spec_name)
-        task = Task(workflow, task_spec)
-        task.id = elem.findtext('id')
-        # The parent is later resolved by the workflow deserializer
-        task.parent = elem.findtext('parent')
+        task_id = elem.findtext('id')
+        if task_id is not None:
+            task_id = UUID(task_id)
+        # Deserialization is done by traversing the tree, the parent should already exist
+        # when children are deserialized
+        parent_id = elem.findtext('parent')
+        parent = workflow.tasks[UUID(parent_id)] if parent_id is not None else None
+        task = Task(workflow, task_spec, parent, id=task_id)
 
         for child_elem in elem.find('children'):
             child_task = self.deserialize_task(workflow, child_elem)

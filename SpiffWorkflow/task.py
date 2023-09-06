@@ -204,19 +204,24 @@ class Task(object):
     # Pool for assigning a unique thread id to every new Task.
     thread_id_pool = 0
 
-    def __init__(self, workflow, task_spec, parent=None, state=TaskState.MAYBE):
+    def __init__(self, workflow, task_spec, parent=None, state=TaskState.MAYBE, id=None):
         """
         Constructor.
         """
         assert workflow is not None
         assert task_spec is not None
+
+        self.id = id or uuid4()
+        workflow.tasks[self.id] = self
         self.workflow = workflow
-        self.parent = parent
-        self.children = []
+
+        self._parent = parent.id if parent is not None else None
+        self._children = []
         self._state = state
+
         self.triggered = False
         self.task_spec = task_spec
-        self.id = uuid4()
+
         self.thread_id = self.__class__.thread_id_pool
         self.data = {}
         self.internal_data = {}
@@ -236,6 +241,22 @@ class Task(object):
                 task_spec=self.task_spec
             )
         self._set_state(value)
+
+    @property
+    def parent(self):
+        return self.workflow.tasks.get(self._parent)
+
+    @parent.setter
+    def parent(self, task):
+        self._parent = task.id if task is not None else None
+    
+    @property
+    def children(self):
+        return [self.workflow.tasks.get(child) for child in self._children]
+    
+    @children.setter
+    def children(self, tasks):
+        self._children = [child.id for child in tasks]
 
     def _set_state(self, value):
         """Using the setter method will raise an error on a "backwards" state change.
@@ -301,17 +322,17 @@ class Task(object):
         Called by another Task to let us know that a child was added.
         """
         assert child is not None
-        self.children.append(child)
+        self._children.append(child.id)
 
     def _drop_children(self, force=False):
         drop = []
         for child in self.children:
-            if force or (not child._is_finished()):
+            if force or not child._is_finished():
                 drop.append(child)
             else:
                 child._drop_children()
         for task in drop:
-            self.children.remove(task)
+            self._children.remove(task.id)
 
     def _has_state(self, state):
         """Returns True if the Task has the given state flag set."""
@@ -402,7 +423,7 @@ class Task(object):
 
         # Update children accordingly
         for child in unneeded_children:
-            self.children.remove(child)
+            self._children.remove(child.id)
         for task_spec in new_children:
             self._add_child(task_spec, state)
 

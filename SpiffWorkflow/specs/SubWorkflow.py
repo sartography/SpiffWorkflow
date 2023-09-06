@@ -100,8 +100,12 @@ class SubWorkflow(TaskSpec):
         wf_spec = WorkflowSpec.deserialize(serializer, xml, filename=file_name)
         subworkflow = Workflow(wf_spec)
         my_task._sync_children(self.outputs, TaskState.FUTURE)
+        # I don't necessarily like this, but I can't say I like anything about subproceses work here
+        for task in subworkflow.task_tree:
+            my_task.workflow.tasks[task.id] = task
+        subworkflow.tasks[my_task.id] = my_task
         subworkflow.task_tree.parent = my_task
-        my_task.children.insert(0, subworkflow.task_tree)
+        my_task._children.insert(0, subworkflow.task_tree.id)
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
         my_task._set_internal_data(subworkflow=subworkflow)
         my_task._set_state(TaskState.WAITING)

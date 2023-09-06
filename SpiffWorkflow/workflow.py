@@ -51,6 +51,7 @@ class Workflow(object):
         self.locks = {}
         self.last_task = None
         self.success = True
+        self.tasks = {}
 
         # Events.
         self.completed_event = Event()
@@ -197,10 +198,9 @@ class Workflow(object):
         """
         if task_id is None:
             raise WorkflowException('task_id is None', task_spec=self.spec)
-        for task in self.task_tree:
-            if task.id == task_id:
-                return task    
-        raise TaskNotFoundException(f'A task with id {task_id} was not found', task_spec=self.spec)
+        elif task_id not in self.tasks:
+            raise TaskNotFoundException(f'A task with id {task_id} was not found', task_spec=self.spec)
+        return self.tasks.get(task_id)
 
     def run_task_from_id(self, task_id):
         """

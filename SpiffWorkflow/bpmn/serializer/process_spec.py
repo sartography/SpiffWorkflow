@@ -86,9 +86,4 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
                 spec.start = task_spec
             self.restore_task_spec_extensions(task_dict, task_spec)
 
-        # Now we have to go back and fix all the circular references to everything
-        for task_spec in spec.task_specs.values():
-            task_spec.inputs = [ spec.get_task_spec_from_name(name) for name in task_spec.inputs ]
-            task_spec.outputs = [ spec.get_task_spec_from_name(name) for name in task_spec.outputs ]
-
         return spec
