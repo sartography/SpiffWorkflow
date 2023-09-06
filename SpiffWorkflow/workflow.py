@@ -213,7 +213,7 @@ class Workflow(object):
         """
         self.success = success
         cancel = []
-        for task in self.task_tree:
+        for task in TaskIterator(self.task_tree, state=TaskState.NOT_FINISHED_MASK):
             cancel.append(task)
         for task in cancel:
             task.cancel()
