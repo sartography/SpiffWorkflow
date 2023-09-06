@@ -49,7 +49,7 @@ class LoopTask(BpmnTaskSpec):
 
     def _merged_children(self, my_task):
         return my_task.internal_data.get('merged', [])
-    
+
     def _instances(self, my_task):
         return filter(lambda c: c.task_spec.name == self.task_spec, my_task.children)
 
@@ -166,11 +166,13 @@ class MultiInstanceTask(LoopTask):
         task_spec = my_task.workflow.spec.task_specs[self.task_spec]
         child = my_task._add_child(task_spec, TaskState.WAITING)
         child.triggered = True
-        if self.input_item is not None and self.input_item.bpmn_id in my_task.data:
-            raise WorkflowDataException(f'Multiinstance input item {self.input_item.bpmn_id} already exists.', my_task)
-        if self.output_item is not None and self.output_item.bpmn_id in my_task.data:
-            raise WorkflowDataException(f'Multiinstance output item {self.output_item.bpmn_id} already exists.', my_task)
-        if self.input_item is not None:                
+        # originally started with commit 31a9c7748a788ce9ad05f40b6f541f1770c2a2ae and reverting 3df40c056
+        # comment out raising since old process instances will fail in status prod with them.
+        # if self.input_item is not None and self.input_item.bpmn_id in my_task.data:
+        #     raise WorkflowDataException(f'Multiinstance input item {self.input_item.bpmn_id} already exists.', my_task)
+        # if self.output_item is not None and self.output_item.bpmn_id in my_task.data:
+        #     raise WorkflowDataException(f'Multiinstance output item {self.output_item.bpmn_id} already exists.', my_task)
+        if self.input_item is not None:
             child.data[self.input_item.bpmn_id] = deepcopy(item)
         if key_or_index is not None:
             child.internal_data['key_or_index'] = key_or_index
