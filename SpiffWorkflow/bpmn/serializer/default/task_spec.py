@@ -50,7 +50,7 @@ from SpiffWorkflow.bpmn.specs.defaults import (
     ReceiveTask,
 )
 
-from .helpers.spec import TaskSpecConverter
+from ..helpers.spec import TaskSpecConverter
 
 
 class BpmnTaskSpecConverter(TaskSpecConverter):

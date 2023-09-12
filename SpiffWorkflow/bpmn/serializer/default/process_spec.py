@@ -19,7 +19,7 @@
 
 from SpiffWorkflow.bpmn.specs.bpmn_process_spec import BpmnProcessSpec
 
-from .helpers.spec import WorkflowSpecConverter
+from ..helpers.spec import WorkflowSpecConverter
 
 class BpmnProcessSpecConverter(WorkflowSpecConverter):
 
@@ -56,7 +56,7 @@ class BpmnProcessSpecConverter(WorkflowSpecConverter):
 
     def from_dict(self, dct):
 
-        spec = self.spec_class(name=dct['name'], description=dct['description'], filename=dct['file'])
+        spec = self.target_class(name=dct['name'], description=dct['description'], filename=dct['file'])
         # These are automatically created with a workflow and should be replaced
         del spec.task_specs['Start']
         spec.start = None

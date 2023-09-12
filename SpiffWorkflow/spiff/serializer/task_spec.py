@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
-from SpiffWorkflow.bpmn.serializer.task_spec import MultiInstanceTaskConverter
+from SpiffWorkflow.bpmn.serializer.default.task_spec import MultiInstanceTaskConverter
 from SpiffWorkflow.dmn.serializer.task_spec import BaseBusinessRuleTaskConverter
 
 from SpiffWorkflow.spiff.specs.defaults import (

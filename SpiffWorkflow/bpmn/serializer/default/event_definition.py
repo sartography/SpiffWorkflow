@@ -35,7 +35,7 @@ from SpiffWorkflow.bpmn.specs.event_definitions.timer import (
 from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
 from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
 
-from .helpers.spec import EventDefinitionConverter
+from ..helpers.spec import EventDefinitionConverter
 
 class CancelEventDefinitionConverter(EventDefinitionConverter):
     def __init__(self, registry):

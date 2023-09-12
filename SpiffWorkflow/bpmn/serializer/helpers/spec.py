@@ -23,53 +23,10 @@ from SpiffWorkflow.operators import Attrib, PathAttrib
 
 from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
 from SpiffWorkflow.bpmn.specs.event_definitions.message import CorrelationProperty
+from .registry import BpmnConverter
 
 
-class BpmnSpecConverter:
-    """The base class for conversion of BPMN spec classes.
-
-    In general, most classes that extend this would simply take an existing registry as an
-    argument and automatically supply the class along with the implementations of the
-    conversion functions `to_dict` and `from_dict`.
-
-    The operation of the spec converter is a little opaque, but hopefully makes sense with a
-    little explanation.
-
-    The registry is a `DictionaryConverter` that registers conversion methods by class.  It can be
-    pre-populated with methods for custom data (though this is not required) and is passed into
-    each of these sublclasses.  When a subclass of this one gets instantiated, it adds itself 
-    to this registry.  
-    
-    This seems a little bit backwards -- the registry is using the subclass, so it seems like we 
-    ought to pass the subclass to the registry.  However, there is a lot of interdependence across 
-    the spec classes, so this doesn't work that well in practice -- most classes need to know about
-    all the other classes, and this was the most concise way I could think of to make that happen.
-
-    The goal is to be able to replace almost any spec class at the top level without classes that 
-    use it to reimplement conversion mechanisms.  So for example, it is not necessary to 
-    re-implemnent all event-based task spec conversions because, eg, the
-    `MessageEventDefintion` was modified.
-    """
-    def __init__(self, spec_class, registry, typename=None):
-        """Constructor for a BPMN spec.
-
-        :param spec_class: the class of the spec the subclass provides conversions for
-        :param registry: a registry of conversions to which this one should be added
-        :param typename: the name of the class as it will appear in the serialization
-        """
-        self.spec_class = spec_class
-        self.registry = registry
-        self.typename = typename if typename is not None else spec_class.__name__     
-        self.registry.register(spec_class, self.to_dict, self.from_dict, self.typename)   
-
-    def to_dict(self, spec):
-        raise NotImplementedError
-
-    def from_dict(self, dct):
-        raise NotImplementedError
-
-
-class BpmnDataSpecificationConverter(BpmnSpecConverter):
+class BpmnDataSpecificationConverter(BpmnConverter):
     """This is the base Data Spec converter.
 
     Currently the only use is Data Objects.
@@ -79,10 +36,10 @@ class BpmnDataSpecificationConverter(BpmnSpecConverter):
         return { 'bpmn_id': data_spec.bpmn_id, 'bpmn_name': data_spec.bpmn_name }
 
     def from_dict(self, dct):
-        return self.spec_class(**dct)
+        return self.target_class(**dct)
 
 
-class EventDefinitionConverter(BpmnSpecConverter):
+class EventDefinitionConverter(BpmnConverter):
     """This is the base Event Defintiion Converter.
 
     It provides conversions for the great majority of BPMN events as-is, and contains
@@ -98,7 +55,7 @@ class EventDefinitionConverter(BpmnSpecConverter):
         return dct
 
     def from_dict(self, dct):
-        event_definition = self.spec_class(**dct)
+        event_definition = self.target_class(**dct)
         return event_definition
 
     def correlation_properties_to_dict(self, props):
@@ -108,7 +65,7 @@ class EventDefinitionConverter(BpmnSpecConverter):
         return [CorrelationProperty(**prop) for prop in props]
 
 
-class TaskSpecConverter(BpmnSpecConverter):
+class TaskSpecConverter(BpmnConverter):
     """
     This the base Task Spec Converter.
 
@@ -205,11 +162,11 @@ class TaskSpecConverter(BpmnSpecConverter):
         name = dct.pop('name')
         bpmn_id = dct.pop('bpmn_id')
 
-        spec = self.spec_class(wf_spec, name, **dct)
+        spec = self.target_class(wf_spec, name, **dct)
         spec._inputs = inputs
         spec._outputs = outputs
 
-        if issubclass(self.spec_class, BpmnSpecMixin) and bpmn_id != name:
+        if issubclass(self.target_class, BpmnSpecMixin) and bpmn_id != name:
             # This is a hack for multiinstance tasks :(  At least it is simple.
             # Ideally I'd fix it in the parser, but I'm afraid of quickly running into a wall there
             spec.bpmn_id = bpmn_id
@@ -220,7 +177,7 @@ class TaskSpecConverter(BpmnSpecConverter):
         return spec
 
 
-class WorkflowSpecConverter(BpmnSpecConverter):
+class WorkflowSpecConverter(BpmnConverter):
     """
     This is the base converter for a BPMN workflow spec.
 

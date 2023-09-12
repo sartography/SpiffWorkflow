@@ -31,10 +31,10 @@ from .migration.version_migration import MIGRATIONS
 from .helpers.registry import DefaultRegistry
 from .helpers.dictionary import DictionaryConverter
 
-from .process_spec import BpmnProcessSpecConverter
-from .data_spec import BpmnDataObjectConverter, TaskDataReferenceConverter, IOSpecificationConverter
-from .task_spec import DEFAULT_TASK_SPEC_CONVERTER_CLASSES
-from .event_definition import DEFAULT_EVENT_CONVERTERS
+from .default.process_spec import BpmnProcessSpecConverter
+from .default.data_spec import BpmnDataObjectConverter, TaskDataReferenceConverter, IOSpecificationConverter
+from .default.task_spec import DEFAULT_TASK_SPEC_CONVERTER_CLASSES
+from .default.event_definition import DEFAULT_EVENT_CONVERTERS
 
 DEFAULT_SPEC_CONFIG = {
     'process': BpmnProcessSpecConverter,

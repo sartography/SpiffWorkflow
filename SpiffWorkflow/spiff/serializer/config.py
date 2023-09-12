@@ -20,7 +20,7 @@
 from copy import deepcopy
 
 from SpiffWorkflow.bpmn.serializer.workflow import DEFAULT_SPEC_CONFIG
-from SpiffWorkflow.bpmn.serializer.task_spec import (
+from SpiffWorkflow.bpmn.serializer.default.task_spec import (
     SimpleBpmnTaskConverter,
     BpmnStartTaskConverter,
     EndJoinConverter,
@@ -54,7 +54,7 @@ from .task_spec import (
     BusinessRuleTaskConverter,
 )
 
-from SpiffWorkflow.bpmn.serializer.event_definition import (
+from SpiffWorkflow.bpmn.serializer.default.event_definition import (
     MessageEventDefinitionConverter as DefaultMessageEventDefinitionConverter,
     SignalEventDefinitionConverter as DefaultSignalEventDefinitionConverter,
     ErrorEventDefinitionConverter as DefaultErrorEventDefinitionConverter,

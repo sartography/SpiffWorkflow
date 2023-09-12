@@ -17,8 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ..specs.data_spec import DataObject, TaskDataReference, BpmnIoSpecification
-from .helpers.spec import BpmnSpecConverter, BpmnDataSpecificationConverter
+from SpiffWorkflow.bpmn.specs.data_spec import DataObject, TaskDataReference, BpmnIoSpecification
+from ..helpers.registry import BpmnConverter
+from ..helpers.spec import BpmnDataSpecificationConverter
 
 
 class BpmnDataObjectConverter(BpmnDataSpecificationConverter):
@@ -31,7 +32,7 @@ class TaskDataReferenceConverter(BpmnDataSpecificationConverter):
         super().__init__(TaskDataReference, registry)
 
 
-class IOSpecificationConverter(BpmnSpecConverter):
+class IOSpecificationConverter(BpmnConverter):
     def __init__(self, registry):
         super().__init__(BpmnIoSpecification, registry)
 

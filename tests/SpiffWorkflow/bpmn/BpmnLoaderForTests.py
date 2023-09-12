@@ -8,7 +8,8 @@ from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import ConditionalGatewayParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 
-from SpiffWorkflow.bpmn.serializer.helpers.spec import BpmnSpecConverter, TaskSpecConverter
+from SpiffWorkflow.bpmn.serializer.helpers.registry import BpmnConverter
+from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
 
 __author__ = 'matth'
 
@@ -64,7 +65,7 @@ class TestDataStore(BpmnDataStoreSpecification):
         TestDataStore._value = my_task.data[self.bpmn_id]
         del my_task.data[self.bpmn_id]
 
-class TestDataStoreConverter(BpmnSpecConverter):
+class TestDataStoreConverter(BpmnConverter):
 
     def __init__(self, registry):
         super().__init__(TestDataStore, registry)
