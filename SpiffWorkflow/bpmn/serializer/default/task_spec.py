@@ -307,7 +307,7 @@ class EventBasedGatewayConverter(EventConverter):
         super().__init__(EventBasedGateway, registry)
 
 
-DEFAULT_TASK_SPEC_CONVERTER_CLASSES = [
+DEFAULT_TASK_SPEC_CONVERTERS = [
     SimpleBpmnTaskConverter,
     BpmnStartTaskConverter,
     EndJoinConverter,

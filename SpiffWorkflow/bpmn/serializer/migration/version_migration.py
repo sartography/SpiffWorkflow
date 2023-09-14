@@ -17,8 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from copy import deepcopy
-
 from .version_1_1 import move_subprocesses_to_top
 from .version_1_2 import (
     convert_timer_expressions,
@@ -34,17 +32,18 @@ from .version_1_3 import (
     update_event_definition_attributes,
     remove_boundary_event_parent,
     remove_root_task,
+    add_new_typenames,
 )
 
-def from_version_1_2(old):
-    new = deepcopy(old)
-    update_event_definition_attributes(new)
-    remove_boundary_event_parent(new)
-    remove_root_task(new)
-    new['VERSION'] = "1.3"
-    return new
+def from_version_1_2(dct):
+    dct['VERSION'] = "1.3"
+    update_event_definition_attributes(dct)
+    remove_boundary_event_parent(dct)
+    remove_root_task(dct)
+    add_new_typenames(dct)
 
-def from_version_1_1(old):
+
+def from_version_1_1(dct):
     """
     Upgrade v1.1 serialization to v1.2.
 
@@ -65,19 +64,18 @@ def from_version_1_1(old):
 
     Loop reset tasks were removed.
     """
-    new = deepcopy(old)
-    convert_timer_expressions(new)
-    add_default_condition_to_cond_task_specs(new)
-    create_data_objects_and_io_specs(new)
-    check_multiinstance(new)
-    remove_loop_reset(new)
-    update_task_states(new)
-    convert_simple_tasks(new)
-    update_bpmn_attributes(new)
-    new['VERSION'] = "1.2"
-    return from_version_1_2(new)
+    dct['VERSION'] = "1.2"
+    convert_timer_expressions(dct)
+    add_default_condition_to_cond_task_specs(dct)
+    create_data_objects_and_io_specs(dct)
+    check_multiinstance(dct)
+    remove_loop_reset(dct)
+    update_task_states(dct)
+    convert_simple_tasks(dct)
+    update_bpmn_attributes(dct)
+    from_version_1_2(dct)
 
-def from_version_1_0(old):
+def from_version_1_0(dct):
     """
     Upgrade v1.0 serializations to v1.1.
 
@@ -90,10 +88,9 @@ def from_version_1_0(old):
     task list and add them to the appropriate subprocess and recreate the remaining subprocess
     attributes based on the task states.
     """
-    new = deepcopy(old)
-    new['VERSION'] = "1.1"
-    move_subprocesses_to_top(new)
-    return from_version_1_1(new)
+    dct['VERSION'] = "1.1"
+    move_subprocesses_to_top(dct)
+    from_version_1_1(dct)
 
 MIGRATIONS = {
     '1.0': from_version_1_0,

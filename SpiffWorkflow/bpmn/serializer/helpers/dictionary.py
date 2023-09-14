@@ -67,16 +67,16 @@ class DictionaryConverter:
         self.convert_from_dict[typename] = partial(self.obj_from_dict, from_dict)
 
     @staticmethod
-    def obj_to_dict(typename, func, obj):
-        dct = func(obj)
+    def obj_to_dict(typename, func, obj, **kwargs):
+        dct = func(obj, **kwargs)
         dct.update({'typename': typename})
         return dct
 
     @staticmethod
-    def obj_from_dict(func, dct):
-        return func(dct)
+    def obj_from_dict(func, dct, **kwargs):
+        return func(dct, **kwargs)
 
-    def convert(self, obj):
+    def convert(self, obj, **kwargs):
         """
         This is the public conversion method.  It will be applied to dictionary
         values, list items, and the object itself, applying the to_dict functions
@@ -92,15 +92,15 @@ class DictionaryConverter:
         typename = self.typenames.get(obj.__class__)
         if typename in self.convert_to_dict:
             to_dict = self.convert_to_dict.get(typename)
-            return to_dict(obj)
+            return to_dict(obj, **kwargs)
         elif isinstance(obj, dict):
-            return dict((k, self.convert(v)) for k, v in obj.items())
+            return dict((k, self.convert(v, **kwargs)) for k, v in obj.items())
         elif isinstance(obj, (list, tuple, set)):
-            return obj.__class__([ self.convert(item) for item in obj ])
+            return obj.__class__([ self.convert(item, **kwargs) for item in obj ])
         else:
             return obj
 
-    def restore(self, val):
+    def restore(self, val, **kwargs):
         """
         This is the public restoration method.  It will be applied to dictionary
         values, list items, and the value itself, checking for a `typename` key and
@@ -115,10 +115,10 @@ class DictionaryConverter:
         """
         if isinstance(val, dict) and 'typename' in val:
             from_dict = self.convert_from_dict.get(val.pop('typename'))
-            return from_dict(val)
+            return from_dict(val, **kwargs)
         elif isinstance(val, dict):
-            return dict((k, self.restore(v)) for k, v in val.items())
+            return dict((k, self.restore(v, **kwargs)) for k, v in val.items())
         if isinstance(val, (list, tuple, set)):
-            return val.__class__([ self.restore(item) for item in val ])
+            return val.__class__([ self.restore(item, **kwargs) for item in val ])
         else:
             return val

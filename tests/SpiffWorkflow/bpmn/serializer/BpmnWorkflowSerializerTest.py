@@ -70,7 +70,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
 
         try:
             self.assertRaises(TypeError, self.serializer.serialize_json, self.workflow)
-            wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter()
+            wf_spec_converter = BpmnWorkflowSerializer.configure()
             custom_serializer = BpmnWorkflowSerializer(wf_spec_converter,
                                                        version=self.SERIALIZER_VERSION,
                                                        json_encoder_cls=MyJsonEncoder,
@@ -131,7 +131,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
             return n + 1
         user_task.data = { 'f': f }
         task_id = str(user_task.id)
-        dct = self.serializer.workflow_to_dict(self.workflow)
+        dct = self.serializer.to_dict(self.workflow)
         self.assertNotIn('f', dct['tasks'][task_id]['data'])
 
     def testLastTaskIsSetAndWorksThroughRestore(self):

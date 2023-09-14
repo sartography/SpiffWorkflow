@@ -17,9 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from copy import deepcopy
-
-from SpiffWorkflow.bpmn.serializer.workflow import DEFAULT_SPEC_CONFIG
+from SpiffWorkflow.bpmn.serializer.default.process_spec import BpmnProcessSpecConverter
 from SpiffWorkflow.bpmn.serializer.default.task_spec import (
     SimpleBpmnTaskConverter,
     BpmnStartTaskConverter,
@@ -55,10 +53,13 @@ from .task_spec import (
 )
 
 from SpiffWorkflow.bpmn.serializer.default.event_definition import (
-    MessageEventDefinitionConverter as DefaultMessageEventDefinitionConverter,
-    SignalEventDefinitionConverter as DefaultSignalEventDefinitionConverter,
-    ErrorEventDefinitionConverter as DefaultErrorEventDefinitionConverter,
-    EscalationEventDefinitionConverter as DefaultEscalationEventDefinitionConverter,
+    CancelEventDefinitionConverter,
+    NoneEventDefinitionConverter,
+    TerminateEventDefinitionConverter,
+    TimeDateEventDefinitionConverter,
+    DurationTimerEventDefinitionConverter,
+    CycleTimerEventDefinitionConverter,
+    MultipleEventDefinitionConverter,
 )
 
 from .event_definition import (
@@ -68,8 +69,20 @@ from .event_definition import (
     EscalationEventDefinitionConverter,
 )
 
-SPIFF_SPEC_CONFIG = deepcopy(DEFAULT_SPEC_CONFIG)
-SPIFF_SPEC_CONFIG['task_specs'] = [
+from SpiffWorkflow.bpmn.serializer.default.data_spec import (
+    BpmnDataObjectConverter,
+    TaskDataReferenceConverter,
+    IOSpecificationConverter,
+)
+
+from SpiffWorkflow.bpmn.serializer.default.workflow import (
+    BpmnWorkflowConverter,
+    BpmnSubWorkflowConverter,
+    TaskConverter,
+    BpmnEventConverter,
+)
+
+SPIFF_CONFIG = [
     SimpleBpmnTaskConverter,
     BpmnStartTaskConverter,
     EndJoinConverter,
@@ -97,13 +110,24 @@ SPIFF_SPEC_CONFIG['task_specs'] = [
     StandardLoopTaskConverter,
     ParallelMultiInstanceTaskConverter,
     SequentialMultiInstanceTaskConverter,
-    BusinessRuleTaskConverter
+    BusinessRuleTaskConverter,
+    CancelEventDefinitionConverter,
+    NoneEventDefinitionConverter,
+    TerminateEventDefinitionConverter,
+    TimeDateEventDefinitionConverter,
+    DurationTimerEventDefinitionConverter,
+    CycleTimerEventDefinitionConverter,
+    MultipleEventDefinitionConverter,
+    MessageEventDefinitionConverter,
+    SignalEventDefinitionConverter,
+    ErrorEventDefinitionConverter,
+    EscalationEventDefinitionConverter,
+    BpmnDataObjectConverter,
+    TaskDataReferenceConverter,
+    IOSpecificationConverter,
+    BpmnWorkflowConverter,
+    BpmnSubWorkflowConverter,
+    TaskConverter,
+    BpmnEventConverter,
+    BpmnProcessSpecConverter,
 ]
-SPIFF_SPEC_CONFIG['event_definitions'].remove(DefaultMessageEventDefinitionConverter)
-SPIFF_SPEC_CONFIG['event_definitions'].remove(DefaultSignalEventDefinitionConverter)
-SPIFF_SPEC_CONFIG['event_definitions'].remove(DefaultErrorEventDefinitionConverter)
-SPIFF_SPEC_CONFIG['event_definitions'].remove(DefaultEscalationEventDefinitionConverter)
-SPIFF_SPEC_CONFIG['event_definitions'].append(MessageEventDefinitionConverter)
-SPIFF_SPEC_CONFIG['event_definitions'].append(SignalEventDefinitionConverter)
-SPIFF_SPEC_CONFIG['event_definitions'].append(ErrorEventDefinitionConverter)
-SPIFF_SPEC_CONFIG['event_definitions'].append(EscalationEventDefinitionConverter)
