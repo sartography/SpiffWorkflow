@@ -17,14 +17,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.bpmn_process_spec import BpmnProcessSpec
-
 from ..helpers.spec import WorkflowSpecConverter
 
-class BpmnProcessSpecConverter(WorkflowSpecConverter):
 
-    def __init__(self, registry):
-        super().__init__(BpmnProcessSpec, registry)
+class BpmnProcessSpecConverter(WorkflowSpecConverter):
 
     def convert_task_spec_extensions(self, task_spec, dct):
         # Extensions will be moved out of the base parser, but since we currently add them to some

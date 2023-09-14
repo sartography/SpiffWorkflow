@@ -22,18 +22,7 @@ import json, gzip
 from .migration.version_migration import MIGRATIONS
 from .helpers.registry import DefaultRegistry
 
-from .default.process_spec import BpmnProcessSpecConverter
-from .default.data_spec import BpmnDataObjectConverter, TaskDataReferenceConverter, IOSpecificationConverter
-from .default.task_spec import DEFAULT_TASK_SPEC_CONVERTERS
-from .default.event_definition import DEFAULT_EVENT_CONVERTERS
-from .default.workflow import DEFAULT_WORKFLOW_CONVERTERS
-
-DEFAULT_CONFIG = DEFAULT_WORKFLOW_CONVERTERS + DEFAULT_TASK_SPEC_CONVERTERS + DEFAULT_EVENT_CONVERTERS + [
-    BpmnProcessSpecConverter,
-    BpmnDataObjectConverter,
-    TaskDataReferenceConverter,
-    IOSpecificationConverter
-]
+from .config import DEFAULT_CONFIG
 
 # This is the default version set on the workflow, it can be overwritten in init
 VERSION = "1.3"
@@ -91,8 +80,8 @@ class BpmnWorkflowSerializer:
         config = config or DEFAULT_CONFIG
         if registry is None:
             registry = DefaultRegistry()
-        for cls in config:
-            cls(registry)
+        for target_class, converter_class in config.items():
+            converter_class(target_class, registry)
         return registry
 
     def __init__(self, registry=None, version=VERSION, json_encoder_cls=None, json_decoder_cls=None):

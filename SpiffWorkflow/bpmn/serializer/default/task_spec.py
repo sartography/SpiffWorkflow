@@ -19,37 +19,6 @@
 
 
 from SpiffWorkflow.bpmn.specs.bpmn_task_spec import _BpmnCondition
-from SpiffWorkflow.bpmn.specs.control import (
-    BpmnStartTask,
-    _EndJoin,
-    BoundaryEventSplit,
-    BoundaryEventJoin,
-    SimpleBpmnTask
-)
-from SpiffWorkflow.bpmn.specs.defaults import (
-    UserTask,
-    ManualTask,
-    NoneTask,
-    ScriptTask,
-    ExclusiveGateway,
-    InclusiveGateway,
-    ParallelGateway,
-    StandardLoopTask,
-    SequentialMultiInstanceTask,
-    ParallelMultiInstanceTask,
-    CallActivity,
-    TransactionSubprocess,
-    SubWorkflowTask,
-    StartEvent,
-    EndEvent,
-    IntermediateCatchEvent,
-    IntermediateThrowEvent,
-    BoundaryEvent,
-    EventBasedGateway,
-    SendTask,
-    ReceiveTask,
-)
-
 from ..helpers.spec import TaskSpecConverter
 
 
@@ -63,39 +32,7 @@ class BpmnTaskSpecConverter(TaskSpecConverter):
         return self.task_spec_from_dict(dct)
 
 
-class SimpleBpmnTaskConverter(BpmnTaskSpecConverter):
-    def __init__(self, registry):
-        super().__init__(SimpleBpmnTask, registry)
-
-class BpmnStartTaskConverter(BpmnTaskSpecConverter):
-    def __init__(self, registry):
-        super().__init__(BpmnStartTask, registry)
-
-class EndJoinConverter(BpmnTaskSpecConverter):
-    def __init__(self, registry):
-        super().__init__(_EndJoin, registry)
-
-
-
-class NoneTaskConverter(BpmnTaskSpecConverter):
-    def __init__(self, registry):
-        super().__init__(NoneTask, registry)
-
-
-class UserTaskConverter(BpmnTaskSpecConverter):
-    def __init__(self, registry):
-        super().__init__(UserTask, registry)
-
-
-class ManualTaskConverter(BpmnTaskSpecConverter):
-    def __init__(self, registry):
-        super().__init__(ManualTask, registry)
-
-
 class ScriptTaskConverter(BpmnTaskSpecConverter):
-
-    def __init__(self, registry):
-        super().__init__(ScriptTask, registry)
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
@@ -104,9 +41,6 @@ class ScriptTaskConverter(BpmnTaskSpecConverter):
 
 
 class StandardLoopTaskConverter(BpmnTaskSpecConverter):
-
-    def __init__(self, registry):
-        super().__init__(StandardLoopTask, registry)
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
@@ -135,23 +69,7 @@ class MultiInstanceTaskConverter(BpmnTaskSpecConverter):
         return self.task_spec_from_dict(dct)
 
 
-class ParallelMultiInstanceTaskConverter(MultiInstanceTaskConverter):
-    def __init__(self, registry):
-        super().__init__(ParallelMultiInstanceTask, registry)
-
-class SequentialMultiInstanceTaskConverter(MultiInstanceTaskConverter):
-    def __init__(self, registry):
-        super().__init__(SequentialMultiInstanceTask, registry)
-
-
-class BoundaryEventSplitConverter(BpmnTaskSpecConverter):
-    def __init__(self, registry):
-        super().__init__(BoundaryEventSplit, registry)
-
 class BoundaryEventJoinConverter(BpmnTaskSpecConverter):
-
-    def __init__(self, registry):
-        super().__init__(BoundaryEventJoin, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -159,9 +77,6 @@ class BoundaryEventJoinConverter(BpmnTaskSpecConverter):
         return dct
 
 class SubWorkflowConverter(BpmnTaskSpecConverter):
-
-    def __init__(self, cls, registry):
-        super().__init__(cls, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -171,18 +86,6 @@ class SubWorkflowConverter(BpmnTaskSpecConverter):
     def from_dict(self, dct):
         dct['subworkflow_spec'] = dct.pop('spec')
         return self.task_spec_from_dict(dct)
-
-class SubprocessTaskConverter(SubWorkflowConverter):
-    def __init__(self, registry):
-        super().__init__(SubWorkflowTask, registry)
-
-class CallActivityTaskConverter(SubWorkflowConverter):
-    def __init__(self, registry):
-        super().__init__(CallActivity, registry)
-
-class TransactionSubprocessTaskConverter(SubWorkflowConverter):
-    def __init__(self, registry):
-        super().__init__(TransactionSubprocess, registry)
 
 
 class ConditionalGatewayConverter(BpmnTaskSpecConverter):
@@ -212,9 +115,6 @@ class ConditionalGatewayConverter(BpmnTaskSpecConverter):
 
 class ExclusiveGatewayConverter(ConditionalGatewayConverter):
 
-    def __init__(self, registry):
-        super().__init__(ExclusiveGateway, registry)
-
     def to_dict(self, spec):
         dct = super().to_dict(spec)
         dct['default_task_spec'] = spec.default_task_spec
@@ -227,15 +127,7 @@ class ExclusiveGatewayConverter(ConditionalGatewayConverter):
         return spec
 
 
-class InclusiveGatewayConverter(ConditionalGatewayConverter):
-    def __init__(self, registry):
-        super().__init__(InclusiveGateway, registry)
-
-
 class ParallelGatewayConverter(BpmnTaskSpecConverter):
-
-    def __init__(self, registry):
-        super().__init__(ParallelGateway, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -248,9 +140,6 @@ class ParallelGatewayConverter(BpmnTaskSpecConverter):
 
 class EventConverter(BpmnTaskSpecConverter):
 
-    def __init__(self, spec_class, registry):
-        super().__init__(spec_class, registry)
-
     def to_dict(self, spec):
         dct = super().to_dict(spec)
         dct['event_definition'] = self.registry.convert(spec.event_definition)
@@ -261,77 +150,10 @@ class EventConverter(BpmnTaskSpecConverter):
         return self.task_spec_from_dict(dct)
 
 
-class StartEventConverter(EventConverter):
-    def __init__(self, registry):
-        super().__init__(StartEvent, registry)
-
-
-class EndEventConverter(EventConverter):
-    def __init__(self, registry):
-        super().__init__(EndEvent, registry)
-
-
-class IntermediateCatchEventConverter(EventConverter):
-    def __init__(self, registry):
-        super().__init__(IntermediateCatchEvent, registry)
-
-
-class ReceiveTaskConverter(EventConverter):
-    def __init__(self, registry):
-        super().__init__(ReceiveTask, registry)
-
-
-class IntermediateThrowEventConverter(EventConverter):
-    def __init__(self, registry):
-        super().__init__(IntermediateThrowEvent, registry)
-
-
-class SendTaskConverter(EventConverter):
-    def __init__(self, registry):
-        super().__init__(SendTask, registry)
-
-
 class BoundaryEventConverter(EventConverter):
-
-    def __init__(self, registry):
-        super().__init__(BoundaryEvent, registry)
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
         dct['cancel_activity'] = spec.cancel_activity
         return dct
 
-
-class EventBasedGatewayConverter(EventConverter):
-    def __init__(self, registry):
-        super().__init__(EventBasedGateway, registry)
-
-
-DEFAULT_TASK_SPEC_CONVERTERS = [
-    SimpleBpmnTaskConverter,
-    BpmnStartTaskConverter,
-    EndJoinConverter,
-    NoneTaskConverter,
-    UserTaskConverter,
-    ManualTaskConverter,
-    ScriptTaskConverter,
-    StandardLoopTaskConverter,
-    ParallelMultiInstanceTaskConverter,
-    SequentialMultiInstanceTaskConverter,
-    SubprocessTaskConverter,
-    CallActivityTaskConverter,
-    TransactionSubprocessTaskConverter,
-    StartEventConverter,
-    EndEventConverter, 
-    SendTaskConverter,
-    ReceiveTaskConverter,
-    IntermediateCatchEventConverter,
-    IntermediateThrowEventConverter,
-    EventBasedGatewayConverter,
-    BoundaryEventConverter,
-    BoundaryEventSplitConverter,
-    BoundaryEventJoinConverter,
-    ParallelGatewayConverter,
-    ExclusiveGatewayConverter,
-    InclusiveGatewayConverter,
-]

@@ -19,31 +19,35 @@
 
 from copy import deepcopy
 
-from SpiffWorkflow.bpmn.serializer.workflow import DEFAULT_CONFIG
-from SpiffWorkflow.bpmn.serializer.default.task_spec import (
-    UserTaskConverter as DefaultUserTaskConverter,
-    ParallelMultiInstanceTaskConverter as DefaultParallelMIConverter,
-    SequentialMultiInstanceTaskConverter as DefaultSequentialMIConverter,
+from SpiffWorkflow.bpmn.serializer.config import DEFAULT_CONFIG
+from SpiffWorkflow.bpmn.serializer.config import (
+    UserTask as DefaultUserTask,
+    ParallelMultiInstanceTask as DefaultParallelMITask,
+    SequentialMultiInstanceTask as DefaultSequentialMITask,
+    MessageEventDefinition as DefaultMessageEventDefinition,
 )
-from SpiffWorkflow.bpmn.serializer.default.event_definition import MessageEventDefinitionConverter as DefaultMessageEventConverter
 
-from .task_spec import (
-    UserTaskConverter,
-    BusinessRuleTaskConverter,
-    ParallelMultiInstanceTaskConverter,
-    SequentialMultiInstanceTaskConverter
-)
+from SpiffWorkflow.camunda.specs.user_task import UserTask
+from SpiffWorkflow.camunda.specs.multiinstance_task import ParallelMultiInstanceTask, SequentialMultiInstanceTask
+from SpiffWorkflow.camunda.specs.business_rule_task import BusinessRuleTask
+from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
+
+from SpiffWorkflow.bpmn.serializer.default.task_spec import MultiInstanceTaskConverter
+from SpiffWorkflow.dmn.serializer.task_spec import BaseBusinessRuleTaskConverter
+
+from .task_spec import UserTaskConverter
 from .event_definition import MessageEventDefinitionConverter
 
 
 CAMUNDA_CONFIG = deepcopy(DEFAULT_CONFIG)
-CAMUNDA_CONFIG.remove(DefaultUserTaskConverter)
-CAMUNDA_CONFIG.append(UserTaskConverter)
-CAMUNDA_CONFIG.remove(DefaultParallelMIConverter)
-CAMUNDA_CONFIG.append(ParallelMultiInstanceTaskConverter)
-CAMUNDA_CONFIG.remove(DefaultSequentialMIConverter)
-CAMUNDA_CONFIG.append(SequentialMultiInstanceTaskConverter)
-CAMUNDA_CONFIG.append(BusinessRuleTaskConverter)
 
-CAMUNDA_CONFIG.remove(DefaultMessageEventConverter)
-CAMUNDA_CONFIG.append(MessageEventDefinitionConverter)
+CAMUNDA_CONFIG.pop(DefaultUserTask)
+CAMUNDA_CONFIG.pop(DefaultParallelMITask)
+CAMUNDA_CONFIG.pop(DefaultSequentialMITask)
+CAMUNDA_CONFIG.pop(DefaultMessageEventDefinition)
+
+CAMUNDA_CONFIG[UserTask] = UserTaskConverter
+CAMUNDA_CONFIG[ParallelMultiInstanceTask] = MultiInstanceTaskConverter
+CAMUNDA_CONFIG[SequentialMultiInstanceTask] = MultiInstanceTaskConverter
+CAMUNDA_CONFIG[BusinessRuleTask] = BaseBusinessRuleTaskConverter
+CAMUNDA_CONFIG[MessageEventDefinition] = MessageEventDefinitionConverter

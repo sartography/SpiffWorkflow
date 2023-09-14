@@ -17,24 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.data_spec import DataObject, TaskDataReference, BpmnIoSpecification
 from ..helpers.registry import BpmnConverter
-from ..helpers.spec import BpmnDataSpecificationConverter
-
-
-class BpmnDataObjectConverter(BpmnDataSpecificationConverter):
-    def __init__(self, registry):
-        super().__init__(DataObject, registry)
-
-
-class TaskDataReferenceConverter(BpmnDataSpecificationConverter):
-    def __init__(self, registry):
-        super().__init__(TaskDataReference, registry)
-
 
 class IOSpecificationConverter(BpmnConverter):
-    def __init__(self, registry):
-        super().__init__(BpmnIoSpecification, registry)
 
     def to_dict(self, spec):
         return {
@@ -43,7 +28,7 @@ class IOSpecificationConverter(BpmnConverter):
         }
 
     def from_dict(self, dct):
-        return BpmnIoSpecification(
+        return self.target_class(
             data_inputs=[self.registry.restore(item) for item in dct['data_inputs']],
             data_outputs=[self.registry.restore(item) for item in dct['data_outputs']],
         )

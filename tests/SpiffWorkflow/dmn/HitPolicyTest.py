@@ -2,9 +2,9 @@ import os
 import unittest
 
 from SpiffWorkflow.bpmn.serializer.helpers.dictionary import DictionaryConverter
-from SpiffWorkflow.camunda.serializer.task_spec import BusinessRuleTaskConverter
+from SpiffWorkflow.dmn.serializer.task_spec import BaseBusinessRuleTaskConverter
+from SpiffWorkflow.camunda.specs.business_rule_task import BusinessRuleTask
 from .python_engine.PythonDecisionRunner import PythonDecisionRunner
-
 
 class HitPolicyTest(unittest.TestCase):
 
@@ -32,7 +32,7 @@ class HitPolicyTest(unittest.TestCase):
         runner = PythonDecisionRunner(file_name)
         decision_table = runner.decision_table
         self.assertEqual("COLLECT", decision_table.hit_policy)
-        converter = BusinessRuleTaskConverter(DictionaryConverter())
+        converter = BaseBusinessRuleTaskConverter(BusinessRuleTask, DictionaryConverter())
         dict = converter.decision_table_to_dict(decision_table)
         new_table = converter.decision_table_from_dict(dict)
         self.assertEqual("COLLECT", new_table.hit_policy)

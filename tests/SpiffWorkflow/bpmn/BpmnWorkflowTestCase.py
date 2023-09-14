@@ -6,15 +6,13 @@ from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator
 from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnTaskFilter
 
-from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer, DEFAULT_CONFIG
-from .BpmnLoaderForTests import TestUserTaskConverter, TestBpmnParser, TestDataStoreConverter
+from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
+from .BpmnLoaderForTests import TestBpmnParser, SERIALIZER_CONFIG
+
 
 __author__ = 'matth'
 
-DEFAULT_CONFIG.append(TestUserTaskConverter)
-DEFAULT_CONFIG.append(TestDataStoreConverter)
-
-registry = BpmnWorkflowSerializer.configure(DEFAULT_CONFIG)
+registry = BpmnWorkflowSerializer.configure(SERIALIZER_CONFIG)
 
 class BpmnWorkflowTestCase(unittest.TestCase):
 

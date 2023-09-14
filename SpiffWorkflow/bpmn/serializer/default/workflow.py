@@ -19,17 +19,11 @@
 
 from uuid import UUID
 
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow, BpmnSubWorkflow
-from SpiffWorkflow.bpmn.event import BpmnEvent
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask
 
 from ..helpers.registry import BpmnConverter
 
 class TaskConverter(BpmnConverter):
-
-    def __init__(self, registry):
-        super().__init__(Task, registry)
 
     def to_dict(self, task):
         return {
@@ -46,7 +40,7 @@ class TaskConverter(BpmnConverter):
 
     def from_dict(self, dct, workflow):
         task_spec = workflow.spec.task_specs.get(dct['task_spec'])
-        task = Task(workflow, task_spec, state=dct['state'], id=UUID(dct['id']))
+        task = self.target_class(workflow, task_spec, state=dct['state'], id=UUID(dct['id']))
         task._parent = UUID(dct['parent']) if dct['parent'] is not None else None
         task._children = [UUID(child) for child in dct['children']]
         task.last_state_change = dct['last_state_change']
@@ -58,9 +52,6 @@ class TaskConverter(BpmnConverter):
 
 class BpmnEventConverter(BpmnConverter):
 
-    def __init__(self, registry):
-        super().__init__(BpmnEvent, registry)
-
     def to_dict(self, event):
         return {
             'event_definition': self.registry.convert(event.event_definition),
@@ -69,7 +60,7 @@ class BpmnEventConverter(BpmnConverter):
         }
 
     def from_dict(self, dct):
-        return BpmnEvent(
+        return self.target_class(
             self.registry.restore(dct['event_definition']),
             self.registry.restore(dct['payload']),
             self.mapping_from_dict(dct['correlations'])
@@ -92,9 +83,6 @@ class WorkflowConverter(BpmnConverter):
 
 class BpmnSubWorkflowConverter(WorkflowConverter):
 
-    def __init__(self, registry):
-        super().__init__(BpmnSubWorkflow, registry)
-
     def to_dict(self, workflow):
         dct = super().to_dict(workflow)
         dct['parent_task_id'] = str(workflow.parent_task_id)
@@ -115,9 +103,6 @@ class BpmnSubWorkflowConverter(WorkflowConverter):
 
 
 class BpmnWorkflowConverter(WorkflowConverter):
-
-    def __init__(self, registry):
-        super().__init__(BpmnWorkflow, registry)
 
     def to_dict(self, workflow):
         """Return a JSON-serializable dictionary representation of the workflow.
@@ -173,11 +158,3 @@ class BpmnWorkflowConverter(WorkflowConverter):
                 if len(sp.spec.data_objects) > 0:
                     sp.data = task.workflow.data
                 self.subprocesses_from_dict(dct, sp, top_workflow)
-
-
-DEFAULT_WORKFLOW_CONVERTERS = [
-    BpmnWorkflowConverter,
-    BpmnSubWorkflowConverter,
-    TaskConverter,
-    BpmnEventConverter,
-]

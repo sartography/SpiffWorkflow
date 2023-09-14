@@ -23,9 +23,6 @@ from ..specs.event_definitions import MessageEventDefinition
 
 class MessageEventDefinitionConverter(EventDefinitionConverter):
 
-    def __init__(self, registry):
-        super().__init__(MessageEventDefinition, registry)
-
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
         dct['correlation_properties'] = self.correlation_properties_to_dict(event_definition.correlation_properties)

@@ -52,7 +52,7 @@ class UserTaskSpecTest(unittest.TestCase):
         self.form.add_field(field1)
         self.form.add_field(field2)
 
-        converter = UserTaskConverter(DictionaryConverter())
+        converter = UserTaskConverter(UserTask, DictionaryConverter())
         dct = converter.to_dict(self.user_spec)
         self.assertEqual(dct['name'], 'userTask')
         self.assertEqual(dct['form'], {

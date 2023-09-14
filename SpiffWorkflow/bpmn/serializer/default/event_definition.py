@@ -17,46 +17,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.event_definitions.simple import (
-    NoneEventDefinition,
-    CancelEventDefinition,
-    TerminateEventDefinition,
-)
-from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import (
-    SignalEventDefinition,
-    ErrorEventDefinition,
-    EscalationEventDefinition,
-)
-from SpiffWorkflow.bpmn.specs.event_definitions.timer import (
-    TimeDateEventDefinition,
-    DurationTimerEventDefinition,
-    CycleTimerEventDefinition,
-)
-from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
-from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
-
 from ..helpers.spec import EventDefinitionConverter
 
-class CancelEventDefinitionConverter(EventDefinitionConverter):
-    def __init__(self, registry):
-        super().__init__(CancelEventDefinition, registry)
 
-
-class ErrorEventDefinitionConverter(EventDefinitionConverter):
-
-    def __init__(self, registry):
-        super().__init__(ErrorEventDefinition, registry)
-
-    def to_dict(self, event_definition):
-        dct = super().to_dict(event_definition)
-        dct['code'] = event_definition.code
-        return dct
-
-
-class EscalationEventDefinitionConverter(EventDefinitionConverter):
-
-    def __init__(self, registry):
-        super().__init__(EscalationEventDefinition, registry)
+class ErrorEscalationEventDefinitionConverter(EventDefinitionConverter):
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
@@ -65,9 +29,6 @@ class EscalationEventDefinitionConverter(EventDefinitionConverter):
 
 
 class MessageEventDefinitionConverter(EventDefinitionConverter):
-
-    def __init__(self, registry):
-        super().__init__(MessageEventDefinition, registry)
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
@@ -80,21 +41,6 @@ class MessageEventDefinitionConverter(EventDefinitionConverter):
         return event_definition
 
 
-class NoneEventDefinitionConverter(EventDefinitionConverter):
-    def __init__(self, registry):
-        super().__init__(NoneEventDefinition, registry)
-
-
-class SignalEventDefinitionConverter(EventDefinitionConverter):
-    def __init__(self, registry):
-        super().__init__(SignalEventDefinition, registry)
-
-
-class TerminateEventDefinitionConverter(EventDefinitionConverter):
-    def __init__(self, registry):
-        super().__init__(TerminateEventDefinition, registry)
-
-
 class TimerEventDefinitionConverter(EventDefinitionConverter):
 
     def to_dict(self, event_definition):
@@ -102,25 +48,8 @@ class TimerEventDefinitionConverter(EventDefinitionConverter):
         dct['expression'] = event_definition.expression
         return dct
 
-class TimeDateEventDefinitionConverter(TimerEventDefinitionConverter):
-    def __init__(self, registry):
-        super().__init__(TimeDateEventDefinition, registry)
-
-
-class DurationTimerEventDefinitionConverter(TimerEventDefinitionConverter):
-    def __init__(self, registry):
-        super().__init__(DurationTimerEventDefinition, registry)
-
-
-class CycleTimerEventDefinitionConverter(TimerEventDefinitionConverter):
-    def __init__(self, registry):
-        super().__init__(CycleTimerEventDefinition, registry)
-
 
 class MultipleEventDefinitionConverter(EventDefinitionConverter):
-
-    def __init__(self, registry):
-        super().__init__(MultipleEventDefinition, registry)
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
@@ -133,18 +62,3 @@ class MultipleEventDefinitionConverter(EventDefinitionConverter):
         event_definition = super().from_dict(dct)
         event_definition.event_definitions = [self.registry.restore(d) for d in events]
         return event_definition
-
-
-DEFAULT_EVENT_CONVERTERS = [
-    CancelEventDefinitionConverter,
-    ErrorEventDefinitionConverter,
-    EscalationEventDefinitionConverter,
-    MessageEventDefinitionConverter,
-    NoneEventDefinitionConverter,
-    SignalEventDefinitionConverter,
-    TerminateEventDefinitionConverter,
-    TimeDateEventDefinitionConverter,
-    DurationTimerEventDefinitionConverter,
-    CycleTimerEventDefinitionConverter,
-    MultipleEventDefinitionConverter,
-]
