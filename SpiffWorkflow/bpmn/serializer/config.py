@@ -85,7 +85,6 @@ from .default.workflow import (
     BpmnEventConverter,
 )
 from .helpers.spec import BpmnDataSpecificationConverter, EventDefinitionConverter
-from .default.data_spec import IOSpecificationConverter
 from .default.process_spec import BpmnProcessSpecConverter
 from .default.task_spec import (
     BpmnTaskSpecConverter,
@@ -99,6 +98,7 @@ from .default.task_spec import (
     ParallelGatewayConverter,
     EventConverter,
     BoundaryEventConverter,
+    IOSpecificationConverter,
 )
 from .default.event_definition import (
     TimerEventDefinitionConverter,

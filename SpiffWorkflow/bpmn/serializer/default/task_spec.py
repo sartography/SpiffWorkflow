@@ -19,20 +19,77 @@
 
 
 from SpiffWorkflow.bpmn.specs.bpmn_task_spec import _BpmnCondition
+from ..helpers.spec import BpmnConverter
 from ..helpers.spec import TaskSpecConverter
+
+class IOSpecificationConverter(BpmnConverter):
+    """The converter for an IOSpecification"""
+
+    def to_dict(self, spec):
+        """Converts an IO spec to a dictionary representation
+
+        Arguments:
+            spec (BpmnIOSpecification): the `BpmnIOSpecification` of a `BpmnTaskSpec`
+
+        Returns:
+            dict: a dictionary representation of the IO spec
+        """
+        return {
+            'data_inputs': [self.registry.convert(item) for item in spec.data_inputs],
+            'data_outputs': [self.registry.convert(item) for item in spec.data_outputs],
+        }
+
+    def from_dict(self, dct):
+        """Restore a `BpmnIOSpecification` from a dictionary representation
+
+        Arguments:
+            dct (dict): the dictionary representation
+
+        Returns:
+            `BpmnIOSpecification`: a `BpmnTaskSpec` IO spec
+        """
+        return self.target_class(
+            data_inputs=[self.registry.restore(item) for item in dct['data_inputs']],
+            data_outputs=[self.registry.restore(item) for item in dct['data_outputs']],
+        )
 
 
 class BpmnTaskSpecConverter(TaskSpecConverter):
+    """The base converter for a `BpmnTaskSpec`
+
+    This converter can be extended for customized task specs with additional attributes (e.g. the
+    ones defined in this module, which can serve as examples for anyone who has created a custom
+    BPMN task spec.
+    """
 
     def to_dict(self, spec):
-        dct = self.get_default_attributes(spec)
-        return dct
+        """Create a dictionary representation of the shared `BpmnTaskSpec` attributes
+
+        Arguments:
+            spec: the spec to be converter to a dictionary
+
+        Returns:
+            dict: a dictionary representation of shared attributes
+        """
+        return self.get_default_attributes(spec)
 
     def from_dict(self, dct):
+        """Restore a `BpmnTaskSpec` from a dictionary of attributes
+
+        If you have added only custom attributes that can be passed to `__init__`, you won't need
+        to extend this.
+
+        Arguments:
+            dct (dict): the task spec's dictionary representation
+
+        Returns:
+            an instance of the target class
+        """
         return self.task_spec_from_dict(dct)
 
 
 class ScriptTaskConverter(BpmnTaskSpecConverter):
+    """The default converter for `ScriptTask`"""
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
@@ -41,6 +98,7 @@ class ScriptTaskConverter(BpmnTaskSpecConverter):
 
 
 class StandardLoopTaskConverter(BpmnTaskSpecConverter):
+    """The default converter for `StandardLoopTask`"""
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
@@ -49,6 +107,7 @@ class StandardLoopTaskConverter(BpmnTaskSpecConverter):
 
 
 class MultiInstanceTaskConverter(BpmnTaskSpecConverter):
+    """The default converter for Parallel and Sequential MultiInstance Tasks"""
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
@@ -70,6 +129,7 @@ class MultiInstanceTaskConverter(BpmnTaskSpecConverter):
 
 
 class BoundaryEventJoinConverter(BpmnTaskSpecConverter):
+    """The default converter for `BoundaryEventJoin`"""
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -77,6 +137,7 @@ class BoundaryEventJoinConverter(BpmnTaskSpecConverter):
         return dct
 
 class SubWorkflowConverter(BpmnTaskSpecConverter):
+    """The default converter for subworkflows (`SubWOrkflowTask`, `CallActivity`, `TransactionSubprocess`)"""
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -89,6 +150,7 @@ class SubWorkflowConverter(BpmnTaskSpecConverter):
 
 
 class ConditionalGatewayConverter(BpmnTaskSpecConverter):
+    """A converter class that adds attributes for a `TaskSpec` with conditional outputs"""
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -114,6 +176,7 @@ class ConditionalGatewayConverter(BpmnTaskSpecConverter):
 
 
 class ExclusiveGatewayConverter(ConditionalGatewayConverter):
+    """THe default converterfor `ExclusiveGateway`task specs"""
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -128,6 +191,7 @@ class ExclusiveGatewayConverter(ConditionalGatewayConverter):
 
 
 class ParallelGatewayConverter(BpmnTaskSpecConverter):
+    """The default converter for `ParallelGateway` task specs """
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -139,6 +203,7 @@ class ParallelGatewayConverter(BpmnTaskSpecConverter):
 
 
 class EventConverter(BpmnTaskSpecConverter):
+    """The default converter for BPMN events"""
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)
@@ -151,6 +216,7 @@ class EventConverter(BpmnTaskSpecConverter):
 
 
 class BoundaryEventConverter(EventConverter):
+    """The default converter for `BoundaryEvent` task specs"""
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)

@@ -29,13 +29,30 @@ from .registry import BpmnConverter
 class BpmnDataSpecificationConverter(BpmnConverter):
     """This is the base Data Spec converter.
 
-    Currently the only use is Data Objects.
+    This is used for `DataObject` and `TaskDataReference`; it can be extended for other
+    types of data specs.
     """
 
     def to_dict(self, data_spec):
+        """Convert a data specification into a dictionary.
+
+        Arguments:
+            data_spec (`BpmnDataSpecification): a BPMN data specification
+
+        Returns:
+            dict: a dictionary representation of the data spec
+        """
         return { 'bpmn_id': data_spec.bpmn_id, 'bpmn_name': data_spec.bpmn_name }
 
     def from_dict(self, dct):
+        """Restores a data specification.
+
+        Arguments:
+            dct (dict): the dictionary representation
+
+        Returns:
+            an instance of the target class
+        """
         return self.target_class(**dct)
 
 
@@ -48,6 +65,14 @@ class EventDefinitionConverter(BpmnConverter):
     """
 
     def to_dict(self, event_definition):
+        """Convert an event definition into a dictionary.
+
+        Arguments:
+            event_definition: the event definition
+        
+        Returns:
+            dict: a dictionary representation of the event definition
+        """
         dct = {
             'description': event_definition.description,
             'name': event_definition.name
@@ -55,19 +80,42 @@ class EventDefinitionConverter(BpmnConverter):
         return dct
 
     def from_dict(self, dct):
+        """Restores an event definition.
+
+        Arguments:
+            dct: the dictionary representation
+
+        Returns;
+            an instance of the target event definition
+        """
         event_definition = self.target_class(**dct)
         return event_definition
 
     def correlation_properties_to_dict(self, props):
+        """Convert correlation properties to a dictionary representation.
+
+        Arguments:
+            list(`CorrelationProperty`): the correlation properties associated with a message
+
+        Returns:
+            list(dict): a list of dictionary representations of the correlation properties
+        """
         return [prop.__dict__ for prop in props]
 
     def correlation_properties_from_dict(self, props):
+        """Restore correlation properties from a dictionary representation
+
+        Arguments:
+            props (list(dict)): a list if dictionary representations of correlation properties
+
+        Returns:
+            a list of `CorrelationProperty` of a message
+        """
         return [CorrelationProperty(**prop) for prop in props]
 
 
 class TaskSpecConverter(BpmnConverter):
-    """
-    This the base Task Spec Converter.
+    """Base Task Spec Converter.
 
     It contains methods for parsing generic and BPMN task spec attributes.
 
@@ -75,17 +123,17 @@ class TaskSpecConverter(BpmnConverter):
     implement a converter for those task spec types.  You'll need to implement the `to_dict` and
     `from_dict` methods on any inheriting classes.
 
-    The default task spec converters are in the `task`, 'process_spec`, and 'event_definitions`
-    modules of this package; the `camunda`,`dmn`, and `spiff` serialization packages contain other 
-    examples.
+    The default task spec converters are in the `default.task_spec` modules of this package; the 
+    `camunda`,`dmn`, and `spiff` serialization packages contain other examples.
     """
     def get_default_attributes(self, spec):
-        """Extracts the default Spiff attributes from a task spec.
+        """Extracts the default BPMN attributes from a task spec.
 
-        :param spec: the task spec to be converted
+        Arguments:
+            spec: the task spec to be converted
 
         Returns:
-            a dictionary of standard task spec attributes
+            dict: a dictionary of standard task spec attributes
         """
         return {
             'name': spec.name,
@@ -98,18 +146,19 @@ class TaskSpecConverter(BpmnConverter):
             'bpmn_name': spec.bpmn_name,
             'lane': spec.lane,
             'documentation': spec.documentation,
-            'data_input_associations': [ self.registry.convert(obj) for obj in spec.data_input_associations ],
-            'data_output_associations': [ self.registry.convert(obj) for obj in spec.data_output_associations ],
+            'data_input_associations': self.registry.convert(spec.data_input_associations),
+            'data_output_associations': self.registry.convert(spec.data_output_associations),
             'io_specification': self.registry.convert(spec.io_specification),
         }
 
     def get_join_attributes(self, spec):
         """Extracts attributes for task specs that inherit from `Join`.
 
-        :param spec: the task spec to be converted
+        Arguments:
+            spec: the task spec to be converted
 
         Returns:
-            a dictionary of `Join` task spec attributes
+            dict: a dictionary of `Join` task spec attributes
         """
         return {
             'split_task': spec.split_task,
@@ -120,20 +169,22 @@ class TaskSpecConverter(BpmnConverter):
     def get_subworkflow_attributes(self, spec):
         """Extracts attributes for task specs that inherit from `SubWorkflowTask`.
 
-        :param spec: the task spec to be converted
+        Arguments:
+            spec: the task spec to be converted
 
         Returns:
-            a dictionary of subworkflow task spec attributes
+            dict: a dictionary of subworkflow task spec attributes
         """
         return {'spec': spec.spec}
 
     def get_standard_loop_attributes(self, spec):
         """Extracts attributes for standard loop tasks.
-        
-        :param spec: the task spec to be converted
+
+        Arguments:
+            spec: the task spec to be converted
 
         Returns:
-            a dictionary of standard loop task spec attributes
+            dict: a dictionary of standard loop task spec attributes
         """
         return {
             'task_spec': spec.task_spec,
@@ -143,72 +194,29 @@ class TaskSpecConverter(BpmnConverter):
         }
     
     def task_spec_from_dict(self, dct):
-        """
-        Creates a task spec based on the supplied dictionary.  It handles setting the default
-        task spec attributes as well as attributes added by `BpmnSpecMixin`.
+        """Creates a task spec based on the supplied dictionary.
+        
+        It handles setting the default task spec attributes as well as attributes added by `BpmnSpecMixin`.
 
-        :param dct: the dictionary to create the task spec from
+        Arguments:
+            dct (dict): the dictionary to create the task spec from
 
         Returns:
             a restored task spec
         """
         dct['data_input_associations'] = self.registry.restore(dct.pop('data_input_associations', []))
         dct['data_output_associations'] = self.registry.restore(dct.pop('data_output_associations', []))
-
-        inputs = dct.pop('inputs')
-        outputs = dct.pop('outputs')
+        dct['io_specification'] = self.registry.restore(dct.pop('io_specification', None))
 
         wf_spec = dct.pop('wf_spec')
         name = dct.pop('name')
         bpmn_id = dct.pop('bpmn_id')
 
         spec = self.target_class(wf_spec, name, **dct)
-        spec._inputs = inputs
-        spec._outputs = outputs
 
         if issubclass(self.target_class, BpmnSpecMixin) and bpmn_id != name:
             # This is a hack for multiinstance tasks :(  At least it is simple.
             # Ideally I'd fix it in the parser, but I'm afraid of quickly running into a wall there
             spec.bpmn_id = bpmn_id
 
-        if isinstance(spec, BpmnSpecMixin):
-            spec.io_specification = self.registry.restore(dct.pop('io_specification', None))
-
         return spec
-
-
-class WorkflowSpecConverter(BpmnConverter):
-    """
-    This is the base converter for a BPMN workflow spec.
-
-    It will register converters for the task spec types contained in the workflow, as well as
-    the workflow spec class itself.
-
-    This class can be extended if you implement a custom workflow spec type.  See the converter
-    in `workflow_spec_converter` for an example.
-    """
-
-    def __init__(self, spec_class, registry):
-        """
-        Converter for a BPMN workflow spec class.
-
-        The `to_dict` and `from_dict` methods of the given task spec converter classes will
-        be registered, so that they can be restored automatically.
-
-        The data_converter applied to task *spec* data, not task data, and may be `None`.  See
-        `BpmnTaskSpecConverter` for more discussion.
-
-        :param spec_class: the workflow spec class
-        :param task_spec_converters: a list of `BpmnTaskSpecConverter` classes
-        """
-        super().__init__(spec_class, registry)
-
-        # Leaving these as-as, as I can't imagine anyone would need or want to extend
-        self.registry.register(Attrib, self.attrib_to_dict, partial(self.attrib_from_dict, Attrib))
-        self.registry.register(PathAttrib, self.attrib_to_dict, partial(self.attrib_from_dict, PathAttrib))
-
-    def attrib_to_dict(self, attrib):
-        return { 'name': attrib.name }
-
-    def attrib_from_dict(self, attrib_class, dct):
-        return attrib_class(dct['name'])

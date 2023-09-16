@@ -17,10 +17,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ..helpers.spec import WorkflowSpecConverter
+from ..helpers.registry import BpmnConverter
 
 
-class BpmnProcessSpecConverter(WorkflowSpecConverter):
+class BpmnProcessSpecConverter(BpmnConverter):
 
     def convert_task_spec_extensions(self, task_spec, dct):
         # Extensions will be moved out of the base parser, but since we currently add them to some
