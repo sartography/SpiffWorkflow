@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 import os
+from datetime import datetime
 
 from lxml import etree
 
@@ -9,35 +8,32 @@ from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.specs.Cancel import Cancel
 from SpiffWorkflow.specs.Simple import Simple
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState, TaskIterator, TaskFilter
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
 class WorkflowTest(unittest.TestCase):
 
-    def testConstructor(self):
-        wf_spec = WorkflowSpec(addstart=True)
-        wf_spec.start.connect(Cancel(wf_spec, 'name'))
-        Workflow(wf_spec)
+    ready_task_filter = TaskFilter(state=TaskState.READY)
 
-    def testBeginWorkflowStepByStep(self):
-        """
-        Simulates interactive calls, as would be issued by a user.
-        """
+    def setUp(self):
         xml_file = os.path.join(data_dir, 'workflow1.xml')
         with open(xml_file) as fp:
             xml = etree.parse(fp).getroot()
         wf_spec = WorkflowSpec.deserialize(XmlSerializer(), xml)
-        workflow = Workflow(wf_spec)
+        self.workflow = Workflow(wf_spec)
 
-        tasks = workflow.get_tasks(TaskState.READY)
+    def test_interactive_calls(self):
+        """Simulates interactive calls, as would be issued by a user."""
+
+        tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks[0].task_spec.name, 'Start')
-        workflow.run_task_from_id(tasks[0].id)
+        self.workflow.run_task_from_id(tasks[0].id)
         self.assertEqual(tasks[0].state, TaskState.COMPLETED)
 
-        tasks = workflow.get_tasks(TaskState.READY)
+        tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         self.assertEqual(len(tasks), 2)
         task_a1 = tasks[0]
         task_b1 = tasks[1]
@@ -45,33 +41,49 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(task_a1.task_spec.name, 'task_a1')
         self.assertEqual(task_b1.task_spec.__class__, Simple)
         self.assertEqual(task_b1.task_spec.name, 'task_b1')
-        workflow.run_task_from_id(task_a1.id)
+        self.workflow.run_task_from_id(task_a1.id)
         self.assertEqual(task_a1.state, TaskState.COMPLETED)
 
-        tasks = workflow.get_tasks(TaskState.READY)
+        tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         self.assertEqual(len(tasks), 2)
         self.assertTrue(task_b1 in tasks)
         task_a2 = tasks[0]
         self.assertEqual(task_a2.task_spec.__class__, Simple)
         self.assertEqual(task_a2.task_spec.name, 'task_a2')
-        workflow.run_task_from_id(task_a2.id)
+        self.workflow.run_task_from_id(task_a2.id)
 
-        tasks = workflow.get_tasks(TaskState.READY)
+        tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         self.assertEqual(len(tasks), 1)
         self.assertTrue(task_b1 in tasks)
 
-        workflow.run_task_from_id(task_b1.id)
-        tasks = workflow.get_tasks(TaskState.READY)
+        self.workflow.run_task_from_id(task_b1.id)
+        tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         self.assertEqual(len(tasks), 1)
-        workflow.run_task_from_id(tasks[0].id)
+        self.workflow.run_task_from_id(tasks[0].id)
 
-        tasks = workflow.get_tasks(TaskState.READY)
+        tasks = self.workflow.get_tasks(task_filter=self.ready_task_filter)
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks[0].task_spec.name, 'synch_1')
-        # haven't reached the end of the workflow, but stopping at "synch_1"
 
+    def test_get_tasks_updated_after(self):
 
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(WorkflowTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
+        start = self.workflow.get_next_task(end_at_spec='Start')
+        start.run()
+        updated = datetime.now().timestamp()
+        for task in self.workflow.get_tasks(task_filter=self.ready_task_filter):
+            task.run()
+        tasks = self.workflow.get_tasks(task_filter=TaskFilter(updated_ts=updated))
+        self.assertListEqual([t.task_spec.name for t in tasks], ['task_a1', 'task_a2', 'task_b1', 'task_b2'])
+
+    def test_get_tasks_end_at(self):
+
+        tasks = self.workflow.get_tasks(end_at_spec='excl_choice_1')
+        spec_names = [t.task_spec.name for t in tasks]
+        self.assertEqual(len([name for name in spec_names if name == 'excl_choice_1']), 2)
+        self.assertNotIn('task_c1', spec_names)
+        self.assertNotIn('task_c2', spec_names)
+        self.assertNotIn('task_c3', spec_names)
+
+    def test_get_tasks_max_depth(self):
+        tasks = [t for t in self.workflow.get_tasks(max_depth=2)]
+        self.assertListEqual([t.task_spec.name for t in tasks], ['Start', 'task_a1', 'task_a2', 'task_b1', 'task_b2'])

@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState, TaskIterator
 from SpiffWorkflow.specs.Join import Join
 
 
@@ -36,14 +36,14 @@ class UnstructuredJoin(Join):
         # to build the task tree underneath the most recently changed task.
         last_changed = None
         thread_tasks = []
-        for task in split_task._find_any(self):
+        for task in TaskIterator(split_task, spec_name=self.name):
             if task.thread_id != my_task.thread_id:
                 # Ignore tasks from other threads.  (Do we need this condition?)
                 continue
-            if not task.parent._is_finished():
+            if not task.parent.has_state(TaskState.FINISHED_MASK):
                 # For an inclusive join, this can happen - it's a future join
                 continue
-            if my_task._is_descendant_of(task):
+            if my_task.is_descendant_of(task):
                 # Skip ancestors (otherwise the branch this task is on will get dropped)
                 continue
             # We have found a matching instance.

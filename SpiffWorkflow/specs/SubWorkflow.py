@@ -83,7 +83,7 @@ class SubWorkflow(TaskSpec):
         for output in self.outputs:
             if output not in outputs:
                 outputs.insert(0, output)
-        if my_task._is_definite():
+        if my_task.has_state(TaskState.DEFINITE_MASK):
             # This prevents errors with sync children
             my_task._sync_children(outputs, TaskState.LIKELY)
         else:
@@ -135,9 +135,7 @@ class SubWorkflow(TaskSpec):
                     child.data = subworkflow.last_task.data
                 for assignment in self.out_assign:
                     assignment.assign(subworkflow, child)
-
-                # Alright, abusing that hook is just evil but it works.
-                child.task_spec._update_hook(child)
+        my_task.task_spec._update(my_task)
 
     def serialize(self, serializer):
         return serializer.serialize_sub_workflow(self)

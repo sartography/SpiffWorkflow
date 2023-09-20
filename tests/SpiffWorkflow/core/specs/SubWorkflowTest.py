@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 import os
 
@@ -6,7 +5,7 @@ from lxml import etree
 
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState, TaskFilter
 from SpiffWorkflow.workflow import Workflow
 
 
@@ -34,9 +33,8 @@ class TaskSpecTest(unittest.TestCase):
     def do_next_unique_task(self, name):
         # This method asserts that there is only one ready task! The specified
         # one - and then completes it
-        for task in self.workflow.get_tasks(TaskState.WAITING):
-            task.task_spec._update(task)
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        self.workflow.update_waiting_tasks()
+        ready_tasks = self.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.READY))
         self.assertEqual(1, len(ready_tasks))
         task = ready_tasks[0]
         self.assertEqual(name, task.task_spec.name)
@@ -45,7 +43,7 @@ class TaskSpecTest(unittest.TestCase):
     def do_next_named_step(self, name, other_ready_tasks):
         # This method completes a single task from the specified set of ready
         # tasks
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.READY))
         all_tasks = sorted([name] + other_ready_tasks)
         self.assertEqual(all_tasks, sorted([t.task_spec.name for t in ready_tasks]))
         task = list([t for t in ready_tasks if t.task_spec.name == name])[0]
@@ -107,10 +105,8 @@ class TaskSpecTest(unittest.TestCase):
         self.do_next_unique_task('Start')
         self.do_next_unique_task('first')
 
-        # Now refresh waiting tasks:
         # Update the state of every WAITING task.
-        for thetask in [t for t in self.workflow.get_tasks(TaskState.WAITING)]:
-            thetask.task_spec._update(thetask)
+        self.workflow.update_waiting_tasks()
 
         self.do_next_unique_task('last')
         self.do_next_unique_task('End')

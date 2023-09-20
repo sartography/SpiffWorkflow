@@ -20,7 +20,8 @@
 from copy import deepcopy
 from collections.abc import Iterable, Sequence, Mapping, MutableSequence, MutableMapping
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.specs.base import TaskSpec
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.util.deep_merge import DeepMerge
 from SpiffWorkflow.bpmn.specs.bpmn_task_spec import BpmnTaskSpec
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
@@ -36,10 +37,10 @@ class LoopTask(BpmnTaskSpec):
         merged = self._merged_children(my_task)
         child_running = False
         for child in self._instances(my_task):
-            if child._has_state(TaskState.FINISHED_MASK) and str(child.id) not in merged:
+            if child.has_state(TaskState.FINISHED_MASK) and str(child.id) not in merged:
                 self.child_completed_action(my_task, child)
                 merged.append(str(child.id))
-            elif not child._has_state(TaskState.FINISHED_MASK):
+            elif not child.has_state(TaskState.FINISHED_MASK):
                 child_running = True
         my_task.internal_data['merged'] = merged
         return child_running
@@ -134,7 +135,7 @@ class MultiInstanceTask(LoopTask):
         for task in self._instances(my_task):
             key_or_index = task.internal_data.get('key_or_index')
             value = task.internal_data.get('item') if key_or_index is None else key_or_index
-            if task._has_state(TaskState.FINISHED_MASK):
+            if task.has_state(TaskState.FINISHED_MASK):
                 info['completed'].append(value)
             else:
                 info['running'].append(value)

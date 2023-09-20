@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
@@ -28,7 +26,7 @@ class SubWorkflowTest(BaseTestCase):
 
         # Set initial array size to 3 in the first user form.
         for answer in self.answers:
-            task = self.workflow.get_ready_user_tasks()[0]
+            task = self.get_ready_user_tasks()[0]
             self.assertEqual("Activity_"+answer, task.task_spec.name)
             task.update_data({"Field"+answer: answer})
             task.run()
@@ -41,9 +39,3 @@ class SubWorkflowTest(BaseTestCase):
                                                         'FieldA2': 'A2',
                                                         'FieldB': 'B'})
         self.assertTrue(self.workflow.is_completed())
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(SubWorkflowTest)
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -1,6 +1,6 @@
 import unittest
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from .BaseTestCase import BaseTestCase
 
@@ -30,8 +30,8 @@ class CallActivityMessageTest(BaseTestCase):
                  ]
 
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        waiting_tasks = self.workflow.get_tasks(TaskState.WAITING)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
+        waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
         self.assertEqual(1, len(ready_tasks),'Expected to have one ready task')
         self.assertEqual(2, len(waiting_tasks), 'Expected to have two waiting tasks')
 
@@ -43,15 +43,8 @@ class CallActivityMessageTest(BaseTestCase):
             self.workflow.do_engine_steps()
             if save_restore:
                 self.save_restore()
-            ready_tasks = self.workflow.get_tasks(TaskState.READY)
+            ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(self.workflow.is_completed(),True,'Expected the workflow to be complete at this point')
         self.assertEqual(self.workflow.last_task.data,{'plan_details': 'Best',
                                                        'Approved': 'Yes',
                                                        'Done': 'OK!'})
-
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(CallActivityMessageTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

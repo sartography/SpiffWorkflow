@@ -1,4 +1,4 @@
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from .BaseTestCase import BaseTestCase
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
@@ -19,7 +19,7 @@ class SpiffPropertiesTest(BaseTestCase):
         self.workflow.do_engine_steps()
         if save_restore:
             self.save_restore()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         # The ready task's spec should contain extension properties
         # with name/value pairs.
         task = ready_tasks[0]

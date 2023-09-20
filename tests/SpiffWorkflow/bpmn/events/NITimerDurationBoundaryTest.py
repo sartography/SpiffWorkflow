@@ -1,7 +1,7 @@
 import datetime
 import time
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -28,8 +28,8 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
     def actual_test(self,save_restore = False):
 
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
-        event = self.workflow.get_tasks_from_spec_name('Event_0jyy8ao')[0]
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
+        event = self.workflow.get_next_task(spec_name='Event_0jyy8ao')
         self.assertEqual(event.state, TaskState.WAITING)
 
         loopcount = 0
@@ -39,11 +39,11 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         while event.state == TaskState.WAITING and loopcount < 10:
             if save_restore:
                 self.save_restore()
-                event = self.workflow.get_tasks_from_spec_name('Event_0jyy8ao')[0]
+                event = self.workflow.get_next_task(spec_name='Event_0jyy8ao')
             time.sleep(0.1)
-            ready_tasks = self.workflow.get_tasks(TaskState.READY)
+            ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
             # There should be one ready task until the boundary event fires
-            self.assertEqual(len(self.workflow.get_ready_user_tasks()), 1)
+            self.assertEqual(len(self.get_ready_user_tasks()), 1)
             self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
             loopcount += 1
@@ -53,7 +53,7 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         # appropriate time here is .5 seconds due to the .3 seconds that we loop and then
         self.assertEqual(duration < datetime.timedelta(seconds=.5), True)
         self.assertEqual(duration > datetime.timedelta(seconds=.2), True)
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         # Now there should be two.
         self.assertEqual(len(ready_tasks), 2)
         for task in ready_tasks:

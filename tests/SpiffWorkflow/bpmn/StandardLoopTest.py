@@ -13,10 +13,10 @@ class StandardLoopTest(BpmnWorkflowTestCase):
 
     def testLoopMaximum(self):
 
-        start = self.workflow.get_tasks_from_spec_name('StartEvent_1')
+        start = self.workflow.get_tasks(end_at_spec='StartEvent_1')
         start[0].data['done'] = False
 
-        any_task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        any_task = self.workflow.get_next_task(spec_name='any_task')
         task_info = any_task.task_spec.task_info(any_task)
         self.assertEqual(task_info['iterations_completed'], 0)
         self.assertEqual(task_info['iterations_remaining'], 3)
@@ -25,7 +25,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
         for idx in range(3):
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()
-            ready_tasks = self.workflow.get_ready_user_tasks()
+            ready_tasks = self.get_ready_user_tasks()
             self.assertEqual(len(ready_tasks), 1)
             ready_tasks[0].data[str(idx)] = True
             ready_tasks[0].run()
@@ -33,7 +33,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
             self.assertEqual(task_info['iteration'], idx)
 
         self.workflow.do_engine_steps()
-        any_task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        any_task = self.workflow.get_next_task(spec_name='any_task')
         task_info = any_task.task_spec.task_info(any_task)
         self.assertEqual(task_info['iterations_completed'], 3)
         self.assertEqual(task_info['iterations_remaining'], 0)
@@ -43,12 +43,12 @@ class StandardLoopTest(BpmnWorkflowTestCase):
 
     def testLoopCondition(self):
 
-        start = self.workflow.get_tasks_from_spec_name('StartEvent_1')
+        start = self.workflow.get_tasks(end_at_spec='StartEvent_1')
         start[0].data['done'] = False
 
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 1)
         ready_tasks[0].data['done'] = True
         ready_tasks[0].run()
@@ -59,7 +59,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
     def testSkipLoop(self):
 
         # This is called "skip loop" because I thought "testTestBefore" was a terrible name
-        start = self.workflow.get_tasks_from_spec_name('StartEvent_1')
+        start = self.workflow.get_tasks(end_at_spec='StartEvent_1')
         start[0].data['done'] = True
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import datetime
 import unittest
 import time
@@ -62,9 +60,3 @@ class TimerCycleStartTest(BpmnWorkflowTestCase):
 
         self.assertEqual(counter, 2)
         self.assertTrue(self.workflow.is_completed())
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TimerCycleStartTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -19,6 +19,6 @@ class BlockToSubworkflowTest(TestCase, WorkflowPatternTestCase):
     def setUp(self):
         self.load_from_xml('data/block_to_subworkflow')
 
-class SubworkflowTOBlockTest(TestCase, WorkflowPatternTestCase):
+class SubworkflowToBlockTest(TestCase, WorkflowPatternTestCase):
     def setUp(self):
         self.load_from_xml('data/subworkflow_to_block')

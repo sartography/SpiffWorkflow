@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -17,7 +15,7 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
 
     def testRunThroughAlternating(self):
 
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step('Thread 1 - Choose', choice='Yes', with_save_load=True)
         self.workflow.do_engine_steps()
@@ -33,11 +31,11 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done', with_save_load=True)
         self.workflow.do_engine_steps()
 
-        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
 
     def testRunThroughThread1First(self):
 
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step('Thread 1 - Choose', choice='Yes', with_save_load=True)
         self.workflow.do_engine_steps()
@@ -46,7 +44,7 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
             self.workflow.do_engine_steps()
 
         self.assertRaises(AssertionError, self.do_next_named_step, 'Done')
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.do_next_named_step('Thread 2 - Choose', choice='Yes', with_save_load=True)
         self.workflow.do_engine_steps()
@@ -57,4 +55,4 @@ class ParallelJoinLongTest(BpmnWorkflowTestCase):
         self.do_next_named_step('Done', with_save_load=True)
         self.workflow.do_engine_steps()
 
-        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))

@@ -3,7 +3,7 @@ import json
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import BasePythonScriptEngineEnvironment, TaskDataEnvironment
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState, TaskFilter
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -82,7 +82,7 @@ class PythonScriptEngineEnvironmentTest(BpmnWorkflowTestCase):
         self.assertEqual(d_uniques, {"a", "b", "c"})
 
     def _get_task_data_len(self):
-        tasks_to_check = self.workflow.get_tasks(TaskState.FINISHED_MASK)
+        tasks_to_check = self.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.FINISHED_MASK))
         task_data = [task.data for task in tasks_to_check]
         task_data_to_check = list(filter(len, task_data))
         task_data_len = len(json.dumps(task_data_to_check))
@@ -100,12 +100,12 @@ class StartedTaskTest(BpmnWorkflowTestCase):
         script_engine = PythonScriptEngine(environment=script_engine_environemnt)
         self.workflow.script_engine = script_engine
         self.workflow.do_engine_steps()
-        script_task = self.workflow.get_tasks_from_spec_name('script')[0]
+        script_task = self.workflow.get_next_task(spec_name='script')
         self.assertEqual(script_task.state, TaskState.STARTED)
         script_task.complete()
-        manual_task = self.workflow.get_tasks_from_spec_name('manual')[0]
+        manual_task = self.workflow.get_next_task(spec_name='manual')
         manual_task.run()
         self.workflow.do_engine_steps()
-        end = self.workflow.get_tasks_from_spec_name('End')[0]
+        end = self.workflow.get_next_task(spec_name='End')
         self.assertDictEqual(end.data, {'x': 1, 'y': 2, 'z': 3})
         self.assertTrue(self.workflow.is_completed())

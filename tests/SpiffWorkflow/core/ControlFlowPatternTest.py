@@ -50,7 +50,7 @@ class BlockingDiscriminatorTest(TestCase, WorkflowPatternTestCase):
     def setUp(self):
         self.load_from_xml('control-flow/blocking_discriminator')
 
-class CacncellingDiscriminatorTest(TestCase, WorkflowPatternTestCase):
+class CancellingDiscriminatorTest(TestCase, WorkflowPatternTestCase):
     def setUp(self):
         self.load_from_xml('control-flow/cancelling_discriminator')
 

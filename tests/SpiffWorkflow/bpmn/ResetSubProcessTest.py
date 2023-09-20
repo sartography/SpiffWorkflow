@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -32,46 +30,46 @@ class ResetSubProcessTest(BpmnWorkflowTestCase):
     def testResetToOuterWorkflowWhileInSubWorkflow(self):
 
         self.workflow.do_engine_steps()
-        top_level_task = self.workflow.get_ready_user_tasks()[0]
+        top_level_task = self.get_ready_user_tasks()[0]
         top_level_task.run()
         self.workflow.do_engine_steps()
-        task = self.workflow.get_ready_user_tasks()[0]
+        task = self.get_ready_user_tasks()[0]
         self.save_restore()
-        top_level_task = self.workflow.get_tasks_from_spec_name('Task1')[0]
+        top_level_task = self.workflow.get_next_task(spec_name='Task1')
         self.workflow.reset_from_task_id(top_level_task.id)
-        task = self.workflow.get_ready_user_tasks()[0]
-        self.assertEqual(len(self.workflow.get_ready_user_tasks()), 1, "There should only be one task in a ready state.")
-        self.assertEqual(task.get_name(), 'Task1')
+        task = self.get_ready_user_tasks()[0]
+        self.assertEqual(len(self.get_ready_user_tasks()), 1, "There should only be one task in a ready state.")
+        self.assertEqual(task.task_spec.name, 'Task1')
 
     def actualTest(self, save_restore=False):
 
         self.workflow.do_engine_steps()
-        self.assertEqual(1, len(self.workflow.get_ready_user_tasks()))
-        task = self.workflow.get_ready_user_tasks()[0]
+        self.assertEqual(1, len(self.get_ready_user_tasks()))
+        task = self.get_ready_user_tasks()[0]
         task.run()
         self.workflow.do_engine_steps()
-        task = self.workflow.get_ready_user_tasks()[0]
-        self.assertEqual(task.get_name(),'SubTask2')
+        task = self.get_ready_user_tasks()[0]
+        self.assertEqual(task.task_spec.name,'SubTask2')
         task.run()
         self.workflow.do_engine_steps()
-        task = self.workflow.get_tasks_from_spec_name('Task1')[0]
-        task.reset_token(self.workflow.last_task.data)
+        task = self.workflow.get_next_task(spec_name='Task1')
+        task.reset_branch(self.workflow.last_task.data)
         self.workflow.do_engine_steps()
         self.reload_save_restore()
-        task = self.workflow.get_ready_user_tasks()[0]
-        self.assertEqual(task.get_name(),'Task1')
+        task = self.get_ready_user_tasks()[0]
+        self.assertEqual(task.task_spec.name,'Task1')
         task.run()
         self.workflow.do_engine_steps()
-        task = self.workflow.get_ready_user_tasks()[0]
-        self.assertEqual(task.get_name(),'Subtask2')
+        task = self.get_ready_user_tasks()[0]
+        self.assertEqual(task.task_spec.name,'Subtask2')
         task.run()
         self.workflow.do_engine_steps()
-        task = self.workflow.get_ready_user_tasks()[0]
-        self.assertEqual(task.get_name(),'Subtask2A')
+        task = self.get_ready_user_tasks()[0]
+        self.assertEqual(task.task_spec.name,'Subtask2A')
         task.run()
         self.workflow.do_engine_steps()
-        task = self.workflow.get_ready_user_tasks()[0]
-        self.assertEqual(task.get_name(),'Task2')
+        task = self.get_ready_user_tasks()[0]
+        self.assertEqual(task.task_spec.name,'Task2')
         task.run()
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())

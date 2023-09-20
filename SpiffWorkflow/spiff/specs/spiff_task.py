@@ -20,7 +20,7 @@
 from copy import deepcopy
 
 from SpiffWorkflow.exceptions import SpiffWorkflowException
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
 
 

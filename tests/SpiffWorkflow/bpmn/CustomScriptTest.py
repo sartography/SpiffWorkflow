@@ -1,4 +1,4 @@
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
@@ -44,10 +44,10 @@ class CustomInlineScriptTest(BpmnWorkflowTestCase):
         self.assertEqual(data['c3'], 'ARRIVEDERCI')
 
     def test_overwrite_function_with_local_variable(self):
-        ready_task = self.workflow.get_tasks(TaskState.READY)[0]
+        ready_task = self.workflow.get_tasks(state=TaskState.READY)[0]
         ready_task.data = {'custom_function': "bill"}
         with self.assertRaises(WorkflowTaskException) as e:
             self.workflow.do_engine_steps()
         self.assertTrue('custom_function' in str(e.exception))
-        task = self.workflow.get_tasks_from_spec_name('Activity_1y303ko')[0]
+        task = self.workflow.get_next_task(spec_name='Activity_1y303ko')
         self.assertEqual(task.state, TaskState.ERROR)

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.event import BpmnEvent
 from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
@@ -24,8 +23,8 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.do_next_exclusive_step('Do Something In a Subprocess')
         self.workflow.do_engine_steps()
@@ -36,7 +35,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
 
     def testRunThroughMessageSaveAndRestore(self):
 
@@ -46,8 +45,8 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.workflow.catch(BpmnEvent(MessageEventDefinition('Test Message'), {}))
 
@@ -64,7 +63,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
 
     def testRunThroughMessageOrder2SaveAndRestore(self):
 
@@ -74,8 +73,8 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.workflow.catch(BpmnEvent(MessageEventDefinition('Test Message'), {}))
         self.do_next_named_step('Do Something In a Subprocess')
@@ -91,7 +90,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
 
     def testRunThroughMessageOrder3SaveAndRestore(self):
 
@@ -101,8 +100,8 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
 
-        self.assertEqual(1, len(self.workflow.get_tasks(TaskState.READY)))
-        self.assertEqual(2, len(self.workflow.get_tasks(TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.workflow.catch(BpmnEvent(MessageEventDefinition('Test Message'), {}))
 
@@ -119,4 +118,4 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)))
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))

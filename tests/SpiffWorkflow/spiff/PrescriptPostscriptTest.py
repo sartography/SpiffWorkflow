@@ -1,5 +1,5 @@
 from SpiffWorkflow.exceptions import SpiffWorkflowException
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from .BaseTestCase import BaseTestCase
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
@@ -25,7 +25,7 @@ class PrescriptPostsciptTest(BaseTestCase):
         # Set a on the workflow and b in the first task.
         self.workflow.data['a'] = 1
         self.set_process_data({'b': 2})
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         # This execute the same script as task_test
         ready_tasks[0].run()
         # a should be removed, b should be unchanged, and c and z should be present (but not x & y)
@@ -39,7 +39,7 @@ class PrescriptPostsciptTest(BaseTestCase):
             self.save_restore()
 
         self.set_process_data({'a': 1, 'b': 2})
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         # The prescript sets x, y = a * 2, b * 2 and creates the variable z = x + y
         # The postscript sets c = z * 2 and deletes x and y
         # a and b should remain unchanged, and c and z should be added
@@ -52,13 +52,13 @@ class PrescriptPostsciptTest(BaseTestCase):
         self.workflow = BpmnWorkflow(spec, subprocesses)
         if save_restore:
             self.save_restore()
-        self.workflow.get_tasks(TaskState.READY)
+        self.workflow.get_tasks(state=TaskState.READY)
         # Calling do-engine steps without setting variables will raise an exception.
         with self.assertRaises(SpiffWorkflowException) as se:
             self.workflow.do_engine_steps()
         ex = se.exception
         self.assertIn("Error occurred in the Pre-Script", str(ex))
-        task = self.workflow.get_tasks_from_spec_name('Activity_1iqs4li')[0]
+        task = self.workflow.get_next_task(spec_name='Activity_1iqs4li')
         self.assertEqual(task.state, TaskState.ERROR)
 
     def call_activity_test(self, save_restore=False):
@@ -74,13 +74,13 @@ class PrescriptPostsciptTest(BaseTestCase):
         # we did not explicitly remove them.  We don't implicitly remove them because this would be
         # the wrong behavior for regular tasks.
         self.set_process_data({'old': 'hello'})
-        task = self.workflow.get_tasks_from_spec_name('Activity_0g9bcsc')[0]
+        task = self.workflow.get_next_task(spec_name='Activity_0g9bcsc')
         # The original data is still present and unchanged
         self.assertEqual(task.data.get('old'), 'hello')
         # The new data has been added
         self.assertEqual(task.data.get('new'), 'HELLO')
 
     def set_process_data(self, data):
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         ready_tasks[0].set_data(**data)
         self.workflow.do_engine_steps()

@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState, TaskFilter
 from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.specs.Join import Join
 
@@ -40,7 +40,7 @@ class BoundaryEventSplit(SimpleBpmnTask):
         # Events attached to the main task might occur
         my_task._sync_children(self.outputs, state=TaskState.MAYBE)
         # The main child's state is based on this task's state
-        state = TaskState.FUTURE if my_task._is_definite() else my_task.state
+        state = TaskState.FUTURE if my_task.has_state(TaskState.DEFINITE_MASK) else my_task.state
         for child in my_task.children:
             if not isinstance(child.task_spec, BoundaryEvent):
                 child._set_state(state)
@@ -48,7 +48,7 @@ class BoundaryEventSplit(SimpleBpmnTask):
     def _update_hook(self, my_task):
         super()._update_hook(my_task)
         for task in my_task.children:
-            if isinstance(task.task_spec, BoundaryEvent) and task._is_predicted():
+            if isinstance(task.task_spec, BoundaryEvent) and task.has_state(TaskState.PREDICTED_MASK):
                 task._set_state(TaskState.WAITING)
                 task.task_spec._predict(task)
         return True
@@ -61,9 +61,8 @@ class BoundaryEventJoin(Join, BpmnTaskSpec):
         super().__init__(wf_spec, name, **kwargs)
 
     def _check_threshold_structured(self, my_task, force=False):
-        # Retrieve a list of all activated tasks from the associated
-        # task that did the conditional parallel split.
-        split_task = my_task._find_ancestor_from_name(self.split_task)
+        # Retrieve a list of all activated tasks from the associated task that did the conditional parallel split.
+        split_task = my_task.find_ancestor(self.split_task)
         if split_task is None:
             raise WorkflowException(f'Split at {self.split_task} was not reached', task_spec=self)
 
@@ -79,8 +78,8 @@ class BoundaryEventJoin(Join, BpmnTaskSpec):
         if main is None:
             raise WorkflowException(f'No main task found', task_spec=self)
 
-        interrupt = any([t._has_state(TaskState.READY|TaskState.COMPLETED) for t in interrupting])
-        finished = main._is_finished() or interrupt
+        interrupt = any([t.has_state(TaskState.READY|TaskState.COMPLETED) for t in interrupting])
+        finished = main.has_state(TaskState.FINISHED_MASK) or interrupt
         if finished:
             cancel = [t for t in interrupting + noninterrupting if t.state == TaskState.WAITING]
             if interrupt:
@@ -96,7 +95,7 @@ class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
         # Look at the tree to find all ready and waiting tasks (excluding
         # ourself). The EndJoin waits for everyone!
         waiting_tasks = []
-        for task in my_task.workflow.get_tasks(TaskState.READY | TaskState.WAITING):
+        for task in my_task.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.READY|TaskState.WAITING)):
             if task.thread_id != my_task.thread_id:
                 continue
             if task.task_spec == my_task.task_spec:

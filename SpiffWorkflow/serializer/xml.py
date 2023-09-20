@@ -21,7 +21,7 @@ from uuid import UUID
 from lxml import etree
 from lxml.etree import SubElement
 from ..workflow import Workflow
-from ..task import Task, TaskStateNames
+from ..task import Task, TaskState
 from ..operators import (Attrib, Assign, PathAttrib, Equal, NotEqual, GreaterThan, LessThan, Match)
 from ..specs.AcquireMutex import AcquireMutex
 from ..specs.Cancel import Cancel
@@ -690,7 +690,7 @@ class XmlSerializer(Serializer):
                 child_elem = self.serialize_task(child)
                 children_elem.append(child_elem)
 
-        SubElement(elem, 'state').text = task.get_state_name()
+        SubElement(elem, 'state').text = TaskState.get_name(task._state)
         if task.triggered:
             SubElement(elem, 'triggered')
         SubElement(elem, 'spec').text = task.task_spec.name
@@ -721,13 +721,9 @@ class XmlSerializer(Serializer):
             task.children.append(child_task)
 
         state_name = elem.findtext('state')
-        found = False
-        for key, value in list(TaskStateNames.items()):
-            if value == state_name:
-                task._state = key
-                found = True
-                break
-        assert found
+        state_value = TaskState.get_value(state_name)
+        assert state_value is not None
+        task._state = state_value
         task.triggered = elem.find('triggered') is not None
         task.last_state_change = float(elem.findtext('last-state-change'))
         task.data = self.deserialize_value_map(elem.find('data'))

@@ -19,8 +19,9 @@
 
 from abc import abstractmethod
 
-from ..util.event import Event
-from ..task import TaskState
+from SpiffWorkflow.util.task import TaskState
+from SpiffWorkflow.util.event import Event
+
 from ..exceptions import WorkflowException
 
 
@@ -234,21 +235,21 @@ class TaskSpec(object):
         if seen is None:
             seen = []
 
-        if my_task._has_state(mask):
+        if my_task.has_state(mask):
             self._predict_hook(my_task)
 
-        if my_task._is_predicted():
+        if my_task.has_state(TaskState.PREDICTED_MASK):
             seen.append(self)
 
-        look_ahead = my_task._is_definite() or looked_ahead + 1 < self.lookahead
+        look_ahead = my_task.has_state(TaskState.DEFINITE_MASK) or looked_ahead + 1 < self.lookahead
         for child in my_task.children:
-            if child._has_state(mask) and child not in seen and look_ahead:
+            if child.has_state(mask) and child not in seen and look_ahead:
                 child.task_spec._predict(child, seen[:], looked_ahead + 1, mask)
 
     def _predict_hook(self, my_task):
         # If the task's status is definite, we default to FUTURE for all it's outputs.
         # Otherwise, copy my own state to the children.
-        if  my_task._is_definite():
+        if  my_task.has_state(TaskState.DEFINITE_MASK):
             best_state = TaskState.FUTURE
         else:
             best_state = my_task.state
@@ -260,7 +261,7 @@ class TaskSpec(object):
         state of this task in the workflow. For example, if a predecessor
         completes it makes sure to call this method so we can react.
         """
-        if my_task._is_predicted():
+        if my_task.has_state(TaskState.PREDICTED_MASK):
             self._predict(my_task)
         self.entered_event.emit(my_task.workflow, my_task)
         if self._update_hook(my_task):
@@ -374,7 +375,7 @@ class TaskSpec(object):
         """
         self._on_complete_hook(my_task)
         for child in my_task.children:
-            if not child._is_finished():
+            if not child.has_state(TaskState.FINISHED_MASK):
                 child.task_spec._update(child)
         my_task.workflow._task_completed_notify(my_task)
         self.completed_event.emit(my_task.workflow, my_task)

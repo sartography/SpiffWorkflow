@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ..task import TaskState
+from SpiffWorkflow.util.task import TaskState, TaskIterator
 from ..exceptions import WorkflowException
 from ..operators import valueof
 from ..specs.Join import Join
@@ -54,14 +54,13 @@ class ThreadMerge(Join):
 
     def _start(self, my_task):
         # If the threshold was already reached, there is nothing else to do.
-        if my_task._has_state(TaskState.COMPLETED):
+        if my_task.has_state(TaskState.COMPLETED):
             return False
-        if my_task._has_state(TaskState.READY):
+        if my_task.has_state(TaskState.READY):
             return True
 
-        # Retrieve a list of all activated tasks from the associated
-        # task that did the conditional parallel split.
-        split_task = my_task._find_ancestor_from_name(self.split_task)
+        # Retrieve a list of all activated tasks from the associated task that did the conditional parallel split.
+        split_task = my_task.find_ancestor(self.split_task)
         if split_task is None:
             raise WorkflowException(f'Join with %s, which was not reached {self.split_task}', task_spec=self)
         tasks = split_task.task_spec._get_activated_threads(split_task)
@@ -105,14 +104,13 @@ class ThreadMerge(Join):
             my_task._set_state(TaskState.WAITING)
             return
 
-        split_task_spec = my_task.workflow.spec.get_task_spec_from_name(self.split_task)
-        split_task = my_task._find_ancestor(split_task_spec)
+        split_task = my_task.find_ancestor(self.split_task)
 
         # Find the inbound task that was completed last.
         last_changed = None
         tasks = []
-        for task in split_task._find_any(self):
-            if self.split_task and task._is_descendant_of(my_task):
+        for task in TaskIterator(split_task, spec_name=self.name):
+            if self.split_task and task.is_descendant_of(my_task):
                 continue
             changed = task.parent.last_state_change
             if last_changed is None \

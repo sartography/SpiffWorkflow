@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from .base import TaskSpec
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 
 
 class ThreadStart(TaskSpec):

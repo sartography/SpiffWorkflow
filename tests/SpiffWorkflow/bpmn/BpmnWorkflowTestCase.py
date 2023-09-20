@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-
 import json
 import os
 import unittest
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator
 
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
+from SpiffWorkflow.bpmn.workflow import BpmnTaskFilter
 
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer, DEFAULT_SPEC_CONFIG
 from .BpmnLoaderForTests import TestUserTaskConverter, TestBpmnParser, TestDataStoreConverter
@@ -46,12 +45,15 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         parser.add_bpmn_files_by_glob(f)
         return parser.find_all_specs()
 
+    def get_ready_user_tasks(self, lane=None):
+        return self.workflow.get_tasks(task_filter=BpmnTaskFilter(state=TaskState.READY, manual=True, lane=lane))
+
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:
             self.save_restore_all()
 
         self.workflow.do_engine_steps()
-        tasks = self.workflow.get_tasks(TaskState.READY)
+        tasks = self.workflow.get_tasks(state=TaskState.READY)
         self._do_single_step(step_name, tasks, set_attribs, choice)
 
     def do_next_named_step(self, step_name, with_save_load=False, set_attribs=None, choice=None, only_one_instance=True):
@@ -84,13 +86,13 @@ class BpmnWorkflowTestCase(unittest.TestCase):
                     return False
             return True
 
-        tasks = [t for t in self.workflow.get_tasks(TaskState.READY) if is_match(t)]
+        tasks = [t for t in self.workflow.get_tasks(state=TaskState.READY) if is_match(t)]
 
         self._do_single_step(
             step_name_path[-1], tasks, set_attribs, choice, only_one_instance=only_one_instance)
 
     def assertTaskNotReady(self, step_name):
-        tasks = list([t for t in self.workflow.get_tasks(TaskState.READY)
+        tasks = list([t for t in self.workflow.get_tasks(state=TaskState.READY)
                      if t.task_spec.name == step_name or t.task_spec.bpmn_name == step_name])
         self.assertEqual([], tasks)
 

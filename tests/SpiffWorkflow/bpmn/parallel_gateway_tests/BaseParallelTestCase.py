@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
@@ -31,7 +31,7 @@ class BaseParallelTestCase(BpmnWorkflowTestCase):
                 self.save_restore()
 
         self.workflow.do_engine_steps()
-        unfinished = self.workflow.get_tasks(TaskState.READY | TaskState.WAITING)
+        unfinished = self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)
         if unfinished:
             logging.debug("Unfinished tasks: %s", unfinished)
             logging.debug(self.workflow.get_dump())

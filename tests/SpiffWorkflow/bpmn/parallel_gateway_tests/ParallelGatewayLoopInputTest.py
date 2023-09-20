@@ -1,4 +1,4 @@
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -11,7 +11,7 @@ class ParallelGatewayLoopInputTest(BpmnWorkflowTestCase):
     def test_loop_input(self):
 
         self.workflow.do_engine_steps()
-        ready = self.workflow.get_tasks(TaskState.READY)
+        ready = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(len(ready), 1)
         ready[0].run()
         self.workflow.do_engine_steps()

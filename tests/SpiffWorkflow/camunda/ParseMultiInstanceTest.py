@@ -13,22 +13,22 @@ class ParseMultiInstanceTest(BaseTestCase):
 
         spec, subprocesses = self.load_workflow_spec('parallel_multiinstance_cardinality.bpmn', 'main')
         self.workflow = BpmnWorkflow(spec)
-        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start = self.workflow.task_tree
         start.data = {'input_data': [1, 2, 3]}
         self.workflow.do_engine_steps()
 
         self.save_restore()
 
-        task_spec = self.workflow.get_tasks_from_spec_name('any_task')[0].task_spec
+        task_spec = self.workflow.get_next_task(spec_name='any_task').task_spec
         self.assertEqual(task_spec.data_input.bpmn_id, 'input_data')
         self.assertEqual(task_spec.data_output.bpmn_id, 'output_data')
         self.assertEqual(task_spec.input_item.bpmn_id, 'output_item')
         self.assertEqual(task_spec.output_item.bpmn_id, 'output_item')
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
         for task in ready_tasks:
             task.data['output_item'] = task.data['output_item'] * 2
@@ -42,10 +42,10 @@ class ParseMultiInstanceTest(BaseTestCase):
 
         spec, subprocesses = self.load_workflow_spec('parallel_multiinstance_cardinality.bpmn', 'main')
         self.workflow = BpmnWorkflow(spec)
-        task_spec = self.workflow.get_tasks_from_spec_name('any_task')[0].task_spec
+        task_spec = self.workflow.get_next_task(spec_name='any_task').task_spec
         task_spec.cardinality = 'len(input_data)'
 
-        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start = self.workflow.task_tree
         start.data = {'input_data': [1, 2, 3]}
         self.workflow.do_engine_steps()
 
@@ -54,7 +54,7 @@ class ParseMultiInstanceTest(BaseTestCase):
         self.assertEqual(task_spec.data_input, None)
         self.assertEqual(task_spec.input_item.bpmn_id, 'output_item')
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
         for task in ready_tasks:
             task.data['output_item'] = task.data['output_item'] * 2
@@ -68,19 +68,19 @@ class ParseMultiInstanceTest(BaseTestCase):
 
         spec, subprocesses = self.load_workflow_spec('parallel_multiinstance_collection.bpmn', 'main')
         self.workflow = BpmnWorkflow(spec)
-        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start = self.workflow.get_next_task(end_at_spec='Start')
         start.data = {'input_data': [1, 2, 3]}
         self.workflow.do_engine_steps()
 
         self.save_restore()
 
-        task_spec = self.workflow.get_tasks_from_spec_name('any_task')[0].task_spec
+        task_spec = self.workflow.get_next_task(spec_name='any_task').task_spec
         self.assertEqual(task_spec.data_input.bpmn_id, 'input_data')
         self.assertEqual(task_spec.data_output.bpmn_id, 'input_data')
         self.assertEqual(task_spec.input_item.bpmn_id, 'input_item')
         self.assertEqual(task_spec.output_item.bpmn_id, 'input_item')
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 3)
         for task in ready_tasks:
             task.data['input_item'] = task.data['input_item'] * 2

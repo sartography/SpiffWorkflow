@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from ..task import TaskState
+from SpiffWorkflow.util.task import TaskState, TaskIterator
 from .base import TaskSpec
 
 
@@ -54,12 +54,10 @@ class Gate(TaskSpec):
 
     def _update_hook(self, my_task):
         super()._update_hook(my_task)
-        context_task = my_task.workflow.spec.get_task_spec_from_name(self.context)
-        root_task = my_task.workflow.task_tree
-        for task in root_task._find_any(context_task):
+        for task in TaskIterator(my_task.workflow.task_tree, spec_name=self.context):
             if task.thread_id != my_task.thread_id:
                 continue
-            if not task._has_state(TaskState.COMPLETED):
+            if not task.has_state(TaskState.COMPLETED):
                 my_task._set_state(TaskState.WAITING)
                 return
         return True

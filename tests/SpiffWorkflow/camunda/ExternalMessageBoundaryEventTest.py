@@ -1,4 +1,4 @@
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.event import BpmnEvent
 from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
@@ -22,14 +22,14 @@ class ExternalMessageBoundaryTest(BaseTestCase):
     def actual_test(self, save_restore=False):
 
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(1, len(ready_tasks),'Expected to have only one ready task')
         self.workflow.catch(BpmnEvent(
             MessageEventDefinition('Interrupt'),
             {'result_var': 'interrupt_var', 'payload': 'SomethingImportant'}
         ))
         self.workflow.do_engine_steps()
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(2,len(ready_tasks),'Expected to have two ready tasks')
 
         # item 1 should be at 'Pause'
@@ -45,10 +45,10 @@ class ExternalMessageBoundaryTest(BaseTestCase):
             MessageEventDefinition('reset'),
             {'result_var': 'reset_var', 'payload': 'SomethingDrastic'}
         ))
-        ready_tasks = self.workflow.get_tasks(TaskState.READY)
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         # The user activity was cancelled and we should continue from the boundary event
         self.assertEqual(2, len(ready_tasks), 'Expected to have two ready tasks')
-        event = self.workflow.get_tasks_from_spec_name('Event_19detfv')[0]
+        event = self.workflow.get_next_task(spec_name='Event_19detfv')
         event.run()
         self.assertEqual('SomethingDrastic', event.data['reset_var'])
         self.assertEqual(False, event.data['caughtinterrupt'])

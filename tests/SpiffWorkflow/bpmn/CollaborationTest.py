@@ -1,7 +1,7 @@
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.event import BpmnEvent
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -27,13 +27,13 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertIn('process_buddy', subprocesses)
         self.assertNotIn('random_person_process', subprocesses)
         self.workflow = BpmnWorkflow(spec, subprocesses)
-        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start = self.workflow.task_tree
         # Set up some data to be evaluated so that the workflow can proceed
         start.data['lover_name'] = 'Peggy'
         self.workflow.do_engine_steps()
 
         # Call activities should be created for executable processes and be reachable
-        buddy = self.workflow.get_tasks_from_spec_name('process_buddy')[0]
+        buddy = self.workflow.get_next_task(spec_name='process_buddy')
         self.assertIsInstance(buddy.task_spec, CallActivity)
         self.assertEqual(buddy.task_spec.spec, 'process_buddy')
         self.assertEqual(buddy.state, TaskState.WAITING)
@@ -41,19 +41,19 @@ class CollaborationTest(BpmnWorkflowTestCase):
     def testBpmnMessage(self):
 
         spec, subprocesses = self.load_workflow_spec('collaboration.bpmn', 'process_buddy')
-        workflow = BpmnWorkflow(spec, subprocesses)
-        start = workflow.get_tasks_from_spec_name('Start')[0]
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        start = self.workflow.get_tasks(end_at_spec='Start')[0]
         # Set up some data to be evaluated so that the workflow can proceed
         start.data['lover_name'] = 'Peggy'
-        workflow.do_engine_steps()
+        self.workflow.do_engine_steps()
         # An external message should be created
-        messages = workflow.get_events()
+        messages = self.workflow.get_events()
         self.assertEqual(len(messages), 1)
-        self.assertEqual(len(workflow.bpmn_events), 0)
-        receive = workflow.get_tasks_from_spec_name('EventReceiveLetter')[0]
+        self.assertEqual(len(self.workflow.bpmn_events), 0)
+        receive = self.workflow.get_next_task(spec_name='EventReceiveLetter')
 
         # Waiting Events should contain details about what we are no waiting on.
-        events = workflow.waiting_events()
+        events = self.workflow.waiting_events()
         self.assertEqual(1, len(events))
         self.assertEqual("MessageEventDefinition", events[0].event_type)
         self.assertEqual("Love Letter Response", events[0].name)
@@ -65,25 +65,25 @@ class CollaborationTest(BpmnWorkflowTestCase):
             receive.task_spec.event_definition,
             {'from_name': 'Peggy', 'other_nonsense': 1001}
         )
-        workflow.send_event(message)
-        workflow.do_engine_steps()
+        self.workflow.send_event(message)
+        self.workflow.do_engine_steps()
         self.assertEqual(receive.state, TaskState.COMPLETED)
-        self.assertEqual(workflow.last_task.data, {'from_name': 'Peggy', 'lover_name': 'Peggy', 'other_nonsense': 1001})
-        self.assertEqual(workflow.correlations, {'lover':{'lover_name':'Peggy'}})
-        self.assertEqual(workflow.is_completed(), True)
+        self.assertEqual(self.workflow.last_task.data, {'from_name': 'Peggy', 'lover_name': 'Peggy', 'other_nonsense': 1001})
+        self.assertEqual(self.workflow.correlations, {'lover':{'lover_name':'Peggy'}})
+        self.assertEqual(self.workflow.is_completed(), True)
 
     def testCorrelation(self):
 
         specs = self.get_all_specs('correlation.bpmn')
         proc_1 = specs['proc_1']
-        workflow = BpmnWorkflow(proc_1, specs)
-        workflow.do_engine_steps()
-        for idx, task in enumerate(workflow.get_ready_user_tasks()):
+        self.workflow = BpmnWorkflow(proc_1, specs)
+        self.workflow.do_engine_steps()
+        for idx, task in enumerate(self.get_ready_user_tasks()):
             task.data['task_num'] = idx
             task.run()
-        workflow.do_engine_steps()
-        ready_tasks = workflow.get_ready_user_tasks()
-        waiting = workflow.get_tasks_from_spec_name('get_response')
+        self.workflow.do_engine_steps()
+        ready_tasks = self.get_ready_user_tasks()
+        waiting = self.workflow.get_tasks(spec_name='get_response')
         # Two processes should have been started and two corresponding catch events should be waiting
         self.assertEqual(len(ready_tasks), 2)
         self.assertEqual(len(waiting), 2)
@@ -93,25 +93,25 @@ class CollaborationTest(BpmnWorkflowTestCase):
         for task in ready_tasks:
             task.data.update(init_id=task.data['task_num'])
             task.run()
-        workflow.do_engine_steps()
+        self.workflow.do_engine_steps()
         # If the messages were routed properly, the id should match
-        for task in workflow.get_tasks_from_spec_name('subprocess_end'):
+        for task in self.workflow.get_next_task(spec_name='subprocess_end'):
             self.assertEqual(task.data['task_num'], task.data['init_id'])
 
     def testTwoCorrelationKeys(self):
 
         specs = self.get_all_specs('correlation_two_conversations.bpmn')
         proc_1 = specs['proc_1']
-        workflow = BpmnWorkflow(proc_1, specs)
-        workflow.do_engine_steps()
-        for idx, task in enumerate(workflow.get_ready_user_tasks()):
+        self.workflow = BpmnWorkflow(proc_1, specs)
+        self.workflow.do_engine_steps()
+        for idx, task in enumerate(self.get_ready_user_tasks()):
             task.data['task_num'] = idx
             task.run()
-        workflow.do_engine_steps()
+        self.workflow.do_engine_steps()
 
         # Two processes should have been started and two corresponding catch events should be waiting
-        ready_tasks = workflow.get_ready_user_tasks()
-        waiting = workflow.get_tasks_from_spec_name('get_response_one')
+        ready_tasks = self.get_ready_user_tasks()
+        waiting = self.workflow.get_tasks(spec_name='get_response_one')
         self.assertEqual(len(ready_tasks), 2)
         self.assertEqual(len(waiting), 2)
         for task in waiting:
@@ -120,25 +120,25 @@ class CollaborationTest(BpmnWorkflowTestCase):
         for task in ready_tasks:
             task.data.update(init_id=task.data['task_num'])
             task.run()
-        workflow.do_engine_steps()
+        self.workflow.do_engine_steps()
 
         # Complete dummy tasks
-        for task in workflow.get_ready_user_tasks():
+        for task in self.get_ready_user_tasks():
             task.run()
-        workflow.do_engine_steps()
+        self.workflow.do_engine_steps()
 
         # Repeat for the other process, using a different mapped name
-        ready_tasks = workflow.get_ready_user_tasks()
-        waiting = workflow.get_tasks_from_spec_name('get_response_two')
+        ready_tasks = self.get_ready_user_tasks()
+        waiting = self.workflow.get_tasks(spec_name='get_response_two')
         self.assertEqual(len(ready_tasks), 2)
         self.assertEqual(len(waiting), 2)
         for task in ready_tasks:
             task.data.update(subprocess=task.data['task_num'])
             task.run()
-        workflow.do_engine_steps()
+        self.workflow.do_engine_steps()
 
         # If the messages were routed properly, the id should match
-        for task in workflow.get_tasks_from_spec_name('subprocess_end'):
+        for task in self.workflow.get_tasks(spec_name='subprocess_end'):
             self.assertEqual(task.data['task_num'], task.data['init_id'])
             self.assertEqual(task.data['task_num'], task.data['subprocess'])
 
@@ -146,7 +146,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
 
         spec, subprocesses = self.load_collaboration('collaboration.bpmn', 'my_collaboration')
         self.workflow = BpmnWorkflow(spec, subprocesses)
-        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start = self.workflow.get_tasks(end_at_spec='Start')[0]
         start.data['lover_name'] = 'Peggy'
         self.workflow.do_engine_steps()
         self.save_restore()

@@ -6,7 +6,7 @@ from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
 
 
 def on_reached_cb(workflow, task, taken_path):
-    reached_key = "%s_reached" % str(task.get_name())
+    reached_key = "%s_reached" % str(task.task_spec.name)
     n_reached = task.get_data(reached_key, 0) + 1
     task.set_data(**{reached_key:       n_reached,
                      'two':             2,
@@ -36,14 +36,14 @@ def on_reached_cb(workflow, task, taken_path):
     atts = ';'.join(atts)
     props = ';'.join(props)
     old = task.get_data('data', '')
-    data = task.get_name() + ': ' + atts + '/' + props + '\n'
+    data = task.task_spec.name + ': ' + atts + '/' + props + '\n'
     task.set_data(data=old + data)
     return True
 
 def on_complete_cb(workflow, task, taken_path):
     # Record the path.
-    indent = '  ' * task._get_depth()
-    taken_path.append('%s%s' % (indent, task.get_name()))
+    indent = '  ' * task.depth
+    taken_path.append('%s%s' % (indent, task.task_spec.name))
     # In workflows that load a subworkflow, the newly loaded children
     # will not have on_reached_cb() assigned. By using this function, we
     # re-assign the function in every step, thus making sure that new

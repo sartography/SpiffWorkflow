@@ -5,7 +5,7 @@ from SpiffWorkflow.bpmn.event import BpmnEvent, BpmnEvent
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -25,7 +25,7 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
     def actual_test(self, save_restore=False):
 
         self.workflow.do_engine_steps()
-        waiting_tasks = self.workflow.get_waiting_tasks()
+        waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
         if save_restore:
             self.save_restore()
             self.workflow.script_engine = self.script_engine
@@ -34,23 +34,23 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
         self.assertEqual(self.workflow.is_completed(), True)
-        self.assertEqual(self.workflow.get_tasks_from_spec_name('message_1_event')[0].state, TaskState.COMPLETED)
-        self.assertEqual(self.workflow.get_tasks_from_spec_name('message_2_event')[0].state, TaskState.CANCELLED)
-        self.assertEqual(self.workflow.get_tasks_from_spec_name('timer_event')[0].state, TaskState.CANCELLED)
+        self.assertEqual(self.workflow.get_next_task(spec_name='message_1_event').state, TaskState.COMPLETED)
+        self.assertEqual(self.workflow.get_next_task(spec_name='message_2_event').state, TaskState.CANCELLED)
+        self.assertEqual(self.workflow.get_next_task(spec_name='timer_event').state, TaskState.CANCELLED)
 
     def testTimeout(self):
 
         self.workflow.do_engine_steps()
-        waiting_tasks = self.workflow.get_waiting_tasks()
+        waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
         self.assertEqual(len(waiting_tasks), 2)
         timer_event_definition = waiting_tasks[0].task_spec.event_definition.event_definitions[-1]
         self.workflow.catch(BpmnEvent(timer_event_definition))
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.is_completed(), True)
-        self.assertEqual(self.workflow.get_tasks_from_spec_name('message_1_event')[0].state, TaskState.CANCELLED)
-        self.assertEqual(self.workflow.get_tasks_from_spec_name('message_2_event')[0].state, TaskState.CANCELLED)
-        self.assertEqual(self.workflow.get_tasks_from_spec_name('timer_event')[0].state, TaskState.COMPLETED)
+        self.assertEqual(self.workflow.get_next_task(spec_name='message_1_event').state, TaskState.CANCELLED)
+        self.assertEqual(self.workflow.get_next_task(spec_name='message_2_event').state, TaskState.CANCELLED)
+        self.assertEqual(self.workflow.get_next_task(spec_name='timer_event').state, TaskState.COMPLETED)
 
     def testMultipleStart(self):
         spec, subprocess = self.load_workflow_spec('multiple-start-parallel.bpmn', 'main')

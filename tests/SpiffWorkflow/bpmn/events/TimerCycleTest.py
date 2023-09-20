@@ -3,7 +3,7 @@ import time
 
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
 from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
-from SpiffWorkflow.task import TaskState
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -60,10 +60,10 @@ class TimerCycleTest(BpmnWorkflowTestCase):
                 self.assertEqual(len(events), 0)
 
         # Get coffee still ready
-        coffee = self.workflow.get_tasks_from_spec_name('Get_Coffee')[0]
+        coffee = self.workflow.get_next_task(spec_name='Get_Coffee')
         self.assertEqual(coffee.state, TaskState.READY)
         # Timer completed
-        timer = self.workflow.get_tasks_from_spec_name('CatchMessage')[0]
+        timer = self.workflow.get_next_task(spec_name='CatchMessage')
         self.assertEqual(timer.state, TaskState.COMPLETED)
         self.assertEqual(counter, 2)
 

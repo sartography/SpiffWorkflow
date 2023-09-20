@@ -8,15 +8,15 @@ class MultiInstanceTaskTest(BaseTestCase):
     def testMultiInstanceTask(self):
         spec, subprocesses = self.load_workflow_spec('spiff_multiinstance.bpmn', 'Process_1')
         self.workflow = BpmnWorkflow(spec, subprocesses)
-        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start = self.workflow.task_tree
         start.data = {'input_data': [1, 2, 3]}
         self.workflow.do_engine_steps()
-        task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        task = self.workflow.get_next_task(spec_name='any_task')
         self.workflow.do_engine_steps()
 
         self.save_restore()
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         for task in ready_tasks:
             task.data['output_item'] = task.data['input_item'] * 2
             task.run()
@@ -31,15 +31,15 @@ class MultiInstanceTaskTest(BaseTestCase):
     def testMultiInstanceTaskWithInstanceScripts(self):
         spec, subprocesses = self.load_workflow_spec('script_on_mi.bpmn', 'Process_1')
         self.workflow = BpmnWorkflow(spec, subprocesses)
-        start = self.workflow.get_tasks_from_spec_name('Start')[0]
+        start = self.workflow.get_next_task(spec_name='Start')
         start.data = {'input_data': [1, 2, 3]}
         self.workflow.do_engine_steps()
-        task = self.workflow.get_tasks_from_spec_name('any_task')[0]
+        task = self.workflow.get_next_task(spec_name='any_task')
         self.workflow.do_engine_steps()
 
         self.save_restore()
 
-        ready_tasks = self.workflow.get_ready_user_tasks()
+        ready_tasks = self.get_ready_user_tasks()
         for task in ready_tasks:
             task.data['output_item'] = task.data['input_item'] * 2
             task.run()
