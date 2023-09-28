@@ -204,19 +204,43 @@ class TaskIterator:
         if len(self.task_list) == 0:
             raise StopIteration()
 
-        task = self.task_list.pop(-1)
-        if all([
+        task = self.task_list.pop(0)
+
+        if task.task_spec.name == self.end_at_spec:
+            self.task_list = []
+        elif all([
             len(task._children) > 0,
             task.state >= self.min_state,
             self.depth < self.max_depth,
-            task.task_spec.name != self.end_at_spec,
         ]):
             if self.depth_first:
-                self.task_list.extend(reversed(task.children))
+                self.task_list = task.children + self.task_list
             else:
-                self.task_list = reversed(task.children) + self.task_list
-            self.depth += 1
-        elif len(self.task_list) > 0 and task.parent != self.task_list[0].parent:
-            self.depth -= 1
+                self.task_list.extend(task.children)
+            self._update_depth(task)
+        elif self.depth_first and len(self.task_list) > 0:
+            self._handle_leaf_depth(task)
+    
         return task
 
+    def _update_depth(self, task):
+
+        if self.depth_first:
+            # Since we visit the children before siblings, we always increment depth when adding children
+            self.depth += 1
+        else:
+            # In this case, we have to check for a common ancestor at the same depth
+            first, second = task, self.task_list[0]
+            for i in range(self.depth):
+                first = first.parent if first is not None else None
+                second = second.parent if second is not None else None
+            if first != second:
+                self.depth += 1
+
+    def _handle_leaf_depth(self, task):
+
+        ancestor = self.task_list[0].parent
+        current = task.parent
+        while current is not None and current != ancestor:
+            current = current.parent
+            self.depth -= 1
