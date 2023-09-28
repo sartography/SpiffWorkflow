@@ -277,6 +277,13 @@ class Workflow(object):
             # Since is_completed() is expensive it makes sense to bail out if calling it is not necessary.
             self.completed_event(self)
 
+    def _remove_task(self, task_id):
+        task = self.tasks[task_id]
+        for child in task.children:           
+            self._remove_task(child.id)
+        task.parent._children.remove(task.id)
+        self.tasks.pop(task_id)
+
     def _get_mutex(self, name):
         """Get or create a mutex"""
         if name not in self.locks:

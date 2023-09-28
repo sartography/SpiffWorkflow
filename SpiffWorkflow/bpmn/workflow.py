@@ -61,27 +61,32 @@ class BpmnTaskIterator(TaskIterator):
         if len(self.task_list) == 0:
             raise StopIteration()
 
-        task = self.task_list.pop(-1)
+        task = self.task_list.pop(0)
         subprocess = task.workflow.top_workflow.subprocesses.get(task.id)
 
-        if all([
+        if task.task_spec.name == self.end_at_spec:
+            self.task_list = []
+        elif all([
             len(task._children) > 0 or subprocess is not None,
             task.state >= self.min_state,
             self.depth < self.max_depth,
-            task.task_spec.name != self.end_at_spec,
         ]):
-            add_tasks = [t for t in reversed(task.children)]
-            if self.depth_first:
-                if subprocess is not None:
-                    add_tasks.append(subprocess.task_tree)
-                self.task_list.extend(add_tasks)
+            if subprocess is None:
+                next_tasks = task.children
+            elif self.depth_first:
+                next_tasks = [subprocess.task_tree] + task.children
             else:
-                if subprocess is not None:
-                    add_tasks = [subprocess.task_tree] + add_tasks
-                self.task_list = add_tasks + self.task_list
-            self.depth += 1
-        elif len(self.task_list) > 0 and task.parent != self.task_list[0].parent:
-            self.depth -= 1
+                next_tasks = task.children = [subprocess.task_tree]
+
+            if self.depth_first:
+                self.task_list = next_tasks + self.task_list
+            else:
+                self.task_list.extend(next_tasks)
+            self._update_depth(task)
+
+        elif self.depth_first and len(self.task_list) > 0:
+            self._handle_leaf_depth(task)
+
         return task
 
 

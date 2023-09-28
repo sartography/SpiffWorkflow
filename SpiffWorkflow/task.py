@@ -272,7 +272,7 @@ class Task(object):
 
         # Update children accordingly
         for child in unneeded_children:
-            self._children.remove(child.id)
+            self.workflow._remove_task(child.id)
         for task_spec in new_children:
             self._add_child(task_spec, state)
 
@@ -290,8 +290,9 @@ class Task(object):
                 drop.append(child)
             else:
                 child._drop_children()
+
         for task in drop:
-            self._children.remove(task.id)
+            self.workflow._remove_task(task.id)
 
     def _set_state(self, value):
         """Force set the state on a task"""
