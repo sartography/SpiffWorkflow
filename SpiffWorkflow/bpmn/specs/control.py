@@ -45,12 +45,10 @@ class BoundaryEventSplit(SimpleBpmnTask):
             if not isinstance(child.task_spec, BoundaryEvent):
                 child._set_state(state)
 
-    def _update_hook(self, my_task):
-        super()._update_hook(my_task)
+    def _run_hook(self, my_task):
         for task in my_task.children:
             if isinstance(task.task_spec, BoundaryEvent) and task.has_state(TaskState.PREDICTED_MASK):
                 task._set_state(TaskState.WAITING)
-                task.task_spec._predict(task)
         return True
         
 
