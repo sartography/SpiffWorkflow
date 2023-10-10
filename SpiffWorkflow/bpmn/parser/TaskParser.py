@@ -71,7 +71,6 @@ class TaskParser(NodeParser):
         self.task.io_specification = original.io_specification
         self.task.data_input_associations = original.data_input_associations
         self.task.data_output_associations = original.data_output_associations
-        self.task.description = original.description
 
         original.inputs = [self.task]
         original.outputs = []
@@ -94,7 +93,7 @@ class TaskParser(NodeParser):
             self.raise_validation_exception('A loopMaximum or loopCondition must be specified for Loop Tasks')
 
         original = self.spec.task_specs.pop(self.task.name)
-        self.task = self.STANDARD_LOOP_CLASS(self.spec, original.name, '', maximum, condition, test_before)
+        self.task = self.STANDARD_LOOP_CLASS(self.spec, original.name, '', maximum, condition, test_before, description='Loop Task')
         self._copy_task_attrs(original, loop_characteristics)
 
     def _add_multiinstance_task(self, loop_characteristics):
@@ -153,9 +152,9 @@ class TaskParser(NodeParser):
             'condition': condition,
         }
         if sequential:
-            self.task = self.SEQUENTIAL_MI_CLASS(self.spec, original.name, **params)
+            self.task = self.SEQUENTIAL_MI_CLASS(self.spec, original.name, description='Sequential MultiInstance', **params)
         else:
-            self.task = self.PARALLEL_MI_CLASS(self.spec, original.name, **params)
+            self.task = self.PARALLEL_MI_CLASS(self.spec, original.name, description='Parallel MultiInstance', **params)
         self._copy_task_attrs(original, loop_characteristics)
 
     def _add_boundary_event(self, children):

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="Test Iteration" revision="1.0">
+    <description>
+        A test workflow to be used to test task iteration.
+    </description>
+
+    <!-- Start with an implicit simple split. -->
+    <start-task>
+        <successor>a</successor>
+        <successor>b</successor>
+    </start-task>
+
+    <task name="a">
+        <successor>a1</successor>
+        <successor>a2</successor>
+        <successor>c</successor>
+    </task>
+
+    <task name="b">
+        <successor>b1</successor>
+        <successor>b2</successor>
+    </task>
+
+    <task name="c">
+        <successor>c1</successor>
+        <successor>c2</successor>
+    </task>
+
+    <task name="a1">
+        <successor>last</successor>
+    </task>
+    <task name="a2">
+        <successor>last</successor>
+    </task>
+
+    <task name="b1">
+        <successor>last</successor>
+    </task>
+    <task name="b2">
+        <successor>last</successor>
+    </task>
+
+    <task name="c1">
+        <successor>last</successor>
+    </task>
+    <task name="c2">
+        <successor>last</successor>
+    </task>
+
+    <task name="last">
+        <successor>end</successor>
+    </task>
+</process-definition>

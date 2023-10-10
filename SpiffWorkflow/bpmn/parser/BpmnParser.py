@@ -344,8 +344,8 @@ class BpmnParser(object):
         # This is a little convoluted, but we might add more processes as we generate
         # the dictionary if something refers to another subprocess that we haven't seen.
         processes = dict((id, self.get_spec(id)) for id in self.get_process_ids())
-        while processes.keys() != self.process_parsers.keys():
-            for process_id in self.process_parsers.keys():
+        while sorted(processes.keys()) != sorted(self.process_parsers.keys()):
+            for process_id in tuple(self.process_parsers.keys()):
                 processes[process_id] = self.get_spec(process_id)
         return processes
 
