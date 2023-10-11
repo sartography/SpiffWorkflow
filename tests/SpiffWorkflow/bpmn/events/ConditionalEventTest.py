@@ -13,12 +13,14 @@ class ConditionalEventTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         b = self.workflow.get_next_task(spec_name='task_b')
         b.run()
+        self.save_restore()
         event = self.workflow.get_next_task(spec_name='event_1')
         # The event waits for task_a_done to become True
         self.assertEqual(event.state, TaskState.WAITING)
         a = self.workflow.get_next_task(spec_name='task_a')
         a.data['task_a_done'] = True
         a.run()
+        self.save_restore()
         # Completion of A results in event being updated
         self.assertEqual(event.state, TaskState.READY)
         self.workflow.do_engine_steps()
