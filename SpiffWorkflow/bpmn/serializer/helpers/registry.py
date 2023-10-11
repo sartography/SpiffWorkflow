@@ -23,8 +23,8 @@ from datetime import datetime, timedelta
 from .dictionary import DictionaryConverter
 
 class DefaultRegistry(DictionaryConverter):
-    """This class forms the basis of serialization for BPMN workflows.  
-    
+    """This class forms the basis of serialization for BPMN workflows.
+
     It contains serialization rules for a few python data types that are not JSON serializable by default which
     are used internally by Spiff.  It can be instantiated and customized to handle arbitrary task or workflow
     data as well (see `dictionary.DictionaryConverter`).
@@ -41,7 +41,7 @@ class DefaultRegistry(DictionaryConverter):
 
         Arguments:
             obj: the object to preprocess and convert
-        
+
         Returns:
             the result of `convert` conversion after preprocessing
         """
@@ -68,8 +68,8 @@ class DefaultRegistry(DictionaryConverter):
 class BpmnConverter:
     """The base class for conversion of BPMN classes.
 
-    In general, most classes that extend this would simply take an existing registry as an argument 
-    nd supply the class along with the implementations of the conversion functions `to_dict` and
+    In general, most classes that extend this would simply take an existing registry as an argument
+    and supply the class along with the implementations of the conversion functions `to_dict` and
     `from_dict`.
 
     The operation of the converter is a little opaque, but hopefully makes sense with a little
@@ -85,7 +85,7 @@ class BpmnConverter:
 
     The goal is to be able to replace the conversion mechanism for a particular entity without
     delving into the details of other things spiff knows about.
-    
+
     So for example, it is not necessary to re-implemnent any of the event-based task spec conversions
     because, eg, the `MessageEventDefintion` was modified; the existing `MessageEventDefinitionConverter`
     can be replaced with a customized one and it will automatically be used with any event-based task.
@@ -100,8 +100,8 @@ class BpmnConverter:
         """
         self.target_class = target_class
         self.registry = registry
-        self.typename = typename if typename is not None else target_class.__name__     
-        self.registry.register(target_class, self.to_dict, self.from_dict, self.typename)   
+        self.typename = typename if typename is not None else target_class.__name__
+        self.registry.register(target_class, self.to_dict, self.from_dict, self.typename)
 
     def to_dict(self, spec):
         """This method should take an object and convert it to a dictionary that is JSON-serializable"""
