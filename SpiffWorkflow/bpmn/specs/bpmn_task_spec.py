@@ -28,7 +28,8 @@ class BpmnTaskSpec(TaskSpec):
     easy way of knowing whether a task appearson the diagram.
     """
     def __init__(self, wf_spec, name, lane=None, documentation=None,
-                 data_input_associations=None, data_output_associations=None, **kwargs):
+                 data_input_associations=None, data_output_associations=None, 
+                 io_specification=None, **kwargs):
         """
         :param lane: Indicates the name of the lane that this task belongs to
         :param documentation: the contents of the documentation element
@@ -42,7 +43,7 @@ class BpmnTaskSpec(TaskSpec):
         self.documentation = documentation
         self.data_input_associations = data_input_associations or []
         self.data_output_associations = data_output_associations or []
-        self.io_specification = None
+        self.io_specification = io_specification
         if self.description is None:
             self.description = 'BPMN Task'
 

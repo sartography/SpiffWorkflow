@@ -2,17 +2,17 @@
 import os
 
 from SpiffWorkflow.spiff.parser.process import SpiffBpmnParser, VALIDATOR
-from SpiffWorkflow.spiff.serializer.config import SPIFF_SPEC_CONFIG
+from SpiffWorkflow.spiff.serializer.config import SPIFF_CONFIG
 from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter(SPIFF_SPEC_CONFIG)
+registry = BpmnWorkflowSerializer.configure(SPIFF_CONFIG)
 
 class BaseTestCase(BpmnWorkflowTestCase):
     """ Provides some basic tools for loading up and parsing Spiff extensions"""
 
-    serializer = BpmnWorkflowSerializer(wf_spec_converter)
+    serializer = BpmnWorkflowSerializer(registry)
 
     def load_workflow_spec(self, filename, process_name, dmn_filename=None, validate=True):
         bpmn = os.path.join(os.path.dirname(__file__), 'data', filename)

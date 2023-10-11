@@ -18,17 +18,11 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
-from SpiffWorkflow.bpmn.serializer.task_spec import MultiInstanceTaskConverter
-from SpiffWorkflow.dmn.serializer.task_spec import BaseBusinessRuleTaskConverter
 
 from SpiffWorkflow.camunda.specs.user_task import UserTask, Form
-from SpiffWorkflow.camunda.specs.business_rule_task import BusinessRuleTask
-from SpiffWorkflow.camunda.specs.multiinstance_task import ParallelMultiInstanceTask, SequentialMultiInstanceTask
+
 
 class UserTaskConverter(TaskSpecConverter):
-
-    def __init__(self, registry):
-        super().__init__(UserTask, registry)
 
     def to_dict(self, spec):
         dct = self.get_default_attributes(spec)
@@ -54,16 +48,3 @@ class UserTaskConverter(TaskSpecConverter):
                 new['options'] = [ opt.__dict__ for opt in field.options ]
             dct['fields'].append(new)
         return dct
-
-
-class BusinessRuleTaskConverter(BaseBusinessRuleTaskConverter):
-    def __init__(self, registry):
-        super().__init__(BusinessRuleTask, registry)
-
-class ParallelMultiInstanceTaskConverter(MultiInstanceTaskConverter):
-    def __init__(self, registry):
-        super().__init__(ParallelMultiInstanceTask, registry)
-
-class SequentialMultiInstanceTaskConverter(MultiInstanceTaskConverter):
-    def __init__(self, registry):
-        super().__init__(SequentialMultiInstanceTask, registry)

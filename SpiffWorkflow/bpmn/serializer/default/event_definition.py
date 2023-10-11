@@ -17,15 +17,22 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.serializer.helpers.spec import EventDefinitionConverter
+from ..helpers.spec import EventDefinitionConverter
+
+
+class ErrorEscalationEventDefinitionConverter(EventDefinitionConverter):
+
+    def to_dict(self, event_definition):
+        dct = super().to_dict(event_definition)
+        dct['code'] = event_definition.code
+        return dct
+
 
 class MessageEventDefinitionConverter(EventDefinitionConverter):
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
         dct['correlation_properties'] = self.correlation_properties_to_dict(event_definition.correlation_properties)
-        dct['expression'] = event_definition.expression
-        dct['message_var'] = event_definition.message_var
         return dct
 
     def from_dict(self, dct):
@@ -34,18 +41,24 @@ class MessageEventDefinitionConverter(EventDefinitionConverter):
         return event_definition
 
 
-class ItemAwareEventDefinitionConverter(EventDefinitionConverter):
+class TimerEventDefinitionConverter(EventDefinitionConverter):
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
         dct['expression'] = event_definition.expression
-        dct['variable'] = event_definition.variable
         return dct
 
 
-class ErrorEscalationEventDefinitionConverter(ItemAwareEventDefinitionConverter):
+class MultipleEventDefinitionConverter(EventDefinitionConverter):
 
     def to_dict(self, event_definition):
         dct = super().to_dict(event_definition)
-        dct['code'] = event_definition.code
+        dct['parallel'] = event_definition.parallel
+        dct['event_definitions'] = [self.registry.convert(e) for e in event_definition.event_definitions]
         return dct
+
+    def from_dict(self, dct):
+        events = dct.pop('event_definitions')
+        event_definition = super().from_dict(dct)
+        event_definition.event_definitions = [self.registry.restore(d) for d in events]
+        return event_definition

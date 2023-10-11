@@ -24,7 +24,7 @@ class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
         super(BaseTestCase, self).setUp()
-        wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter()
+        wf_spec_converter = BpmnWorkflowSerializer.configure()
         self.serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION)
         spec, subprocesses = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
         self.workflow = BpmnWorkflow(spec, subprocesses)

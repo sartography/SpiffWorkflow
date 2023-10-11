@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+from copy import deepcopy
 
 from SpiffWorkflow.bpmn.specs.data_spec import BpmnDataStoreSpecification
 from SpiffWorkflow.bpmn.specs.defaults import ExclusiveGateway
@@ -8,7 +8,10 @@ from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import ConditionalGatewayParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 
-from SpiffWorkflow.bpmn.serializer.helpers.spec import BpmnSpecConverter, TaskSpecConverter
+from SpiffWorkflow.bpmn.serializer.helpers.registry import BpmnConverter
+from SpiffWorkflow.bpmn.serializer.default.task_spec import BpmnTaskSpecConverter
+from SpiffWorkflow.bpmn.serializer.config import DEFAULT_CONFIG
+
 
 __author__ = 'matth'
 
@@ -39,18 +42,6 @@ class TestExclusiveGatewayParser(ConditionalGatewayParser):
             return cond
         return "choice == '%s'" % sequence_flow_node.get('name', None)
 
-class TestUserTaskConverter(TaskSpecConverter):
-
-    def __init__(self, data_converter=None):
-        super().__init__(TestUserTask, data_converter)
-
-    def to_dict(self, spec):
-        dct = self.get_default_attributes(spec)
-        return dct
-
-    def from_dict(self, dct):
-        return self.task_spec_from_dict(dct)
-
 class TestDataStore(BpmnDataStoreSpecification):
 
     _value = None
@@ -64,10 +55,7 @@ class TestDataStore(BpmnDataStoreSpecification):
         TestDataStore._value = my_task.data[self.bpmn_id]
         del my_task.data[self.bpmn_id]
 
-class TestDataStoreConverter(BpmnSpecConverter):
-
-    def __init__(self, registry):
-        super().__init__(TestDataStore, registry)
+class TestDataStoreConverter(BpmnConverter):
 
     def to_dict(self, spec):
         return {
@@ -93,3 +81,7 @@ class TestBpmnParser(BpmnParser):
     DATA_STORE_CLASSES = {
         "TestDataStore": TestDataStore,
     }
+
+SERIALIZER_CONFIG = deepcopy(DEFAULT_CONFIG)
+SERIALIZER_CONFIG[TestUserTask] = BpmnTaskSpecConverter
+SERIALIZER_CONFIG[TestDataStore] = TestDataStoreConverter

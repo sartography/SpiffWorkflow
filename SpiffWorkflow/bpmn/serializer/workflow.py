@@ -17,109 +17,83 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import json
-import gzip
-from copy import deepcopy
-from uuid import UUID
-
-from SpiffWorkflow.task import Task
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow, BpmnSubWorkflow
-from SpiffWorkflow.bpmn.event import BpmnEvent
-from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask
+import json, gzip
 
 from .migration.version_migration import MIGRATIONS
 from .helpers.registry import DefaultRegistry
-from .helpers.dictionary import DictionaryConverter
 
-from .process_spec import BpmnProcessSpecConverter
-from .data_spec import BpmnDataObjectConverter, TaskDataReferenceConverter, IOSpecificationConverter
-from .task_spec import DEFAULT_TASK_SPEC_CONVERTER_CLASSES
-from .event_definition import DEFAULT_EVENT_CONVERTERS
+from .config import DEFAULT_CONFIG
 
-DEFAULT_SPEC_CONFIG = {
-    'process': BpmnProcessSpecConverter,
-    'data_specs': [IOSpecificationConverter, BpmnDataObjectConverter, TaskDataReferenceConverter],
-    'task_specs': DEFAULT_TASK_SPEC_CONVERTER_CLASSES,
-    'event_definitions': DEFAULT_EVENT_CONVERTERS,
-}
+# This is the default version set on the workflow, it can be overridden in init
+VERSION = "1.3"
 
 
 class BpmnWorkflowSerializer:
-    """
-    This class implements a customizable BPMN Workflow serializer, based on a Workflow Spec Converter
-    and a Data Converter.
+    """This class implements a customizable BPMN Workflow serializer, based on the `DefaultRegistry`.
 
-    The goal is to provide modular serialization capabilities.
+    Workflows contain two types of objects: workflows/tasks/standard specs (objects that Spiff provides
+    serialization for automatically) and arbitrary data (associated with tasks and workflows).  The goal
+    of this serializer is to provide a mechanism that allows for handling both, as well as the ability
+    to replace one of the default internal conversion mechanisms with your own if you've extended any of
+    the classes.
 
-    You'll need to configure a Workflow Spec Converter with converters for any task, data, or event types
-    present in your workflows.
-
-    If you have implemented any custom specs, you'll need to write a converter to handle them and
-    replace the converter from the default confiuration with your own.
-
-    If your workflow contains non-JSON-serializable objects, you'll need to extend or replace the
-    default data converter with one that will handle them.  This converter needs to implement
-    `convert` and `restore` methods.
+    See `configure` for more details on customization.
 
     Serialization occurs in two phases: the first is to convert everything in the workflow to a
-    dictionary containing only JSON-serializable objects and the second is dumping to JSON.
+    dictionary containing only JSON-serializable objects and the second is dumping to JSON, which happens
+    only at the very end.
 
-    This means that you can call the `workflow_to_dict` or `workflow_from_dict` methods separately from
-    conversion to JSON for further manipulation of the state, or selective serialization of only certain
-    parts of the workflow more conveniently.  You can of course call methods from the Workflow Spec and
-    Data Converters via the `spec_converter` and `data_converter` attributes as well to bypass the
-    overhead of converting or restoring the entire thing.
+    Attributes:
+        registry (`DictionaryConverter`): a registry that keeps track of all objects the serializer knows
+        json_encoder_cls: passed into `convert` to provides additional json encding capabilities (optional)
+        json_decoder_cls: passed into `restore` to provide additional json decoding capabilities (optional)
+        version (str): the serializer version
     """
 
-    # This is the default version set on the workflow, it can be overwritten in init
-    VERSION = "1.3"
-    VERSION_KEY = "serializer_version"
-    DEFAULT_JSON_ENCODER_CLS = None
-    DEFAULT_JSON_DECODER_CLS = None
+    VERSION_KEY = "serializer_version"  # Why is this customizable?
 
     @staticmethod
-    def configure_workflow_spec_converter(spec_config=None, registry=None):
+    def configure(config=None, registry=None):
+        """Can be used to create a with custom Spiff classes.
+
+        If you have replaced any of the default classes that Spiff uses with your own, Spiff will not know
+        how to serialize them and you'll have to provide conversion mechanisms.
+
+        The `config` is a dictionary with keys for each (Spiff) class that needs to be handled that map to a
+        converter for that class.  There are some basic converters which provide from methods for handling
+        essential Spiff attributes in the `helpers` package of this module; the default converters, found in
+        the `defaults` package of this module extend these.  The default configuration is found in `config`.
+
+        The `registry` contains optional custom data conversions and the items in `config` will be added to
+        it, to create one repository of information about serialization.  See `DictionaryConverter` for more
+        information about customized data.  This parameter is optional and if not provided, `DefaultRegistry`
+        will be used.
+
+        Objects that are unknown to the `registry` will be passed on as-is and serialization can be handled
+        through custom JSON encoding/decoding as an alternative.
+
+        Arguments:
+            spec_config (dict): a mapping of class -> objects containing `BpmnConverter`
+            registry (`DictionaryConverter`): with conversions for custom data (if applicable)
         """
-        This method can be used to create a spec converter that uses custom specs.
+        config = config or DEFAULT_CONFIG
+        if registry is None:
+            registry = DefaultRegistry()
+        for target_class, converter_class in config.items():
+            converter_class(target_class, registry)
+        return registry
 
-        The task specs may contain arbitrary data, though none of the default task specs use it.  We don't
-        recommend that you do this, as we may disallow it in the future.  However, if you have task spec data,
-        then you'll also need to make sure it can be serialized.
+    def __init__(self, registry=None, version=VERSION, json_encoder_cls=None, json_decoder_cls=None):
+        """Intializes a Workflow Serializer.
 
-        The workflow spec serializer is based on the `DictionaryConverter` in the `helpers` package.  You can
-        create one of your own, add custom data serializtion to that and pass that in as the `registry`.  The
-        conversion classes in the spec_config will be added this "registry" and any classes with entries there
-        will be serialized/deserialized.
-
-        See the documentation for `helpers.spec.BpmnSpecConverter` for more information about what's going
-        on here.
-
-        :param spec_config: a dictionary specifying how to save and restore any classes used by the spec
-        :param registry: a `DictionaryConverter` with conversions for custom data (if applicable)
-        """
-        config = spec_config or DEFAULT_SPEC_CONFIG
-        spec_converter = registry or DictionaryConverter()
-        config['process'](spec_converter)
-        for cls in config['data_specs'] + config['task_specs'] + config['event_definitions']:
-            cls(spec_converter)
-        return spec_converter
-
-    def __init__(self, spec_converter=None, data_converter=None, wf_class=None, sub_wf_class=None, version=VERSION,
-                 json_encoder_cls=DEFAULT_JSON_ENCODER_CLS, json_decoder_cls=DEFAULT_JSON_DECODER_CLS):
-        """Intializes a Workflow Serializer with the given Workflow, Task and Data Converters.
-
-        :param spec_converter: the workflow spec converter
-        :param data_converter: the data converter
-        :param wf_class: the workflow class
-        :param sub_wf_class: the subworkflow class
-        :param json_encoder_cls: JSON encoder class to be used for dumps/dump operations
-        :param json_decoder_cls: JSON decoder class to be used for loads/load operations
+        Arguments:
+            registry (`DictionaryConverter`): a registry that keeps track of all objects the serializer knows
+            version (str): the serializer version
+            json_encoder_cls: passed into `convert` to provides additional json encding capabilities (optional)
+            json_decoder_cls: passed into `restore` to provide additional json decoding capabilities (optional)
         """
         super().__init__()
-        self.spec_converter = spec_converter if spec_converter is not None else self.configure_workflow_spec_converter()
-        self.data_converter = data_converter if data_converter is not None else DefaultRegistry()
-        self.wf_class = wf_class if wf_class is not None else BpmnWorkflow
-        self.sub_wf_class = sub_wf_class if sub_wf_class is not None else BpmnSubWorkflow
+        self.registry = registry or self.configure()
         self.json_encoder_cls = json_encoder_cls
         self.json_decoder_cls = json_decoder_cls
         self.VERSION = version
@@ -127,181 +101,78 @@ class BpmnWorkflowSerializer:
     def serialize_json(self, workflow, use_gzip=False):
         """Serialize the dictionary representation of the workflow to JSON.
 
-        :param workflow: the workflow to serialize
+        Arguments:
+            workflow: the workflow to serialize
+            use_gzip (bool): optionally gzip the resulting string
 
         Returns:
-            a JSON dump of the dictionary representation
+            a JSON dump of the dictionary representation or a gzipped version of it
         """
-        dct = self.workflow_to_dict(workflow)
+        dct = self.to_dict(workflow)
         dct[self.VERSION_KEY] = self.VERSION
         json_str = json.dumps(dct, cls=self.json_encoder_cls)
         return gzip.compress(json_str.encode('utf-8')) if use_gzip else json_str
 
-    def __get_dict(self, serialization, use_gzip=False):
-        if isinstance(serialization, dict):
-            dct = serialization
-        elif use_gzip:
-            dct = json.loads(gzip.decompress(serialization), cls=self.json_decoder_cls)
-        else:
-            dct = json.loads(serialization, cls=self.json_decoder_cls)
-        return dct
-
     def deserialize_json(self, serialization, use_gzip=False):
-        dct = self.__get_dict(serialization, use_gzip)
-        return self.workflow_from_dict(dct)
+        """Deserialize a workflow from an optionally zipped JSON-dumped workflow.
 
-    def get_version(self, serialization, use_gzip=False):
-        try:
-            dct = self.__get_dict(serialization, use_gzip)
-            if self.VERSION_KEY in dct:
-                return dct[self.VERSION_KEY]
-        except Exception:  # Don't bail out trying to get a version, just return none.
-            return None
-
-    def workflow_to_dict(self, workflow):
-        """Return a JSON-serializable dictionary representation of the workflow.
-
-        :param workflow: the workflow
+        Arguments:
+            serialization: the serialization to restore
+            use_gzip (bool): optionally gunzip the input
 
         Returns:
-            a dictionary representation of the workflow
+            the restored workflow
         """
-        # These properties are applicable to top level & subprocesses
-        dct = self.process_to_dict(workflow)
-        dct['spec'] = self.spec_converter.convert(workflow.spec)
-        # These are only used at the top-level      
-        dct['subprocess_specs'] = dict(
-            (name, self.spec_converter.convert(spec)) for name, spec in workflow.subprocess_specs.items()
-        )
-        dct['subprocesses'] = dict(
-            (str(task_id), self.subworkflow_to_dict(sp)) for task_id, sp in workflow.subprocesses.items()
-        )
-        dct['bpmn_events'] = [self.event_to_dict(event) for event in workflow.bpmn_events]
-        return dct
+        json_str = gzip.decompress(serialization) if use_gzip else serialization
+        dct = json.loads(json_str, cls=self.json_decoder_cls)           
+        self.migrate(dct)
+        return self.from_dict(dct)
 
-    def workflow_from_dict(self, dct):
-        """Create a workflow based on a dictionary representation.
+    def get_version(self, serialization):
+        """Get the version specified in the serialization
 
-        :param dct: the dictionary representation
+        Arguments:
+            serialization: a string or dictionary representation of a workflow
 
         Returns:
-            a BPMN Workflow object
+            the version of the serializer the serilization we done with, if present
         """
-        dct_copy = deepcopy(dct)
+        if isinstance(serialization, dict):
+            return serialization.get(self.VERsiON_KEY)
+        elif isinstance(serialization, str):
+            dct = json.loads(serialization, cls=self.json_decoder_cls)
+            return dct.get(self.VERSION_KEY)
 
-        # Upgrade serialized version if necessary
-        if self.VERSION_KEY in dct_copy:
-            version = dct_copy.pop(self.VERSION_KEY)
-            if version in MIGRATIONS:
-                dct_copy = MIGRATIONS[version](dct_copy)
+    def migrate(self, dct):
+        """Update the serialization format, if necessaary."""
+        version = dct.pop(self.VERSION_KEY)
+        if version in MIGRATIONS:
+            MIGRATIONS[version](dct)
+        
+    def to_dict(self, obj, **kwargs):
+        """Apply any know conversions to an object.
 
-        # Restore the top level spec and the subprocess specs
-        spec = self.spec_converter.restore(dct_copy.pop('spec'))
-        subprocess_specs = dct_copy.pop('subprocess_specs', {})
-        for name, wf_dct in subprocess_specs.items():
-            subprocess_specs[name] = self.spec_converter.restore(wf_dct)
+        Arguments:
+            obj: the object
 
-        # Create the top-level workflow
-        workflow = self.wf_class(spec, subprocess_specs, deserializing=True)
+        Keyword arguments:
+            optional keyword args that will be passed to `self.registry.convert`
 
-        # Restore any unretrieve messages
-        workflow.bpmn_events = [ self.event_from_dict(msg) for msg in dct_copy.get('bpmn_events', []) ]
+        Returns:
+            a dictionary representation of the object
+        """
+        return self.registry.convert(obj, **kwargs)
 
-        workflow.correlations = dct_copy.pop('correlations', {})
+    def from_dict(self, dct, **kwargs):
+        """Restore an known object from a dict.
 
-        # Restore the remainder of the workflow
-        workflow.data = self.data_converter.restore(dct_copy.pop('data'))
-        workflow.success = dct_copy.pop('success')
-        workflow.tasks = dict(
-            (UUID(task['id']), self.task_from_dict(task, workflow, workflow.spec)) 
-            for task in dct_copy['tasks'].values()
-        )
-        workflow.task_tree = workflow.tasks.get(UUID(dct_copy['root']))
-        if dct_copy['last_task'] is not None:
-            workflow.last_task = workflow.tasks.get(UUID(dct_copy['last_task']))
+        Arguments:
+            dct: the dictionary representation of the object
 
-        self.subprocesses_from_dict(dct_copy['subprocesses'], workflow)
-        return workflow
+        Keyword arguments:
+            optional keyword args that will be passed to `self.registry.restore`
 
-    def subprocesses_from_dict(self, dct, workflow, top_workflow=None):
-        # This ensures we create parent workflows before their children
-        top_workflow = top_workflow or workflow
-        for task in workflow.tasks.values():
-            if isinstance(task.task_spec, SubWorkflowTask) and str(task.id) in dct:
-                sp = self.subworkflow_from_dict(dct.pop(str(task.id)), task, top_workflow)
-                top_workflow.subprocesses[task.id] = sp
-                sp.completed_event.connect(task.task_spec._on_subworkflow_completed, task)
-                if len(sp.spec.data_objects) > 0:
-                    sp.data = task.workflow.data
-                self.subprocesses_from_dict(dct, sp, top_workflow)
-
-    def subworkflow_to_dict(self, workflow):
-        dct = self.process_to_dict(workflow)
-        dct['parent_task_id'] = str(workflow.parent_task_id)
-        dct['spec'] = workflow.spec.name
-        return dct
-
-    def subworkflow_from_dict(self, dct, task, top_workflow):
-        spec = top_workflow.subprocess_specs.get(task.task_spec.spec)
-        subprocess = self.sub_wf_class(spec, task.id, top_workflow, deserializing=True)
-        subprocess.correlations = dct.pop('correlations', {})
-        subprocess.tasks = dict(
-            (UUID(task['id']), self.task_from_dict(task, subprocess, spec)) 
-            for task in dct['tasks'].values()
-        )
-        subprocess.task_tree = subprocess.tasks.get(UUID(dct['root']))
-        if isinstance(dct['last_task'], str):
-            subprocess.last_task = subprocess.tasks.get(UUID(dct['last_task']))
-        subprocess.success = dct['success']
-        subprocess.data = self.data_converter.restore(dct['data'])
-        return subprocess
-
-    def task_to_dict(self, task):
-        return {
-            'id': str(task.id),
-            'parent': str(task._parent) if task.parent is not None else None,
-            'children': [ str(child) for child in task._children ],
-            'last_state_change': task.last_state_change,
-            'state': task.state,
-            'task_spec': task.task_spec.name,
-            'triggered': task.triggered,
-            'internal_data': self.data_converter.convert(task.internal_data),
-            'data': self.data_converter.convert(task.data),
-        }
-
-    def task_from_dict(self, dct, workflow, spec):
-
-        task_spec = spec.task_specs.get(dct['task_spec'])
-        task = Task(workflow, task_spec, state=dct['state'], id=UUID(dct['id']))
-        task._parent = UUID(dct['parent']) if dct['parent'] is not None else None
-        task._children = [UUID(child) for child in dct['children']]
-        task.last_state_change = dct['last_state_change']
-        task.triggered = dct['triggered']
-        task.internal_data = self.data_converter.restore(dct['internal_data'])
-        task.data = self.data_converter.restore(dct['data'])
-        return task
-
-    def process_to_dict(self, process):
-        return {
-            'data': self.data_converter.convert(process.data),
-            'correlations': process.correlations,
-            'last_task': str(process.last_task.id) if process.last_task is not None else None,
-            'success': process.success,
-            'tasks': dict((str(task.id), self.task_to_dict(task)) for task in process.tasks.values()),
-            'root': str(process.task_tree.id),
-        }
-
-    def event_to_dict(self, event):
-        dct = {
-            'event_definition': self.spec_converter.convert(event.event_definition),
-            'payload': self.data_converter.convert(event.payload),
-            'correlations': dict([ (k, self.data_converter.convert(v)) for k, v in event.correlations.items() ]),
-        }
-        return dct
-
-    def event_from_dict(self, dct):
-        return BpmnEvent(
-            self.spec_converter.restore(dct['event_definition']),
-            self.data_converter.restore(dct['payload']),
-            dict([ (k, self.data_converter.restore(v)) for k, v in dct['correlations'].items() ]),
-        )
+        Returns:
+            a restored object
+        """
+        return self.registry.restore(dct, **kwargs)

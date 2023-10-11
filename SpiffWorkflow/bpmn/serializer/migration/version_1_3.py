@@ -122,3 +122,14 @@ def remove_root_task(dct):
     dct['spec']['task_specs'].pop('Root', None)
     for spec in dct['subprocess_specs'].values():
         spec['task_specs'].pop('Root', None)
+
+def add_new_typenames(dct):
+    
+    dct['typename'] = 'BpmnWorkflow'
+    for task in dct['tasks'].values():
+        task['typename'] = 'Task'
+
+    for sp in dct['subprocesses'].values():
+        sp['typename'] = 'BpmnSubWorkflow'
+        for task in sp['tasks'].values():
+            task['typename'] = 'Task' 

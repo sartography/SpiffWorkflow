@@ -92,8 +92,8 @@ class TaskSpec(object):
         self._wf_spec = wf_spec
         self.name = str(name)
         self.description = kwargs.get('description', None)
-        self._inputs = []
-        self._outputs = []
+        self._inputs = kwargs.get('inputs', [])
+        self._outputs = kwargs.get('outputs', [])
         self.manual = kwargs.get('manual', False)
         self.data = kwargs.get('data', {})
         self.defines = kwargs.get('defines', {})
