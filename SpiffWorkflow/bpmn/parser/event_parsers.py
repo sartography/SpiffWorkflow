@@ -43,9 +43,10 @@ from SpiffWorkflow.bpmn.specs.event_definitions.message import (
     CorrelationProperty
 )
 from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
-
+from SpiffWorkflow.bpmn.specs.event_definitions.conditional import ConditionalEventDefinition
 
 CANCEL_EVENT_XPATH = './/bpmn:cancelEventDefinition'
+CONDITIONAL_EVENT_XPATH = './/bpmn:conditionalEventDefinition'
 ERROR_EVENT_XPATH = './/bpmn:errorEventDefinition'
 ESCALATION_EVENT_XPATH = './/bpmn:escalationEventDefinition'
 TERMINATION_EVENT_XPATH = './/bpmn:terminateEventDefinition'
@@ -77,6 +78,12 @@ class EventDefinitionParser(TaskParser):
 
     def parse_cancel_event(self, event):
         return CancelEventDefinition(description=self.get_event_description(event))
+
+    def parse_conditional_event(self, event):
+        expression = self.xpath('.//bpmn:condition')
+        if len(expression) == 0:
+            raise ValidationException('Conditional event definition with missing condition', node=self.node, file_name=self.filename)
+        return ConditionalEventDefinition(expression[0].text, description=self.get_event_description(event))
 
     def parse_error_event(self, error_event):
         """Parse the errorEventDefinition node and return an instance of ErrorEventDefinition."""
@@ -202,6 +209,8 @@ class EventDefinitionParser(TaskParser):
                     event_definitions.append(self.parse_escalation_event(event))
                 elif path == TERMINATION_EVENT_XPATH:
                     event_definitions.append(self.parse_terminate_event(event))
+                elif path == CONDITIONAL_EVENT_XPATH:
+                    event_definitions.append(self.parse_conditional_event(event))
 
         parallel = self.node.get('parallelMultiple') == 'true'
 
@@ -218,7 +227,8 @@ class StartEventParser(EventDefinitionParser):
     Support Message, Signal, and Timer events."""
 
     def create_task(self):
-        event_definition = self.get_event_definition([MESSAGE_EVENT_XPATH, SIGNAL_EVENT_XPATH, TIMER_EVENT_XPATH])
+        event_definition = self.get_event_definition(
+            [MESSAGE_EVENT_XPATH, SIGNAL_EVENT_XPATH, TIMER_EVENT_XPATH, CONDITIONAL_EVENT_XPATH])
         task = self._create_task(event_definition)
         self.spec.start.connect(task)
         return task
@@ -231,8 +241,8 @@ class EndEventParser(EventDefinitionParser):
     """Parses an End Event. Handles Termination, Escalation, Cancel, and Error End Events."""
 
     def create_task(self):
-        event_definition = self.get_event_definition([MESSAGE_EVENT_XPATH, CANCEL_EVENT_XPATH, ERROR_EVENT_XPATH,
-                                                      ESCALATION_EVENT_XPATH, TERMINATION_EVENT_XPATH])
+        event_definition = self.get_event_definition(
+            [MESSAGE_EVENT_XPATH, CANCEL_EVENT_XPATH, ERROR_EVENT_XPATH, ESCALATION_EVENT_XPATH, TERMINATION_EVENT_XPATH])
         task = self._create_task(event_definition)
         task.connect(self.spec.end)
         return task
@@ -242,7 +252,8 @@ class IntermediateCatchEventParser(EventDefinitionParser):
     """Parses an Intermediate Catch Event. Currently supports Message, Signal, and Timer definitions."""
 
     def create_task(self):
-        event_definition = self.get_event_definition([MESSAGE_EVENT_XPATH, SIGNAL_EVENT_XPATH, TIMER_EVENT_XPATH])
+        event_definition = self.get_event_definition(
+            [MESSAGE_EVENT_XPATH, SIGNAL_EVENT_XPATH, TIMER_EVENT_XPATH, CONDITIONAL_EVENT_XPATH])
         return super()._create_task(event_definition)
 
 
@@ -250,8 +261,8 @@ class IntermediateThrowEventParser(EventDefinitionParser):
     """Parses an Intermediate Catch Event. Currently supports Message, Signal and Timer event definitions."""
 
     def create_task(self):
-        event_definition = self.get_event_definition([ESCALATION_EVENT_XPATH, MESSAGE_EVENT_XPATH,
-                                                      SIGNAL_EVENT_XPATH, TIMER_EVENT_XPATH])
+        event_definition = self.get_event_definition(
+            [ESCALATION_EVENT_XPATH, MESSAGE_EVENT_XPATH, SIGNAL_EVENT_XPATH, TIMER_EVENT_XPATH])
         return self._create_task(event_definition)
 
 
@@ -284,8 +295,9 @@ class BoundaryEventParser(EventDefinitionParser):
 
     def create_task(self):
         cancel_activity = self.node.get('cancelActivity', default='true').lower() == 'true'
-        event_definition = self.get_event_definition([CANCEL_EVENT_XPATH, ERROR_EVENT_XPATH, ESCALATION_EVENT_XPATH,
-                                                      MESSAGE_EVENT_XPATH, SIGNAL_EVENT_XPATH, TIMER_EVENT_XPATH])
+        event_definition = self.get_event_definition(
+            [CANCEL_EVENT_XPATH, ERROR_EVENT_XPATH, ESCALATION_EVENT_XPATH,
+            MESSAGE_EVENT_XPATH, SIGNAL_EVENT_XPATH, TIMER_EVENT_XPATH, CONDITIONAL_EVENT_XPATH])
         if isinstance(event_definition, NoneEventDefinition):
             raise NotImplementedError('Unsupported Catch Event: %r', etree.tostring(self.node))
         return self._create_task(event_definition, cancel_activity)

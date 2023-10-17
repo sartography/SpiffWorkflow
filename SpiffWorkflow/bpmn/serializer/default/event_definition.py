@@ -19,6 +19,13 @@
 
 from ..helpers.spec import EventDefinitionConverter
 
+class TimerConditionalEventDefinitionConverter(EventDefinitionConverter):
+
+    def to_dict(self, event_definition):
+        dct = super().to_dict(event_definition)
+        dct['expression'] = event_definition.expression
+        return dct
+
 
 class ErrorEscalationEventDefinitionConverter(EventDefinitionConverter):
 
@@ -39,14 +46,6 @@ class MessageEventDefinitionConverter(EventDefinitionConverter):
         dct['correlation_properties'] = self.correlation_properties_from_dict(dct['correlation_properties'])
         event_definition = super().from_dict(dct)
         return event_definition
-
-
-class TimerEventDefinitionConverter(EventDefinitionConverter):
-
-    def to_dict(self, event_definition):
-        dct = super().to_dict(event_definition)
-        dct['expression'] = event_definition.expression
-        return dct
 
 
 class MultipleEventDefinitionConverter(EventDefinitionConverter):

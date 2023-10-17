@@ -77,6 +77,7 @@ from SpiffWorkflow.bpmn.specs.event_definitions.timer import (
 )
 from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
 from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.conditional import ConditionalEventDefinition
 
 from .default.workflow import (
     BpmnWorkflowConverter,
@@ -101,7 +102,7 @@ from .default.task_spec import (
     IOSpecificationConverter,
 )
 from .default.event_definition import (
-    TimerEventDefinitionConverter,
+    TimerConditionalEventDefinitionConverter,
     ErrorEscalationEventDefinitionConverter,
     MessageEventDefinitionConverter,
     MultipleEventDefinitionConverter,
@@ -150,8 +151,9 @@ DEFAULT_CONFIG = {
     NoneEventDefinition: EventDefinitionConverter,
     SignalEventDefinition: EventDefinitionConverter,
     TerminateEventDefinition: EventDefinitionConverter,
-    TimeDateEventDefinition: TimerEventDefinitionConverter,
-    DurationTimerEventDefinition: TimerEventDefinitionConverter,
-    CycleTimerEventDefinition: TimerEventDefinitionConverter,
+    TimeDateEventDefinition: TimerConditionalEventDefinitionConverter,
+    DurationTimerEventDefinition: TimerConditionalEventDefinitionConverter,
+    CycleTimerEventDefinition: TimerConditionalEventDefinitionConverter,
+    ConditionalEventDefinition: TimerConditionalEventDefinitionConverter,
     MultipleEventDefinition: MultipleEventDefinitionConverter,
 }

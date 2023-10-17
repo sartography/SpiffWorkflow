@@ -49,4 +49,5 @@ SPEC_DESCRIPTIONS = {
     full_tag('messageEventDefinition'): 'Message',
     full_tag('signalEventDefinition'): 'Signal',
     full_tag('timerEventDefinition'): 'Timer',
+    full_tag('conditionalEventDefinition'): 'Conditional',
 }
