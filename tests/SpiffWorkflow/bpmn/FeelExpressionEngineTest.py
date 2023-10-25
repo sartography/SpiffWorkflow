@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 import datetime
 
 from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine, FeelInterval
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import BoxedTaskDataEnvironment
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 
@@ -12,7 +11,7 @@ __author__ = 'matth'
 class FeelExpressionTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.expressionEngine = FeelLikeScriptEngine(environment=BoxedTaskDataEnvironment())
+        self.expressionEngine = FeelLikeScriptEngine(environment=TaskDataEnvironment())
 
     def testRunThroughExpressions(self):
         tests = [("string length('abcd')", 4, {}),
@@ -41,8 +40,6 @@ class FeelExpressionTest(BpmnWorkflowTestCase):
                   {}),
                  ("day of week('2020-05-07')", 4, {}),
                  ("day of week(a)", 0, {'a': datetime.datetime(2020, 5, 3)}),
-                 ("list contains(a.b,'x')", True, {'a': {'b': ['a', 'x']}}),  # combo
-                 ("list contains(a.b,'c')", False, {'a': {'b': ['a', 'x']}}),
                  ("list contains(a.keys(),'b')", True, {'a': {'b': ['a', 'x']}}),
                  ("list contains(a.keys(),'c')", False, {'a': {'b': ['a', 'x']}}),
                  ]

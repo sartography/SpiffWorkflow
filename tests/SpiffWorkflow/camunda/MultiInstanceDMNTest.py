@@ -1,8 +1,6 @@
-import unittest
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import BoxedTaskDataEnvironment
+from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
 
 from .BaseTestCase import BaseTestCase
 
@@ -12,7 +10,7 @@ class MultiInstanceDMNTest(BaseTestCase):
         self.spec, subprocesses = self.load_workflow_spec(
             'DMNMultiInstance.bpmn', 'Process_1', 'test_integer_decision_multi.dmn')
         self.workflow = BpmnWorkflow(self.spec)
-        self.script_engine = PythonScriptEngine(environment=BoxedTaskDataEnvironment())
+        self.script_engine = PythonScriptEngine(environment=TaskDataEnvironment())
         self.workflow.script_engine = self.script_engine
 
     def testDmnHappy(self):
@@ -31,12 +29,3 @@ class MultiInstanceDMNTest(BaseTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
         self.assertEqual(self.workflow.data['stuff']['E']['y'], 'D')
-
-
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(MultiInstanceDMNTest)
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

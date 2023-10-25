@@ -1,7 +1,5 @@
 import unittest
 
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import Box
-
 from .FeelDecisionRunner import FeelDecisionRunner
 
 
@@ -19,7 +17,6 @@ class FeelDictDecisionTestClass(unittest.TestCase):
                 "PEANUTS": {"delicious": True},
                 "SPAM": {"delicious": False}
                 }}
-        Box.convert_to_box(data)
         res = self.runner.decide(data)
         self.assertEqual(res.description, 'They are allergic to peanuts')
 
