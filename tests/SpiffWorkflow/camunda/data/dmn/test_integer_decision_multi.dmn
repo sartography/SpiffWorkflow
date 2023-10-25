@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:camunda="http://camunda.org/schema/1.0/dmn" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/2.0" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.0.0">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:camunda="http://camunda.org/schema/1.0/dmn" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/2.0" id="definitions_1jblnbx" name="definitions" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="4.11.1">
   <decision id="IntegerDecisionStringOutputTable" name="IntegerDecisionStringOutput">
     <decisionTable id="decisionTable">
       <input id="InputClause_1tm0ceq" label="x" biodi:width="192" camunda:inputVariable="">
         <inputExpression id="LiteralExpression_04o7chw" typeRef="integer">
-          <text>item.x</text>
+          <text>item['x']</text>
         </inputExpression>
       </input>
       <output id="output1" label="They Label Y" name="item.y" typeRef="string" />
