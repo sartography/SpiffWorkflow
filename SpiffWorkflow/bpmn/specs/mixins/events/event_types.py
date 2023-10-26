@@ -45,7 +45,7 @@ class CatchingEvent(TaskSpec):
         definition, at which point we can update our task's state.
         """
         self.event_definition.catch(my_task, event)
-        my_task.last_update_time = time.time()
+        my_task.last_state_change = time.time()
         my_task._set_state(TaskState.WAITING)
 
     def _update_hook(self, my_task):
