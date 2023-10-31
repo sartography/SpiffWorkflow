@@ -45,7 +45,7 @@ class ExclusiveChoice(MultiChoice):
         super(ExclusiveChoice, self).__init__(wf_spec, name, **kwargs)
         self.default_task_spec = None
 
-    def connect(self, task_spec):
+    def connect(self, taskspec):
         """
         Connects the task spec that is executed if no other condition
         matches.
@@ -54,8 +54,8 @@ class ExclusiveChoice(MultiChoice):
         :param task_spec: The following task spec.
         """
         assert self.default_task_spec is None
-        self.default_task_spec = task_spec.name
-        super().connect(task_spec)
+        self.default_task_spec = taskspec.name
+        super().connect(taskspec)
 
     def test(self):
         super().test()

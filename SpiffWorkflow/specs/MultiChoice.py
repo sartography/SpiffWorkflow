@@ -46,11 +46,11 @@ class MultiChoice(TaskSpec):
         self.cond_task_specs = []
         self.choice = None
 
-    def connect(self, task_spec):
+    def connect(self, taskspec):
         """
         Convenience wrapper around connect_if() where condition is set to None.
         """
-        return self.connect_if(None, task_spec)
+        return self.connect_if(None, taskspec)
 
     def connect_if(self, condition, task_spec):
         """
