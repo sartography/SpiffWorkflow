@@ -67,15 +67,15 @@ class ThreadSplit(TaskSpec):
         else:
             self.thread_starter = None
 
-    def connect(self, task_spec):
+    def connect(self, taskspec):
         """
         Connect the *following* task to this one. In other words, the
         given task is added as an output task.
 
         task -- the task to connect to.
         """
-        self.thread_starter._outputs.append(task_spec.name)
-        task_spec._connect_notify(self.thread_starter)
+        self.thread_starter._outputs.append(taskspec.name)
+        taskspec._connect_notify(self.thread_starter)
 
     def _get_activated_tasks(self, my_task, destination):
         """
