@@ -20,6 +20,8 @@
 import re
 import datetime
 import operator
+import warnings
+
 from datetime import timedelta
 from decimal import Decimal
 from .PythonScriptEngine import PythonScriptEngine
@@ -30,6 +32,11 @@ def feelConvertTime(datestr,parsestr):
 
 class FeelInterval():
     def __init__(self, begin, end, leftOpen=False, rightOpen=False):
+        warnings.warn(
+            'The FEEL script engine is deprecated and will be removed in the next release',
+            DeprecationWarning,
+            stacklevel=2,
+        )
         # pesky thing with python floats and Decimal comparison
         if isinstance(begin,float):
             begin = Decimal("%0.5f"%begin)
