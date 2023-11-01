@@ -287,26 +287,26 @@ class FeelLikeScriptEngine(PythonScriptEngine):
             proposed_python = lhs + proposed_python
         return proposed_python
 
-    def _evaluate(self, expression, context, task=None, external_methods=None):
+    def _evaluate(self, expression, context, task=None, external_context=None):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
         """
-        if external_methods is None:
-            external_methods = {}
+        if external_context is None:
+            external_context = {}
 
         revised = self.patch_expression(expression)
-        external_methods.update(externalFuncs)
-        return super()._evaluate(revised, context, external_methods=external_methods)
+        external_context.update(externalFuncs)
+        return super()._evaluate(revised, context, external_context=external_context)
 
-    def execute(self, task, script, data, external_methods=None):
+    def execute(self, task, script, data, external_context=None):
         """
         Execute the script, within the context of the specified task
         """
-        if external_methods is None:
-            external_methods = {}
-        external_methods.update(externalFuncs)
-        super().execute(task, script, external_methods)
+        if external_context is None:
+            external_context = {}
+        external_context.update(externalFuncs)
+        super().execute(task, script, external_context)
 
 
 

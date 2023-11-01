@@ -9,6 +9,6 @@ class ConditionalEventDefinition(EventDefinition):
 
     def has_fired(self, my_task):
         my_task._set_internal_data(
-            has_fired=my_task.workflow.script_engine.evaluate(my_task, self.expression, external_methods=my_task.workflow.data)
+            has_fired=my_task.workflow.script_engine.evaluate(my_task, self.expression, external_context=my_task.workflow.data)
         )
         return my_task._get_internal_data('has_fired', False)

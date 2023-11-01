@@ -38,15 +38,6 @@ class SpiffBpmnTask(BpmnSpecMixin):
             my_task._set_state(TaskState.ERROR)
             raise exc
 
-    def get_payload(self, my_task, script, expr):
-        try:
-            data = deepcopy(my_task.data)
-            my_task.worklflow.script_engine.execute(my_task, script, data)
-            return my_task.workflow.script_engine._evaluate(expr, data)
-        except Exception as exc:
-            my_task._set_state(TaskState.WAITING)
-            raise exc
-
     def _update_hook(self, my_task):
         super()._update_hook(my_task)
         if self.prescript is not None:
