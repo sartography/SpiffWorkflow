@@ -80,6 +80,12 @@ class WorkflowConverter(BpmnConverter):
             'root': str(workflow.task_tree.id),
         }
 
+    def set_default_attributes(self, workflow, dct):
+        workflow.success = dct['success']
+        workflow.correlations = dct.pop('correlations', {})
+        if isinstance(dct['last_task'], str):
+            workflow.last_task = workflow.tasks.get(UUID(dct['last_task']))
+        workflow.data = self.registry.restore(dct.pop('data', {}))
 
 class BpmnSubWorkflowConverter(WorkflowConverter):
 
@@ -92,13 +98,9 @@ class BpmnSubWorkflowConverter(WorkflowConverter):
     def from_dict(self, dct, task, top_workflow):
         spec = top_workflow.subprocess_specs.get(task.task_spec.spec)
         subprocess = self.target_class(spec, task.id, top_workflow, deserializing=True)
-        subprocess.correlations = dct.pop('correlations', {})
         subprocess.tasks = self.mapping_from_dict(dct['tasks'], UUID, workflow=subprocess)
         subprocess.task_tree = subprocess.tasks.get(UUID(dct['root']))
-        if isinstance(dct['last_task'], str):
-            subprocess.last_task = subprocess.tasks.get(UUID(dct['last_task']))
-        subprocess.success = dct['success']
-        subprocess.data = self.registry.restore(dct['data'])
+        self.set_default_attributes(subprocess, dct)
         return subprocess
 
 
@@ -127,24 +129,24 @@ class BpmnWorkflowConverter(WorkflowConverter):
         Returns:
             a BPMN Workflow object
         """
-        # Restore the top level spec and the subprocess specs
+        # Restore the specs
         spec = self.registry.restore(dct.pop('spec'))
         subprocess_specs = self.mapping_from_dict(dct.pop('subprocess_specs', {}))
 
         # Create the top-level workflow
         workflow = self.target_class(spec, subprocess_specs, deserializing=True)
 
-        # Restore the remainder of the workflow
-        workflow.bpmn_events = self.registry.restore(dct.pop('bpmn_events', []))
-        workflow.correlations = dct.pop('correlations', {})
-        workflow.data = self.registry.restore(dct.pop('data', {}))
-        workflow.success = dct.pop('success')
+        # Restore the task tree
         workflow.tasks = self.mapping_from_dict(dct['tasks'], UUID, workflow=workflow)
         workflow.task_tree = workflow.tasks.get(UUID(dct['root']))
-        if dct['last_task'] is not None:
-            workflow.last_task = workflow.tasks.get(UUID(dct['last_task']))
 
+        # Restore other default attributes
+        self.set_default_attributes(workflow, dct)
+
+        # Handle the remaining top workflow attributes
         self.subprocesses_from_dict(dct['subprocesses'], workflow)
+        workflow.bpmn_events = self.registry.restore(dct.pop('bpmn_events', []))
+
         return workflow
 
     def subprocesses_from_dict(self, dct, workflow, top_workflow=None):

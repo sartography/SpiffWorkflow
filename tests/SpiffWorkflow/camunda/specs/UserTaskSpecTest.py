@@ -111,14 +111,14 @@ class UserTaskSpecTest(unittest.TestCase):
         self.assertFalse(form_field.has_property("wilma"))
         form_field.add_property("wilma", "flintstone")
         self.assertTrue(form_field.has_property("wilma"))
-        self.assertEquals("flintstone", form_field.get_property("wilma"))
+        self.assertEqual("flintstone", form_field.get_property("wilma"))
 
     def test_validations(self):
         form_field = FormField(form_type="text")
         self.assertFalse(form_field.has_validation("barney"))
         form_field.add_validation("barney", "rubble")
         self.assertTrue(form_field.has_validation("barney"))
-        self.assertEquals("rubble", form_field.get_validation("barney"))
+        self.assertEqual("rubble", form_field.get_validation("barney"))
 
     def testIsEngineTask(self):
         self.assertTrue(self.user_spec.manual)

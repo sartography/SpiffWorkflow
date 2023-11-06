@@ -398,9 +398,8 @@ class Task(object):
         extra.update({
             'workflow_spec': self.workflow.spec.name,
             'task_spec': self.task_spec.name,
-            'task_name': self.task_spec.description,
             'task_id': self.id,
-            'task_type': self.task_spec.spec_type,
+            'task_type': self.task_spec.__class__.__name__,
             'data': self.data if logger.level < 20 else None,
             'internal_data': self.internal_data if logger.level <= 10 else None,
         })

@@ -113,10 +113,6 @@ class TaskSpec(object):
         self.data.update(self.defines)
 
     @property
-    def spec_type(self):
-        return f'{self.__class__.__module__}.{self.__class__.__name__}'
-
-    @property
     def inputs(self):
         return [self._wf_spec.task_specs.get(name) for name in self._inputs]
 

@@ -119,11 +119,11 @@ class DMNEngine:
         # do the replacement.
         match_expr = re.sub(r'(\?)(?=(?:[^\'"]|[\'"][^\'"]*[\'"])*$)', 'dmninputexpr', match_expr)
         if 'dmninputexpr' in match_expr:
-            external_methods = {
+            external_context = {
                 'dmninputexpr': script_engine.evaluate(task, input_expr)
             }
             return script_engine.evaluate(task, match_expr,
-                                          external_methods=external_methods)
+                                          external_context=external_context)
 
         # The input expression just has to be something that can be parsed as is by the engine.
         script_engine.validate(input_expr)

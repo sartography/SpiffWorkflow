@@ -43,15 +43,15 @@ class CallActivityTest(BpmnWorkflowTestCase):
         self.assertTrue(self.workflow.is_completed())
         self.assertNotIn('remove_this_var', self.workflow.last_task.data.keys())
 
-    def test_call_acitivity_errors_include_task_trace(self):
+    def test_call_activity_errors_include_task_trace(self):
         error_spec = self.subprocesses.get('ErroringBPMN')
         error_spec, subprocesses = self.load_workflow_spec('call_activity_*.bpmn', 'ErroringBPMN')
         with self.assertRaises(WorkflowTaskException) as context:
             self.workflow = BpmnWorkflow(error_spec, subprocesses)
             self.workflow.do_engine_steps()
-        self.assertEquals(2, len(context.exception.task_trace))
-        self.assertRegexpMatches(context.exception.task_trace[0], 'Create Data \(.*?call_activity_call_activity.bpmn\)')
-        self.assertRegexpMatches(context.exception.task_trace[1], 'Get Data Call Activity \(.*?call_activity_with_error.bpmn\)')
+        self.assertEqual(2, len(context.exception.task_trace))
+        self.assertRegex(context.exception.task_trace[0], 'Create Data \(.*?call_activity_call_activity.bpmn\)')
+        self.assertRegex(context.exception.task_trace[1], 'Get Data Call Activity \(.*?call_activity_with_error.bpmn\)')
         task = self.workflow.get_next_task(spec_name='Sub_Bpmn_Task')
         self.assertEqual(task.state, TaskState.ERROR)
 

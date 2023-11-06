@@ -20,7 +20,6 @@
 import ast
 import sys
 import traceback
-import warnings
 
 from SpiffWorkflow.exceptions import SpiffWorkflowException
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
@@ -38,41 +37,29 @@ class PythonScriptEngine(object):
     expressions in a different way.
     """
 
-    def __init__(self, default_globals=None, scripting_additions=None, environment=None):
-
-        if default_globals is not None or scripting_additions is not None:
-            warnings.warn('default_globals and scripting_additions are deprecated.  '
-                          'Please provide an environment such as TaskDataEnvrionment',
-                          DeprecationWarning, stacklevel=2)
-
-        if environment is None:
-            environment_globals = {}
-            environment_globals.update(default_globals or {})
-            environment_globals.update(scripting_additions or {})
-            self.environment = TaskDataEnvironment(environment_globals)
-        else:
-            self.environment = environment
+    def __init__(self, environment=None):
+        self.environment = environment or TaskDataEnvironment()
 
     def validate(self, expression):
         ast.parse(expression)
 
-    def evaluate(self, task, expression, external_methods=None):
+    def evaluate(self, task, expression, external_context=None):
         """
         Evaluate the given expression, within the context of the given task and
         return the result.
         """
         try:
-            return self._evaluate(expression, task.data, external_methods)
+            return self._evaluate(expression, task.data, external_context)
         except SpiffWorkflowException as se:
             se.add_note(f"Error evaluating expression '{expression}'")
             raise se
         except Exception as e:
             raise WorkflowTaskException(f"Error evaluating expression '{expression}'", task=task, exception=e)
 
-    def execute(self, task, script, external_methods=None):
+    def execute(self, task, script, external_context=None):
         """Execute the script, within the context of the specified task."""
         try:
-            return self._execute(script, task.data, external_methods or {})
+            return self._execute(script, task.data, external_context or {})
         except Exception as err:
             wte = self.create_task_exec_exception(task, script, err)
             raise wte
@@ -111,8 +98,8 @@ class PythonScriptEngine(object):
             error_line = script.splitlines()[line_number - 1]
         return line_number, error_line
 
-    def _evaluate(self, expression, context, external_methods=None):
-        return self.environment.evaluate(expression, context, external_methods)
+    def _evaluate(self, expression, context, external_context=None):
+        return self.environment.evaluate(expression, context, external_context)
 
-    def _execute(self, script, context, external_methods=None):
-        return self.environment.execute(script, context, external_methods)
+    def _execute(self, script, context, external_context=None):
+        return self.environment.execute(script, context, external_context)

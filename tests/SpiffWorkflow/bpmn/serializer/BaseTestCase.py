@@ -22,6 +22,11 @@ class BaseTestCase(unittest.TestCase):
         subprocesses = parser.get_subprocess_specs(process_name)
         return top_level_spec, subprocesses
 
+    def deserialize_workflow(self, filename):
+        fn = os.path.join(self.DATA_DIR, 'serialization', filename)
+        with open(fn) as fh:
+            return self.serializer.deserialize_json(fh.read())
+
     def setUp(self):
         super(BaseTestCase, self).setUp()
         wf_spec_converter = BpmnWorkflowSerializer.configure()

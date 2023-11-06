@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import unittest
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -22,13 +18,8 @@ class ParallelOrderTest(BpmnWorkflowTestCase):
         self.assertFalse(self.workflow.is_completed())
         self.assertEqual(4, len(self.get_ready_user_tasks()))
         tasks = self.get_ready_user_tasks()
-        self.assertEquals("Task 1", tasks[0].task_spec.bpmn_name)
-        self.assertEquals("Task 2", tasks[1].task_spec.bpmn_name)
-        self.assertEquals("Task 3", tasks[2].task_spec.bpmn_name)
-        self.assertEquals("Task 4", tasks[3].task_spec.bpmn_name)
+        self.assertEqual("Task 1", tasks[0].task_spec.bpmn_name)
+        self.assertEqual("Task 2", tasks[1].task_spec.bpmn_name)
+        self.assertEqual("Task 3", tasks[2].task_spec.bpmn_name)
+        self.assertEqual("Task 4", tasks[3].task_spec.bpmn_name)
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ParallelOrderTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

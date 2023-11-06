@@ -1,5 +1,3 @@
-import unittest
-
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
 
@@ -38,10 +36,3 @@ class UserTaskParserTest(BaseTestCase):
     def testCreateTask(self):
         pass
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(UserTaskParserTest)
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

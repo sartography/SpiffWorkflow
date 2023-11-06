@@ -12,7 +12,7 @@ class _BpmnCondition(Operator):
         super(_BpmnCondition, self).__init__(*args)
 
     def _matches(self, task):
-        return task.workflow.script_engine.evaluate(task, self.args[0], external_methods=task.workflow.data)
+        return task.workflow.script_engine.evaluate(task, self.args[0], external_context=task.workflow.data)
 
 
 class BpmnTaskSpec(TaskSpec):

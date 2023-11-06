@@ -68,7 +68,7 @@ class BpmnTaskIterator(TaskIterator):
             self.task_list = []
         elif all([
             len(task._children) > 0 or subprocess is not None,
-            task.state >= self.min_state,
+            task.state >= self.min_state or subprocess is not None,
             self.depth < self.max_depth,
         ]):
             if subprocess is None:
@@ -76,7 +76,7 @@ class BpmnTaskIterator(TaskIterator):
             elif self.depth_first:
                 next_tasks = [subprocess.task_tree] + task.children
             else:
-                next_tasks = task.children = [subprocess.task_tree]
+                next_tasks = task.children + [subprocess.task_tree]
 
             if self.depth_first:
                 self.task_list = next_tasks + self.task_list
