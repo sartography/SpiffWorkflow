@@ -1,12 +1,12 @@
 import re
 from datetime import datetime, timedelta, timezone
 from calendar import monthrange
-from time import timezone as tzoffset, altzone as dstoffset, daylight as isdst
+from time import timezone as tzoffset, altzone as dstoffset, struct_time, localtime
 
 from SpiffWorkflow.bpmn.event import PendingBpmnEvent
 from .base import EventDefinition
 
-seconds_from_utc = dstoffset if isdst else tzoffset
+seconds_from_utc = dstoffset if struct_time(localtime()).tm_isdst else tzoffset
 LOCALTZ = timezone(timedelta(seconds=-1 * seconds_from_utc))
 
 class TimerEventDefinition(EventDefinition):
