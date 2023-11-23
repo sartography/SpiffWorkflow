@@ -78,7 +78,7 @@ name and quantity.  We can add corresponding Data Outputs for those.
    Data Outputs in a Call Activity
 
 If you use this version of the Call Activity and choose a product that has customizations, when you inspect the data
-after the Call Activity completes, you'll see that the cutomizations have been removed.  We won't continue to use this
+after the Call Activity completes, you'll see that the customizations have been removed.  We won't continue to use this
 version of the Call Activity, because we want to preserve all the data.
 
 .. note::
