@@ -28,7 +28,7 @@ Data Objects
 When a Data Output association (a line) is drawn from a task to a Data Object Reference, the value is copied
 from the task data to the workflow data and removed from the task.  If a Data Input Association is created from
 a Data Object Reference, the value is temporarily copied into the task data while the task is being executed,
-and immediate removed afterwards.
+and immediately removed afterwards.
 
 This allows sensitive data to be removed from individual tasks (in our example, the customer's credit card
 number).  It can also be used to prevent large objects from being repeatedly copied from task to task.
