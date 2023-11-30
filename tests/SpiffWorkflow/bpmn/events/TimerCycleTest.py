@@ -44,20 +44,22 @@ class TimerCycleTest(BpmnWorkflowTestCase):
         global counter
         counter = 0
         # See comments in timer cycle test start for more context
-        for loopcount in range(5):
+        for loopcount in range(4):
             self.workflow.do_engine_steps()
             if save_restore:
                 self.save_restore()
-                self.workflow.script_engine = CustomScriptEngine()
-            time.sleep(0.05)
             self.workflow.refresh_waiting_tasks()
             events = self.workflow.waiting_events()
+            refill = self.workflow.get_tasks(spec_name='Refill_Coffee')
+            # Wait time is 0.1s, with a limit of 2 children, so by the 3rd iteration, the event should be complete
             if loopcount < 2:
-                # Wait time is 0.1s, two child tasks are created
                 self.assertEqual(len(events), 1)
             else:
-                # By the third iteration, the event should no longer be waiting
                 self.assertEqual(len(events), 0)
+            # The first child should be created after one cycle has passed
+            if loopcount == 0:
+                self.assertEqual(len(refill), 0)
+            time.sleep(0.1)
 
         # Get coffee still ready
         coffee = self.workflow.get_next_task(spec_name='Get_Coffee')
@@ -66,4 +68,3 @@ class TimerCycleTest(BpmnWorkflowTestCase):
         timer = self.workflow.get_next_task(spec_name='CatchMessage')
         self.assertEqual(timer.state, TaskState.COMPLETED)
         self.assertEqual(counter, 2)
-
