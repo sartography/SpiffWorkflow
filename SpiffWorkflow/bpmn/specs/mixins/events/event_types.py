@@ -60,8 +60,9 @@ class CatchingEvent(TaskSpec):
         elif isinstance(self.event_definition, CycleTimerEventDefinition):
             if self.event_definition.cycle_complete(my_task):
                 for output in self.outputs:
-                    child = my_task._add_child(output, TaskState.READY)
-                    child.task_spec._predict(child, mask=TaskState.READY|TaskState.PREDICTED_MASK)
+                    child = my_task._add_child(output, TaskState.FUTURE)
+                    child.task_spec._predict(child, mask=TaskState.NOT_FINISHED_MASK)
+                    child.task_spec._update(child)
                 if my_task.state != TaskState.WAITING:
                     my_task._set_state(TaskState.WAITING)
         elif my_task.state != TaskState.WAITING:
