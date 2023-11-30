@@ -125,9 +125,9 @@ class TimerEventDefinition(EventDefinition):
             duration = TimerEventDefinition.get_timedelta_from_end(start_or_duration, end_or_duration)
             start = end_or_duration - duration
         elif end_or_duration is None:
-            # Just an interval duration, assume a start time of now
-            start = datetime.now(timezone.utc)
-            duration = TimeDateEventDefinition.get_timedelta_from_start(start_or_duration, start)
+            # Just an interval duration, assume a start time of now + duration
+            duration = TimeDateEventDefinition.get_timedelta_from_start(start_or_duration)
+            start = datetime.now(timezone.utc) + duration
         else:
             raise Exception("Invalid recurring interval")
         return cycles, start, duration
