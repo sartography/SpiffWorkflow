@@ -17,6 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from functools import reduce
+
 
 class TaskState:
     """Int values corresponding to `Task` states.
@@ -96,7 +98,7 @@ class TaskState:
             TaskState.NOT_FINISHED_MASK: 'NOT_FINISHED_MASK',
             TaskState.ANY_MASK: 'ANY_MASK',
         })
-        return names.get(state)
+        return names.get(state) or '|'.join([ names.get(v) for v in cls._values if v & state ])
 
     @classmethod
     def get_value(cls, name):
@@ -109,7 +111,18 @@ class TaskState:
             int: the value of the state
         """
         values = dict(zip(cls._names, cls._values))
-        return values.get(name.upper())
+        values.update({
+            'FINISHED_MASK': TaskState.FINISHED_MASK,
+            'DEFINITE_MASK': TaskState.DEFINITE_MASK,
+            'PREDICTED_MASK': TaskState.PREDICTED_MASK,
+            'NOT_FINISHED_MASK': TaskState.NOT_FINISHED_MASK,
+            'ANY_MASK': TaskState.ANY_MASK,
+        })
+        names = name.upper().split('|')
+        if len(names) == 1:
+            return values.get(name.upper(), 0)
+        else:
+            return reduce(lambda x, y: x | y, [TaskState.get_value(v) for v in name.upper().split('|')])
 
  
 class TaskFilter:
