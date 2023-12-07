@@ -18,9 +18,11 @@
 # 02110-1301  USA
 
 import os
+from SpiffWorkflow.bpmn.parser.ProcessParser import ProcessParser
 
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator, full_tag
+from SpiffWorkflow.spiff.specs.data_object import DataObject
 
 from SpiffWorkflow.bpmn.specs.defaults import (
     StartEvent,
@@ -65,8 +67,18 @@ from SpiffWorkflow.spiff.parser.event_parsers import (
 SPIFF_XSD = os.path.join(os.path.dirname(__file__), 'schema', 'spiffworkflow.xsd')
 VALIDATOR = BpmnValidator(imports={'spiffworkflow': SPIFF_XSD})
 
+class SpiffProcessParser(ProcessParser):
+    pass
+
+    def parse_data_object(self, obj):
+        extensions = SpiffTaskParser._parse_extensions(obj)
+        category = extensions.get('category')
+        return DataObject(category, obj.get('id'), obj.get('name'))
+
 
 class SpiffBpmnParser(BpmnDmnParser):
+
+    PROCESS_PARSER_CLASS = SpiffProcessParser
 
     OVERRIDE_PARSER_CLASSES = {
         full_tag('task'): (SpiffTaskParser, NoneTask),

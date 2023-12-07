@@ -137,6 +137,7 @@ class ProcessParser(NodeParser):
             self.parse_node(node)
 
     def parse_data_object(self, obj):
+        print("WRONG ONE")
         return DataObject(obj.get('id'), obj.get('name'))
 
     def get_spec(self):
