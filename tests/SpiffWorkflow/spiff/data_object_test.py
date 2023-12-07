@@ -11,3 +11,4 @@ class DataObjectTest(BaseTestCase):
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         category = self.workflow.spec.data_objects['obj_1'].category
         self.assertEqual(category, 'obj_1_category')
+        self.save_restore()
