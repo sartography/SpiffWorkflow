@@ -6,6 +6,7 @@
         <spiffworkflow:category>obj_1_category</spiffworkflow:category>
       </bpmn:extensionElements>
     </bpmn:dataObject>
+    <bpmn:dataObject id="obj_2" name="Object 2" />
     <bpmn:startEvent id="Event_0kmwi7u">
       <bpmn:outgoing>Flow_18858hr</bpmn:outgoing>
     </bpmn:startEvent>
@@ -15,7 +16,7 @@
     <bpmn:dataObjectReference id="DataObjectReference_17fhr1j" name="Data" dataObjectRef="obj_1" />
     <bpmn:dataObjectReference id="DataObjectReference_0pztwm3" name="Data" dataObjectRef="obj_1" />
     <bpmn:dataObjectReference id="DataObjectReference_0cm8dnh" name="Data" dataObjectRef="obj_1" />
-    <bpmn:dataObjectReference id="DataObjectReference_1dn9eoi" name="Data" dataObjectRef="obj_1" />
+    <bpmn:dataObjectReference id="DataObjectReference_1dn9eoi" name="Data" dataObjectRef="obj_2" />
     <bpmn:endEvent id="Event_0qw1yr0">
       <bpmn:incoming>Flow_19pyf8s</bpmn:incoming>
     </bpmn:endEvent>
