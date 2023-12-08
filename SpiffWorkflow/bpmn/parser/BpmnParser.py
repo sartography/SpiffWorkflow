@@ -199,13 +199,13 @@ class BpmnParser(object):
 
     def add_bpmn_io(self, file_like_object, filename=None):
         """
-        Add the given BPMN file like object to the parser's set. 
+        Add the given BPMN file like object to the parser's set.
         """
         self.add_bpmn_xml(etree.parse(file_like_object), filename)
 
     def add_bpmn_str(self, bpmn_str, filename=None):
         """
-        Add the given BPMN string to the parser's set. 
+        Add the given BPMN string to the parser's set.
         """
         self.add_bpmn_xml(etree.fromstring(bpmn_str), filename)
 
@@ -366,8 +366,8 @@ class BpmnParser(object):
                 sp_spec = self.get_spec(process)
                 subprocesses[process] = sp_spec
                 subprocesses.update(self.get_subprocess_specs(process))
-                if len([s for s in sp_spec.task_specs.values() if 
-                        isinstance(s, StartEventMixin) and 
+                if len([s for s in sp_spec.task_specs.values() if
+                        isinstance(s, StartEventMixin) and
                         isinstance(s.event_definition, (NoneEventDefinition, TimerEventDefinition))
                 ]):
                     participant = participant_type(spec, process, process)

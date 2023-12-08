@@ -69,7 +69,7 @@ class EventDefinitionConverter(BpmnConverter):
 
         Arguments:
             event_definition: the event definition
-        
+
         Returns:
             dict: a dictionary representation of the event definition
         """
@@ -123,7 +123,7 @@ class TaskSpecConverter(BpmnConverter):
     implement a converter for those task spec types.  You'll need to implement the `to_dict` and
     `from_dict` methods on any inheriting classes.
 
-    The default task spec converters are in the `default.task_spec` modules of this package; the 
+    The default task spec converters are in the `default.task_spec` modules of this package; the
     `camunda`,`dmn`, and `spiff` serialization packages contain other examples.
     """
     def get_default_attributes(self, spec):
@@ -192,10 +192,10 @@ class TaskSpecConverter(BpmnConverter):
             'condition': spec.condition,
             'test_before': spec.test_before,
         }
-    
+
     def task_spec_from_dict(self, dct):
         """Creates a task spec based on the supplied dictionary.
-        
+
         It handles setting the default task spec attributes as well as attributes added by `BpmnSpecMixin`.
 
         Arguments:

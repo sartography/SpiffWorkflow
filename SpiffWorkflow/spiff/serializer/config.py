@@ -36,7 +36,7 @@ from SpiffWorkflow.bpmn.serializer.config import (
     MessageEventDefinition as DefaultMessageEventDefinition,
     SignalEventDefinition as DefaultSignalEventDefinition,
     ErrorEventDefinition as DefaultErrorEventDefinition,
-    EscalationEventDefinition as DefaultEscalationEventDefinition, 
+    EscalationEventDefinition as DefaultEscalationEventDefinition,
 )
 
 from SpiffWorkflow.spiff.specs.defaults import (
@@ -77,6 +77,9 @@ from .event_definition import (
     ItemAwareEventDefinitionConverter,
     ErrorEscalationEventDefinitionConverter,
 )
+from SpiffWorkflow.bpmn.specs.data_spec import DataObject as DefaultDataObject
+from SpiffWorkflow.spiff.specs.data_object import DataObject
+from SpiffWorkflow.spiff.serializer.data_spec import DataObjectConverter
 
 SPIFF_CONFIG = deepcopy(DEFAULT_CONFIG)
 
@@ -92,6 +95,7 @@ SPIFF_CONFIG.pop(DefaultCallActivity)
 SPIFF_CONFIG.pop(DefaultStandardLoopTask)
 SPIFF_CONFIG.pop(DefaultParallelMultiInstanceTask)
 SPIFF_CONFIG.pop(DefaultSequentialMultiInstanceTask)
+SPIFF_CONFIG.pop(DefaultDataObject)
 
 SPIFF_CONFIG[NoneTask] = SpiffBpmnTaskConverter
 SPIFF_CONFIG[ManualTask] = SpiffBpmnTaskConverter
@@ -110,3 +114,4 @@ SPIFF_CONFIG[SignalEventDefinition] = ItemAwareEventDefinitionConverter
 SPIFF_CONFIG[ErrorEventDefinition] = ErrorEscalationEventDefinitionConverter
 SPIFF_CONFIG[EscalationEventDefinition] = ErrorEscalationEventDefinitionConverter
 SPIFF_CONFIG[BusinessRuleTask] = BusinessRuleTaskConverter
+SPIFF_CONFIG[DataObject] = DataObjectConverter
