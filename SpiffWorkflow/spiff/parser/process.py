@@ -68,8 +68,6 @@ SPIFF_XSD = os.path.join(os.path.dirname(__file__), 'schema', 'spiffworkflow.xsd
 VALIDATOR = BpmnValidator(imports={'spiffworkflow': SPIFF_XSD})
 
 class SpiffProcessParser(ProcessParser):
-    pass
-
     def parse_data_object(self, obj):
         extensions = SpiffTaskParser._parse_extensions(obj)
         category = extensions.get('category')
