@@ -37,11 +37,14 @@ class TimerEventDefinition(EventDefinition):
         months += years * 12
 
         for idx in range(int(months)):
-            year, month = start.year + idx // 12, start.month + idx % 12
+            year = start.year + (start.month + idx - 1) // 12
+            month = (start.month + idx) % 12 or 12
             days += monthrange(year, month)[1]
 
-        year, month = start.year + months // 12, start.month + months % 12
+        year = start.year + (start.month + months - 1) // 12
+        month = (start.month + months) % 12 or 12
         days += (months - int(months)) * monthrange(year, month)[1]
+
         parsed_duration['days'] = days
         return timedelta(**parsed_duration)
 
@@ -53,12 +56,13 @@ class TimerEventDefinition(EventDefinition):
 
         for idx in range(1, int(months) + 1):
             year = end.year - (1 + (idx - end.month) // 12)
-            month = 1 + (end.month - idx - 1) % 12
+            month = (end.month - idx) % 12 or 12
             days += monthrange(year, month)[1]
 
-        days += (months - int(months)) * monthrange(
-            end.year - (1 + (int(months)- end.month) // 12),
-            1 + (end.month - months - 1) % 12)[1]
+        year = end.year - (1 + (months - end.month) // 12)
+        month = (end.month - months) % 12 or 12
+        days += (months - int(months)) * monthrange(year, month)[1]
+
         parsed_duration['days'] = days
         return timedelta(**parsed_duration)
 
