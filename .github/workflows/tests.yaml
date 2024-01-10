@@ -1,4 +1,4 @@
-name: Unit Tests in Python 3.8, 3.9, 3.10, 3.11
+name: Unit Tests in Python 3.8, 3.9, 3.10, 3.11, 3.12
 
 on: [push]
 
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v3
@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ruff pytest
+          pip install ruff
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 #      - name: Lint with ruff
 #        run: |
@@ -27,6 +27,6 @@ jobs:
 #          ruff --format=github --select=E9,F63,F7,F82 --target-version=py37 .
           # default set of ruff rules with GitHub Annotations
  #         ruff --format=github --target-version=py37 .
-      - name: Test with pytest
+      - name: Run tests
         run: |
           python -m unittest discover -v -s ./tests/SpiffWorkflow/ -p *Test.py
