@@ -17,11 +17,11 @@
 
 import json
 import pickle
+import sys
 import warnings
 from base64 import b64encode, b64decode
 
 from ..workflow import Workflow
-from ..util.impl import get_class
 from ..task import Task
 from ..operators import Attrib, PathAttrib, Equal, NotEqual, Operator, GreaterThan, LessThan, Match
 from ..specs.base import TaskSpec
@@ -48,6 +48,12 @@ from ..specs.WorkflowSpec import WorkflowSpec
 from .base import Serializer
 from .exceptions import TaskNotSupportedError, MissingSpecError
 
+def get_class(full_class_name):
+    parts = full_class_name.rsplit('.', 1)
+    module_name = parts[0]
+    class_name = parts[1]
+    __import__(module_name)
+    return getattr(sys.modules[module_name], class_name)
 
 class DictionarySerializer(Serializer):
 

@@ -48,7 +48,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
             if firsttaskid is None and step['taskname']=='FormA1':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
-            task.update_data({step['formvar']: step['answer']})
+            task.set_data(**{step['formvar']: step['answer']})
             task.run()
             self.workflow.do_engine_steps()
             if save_restore:
@@ -72,7 +72,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
         for step in steps:
             task = self.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
-            task.update_data({step['formvar']: step['answer']})
+            task.set_data(**{step['formvar']: step['answer']})
             task.run()
             self.workflow.do_engine_steps()
             if save_restore:
@@ -125,7 +125,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
             if firsttaskid is None and step['taskname']=='FormA2':
                 firsttaskid = task.id
             self.assertEqual(step['taskname'], task.task_spec.name)
-            task.update_data({step['formvar']: step['answer']})
+            task.set_data(**{step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore:
@@ -162,7 +162,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
         for step in steps:
             task = self.get_ready_user_tasks()[0]
             self.assertEqual(step['taskname'], task.task_spec.name)
-            task.update_data({step['formvar']: step['answer']})
+            task.set_data(**{step['formvar']: step['answer']})
             self.workflow.run_task_from_id(task.id)
             self.workflow.do_engine_steps()
             if save_restore:

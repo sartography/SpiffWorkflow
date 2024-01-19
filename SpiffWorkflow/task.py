@@ -413,16 +413,6 @@ class Task(object):
 
     # I will probably remove these methods at some point because I hate them
 
-    def update_data(self, data):
-        """
-        If the task.data needs to be updated from a UserTask form or
-        a Script task then use this function rather than updating task.data
-        directly.  It will handle deeper merges of data,
-        and MultiInstance tasks will be updated correctly.
-        """
-        self.data = DeepMerge.merge(self.data, data)
-        data_log.info('Data update', extra=self.log_info())
-
     def get_dump(self, indent=0, recursive=True):
         """Returns the subtree as a string for debugging.
 

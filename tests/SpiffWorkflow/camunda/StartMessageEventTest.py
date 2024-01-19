@@ -42,7 +42,7 @@ class StartMessageTest(BaseTestCase):
         for step in steps:
             current_task = ready_tasks[0]
             self.assertEqual(current_task.task_spec.name,step[0])
-            current_task.update_data(step[1])
+            current_task.set_data(**step[1])
             current_task.run()
             self.workflow.do_engine_steps()
             self.workflow.refresh_waiting_tasks()

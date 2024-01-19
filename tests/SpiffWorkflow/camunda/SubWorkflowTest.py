@@ -28,7 +28,7 @@ class SubWorkflowTest(BaseTestCase):
         for answer in self.answers:
             task = self.get_ready_user_tasks()[0]
             self.assertEqual("Activity_"+answer, task.task_spec.name)
-            task.update_data({"Field"+answer: answer})
+            task.set_data(**{"Field"+answer: answer})
             task.run()
             self.workflow.do_engine_steps()
             if save_restore:

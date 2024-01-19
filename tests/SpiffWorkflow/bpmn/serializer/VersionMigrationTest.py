@@ -91,11 +91,11 @@ class Version_1_2_Test(BaseTestCase):
     def test_remove_boundary_events(self):
         wf = self.deserialize_workflow('v1.2-boundary-events.json')
         ready_tasks = wf.get_tasks(state=TaskState.READY)
-        ready_tasks[0].update_data({'value': 'asdf'})
+        ready_tasks[0].set_data(**{'value': 'asdf'})
         ready_tasks[0].run()
         wf.do_engine_steps()
         ready_tasks = wf.get_tasks(state=TaskState.READY)
-        ready_tasks[0].update_data({'quantity': 2})
+        ready_tasks[0].set_data(**{'quantity': 2})
         ready_tasks[0].run()
         wf.do_engine_steps()
         self.assertIn('value', wf.last_task.data)
