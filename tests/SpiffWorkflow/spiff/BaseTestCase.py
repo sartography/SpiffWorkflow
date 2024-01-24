@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
 import os
 
-from SpiffWorkflow.spiff.parser.process import SpiffBpmnParser, VALIDATOR
-from SpiffWorkflow.spiff.serializer.config import SPIFF_CONFIG
-from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+from SpiffWorkflow.spiff.serializer import DEFAULT_CONFIG
+from SpiffWorkflow.spiff.parser import SpiffBpmnParser, VALIDATOR
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-registry = BpmnWorkflowSerializer.configure(SPIFF_CONFIG)
+registry = BpmnWorkflowSerializer.configure(DEFAULT_CONFIG)
 
 class BaseTestCase(BpmnWorkflowTestCase):
     """ Provides some basic tools for loading up and parsing Spiff extensions"""

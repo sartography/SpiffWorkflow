@@ -18,7 +18,8 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
-from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference, BpmnIoSpecification
+from SpiffWorkflow.bpmn.specs.bpmn_task_spec import BpmnIoSpecification
+from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
 from .util import first
 
 DEFAULT_NSMAP = {

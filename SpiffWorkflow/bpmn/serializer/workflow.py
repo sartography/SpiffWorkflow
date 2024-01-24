@@ -20,7 +20,7 @@
 import json, gzip
 
 from .migration.version_migration import MIGRATIONS
-from .helpers.registry import DefaultRegistry
+from .helpers import DefaultRegistry
 
 from .config import DEFAULT_CONFIG
 

@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn.event import BpmnEvent
+from SpiffWorkflow.bpmn.util import BpmnEvent
 
 from .base import EventDefinition
 

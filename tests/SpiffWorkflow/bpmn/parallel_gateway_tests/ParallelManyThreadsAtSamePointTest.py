@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
+from SpiffWorkflow.bpmn import BpmnWorkflow
 
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from .BaseParallelTestCase import BaseParallelTestCase
 
 __author__ = 'matth'

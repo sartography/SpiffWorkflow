@@ -1,9 +1,6 @@
 import unittest
 
-from SpiffWorkflow.task import TaskFilter
-from SpiffWorkflow.specs.Join import Join
-from SpiffWorkflow.specs.Simple import Simple
-from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
+from SpiffWorkflow.specs import Join, Simple, WorkflowSpec
 from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.specs.base import TaskSpec
 from SpiffWorkflow.serializer.dict import DictionarySerializer
@@ -17,7 +14,7 @@ class TaskSpecTest(unittest.TestCase):
         return TaskSpec(self.wf_spec, 'testtask', description='foo')
 
     def get_first_task_from_spec_name(self, workflow, spec_name):
-        return workflow.get_next_task(task_filter=TaskFilter(spec_name=spec_name))
+        return workflow.get_next_task(spec_name=spec_name)
 
     def setUp(self):
         self.wf_spec = WorkflowSpec(addstart=True)

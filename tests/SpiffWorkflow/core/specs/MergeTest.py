@@ -1,9 +1,8 @@
-from .JoinTest import JoinTest
-from SpiffWorkflow.specs.Merge import Merge
-from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
-from SpiffWorkflow.specs.Simple import Simple
-from SpiffWorkflow.workflow import Workflow
+from SpiffWorkflow import Workflow
 
+from SpiffWorkflow.specs import Merge, Simple, WorkflowSpec
+
+from .JoinTest import JoinTest
 
 class MergeTest(JoinTest):
 

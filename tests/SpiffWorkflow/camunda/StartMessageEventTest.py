@@ -1,5 +1,6 @@
-from SpiffWorkflow.util.task import TaskState
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow
+
 from .BaseTestCase import BaseTestCase
 
 __author__ = 'kellym'

@@ -19,7 +19,7 @@
 
 
 from SpiffWorkflow.bpmn.specs.bpmn_task_spec import _BpmnCondition
-from ..helpers.spec import BpmnConverter
+from ..helpers.bpmn_converter import BpmnConverter
 from ..helpers.spec import TaskSpecConverter
 
 class IOSpecificationConverter(BpmnConverter):

@@ -1,5 +1,7 @@
+
+from SpiffWorkflow.bpmn import BpmnWorkflow
+
 from .BaseTestCase import BaseTestCase
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 class BusinessRuleTaskTest(BaseTestCase):
 

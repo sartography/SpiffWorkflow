@@ -1,7 +1,7 @@
-from SpiffWorkflow.util.task import TaskState
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.event import BpmnEvent
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow, BpmnEvent
 from SpiffWorkflow.camunda.specs.event_definitions import MessageEventDefinition
+
 from .BaseTestCase import BaseTestCase
 
 __author__ = 'kellym'

@@ -1,11 +1,10 @@
 import datetime
-import unittest
 import time
 
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from SpiffWorkflow.bpmn import BpmnWorkflow
+from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
+
+from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'kellym'
 

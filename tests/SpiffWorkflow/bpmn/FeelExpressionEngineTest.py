@@ -1,7 +1,7 @@
 import datetime
 
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine, FeelInterval
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
+from SpiffWorkflow.bpmn.script_engine.feel_engine import FeelLikeScriptEngine, FeelInterval
+from SpiffWorkflow.bpmn.script_engine import TaskDataEnvironment
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 

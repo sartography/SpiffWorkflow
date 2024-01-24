@@ -21,7 +21,7 @@ from uuid import UUID
 
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask
 
-from ..helpers.registry import BpmnConverter
+from ..helpers.bpmn_converter import BpmnConverter
 
 class TaskConverter(BpmnConverter):
 

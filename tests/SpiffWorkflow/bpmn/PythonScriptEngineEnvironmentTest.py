@@ -1,9 +1,9 @@
 import json
 
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import BasePythonScriptEngineEnvironment, TaskDataEnvironment
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.util.task import TaskState, TaskFilter
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow
+from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine
+from SpiffWorkflow.bpmn.script_engine.python_environment import BasePythonScriptEngineEnvironment, TaskDataEnvironment
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -82,7 +82,7 @@ class PythonScriptEngineEnvironmentTest(BpmnWorkflowTestCase):
         self.assertEqual(d_uniques, {"a", "b", "c"})
 
     def _get_task_data_len(self):
-        tasks_to_check = self.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.FINISHED_MASK))
+        tasks_to_check = self.workflow.get_tasks(state=TaskState.FINISHED_MASK)
         task_data = [task.data for task in tasks_to_check]
         task_data_to_check = list(filter(len, task_data))
         task_data_len = len(json.dumps(task_data_to_check))

@@ -17,8 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
-from SpiffWorkflow.bpmn.event import BpmnEvent
+from SpiffWorkflow.bpmn import BpmnEvent
+from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
 
 class MessageEventDefinition(MessageEventDefinition):
     """

@@ -1,11 +1,9 @@
 from datetime import timedelta
 
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.event import BpmnEvent, BpmnEvent
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
-from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
-from SpiffWorkflow.util.task import TaskState
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow, BpmnEvent
+from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
+from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

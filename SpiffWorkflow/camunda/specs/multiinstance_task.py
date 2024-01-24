@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.util.task import TaskState
-from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
+from SpiffWorkflow.bpmn.specs.mixins import BpmnSpecMixin
 from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
 
 from SpiffWorkflow.bpmn.specs.defaults import (

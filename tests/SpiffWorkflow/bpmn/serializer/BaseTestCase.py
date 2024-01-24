@@ -1,10 +1,10 @@
 import unittest
 import os
 
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow, BpmnTaskFilter
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
-from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
-from SpiffWorkflow.util.task import TaskState
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow
+from SpiffWorkflow.bpmn.parser import BpmnParser
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 
 
 class BaseTestCase(unittest.TestCase):
@@ -13,7 +13,7 @@ class BaseTestCase(unittest.TestCase):
     DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
 
     def get_ready_user_tasks(self, lane=None):
-        return self.workflow.get_tasks(task_filter=BpmnTaskFilter(state=TaskState.READY, manual=True, lane=lane))
+        return self.workflow.get_tasks(state=TaskState.READY, manual=True, lane=lane)
 
     def load_workflow_spec(self, filename, process_name):
         parser = BpmnParser()

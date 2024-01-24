@@ -1,16 +1,15 @@
 from copy import deepcopy
 
 from SpiffWorkflow.bpmn.specs.data_spec import BpmnDataStoreSpecification
-from SpiffWorkflow.bpmn.specs.defaults import ExclusiveGateway
-from SpiffWorkflow.bpmn.specs.defaults import UserTask
+from SpiffWorkflow.bpmn.specs.defaults import ExclusiveGateway, UserTask
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
 from SpiffWorkflow.bpmn.parser.task_parsers import ConditionalGatewayParser
 from SpiffWorkflow.bpmn.parser.util import full_tag
 
-from SpiffWorkflow.bpmn.serializer.helpers.registry import BpmnConverter
+from SpiffWorkflow.bpmn.serializer.helpers.bpmn_converter import BpmnConverter
 from SpiffWorkflow.bpmn.serializer.default.task_spec import BpmnTaskSpecConverter
-from SpiffWorkflow.bpmn.serializer.config import DEFAULT_CONFIG
+from SpiffWorkflow.bpmn.serializer import DEFAULT_CONFIG
 
 
 __author__ = 'matth'

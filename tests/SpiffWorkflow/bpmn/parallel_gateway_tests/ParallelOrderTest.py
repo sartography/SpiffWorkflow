@@ -1,5 +1,6 @@
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from SpiffWorkflow.bpmn import BpmnWorkflow
+
+from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 
 class ParallelOrderTest(BpmnWorkflowTestCase):

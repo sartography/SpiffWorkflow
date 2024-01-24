@@ -3,7 +3,7 @@ import unittest
 
 from SpiffWorkflow.bpmn.serializer.helpers.dictionary import DictionaryConverter
 from SpiffWorkflow.dmn.serializer.task_spec import BaseBusinessRuleTaskConverter
-from SpiffWorkflow.camunda.specs.business_rule_task import BusinessRuleTask
+from SpiffWorkflow.camunda.specs import BusinessRuleTask
 from .python_engine.PythonDecisionRunner import PythonDecisionRunner
 
 class HitPolicyTest(unittest.TestCase):

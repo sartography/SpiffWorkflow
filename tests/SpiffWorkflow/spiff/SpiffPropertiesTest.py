@@ -1,6 +1,6 @@
-from SpiffWorkflow.util.task import TaskState
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow
 from .BaseTestCase import BaseTestCase
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 # Assure we correctly parse and pass on the Spiffworkflow properties in
 # an extension.

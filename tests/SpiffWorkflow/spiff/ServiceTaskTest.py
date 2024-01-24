@@ -1,14 +1,8 @@
-# -*- coding: utf-8 -*-
 import json
-import os
-import sys
-import unittest
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
+
+from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from .BaseTestCase import BaseTestCase
-
-dirname = os.path.dirname(__file__)
-sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 
 
 class ServiceTaskDelegate:
@@ -91,8 +85,3 @@ class ServiceTaskTest(BaseTestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result['temp'], '72F')
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ServiceTaskTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

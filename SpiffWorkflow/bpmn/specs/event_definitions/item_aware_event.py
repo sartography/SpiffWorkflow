@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from SpiffWorkflow.bpmn.event import BpmnEvent, PendingBpmnEvent
+from SpiffWorkflow.bpmn.util import BpmnEvent, PendingBpmnEvent
 from .base import EventDefinition
 
 class ItemAwareEventDefinition(EventDefinition):
