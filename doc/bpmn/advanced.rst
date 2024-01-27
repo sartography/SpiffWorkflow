@@ -357,7 +357,7 @@ We'll add these functions to our scripting environment in `script_engine.py`
     We're also adding :code:`datetime`, because we added the timestamp to the payload of our message when we
     set up the Message Event (see :doc:`events`)
 
-When we initialize the runner in `spiff-bpmn-runner.py`, we'll import and use `cusrom_script_engine` as our
+When we initialize the runner in `spiff-bpmn-runner.py`, we'll import and use `custom_script_engine` as our
 script engine.
 
 We can use the custom functions in script tasks like any normal function.  We've replaced the Business Rule
