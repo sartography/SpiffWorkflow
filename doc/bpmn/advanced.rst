@@ -475,7 +475,7 @@ Getting this information into the XML is a little bit beyond the scope of this t
 just SpiffWorkflow.  I hand edited it for this case, but you can hardly ask your BPMN authors to do that!
 
 Our `modeler <https://github.com/sartography/bpmn-js-spiffworkflow>`_ has a means of providing a list of services and
-their parameters that can be displayed to a BPMN author in the Service Task configurtion panel.  There is an example of
+their parameters that can be displayed to a BPMN author in the Service Task configuration panel.  There is an example of
 hard-coding a list of services in
 `app.js <https://github.com/sartography/bpmn-js-spiffworkflow/blob/0a9db509a0e85aa7adecc8301d8fbca9db75ac7c/app/app.js#L47>`_
 and as suggested, it would be reasonably straightforward to replace this with a API call.  `SpiffArena <https://www.spiffworkflow.org/posts/articles/get_started/>`_
