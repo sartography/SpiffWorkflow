@@ -3,7 +3,7 @@ import time
 
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
-from SpiffWorkflow.bpmn.serializer.migration.exceptions import VersionMigrationError
+from SpiffWorkflow.bpmn.serializer.exceptions import VersionMigrationError
 
 from .BaseTestCase import BaseTestCase
 

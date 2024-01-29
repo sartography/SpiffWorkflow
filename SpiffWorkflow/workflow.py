@@ -50,7 +50,6 @@ class Workflow(object):
             workflow_spec (`WorkflowSpec`): the spec that describes this workflow
             deserializing (bool): whether this workflow is being deserialized
         """
-        assert workflow_spec is not None
         self.spec = workflow_spec
         self.data = {}
         self.locks = {}

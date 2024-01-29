@@ -49,8 +49,6 @@ class Execute(TaskSpec):
         :type  kwargs: dict
         :param kwargs: kwargs to pass-through to TaskSpec initializer.
         """
-        assert wf_spec is not None
-        assert name is not None
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.args = args
 

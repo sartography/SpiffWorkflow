@@ -48,9 +48,6 @@ class Choose(Trigger):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        assert wf_spec is not None
-        assert name is not None
-        assert context is not None
         # HACK: inherit from TaskSpec (not Trigger) on purpose.
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.context = context

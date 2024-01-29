@@ -17,7 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-
 BPMN_MODEL_NS = 'http://www.omg.org/spec/BPMN/20100524/MODEL'
 DIAG_INTERCHANGE_NS = "http://www.omg.org/spec/BPMN/20100524/DI"
 DIAG_COMMON_NS = "http://www.omg.org/spec/DD/20100524/DC"
@@ -34,8 +33,8 @@ def one(nodes, or_none=False):
     """
     if not nodes and or_none:
         return None
-    assert len(
-        nodes) == 1, 'Expected 1 result. Received %d results.' % (len(nodes))
+    
+    assert len(nodes) == 1, 'Expected 1 result. Received %d results.' % (len(nodes))
     return nodes[0]
 
 

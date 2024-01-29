@@ -48,10 +48,6 @@ class Trigger(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        assert wf_spec is not None
-        assert name is not None
-        assert context is not None
-        assert isinstance(context, list)
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.context = context
         self.times = times

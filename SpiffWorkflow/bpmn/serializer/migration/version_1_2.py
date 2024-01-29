@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.specs.event_definitions.timer import LOCALTZ
 
-from .exceptions import VersionMigrationError
+from ..exceptions import VersionMigrationError
 
 def td_to_iso(td):
     total = td.total_seconds()

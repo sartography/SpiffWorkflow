@@ -348,12 +348,6 @@ class DictionarySerializer(Serializer):
         self.deserialize_task_spec(wf_spec, s_state, spec=spec)
         return spec
 
-    def deserialize_generic(self, wf_spec, s_state,newclass):
-        assert isinstance(wf_spec, WorkflowSpec)
-        spec = newclass(wf_spec, s_state['name'])
-        self.deserialize_task_spec(wf_spec, s_state, spec=spec)
-        return spec
-
     def serialize_start_task(self, spec):
         return self.serialize_task_spec(spec)
 

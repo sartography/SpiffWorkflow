@@ -89,7 +89,10 @@ class EventDefinitionParser(TaskParser):
         """Parse the errorEventDefinition node and return an instance of ErrorEventDefinition."""
         error_ref = error_event.get('errorRef')
         if error_ref:
-            error = one(self.doc_xpath('.//bpmn:error[@id="%s"]' % error_ref))
+            try:
+                error = one(self.doc_xpath('.//bpmn:error[@id="%s"]' % error_ref))
+            except Exception:
+                self.raise_validation_exception('Expected an error node', node=error_event)
             error_code = error.get('errorCode')
             name = error.get('name')
         else:
@@ -101,7 +104,10 @@ class EventDefinitionParser(TaskParser):
 
         escalation_ref = escalation_event.get('escalationRef')
         if escalation_ref:
-            escalation = one(self.doc_xpath('.//bpmn:escalation[@id="%s"]' % escalation_ref))
+            try:
+                escalation = one(self.doc_xpath('.//bpmn:escalation[@id="%s"]' % escalation_ref))
+            except Exception:
+                self.raise_validation_exception('Expected an Escalation node', node=escalation_event)
             escalation_code = escalation.get('escalationCode')
             name = escalation.get('name')
         else:
@@ -112,7 +118,10 @@ class EventDefinitionParser(TaskParser):
 
         message_ref = message_event.get('messageRef')
         if message_ref is not None:
-            message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
+            try:
+                message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
+            except Exception:
+                self.raise_validation_exception('Expected a Message node', node=message_event)
             name = message.get('name')
             description = self.get_event_description(message_event)
             correlations = self.get_message_correlations(message_ref)
@@ -127,7 +136,10 @@ class EventDefinitionParser(TaskParser):
 
         signal_ref = signal_event.get('signalRef')
         if signal_ref:
-            signal = one(self.doc_xpath('.//bpmn:signal[@id="%s"]' % signal_ref))
+            try:
+                signal = one(self.doc_xpath('.//bpmn:signal[@id="%s"]' % signal_ref))
+            except Exception:
+                self.raise_validation_exception('Expected a Signal node', node=signal_event)
             name = signal.get('name')
         else:
             name = signal_event.getparent().get('name')

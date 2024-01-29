@@ -53,7 +53,6 @@ class ExclusiveChoice(MultiChoice):
         :type  task_spec: TaskSpec
         :param task_spec: The following task spec.
         """
-        assert self.default_task_spec is None
         self.default_task_spec = taskspec.name
         super().connect(taskspec)
 

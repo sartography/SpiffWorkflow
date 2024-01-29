@@ -43,7 +43,10 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
 
         message_ref = message_event.get('messageRef')
         if message_ref:
-            message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
+            try:
+                message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
+            except Exception:
+                self.raise_validation_error('Expected a Message node', node=message_event)
             name = message.get('name')
             extensions = self.parse_extensions(message)
             correlations = self.get_message_correlations(message_ref)
@@ -61,7 +64,10 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
         """Parse a Spiff signal event"""
         signal_ref = signal_event.get('signalRef')
         if signal_ref is not None:
-            signal = one(self.doc_xpath(f'.//bpmn:signal[@id="{signal_ref}"]'))
+            try:
+                signal = one(self.doc_xpath(f'.//bpmn:signal[@id="{signal_ref}"]'))
+            except Exception:
+                self.raise_validation_error('Expected a Signal node', node=signal_event)
             name = signal.get('name')
             extensions = self.parse_extensions(signal)
             expression = extensions.get('payloadExpression')
@@ -75,7 +81,10 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
         """Parse a Spiff error event"""
         error_ref = error_event.get('errorRef')
         if error_ref is not None:
-            error = one(self.doc_xpath(f'.//bpmn:error[@id="{error_ref}"]'))
+            try:
+                error = one(self.doc_xpath(f'.//bpmn:error[@id="{error_ref}"]'))
+            except Exception:
+                self.raise_validation_error('Expected an Error node', node=error_event)
             name = error.get('name')
             code = error.get('errorCode')
             extensions = self.parse_extensions(error)
@@ -90,7 +99,10 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
         """Parse a Spiff error event"""
         escalation_ref = escalation_event.get('escalationRef')
         if escalation_ref is not None:
-            escalation = one(self.doc_xpath(f'.//bpmn:escalation[@id="{escalation_ref}"]'))
+            try:
+                escalation = one(self.doc_xpath(f'.//bpmn:escalation[@id="{escalation_ref}"]'))
+            except Exception:
+                self.raise_validation_error('Expected an Escalation node', node=escalation_event)
             name = escalation.get('name')
             code = escalation.get('escalationCode')
             extensions = self.parse_extensions(escalation)

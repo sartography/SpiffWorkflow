@@ -139,7 +139,8 @@ class Assign(Term):
         """
         if not right_attribute and not right:
             raise ValueError('require argument: right_attribute or right')
-        assert left_attribute is not None
+        if left_attribute is None:
+            raise ValueError('left attribute is None')
         self.left_attribute = left_attribute
         self.right_attribute = right_attribute
         self.right = right

@@ -49,7 +49,6 @@ class ThreadMerge(Join):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.Join`.
         """
-        assert split_task is not None
         Join.__init__(self, wf_spec, name, split_task, **kwargs)
 
     def _start(self, my_task):

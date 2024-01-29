@@ -71,9 +71,6 @@ class Task(object):
             state (`TaskState`): the state of this task (default MAYBE)
             id: an optional id (defaults to a random UUID)
         """
-        assert workflow is not None
-        assert task_spec is not None
-
         self.id = id or uuid4()
         workflow.tasks[self.id] = self
         self.workflow = workflow
@@ -278,7 +275,6 @@ class Task(object):
 
     def _child_added_notify(self, child):
         """Called by another task to let us know that a child was added."""
-        assert child is not None
         self._children.append(child.id)
 
     def _drop_children(self, force=False):
