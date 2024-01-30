@@ -117,7 +117,7 @@ class BpmnWorkflow(Workflow):
         """
         if event.target is None:
             self.update_collaboration(event)
-            tasks = self.get_tasks(catches_event=event)
+            tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
             # Figure out if we need to create an external event
             if len(tasks) == 0:
                 self.bpmn_events.append(event)

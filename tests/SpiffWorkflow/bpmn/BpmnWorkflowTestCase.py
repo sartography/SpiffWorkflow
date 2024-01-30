@@ -31,15 +31,11 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         return top_level_spec, subprocesses
 
     def load_collaboration(self, filename, collaboration_name):
-        f = os.path.join(os.path.dirname(__file__), 'data', filename)
-        parser = TestBpmnParser()
-        parser.add_bpmn_files_by_glob(f)
+        parser = self.get_parser(filename)
         return parser.get_collaboration(collaboration_name)
 
     def get_all_specs(self, filename):
-        f = os.path.join(os.path.dirname(__file__), 'data', filename)
-        parser = TestBpmnParser()
-        parser.add_bpmn_files_by_glob(f)
+        parser = self.get_parser(filename)
         return parser.find_all_specs()
 
     def get_ready_user_tasks(self, lane=None):

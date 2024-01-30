@@ -8,9 +8,6 @@ from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'kellym'
 
-# the data doesn't really propagate to the end as in a 'normal' workflow, so I call a
-# custom function that records the number of times this got called so that
-# we can keep track of how many times the triggered item gets called.
 counter = 0
 def my_custom_function():
     global counter
@@ -32,8 +29,9 @@ class CustomScriptEngine(PythonScriptEngine):
 class TimerCycleStartTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        self.spec, self.subprocesses = self.load_workflow_spec('timer-cycle-start.bpmn', 'timer')
-        self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=CustomScriptEngine())
+
+        spec, subprocesses = self.load_collaboration('timer-cycle-start.bpmn', 'Collaboration_0bcl3k5')
+        self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=CustomScriptEngine())
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -42,8 +40,10 @@ class TimerCycleStartTest(BpmnWorkflowTestCase):
         self.actual_test(save_restore=True)
 
     def actual_test(self,save_restore = False):
+
         global counter
         counter = 0
+
         # We have a loop so we can continue to execute waiting tasks when
         # timers expire.  The test workflow has a wait timer that pauses long enough to
         # allow the cycle to complete three times before being cancelled by the terminate

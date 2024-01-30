@@ -11,7 +11,7 @@ class NIMessageBoundaryTest(BaseTestCase):
     Non-Interrupting Timer boundary test
     """
     def setUp(self):
-        spec, subprocesses = self.load_workflow_spec('noninterrupting-MessageBoundary.bpmn', 'Process_1kjyavs')
+        spec, subprocesses = self.load_collaboration('noninterrupting-MessageBoundary.bpmn', 'Collaboration_0fh00ao')
         self.workflow = BpmnWorkflow(spec, subprocesses)
 
     def testRunThroughHappy(self):
