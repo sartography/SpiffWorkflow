@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn.event import BpmnEvent, PendingBpmnEvent
+from SpiffWorkflow.bpmn.util import BpmnEvent, PendingBpmnEvent
 
 class EventDefinition(object):
     """

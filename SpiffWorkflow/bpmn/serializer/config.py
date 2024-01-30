@@ -18,17 +18,10 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.task import Task
-from SpiffWorkflow.bpmn.workflow import (
-    BpmnWorkflow,
-    BpmnSubWorkflow,
-)
-from SpiffWorkflow.bpmn.event import BpmnEvent
-from SpiffWorkflow.bpmn.specs.data_spec import (
-    DataObject,
-    BpmnIoSpecification,
-    TaskDataReference,
-)
-from SpiffWorkflow.bpmn.specs.bpmn_process_spec import BpmnProcessSpec
+from SpiffWorkflow.bpmn import BpmnWorkflow, BpmnEvent
+from SpiffWorkflow.bpmn.util.subworkflow import BpmnSubWorkflow
+
+from SpiffWorkflow.bpmn.specs import BpmnProcessSpec
 from SpiffWorkflow.bpmn.specs.defaults import (
     ManualTask,
     NoneTask,
@@ -53,6 +46,21 @@ from SpiffWorkflow.bpmn.specs.defaults import (
     SendTask,
     ReceiveTask,
 )
+from SpiffWorkflow.bpmn.specs.event_definitions import (
+    NoneEventDefinition,
+    CancelEventDefinition,
+    TerminateEventDefinition,
+    SignalEventDefinition,
+    ErrorEventDefinition,
+    EscalationEventDefinition,
+    TimeDateEventDefinition,
+    DurationTimerEventDefinition,
+    CycleTimerEventDefinition,
+    MessageEventDefinition,
+    MultipleEventDefinition,
+    ConditionalEventDefinition,
+)
+
 from SpiffWorkflow.bpmn.specs.control import (
     BpmnStartTask,
     SimpleBpmnTask,
@@ -60,24 +68,11 @@ from SpiffWorkflow.bpmn.specs.control import (
     BoundaryEventJoin,
     _EndJoin,
 )
-from SpiffWorkflow.bpmn.specs.event_definitions.simple import (
-    NoneEventDefinition,
-    CancelEventDefinition,
-    TerminateEventDefinition,
+from SpiffWorkflow.bpmn.specs.data_spec import (
+    DataObject,
+    TaskDataReference,
 )
-from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import (
-    SignalEventDefinition,
-    ErrorEventDefinition,
-    EscalationEventDefinition,
-)
-from SpiffWorkflow.bpmn.specs.event_definitions.timer import (
-    TimeDateEventDefinition,
-    DurationTimerEventDefinition,
-    CycleTimerEventDefinition,
-)
-from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
-from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
-from SpiffWorkflow.bpmn.specs.event_definitions.conditional import ConditionalEventDefinition
+from SpiffWorkflow.bpmn.specs.bpmn_task_spec import BpmnIoSpecification
 
 from .default.workflow import (
     BpmnWorkflowConverter,
@@ -85,8 +80,8 @@ from .default.workflow import (
     TaskConverter,
     BpmnEventConverter,
 )
-from .helpers.spec import BpmnDataSpecificationConverter, EventDefinitionConverter
-from .default.process_spec import BpmnProcessSpecConverter
+from .helpers import BpmnDataSpecificationConverter, EventDefinitionConverter
+from .default import BpmnProcessSpecConverter
 from .default.task_spec import (
     BpmnTaskSpecConverter,
     ScriptTaskConverter,

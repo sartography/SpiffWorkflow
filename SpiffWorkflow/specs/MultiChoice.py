@@ -59,7 +59,6 @@ class MultiChoice(TaskSpec):
         condition -- a condition (Condition)
         taskspec -- the conditional task spec
         """
-        assert task_spec is not None
         self._outputs.append(task_spec.name)
         self.cond_task_specs.append((condition, task_spec.name))
         task_spec._connect_notify(self)

@@ -1,4 +1,4 @@
-from SpiffWorkflow.bpmn.FeelLikeScriptEngine import FeelLikeScriptEngine
+from SpiffWorkflow.bpmn.script_engine.feel_engine import FeelLikeScriptEngine
 
 from ..DecisionRunner import DecisionRunner
 

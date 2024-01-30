@@ -1,7 +1,9 @@
 import datetime
 import time
-from SpiffWorkflow.util.task import TaskState
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow
+
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'

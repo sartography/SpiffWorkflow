@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
-import unittest
 import logging
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BaseParallelTestCase import BaseParallelTestCase
+
+from SpiffWorkflow.bpmn import BpmnWorkflow
+from .BaseParallelTestCase import BaseParallelTestCase
 
 __author__ = 'matth'
 
@@ -52,8 +50,3 @@ class ParallelManyThreadsAtSamePointTestNested(BaseParallelTestCase):
         logging.info('Doing test with instructions: %s', instructions)
         self._do_test(instructions, only_one_instance=False, save_restore=True)
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ParallelManyThreadsAtSamePointTestNested)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

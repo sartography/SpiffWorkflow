@@ -1,12 +1,11 @@
 import json
 import os
 import unittest
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator
 
-from SpiffWorkflow.util.task import TaskState
-from SpiffWorkflow.bpmn.workflow import BpmnTaskFilter
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn.parser import BpmnValidator
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 
-from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
 from .BpmnLoaderForTests import TestBpmnParser, SERIALIZER_CONFIG
 
 
@@ -44,7 +43,7 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         return parser.find_all_specs()
 
     def get_ready_user_tasks(self, lane=None):
-        return self.workflow.get_tasks(task_filter=BpmnTaskFilter(state=TaskState.READY, manual=True, lane=lane))
+        return self.workflow.get_tasks(state=TaskState.READY, manual=True, lane=lane)
 
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:

@@ -1,6 +1,6 @@
-from SpiffWorkflow.util.task import TaskState
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 

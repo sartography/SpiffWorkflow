@@ -1,8 +1,8 @@
 import unittest
 
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.util.task import TaskState
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

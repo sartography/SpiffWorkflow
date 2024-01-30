@@ -1,8 +1,7 @@
 import datetime
 from decimal import Decimal
 
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
+from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
 
 from ..DecisionRunner import DecisionRunner
 

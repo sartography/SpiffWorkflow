@@ -1,11 +1,9 @@
 import os
 import time
 
-from SpiffWorkflow.util.task import TaskState
-from SpiffWorkflow.bpmn.workflow import BpmnTaskFilter
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
-from SpiffWorkflow.bpmn.serializer.migration.exceptions import VersionMigrationError
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
+from SpiffWorkflow.bpmn.serializer.exceptions import VersionMigrationError
 
 from .BaseTestCase import BaseTestCase
 
@@ -50,12 +48,11 @@ class Version_1_1_Test(BaseTestCase):
         wf.do_engine_steps()
         task = wf.get_next_task(spec_name='Gateway_askQuestion')
         self.assertEqual(len(task.task_spec.cond_task_specs), 2)
-        task_filter = BpmnTaskFilter(state=TaskState.READY, manual=True)
-        ready_task = wf.get_tasks(task_filter=task_filter)[0]
+        ready_task = wf.get_tasks(state=TaskState.READY, manual=True)[0]
         ready_task.data['NeedClarification'] = 'Yes'
         ready_task.run()
         wf.do_engine_steps()
-        ready_task = wf.get_tasks(task_filter=task_filter)[0]
+        ready_task = wf.get_tasks(state=TaskState.READY, manual=True)[0]
         self.assertEqual(ready_task.task_spec.name, 'Activity_A2')
 
     def test_check_multiinstance(self):
@@ -91,11 +88,11 @@ class Version_1_2_Test(BaseTestCase):
     def test_remove_boundary_events(self):
         wf = self.deserialize_workflow('v1.2-boundary-events.json')
         ready_tasks = wf.get_tasks(state=TaskState.READY)
-        ready_tasks[0].update_data({'value': 'asdf'})
+        ready_tasks[0].set_data(**{'value': 'asdf'})
         ready_tasks[0].run()
         wf.do_engine_steps()
         ready_tasks = wf.get_tasks(state=TaskState.READY)
-        ready_tasks[0].update_data({'quantity': 2})
+        ready_tasks[0].set_data(**{'quantity': 2})
         ready_tasks[0].run()
         wf.do_engine_steps()
         self.assertIn('value', wf.last_task.data)

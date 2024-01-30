@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 
-from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
-from SpiffWorkflow.spiff.parser.process import SpiffBpmnParser
+from SpiffWorkflow.camunda.parser import CamundaParser
+from SpiffWorkflow.spiff.parser import SpiffBpmnParser
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

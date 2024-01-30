@@ -17,39 +17,30 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from .mixins.bpmn_spec_mixin import BpmnSpecMixin
-
-from .mixins.manual_task import ManualTask as ManualTaskMixin
-from .mixins.none_task import NoneTask as NoneTaskMixin
-from .mixins.user_task import UserTask as UserTaskMixin
-
-from .mixins.exclusive_gateway import ExclusiveGateway as ExclusiveGatewayMixin
-from .mixins.inclusive_gateway import InclusiveGateway as InclusiveGatewayMixin
-from .mixins.parallel_gateway import ParallelGateway as ParallelGatewayMixin
-
-from .mixins.script_task import ScriptTask as ScriptTaskMixin
-from .mixins.service_task import ServiceTask as ServiceTaskMixin
-from .mixins.multiinstance_task import (
-    StandardLoopTask as StandardLoopTaskMixin,
-    ParallelMultiInstanceTask as ParallelMultiInstanceTaskMixin,
-    SequentialMultiInstanceTask as SequentialMultiInstanceTaskMixin,
-)
-
-from .mixins.subworkflow_task import (
-    SubWorkflowTask as SubworkflowTaskMixin,
-    CallActivity as CallActivityMixin,
-    TransactionSubprocess as TransactionSubprocessMixin,
-)
-
-from .mixins.events.start_event import StartEvent as StartEventMixin
-from .mixins.events.end_event import EndEvent as EndEventMixin
-from .mixins.events.intermediate_event import (
-    IntermediateCatchEvent as IntermediateCatchEventMixin,
-    IntermediateThrowEvent as IntermediateThrowEventMixin,
-    SendTask as SendTaskMixin,
-    ReceiveTask as ReceiveTaskMixin,
-    EventBasedGateway as EventBasedGatewayMixin,
-    BoundaryEvent as BoundaryEventMixin,
+from .mixins import (
+    BpmnSpecMixin,
+    ManualTaskMixin,
+    NoneTaskMixin,
+    UserTaskMixin,
+    ExclusiveGatewayMixin,
+    InclusiveGatewayMixin,
+    ParallelGatewayMixin,
+    ScriptTaskMixin,
+    ServiceTaskMixin,
+    StandardLoopTaskMixin,
+    ParallelMultiInstanceTaskMixin,
+    SequentialMultiInstanceTaskMixin,
+    SubWorkflowTaskMixin,
+    CallActivityMixin,
+    TransactionSubprocessMixin,
+    StartEventMixin,
+    EndEventMixin,
+    IntermediateCatchEventMixin,
+    IntermediateThrowEventMixin,
+    SendTaskMixin,
+    ReceiveTaskMixin,
+    EventBasedGatewayMixin,
+    BoundaryEventMixin,
 )
 
 # In the future, we could have the parser take a bpmn task spec and construct these classes automatically
@@ -88,7 +79,7 @@ class ParallelMultiInstanceTask(ParallelMultiInstanceTaskMixin, BpmnSpecMixin):
 class SequentialMultiInstanceTask(SequentialMultiInstanceTaskMixin, BpmnSpecMixin):
     pass
 
-class SubWorkflowTask(SubworkflowTaskMixin, BpmnSpecMixin):
+class SubWorkflowTask(SubWorkflowTaskMixin, BpmnSpecMixin):
     pass
 
 class CallActivity(CallActivityMixin, BpmnSpecMixin):

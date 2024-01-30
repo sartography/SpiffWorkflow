@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
-
 import time
-from SpiffWorkflow.workflow import Workflow
-from SpiffWorkflow.specs.SubWorkflow import SubWorkflow
+
+from SpiffWorkflow import Workflow
+from SpiffWorkflow.specs import SubWorkflow
 
 
 def on_reached_cb(workflow, task, taken_path):

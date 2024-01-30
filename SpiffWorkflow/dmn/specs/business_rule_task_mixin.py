@@ -31,10 +31,6 @@ class BusinessRuleTaskMixin(TaskSpec):
         self.dmnEngine = dmnEngine
         self.resDict = None
 
-    @property
-    def spec_class(self):
-        return 'Business Rule Task'
-
     def _run_hook(self, my_task):
         try:
             my_task.data = DeepMerge.merge(my_task.data, self.dmnEngine.result(my_task))

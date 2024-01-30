@@ -20,7 +20,7 @@
 import os
 from SpiffWorkflow.bpmn.parser.ProcessParser import ProcessParser
 
-from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
+from SpiffWorkflow.dmn.parser import BpmnDmnParser
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnValidator, full_tag
 from SpiffWorkflow.spiff.specs.data_object import DataObject
 

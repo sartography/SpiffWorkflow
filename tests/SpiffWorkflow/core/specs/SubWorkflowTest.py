@@ -3,10 +3,9 @@ import os
 
 from lxml import etree
 
-from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
+from SpiffWorkflow import TaskState, Workflow
+from SpiffWorkflow.specs import WorkflowSpec
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
-from SpiffWorkflow.util.task import TaskState, TaskFilter
-from SpiffWorkflow.workflow import Workflow
 
 
 class TaskSpecTest(unittest.TestCase):
@@ -34,7 +33,7 @@ class TaskSpecTest(unittest.TestCase):
         # This method asserts that there is only one ready task! The specified
         # one - and then completes it
         self.workflow.update_waiting_tasks()
-        ready_tasks = self.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.READY))
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(1, len(ready_tasks))
         task = ready_tasks[0]
         self.assertEqual(name, task.task_spec.name)
@@ -43,7 +42,7 @@ class TaskSpecTest(unittest.TestCase):
     def do_next_named_step(self, name, other_ready_tasks):
         # This method completes a single task from the specified set of ready
         # tasks
-        ready_tasks = self.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.READY))
+        ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         all_tasks = sorted([name] + other_ready_tasks)
         self.assertEqual(all_tasks, sorted([t.task_spec.name for t in ready_tasks]))
         task = list([t for t in ready_tasks if t.task_spec.name == name])[0]

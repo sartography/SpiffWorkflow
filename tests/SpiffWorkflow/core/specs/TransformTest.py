@@ -1,7 +1,6 @@
 from ..util import run_workflow
 from .TaskSpecTest import TaskSpecTest
-from SpiffWorkflow.specs.Transform import Transform
-from SpiffWorkflow.specs.Simple import Simple
+from SpiffWorkflow.specs import Transform, Simple
 
 
 class TransformTest(TaskSpecTest):

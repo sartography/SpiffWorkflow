@@ -1,6 +1,7 @@
-from SpiffWorkflow.util.task import TaskState
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow
+
+from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'michaelc'
 
@@ -15,11 +16,11 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
     def testNormalCompletion(self):
 
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
-        ready_tasks[0].update_data({'value': 'asdf'})
+        ready_tasks[0].set_data(**{'value': 'asdf'})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
-        ready_tasks[0].update_data({'quantity': 2})
+        ready_tasks[0].set_data(**{'quantity': 2})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
         self.assertIn('value', self.workflow.last_task.data)
@@ -43,7 +44,7 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
 
         # If value == '', we cancel
-        ready_tasks[0].update_data({'value': ''})
+        ready_tasks[0].set_data(**{'value': ''})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
 
@@ -68,13 +69,13 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
     def testSubworkflowErrorCodeNone(self):
 
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
-        ready_tasks[0].update_data({'value': 'asdf'})
+        ready_tasks[0].set_data(**{'value': 'asdf'})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
 
         # If quantity == 0, we throw an error with no error code
-        ready_tasks[0].update_data({'quantity': 0})
+        ready_tasks[0].set_data(**{'quantity': 0})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
 
@@ -100,13 +101,13 @@ class TransactionSubprocessTest(BpmnWorkflowTestCase):
     def testSubworkflowErrorCodeOne(self):
 
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
-        ready_tasks[0].update_data({'value': 'asdf'})
+        ready_tasks[0].set_data(**{'value': 'asdf'})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
 
         # If quantity < 0, we throw 'Error 1'
-        ready_tasks[0].update_data({'quantity': -1})
+        ready_tasks[0].set_data(**{'quantity': -1})
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
 

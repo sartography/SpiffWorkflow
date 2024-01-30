@@ -4,9 +4,9 @@ import warnings
 
 from lxml import etree
 
-from SpiffWorkflow.workflow import Workflow
+from SpiffWorkflow import Workflow
 from SpiffWorkflow.task import Task
-from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
+from SpiffWorkflow.specs import WorkflowSpec
 
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer as PrettyXmlSerializer
 from SpiffWorkflow.serializer.xml import XmlSerializer

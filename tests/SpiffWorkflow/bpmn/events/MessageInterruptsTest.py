@@ -1,10 +1,8 @@
-import unittest
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow, BpmnEvent
+from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
 
-from SpiffWorkflow.util.task import TaskState
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.event import BpmnEvent
-from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
 __author__ = 'matth'
 

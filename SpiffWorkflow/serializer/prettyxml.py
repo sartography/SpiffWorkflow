@@ -219,8 +219,7 @@ class XmlSerializer(Serializer):
                 pass
             elif node.tag == 'description':
                 kwargs['description'] = node.text
-            elif node.tag == 'successor' \
-                    or node.tag == 'default-successor':
+            elif node.tag == 'successor' or node.tag == 'default-successor':
                 if not node.text:
                     self.raise_parser_exception('Empty %s tag' % node.tag)
                 successors.append((None, node.text))

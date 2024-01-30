@@ -15,6 +15,13 @@ class _BpmnCondition(Operator):
         return task.workflow.script_engine.evaluate(task, self.args[0], external_context=task.workflow.data)
 
 
+class BpmnIoSpecification:
+
+    def __init__(self, data_inputs, data_outputs):
+        self.data_inputs = data_inputs
+        self.data_outputs = data_outputs
+
+
 class BpmnTaskSpec(TaskSpec):
     """
     This class provides BPMN-specific attributes.

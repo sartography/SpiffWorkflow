@@ -4,11 +4,8 @@ from datetime import datetime
 
 from lxml import etree
 
-from SpiffWorkflow.workflow import Workflow
-from SpiffWorkflow.specs.Cancel import Cancel
-from SpiffWorkflow.specs.Simple import Simple
-from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
-from SpiffWorkflow.util.task import TaskState, TaskIterator, TaskFilter
+from SpiffWorkflow import TaskState, Workflow
+from SpiffWorkflow.specs import Cancel, Simple, WorkflowSpec
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 
 data_dir = os.path.join(os.path.dirname(__file__), 'data')

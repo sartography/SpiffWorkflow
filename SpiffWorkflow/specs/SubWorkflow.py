@@ -62,8 +62,6 @@ class SubWorkflow(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        assert wf_spec is not None
-        assert name is not None
         super(SubWorkflow, self).__init__(wf_spec, name, **kwargs)
         self.file = None
         self.in_assign = in_assign is not None and in_assign or []

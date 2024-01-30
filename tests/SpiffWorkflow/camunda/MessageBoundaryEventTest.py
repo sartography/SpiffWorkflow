@@ -1,9 +1,10 @@
 import time
 from datetime import timedelta
-from SpiffWorkflow.util.task import TaskState
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
+
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow
+from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
+
 from .BaseTestCase import BaseTestCase
 
 __author__ = 'kellym'
@@ -33,7 +34,7 @@ class MessageBoundaryTest(BaseTestCase):
         for step in steps:
             for task in ready_tasks:
                 if task.task_spec.name == step[0]:
-                    task.update_data(step[1])
+                    task.set_data(**step[1])
 
                 self.workflow.run_task_from_id(task.id)
                 self.workflow.do_engine_steps()

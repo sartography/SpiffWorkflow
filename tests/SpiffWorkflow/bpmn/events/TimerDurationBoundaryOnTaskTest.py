@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
-
-import unittest
 import time
 from datetime import timedelta
 
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.PythonScriptEngine import PythonScriptEngine
-from SpiffWorkflow.bpmn.PythonScriptEngineEnvironment import TaskDataEnvironment
-from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
+from SpiffWorkflow.bpmn import BpmnWorkflow
+from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
+
+from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
+
 __author__ = 'kellym'
 
 
@@ -43,8 +41,3 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
 
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TimerDurationTest)
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -1,7 +1,8 @@
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow
 from SpiffWorkflow.exceptions import SpiffWorkflowException
-from SpiffWorkflow.util.task import TaskState
+
 from .BaseTestCase import BaseTestCase
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 
 class PrescriptPostsciptTest(BaseTestCase):

@@ -71,9 +71,6 @@ class Task(object):
             state (`TaskState`): the state of this task (default MAYBE)
             id: an optional id (defaults to a random UUID)
         """
-        assert workflow is not None
-        assert task_spec is not None
-
         self.id = id or uuid4()
         workflow.tasks[self.id] = self
         self.workflow = workflow
@@ -278,7 +275,6 @@ class Task(object):
 
     def _child_added_notify(self, child):
         """Called by another task to let us know that a child was added."""
-        assert child is not None
         self._children.append(child.id)
 
     def _drop_children(self, force=False):
@@ -412,16 +408,6 @@ class Task(object):
         return f'<Task object ({self.task_spec.name}) in state {TaskState.get_name(self.state)} with id {self.id}>'
 
     # I will probably remove these methods at some point because I hate them
-
-    def update_data(self, data):
-        """
-        If the task.data needs to be updated from a UserTask form or
-        a Script task then use this function rather than updating task.data
-        directly.  It will handle deeper merges of data,
-        and MultiInstance tasks will be updated correctly.
-        """
-        self.data = DeepMerge.merge(self.data, data)
-        data_log.info('Data update', extra=self.log_info())
 
     def get_dump(self, indent=0, recursive=True):
         """Returns the subtree as a string for debugging.

@@ -1,7 +1,6 @@
-from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
-from SpiffWorkflow.bpmn.event import BpmnEvent
-from SpiffWorkflow.util.task import TaskState
+from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn import BpmnWorkflow, BpmnEvent
+from SpiffWorkflow.bpmn.specs.mixins import CallActivityMixin
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -34,7 +33,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
 
         # Call activities should be created for executable processes and be reachable
         buddy = self.workflow.get_next_task(spec_name='process_buddy')
-        self.assertIsInstance(buddy.task_spec, CallActivity)
+        self.assertIsInstance(buddy.task_spec, CallActivityMixin)
         self.assertEqual(buddy.task_spec.spec, 'process_buddy')
         self.assertEqual(buddy.state, TaskState.WAITING)
 

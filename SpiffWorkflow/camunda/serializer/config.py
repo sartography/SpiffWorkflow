@@ -19,7 +19,7 @@
 
 from copy import deepcopy
 
-from SpiffWorkflow.bpmn.serializer.config import DEFAULT_CONFIG
+from SpiffWorkflow.bpmn.serializer import DEFAULT_CONFIG
 from SpiffWorkflow.bpmn.serializer.config import (
     UserTask as DefaultUserTask,
     ParallelMultiInstanceTask as DefaultParallelMITask,

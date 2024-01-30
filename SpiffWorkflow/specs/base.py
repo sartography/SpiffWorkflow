@@ -87,8 +87,6 @@ class TaskSpec(object):
         :type  post_assign: list((str, object))
         :param post_assign: a list of name/value pairs
         """
-        assert wf_spec is not None
-        assert name is not None
         self._wf_spec = wf_spec
         self.name = str(name)
         self.description = kwargs.get('description', None)
@@ -279,7 +277,6 @@ class TaskSpec(object):
         :type  my_task: Task
         :param my_task: The associated task in the task tree.
         """
-        assert my_task is not None
         self.test()
 
         # Assign variables, if so requested.

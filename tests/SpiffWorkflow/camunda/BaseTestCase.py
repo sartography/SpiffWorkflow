@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
 
-from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+from SpiffWorkflow.camunda.serializer import DEFAULT_CONFIG
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
-from SpiffWorkflow.camunda.serializer.config import CAMUNDA_CONFIG
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-registry = BpmnWorkflowSerializer.configure(CAMUNDA_CONFIG)
+registry = BpmnWorkflowSerializer.configure(DEFAULT_CONFIG)
 
 __author__ = 'danfunk'
 

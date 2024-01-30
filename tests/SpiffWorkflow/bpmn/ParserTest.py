@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
+from SpiffWorkflow.bpmn.parser import BpmnParser
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 
 

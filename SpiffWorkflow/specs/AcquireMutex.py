@@ -45,7 +45,6 @@ class AcquireMutex(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        assert mutex is not None
         TaskSpec.__init__(self, wf_spec, name, **kwargs)
         self.mutex = mutex
 

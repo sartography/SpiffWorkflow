@@ -18,108 +18,20 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.task import Task
-from SpiffWorkflow.util.task import TaskState, TaskFilter, TaskIterator
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.workflow import Workflow
-from SpiffWorkflow.exceptions import WorkflowException, TaskNotFoundException
+from SpiffWorkflow.exceptions import WorkflowException
 
 from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
 
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
-from .PythonScriptEngine import PythonScriptEngine
 
+from SpiffWorkflow.bpmn.util.subworkflow import BpmnSubWorkflow
+from SpiffWorkflow.bpmn.util.task import BpmnTaskIterator
 
-class BpmnTaskFilter(TaskFilter):
-
-    def __init__(self, catches_event=None, lane=None, **kwargs):
-        super().__init__(**kwargs)
-        self.catches_event = catches_event
-        self.lane = lane
-
-    def matches(self, task):
-
-        def _catches_event(task):
-            return isinstance(task.task_spec, CatchingEvent) and task.task_spec.catches(task, self.catches_event)
-
-        return all([
-            super().matches(task),
-            self.catches_event is None or _catches_event(task),
-            self.lane is None or task.task_spec.lane == self.lane,
-        ])
-
-
-class BpmnTaskIterator(TaskIterator):
-
-    def __init__(self, task, end_at_spec=None, max_depth=1000, depth_first=True, task_filter=None, **kwargs):
-
-        task_filter = task_filter or BpmnTaskFilter(**kwargs)
-        super().__init__(task, end_at_spec, max_depth, depth_first, task_filter)
-
-    def _next(self):
-
-        if len(self.task_list) == 0:
-            raise StopIteration()
-
-        task = self.task_list.pop(0)
-        subprocess = task.workflow.top_workflow.subprocesses.get(task.id)
-
-        if task.task_spec.name == self.end_at_spec:
-            self.task_list = []
-        elif all([
-            len(task._children) > 0 or subprocess is not None,
-            task.state >= self.min_state or subprocess is not None,
-            self.depth < self.max_depth,
-        ]):
-            if subprocess is None:
-                next_tasks = task.children
-            elif self.depth_first:
-                next_tasks = [subprocess.task_tree] + task.children
-            else:
-                next_tasks = task.children + [subprocess.task_tree]
-
-            if self.depth_first:
-                self.task_list = next_tasks + self.task_list
-            else:
-                self.task_list.extend(next_tasks)
-            self._update_depth(task)
-
-        elif self.depth_first and len(self.task_list) > 0:
-            self._handle_leaf_depth(task)
-
-        return task
-
-
-class BpmnSubWorkflow(Workflow):
-
-    def __init__(self, spec, parent_task_id, top_workflow, **kwargs):
-        super().__init__(spec, **kwargs)
-        self.parent_task_id = parent_task_id
-        self.top_workflow = top_workflow
-        self.correlations = {}
-
-    @property
-    def script_engine(self):
-        return self.top_workflow.script_engine
-
-    @property
-    def parent_workflow(self):
-        task = self.top_workflow.get_task_from_id(self.parent_task_id)
-        return task.workflow
-
-    @property
-    def depth(self):
-        current, depth = self, 0
-        while current.parent_workflow is not None:
-            depth += 1
-            current = current.parent_workflow
-        return depth
-
-    def get_task_from_id(self, task_id):
-        try:
-            return super().get_task_from_id(task_id)
-        except TaskNotFoundException as exc:
-            pass
+from .script_engine.python_engine import PythonScriptEngine
 
 
 class BpmnWorkflow(Workflow):
@@ -205,7 +117,7 @@ class BpmnWorkflow(Workflow):
         """
         if event.target is None:
             self.update_collaboration(event)
-            tasks = self.get_tasks(spec_class=CatchingEvent, catches_event=event)
+            tasks = self.get_tasks(catches_event=event)
             # Figure out if we need to create an external event
             if len(tasks) == 0:
                 self.bpmn_events.append(event)
@@ -220,7 +132,7 @@ class BpmnWorkflow(Workflow):
     def send_event(self, event):
         """Allows this workflow to catch an externally generated event."""
 
-        tasks = self.get_tasks(spec_class=CatchingEvent, catches_event=event)
+        tasks = self.get_tasks(catches_event=event)
         if len(tasks) == 0:
             raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
         for task in tasks:

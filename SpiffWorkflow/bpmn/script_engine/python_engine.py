@@ -23,7 +23,7 @@ import traceback
 
 from SpiffWorkflow.exceptions import SpiffWorkflowException
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
-from .PythonScriptEngineEnvironment import TaskDataEnvironment
+from .python_environment import TaskDataEnvironment
 
 
 class PythonScriptEngine(object):

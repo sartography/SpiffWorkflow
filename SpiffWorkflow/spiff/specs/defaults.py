@@ -17,28 +17,23 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.bpmn.specs.mixins.user_task import UserTask as UserTaskMixin
-from SpiffWorkflow.bpmn.specs.mixins.manual_task import ManualTask as ManualTaskMixin
-from SpiffWorkflow.bpmn.specs.mixins.none_task import NoneTask as NoneTaskMixin
-from SpiffWorkflow.bpmn.specs.mixins.script_task import ScriptTask as ScriptTaskMixin
-
-from SpiffWorkflow.bpmn.specs.mixins.events.intermediate_event import SendTask, ReceiveTask
-
-from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import(
-    SubWorkflowTask as SubWorkflowTaskMixin,
-    CallActivity as CallActivityMixin,
-    TransactionSubprocess as TransactionSubprocessMixin,
+from SpiffWorkflow.bpmn.specs.mixins import (
+    UserTaskMixin,
+    ManualTaskMixin,
+    NoneTaskMixin,
+    ScriptTaskMixin,
+    SubWorkflowTaskMixin,
+    CallActivityMixin,
+    TransactionSubprocessMixin,
+    StandardLoopTaskMixin,
+    ParallelMultiInstanceTaskMixin,
+    SequentialMultiInstanceTaskMixin,
+    SendTaskMixin,
+    ReceiveTaskMixin,
 )
-from SpiffWorkflow.bpmn.specs.mixins.multiinstance_task import (
-    StandardLoopTask as BpmnStandardLoopTask,
-    ParallelMultiInstanceTask as BpmnParallelMITask,
-    SequentialMultiInstanceTask as BpmnSequentialMITask,
-)
-
-from SpiffWorkflow.dmn.specs.business_rule_task_mixin import BusinessRuleTaskMixin as DefaultBusinessRuleTask
+from SpiffWorkflow.dmn.specs import BusinessRuleTaskMixin
 
 from .mixins.service_task import ServiceTask as ServiceTaskMixin
-
 from .spiff_task import SpiffBpmnTask
 
 
@@ -54,22 +49,22 @@ class NoneTask(NoneTaskMixin, SpiffBpmnTask):
 class ScriptTask(ScriptTaskMixin, SpiffBpmnTask):
     pass
 
-class SendTask(SendTask, SpiffBpmnTask):
+class SendTask(SendTaskMixin, SpiffBpmnTask):
     pass
 
-class ReceiveTask(ReceiveTask, SpiffBpmnTask):
+class ReceiveTask(ReceiveTaskMixin, SpiffBpmnTask):
     pass
 
-class StandardLoopTask(BpmnStandardLoopTask, SpiffBpmnTask):
+class StandardLoopTask(StandardLoopTaskMixin, SpiffBpmnTask):
     pass
 
-class ParallelMultiInstanceTask(BpmnParallelMITask, SpiffBpmnTask):
+class ParallelMultiInstanceTask(ParallelMultiInstanceTaskMixin, SpiffBpmnTask):
     pass
 
-class SequentialMultiInstanceTask(BpmnSequentialMITask, SpiffBpmnTask):
+class SequentialMultiInstanceTask(SequentialMultiInstanceTaskMixin, SpiffBpmnTask):
     pass
 
-class BusinessRuleTask(DefaultBusinessRuleTask, SpiffBpmnTask):
+class BusinessRuleTask(BusinessRuleTaskMixin, SpiffBpmnTask):
     pass
 
 class SubWorkflowTask(SubWorkflowTaskMixin, SpiffBpmnTask):

@@ -23,7 +23,7 @@ from SpiffWorkflow.operators import Attrib, PathAttrib
 
 from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
 from SpiffWorkflow.bpmn.specs.event_definitions.message import CorrelationProperty
-from .registry import BpmnConverter
+from .bpmn_converter import BpmnConverter
 
 
 class BpmnDataSpecificationConverter(BpmnConverter):

@@ -57,13 +57,6 @@ class BpmnDataStoreSpecification(BpmnDataSpecification):
         super().__init__(bpmn_id, bpmn_name)
 
 
-class BpmnIoSpecification:
-
-    def __init__(self, data_inputs, data_outputs):
-        self.data_inputs = data_inputs
-        self.data_outputs = data_outputs
-
-
 class DataObject(BpmnDataSpecification):
     """Copy data between process variables and tasks"""
 

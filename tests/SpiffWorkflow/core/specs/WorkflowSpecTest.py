@@ -5,9 +5,8 @@ from lxml import etree
 
 from random import randint
 
-from SpiffWorkflow.workflow import Workflow
-from SpiffWorkflow.specs.Join import Join
-from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
+from SpiffWorkflow import Workflow
+from SpiffWorkflow.specs import Join, WorkflowSpec
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 
 from ..util import track_workflow

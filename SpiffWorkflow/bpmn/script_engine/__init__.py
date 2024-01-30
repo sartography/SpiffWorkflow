@@ -1,3 +1,5 @@
+# Copyright (C) 2012 Matthew Hampton, 2023 Sartography
+#
 # This file is part of SpiffWorkflow.
 #
 # SpiffWorkflow is free software; you can redistribute it and/or
@@ -15,12 +17,5 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import sys
-
-
-def get_class(full_class_name):
-    parts = full_class_name.rsplit('.', 1)
-    module_name = parts[0]
-    class_name = parts[1]
-    __import__(module_name)
-    return getattr(sys.modules[module_name], class_name)
+from .python_engine import PythonScriptEngine, TaskDataEnvironment
+from .python_environment import  BasePythonScriptEngineEnvironment
