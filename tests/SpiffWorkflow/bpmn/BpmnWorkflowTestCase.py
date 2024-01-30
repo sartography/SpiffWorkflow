@@ -45,6 +45,12 @@ class BpmnWorkflowTestCase(unittest.TestCase):
     def get_ready_user_tasks(self, lane=None):
         return self.workflow.get_tasks(state=TaskState.READY, manual=True, lane=lane)
 
+    def run_until_input_required(self):
+        task = self.workflow.get_next_task(state=TaskState.READY, manual=False)
+        while task is not None:
+            task.run()
+            task = self.workflow.get_next_task(state=TaskState.READY, manual=False)
+
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:
             self.save_restore_all()

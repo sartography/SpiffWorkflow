@@ -66,6 +66,8 @@ from SpiffWorkflow.bpmn.specs.control import (
     SimpleBpmnTask,
     BoundaryEventSplit,
     BoundaryEventJoin,
+    StartEventSplit,
+    StartEventJoin,
     _EndJoin,
 )
 from SpiffWorkflow.bpmn.specs.data_spec import (
@@ -88,7 +90,7 @@ from .default.task_spec import (
     StandardLoopTaskConverter,
     MultiInstanceTaskConverter,
     SubWorkflowConverter,
-    BoundaryEventJoinConverter,
+    EventJoinConverter,
     ConditionalGatewayConverter,
     ExclusiveGatewayConverter,
     ParallelGatewayConverter,
@@ -127,7 +129,7 @@ DEFAULT_CONFIG = {
     CallActivity: SubWorkflowConverter,
     TransactionSubprocess: SubWorkflowConverter,
     BoundaryEventSplit: BpmnTaskSpecConverter,
-    BoundaryEventJoin: BoundaryEventJoinConverter,
+    BoundaryEventJoin: EventJoinConverter,
     ExclusiveGateway: ExclusiveGatewayConverter,
     InclusiveGateway: ConditionalGatewayConverter,
     ParallelGateway: ParallelGatewayConverter,
@@ -151,4 +153,6 @@ DEFAULT_CONFIG = {
     CycleTimerEventDefinition: TimerConditionalEventDefinitionConverter,
     ConditionalEventDefinition: TimerConditionalEventDefinitionConverter,
     MultipleEventDefinition: MultipleEventDefinitionConverter,
+    StartEventSplit: BpmnTaskSpecConverter,
+    StartEventJoin: EventJoinConverter,
 }

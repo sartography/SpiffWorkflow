@@ -128,8 +128,8 @@ class MultiInstanceTaskConverter(BpmnTaskSpecConverter):
         return self.task_spec_from_dict(dct)
 
 
-class BoundaryEventJoinConverter(BpmnTaskSpecConverter):
-    """The default converter for `BoundaryEventJoin`"""
+class EventJoinConverter(BpmnTaskSpecConverter):
+    """The default converter for event join gateways"""
 
     def to_dict(self, spec):
         dct = super().to_dict(spec)

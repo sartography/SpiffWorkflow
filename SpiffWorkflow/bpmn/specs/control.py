@@ -25,6 +25,7 @@ from SpiffWorkflow.specs.Join import Join
 from SpiffWorkflow.bpmn.specs.bpmn_task_spec import BpmnTaskSpec
 from SpiffWorkflow.bpmn.specs.mixins.unstructured_join import UnstructuredJoin
 from SpiffWorkflow.bpmn.specs.mixins.events.intermediate_event import BoundaryEvent
+from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
 
 
 class BpmnStartTask(BpmnTaskSpec, StartTask):
@@ -33,8 +34,11 @@ class BpmnStartTask(BpmnTaskSpec, StartTask):
 class SimpleBpmnTask(BpmnTaskSpec):
     pass
 
+class EventSplit(SimpleBpmnTask):
 
-class BoundaryEventSplit(SimpleBpmnTask):
+    def __init__(self, event_type, wf_spec, name, **kwargs):
+        super().__init__(wf_spec, name, **kwargs)
+        self.event_type = event_type
 
     def _predict_hook(self, my_task):
         # Events attached to the main task might occur
@@ -42,15 +46,25 @@ class BoundaryEventSplit(SimpleBpmnTask):
         # The main child's state is based on this task's state
         state = TaskState.FUTURE if my_task.has_state(TaskState.DEFINITE_MASK) else my_task.state
         for child in my_task.children:
-            if not isinstance(child.task_spec, BoundaryEvent):
+            if not isinstance(child.task_spec, self.event_type):
                 child._set_state(state)
 
     def _run_hook(self, my_task):
         for task in my_task.children:
-            if isinstance(task.task_spec, BoundaryEvent) and task.has_state(TaskState.PREDICTED_MASK):
+            if isinstance(task.task_spec, self.event_type) and task.has_state(TaskState.PREDICTED_MASK):
                 task._set_state(TaskState.WAITING)
         return True
-        
+
+
+class BoundaryEventSplit(EventSplit):
+    def __init__(self, wf_spec, name, **kwargs):
+        super().__init__(BoundaryEvent, wf_spec, name, **kwargs)
+
+
+class StartEventSplit(EventSplit):
+    def __init__(self, wf_spec, name, **kwargs):
+        super().__init__(StartEvent, wf_spec, name, **kwargs)
+
 
 class BoundaryEventJoin(Join, BpmnTaskSpec):
     """This task is inserted before a task with boundary events."""
@@ -59,7 +73,6 @@ class BoundaryEventJoin(Join, BpmnTaskSpec):
         super().__init__(wf_spec, name, **kwargs)
 
     def _check_threshold_structured(self, my_task, force=False):
-        # Retrieve a list of all activated tasks from the associated task that did the conditional parallel split.
         split_task = my_task.find_ancestor(self.split_task)
         if split_task is None:
             raise WorkflowException(f'Split at {self.split_task} was not reached', task_spec=self)
@@ -87,13 +100,34 @@ class BoundaryEventJoin(Join, BpmnTaskSpec):
         return force or finished, cancel
 
 
+class StartEventJoin(Join, BpmnTaskSpec):
+
+    def __init__(self, wf_spec, name, **kwargs):
+        super().__init__(wf_spec, name, **kwargs)
+
+    def _check_threshold_structured(self, my_task, force=False):
+
+        split_task = my_task.find_ancestor(self.split_task)
+        if split_task is None:
+            raise WorkflowException(f'Split at {self.split_task} was not reached', task_spec=self)
+
+        may_fire, waiting = False, []
+        for task in split_task.children:
+            if task.state == TaskState.COMPLETED:
+                may_fire = True
+            else:
+                waiting.append(task)
+        
+        return force or may_fire, waiting
+
+
 class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
 
     def _check_threshold_unstructured(self, my_task, force=False):
         # Look at the tree to find all ready and waiting tasks (excluding
         # ourself). The EndJoin waits for everyone!
         waiting_tasks = []
-        for task in my_task.workflow.get_tasks(task_filter=TaskFilter(state=TaskState.READY|TaskState.WAITING)):
+        for task in my_task.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING):
             if task.thread_id != my_task.thread_id:
                 continue
             if task.task_spec == my_task.task_spec:
