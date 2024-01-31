@@ -31,19 +31,21 @@ class BpmnWorkflowTestCase(unittest.TestCase):
         return top_level_spec, subprocesses
 
     def load_collaboration(self, filename, collaboration_name):
-        f = os.path.join(os.path.dirname(__file__), 'data', filename)
-        parser = TestBpmnParser()
-        parser.add_bpmn_files_by_glob(f)
+        parser = self.get_parser(filename)
         return parser.get_collaboration(collaboration_name)
 
     def get_all_specs(self, filename):
-        f = os.path.join(os.path.dirname(__file__), 'data', filename)
-        parser = TestBpmnParser()
-        parser.add_bpmn_files_by_glob(f)
+        parser = self.get_parser(filename)
         return parser.find_all_specs()
 
     def get_ready_user_tasks(self, lane=None):
         return self.workflow.get_tasks(state=TaskState.READY, manual=True, lane=lane)
+
+    def run_until_input_required(self):
+        task = self.workflow.get_next_task(state=TaskState.READY, manual=False)
+        while task is not None:
+            task.run()
+            task = self.workflow.get_next_task(state=TaskState.READY, manual=False)
 
     def do_next_exclusive_step(self, step_name, with_save_load=False, set_attribs=None, choice=None):
         if with_save_load:

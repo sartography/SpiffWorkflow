@@ -20,6 +20,7 @@
 from .ValidationException import ValidationException
 from ..specs.bpmn_process_spec import BpmnProcessSpec
 from ..specs.data_spec import DataObject
+from ..specs.control import StartEventJoin, StartEventSplit
 from .node_parser import NodeParser
 from .util import first
 
@@ -135,6 +136,16 @@ class ProcessParser(NodeParser):
         self.spec.data_stores = self.data_stores
         for node in start_node_list:
             self.parse_node(node)
+
+        if len(start_node_list) > 1:
+            split_task = StartEventSplit(self.spec, 'StartEventSplit')
+            join_task = StartEventJoin(self.spec, 'StartEventJoin', split_task='StartEventSplit', threshold=1, cancel=True)
+            for spec in self.spec.start.outputs:
+                spec.inputs = [split_task]
+                spec.connect(join_task)
+            split_task.outputs = self.spec.start.outputs
+            self.spec.start.outputs = [split_task]
+            split_task.inputs = [self.spec.start]
 
     def parse_data_object(self, obj):
         return DataObject(obj.get('id'), obj.get('name'))

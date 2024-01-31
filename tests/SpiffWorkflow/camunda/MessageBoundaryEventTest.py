@@ -13,9 +13,9 @@ __author__ = 'kellym'
 class MessageBoundaryTest(BaseTestCase):
 
     def setUp(self):
-        self.script_engine = PythonScriptEngine(environment=TaskDataEnvironment({"timedelta": timedelta}))
-        self.spec, self.subprocesses = self.load_workflow_spec('MessageBoundary.bpmn', 'Process_1kjyavs')
-        self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=self.script_engine)
+        script_engine = PythonScriptEngine(environment=TaskDataEnvironment({"timedelta": timedelta}))
+        spec, subprocess_specs = self.load_collaboration('MessageBoundary.bpmn', 'Collaboration_0fh00ao')
+        self.workflow = BpmnWorkflow(spec, subprocess_specs, script_engine=script_engine)
 
     def testRunThroughHappy(self):
         self.actual_test(save_restore=False)
@@ -24,10 +24,11 @@ class MessageBoundaryTest(BaseTestCase):
         self.actual_test(save_restore=True)
 
     def actual_test(self,save_restore = False):
-        steps = [('Activity_Interrupt', {'interrupt_task':'No'}),
-                 ('Activity_Interrupt', {'interrupt_task': 'No'}),
-                 ('Activity_Interrupt', {'interrupt_task': 'Yes'}),
-                 ]
+        steps = [
+            ('Activity_Interrupt', {'interrupt_task':'No'}),
+            ('Activity_Interrupt', {'interrupt_task': 'No'}),
+            ('Activity_Interrupt', {'interrupt_task': 'Yes'}),
+        ]
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(2, len(ready_tasks),'Expected to have two ready tasks')
@@ -42,7 +43,6 @@ class MessageBoundaryTest(BaseTestCase):
                 self.workflow.refresh_waiting_tasks()
                 if save_restore:
                     self.save_restore()
-                    self.workflow.script_engine = self.script_engine
             ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         time.sleep(.01)
         self.workflow.refresh_waiting_tasks()

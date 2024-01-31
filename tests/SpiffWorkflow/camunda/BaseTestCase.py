@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
@@ -30,6 +29,10 @@ class BaseTestCase(BpmnWorkflowTestCase):
         top_level_spec = parser.get_spec(process_name)
         subprocesses = parser.get_subprocess_specs(process_name)
         return top_level_spec, subprocesses
+
+    def load_collaboration(self, filename, collaboration_name, dmn_filename=None):
+        parser = self.get_parser(filename, dmn_filename)
+        return parser.get_collaboration(collaboration_name)
 
     def reload_save_restore(self):
         self.save_restore()

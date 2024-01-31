@@ -9,7 +9,7 @@ __author__ = 'kellym'
 class StartMessageTest(BaseTestCase):
 
     def setUp(self):
-        self.spec, self.subprocesses = self.load_workflow_spec('message_test.bpmn', 'ThrowCatch')
+        self.spec, self.subprocesses = self.load_collaboration('message_test.bpmn', 'Collaboration_0n93bdm')
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
 
     def testParserCanReturnStartMessages(self):
