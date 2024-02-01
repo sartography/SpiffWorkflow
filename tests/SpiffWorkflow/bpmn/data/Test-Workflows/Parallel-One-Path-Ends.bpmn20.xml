@@ -7,7 +7,7 @@
       </extensionElements>
     </participant>
   </collaboration>
-  <process id="sid-33b2dda8-ca46-47ca-9f08-43de73abde9e" name="Parallel One Path Ends" processType="None" isClosed="false" isExecutable="false">
+  <process id="sid-33b2dda8-ca46-47ca-9f08-43de73abde9e" name="Parallel One Path Ends" processType="None" isClosed="false" isExecutable="true">
     <laneSet id="sid-a3c82d8b-0ff3-4d32-822a-c4867d4b03ec">
       <lane id="sid-72009BCE-46B4-4B4B-AEAE-1E7199522142" name="Tester">
         <extensionElements>
@@ -179,9 +179,6 @@
       <bpmndi:BPMNShape id="sid-34AD79D9-BE0C-4F97-AC23-7A97D238A6E5_gui" bpmnElement="sid-34AD79D9-BE0C-4F97-AC23-7A97D238A6E5">
         <omgdc:Bounds x="371" y="319" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="sid-F3A979E3-F586-4807-8223-1FAB5A5647B0_gui" bpmnElement="sid-F3A979E3-F586-4807-8223-1FAB5A5647B0">
-        <omgdc:Bounds x="678" y="328" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="sid-51816945-79BF-47F9-BA3C-E95ABAE3D1DB_gui" bpmnElement="sid-51816945-79BF-47F9-BA3C-E95ABAE3D1DB">
         <omgdc:Bounds x="714" y="448" width="28" height="28" />
       </bpmndi:BPMNShape>
@@ -190,6 +187,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="sid-40294A27-262C-4805-94A0-36AC9DFEA55A_gui" bpmnElement="sid-40294A27-262C-4805-94A0-36AC9DFEA55A">
         <omgdc:Bounds x="600" y="339" width="40" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sid-F3A979E3-F586-4807-8223-1FAB5A5647B0_gui" bpmnElement="sid-F3A979E3-F586-4807-8223-1FAB5A5647B0">
+        <omgdc:Bounds x="678" y="328" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -59,3 +59,11 @@ class ParserTest(unittest.TestCase):
         self.assertIn(split_task, gw1.outputs)
         self.assertNotIn(task, gw2.outputs)
         self.assertIn(split_task, gw2.outputs)
+
+    def testNonExecutableProcessRaisesException(self):
+        bpmn_file = os.path.join(os.path.dirname(__file__), 'data/Invalid-Workflows', 'non-executable-process.bpmn')
+        self.parser.add_bpmn_file(bpmn_file)
+        self.assertRaisesRegex(
+            ValidationException, "Process \w+ is not executable.",
+            self.parser.get_spec, 'Process_14di7kj'
+        )

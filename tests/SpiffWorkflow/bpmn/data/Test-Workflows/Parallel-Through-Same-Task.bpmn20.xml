@@ -7,7 +7,7 @@
       </extensionElements>
     </participant>
   </collaboration>
-  <process id="sid-57c563e3-fb68-4961-ae34-b6201e0c09e8" name="Parallel Through Same Task" processType="None" isClosed="false" isExecutable="false">
+  <process id="sid-57c563e3-fb68-4961-ae34-b6201e0c09e8" name="Parallel Through Same Task" processType="None" isClosed="false" isExecutable="true">
     <laneSet id="sid-d79fd2d7-1cb4-4e41-9b4a-8daac27581a1">
       <lane id="sid-72009BCE-46B4-4B4B-AEAE-1E7199522142" name="Tester">
         <extensionElements>
