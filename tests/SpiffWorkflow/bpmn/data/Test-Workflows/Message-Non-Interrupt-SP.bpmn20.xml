@@ -12,7 +12,7 @@
       </extensionElements>
     </participant>
   </collaboration>
-  <process id="sid-b6b1212d-76ea-4ced-888b-a99fbbbca575" name="Message Non Interrupt SP" processType="None" isClosed="false" isExecutable="false">
+  <process id="sid-b6b1212d-76ea-4ced-888b-a99fbbbca575" name="Message Non Interrupt SP" processType="None" isClosed="false" isExecutable="true">
     <laneSet id="sid-25a04c52-8f46-4189-81cf-365ad15f5ec2">
       <lane id="sid-3D0056E3-493D-4E62-BCD0-B4AAC4654DBD" name="Tester">
         <extensionElements>
@@ -71,7 +71,7 @@
     <sequenceFlow id="sid-E0F8D63F-0B79-4CDF-9025-F3D40E581A2C" name="OK" sourceRef="sid-2BCA4F40-F885-4E59-9646-24E458BBC873" targetRef="sid-001BB515-2DC3-47C1-8122-3E853B3FDC34" />
     <sequenceFlow id="sid-8ABF0F70-8A8A-49F2-8C3E-FC595AB764C6" name="OK" sourceRef="sid-4B320727-A78F-47E7-98CF-F589994A1C64" targetRef="sid-001BB515-2DC3-47C1-8122-3E853B3FDC34" />
   </process>
-  <process id="sid-a8887239-25f3-4a3b-8538-7239227f8b90" name="Subprocess for Message Non Interrupt SP" processType="None" isClosed="false" isExecutable="false">
+  <process id="sid-a8887239-25f3-4a3b-8538-7239227f8b90" name="Subprocess for Message Non Interrupt SP" processType="None" isClosed="false" isExecutable="true">
     <laneSet id="sid-79e49579-615e-4ade-bdfb-2519a126c744">
       <lane id="sid-BD8CA42D-62D9-455E-8E85-55FF66E439AB" name="Tester">
         <extensionElements>

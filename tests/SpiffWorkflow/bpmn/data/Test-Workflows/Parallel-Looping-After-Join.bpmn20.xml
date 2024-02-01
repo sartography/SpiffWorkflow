@@ -7,7 +7,7 @@
       </extensionElements>
     </participant>
   </collaboration>
-  <process id="sid-41eb2b6c-08bc-4a61-b38b-5f32052139c5" name="Parallel Looping After Join" processType="None" isClosed="false" isExecutable="false">
+  <process id="sid-41eb2b6c-08bc-4a61-b38b-5f32052139c5" name="Parallel Looping After Join" processType="None" isClosed="false" isExecutable="true">
     <laneSet id="sid-127ca06b-aba8-45aa-bd8a-7be70ec94b2c">
       <lane id="sid-72009BCE-46B4-4B4B-AEAE-1E7199522142" name="Tester">
         <extensionElements>

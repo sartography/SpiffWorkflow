@@ -7,7 +7,7 @@
       </extensionElements>
     </participant>
   </collaboration>
-  <process id="sid-b0903a88-fe74-4f93-b912-47b815ea8d1c" name="Test Workflows" processType="None" isClosed="false" isExecutable="false">
+  <process id="sid-b0903a88-fe74-4f93-b912-47b815ea8d1c" name="Test Workflows" processType="None" isClosed="false" isExecutable="true">
     <laneSet id="sid-edaa3f58-bb13-4482-930d-e23976d816a1">
       <lane id="sid-7A923A68-8A4D-47F1-9CCD-8584C3992369" name="Test Runner">
         <extensionElements>

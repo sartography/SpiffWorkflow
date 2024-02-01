@@ -3,24 +3,21 @@
   <collaboration id="Collaboration_1n9r2gx">
     <participant id="Participant_1f8pqul" processRef="subprocess" />
   </collaboration>
-  <process id="subprocess" isExecutable="false">
+  <process id="subprocess" isExecutable="true">
     <ioSpecification>
       <dataInput id="in_1" name="input 1" />
       <dataInput id="in_2" name="input 2" />
       <dataOutput id="out_1" name="output 1" />
       <dataOutput id="out_2" name="output 2" />
-      <!-- creating input sets and output sets is way to define these
-           as a required set of inputs or outputs that must all
-           appear together -->
-      <inputSet name="Inputs" id="INS_1">
-            <dataInputRefs>in_1</dataInputRefs>
-            <dataInputRefs>in_2</dataInputRefs>
-       </inputSet>
-      <outputSet name="Outputs" id="OUTS_1">
-            <dataOutputRefs>out_1</dataOutputRefs>
-            <dataOutputRefs>out_2</dataOutputRefs>
-       </outputSet>
-      <outputSet name="Outputs" id="ID_8"/>
+      <inputSet id="INS_1" name="Inputs">
+        <dataInputRefs>in_1</dataInputRefs>
+        <dataInputRefs>in_2</dataInputRefs>
+      </inputSet>
+      <outputSet id="OUTS_1" name="Outputs">
+        <dataOutputRefs>out_1</dataOutputRefs>
+        <dataOutputRefs>out_2</dataOutputRefs>
+      </outputSet>
+      <outputSet id="ID_8" name="Outputs" />
     </ioSpecification>
     <startEvent id="Event_1rtivo5">
       <outgoing>Flow_0n038fc</outgoing>
@@ -41,6 +38,23 @@
     <bpmndi:BPMNPlane id="BpmnPlane_1" bpmnElement="Collaboration_1n9r2gx">
       <bpmndi:BPMNShape id="Participant_1f8pqul_di" bpmnElement="Participant_1f8pqul" isHorizontal="true">
         <omgdc:Bounds x="160" y="80" width="460" height="280" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0n038fc_di" bpmnElement="Flow_0n038fc">
+        <omgdi:waypoint x="268" y="270" />
+        <omgdi:waypoint x="320" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1d3l0mt_di" bpmnElement="Flow_1d3l0mt">
+        <omgdi:waypoint x="420" y="270" />
+        <omgdi:waypoint x="472" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1rtivo5_di" bpmnElement="Event_1rtivo5">
+        <omgdc:Bounds x="232" y="252" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0pgucu1_di" bpmnElement="Event_0pgucu1">
+        <omgdc:Bounds x="472" y="252" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1mvr1wa_di" bpmnElement="Activity_04d94ee">
+        <omgdc:Bounds x="320" y="230" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataInput-617683903-1DI" bpmnElement="in_1">
         <omgdc:Bounds x="242" y="115" width="36" height="50" />
@@ -65,23 +79,6 @@
         <bpmndi:BPMNLabel>
           <omgdc:Bounds x="460" y="172" width="40" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1d3l0mt_di" bpmnElement="Flow_1d3l0mt">
-        <omgdi:waypoint x="420" y="270" />
-        <omgdi:waypoint x="472" y="270" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0n038fc_di" bpmnElement="Flow_0n038fc">
-        <omgdi:waypoint x="268" y="270" />
-        <omgdi:waypoint x="320" y="270" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_1rtivo5_di" bpmnElement="Event_1rtivo5">
-        <omgdc:Bounds x="232" y="252" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0pgucu1_di" bpmnElement="Event_0pgucu1">
-        <omgdc:Bounds x="472" y="252" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1mvr1wa_di" bpmnElement="Activity_04d94ee">
-        <omgdc:Bounds x="320" y="230" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -174,7 +174,7 @@ class BpmnParser(object):
 
     def get_process_ids(self):
         """Returns a list of process IDs"""
-        return list(self.process_parsers.keys())
+        return list(proc_id for proc_id, parser in self.process_parsers.items() if parser.process_executable)
 
     def add_bpmn_file(self, filename):
         """
@@ -344,8 +344,8 @@ class BpmnParser(object):
         # This is a little convoluted, but we might add more processes as we generate
         # the dictionary if something refers to another subprocess that we haven't seen.
         processes = dict((id, self.get_spec(id)) for id in self.get_process_ids())
-        while sorted(processes.keys()) != sorted(self.process_parsers.keys()):
-            for process_id in tuple(self.process_parsers.keys()):
+        while sorted(processes.keys()) != sorted(self.get_process_ids()):
+            for process_id in self.get_process_ids():
                 processes[process_id] = self.get_spec(process_id)
         return processes
 

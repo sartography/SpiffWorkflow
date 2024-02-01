@@ -7,7 +7,7 @@
       </extensionElements>
     </participant>
   </collaboration>
-  <process id="sid-900d26c9-beab-47a4-8092-4284bfb39927" name="Parallel Then Exclusive No Inclusive" processType="None" isClosed="false" isExecutable="false">
+  <process id="sid-900d26c9-beab-47a4-8092-4284bfb39927" name="Parallel Then Exclusive No Inclusive" processType="None" isClosed="false" isExecutable="true">
     <laneSet id="sid-6ee2dc30-d14c-4d0c-9e3c-dab157e066ae">
       <lane id="sid-72009BCE-46B4-4B4B-AEAE-1E7199522142" name="Tester">
         <extensionElements>

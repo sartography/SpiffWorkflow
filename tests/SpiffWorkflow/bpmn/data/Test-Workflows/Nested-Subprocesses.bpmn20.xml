@@ -7,7 +7,7 @@
       </extensionElements>
     </participant>
   </collaboration>
-  <process id="sid-a12cf1e5-86f4-4d69-9790-6a90342f5963" name="Nested Subprocesses" processType="None" isClosed="false" isExecutable="false">
+  <process id="sid-a12cf1e5-86f4-4d69-9790-6a90342f5963" name="Nested Subprocesses" processType="None" isClosed="false" isExecutable="true">
     <laneSet id="sid-9684857d-29fd-4e60-89e5-2462da8484be">
       <lane id="sid-523D686B-3A1A-4B30-8111-8FB18DF2D3E3" name="Tester">
         <extensionElements>
@@ -61,14 +61,9 @@
       <bpmndi:BPMNShape id="sid-523D686B-3A1A-4B30-8111-8FB18DF2D3E3_gui" bpmnElement="sid-523D686B-3A1A-4B30-8111-8FB18DF2D3E3" isHorizontal="true">
         <omgdc:Bounds x="187" y="86" width="669" height="242" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="sid-5BC5ECB5-884B-449A-AC67-B9B7ED296728_gui" bpmnElement="sid-5BC5ECB5-884B-449A-AC67-B9B7ED296728">
-        <omgdi:waypoint x="428" y="210" />
-        <omgdi:waypoint x="494.65837438145536" y="210.0482220899209" />
-        <omgdi:waypoint x="494.65837438145536" y="185" />
-        <omgdi:waypoint x="561" y="185" />
-        <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="488" y="188" width="45" height="14" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNEdge id="sid-E35CEC65-EA3C-4C5A-BC90-8C17016C24E5_gui" bpmnElement="sid-E35CEC65-EA3C-4C5A-BC90-8C17016C24E5">
+        <omgdi:waypoint x="265" y="210" />
+        <omgdi:waypoint x="328" y="210" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="sid-85D2E5A5-BD56-4650-B715-3B6E0BE33443_gui" bpmnElement="sid-85D2E5A5-BD56-4650-B715-3B6E0BE33443">
         <omgdi:waypoint x="661" y="185" />
@@ -79,9 +74,14 @@
           <omgdc:Bounds x="714" y="188" width="42" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="sid-E35CEC65-EA3C-4C5A-BC90-8C17016C24E5_gui" bpmnElement="sid-E35CEC65-EA3C-4C5A-BC90-8C17016C24E5">
-        <omgdi:waypoint x="265" y="210" />
-        <omgdi:waypoint x="328" y="210" />
+      <bpmndi:BPMNEdge id="sid-5BC5ECB5-884B-449A-AC67-B9B7ED296728_gui" bpmnElement="sid-5BC5ECB5-884B-449A-AC67-B9B7ED296728">
+        <omgdi:waypoint x="428" y="210" />
+        <omgdi:waypoint x="494.65837438145536" y="210.0482220899209" />
+        <omgdi:waypoint x="494.65837438145536" y="185" />
+        <omgdi:waypoint x="561" y="185" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="488" y="188" width="45" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="sid-093DC600-6F99-40CE-988C-7AD87B792F90_gui" bpmnElement="sid-093DC600-6F99-40CE-988C-7AD87B792F90">
         <omgdc:Bounds x="235" y="196" width="30" height="30" />

@@ -46,7 +46,7 @@ class ProcessParser(NodeParser):
         self.parser = p
         self.lane = lane
         self.spec = None
-        self.process_executable = self.is_executable()
+        self.process_executable = node.get('isExecutable', 'true') == 'true'
         self.data_stores = data_stores
         self.inherited_data_objects = {}
 
@@ -63,9 +63,6 @@ class ProcessParser(NodeParser):
             if el.get("name"):
                 return True
         return False
-
-    def is_executable(self) -> bool:
-        return self.node.get('isExecutable', 'true') == 'true'
 
     def start_messages(self):
         """ This returns a list of message names that would cause this
@@ -117,6 +114,8 @@ class ProcessParser(NodeParser):
         start_node_list = self.xpath('./bpmn:startEvent')
         if not start_node_list and self.process_executable:
             raise ValidationException("No start event found", node=self.node, file_name=self.filename)
+        if not self.process_executable:
+            raise ValidationException(f"Process {self.bpmn_id} is not executable.", node=self.node, file_name=self.filename)
         self.spec = BpmnProcessSpec(name=self.bpmn_id, description=self.get_name(), filename=self.filename)
 
         self.spec.data_objects.update(self.inherited_data_objects)
