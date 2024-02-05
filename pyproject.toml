@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "SpiffWorkflow"
-version = "3.0.0rc0"
 description = "A workflow framework and BPMN/DMN Processor"
 authors = [
     {name = "Sartography", email = "dan@sartography.com"},
@@ -25,13 +24,17 @@ classifiers = [
 dependencies = [
     "lxml",
 ]
+dynamic = ["version"]
 
 [project.urls]
 Homepage =  "https://github.com/sartography/SpiffWorkflow"
 Documentation = "https://spiffworkflow.readthedocs.io"
 
 [project.optional-dependencies]
-doc = ["sphinx"]
+doc = [
+    "sphinx",
+    "sphinx_rtd_theme",
+]
 dev = [
     "build",
     "coverage",
@@ -39,6 +42,9 @@ dev = [
 
 [tool.setuptools]
 packages = ["SpiffWorkflow"]
+
+[tool.setuptools.dynamic]
+version = {attr = "SpiffWorkflow.__version__"}
 
 [tool.setuptools.package-data]
 "*" = ["schema/*.xsd"]

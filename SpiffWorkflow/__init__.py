@@ -17,3 +17,4 @@
 
 from .util.task import TaskState
 from .workflow import Workflow
+from .version import __version__
