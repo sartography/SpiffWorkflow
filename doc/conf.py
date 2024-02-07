@@ -18,23 +18,32 @@
 # -- Project information -----------------------------------------------------
 
 project = 'SpiffWorkflow'
-copyright = '2023, Sartography'
+copyright = '2024, Sartography'
 author = 'Sartography'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0.0rc0'
+release = '3.0.0rc0'
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', # 'sphinx.ext.coverage',
+extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.viewcode',
               'sphinx.ext.autosummary',
+              'sphinx.ext.extlinks',
               'sphinx_rtd_theme',
-              #'sphinx.ext.intersphinx',
              ]
+
+# Configure links to example repo
+branch = 'improvement/better-interactive-workflow-runner'
+extlinks = {
+    'example': (f'https://github.com/sartography/spiff-example-cli/tree/{branch}/' + '%s', '%s'),
+    'bpmn': (f'https://github.com/sartography/spiff-example-cli/tree/{branch}/bpmn/tutorial/' + '%s', '%s'),
+    'form': (f'https://github.com/sartography/spiff-example-cli/tree/{branch}/bpmn/tutorial/forms/' + '%s', '%s'),
+    'app': (f'https://github.com/sartography/spiff-example-cli/tree/{branch}/spiff_example/' + '%s', '%s'),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -55,7 +64,7 @@ html_theme = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # Set the master index file.
 master_doc = 'index'
