@@ -18,7 +18,6 @@ strategy for building Low-Code applications.
 
 
 ## Build status
-[![Build Status](https://travis-ci.com/sartography/SpiffWorkflow.svg?branch=master)](https://travis-ci.org/sartography/SpiffWorkflow)
 [![SpiffWorkflow](https://github.com/sartography/SpiffWorkflow/actions/workflows/tests.yaml/badge.svg)](https://github.com/sartography/SpiffWorkflow/actions/workflows/tests.yaml)
 [![Documentation Status](https://readthedocs.org/projects/spiffworkflow/badge/?version=latest)](http://spiffworkflow.readthedocs.io/en/latest/?badge=latest)
 [![Issues](https://img.shields.io/github/issues/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/issues)
@@ -31,11 +30,9 @@ strategy for building Low-Code applications.
 
 ## Dependencies
 We've worked to minimize external dependencies.  We rely on lxml for parsing
-XML Documents, and there is some legacy support for Celery, but it is not
-core to the implementation, it is just a way to interconnect these systems.
+XML Documents, and that's it!
 <b>Built with</b>
 - [lxml](https://lxml.de/)
-- [celery](https://docs.celeryproject.org/en/stable/)
 
 ## Features
 * __BPMN__ - support for parsing BPMN diagrams, including the more complex
@@ -43,10 +40,6 @@ components, like pools and lanes, multi-instance tasks, sub-workflows, timer
 events, signals, messages, boudary events and looping.
 * __DMN__ - We have a baseline implementation of DMN that is well integrated
 with our Python Execution Engine.
-* __Forms__ - forms, including text fields, selection lists, and most every other
-thing you can be extracted from the Camunda xml extension, and returned as
-json data that can be used to generate forms on the command line, or in web
-applications (we've used Formly to good success)
 * __Python Workflows__ - We've retained support for building workflows directly
 in code, or running workflows based on a internal json data structure.
 
@@ -65,6 +58,7 @@ pip install spiffworkflow
 
 ## Tests
 ```
+pip install spiffworkflow[dev]
 cd tests/SpiffWorkflow
 coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
 ```
