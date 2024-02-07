@@ -1,5 +1,0 @@
-* Write an asynchronous server.
-* As soon as it is possible to trigger an action twice without
-  creating another branch (some kind of asynchronous notification,
-  perhaps), make sure to test the generalized AND-join with that
-  in xml/patterns/generalized_and_join.xml.
