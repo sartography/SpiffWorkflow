@@ -6,9 +6,11 @@ added a few new features to support [SpiffArena](https://www.spiffworkflow.org/)
 ## Breaking Changes from 2.x:
 
 * We refactored task iteration to allow for greater flexibility in selecting tasks.  Usage of `workflow.get_tasks` has changed.
+  See [Filtering Tasks](https://spiffworkflow.readthedocs.io/en/latest/bpmn/workflows.html#filtering-tasks) for documentation.
 * We've continued to reorganize files in order to impose more structure on the package.  Imports have changed (but we've added
-  `__init__.py` files to make these reorganizations less painful in the future).
-* We've simplified the BPMN serializer.
+  `__init__.py` files to make these reorganizations less painful in the future).  See an overview of the package structure at
+  [What's in the BPMN Module](https:://spiffworkflow.readthedocs.io/en/latest/bpmn/imports.html).
+* We've simplified the BPMN serializer. [BPMN Serializer](https:://spiffworkflow.readthedocs.io/en/latest/bpmn/serialization.html)
 
 ## Features and Improvements
 
@@ -50,4 +52,4 @@ added a few new features to support [SpiffArena](https://www.spiffworkflow.org/)
 * Removed dependencies on descendant tasks from parallel gateway merges that could cause workflow execution to stall.
 * Ensured that all dependencies of a subprocess are identified by the BPMN parser.
 
-**Full Changelog**: https://github.com/sartography/SpiffWorkflow/compare/v2.0.1...main
+**Full Changelog**: https://github.com/sartography/SpiffWorkflow/compare/v2.0.1...v3.0.0rc0

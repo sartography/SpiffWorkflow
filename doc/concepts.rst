@@ -1,13 +1,25 @@
-SpiffWorkflow Concepts
-======================
+Fundamental SpiffWorkflow Concepts
+==================================
+
+Overview
+--------
+
+The purpose of this library is to provide a general workflow execution enviroment with a wide variety of built-in task
+types that support many different workflow patterns.
+
+SpiffWorkflow keeps track of task dependencies and states and provides the ability to serialize or deserialize a
+workflow that has not been completed. Developers using this library can focus on displaying a workflow’s state and
+presenting its tasks to users of their application.
+
+.. _specs_vs_instances:
 
 Specifications vs. Instances
 ----------------------------
 
 SpiffWorkflow consists of two different categories of objects:
 
-- **Specification objects**, which represent the definitions and derive from :code:`WorkflowSpec` and :code:`TaskSpec`
-- **Instance objects**, which represent the state of a running workflow (:code:`Workflow`, :code:`BpmnWorkflow` and :code:`Task`)
+- **Specification objects**, which represent definitions of structure and behavior and derive from :code:`WorkflowSpec` and :code:`TaskSpec`
+- **Instance objects**, which represent the state of a running workflow (:code:`Workflow`/:code:`BpmnWorkflow` and :code:`Task`)
 
 In the workflow context, a specification is model of the workflow, an abstraction that describes *every path that could
 be taken whenever the workflow is executed*.  An instance is a particular instantiation of a specification.  It describes *the
@@ -23,20 +35,27 @@ Specifications are unique, whereas instances are not.  There is *one* model of a
 Imagine a workflow with a loop.  The loop is defined once in the specification, but there can be many tasks associated with
 each of the specs that comprise the loop.
 
-In our BPMN example, described a product selection process.::
+In our BPMN example (:ref:`quickstart`), we described a product selection process:
 
     Start -> Select and Customize Product -> Continue Shopping?
 
 Since the customer can potentially select more than one product, how our instance looks depends on the customer's actions.  If
-they choose three products, then we get the following tree::
+they choose three products, then we get the following path::
 
-    Start --> Select and Customize Product -> Continue Shopping?
-          |-> Select and Customize Product -> Continue Shopping?
+    Start --> Select and Customize Product -> Continue Shopping? -> |
+          /-------------------------------------------------------- /
+          |-> Select and Customize Product -> Continue Shopping? -> |
+          /-------------------------------------------------------- /
           |-> Select and Customize Product -> Continue Shopping?
 
 There is *one* TaskSpec describing product selection and customization and *one* TaskSpec that determines whether to add more
-items, but it may execute any number of imes, resulting in as many Tasks for these TaskSpecs as the number of products the
+items, but it may execute any number of times, resulting in as many Tasks for these TaskSpecs as the number of products the
 customer selects.
+
+A Task Spec may have multiple inputs (if there are multiple paths to reach it) but a Task has only one parent.  A specification
+may contains cycles, but an instantiated workflow is *always* a tree.
+
+.. _states:
 
 Understanding Task States
 -------------------------
@@ -52,7 +71,7 @@ Understanding Task States
 
 * **DEFINITE** Tasks
 
-  Definite tasks are certain to run as the workflow pregresses.
+  Definite tasks are certain to run as the workflow progresses.
 
   - **FUTURE**: The task will definitely run.
   - **WAITING**: A condition must be met before the task can become **READY**
@@ -67,13 +86,11 @@ Understanding Task States
   - **ERROR**: The task finished unsucessfully.
   - **CANCELLED**: The task was cancelled before it ran or while it was running.
 
-
-
 Tasks start in either a **PREDICTED** or **FUTURE** state, move through one or more **DEFINITE** states, and end in a
-**FINISHED** state.  State changes are determined by several task spec methods:
+**FINISHED** state.  State changes are determined by task spec methods.
 
 Hooks
-=======
+-----
 
 SpiffWorkflow executes a Task by calling a series of hooks that are tightly coupled
 to Task State. These hooks are:

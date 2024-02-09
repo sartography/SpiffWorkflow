@@ -11,11 +11,12 @@ First we'll create a new class
 
 .. code:: python
 
-    from SpiffWorkflow.bpmn.specs.event_definitions import TimerEventDefinition, NoneEventDefinition
-    from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
-    from SpiffWorkflow.spiff.specs.spiff_task import SpiffBpmnTask
+    from SpiffWorkflow.bpmn.specs.event_definitions import NoneEventDefinition
+    from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
+    from SpiffWorkflow.bpmn.specs.mixins import StartEventMixin
+    from SpiffWorkflow.spiff.specs import SpiffBpmnTask
 
-    class CustomStartEvent(StartEvent, SpiffBpmnTask):
+    class CustomStartEvent(StartEventMixin, SpiffBpmnTask):
 
         def __init__(self, wf_spec, bpmn_id, event_definition, **kwargs):
 
@@ -26,13 +27,14 @@ First we'll create a new class
                 super().__init__(wf_spec, bpmn_id, event_definition, **kwargs)
                 self.timer_event = None
 
-When we create our custom event, we'll check to see if we're creating a Start Event with a TimerEventDefinition, and if so,
-we'll replace it with a NoneEventDefinition.
+When we create our custom event, we'll check to see if we're creating a Start Event with a :code:`TimerEventDefinition`, and
+if so, we'll replace it with a :code:`NoneEventDefinition`.  There are three different types of Timer Events, so we'll use
+the base class for all three to make sure we account for TimeDate, Duration, and Cycle.
 
 .. note::
 
     Our class inherits from two classes.  We import a mixin class that defines generic BPMN Start Event behavior from
-    :code:`StartEvent` in the :code:`bpmn` package and the :code:`SpiffBpmnTask` from the :code:`spiff` package, which
+    :code:`StartEventMixin` in the :code:`bpmn` package and the :code:`SpiffBpmnTask` from the :code:`spiff` package, which
     extends the default :code:`BpmnSpecMixin`.
     
     We've split the basic behavior for specific BPMN tasks from the :code:`BpmnSpecMixin` to make it easier to extend
@@ -44,10 +46,10 @@ Whenever we create a custom task spec, we'll need to create a converter for it s
 
 .. code:: python
 
-    from SpiffWorkflow.bpmn.serializer.workflow import BpmnWorkflowSerializer
-    from SpiffWorkflow.bpmn.serializer.task_spec import StartEventConverter
+    from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+    from SpiffWorkflow.bpmn.serializer.default import EventConverter
     from SpiffWorkflow.spiff.serializer.task_spec import SpiffBpmnTaskConverter
-    from SpiffWorkflow.spiff.serializer.config import SPIFF_SPEC_CONFIG
+    from SpiffWorkflow.spiff.serializer import DEFAULT_CONFIG
 
     class CustomStartEventConverter(SpiffBpmnTaskConverter):
 
@@ -63,21 +65,20 @@ Whenever we create a custom task spec, we'll need to create a converter for it s
             return dct
 
         
-    SPIFF_SPEC_CONFIG['task_specs'].remove(StartEventConverter)
-    SPIFF_SPEC_CONFIG['task_specs'].append(CustomStartEventConverter)
-
-    wf_spec_converter = BpmnWorkflowSerializer.configure_workflow_spec_converter(SPIFF_SPEC_CONFIG)
-    serializer = BpmnWorkflowSerializer(wf_spec_converter)
+    DEFAULT_CONFIG['task_specs'].remove(StartEventConverter)
+    DEFAULT_CONFIG['task_specs'].append(CustomStartEventConverter)
+    registry = BpmnWorkflowSerializer.configure(DEFAULT_CONFIG)
+    serializer = BpmnWorkflowSerializer(registry)
 
 Our converter will inherit from the :code:`SpiffBpmnTaskConverter`, since that's our base generic BPMN mixin class.
 
-The :code:`SpiffBpmnTaskConverter` ultimately inherits from 
+The :code:`SpiffBpmnTaskConverter` itself inherits from 
 :code:`SpiffWorkflow.bpmn.serializer.helpers.task_spec.BpmnTaskSpecConverter`. which provides some helper methods for
 extracting standard attributes from tasks; the :code:`SpiffBpmnTaskConverter` does the same for extensions from the
 :code:`spiff` package.
 
 We don't have to do much -- all we do is replace the event definition with the original.  The timer event will be
-moved when the task is restored.
+moved when the task is restored, and this saves us from having to write a custom parser.
 
 .. note::
 
@@ -86,31 +87,22 @@ moved when the task is restored.
     way to make this a little easier to follow.
 
 When we create our serializer, we need to tell it about this task.  We'll remove the converter for the standard Start
-Event and add the one we created to the confiuration and create the :code:`workflow_spec_converter` from the updated
-config.
+Event and add the one we created to the configuration.  We then get a registry of classes that the serializer knows
+about that includes our custom spec, as well as all the other specs and initialize the serializer with it.
 
 .. note::
 
-    We have not instantiated our converter class.  When we call :code:`configure_workflow_spec_converter` with a
-    configuration (which is essentially a list of classes, split up into sections for organizational purposes),
-    *it* instantiates the classes for us, using the same `registry` for every class.  At the end of the configuration
-    if returns this registry, which now knows about all of the classes that will be used for SpiffWorkflow
-    specifications.  It is possible to pass a separately created :code:`DictionaryConverter` preconfigured with
-    other converters; in that case, it will be used as the base `registry`, to which specification conversions will
-    be added.
-    
-Because we've built up the `registry` in such a way, we can make use of the :code:`registry.convert` and
-:code:`registry.restore` methods rather than figuring out how to serialize them.  We can use these methods on any
-objects that SpiffWorkflow knows about.
-
-See :doc:`advanced` for more information about the serializer.
+    The reason there are two steps involved (regurning a registry and *then* passing it to the serializer) rather
+    that using the configuration directly is to allow further customization of the :code:`registry`.  Workflows
+    can contain arbtrary data, we want to provide developers the ability to serialization code for any object.  See
+    :ref:`serializing_custom_objects` for more information about how this works.
 
 Finally, we have to update our parser:
 
 .. code:: python
 
+    from SpiffWorkflow.spiff.parser import SpiffBpmnParser
     from SpiffWorkflow.spiff.parser.event_parsers import StartEventParser
-    from SpiffWorkflow.spiff.parser.process import SpiffBpmnParser
     from SpiffWorkflow.bpmn.parser.util import full_tag
 
     parser = SpiffBpmnParser()
@@ -122,12 +114,10 @@ will use.  This is a bit unintuitive, but that's how it works.
 
 Fortunately, we were able to reuse an existing Task Spec parser, which simplifies the process quite a bit.
 
-Having created a parser and serializer, we could replace the ones we pass in the the :code:`SimpleBpmnRunner` with these.
+Having created a parser and serializer, we could create a configuration module and instantiate an engine with these
+components.
 
-I am going to leave creating a script that makes use of them to readers of this document, as it should be clear enough
-how to do.
-
-There is a very simple diagram `bpmn/tutorial/timer_start.bpmn` with the process ID `timer_start` with a Start Event
+There is a very simple diagram :bpmn:`timer_start.bpmn` with the process ID `timer_start` with a Start Event
 with a Duration Timer of one day that can be used to illustrate how the custom task works.  If you run this workflow
-with `spiff-bpmn-runner.py`, you'll see a `WAITING` Start Event; if you use the parser and serializer we just created,
-you'll be propmted to complete the User Task immediately.
+with any of the configurations provided, you'll see a `WAITING` Start Event; if you use the parser and serializer we
+just created, you'll be propmted to complete the User Task immediately.

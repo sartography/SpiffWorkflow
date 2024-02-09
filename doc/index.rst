@@ -20,15 +20,17 @@ What is SpiffWorkflow?
 
 **SpiffWorkflow is a library that provides a flexible workflow execution environment.**
 
-Recent development has largely focused on allowing Python applications to process
-BPMN diagrams (think of them as very powerful flow charts; see :doc:`bpmn/intro`). to
-accomplish what would otherwise require writing a lot of complex business logic in your
-code. You can use these diagrams to accomplish a number of tasks, such as:
+SpiffWorkflow is the workflow library underlying `Spiff Arena <https://github.com/sartography/spiff-arena>`_.
 
- - Creating a questionnaire with multiple complex paths
- - Implement an approval process that requires input from multiple users
- - Allow non-programmers to modify the flow and behavior of your application
- - Visualize and manage long running data processing tasks
+It consists of a generic core library, with packages supporting parsing and execution of BPMN diagrams that extend
+this core.
+
+Extensive documentation about BPMN and how SpiffWorkflow interprets it, as well as information about custom extensions
+implemented in the :code:`spiff` package can be found in the
+`Spiff Arena documentation <https://spiff-arena.readthedocs.io/en/latest/>`_. If you are not familiar with BPMN, you
+should start there. If you are looking for a full-fledged BPMN application, you can start and end there. This
+documentation will focus on the library itself and is geared towards developers who are building their own
+applications.
 
 Please visit `SpiffWorkflow.org <https://www.spiffworkflow.org>`_ for
 additional articles, videos, and tutorials about SpiffWorkflow and its
@@ -54,8 +56,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   bpmn/overview
-   bpmn/intro
    concepts
+   modules
+   bpmn/index
    core/index
-
