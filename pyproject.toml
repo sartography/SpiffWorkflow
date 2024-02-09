@@ -40,8 +40,9 @@ dev = [
     "coverage",
 ]
 
-[tool.setuptools]
-packages = ["SpiffWorkflow"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["SpiffWorkflow*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "SpiffWorkflow.__version__"}
