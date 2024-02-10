@@ -9,8 +9,8 @@ added a few new features to support [SpiffArena](https://www.spiffworkflow.org/)
   See [Filtering Tasks](https://spiffworkflow.readthedocs.io/en/latest/bpmn/workflows.html#filtering-tasks) for documentation.
 * We've continued to reorganize files in order to impose more structure on the package.  Imports have changed (but we've added
   `__init__.py` files to make these reorganizations less painful in the future).  See an overview of the package structure at
-  [What's in the BPMN Module](https:://spiffworkflow.readthedocs.io/en/latest/bpmn/imports.html).
-* We've simplified the BPMN serializer. [BPMN Serializer](https:://spiffworkflow.readthedocs.io/en/latest/bpmn/serialization.html)
+  [What's in the BPMN Module](https://spiffworkflow.readthedocs.io/en/latest/bpmn/imports.html).
+* We've simplified the BPMN serializer. [BPMN Serializer](https://spiffworkflow.readthedocs.io/en/latest/bpmn/serialization.html)
 
 ## Features and Improvements
 
