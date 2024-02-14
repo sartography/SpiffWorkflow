@@ -32,11 +32,6 @@ def feelConvertTime(datestr,parsestr):
 
 class FeelInterval():
     def __init__(self, begin, end, leftOpen=False, rightOpen=False):
-        warnings.warn(
-            'The FEEL script engine is deprecated and will be removed in the next release',
-            DeprecationWarning,
-            stacklevel=2,
-        )
         # pesky thing with python floats and Decimal comparison
         if isinstance(begin,float):
             begin = Decimal("%0.5f"%begin)
@@ -274,6 +269,11 @@ class FeelLikeScriptEngine(PythonScriptEngine):
     expressions in a mini-language of your own.
     """
     def __init__(self, environment=None):
+        warnings.warn(
+            'The FEEL script engine is deprecated and will be removed in the next release',
+            DeprecationWarning,
+            stacklevel=2,
+        )
         super().__init__(environment=environment)
 
     def validate(self, expression):
@@ -294,17 +294,10 @@ class FeelLikeScriptEngine(PythonScriptEngine):
             proposed_python = lhs + proposed_python
         return proposed_python
 
-    def _evaluate(self, expression, context, task=None, external_context=None):
-        """
-        Evaluate the given expression, within the context of the given task and
-        return the result.
-        """
+    def evaluate(self, task, expression, external_context=None):
         if external_context is None:
             external_context = {}
-
-        revised = self.patch_expression(expression)
-        external_context.update(externalFuncs)
-        return super()._evaluate(revised, context, external_context=external_context)
+        return self._evaluate(expression, task.data, external_context=external_context) 
 
     def execute(self, task, script, data, external_context=None):
         """
@@ -313,8 +306,15 @@ class FeelLikeScriptEngine(PythonScriptEngine):
         if external_context is None:
             external_context = {}
         external_context.update(externalFuncs)
-        super().execute(task, script, external_context)
+        return super().execute(task, script, external_context)
 
-
-
-
+    def _evaluate(self, expression, context, task=None, external_context=None):
+        """
+        Evaluate the given expression, within the context of the given task and
+        return the result.
+        """
+        if external_context is None:
+            external_context = {}
+        external_context.update(externalFuncs)
+        revised = self.patch_expression(expression)
+        return self.environment.evaluate(revised, context, external_context=external_context)

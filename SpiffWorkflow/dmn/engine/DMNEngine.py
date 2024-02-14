@@ -122,8 +122,7 @@ class DMNEngine:
             external_context = {
                 'dmninputexpr': script_engine.evaluate(task, input_expr)
             }
-            return script_engine.evaluate(task, match_expr,
-                                          external_context=external_context)
+            return script_engine.evaluate(task, match_expr, external_context=external_context)
 
         # The input expression just has to be something that can be parsed as is by the engine.
         script_engine.validate(input_expr)

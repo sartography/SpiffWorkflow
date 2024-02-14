@@ -59,7 +59,7 @@ class MessageEventDefinition(EventDefinition):
                 if key not in correlations:
                     correlations[key] = {}
                 try:
-                    correlations[key][property.name] = task.workflow.script_engine._evaluate(property.retrieval_expression, payload)
+                    correlations[key][property.name] = task.workflow.script_engine.environment.evaluate(property.retrieval_expression, payload)
                 except WorkflowException:
                     # Just ignore missing keys.  The dictionaries have to match exactly
                     pass

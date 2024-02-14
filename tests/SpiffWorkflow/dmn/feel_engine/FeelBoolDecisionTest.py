@@ -23,9 +23,3 @@ class FeelBoolDecisionTestClass(unittest.TestCase):
     def test_bool_decision_string_output3(self):
         res = self.runner.decide(None)
         self.assertEqual(res.description, 'ELSE Row Annotation')
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(FeelBoolDecisionTestClass)
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

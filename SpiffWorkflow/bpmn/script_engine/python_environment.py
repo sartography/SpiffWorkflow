@@ -30,6 +30,9 @@ class BasePythonScriptEngineEnvironment:
     def execute(self, script, context, external_context=None):
         raise NotImplementedError("Subclass must implement this method")
 
+    def call_service(self, operation_name, operation_params, task_data):
+        raise NotImplementedError("To call external services override the script engine and implement `call_service`.")
+
 
 class TaskDataEnvironment(BasePythonScriptEngineEnvironment):
 
