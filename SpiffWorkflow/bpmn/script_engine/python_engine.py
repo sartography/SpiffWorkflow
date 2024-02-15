@@ -20,6 +20,7 @@
 import ast
 import sys
 import traceback
+import warnings
 
 from SpiffWorkflow.exceptions import SpiffWorkflowException
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
@@ -49,7 +50,7 @@ class PythonScriptEngine(object):
         return the result.
         """
         try:
-            return self._evaluate(expression, task.data, external_context)
+            return self.environment.evaluate(expression, task.data, external_context)
         except SpiffWorkflowException as se:
             se.add_note(f"Error evaluating expression '{expression}'")
             raise se
@@ -59,15 +60,20 @@ class PythonScriptEngine(object):
     def execute(self, task, script, external_context=None):
         """Execute the script, within the context of the specified task."""
         try:
-            return self._execute(script, task.data, external_context or {})
+            return self.environment.execute(script, task.data, external_context or {})
         except Exception as err:
             wte = self.create_task_exec_exception(task, script, err)
             raise wte
 
     def call_service(self, operation_name, operation_params, task_data):
-        """Override to control how external services are called from service
-        tasks."""
-        raise NotImplementedError("To call external services override the script engine and implement `call_service`.")
+        """Override to control how external services are called from service tasks."""
+        warnings.warn(
+            'In the next release, implementation of this method will be moved to the scripting environment',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        # Ideally, this method would look like call_service(self, task, operation_name, operation_params)
+        return self.environment.call_service(operation_name, operation_params, task_data)
 
     def create_task_exec_exception(self, task, script, err):
         line_number, error_line = self.get_error_line_number_and_content(script, err)
@@ -97,9 +103,3 @@ class PythonScriptEngine(object):
         if line_number > 0:
             error_line = script.splitlines()[line_number - 1]
         return line_number, error_line
-
-    def _evaluate(self, expression, context, external_context=None):
-        return self.environment.evaluate(expression, context, external_context)
-
-    def _execute(self, script, context, external_context=None):
-        return self.environment.execute(script, context, external_context)
