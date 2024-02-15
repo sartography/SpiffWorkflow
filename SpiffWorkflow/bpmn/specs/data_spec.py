@@ -77,7 +77,18 @@ class DataObject(BpmnDataSpecification):
         del my_task.data[self.bpmn_id]
         data_log.info(f'Set workflow variable {self.bpmn_id}', extra=my_task.log_info())
 
+    def delete(self, my_task):
+        my_task.data.pop(self.bpmn_id, None)
+
 
 class TaskDataReference(BpmnDataSpecification):
     """A representation of task data that can be used in a BPMN diagram"""
-    pass
+
+    def get(self, my_task):
+        return my_task.data.get(self.bpmn_id)
+
+    def set(self, my_task, value):
+        my_task.data[self.bpmn_id] = value
+
+    def exists(self, my_task):
+        return self.bpmn_id in my_task.data

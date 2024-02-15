@@ -149,12 +149,12 @@ class MultiInstanceTask(LoopTask):
         """This merges child data into this task's data."""
 
         if self.data_output is not None and self.output_item is not None:
-            if self.output_item.bpmn_id not in child.data:
+            if not self.output_item.exists(child):
                 self.raise_data_exception("Expected an output item", child)
-            item = child.data[self.output_item.bpmn_id]
+            item = self.output_item.get(child)
             key_or_index = child.internal_data.get('key_or_index')
-            data_output = my_task.data[self.data_output.bpmn_id]
-            data_input = my_task.data[self.data_input.bpmn_id] if self.data_input is not None else None
+            data_output = self.data_output.get(my_task)
+            data_input = self.data_input.get(my_task) if self.data_input is not None else None
             if key_or_index is not None and (isinstance(data_output, Mapping) or data_input is data_output):
                 data_output[key_or_index] = item
             else:
@@ -167,12 +167,12 @@ class MultiInstanceTask(LoopTask):
         task_spec = my_task.workflow.spec.task_specs[self.task_spec]
         child = my_task._add_child(task_spec, TaskState.WAITING)
         child.triggered = True
-        if self.input_item is not None and self.input_item.bpmn_id in my_task.data:
+        if self.input_item is not None and self.input_item.exists(my_task):
             raise WorkflowDataException(f'Multiinstance input item {self.input_item.bpmn_id} already exists.', my_task)
-        if self.output_item is not None and self.output_item.bpmn_id in my_task.data:
+        if self.output_item is not None and self.output_item.exists(my_task):
             raise WorkflowDataException(f'Multiinstance output item {self.output_item.bpmn_id} already exists.', my_task)
-        if self.input_item is not None:                
-            child.data[self.input_item.bpmn_id] = deepcopy(item)
+        if self.input_item is not None:       
+            self.input_item.set(child, deepcopy(item))
         if key_or_index is not None:
             child.internal_data['key_or_index'] = key_or_index
         else:
@@ -188,19 +188,18 @@ class MultiInstanceTask(LoopTask):
 
     def init_data_output_with_input_data(self, my_task, input_data):
 
-        name = self.data_output.bpmn_id
-        if name not in my_task.data:
+        if not self.data_output.exists(my_task):
             if isinstance(input_data, (MutableMapping, MutableSequence)):
                 # We can use the same class if it implements __setitem__
-                my_task.data[name] = input_data.__class__()
+                self.data_output.set(my_task, input_data.__class__())
             elif isinstance(input_data, Mapping):
                 # If we have a map without __setitem__, use a dict
-                my_task.data[name] = dict()
+                self.data_output.set(my_task, dict())
             else:
                 # For all other types, we'll append to a list
-                my_task.data[name] = list()
+                self.data_output.set(my_task, list())
         else:
-            output_data = my_task.data[self.data_output.bpmn_id]
+            output_data = self.data_output.get(my_task)
             if not isinstance(output_data, (MutableSequence, MutableMapping)):
                 self.raise_data_exception("Only a mutable map (dict) or sequence (list) can be used for output", my_task)
             if input_data is not output_data and not isinstance(output_data, Mapping) and len(output_data) > 0:
@@ -209,14 +208,15 @@ class MultiInstanceTask(LoopTask):
 
     def init_data_output_with_cardinality(self, my_task):
 
-        name = self.data_output.bpmn_id
-        if name not in my_task.data:
-            my_task.data[name] = list()
-        elif not isinstance(my_task.data[name], MutableMapping) and len(my_task.data[name]) > 0:
-            self.raise_data_exception(
-                "If loop cardinality is specificied, the output must be a map (dict) or empty sequence (list)",
-                my_task
-            )
+        if not self.data_output.exists(my_task):
+            self.data_output.set(my_task, list())
+        else:
+            data_output = self.data_output.get(my_task)
+            if not isinstance(data_ouput, MutableMapping) and len(data_output) > 0:
+                self.raise_data_exception(
+                    "If loop cardinality is specificied, the output must be a map (dict) or empty sequence (list)",
+                    my_task
+                )
 
     def raise_data_exception(self, message, my_task):
         raise WorkflowDataException(message, my_task, data_input=self.data_input, data_output=self.data_output)
@@ -260,7 +260,7 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
 
     def get_next_input_item(self, my_task):
 
-        input_data = my_task.data[self.data_input.bpmn_id]
+        input_data = self.data_input.get(my_task)
         remaining = my_task.internal_data.get('remaining')
 
         if remaining is None:
@@ -282,9 +282,9 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
 
     def init_remaining_items(self, my_task):
 
-        if self.data_input.bpmn_id not in my_task.data:
+        if not self.data_input.exists(my_task):
             self.raise_data_exception("Missing data input for multiinstance task", my_task)
-        input_data = my_task.data[self.data_input.bpmn_id]
+        input_data = self.data_input.get(my_task)
 
         # This is internal bookkeeping, so we know where we are; we get the actual items when we create the task
         if isinstance(input_data, Sequence):
@@ -340,8 +340,8 @@ class ParallelMultiInstanceTask(MultiInstanceTask):
 
     def create_children(self, my_task):
 
-        data_input = my_task.data[self.data_input.bpmn_id] if self.data_input is not None else None
-        if data_input is not None:
+        if self.data_input is not None:
+            data_input = self.data_input.get(my_task)
             # We have to preserve the key or index for maps/sequences, in case we're updating in place, or the output is a mapping
             if isinstance(data_input, Mapping):
                 children = data_input.items()
@@ -359,7 +359,7 @@ class ParallelMultiInstanceTask(MultiInstanceTask):
 
             if self.data_output is not None:
                 if self.data_input is not None:
-                    self.init_data_output_with_input_data(my_task, my_task.data[self.data_input.bpmn_id])
+                    self.init_data_output_with_input_data(my_task, self.data_input.get(my_task))
                 else:
                     self.init_data_output_with_cardinality(my_task)
 
