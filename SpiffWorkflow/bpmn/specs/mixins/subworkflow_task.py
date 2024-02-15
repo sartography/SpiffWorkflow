@@ -96,13 +96,13 @@ class CallActivity(SubWorkflowTask):
         else:
             # Otherwise copy only task data with the specified names
             for var in subworkflow.spec.io_specification.data_inputs:
-                if var.bpmn_id not in my_task.data:
+                if not var.exists(my_task):
                     raise WorkflowDataException(
                         "You are missing a required Data Input for a call activity.",
                         task=my_task,
                         data_input=var,
                     )
-                start.data[var.bpmn_id] = my_task.data[var.bpmn_id]
+                var.set(start, var.get(my_task))
 
     def update_data(self, my_task, subworkflow):
 
@@ -119,7 +119,7 @@ class CallActivity(SubWorkflowTask):
                         task=my_task,
                         data_output=var,
                     )
-                my_task.data[var.bpmn_id] = end.data[var.bpmn_id]
+                var.set(my_task, var.get(end))
 
 
 class TransactionSubprocess(SubWorkflowTask):

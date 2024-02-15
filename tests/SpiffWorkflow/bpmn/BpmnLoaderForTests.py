@@ -54,6 +54,9 @@ class TestDataStore(BpmnDataStoreSpecification):
         TestDataStore._value = my_task.data[self.bpmn_id]
         del my_task.data[self.bpmn_id]
 
+    def delete(self, my_task):
+        del my_task.data[self.bpmn_id]
+
 class TestDataStoreConverter(BpmnConverter):
 
     def to_dict(self, spec):

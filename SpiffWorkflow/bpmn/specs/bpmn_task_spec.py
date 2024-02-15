@@ -76,9 +76,9 @@ class BpmnTaskSpec(TaskSpec):
         if self.io_specification is not None and len(self.io_specification.data_inputs) > 0:
             data = {}
             for var in self.io_specification.data_inputs:
-                if var.bpmn_id not in my_task.data:
+                if not var.exists(my_task):
                     raise WorkflowDataException("Missing data input", task=my_task, data_input=var)
-                data[var.bpmn_id] = my_task.data[var.bpmn_id]
+                data[var.bpmn_id] = var.get(my_task)
             my_task.data = data
 
         return True
@@ -88,9 +88,9 @@ class BpmnTaskSpec(TaskSpec):
         if self.io_specification is not None and len(self.io_specification.data_outputs) > 0:
             data = {}
             for var in self.io_specification.data_outputs:
-                if var.bpmn_id not in my_task.data:
+                if not var.exists(my_task):
                     raise WorkflowDataException("Missing data ouput", task=my_task, data_output=var)
-                data[var.bpmn_id] = my_task.data[var.bpmn_id]
+                data[var.bpmn_id] = var.get(my_task)
             my_task.data = data
 
         for obj in self.data_output_associations:
@@ -98,7 +98,7 @@ class BpmnTaskSpec(TaskSpec):
 
         for obj in self.data_input_associations:
             # Remove the any copied input variables that might not have already been removed
-            my_task.data.pop(obj.bpmn_id, None)
+            obj.delete(my_task)
 
         super()._on_complete_hook(my_task)
 
