@@ -39,7 +39,7 @@ added a few new features to support [SpiffArena](https://www.spiffworkflow.org/)
 ### Other Changes
 
 * Deprecated the FEEL engine.
-* Rremoved `Box`.
+* Removed `Box`.
 
 ### Bugfixes
 
