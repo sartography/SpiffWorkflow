@@ -98,7 +98,7 @@ class BpmnTaskSpec(TaskSpec):
 
         for obj in self.data_input_associations:
             # Remove the any copied input variables that might not have already been removed
-            obj.delete(my_task)
+            my_task.data.pop(obj.bpmn_id, None)
 
         super()._on_complete_hook(my_task)
 
