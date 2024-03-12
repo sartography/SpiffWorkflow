@@ -133,3 +133,33 @@ def add_new_typenames(dct):
         sp['typename'] = 'BpmnSubWorkflow'
         for task in sp['tasks'].values():
             task['typename'] = 'Task' 
+
+def update_data_objects(dct):
+
+    def delete_duplicates(data_objects, spec, wf):
+        for name in data_objects:
+            spec['data_objects'].pop(name, None)
+            if name in wf['data']:
+                del wf['data'][name]
+
+    def move_data_objects(data_objects, wf):
+        if len(data_objects) > 0:
+            wf['data']['data_objects'] = {}
+        for data_obj in data_objects:
+            if data_obj in wf['data']:
+                wf['data']['data_objects'][data_obj] = wf['data'].pop(data_obj)
+
+    def update(wf, spec, parent_spec):
+        if len(spec.get('data_objects', [])) > 0 and 'data_objects' not in wf['data']:
+            for task in wf['tasks'].values():
+                ts = spec['task_specs'].get(task['task_spec'])
+                if ts['typename'] in ['SubWorkflowTask', 'TransactionSubprocess'] and task['id'] in dct['subprocesses']:
+                    sp_spec = dct['subprocess_specs'].get(ts['spec'])
+                    sp = dct['subprocesses'][task['id']]
+                    update(sp, sp_spec, spec)
+            if parent_spec is not None:
+                delete_duplicates(parent_spec['data_objects'], spec, wf)
+            move_data_objects(spec['data_objects'], wf)
+
+    update(dct, dct['spec'], None)
+

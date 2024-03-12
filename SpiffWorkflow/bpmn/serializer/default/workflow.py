@@ -157,6 +157,4 @@ class BpmnWorkflowConverter(WorkflowConverter):
                 sp = self.registry.restore(dct.pop(str(task.id)), task=task, top_workflow=top_workflow)
                 top_workflow.subprocesses[task.id] = sp
                 sp.completed_event.connect(task.task_spec._on_subworkflow_completed, task)
-                if len(sp.spec.data_objects) > 0:
-                    sp.data = task.workflow.data
                 self.subprocesses_from_dict(dct, sp, top_workflow)

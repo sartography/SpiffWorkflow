@@ -1,0 +1,624 @@
+{
+  "serializer_version": "1.2",
+  "data": {
+    "obj_1": "hello"
+  },
+  "correlations": {},
+  "last_task": "bd4ce289-cabd-406c-947c-91bd4af1aca2",
+  "success": true,
+  "tasks": {
+    "a829be95-412a-4100-884f-44062281dcd5": {
+      "id": "a829be95-412a-4100-884f-44062281dcd5",
+      "parent": null,
+      "children": [
+        "db9f6ec1-94b7-43ba-b205-42c861036eb2"
+      ],
+      "last_state_change": 1710269712.3527431,
+      "state": 64,
+      "task_spec": "Start",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "typename": "Task"
+    },
+    "db9f6ec1-94b7-43ba-b205-42c861036eb2": {
+      "id": "db9f6ec1-94b7-43ba-b205-42c861036eb2",
+      "parent": "a829be95-412a-4100-884f-44062281dcd5",
+      "children": [
+        "92306cd9-bdee-46a2-af90-f3ebc5d2c5e2"
+      ],
+      "last_state_change": 1710269712.3546002,
+      "state": 64,
+      "task_spec": "Event_0kmwi7u",
+      "triggered": false,
+      "internal_data": {
+        "event_fired": true
+      },
+      "data": {},
+      "typename": "Task"
+    },
+    "92306cd9-bdee-46a2-af90-f3ebc5d2c5e2": {
+      "id": "92306cd9-bdee-46a2-af90-f3ebc5d2c5e2",
+      "parent": "db9f6ec1-94b7-43ba-b205-42c861036eb2",
+      "children": [
+        "3a25287d-e14e-4795-9568-77908cb4d0f1"
+      ],
+      "last_state_change": 1710269712.357311,
+      "state": 64,
+      "task_spec": "generate_data",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "typename": "Task"
+    },
+    "3a25287d-e14e-4795-9568-77908cb4d0f1": {
+      "id": "3a25287d-e14e-4795-9568-77908cb4d0f1",
+      "parent": "92306cd9-bdee-46a2-af90-f3ebc5d2c5e2",
+      "children": [
+        "bd4ce289-cabd-406c-947c-91bd4af1aca2"
+      ],
+      "last_state_change": 1710269712.3761137,
+      "state": 64,
+      "task_spec": "task_1",
+      "triggered": false,
+      "internal_data": {},
+      "data": {
+        "obj_1": "hello again"
+      },
+      "typename": "Task"
+    },
+    "bd4ce289-cabd-406c-947c-91bd4af1aca2": {
+      "id": "bd4ce289-cabd-406c-947c-91bd4af1aca2",
+      "parent": "3a25287d-e14e-4795-9568-77908cb4d0f1",
+      "children": [
+        "ff934c0a-014d-4320-a220-f4fdf8ae7f50"
+      ],
+      "last_state_change": 1710269712.3773048,
+      "state": 64,
+      "task_spec": "read_data",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "typename": "Task"
+    },
+    "ff934c0a-014d-4320-a220-f4fdf8ae7f50": {
+      "id": "ff934c0a-014d-4320-a220-f4fdf8ae7f50",
+      "parent": "bd4ce289-cabd-406c-947c-91bd4af1aca2",
+      "children": [
+        "4bd5af5c-fd10-4564-a2ce-1873349ec070"
+      ],
+      "last_state_change": 1710269712.3792934,
+      "state": 8,
+      "task_spec": "subprocess",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "typename": "Task"
+    },
+    "4bd5af5c-fd10-4564-a2ce-1873349ec070": {
+      "id": "4bd5af5c-fd10-4564-a2ce-1873349ec070",
+      "parent": "ff934c0a-014d-4320-a220-f4fdf8ae7f50",
+      "children": [
+        "fde13580-c26f-42ac-a44c-9275f0b17a15"
+      ],
+      "last_state_change": 1710269712.3500242,
+      "state": 4,
+      "task_spec": "Event_0qw1yr0",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "typename": "Task"
+    },
+    "fde13580-c26f-42ac-a44c-9275f0b17a15": {
+      "id": "fde13580-c26f-42ac-a44c-9275f0b17a15",
+      "parent": "4bd5af5c-fd10-4564-a2ce-1873349ec070",
+      "children": [
+        "9d30b468-b8c5-48a3-8801-3755d98a529c"
+      ],
+      "last_state_change": 1710269712.3501854,
+      "state": 4,
+      "task_spec": "Process.EndJoin",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "typename": "Task"
+    },
+    "9d30b468-b8c5-48a3-8801-3755d98a529c": {
+      "id": "9d30b468-b8c5-48a3-8801-3755d98a529c",
+      "parent": "fde13580-c26f-42ac-a44c-9275f0b17a15",
+      "children": [],
+      "last_state_change": 1710269712.3504493,
+      "state": 4,
+      "task_spec": "End",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "typename": "Task"
+    }
+  },
+  "root": "a829be95-412a-4100-884f-44062281dcd5",
+  "spec": {
+    "name": "Process",
+    "description": "Process",
+    "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/data_object.bpmn",
+    "task_specs": {
+      "Start": {
+        "name": "Start",
+        "description": "BPMN Task",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [],
+        "outputs": [
+          "Event_0kmwi7u"
+        ],
+        "bpmn_id": null,
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "typename": "BpmnStartTask"
+      },
+      "Process.EndJoin": {
+        "name": "Process.EndJoin",
+        "description": "BPMN Task",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "Event_0qw1yr0"
+        ],
+        "outputs": [
+          "End"
+        ],
+        "bpmn_id": null,
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "typename": "_EndJoin"
+      },
+      "End": {
+        "name": "End",
+        "description": "BPMN Task",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "Process.EndJoin"
+        ],
+        "outputs": [],
+        "bpmn_id": null,
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "typename": "SimpleBpmnTask"
+      },
+      "Event_0kmwi7u": {
+        "name": "Event_0kmwi7u",
+        "description": "Default Start Event",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "Start"
+        ],
+        "outputs": [
+          "generate_data"
+        ],
+        "bpmn_id": "Event_0kmwi7u",
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "event_definition": {
+          "description": "Default",
+          "name": null,
+          "typename": "NoneEventDefinition"
+        },
+        "typename": "StartEvent",
+        "extensions": {}
+      },
+      "generate_data": {
+        "name": "generate_data",
+        "description": "User Task",
+        "manual": true,
+        "lookahead": 2,
+        "inputs": [
+          "Event_0kmwi7u"
+        ],
+        "outputs": [
+          "task_1"
+        ],
+        "bpmn_id": "generate_data",
+        "bpmn_name": "Generate Data",
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [
+          {
+            "bpmn_id": "obj_1",
+            "bpmn_name": null,
+            "typename": "DataObject"
+          }
+        ],
+        "io_specification": null,
+        "typename": "UserTask",
+        "extensions": {}
+      },
+      "task_1": {
+        "name": "task_1",
+        "description": "User Task",
+        "manual": true,
+        "lookahead": 2,
+        "inputs": [
+          "generate_data"
+        ],
+        "outputs": [
+          "read_data"
+        ],
+        "bpmn_id": "task_1",
+        "bpmn_name": "Task",
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "typename": "UserTask",
+        "extensions": {}
+      },
+      "read_data": {
+        "name": "read_data",
+        "description": "User Task",
+        "manual": true,
+        "lookahead": 2,
+        "inputs": [
+          "task_1"
+        ],
+        "outputs": [
+          "subprocess"
+        ],
+        "bpmn_id": "read_data",
+        "bpmn_name": "Read Data",
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [
+          {
+            "bpmn_id": "obj_1",
+            "bpmn_name": null,
+            "typename": "DataObject"
+          }
+        ],
+        "data_output_associations": [],
+        "io_specification": null,
+        "typename": "UserTask",
+        "extensions": {}
+      },
+      "subprocess": {
+        "name": "subprocess",
+        "description": "Subprocess",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "read_data"
+        ],
+        "outputs": [
+          "Event_0qw1yr0"
+        ],
+        "bpmn_id": "subprocess",
+        "bpmn_name": "Subprocess",
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "spec": "subprocess",
+        "typename": "SubWorkflowTask",
+        "extensions": {}
+      },
+      "Event_0qw1yr0": {
+        "name": "Event_0qw1yr0",
+        "description": "Default End Event",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "subprocess"
+        ],
+        "outputs": [
+          "Process.EndJoin"
+        ],
+        "bpmn_id": "Event_0qw1yr0",
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "event_definition": {
+          "description": "Default",
+          "name": null,
+          "typename": "NoneEventDefinition"
+        },
+        "typename": "EndEvent",
+        "extensions": {}
+      }
+    },
+    "io_specification": null,
+    "data_objects": {
+      "obj_1": {
+        "bpmn_id": "obj_1",
+        "bpmn_name": null,
+        "typename": "DataObject"
+      }
+    },
+    "correlation_keys": {},
+    "typename": "BpmnProcessSpec"
+  },
+  "subprocess_specs": {
+    "subprocess": {
+      "name": "subprocess",
+      "description": "Subprocess",
+      "file": "/home/essweine/work/sartography/code/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/data_object.bpmn",
+      "task_specs": {
+        "Start": {
+          "name": "Start",
+          "description": "BPMN Task",
+          "manual": false,
+          "lookahead": 2,
+          "inputs": [],
+          "outputs": [
+            "Event_1wuwx2f"
+          ],
+          "bpmn_id": null,
+          "bpmn_name": null,
+          "lane": null,
+          "documentation": null,
+          "data_input_associations": [],
+          "data_output_associations": [],
+          "io_specification": null,
+          "typename": "BpmnStartTask"
+        },
+        "subprocess.EndJoin": {
+          "name": "subprocess.EndJoin",
+          "description": "BPMN Task",
+          "manual": false,
+          "lookahead": 2,
+          "inputs": [
+            "Event_1qcnmnt"
+          ],
+          "outputs": [
+            "End"
+          ],
+          "bpmn_id": null,
+          "bpmn_name": null,
+          "lane": null,
+          "documentation": null,
+          "data_input_associations": [],
+          "data_output_associations": [],
+          "io_specification": null,
+          "typename": "_EndJoin"
+        },
+        "End": {
+          "name": "End",
+          "description": "BPMN Task",
+          "manual": false,
+          "lookahead": 2,
+          "inputs": [
+            "subprocess.EndJoin"
+          ],
+          "outputs": [],
+          "bpmn_id": null,
+          "bpmn_name": null,
+          "lane": null,
+          "documentation": null,
+          "data_input_associations": [],
+          "data_output_associations": [],
+          "io_specification": null,
+          "typename": "SimpleBpmnTask"
+        },
+        "Event_1wuwx2f": {
+          "name": "Event_1wuwx2f",
+          "description": "Default Start Event",
+          "manual": false,
+          "lookahead": 2,
+          "inputs": [
+            "Start"
+          ],
+          "outputs": [
+            "placeholder"
+          ],
+          "bpmn_id": "Event_1wuwx2f",
+          "bpmn_name": null,
+          "lane": null,
+          "documentation": null,
+          "data_input_associations": [],
+          "data_output_associations": [],
+          "io_specification": null,
+          "event_definition": {
+            "description": "Default",
+            "name": null,
+            "typename": "NoneEventDefinition"
+          },
+          "typename": "StartEvent",
+          "extensions": {}
+        },
+        "placeholder": {
+          "name": "placeholder",
+          "description": "Task",
+          "manual": true,
+          "lookahead": 2,
+          "inputs": [
+            "Event_1wuwx2f"
+          ],
+          "outputs": [
+            "Event_1qcnmnt"
+          ],
+          "bpmn_id": "placeholder",
+          "bpmn_name": null,
+          "lane": null,
+          "documentation": null,
+          "data_input_associations": [
+            {
+              "bpmn_id": "obj_1",
+              "bpmn_name": null,
+              "typename": "DataObject"
+            }
+          ],
+          "data_output_associations": [
+            {
+              "bpmn_id": "obj_1",
+              "bpmn_name": null,
+              "typename": "DataObject"
+            }
+          ],
+          "io_specification": null,
+          "typename": "NoneTask",
+          "extensions": {}
+        },
+        "Event_1qcnmnt": {
+          "name": "Event_1qcnmnt",
+          "description": "Default End Event",
+          "manual": false,
+          "lookahead": 2,
+          "inputs": [
+            "placeholder"
+          ],
+          "outputs": [
+            "subprocess.EndJoin"
+          ],
+          "bpmn_id": "Event_1qcnmnt",
+          "bpmn_name": null,
+          "lane": null,
+          "documentation": null,
+          "data_input_associations": [],
+          "data_output_associations": [],
+          "io_specification": null,
+          "event_definition": {
+            "description": "Default",
+            "name": null,
+            "typename": "NoneEventDefinition"
+          },
+          "typename": "EndEvent",
+          "extensions": {}
+        }
+      },
+      "io_specification": null,
+      "data_objects": {
+        "obj_1": {
+          "bpmn_id": "obj_1",
+          "bpmn_name": null,
+          "typename": "DataObject"
+        }
+      },
+      "correlation_keys": {},
+      "typename": "BpmnProcessSpec"
+    }
+  },
+  "subprocesses": {
+    "ff934c0a-014d-4320-a220-f4fdf8ae7f50": {
+      "data": {
+        "obj_1": "hello"
+      },
+      "correlations": {},
+      "last_task": "98316300-1e10-4f0b-b833-209e0737cb85",
+      "success": true,
+      "tasks": {
+        "98316300-1e10-4f0b-b833-209e0737cb85": {
+          "id": "98316300-1e10-4f0b-b833-209e0737cb85",
+          "parent": null,
+          "children": [
+            "5d16c0f5-5ff9-4a8b-b500-1c6247d88aef"
+          ],
+          "last_state_change": 1710269712.378701,
+          "state": 64,
+          "task_spec": "Start",
+          "triggered": false,
+          "internal_data": {},
+          "data": {},
+          "typename": "Task"
+        },
+        "5d16c0f5-5ff9-4a8b-b500-1c6247d88aef": {
+          "id": "5d16c0f5-5ff9-4a8b-b500-1c6247d88aef",
+          "parent": "98316300-1e10-4f0b-b833-209e0737cb85",
+          "children": [
+            "72df5034-5f0f-43a5-995e-5ff77fb07863"
+          ],
+          "last_state_change": 1710269712.3788383,
+          "state": 16,
+          "task_spec": "Event_1wuwx2f",
+          "triggered": false,
+          "internal_data": {
+            "event_fired": true
+          },
+          "data": {},
+          "typename": "Task"
+        },
+        "72df5034-5f0f-43a5-995e-5ff77fb07863": {
+          "id": "72df5034-5f0f-43a5-995e-5ff77fb07863",
+          "parent": "5d16c0f5-5ff9-4a8b-b500-1c6247d88aef",
+          "children": [
+            "06a8459b-b041-41de-82f7-c37c8fee5182"
+          ],
+          "last_state_change": 1710269712.377747,
+          "state": 4,
+          "task_spec": "placeholder",
+          "triggered": false,
+          "internal_data": {},
+          "data": {},
+          "typename": "Task"
+        },
+        "06a8459b-b041-41de-82f7-c37c8fee5182": {
+          "id": "06a8459b-b041-41de-82f7-c37c8fee5182",
+          "parent": "72df5034-5f0f-43a5-995e-5ff77fb07863",
+          "children": [
+            "2ada7c08-0e16-4055-8cf0-449ad10025b9"
+          ],
+          "last_state_change": 1710269712.377866,
+          "state": 4,
+          "task_spec": "Event_1qcnmnt",
+          "triggered": false,
+          "internal_data": {},
+          "data": {},
+          "typename": "Task"
+        },
+        "2ada7c08-0e16-4055-8cf0-449ad10025b9": {
+          "id": "2ada7c08-0e16-4055-8cf0-449ad10025b9",
+          "parent": "06a8459b-b041-41de-82f7-c37c8fee5182",
+          "children": [
+            "d90e5d81-c3fc-4057-80fe-d47c86384afc"
+          ],
+          "last_state_change": 1710269712.3779793,
+          "state": 4,
+          "task_spec": "subprocess.EndJoin",
+          "triggered": false,
+          "internal_data": {},
+          "data": {},
+          "typename": "Task"
+        },
+        "d90e5d81-c3fc-4057-80fe-d47c86384afc": {
+          "id": "d90e5d81-c3fc-4057-80fe-d47c86384afc",
+          "parent": "2ada7c08-0e16-4055-8cf0-449ad10025b9",
+          "children": [],
+          "last_state_change": 1710269712.3780928,
+          "state": 4,
+          "task_spec": "End",
+          "triggered": false,
+          "internal_data": {},
+          "data": {},
+          "typename": "Task"
+        }
+      },
+      "root": "98316300-1e10-4f0b-b833-209e0737cb85",
+      "parent_task_id": "ff934c0a-014d-4320-a220-f4fdf8ae7f50",
+      "spec": "subprocess",
+      "typename": "BpmnSubWorkflow"
+    }
+  },
+  "bpmn_events": [],
+  "typename": "BpmnWorkflow"
+}

@@ -121,3 +121,28 @@ class Version_1_2_Test(BaseTestCase):
         wf.get_next_task(spec_name='sid-6FBBB56D-00CD-4C2B-9345-486986BB4992').run()
         wf.do_engine_steps()
         self.assertTrue(wf.is_completed())
+
+    def test_update_data_objects(self):
+
+        # Workflow source: serialized from DataObjectTest after the subprocess has been created
+        wf = self.deserialize_workflow('v1.2-data-objects.json')
+
+        # Check that the data objects were removed from the subprocess
+        sp_task = wf.get_next_task(spec_name='subprocess')
+        sp = wf.get_subprocess(sp_task)
+        self.assertNotIn('obj_1', sp.data)
+        self.assertNotIn('data_objects', sp.data)
+        sp_spec = wf.subprocess_specs.get('subprocess')
+        self.assertEqual(len(sp_spec.data_objects), 0)
+
+        # Make sure we can complete the process as we did in the original test
+        wf.do_engine_steps()
+        ready_tasks = wf.get_tasks(state=TaskState.READY)
+        self.assertEqual(ready_tasks[0].data['obj_1'], 'hello')
+        ready_tasks[0].data['obj_1'] = 'hello again'
+        ready_tasks[0].run()
+        wf.do_engine_steps()
+        # The data object is not in the task data
+        self.assertNotIn('obj_1', sp_task.data)
+        # The update should persist in the main process
+        self.assertEqual(wf.data_objects['obj_1'], 'hello again')
