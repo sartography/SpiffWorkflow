@@ -62,18 +62,31 @@ class DataObject(BpmnDataSpecification):
 
     def get(self, my_task):
         """Copy a value form the workflow data to the task data."""
-        if self.bpmn_id not in my_task.workflow.data:
+
+        # Find the spec where the data object is defined and put it there
+        wf = my_task.workflow
+        while wf is not None and self.bpmn_id not in wf.spec.data_objects:
+            wf = wf.parent_workflow
+
+        if wf is None or self.bpmn_id not in wf.data_objects:
             message = f"The data object could not be read; '{self.bpmn_id}' does not exist in the process."
             raise WorkflowDataException(message, my_task, data_input=self)
-        my_task.data[self.bpmn_id] = deepcopy(my_task.workflow.data[self.bpmn_id])
+
+        my_task.data[self.bpmn_id] = deepcopy(wf.data_objects[self.bpmn_id])
         data_log.info(f'Read workflow variable {self.bpmn_id}', extra=my_task.log_info())
 
     def set(self, my_task):
         """Copy a value from the task data to the workflow data"""
+
         if self.bpmn_id not in my_task.data:
             message = f"A data object could not be set; '{self.bpmn_id}' not exist in the task."
             raise WorkflowDataException(message, my_task, data_output=self)
-        my_task.workflow.data[self.bpmn_id] = deepcopy(my_task.data[self.bpmn_id])
+
+        wf = my_task.workflow
+        while wf is not None and self.bpmn_id not in wf.spec.data_objects:
+            wf = wf.parent_workflow
+
+        wf.data_objects[self.bpmn_id] = deepcopy(my_task.data[self.bpmn_id])
         del my_task.data[self.bpmn_id]
         data_log.info(f'Set workflow variable {self.bpmn_id}', extra=my_task.log_info())
 

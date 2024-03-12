@@ -82,8 +82,9 @@ class NodeParser:
         specs = []
         for name in self.xpath('./bpmn:dataInputAssociation/bpmn:sourceRef'):
             ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
-            if ref is not None and ref.get('dataObjectRef') in self.process_parser.spec.data_objects:
-                specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
+            data_obj = self._resolve_data_object_ref(ref)
+            if data_obj is not None:
+                specs.append(data_obj)
             else:
                 ref = first(self.doc_xpath(f".//bpmn:dataStoreReference[@id='{name.text}']"))
                 if ref is not None and ref.get('dataStoreRef') in self.process_parser.data_stores:
@@ -96,8 +97,9 @@ class NodeParser:
         specs = []
         for name in self.xpath('./bpmn:dataOutputAssociation/bpmn:targetRef'):
             ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
-            if ref is not None and ref.get('dataObjectRef') in self.process_parser.spec.data_objects:
-                specs.append(self.process_parser.spec.data_objects[ref.get('dataObjectRef')])
+            data_obj = self._resolve_data_object_ref(ref)
+            if data_obj is not None:
+                specs.append(data_obj)
             else:
                 ref = first(self.doc_xpath(f".//bpmn:dataStoreReference[@id='{name.text}']"))
                 if ref is not None and ref.get('dataStoreRef') in self.process_parser.data_stores:
@@ -123,6 +125,16 @@ class NodeParser:
             if ref.text in data_refs:
                 outputs.append(data_refs[ref.text])
         return BpmnIoSpecification(inputs, outputs)
+
+    def _resolve_data_object_ref(self, ref):
+        if ref is not None:
+            current = self.process_parser
+            while current is not None:
+                data_obj = current.spec.data_objects.get(ref.get('dataObjectRef'))
+                if data_obj is None:
+                    current = self.process_parser.parent
+                else:
+                    return data_obj
 
     def create_data_spec(self, item, cls):
         return cls(item.attrib.get('id'), item.attrib.get('name'))

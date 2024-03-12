@@ -19,7 +19,6 @@
 
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.util.task import TaskState
-from SpiffWorkflow.workflow import Workflow
 from SpiffWorkflow.exceptions import WorkflowException
 
 from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
@@ -28,13 +27,13 @@ from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
 
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
 
-from SpiffWorkflow.bpmn.util.subworkflow import BpmnSubWorkflow
+from SpiffWorkflow.bpmn.util.subworkflow import BpmnBaseWorkflow, BpmnSubWorkflow
 from SpiffWorkflow.bpmn.util.task import BpmnTaskIterator
 
 from .script_engine.python_engine import PythonScriptEngine
 
 
-class BpmnWorkflow(Workflow):
+class BpmnWorkflow(BpmnBaseWorkflow):
     """
     The engine that executes a BPMN workflow. This specialises the standard
     Spiff Workflow class with a few extra methods and attributes.

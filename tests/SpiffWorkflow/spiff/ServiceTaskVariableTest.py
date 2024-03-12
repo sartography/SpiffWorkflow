@@ -35,8 +35,7 @@ class ServiceTaskVariableTest(BaseTestCase):
         global assertEqual
         assertEqual = self.assertEqual
 
-        spec, subprocesses = self.load_workflow_spec('service_task_variable.bpmn',
-                'Process_bd2e724555')
+        spec, subprocesses = self.load_workflow_spec('service_task_variable.bpmn', 'Process_bd2e724555')
         self.script_engine = ExampleCustomScriptEngine()
         self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=self.script_engine)
 

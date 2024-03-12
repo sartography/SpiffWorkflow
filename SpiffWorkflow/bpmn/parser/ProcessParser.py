@@ -39,7 +39,6 @@ class ProcessParser(NodeParser):
         :param node: the XML node for the process
         :param data_stores: map of ids to data store implementations
         :param filename: the source BPMN filename (optional)
-        :param doc_xpath: an xpath evaluator for the document (optional)
         :param lane: the lane of a subprocess (optional)
         """
         super().__init__(node, nsmap, filename=filename, lane=lane)
@@ -48,7 +47,7 @@ class ProcessParser(NodeParser):
         self.spec = None
         self.process_executable = node.get('isExecutable', 'true') == 'true'
         self.data_stores = data_stores
-        self.inherited_data_objects = {}
+        self.parent = None
 
     def get_name(self):
         """
@@ -118,8 +117,6 @@ class ProcessParser(NodeParser):
             raise ValidationException(f"Process {self.bpmn_id} is not executable.", node=self.node, file_name=self.filename)
         self.spec = BpmnProcessSpec(name=self.bpmn_id, description=self.get_name(), filename=self.filename)
 
-        self.spec.data_objects.update(self.inherited_data_objects)
-
         # Get the data objects
         for obj in self.xpath('./bpmn:dataObject'):
             data_object = self.parse_data_object(obj)
@@ -147,7 +144,7 @@ class ProcessParser(NodeParser):
             split_task.inputs = [self.spec.start]
 
     def parse_data_object(self, obj):
-        return DataObject(obj.get('id'), obj.get('name'))
+        return self.create_data_spec(obj, DataObject)
 
     def get_spec(self):
         """

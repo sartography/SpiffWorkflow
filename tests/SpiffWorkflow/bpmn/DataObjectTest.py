@@ -26,7 +26,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
 
         # Remove the data before advancing
         ready_tasks = self.get_ready_user_tasks()
-        self.workflow.data.pop('obj_1')
+        self.workflow.data_objects.pop('obj_1')
         with self.assertRaises(WorkflowDataException) as exc:
             ready_tasks[0].run()
             self.assertEqual(exc.data_output.name, 'obj_1')
@@ -51,7 +51,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         ready_tasks[0].run()
         # After task completion, obj_1 should be copied out of the task into the workflow
         self.assertNotIn('obj_1', ready_tasks[0].data)
-        self.assertIn('obj_1', self.workflow.data)
+        self.assertIn('obj_1', self.workflow.data_objects)
 
         if save_restore:
             self.save_restore()
@@ -70,7 +70,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         # We did not set an output data reference so obj_1 should remain unchanged in the workflow data
         # and be removed from the task data
         self.assertNotIn('obj_1', ready_tasks[0].data)
-        self.assertEqual(self.workflow.data['obj_1'], 'hello')
+        self.assertEqual(self.workflow.data_objects['obj_1'], 'hello')
 
         if save_restore:
             self.save_restore()
@@ -86,7 +86,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         # It was copied out
         self.assertNotIn('obj_1', sp.data)
         # The update should persist in the main process
-        self.assertEqual(self.workflow.data['obj_1'], 'hello again')
+        self.assertEqual(self.workflow.data_objects['obj_1'], 'hello again')
 
 class DataObjectGatewayTest(BpmnWorkflowTestCase):
 
