@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.util.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState, TaskFilter, TaskIterator
 from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.specs.Join import Join
 
@@ -72,7 +72,7 @@ class BoundaryEventJoin(Join, BpmnTaskSpec):
     def __init__(self, wf_spec, name, **kwargs):
         super().__init__(wf_spec, name, **kwargs)
 
-    def _check_threshold_structured(self, my_task, force=False):
+    def _check_threshold_structured(self, my_task):
         split_task = my_task.find_ancestor(self.split_task)
         if split_task is None:
             raise WorkflowException(f'Split at {self.split_task} was not reached', task_spec=self)
@@ -97,7 +97,7 @@ class BoundaryEventJoin(Join, BpmnTaskSpec):
                 cancel += [main]
         else:
             cancel = []
-        return force or finished, cancel
+        return finished, cancel
 
 
 class StartEventJoin(Join, BpmnTaskSpec):
@@ -105,7 +105,7 @@ class StartEventJoin(Join, BpmnTaskSpec):
     def __init__(self, wf_spec, name, **kwargs):
         super().__init__(wf_spec, name, **kwargs)
 
-    def _check_threshold_structured(self, my_task, force=False):
+    def _check_threshold_structured(self, my_task):
 
         split_task = my_task.find_ancestor(self.split_task)
         if split_task is None:
@@ -118,23 +118,25 @@ class StartEventJoin(Join, BpmnTaskSpec):
             else:
                 waiting.append(task)
         
-        return force or may_fire, waiting
+        return may_fire, waiting
 
 
 class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
 
-    def _check_threshold_unstructured(self, my_task, force=False):
+    def _check_threshold_unstructured(self, my_task):
         # Look at the tree to find all ready and waiting tasks (excluding
         # ourself). The EndJoin waits for everyone!
-        waiting_tasks = []
-        for task in my_task.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING):
-            if task.thread_id != my_task.thread_id:
-                continue
+        for task in TaskIterator(my_task.workflow.task_tree, state=TaskState.READY|TaskState.WAITING):
             if task.task_spec == my_task.task_spec:
                 continue
-            waiting_tasks.append(task)
+            # This method returns waiting tasks so that they can be cancelled on cancelling joins
+            # This is not a cancelling join so we can omit building the list and return false as soon as we find any waiting task
+            may_fire = False
+            break
+        else:
+            may_fire = True
 
-        return force or len(waiting_tasks) == 0, waiting_tasks
+        return may_fire, []
 
     def _run_hook(self, my_task):
         result = super(_EndJoin, self)._run_hook(my_task)

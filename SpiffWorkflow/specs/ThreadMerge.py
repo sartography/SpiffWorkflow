@@ -112,8 +112,7 @@ class ThreadMerge(Join):
             if self.split_task and task.is_descendant_of(my_task):
                 continue
             changed = task.parent.last_state_change
-            if last_changed is None \
-                    or changed > last_changed.parent.last_state_change:
+            if last_changed is None or changed > last_changed.parent.last_state_change:
                 last_changed = task
             tasks.append(task)
 

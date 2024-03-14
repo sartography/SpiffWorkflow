@@ -37,9 +37,6 @@ class UnstructuredJoin(Join):
         last_changed = None
         thread_tasks = []
         for task in TaskIterator(split_task, spec_name=self.name):
-            if task.thread_id != my_task.thread_id:
-                # Ignore tasks from other threads.  (Do we need this condition?)
-                continue
             if not task.parent.has_state(TaskState.FINISHED_MASK):
                 # For an inclusive join, this can happen - it's a future join
                 continue
