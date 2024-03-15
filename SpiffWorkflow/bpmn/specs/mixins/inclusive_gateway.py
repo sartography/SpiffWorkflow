@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
-from SpiffWorkflow.util.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.specs.MultiChoice import MultiChoice
 from .unstructured_join import UnstructuredJoin
 
@@ -68,9 +68,9 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
         MultiChoice.test(self)
         UnstructuredJoin.test(self)
 
-    def _check_threshold_unstructured(self, my_task, force=False):
+    def _check_threshold_unstructured(self, my_task):
         # Look at the tree to find all places where this task is used.
-        tasks = my_task.workflow.get_tasks(task_filter=TaskFilter(spec_name=self.name))
+        tasks = my_task.workflow.get_tasks(spec_name=self.name, end_at_spec=self.name)
 
         # Look up which tasks have parents completed.
         completed_inputs = set([ task.parent.task_spec for task in tasks if task.parent.state == TaskState.COMPLETED ])
@@ -83,17 +83,13 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
             if task.parent.has_state(TaskState.DEFINITE_MASK) and task.parent.task_spec not in completed_inputs:
                 waiting_tasks.append(task.parent)
 
-        if force:
-            # If force is true, complete the task
-            complete = True
-        elif len(waiting_tasks) > 0:
+        if len(waiting_tasks) > 0:
             # If we have waiting tasks, we're obviously not done
             complete = False
         else:
             # Handle the case where there are paths from active tasks that must go through waiting inputs
             waiting_inputs = [i for i in self.inputs if i not in completed_inputs]
-            task_filter = TaskFilter(state=TaskState.READY|TaskState.WAITING)
-            sources = [t.task_spec for t in my_task.workflow.get_tasks(task_filter=task_filter)]
+            sources = [t.task_spec for t in my_task.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING, end_at_spec=self.name)]
 
             # This will go back through a task spec's ancestors and return the source, if applicable
             def check(spec): 

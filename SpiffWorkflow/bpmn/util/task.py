@@ -54,12 +54,11 @@ class BpmnTaskIterator(TaskIterator):
         task = self.task_list.pop(0)
         subprocess = task.workflow.top_workflow.subprocesses.get(task.id)
 
-        if task.task_spec.name == self.end_at_spec:
-            self.task_list = []
-        elif all([
+        if all([
             len(task._children) > 0 or subprocess is not None,
             task.state >= self.min_state or subprocess is not None,
             self.depth < self.max_depth,
+            task.task_spec.name != self.end_at_spec,
         ]):
             if subprocess is None:
                 next_tasks = task.children

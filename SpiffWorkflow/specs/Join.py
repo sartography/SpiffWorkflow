@@ -156,7 +156,7 @@ class Join(TaskSpec):
         waiting_tasks = []
         completed = 0
         spec_names = [ts.name for ts in self.inputs]
-        for task in TaskIterator(my_task.workflow.task_tree):
+        for task in TaskIterator(my_task.workflow.task_tree, end_at_spec=self.name):
             if not task.task_spec.name in spec_names:
                 continue
             if task.parent is None or task.has_state(TaskState.COMPLETED):
@@ -204,8 +204,6 @@ class Join(TaskSpec):
         my_task._inherit_data()
         if my_task.has_state(TaskState.FINISHED_MASK):
             may_fire, waiting_tasks = False, []
-        elif my_task.has_state(TaskState.READY):
-            may_fire, waiting_tasks = True, []
         elif self.split_task is None:
             may_fire, waiting_tasks = self._check_threshold_unstructured(my_task)
         else:
@@ -228,7 +226,7 @@ class Join(TaskSpec):
         split_task = self._get_split_task(my_task) or my_task.workflow.task_tree
         # Identify all corresponding task instances within the thread.
         thread_tasks = []
-        for task in TaskIterator(split_task, spec_name=self.name):
+        for task in TaskIterator(split_task, spec_name=self.name, end_at_spec=self.name):
             # Ignore tasks from other threads.
             if task.thread_id != my_task.thread_id:
                 continue

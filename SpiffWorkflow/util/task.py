@@ -218,13 +218,11 @@ class TaskIterator:
             raise StopIteration()
 
         task = self.task_list.pop(0)
-
-        if task.task_spec.name == self.end_at_spec:
-            self.task_list = []
-        elif all([
+        if all([
             len(task._children) > 0,
             task.state >= self.min_state,
             self.depth < self.max_depth,
+            task.task_spec.name != self.end_at_spec,
         ]):
             if self.depth_first:
                 self.task_list = task.children + self.task_list
