@@ -246,7 +246,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
     def cancel(self, workflow=None):
 
         wf = workflow or self
-        cancelled = Workflow.cancel(wf)
+        cancelled = BpmnBaseWorkflow.cancel(wf)
         cancelled_ids = [t.id for t in cancelled]
         to_cancel = []
         for sp_id, sp in self.subprocesses.items():
