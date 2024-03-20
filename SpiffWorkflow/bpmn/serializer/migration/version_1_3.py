@@ -133,3 +133,39 @@ def add_new_typenames(dct):
         sp['typename'] = 'BpmnSubWorkflow'
         for task in sp['tasks'].values():
             task['typename'] = 'Task' 
+
+def update_data_objects(dct):
+
+    def update_spec(parent):
+        children = []
+        for ts in [ts for ts in parent['task_specs'].values() if 'spec' in ts]:
+            child = dct['subprocess_specs'].get(ts['spec'])
+            children.append((child, ts['typename']))
+            update_spec(child)
+        for child in [c for c, spec_type in children if spec_type != 'CallActivity']:
+            for name in parent['data_objects']:
+                child['data_objects'].pop(name, None)
+
+    data_objects = []
+
+    def update_wf(wf, spec):
+
+        data_objects.extend([v for v in spec.get('data_objects', {}) if v not in data_objects])
+
+        for task in [t for t in wf['tasks'].values() if t['id'] in dct['subprocesses']]:
+            ts = spec['task_specs'][task['task_spec']]
+            sp_spec = dct['subprocess_specs'].get(ts['spec'])
+            sp = dct['subprocesses'].get(task['id'])
+            update_wf(sp, sp_spec)
+        
+        if len(spec.get('data_objects', {})) > 0:
+            wf['data']['data_objects'] = {}
+
+        for key in list(wf['data']):
+            if key in spec.get('data_objects', {}):
+                wf['data']['data_objects'][key] = wf['data'].pop(key)
+            elif key in data_objects:
+                del wf['data'][key]
+
+    update_spec(dct['spec'])
+    update_wf(dct, dct['spec'])

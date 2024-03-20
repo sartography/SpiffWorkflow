@@ -75,7 +75,7 @@ class SubprocessParser:
         spec_id = task_parser.node.get('id')
         # This parser makes me want to cry
         spec_parser = task_parser.process_parser.parser.process_parsers[spec_id]
-        spec_parser.inherited_data_objects.update(task_parser.process_parser.spec.data_objects)
+        spec_parser.parent = task_parser.process_parser
         return spec_id
 
     @staticmethod

@@ -20,11 +20,17 @@ class PrescriptPostsciptTest(BaseTestCase):
         self.call_activity_test(True)
 
     def testDataObject(self):
+        self.test_data_object()
+
+    def testDataObjectSaveRestore(self):
+        self.test_data_object(True)
+
+    def test_data_object(self, save_restore=False):
 
         spec, subprocesses = self.load_workflow_spec('prescript_postscript_data_object.bpmn', 'Process_1')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         # Set a on the workflow and b in the first task.
-        self.workflow.data['a'] = 1
+        self.workflow.data_objects['a'] = 1
         self.set_process_data({'b': 2})
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         # This execute the same script as task_test

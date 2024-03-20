@@ -20,7 +20,19 @@
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.exceptions import TaskNotFoundException
 
-class BpmnSubWorkflow(Workflow):
+class BpmnBaseWorkflow(Workflow):
+
+    def __init__(self, spec, **kwargs):
+        super().__init__(spec, **kwargs)
+        if len(spec.data_objects) > 0:
+            self.data['data_objects'] = {}
+    
+    @property
+    def data_objects(self):
+        return self.data.get('data_objects', {})
+
+
+class BpmnSubWorkflow(BpmnBaseWorkflow):
 
     def __init__(self, spec, parent_task_id, top_workflow, **kwargs):
         super().__init__(spec, **kwargs)

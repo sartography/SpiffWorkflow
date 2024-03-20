@@ -33,6 +33,7 @@ from .version_1_3 import (
     remove_boundary_event_parent,
     remove_root_task,
     add_new_typenames,
+    update_data_objects,
 )
 
 def from_version_1_2(dct):
@@ -41,6 +42,7 @@ def from_version_1_2(dct):
     remove_boundary_event_parent(dct)
     remove_root_task(dct)
     add_new_typenames(dct)
+    update_data_objects(dct)
 
 
 def from_version_1_1(dct):

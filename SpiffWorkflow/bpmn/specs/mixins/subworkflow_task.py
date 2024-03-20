@@ -58,12 +58,6 @@ class SubWorkflowTask(TaskSpec):
             subworkflow.cancel()
 
     def copy_data(self, my_task, subworkflow):
-        # There is only one copy of any given data object, so it should be updated immediately
-        # Doing this is actually a little problematic, because it gives parent processes access to
-        # data objects defined in subprocesses.
-        # But our data management is already hopelessly messed up and in dire needs of reconsideration
-        if len(subworkflow.spec.data_objects) > 0:
-            subworkflow.data = my_task.workflow.data
         start = subworkflow.get_next_task(spec_name='Start')
         start.set_data(**my_task.data)
 

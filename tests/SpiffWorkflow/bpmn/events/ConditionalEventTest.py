@@ -9,7 +9,7 @@ class ConditionalEventTest(BpmnWorkflowTestCase):
         spec, subprocesses = self.load_workflow_spec('conditional_event.bpmn', 'intermediate')
         self.workflow = BpmnWorkflow(spec, subprocesses)
         # I don't want to complicate the diagram with extra tasks just for initializing this value
-        self.workflow.data['task_a_done'] = False
+        self.workflow.data_objects['task_a_done'] = False
         self.workflow.do_engine_steps()
         b = self.workflow.get_next_task(spec_name='task_b')
         b.run()
@@ -29,7 +29,7 @@ class ConditionalEventTest(BpmnWorkflowTestCase):
     def testBoundaryEvent(self):
         spec, subprocesses = self.load_workflow_spec('conditional_event.bpmn', 'boundary')
         self.workflow = BpmnWorkflow(spec, subprocesses)
-        self.workflow.data['task_c_done'] = False
+        self.workflow.data_objects['task_c_done'] = False
         self.workflow.do_engine_steps()
         c = self.workflow.get_next_task(spec_name='task_c')
         c.data['task_c_done'] = True

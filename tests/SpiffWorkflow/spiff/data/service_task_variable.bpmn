@@ -22,7 +22,6 @@
       <bpmn:incoming>Flow_1boxww6</bpmn:incoming>
       <bpmn:outgoing>Flow_1h9lfz7</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:dataObject id="DataObject_0zzgapz" />
     <bpmn:sequenceFlow id="Flow_1boxww6" sourceRef="Activity_1shyq8p" targetRef="Activity_0xhr131" />
     <bpmn:scriptTask id="Activity_1shyq8p" name="Set Employee ID">
       <bpmn:incoming>Flow_1tqygmt</bpmn:incoming>

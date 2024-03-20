@@ -1,5 +1,6 @@
 import os
 import time
+from uuid import UUID
 
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
@@ -121,3 +122,53 @@ class Version_1_2_Test(BaseTestCase):
         wf.get_next_task(spec_name='sid-6FBBB56D-00CD-4C2B-9345-486986BB4992').run()
         wf.do_engine_steps()
         self.assertTrue(wf.is_completed())
+
+    def test_update_data_objects(self):
+
+        # Workflow source: serialized from DataObjectTest after the subprocess has been created
+        wf = self.deserialize_workflow('v1.2-data-objects.json')
+
+        # Check that the data objects were removed from the subprocess
+        sp_task = wf.get_next_task(spec_name='subprocess')
+        sp = wf.get_subprocess(sp_task)
+        self.assertNotIn('obj_1', sp.data)
+        self.assertNotIn('data_objects', sp.data)
+        sp_spec = wf.subprocess_specs.get('subprocess')
+        self.assertEqual(len(sp_spec.data_objects), 0)
+
+        # Make sure we can complete the process as we did in the original test
+        wf.do_engine_steps()
+        ready_tasks = wf.get_tasks(state=TaskState.READY)
+        self.assertEqual(ready_tasks[0].data['obj_1'], 'hello')
+        ready_tasks[0].data['obj_1'] = 'hello again'
+        ready_tasks[0].run()
+        wf.do_engine_steps()
+        # The data object is not in the task data
+        self.assertNotIn('obj_1', sp_task.data)
+        # The update should persist in the main process
+        self.assertEqual(wf.data_objects['obj_1'], 'hello again')
+
+    def test_update_nested_data_objects(self):
+
+        wf = self.deserialize_workflow('v1.2-data-objects-nested.json')
+        self.assertIn('top_level_data_object', wf.data_objects)
+        self.assertNotIn('sub_level_data_object_two', wf.data)
+        self.assertNotIn('sub_level_data_object_three', wf.data)
+
+        process_sub = wf.subprocesses[UUID('270d76e0-c1fe-4add-b58e-d5a51214a37b')]
+        call_sub = wf.subprocesses[UUID('d0c6a2d9-9a43-4ccd-b4e3-ea62872f15ed')]
+
+        self.assertNotIn('top_level_data_object', process_sub.spec.data_objects)
+        self.assertNotIn('top_level_data_object', call_sub.spec.data_objects)
+        self.assertIn('sub_level_data_object_two', process_sub.spec.data_objects)
+        self.assertNotIn('sub_level_data_object_two', call_sub.spec.data_objects)
+        self.assertIn('sub_level_data_object_three', call_sub.spec.data_objects)
+        self.assertNotIn('sub_level_data_object_three', process_sub.spec.data_objects)
+
+        self.assertNotIn('top_level_data_object', process_sub.data_objects)
+        self.assertNotIn('top_level_data_object', call_sub.data_objects)
+
+        self.assertIn('sub_level_data_object_two', process_sub.data_objects)
+        self.assertNotIn('sub_level_data_object_two', call_sub.data_objects)
+        self.assertIn('sub_level_data_object_three', call_sub.data_objects)
+        self.assertNotIn('sub_level_data_object_three', process_sub.data_objects)
