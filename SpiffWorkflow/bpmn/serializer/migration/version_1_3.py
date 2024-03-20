@@ -136,30 +136,36 @@ def add_new_typenames(dct):
 
 def update_data_objects(dct):
 
-    def delete_duplicates(data_objects, spec, wf):
-        for name in data_objects:
-            spec['data_objects'].pop(name, None)
-            if name in wf['data']:
-                del wf['data'][name]
+    def update_spec(parent):
+        children = []
+        for ts in [ts for ts in parent['task_specs'].values() if 'spec' in ts]:
+            child = dct['subprocess_specs'].get(ts['spec'])
+            children.append((child, ts['typename']))
+            update_spec(child)
+        for child in [c for c, spec_type in children if spec_type != 'CallActivity']:
+            for name in parent['data_objects']:
+                child['data_objects'].pop(name, None)
 
-    def move_data_objects(data_objects, wf):
-        if len(data_objects) > 0:
+    data_objects = []
+
+    def update_wf(wf, spec):
+
+        data_objects.extend([v for v in spec.get('data_objects', {}) if v not in data_objects])
+
+        for task in [t for t in wf['tasks'].values() if t['id'] in dct['subprocesses']]:
+            ts = spec['task_specs'][task['task_spec']]
+            sp_spec = dct['subprocess_specs'].get(ts['spec'])
+            sp = dct['subprocesses'].get(task['id'])
+            update_wf(sp, sp_spec)
+        
+        if len(spec.get('data_objects', {})) > 0:
             wf['data']['data_objects'] = {}
-        for data_obj in data_objects:
-            if data_obj in wf['data']:
-                wf['data']['data_objects'][data_obj] = wf['data'].pop(data_obj)
 
-    def update(wf, spec, parent_spec):
-        if len(spec.get('data_objects', [])) > 0 and 'data_objects' not in wf['data']:
-            for task in wf['tasks'].values():
-                ts = spec['task_specs'].get(task['task_spec'])
-                if ts['typename'] in ['SubWorkflowTask', 'TransactionSubprocess'] and task['id'] in dct['subprocesses']:
-                    sp_spec = dct['subprocess_specs'].get(ts['spec'])
-                    sp = dct['subprocesses'][task['id']]
-                    update(sp, sp_spec, spec)
-            if parent_spec is not None:
-                delete_duplicates(parent_spec['data_objects'], spec, wf)
-            move_data_objects(spec['data_objects'], wf)
+        for key in list(wf['data']):
+            if key in spec.get('data_objects', {}):
+                wf['data']['data_objects'][key] = wf['data'].pop(key)
+            elif key in data_objects:
+                del wf['data'][key]
 
-    update(dct, dct['spec'], None)
-
+    update_spec(dct['spec'])
+    update_wf(dct, dct['spec'])
