@@ -33,7 +33,7 @@ from SpiffWorkflow.spiff.specs.event_definitions import (
     EscalationEventDefinition,
 )
 from SpiffWorkflow.bpmn.parser.util import one
-from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser
+from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser, SPIFFWORKFLOW_NSMAP
 
 
 class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
