@@ -15,18 +15,8 @@
       <bpmn:messagePath>init_id</bpmn:messagePath>
     </bpmn:correlationPropertyRetrievalExpression>
   </bpmn:correlationProperty>
-  <bpmn:message id="Message_19nm5f5" name="init_proc_2">
-    <bpmn:extensionElements>
-      <spiffworkflow:messagePayload>{'num': task_num, 'name': task_name}</spiffworkflow:messagePayload>
-      <spiffworkflow:messageVariable>source_task</spiffworkflow:messageVariable>
-    </bpmn:extensionElements>
-  </bpmn:message>
-  <bpmn:message id="Message_0fc1gu7" name="proc_2_response">
-    <bpmn:extensionElements>
-      <spiffworkflow:messagePayload>{'init_id': source_task['num'], 'response': response}</spiffworkflow:messagePayload>
-      <spiffworkflow:messageVariable>response</spiffworkflow:messageVariable>
-    </bpmn:extensionElements>
-  </bpmn:message>
+  <bpmn:message id="Message_19nm5f5" name="init_proc_2" />
+  <bpmn:message id="Message_0fc1gu7" name="proc_2_response" />
   <bpmn:process id="proc_1" name="Process 1" isExecutable="true">
     <bpmn:sequenceFlow id="Flow_0lrjj2a" sourceRef="StartEvent_1" targetRef="subprocess" />
     <bpmn:sequenceFlow id="Flow_0gp7t8p" sourceRef="subprocess" targetRef="Event_0qga5tr" />
@@ -53,11 +43,17 @@
       <bpmn:sequenceFlow id="Flow_02xt17l" sourceRef="configure" targetRef="start_proc_2" />
       <bpmn:sequenceFlow id="Flow_0ts36fv" sourceRef="start_proc_2" targetRef="get_response" />
       <bpmn:sendTask id="start_proc_2" name="Start Process 2" messageRef="Message_19nm5f5">
+        <bpmn:extensionElements>
+          <spiffworkflow:messagePayload>{'num': task_num, 'name': task_name}</spiffworkflow:messagePayload>
+        </bpmn:extensionElements>
         <bpmn:incoming>Flow_02xt17l</bpmn:incoming>
         <bpmn:outgoing>Flow_0ts36fv</bpmn:outgoing>
       </bpmn:sendTask>
       <bpmn:sequenceFlow id="Flow_17cd3h6" sourceRef="get_response" targetRef="subprocess_end" />
       <bpmn:receiveTask id="get_response" name="Await Response" messageRef="Message_0fc1gu7">
+        <bpmn:extensionElements>
+          <spiffworkflow:messageVariable>response</spiffworkflow:messageVariable>
+        </bpmn:extensionElements>
         <bpmn:incoming>Flow_0ts36fv</bpmn:incoming>
         <bpmn:outgoing>Flow_17cd3h6</bpmn:outgoing>
       </bpmn:receiveTask>
@@ -69,7 +65,11 @@
   <bpmn:process id="proc_2" name="Process 2" isExecutable="true">
     <bpmn:startEvent id="message_start" name="Message Start">
       <bpmn:outgoing>Flow_0qafvbe</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_12ck2a4" messageRef="Message_19nm5f5" />
+      <bpmn:messageEventDefinition id="MessageEventDefinition_12ck2a4" messageRef="Message_19nm5f5">
+        <bpmn:extensionElements>
+          <spiffworkflow:messageVariable>source_task</spiffworkflow:messageVariable>
+        </bpmn:extensionElements>
+      </bpmn:messageEventDefinition>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_0k7rc31" sourceRef="respond" targetRef="Event_01itene" />
     <bpmn:sequenceFlow id="Flow_0qafvbe" sourceRef="message_start" targetRef="prepare_response" />
@@ -81,7 +81,11 @@
     <bpmn:intermediateThrowEvent id="respond" name="Respond">
       <bpmn:incoming>Flow_12j0ayf</bpmn:incoming>
       <bpmn:outgoing>Flow_0k7rc31</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0z73w20" messageRef="Message_0fc1gu7" />
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0z73w20" messageRef="Message_0fc1gu7">
+        <bpmn:extensionElements>
+          <spiffworkflow:messagePayload>{'init_id': source_task['num'], 'response': response}</spiffworkflow:messagePayload>
+        </bpmn:extensionElements>
+      </bpmn:messageEventDefinition>
     </bpmn:intermediateThrowEvent>
     <bpmn:endEvent id="Event_01itene">
       <bpmn:incoming>Flow_0k7rc31</bpmn:incoming>

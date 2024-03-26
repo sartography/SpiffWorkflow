@@ -46,9 +46,16 @@
     <bpmn:intermediateCatchEvent id="receive_message_response_one" name="Receive Message Response One">
       <bpmn:incoming>Flow_01u8qkn</bpmn:incoming>
       <bpmn:outgoing>Flow_0sxqx67</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1l3n0zr" messageRef="message_response_one" />
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1l3n0zr" messageRef="message_response_one">
+        <bpmn:extensionElements>
+          <spiffworkflow:messageVariable>payload_var_one</spiffworkflow:messageVariable>
+        </bpmn:extensionElements>
+      </bpmn:messageEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:receiveTask id="receive_message_response_two" name="Receive Message Response Two" messageRef="message_response_two">
+      <bpmn:extensionElements>
+        <spiffworkflow:messageVariable>payload_var_two</spiffworkflow:messageVariable>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1yt3owq</bpmn:incoming>
       <bpmn:outgoing>Flow_01u8qkn</bpmn:outgoing>
     </bpmn:receiveTask>
@@ -67,6 +74,11 @@ del time</bpmn:script>
     <bpmn:sendTask id="send_message_to_one" name="Send Message To One" messageRef="message_send_one">
       <bpmn:extensionElements>
         <spiffworkflow:preScript>the_topic = "first_conversation" </spiffworkflow:preScript>
+        <spiffworkflow:messagePayload>{
+"topica_one": topic_one_a,
+"topicb_one": topic_one_b,
+"initial_var_one": 3
+}</spiffworkflow:messagePayload>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1ihr88m</bpmn:incoming>
       <bpmn:outgoing>Flow_0n4m9ti</bpmn:outgoing>
@@ -75,7 +87,15 @@ del time</bpmn:script>
     <bpmn:intermediateThrowEvent id="Event_1wcluza">
       <bpmn:incoming>Flow_0q3clix</bpmn:incoming>
       <bpmn:outgoing>Flow_1yt3owq</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1p7urhm" messageRef="message_send_two" />
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1p7urhm" messageRef="message_send_two">
+        <bpmn:extensionElements>
+          <spiffworkflow:messagePayload>{
+"topica_two": topic_two_a,
+"topicb_two": topic_two_b,
+"initial_var_two": 5
+}</spiffworkflow:messagePayload>
+        </bpmn:extensionElements>
+      </bpmn:messageEventDefinition> 
     </bpmn:intermediateThrowEvent>
     <bpmn:scriptTask id="set_topic_two" name="Set Topic Two">
       <bpmn:incoming>Flow_0n4m9ti</bpmn:incoming>
@@ -87,34 +107,10 @@ topic_two_b = f"topic_two_b_conversation_{timestamp}"
 del time</bpmn:script>
     </bpmn:scriptTask>
   </bpmn:process>
-  <bpmn:message id="message_send_one" name="Message Send One">
-    <bpmn:extensionElements>
-      <spiffworkflow:messagePayload>{
-"topica_one": topic_one_a,
-"topicb_one": topic_one_b,
-"initial_var_one": 3
-}</spiffworkflow:messagePayload>
-    </bpmn:extensionElements>
-  </bpmn:message>
-  <bpmn:message id="message_response_one" name="Message Response One">
-    <bpmn:extensionElements>
-      <spiffworkflow:messageVariable>payload_var_one</spiffworkflow:messageVariable>
-    </bpmn:extensionElements>
-  </bpmn:message>
-  <bpmn:message id="message_response_two" name="Message Response Two">
-    <bpmn:extensionElements>
-      <spiffworkflow:messageVariable>payload_var_two</spiffworkflow:messageVariable>
-    </bpmn:extensionElements>
-  </bpmn:message>
-  <bpmn:message id="message_send_two" name="Message Send Two">
-    <bpmn:extensionElements>
-      <spiffworkflow:messagePayload>{
-"topica_two": topic_two_a,
-"topicb_two": topic_two_b,
-"initial_var_two": 5
-}</spiffworkflow:messagePayload>
-    </bpmn:extensionElements>
-  </bpmn:message>
+  <bpmn:message id="message_send_one" name="Message Send One" />
+  <bpmn:message id="message_response_one" name="Message Response One" />
+  <bpmn:message id="message_response_two" name="Message Response Two" />
+  <bpmn:message id="message_send_two" name="Message Send Two" />
   <bpmn:correlationProperty id="mcp_topica_two" name="MCP Topica Two">
     <bpmn:correlationPropertyRetrievalExpression messageRef="message_send_two">
       <bpmn:messagePath>topica_two</bpmn:messagePath>
