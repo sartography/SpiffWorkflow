@@ -60,13 +60,7 @@ class CatchingEvent(TaskSpec):
         elif my_task.state != TaskState.WAITING:
             my_task._set_state(TaskState.WAITING)
 
-        if isinstance(self.event_definition, CycleTimerEventDefinition):
-            if self.event_definition.cycle_complete(my_task):
-                for output in self.outputs:
-                    child = my_task._add_child(output, TaskState.FUTURE)
-                    child.task_spec._predict(child, mask=TaskState.NOT_FINISHED_MASK)
-                    child.task_spec._update(child)
-
+        self.event_definition.update_task(my_task)
 
     def _run_hook(self, my_task):
 
