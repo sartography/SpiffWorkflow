@@ -35,6 +35,7 @@ from SpiffWorkflow.spiff.specs.event_definitions import (
     EscalationEventDefinition,
 )
 from SpiffWorkflow.bpmn.parser.util import one, first
+from SpiffWorkflow.bpmn.specs.event_definitions.message import CorrelationProperty
 from SpiffWorkflow.spiff.parser.task_spec import SpiffTaskParser, SPIFFWORKFLOW_NSMAP
 
 
@@ -48,6 +49,14 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
         if variable is not None:
             variable = variable.text
         return expression, variable
+
+    def parse_process_correlations(self, node):
+        correlations = []
+        for prop in node.xpath('.//spiffworkflow:processVariableCorrelation', namespaces=SPIFFWORKFLOW_NSMAP):
+            key = one(prop.xpath('./spiffworkflow:propertyId', namespaces=SPIFFWORKFLOW_NSMAP))
+            expression = one(prop.xpath('./spiffworkflow:expression', namespaces=SPIFFWORKFLOW_NSMAP))
+            correlations.append(CorrelationProperty(key.text, expression.text, []))
+        return correlations
 
     def parse_message_event(self, message_event):
         """Parse a Spiff message event."""
@@ -69,7 +78,8 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
             else:
                 expression, variable = self.parse_message_extensions(message_event)
             correlations = self.get_message_correlations(message_ref)
-            event_def = MessageEventDefinition(name, correlations, expression, variable)
+            process_correlations = self.parse_process_correlations(message_event)
+            event_def = MessageEventDefinition(name, correlations, expression, variable, process_correlations)
         else:
             name = message_event.getparent().get('name')
             event_def = MessageEventDefinition(name)

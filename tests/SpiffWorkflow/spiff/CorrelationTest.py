@@ -1,4 +1,5 @@
-from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn import BpmnWorkflow, BpmnEvent
+from SpiffWorkflow import TaskState
 
 from .BaseTestCase import BaseTestCase
 
@@ -53,3 +54,36 @@ class DualConversationTest(BaseTestCase):
         self.assertNotIn('message_correlation_key_one', messages[1].correlations)
         self.assertIn('message_correlation_key_two', messages[1].correlations)
         self.assertNotIn('message_correlation_key_two', messages[0].correlations)
+
+
+class ReceiveCorrelationTest(BaseTestCase):
+
+    def testReceiveCorrelations(self):
+        self.actual_test()
+
+    def testReceiveCorrelationsSaveRestore(self):
+        self.actual_test(True)
+
+    def actual_test(self, save_restore=False):
+        spec, subprocesses = self.load_workflow_spec('receive_correlations.bpmn', 'correlation-test')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        if save_restore:
+            self.save_restore()
+        self.workflow.do_engine_steps()
+        task = self.workflow.get_next_task(state=TaskState.READY)
+        task.data.update(value_1='a', value_2='b')
+        task.run()
+        self.workflow.do_engine_steps()
+        self.assertEqual(self.workflow.correlations, {'message': {'prop_1': 'a', 'prop_2': 'b'}})
+        waiting_task = self.workflow.get_next_task(state=TaskState.WAITING)
+        event_def = waiting_task.task_spec.event_definition
+        payload = {'msg_value_1': 'a', 'msg_value_2': 'b'}
+        correlations = event_def.calculate_correlations(
+            waiting_task.workflow.script_engine,
+            event_def.correlation_properties,
+            payload
+        )
+        event = BpmnEvent(event_def, payload, correlations)
+        self.workflow.catch(event)
+        self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.is_completed)

@@ -28,10 +28,11 @@ from SpiffWorkflow.bpmn import BpmnEvent
 
 class MessageEventDefinition(MessageEventDefinition):
 
-    def __init__(self, name, correlation_properties=None, expression=None, message_var=None, **kwargs):
+    def __init__(self, name, correlation_properties=None, expression=None, message_var=None, process_correlations=None, **kwargs):
         super(MessageEventDefinition, self).__init__(name, correlation_properties, **kwargs)
         self.expression = expression
         self.message_var = message_var
+        self.process_correlations = process_correlations or []
 
     def throw(self, my_task):
         payload = my_task.workflow.script_engine.evaluate(my_task, self.expression)
@@ -39,6 +40,14 @@ class MessageEventDefinition(MessageEventDefinition):
         event = BpmnEvent(self, payload=payload, correlations=correlations)
         my_task.workflow.correlations.update(correlations)
         my_task.workflow.top_workflow.catch(event)
+
+    def update_task(self, my_task):
+        correlations = self.calculate_correlations(
+            my_task.workflow.script_engine,
+            self.process_correlations,
+            my_task.data
+        )
+        my_task.workflow.correlations.update(correlations)
 
     def update_task_data(self, my_task):
         if self.message_var is not None:
