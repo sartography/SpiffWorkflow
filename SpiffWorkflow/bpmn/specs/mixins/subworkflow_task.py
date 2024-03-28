@@ -41,6 +41,14 @@ class SubWorkflowTask(TaskSpec):
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
         self.update_data(my_task, subworkflow)
+        # I don't like manually moving back to ready, but don't want to run it
+        # Ideally, update hook would create the subprocess and return True, _run would start the subprocess and 
+        # return None (so that the state would transition to started), and the completed event for this task
+        # could be used to run post-completed actions automatically.
+        # However, until I align the events with state transitions, I don't want to encourage external use of
+        # callback methods (though completed event is not going to change).
+        if my_task.state is TaskState.COMPLETED:
+            my_task._set_state(TaskState.READY)
 
     def _update_hook(self, my_task):
         subprocess = my_task.workflow.top_workflow.subprocesses.get(my_task.id)
@@ -48,7 +56,7 @@ class SubWorkflowTask(TaskSpec):
             super()._update_hook(my_task)
             self.create_workflow(my_task)
             self.start_workflow(my_task)
-            my_task._set_state(TaskState.WAITING)
+            my_task._set_state(TaskState.STARTED)
         else:
             return subprocess.is_completed()
 

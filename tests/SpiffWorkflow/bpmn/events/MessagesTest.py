@@ -21,7 +21,8 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Select Test', choice='Messages')
         self.workflow.do_engine_steps()
         self.assertEqual([], self.workflow.get_tasks(state=TaskState.READY))
-        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
         self.workflow.catch(BpmnEvent(MessageEventDefinition('Wrong Message'), {}))
         self.assertEqual([], self.workflow.get_tasks(state=TaskState.READY))
         self.workflow.catch(BpmnEvent(MessageEventDefinition('Test Message'), {}))
@@ -30,7 +31,7 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.assertEqual('Test Message', self.workflow.get_tasks(state=TaskState.READY)[0].task_spec.bpmn_name)
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
+        self.assertTrue(self.workflow.is_completed())
 
     def testRunThroughSaveAndRestore(self):
 
@@ -41,7 +42,8 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.assertEqual([], self.workflow.get_tasks(state=TaskState.READY))
-        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
         self.workflow.catch(BpmnEvent(MessageEventDefinition('Wrong Message'), {}))
         self.assertEqual([], self.workflow.get_tasks(state=TaskState.READY))
         self.workflow.catch(BpmnEvent(MessageEventDefinition('Test Message'), {}))
@@ -50,4 +52,4 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))
+        self.assertTrue(self.workflow.is_completed())

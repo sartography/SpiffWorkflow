@@ -68,7 +68,7 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.assertEqual(len(self.workflow.subprocesses), 1)
-        self.assertEqual(task.state, TaskState.WAITING)
+        self.assertEqual(task.state, TaskState.STARTED)
         self.complete_task('Action2', True)
         self.complete_task('Action3', True)
         self.assertTrue(self.workflow.is_completed())

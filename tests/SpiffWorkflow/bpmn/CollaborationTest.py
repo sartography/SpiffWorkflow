@@ -35,7 +35,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         buddy = self.workflow.get_next_task(spec_name='process_buddy')
         self.assertIsInstance(buddy.task_spec, CallActivityMixin)
         self.assertEqual(buddy.task_spec.spec, 'process_buddy')
-        self.assertEqual(buddy.state, TaskState.WAITING)
+        self.assertEqual(buddy.state, TaskState.STARTED)
 
     def testBpmnMessage(self):
 

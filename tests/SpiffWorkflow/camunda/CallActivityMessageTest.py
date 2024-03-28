@@ -30,9 +30,9 @@ class CallActivityMessageTest(BaseTestCase):
 
         self.workflow.do_engine_steps()
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
-        waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
+        started_tasks = self.workflow.get_tasks(state=TaskState.STARTED)
         self.assertEqual(1, len(ready_tasks),'Expected to have one ready task')
-        self.assertEqual(2, len(waiting_tasks), 'Expected to have two waiting tasks')
+        self.assertEqual(2, len(started_tasks), 'Expected to have two started tasks')
 
         for step in steps:
             current_task = ready_tasks[0]
