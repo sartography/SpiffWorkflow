@@ -69,8 +69,14 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
         UnstructuredJoin.test(self)
 
     def _check_threshold_unstructured(self, my_task):
-        # Look at the tree to find all places where this task is used.
-        tasks = my_task.workflow.get_tasks(spec_name=self.name, end_at_spec=self.name)
+        # Look at the tree to find all places where this task is used and unfinished tasks that may be ancestors
+        # If there are any, we may have to check whether this gateway is reachable from any of them.
+        tasks, sources = [], []
+        for task in my_task.workflow.get_tasks(end_at_spec=self.name):
+            if task.task_spec == self:
+                tasks.append(task)
+            elif task.has_state(TaskState.READY|TaskState.WAITING):
+                sources.append(task.task_spec)
 
         # Look up which tasks have parents completed.
         completed_inputs = set([ task.parent.task_spec for task in tasks if task.parent.state == TaskState.COMPLETED ])
@@ -89,14 +95,14 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
         else:
             # Handle the case where there are paths from active tasks that must go through waiting inputs
             waiting_inputs = [i for i in self.inputs if i not in completed_inputs]
-            sources = [t.task_spec for t in my_task.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING, end_at_spec=self.name)]
 
             # This will go back through a task spec's ancestors and return the source, if applicable
             def check(spec): 
                 for parent in spec.inputs:
                     return parent if parent in sources else check(parent)
 
-            # If we can get to a completed input from this task, we don't have to wait for it
+            # Start with the completed inputs and recurse back through its ancestors, removing any waiting tasks that
+            # could reach one of them.
             for spec in completed_inputs:
                 source = check(spec)
                 if source is not None:

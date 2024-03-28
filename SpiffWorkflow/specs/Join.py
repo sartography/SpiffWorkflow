@@ -97,55 +97,12 @@ class Join(TaskSpec):
         self.threshold = threshold
         self.cancel_remaining = cancel
 
-    def _branch_is_complete(self, my_task):
-        # Determine whether that branch is now completed by checking whether
-        # it has any waiting items other than myself in it.
-        skip = None
-        for task in TaskIterator(my_task, state=TaskState.NOT_FINISHED_MASK):
-            # If the current task is a child of myself, ignore it.
-            if skip is not None and task.is_descendant_of(skip):
-                continue
-            if task.task_spec == self:
-                skip = task
-                continue
-            return False
-        return True
-
-    def _branch_may_merge_at(self, task):
-        for child in task:
-            # Ignore tasks that were created by a trigger.
-            if child.triggered:
-                continue
-            # Merge found.
-            if child.task_spec == self:
-                return True
-            # If the task is predicted with less outputs than he has
-            # children, that means the prediction may be incomplete (for
-            # example, because a prediction is not yet possible at this time).
-            if child.has_state(TaskState.PREDICTED_MASK) and len(child.task_spec.outputs) > len(child.children):
-                return True
-        return False
-
-    def _get_split_task(self, my_task):
-        # One Join spec may have multiple corresponding Task objects::
-        #
-        #     - Due to the MultiInstance pattern.
-        #     - Due to the ThreadSplit pattern.
-        #
-        # When using the MultiInstance pattern, we want to join across
-        # the resulting task instances. When using the ThreadSplit
-        # pattern, we only join within the same thread. (Both patterns
-        # may also be mixed.)
-        #
-        # We are looking for all task instances that must be joined.
-        # We limit our search by starting at the split point.
-        if self.split_task:
-            split_task = my_task.find_ancestor(self.split_task)
-        else:
-            split_task = my_task.workflow.task_tree
-        return split_task
-
     def _check_threshold_unstructured(self, my_task):
+        # This method is extremely poorly named.  It is called where there is no split task, but whether or not
+        # there is a known split is actually irrelevant.  The distinction that actually needs to be made is 
+        # "Do we have to look at unfinshed tasks to find out if any of the might pass through this task?" vs
+        # "Can we make a distinction solely by looking at our own completed inputs?"
+
         # The default threshold is the number of inputs.
         threshold = valueof(my_task, self.threshold)
         if threshold is None:
@@ -165,18 +122,42 @@ class Join(TaskSpec):
                 waiting_tasks.append(task)
             if completed >= threshold:
                 may_fire = True
-                break
+                if not self.cancel_remaining:
+                    break
         else:
             may_fire = False
 
         # If the threshold was reached, get ready to fire.
         return may_fire, waiting_tasks
 
+    def _branch_may_merge(self, task):
+        for child in TaskIterator(task, end_at_spec=self.name):
+            # Ignore tasks that were created by a trigger.
+            if child.triggered:
+                continue
+            # Merge found.
+            if child.task_spec == self:
+                return True
+            # If the task is predicted with less outputs than he has
+            # children, that means the prediction may be incomplete (for
+            # example, because a prediction is not yet possible at this time).
+            if child.has_state(TaskState.PREDICTED_MASK) and len(child.task_spec.outputs) > len(child.children):
+                return True
+        return False
+
+    def _branch_is_complete(self, task):
+        # Determine whether that branch is now completed by checking whether
+        # it has any waiting items other than myself in it.
+        for child in TaskIterator(task, state=TaskState.NOT_FINISHED_MASK, end_at_spec=self.name):
+            if child.task_spec != self:
+                return False
+        return True
+
     def _check_threshold_structured(self, my_task):
         # Retrieve a list of all activated tasks from the associated task that did the conditional parallel split.
         split_task = my_task.find_ancestor(self.split_task)
         if split_task is None:
-            raise WorkflowException(f'Join with {self.split_task} which was not reached', task_spec=self)
+            raise WorkflowException(f'Split task {self.split_task} which was not reached', task_spec=self)
         tasks = split_task.task_spec._get_activated_tasks(split_task, my_task)
 
         # The default threshold is the number of branches that were started.
@@ -187,10 +168,11 @@ class Join(TaskSpec):
         # Look up which tasks have already completed.
         waiting_tasks = []
         completed = 0
+
         for task in tasks:
-            if not self._branch_may_merge_at(task):
+            if self._branch_is_complete(task):
                 completed += 1
-            elif self._branch_is_complete(task):
+            elif not self._branch_may_merge(task):
                 completed += 1
             else:
                 waiting_tasks.append(task)
@@ -202,9 +184,7 @@ class Join(TaskSpec):
 
         # Check whether enough incoming branches have completed.
         my_task._inherit_data()
-        if my_task.has_state(TaskState.FINISHED_MASK):
-            may_fire, waiting_tasks = False, []
-        elif self.split_task is None:
+        if self.split_task is None:
             may_fire, waiting_tasks = self._check_threshold_unstructured(my_task)
         else:
             may_fire, waiting_tasks = self._check_threshold_structured(my_task)
@@ -223,7 +203,7 @@ class Join(TaskSpec):
 
     def _find_tasks(self, my_task):
 
-        split_task = self._get_split_task(my_task) or my_task.workflow.task_tree
+        split_task = my_task.find_ancestor(self.split_task) or my_task.workflow.task_tree
         # Identify all corresponding task instances within the thread.
         thread_tasks = []
         for task in TaskIterator(split_task, spec_name=self.name, end_at_spec=self.name):

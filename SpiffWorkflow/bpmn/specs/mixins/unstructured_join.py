@@ -27,7 +27,7 @@ class UnstructuredJoin(Join):
     for the BPMN style threading
     """
     def _do_join(self, my_task):
-        split_task = self._get_split_task(my_task)
+        split_task = my_task.find_ancestor(self.split_task) or my_task.workflow.task_tree
 
         # Identify all corresponding task instances within the thread.
         # Also remember which of those instances was most recently changed,
