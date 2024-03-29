@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.util.task import TaskFilter, TaskIterator
+from SpiffWorkflow.util.task import TaskFilter, TaskIterator, TaskState
 from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 
 class BpmnTaskFilter(TaskFilter):
@@ -60,17 +60,19 @@ class BpmnTaskIterator(TaskIterator):
             self.depth < self.max_depth,
             task.task_spec.name != self.end_at_spec,
         ]):
-            if subprocess is None:
-                next_tasks = task.children
-            elif self.depth_first:
-                next_tasks = [subprocess.task_tree] + task.children
+            # Do not descend into a completed subprocess to look for unfinished tasks.
+            if subprocess is None or (task.state >= TaskState.FINISHED_MASK and self.task_filter.state <= TaskState.FINISHED_MASK):
+                subprocess_tasks = []
             else:
-                next_tasks = task.children + [subprocess.task_tree]
+                subprocess_tasks = [subprocess.task_tree]
 
             if self.depth_first:
+                next_tasks = subprocess_tasks + task.children
                 self.task_list = next_tasks + self.task_list
             else:
+                next_tasks = task.children + subprocess_tasks
                 self.task_list.extend(next_tasks)
+
             self._update_depth(task)
 
         elif self.depth_first and len(self.task_list) > 0:
