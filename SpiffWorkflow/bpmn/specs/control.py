@@ -124,13 +124,10 @@ class StartEventJoin(Join, BpmnTaskSpec):
 class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
 
     def _check_threshold_unstructured(self, my_task):
-        # Look at the tree to find all ready and waiting tasks (excluding
-        # ourself). The EndJoin waits for everyone!
-        for task in TaskIterator(my_task.workflow.task_tree, state=TaskState.READY|TaskState.WAITING, end_at_spec=self.name):
-            if task.task_spec == my_task.task_spec:
+        # Look at the tree to find all ready and waiting tasks (excluding ourself). The EndJoin waits for everyone!
+        for task in TaskIterator(my_task.workflow.task_tree, state=TaskState.NOT_FINISHED_MASK, end_at_spec=self.name):
+            if task == my_task:
                 continue
-            # This method returns waiting tasks so that they can be cancelled on cancelling joins
-            # This is not a cancelling join so we can omit building the list and return false as soon as we find any waiting task
             may_fire = False
             break
         else:

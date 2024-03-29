@@ -44,7 +44,6 @@ class ParallelGateway(UnstructuredJoin):
     def _check_threshold_unstructured(self, my_task):
 
         tasks = my_task.workflow.get_tasks(spec_name=self.name)
-        # Look up which tasks have parents completed.
         waiting_inputs = set(self.inputs)
 
         def remove_ancestor(task):
@@ -55,10 +54,15 @@ class ParallelGateway(UnstructuredJoin):
                 remove_ancestor(task.parent)
 
         for task in tasks:
-            if task.parent.state == TaskState.COMPLETED and task.parent.task_spec in waiting_inputs:
-                waiting_inputs.remove(task.parent.task_spec)
-            # Do not wait for descendants of this task
-            elif task.is_descendant_of(my_task):
+            # Handle the case where the parallel gateway is part of a loop.
+            if task.is_descendant_of(my_task):
+                # This is the first iteration; we should not wait on this task, because it will not be reached
+                # until after this join completes
                 remove_ancestor(task)
+            elif my_task.is_descendant_of(task):
+                # This is an subsequent iteration; we need to ignore the parents of previous iterations
+                continue
+            elif task.parent.state == TaskState.COMPLETED and task.parent.task_spec in waiting_inputs:
+                waiting_inputs.remove(task.parent.task_spec)
 
         return len(waiting_inputs) == 0
