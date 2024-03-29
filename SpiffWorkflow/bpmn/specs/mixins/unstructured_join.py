@@ -28,12 +28,31 @@ class UnstructuredJoin(Join):
     """
     def _update_hook(self, my_task):
 
-        my_task._inherit_data()
         may_fire = self._check_threshold_unstructured(my_task)
         other_tasks = [t for t in my_task.workflow.tasks.values() if t.task_spec == self and t != my_task and t.state is TaskState.WAITING]
         for task in other_tasks:
-            my_task.data.update(task.data)
+            # By cancelling other waiting tasks immediately, we can prevent them from being updated repeeatedly and pointlessly
             task.cancel()
         if not may_fire:
+            # Only the most recent instance of the spec needs to wait.
             my_task._set_state(TaskState.WAITING)
+        else:
+            # Only copy the data to the task that will proceed
+            my_task._inherit_data()
         return may_fire
+
+    def _run_hook(self, my_task):
+        other_tasks = filter(
+            lambda t: t.task_spec == self and t != my_task and t.has_state(TaskState.FINISHED_MASK) and not my_task.is_descendant_of(t),
+            my_task.workflow.tasks.values()
+        )
+        pass
+        for task in sorted(other_tasks, key=lambda t: t.last_state_change):
+            # By inheriting directly from parent tasks, we can avoid copying previouly merged data
+            my_task.data.update(task.parent.data)
+            # This condition only applies when a workflow is reset inside a parallel branch.
+            # If reset to a branch that was originally cancelled, all the descendants of the previously completed branch will still
+            # appear in the tree, potentially corrupting the structure and data.
+            if task.has_state(TaskState.COMPLETED):
+                task._drop_children(force=True)
+        return True
