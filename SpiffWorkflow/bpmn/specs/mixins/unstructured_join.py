@@ -63,3 +63,14 @@ class UnstructuredJoin(Join):
                 task._drop_children()
             else:
                 task.data.update(collected_data)
+
+    def _update_hook(self, my_task):
+
+        # Check whether enough incoming branches have completed.
+        my_task._inherit_data()
+        may_fire = self._check_threshold_unstructured(my_task)
+        if may_fire:
+            self._do_join(my_task)
+        elif not my_task.has_state(TaskState.FINISHED_MASK):
+            my_task._set_state(TaskState.WAITING)
+        return may_fire

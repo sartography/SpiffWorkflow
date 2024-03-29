@@ -135,8 +135,7 @@ class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
             break
         else:
             may_fire = True
-
-        return may_fire, []
+        return may_fire
 
     def _run_hook(self, my_task):
         result = super(_EndJoin, self)._run_hook(my_task)

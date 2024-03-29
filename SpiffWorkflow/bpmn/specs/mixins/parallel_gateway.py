@@ -45,7 +45,6 @@ class ParallelGateway(UnstructuredJoin):
 
         tasks = my_task.workflow.get_tasks(spec_name=self.name)
         # Look up which tasks have parents completed.
-        waiting_tasks = []
         waiting_inputs = set(self.inputs)
 
         def remove_ancestor(task):
@@ -61,8 +60,5 @@ class ParallelGateway(UnstructuredJoin):
             # Do not wait for descendants of this task
             elif task.is_descendant_of(my_task):
                 remove_ancestor(task)
-            # Ignore predicted tasks; we don't care about anything not definite
-            elif task.parent.has_state(TaskState.DEFINITE_MASK):
-                waiting_tasks.append(task.parent)
 
-        return len(waiting_inputs) == 0, waiting_tasks
+        return len(waiting_inputs) == 0
