@@ -35,12 +35,12 @@
   <bpmn:message id="Message_16t6tet" name="message" />
   <bpmn:correlationProperty id="prop_1" name="prop_1">
     <bpmn:correlationPropertyRetrievalExpression messageRef="Message_16t6tet">
-      <bpmn:messagePath>msg_value_1</bpmn:messagePath>
+      <bpmn:formalExpression>msg_value_1</bpmn:formalExpression>
     </bpmn:correlationPropertyRetrievalExpression>
   </bpmn:correlationProperty>
   <bpmn:correlationProperty id="prop_2" name="prop_2">
     <bpmn:correlationPropertyRetrievalExpression messageRef="Message_16t6tet">
-      <bpmn:messagePath>msg_value_2</bpmn:messagePath>
+      <bpmn:formalExpression>msg_value_2</bpmn:formalExpression>
     </bpmn:correlationPropertyRetrievalExpression>
   </bpmn:correlationProperty>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
