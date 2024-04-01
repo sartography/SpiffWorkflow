@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.util.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState
 from .unstructured_join import UnstructuredJoin
 
 
@@ -41,11 +41,9 @@ class ParallelGateway(UnstructuredJoin):
     Essentially, this means that we must wait until we have a completed parent
     task on each incoming sequence.
     """
-    def _check_threshold_unstructured(self, my_task, force=False):
+    def _check_threshold_unstructured(self, my_task):
 
-        tasks = my_task.workflow.get_tasks(task_filter=TaskFilter(spec_name=self.name)) 
-        # Look up which tasks have parents completed.
-        waiting_tasks = []
+        tasks = my_task.workflow.get_tasks(spec_name=self.name)
         waiting_inputs = set(self.inputs)
 
         def remove_ancestor(task):
@@ -56,13 +54,15 @@ class ParallelGateway(UnstructuredJoin):
                 remove_ancestor(task.parent)
 
         for task in tasks:
-            if task.parent.state == TaskState.COMPLETED and task.parent.task_spec in waiting_inputs:
-                waiting_inputs.remove(task.parent.task_spec)
-            # Do not wait for descendants of this task
-            elif task.is_descendant_of(my_task):
+            # Handle the case where the parallel gateway is part of a loop.
+            if task.is_descendant_of(my_task):
+                # This is the first iteration; we should not wait on this task, because it will not be reached
+                # until after this join completes
                 remove_ancestor(task)
-            # Ignore predicted tasks; we don't care about anything not definite
-            elif task.parent.has_state(TaskState.DEFINITE_MASK):
-                waiting_tasks.append(task.parent)
+            elif my_task.is_descendant_of(task):
+                # This is an subsequent iteration; we need to ignore the parents of previous iterations
+                continue
+            elif task.parent.state == TaskState.COMPLETED and task.parent.task_spec in waiting_inputs:
+                waiting_inputs.remove(task.parent.task_spec)
 
-        return force or len(waiting_inputs) == 0, waiting_tasks
+        return len(waiting_inputs) == 0

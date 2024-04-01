@@ -40,7 +40,8 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
         self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step("Start Work")
@@ -62,18 +63,21 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
         self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step("Start Work")
         self.workflow.do_engine_steps()
 
-        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
-        self.assertEqual('Finish Time', self.workflow.get_tasks(state=TaskState.WAITING)[1].task_spec.bpmn_name)
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
+        self.assertEqual('Finish Time', self.workflow.get_next_task(state=TaskState.WAITING).task_spec.bpmn_name)
         time.sleep(self.FINISH_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(3, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
         self.assertNotEqual('Finish Time', self.workflow.get_tasks(state=TaskState.WAITING)[0].task_spec.bpmn_name)
 
         overdue_escalation_task = [
@@ -109,10 +113,12 @@ class ActionManagementTest(BpmnWorkflowTestCase):
 
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
+
         time.sleep(self.START_TIME_DELTA)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
+        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
         self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         self.do_next_named_step("Start Work")

@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
-from SpiffWorkflow.util.task import TaskState, TaskFilter
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.specs.MultiChoice import MultiChoice
 from .unstructured_join import UnstructuredJoin
 
@@ -68,39 +68,40 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
         MultiChoice.test(self)
         UnstructuredJoin.test(self)
 
-    def _check_threshold_unstructured(self, my_task, force=False):
-        # Look at the tree to find all places where this task is used.
-        tasks = my_task.workflow.get_tasks(task_filter=TaskFilter(spec_name=self.name))
+    def _check_threshold_unstructured(self, my_task):
+        # Look at the tree to find all places where this task is used and unfinished tasks that may be ancestors
+        # If there are any, we may have to check whether this gateway is reachable from any of them.
+        tasks, sources = [], []
+        for task in my_task.workflow.get_tasks(end_at_spec=self.name):
+            if task.task_spec == self:
+                tasks.append(task)
+            elif task.has_state(TaskState.READY|TaskState.WAITING):
+                sources.append(task.task_spec)
 
         # Look up which tasks have parents completed.
         completed_inputs = set([ task.parent.task_spec for task in tasks if task.parent.state == TaskState.COMPLETED ])
 
-        # Find waiting tasks 
-        # Exclude tasks whose specs have already been completed
-        # A spec only has to complete once, even if on multiple paths
-        waiting_tasks = []
+        # If any parents of this join have not been finished, this task must wait.
+        # A parent spec only has to be completed once, even it is on multiple paths
+        tasks_waiting = False
         for task in tasks:
             if task.parent.has_state(TaskState.DEFINITE_MASK) and task.parent.task_spec not in completed_inputs:
-                waiting_tasks.append(task.parent)
+                tasks_waiting = True
+                break
 
-        if force:
-            # If force is true, complete the task
-            complete = True
-        elif len(waiting_tasks) > 0:
-            # If we have waiting tasks, we're obviously not done
+        if tasks_waiting:
             complete = False
         else:
             # Handle the case where there are paths from active tasks that must go through waiting inputs
             waiting_inputs = [i for i in self.inputs if i not in completed_inputs]
-            task_filter = TaskFilter(state=TaskState.READY|TaskState.WAITING)
-            sources = [t.task_spec for t in my_task.workflow.get_tasks(task_filter=task_filter)]
 
             # This will go back through a task spec's ancestors and return the source, if applicable
             def check(spec): 
                 for parent in spec.inputs:
                     return parent if parent in sources else check(parent)
 
-            # If we can get to a completed input from this task, we don't have to wait for it
+            # Start with the completed inputs and recurse back through its ancestors, removing any waiting tasks that
+            # could reach one of them.
             for spec in completed_inputs:
                 source = check(spec)
                 if source is not None:
@@ -115,7 +116,7 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
 
             complete = len(unfinished_paths) == 0
 
-        return complete, waiting_tasks
+        return complete
 
     def _run_hook(self, my_task):
         outputs = self._get_matching_outputs(my_task)
