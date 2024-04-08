@@ -56,12 +56,12 @@ class NodeParser:
     def get_description(self):
         return self.process_parser.parser.spec_descriptions.get(self.node.tag)
 
-    def xpath(self, xpath, extra_ns=None):
-        return self._xpath(self.node, xpath, extra_ns)
+    def xpath(self, xpath):
+        return self._xpath(self.node, xpath)
 
-    def doc_xpath(self, xpath, extra_ns=None):
+    def doc_xpath(self, xpath):
         root = self.node.getroottree().getroot()
-        return self._xpath(root, xpath, extra_ns)
+        return self._xpath(root, xpath)
 
     def attribute(self, attribute, namespace=None, node=None):
         if node is None:
@@ -156,13 +156,8 @@ class NodeParser:
         if noderef is not None:
             return noderef.getparent().get('name')
 
-    def _xpath(self, node, xpath, extra_ns=None):
-        if extra_ns is not None:
-            nsmap = self.nsmap.copy()
-            nsmap.update(extra_ns)
-        else:
-            nsmap = self.nsmap
-        return node.xpath(xpath, namespaces=nsmap)
+    def _xpath(self, node, xpath):
+        return node.xpath(xpath, namespaces=self.nsmap)
 
     def raise_validation_exception(self, message):
         raise ValidationException(message, self.node, self.filename)
