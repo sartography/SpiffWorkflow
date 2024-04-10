@@ -19,7 +19,7 @@
 
 import ast
 
-from SpiffWorkflow.bpmn.parser.node_parser import NodeParser, DEFAULT_NSMAP
+from SpiffWorkflow.bpmn.parser.node_parser import NodeParser
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 
 from SpiffWorkflow.bpmn.parser.util import xpath_eval
@@ -34,20 +34,6 @@ from SpiffWorkflow.dmn.specs.model import (
     Rule,
 )
 
-def get_dmn_ns(node):
-    """
-    Returns the namespace definition for the current DMN
-
-    :param node: the XML node for the DMN document
-    """
-    nsmap = DEFAULT_NSMAP.copy()
-    if 'http://www.omg.org/spec/DMN/20151101/dmn.xsd' in node.nsmap.values():
-        nsmap['dmn'] = 'http://www.omg.org/spec/DMN/20151101/dmn.xsd'
-    elif 'http://www.omg.org/spec/DMN/20180521/DI/' in node.nsmap.values():
-        nsmap['dmn'] = 'http://www.omg.org/spec/DMN/20180521/DI/'
-    elif 'https://www.omg.org/spec/DMN/20191111/MODEL/' in node.nsmap.values():
-        nsmap['dmn'] = 'https://www.omg.org/spec/DMN/20191111/MODEL/'
-    return nsmap
 
 class DMNParser(NodeParser):
     """
@@ -79,20 +65,20 @@ class DMNParser(NodeParser):
         self.filename = filename
 
     def parse(self):
-        self.decision = self._parse_decision(self.node.findall('{*}decision'))
+        self.decision = self._parse_decision(self.xpath('.//dmn:decision'))
 
     @property
     def bpmn_id(self):
         """
         Returns the process ID
         """
-        return self.node.findall('{*}decision[1]')[0].get('id')
+        return self.xpath('dmn:decision[1]')[0].get('id')
 
     def get_name(self):
         """
         Returns the process name (or ID, if no name is included in the file)
         """
-        return self.node.findall('{*}decision[1]')[0].get('name')
+        return self.xpath('dmn:decision[1]')[0].get('name')
 
     def _parse_decision(self, root):
         decision_elements = list(root)
@@ -115,7 +101,7 @@ class DMNParser(NodeParser):
         return decision
 
     def _parse_decision_tables(self, decision, decisionElement):
-        for decision_table_element in decisionElement.findall('{*}decisionTable'):
+        for decision_table_element in decisionElement.findall('dmn:decisionTable', namespaces=self.nsmap):
             name = decision_table_element.attrib.get('name', '')
             hitPolicy = decision_table_element.attrib.get('hitPolicy', 'UNIQUE').upper()
             decision_table = DecisionTable(decision_table_element.attrib['id'],
@@ -146,12 +132,11 @@ class DMNParser(NodeParser):
 
     def _parse_input(self, input_element):
         type_ref = None
-        prefix = self.nsmap['dmn']
-        xpath = xpath_eval(input_element, {'dmn': prefix})
+        xpath = xpath_eval(input_element, self.nsmap)
         expression = None
         for input_expression in xpath('dmn:inputExpression'):
             type_ref = input_expression.attrib.get('typeRef', '')
-            expression_node = input_expression.find('{' + prefix + '}text')
+            expression_node = input_expression.find('dmn:text', namespaces=self.nsmap)
             if expression_node is not None:
                 expression = expression_node.text
 
