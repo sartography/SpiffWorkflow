@@ -123,7 +123,7 @@ We initialize a scripting enviroment:
 .. code-block:: python
 
     script_env = TaskDataEnvironment({'datetime': datetime })
-    >script_engine = PythonScriptEngine(script_env)
+    script_engine = PythonScriptEngine(script_env)
 
 The :code:`PythonScriptEngine` handles execution of script tasks and evaluation of gateway and DMN conditions.
 We'll create the script engine based on it; execution and evaluation will occur in the context of this enviroment.
@@ -159,5 +159,6 @@ We then create our BPMN engine (:app:`engine/engine.py`) using each of these com
 .. code-block:: python
 
     from ..engine import BpmnEngine
-    engine = BpmnEngine(parser, serializer, handlers, script_env)
+    engine = BpmnEngine(parser, serializer, script_env)
 
+The handlers are automatically passed to the curses UI by the main runner.
