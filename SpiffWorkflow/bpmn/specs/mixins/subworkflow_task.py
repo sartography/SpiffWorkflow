@@ -65,7 +65,7 @@ class SubWorkflowTask(TaskSpec):
 
     def copy_data(self, my_task, subworkflow):
         start = subworkflow.get_next_task(spec_name='Start')
-        start.set_data(**my_task.data)
+        start.set_data(**deepcopy(my_task.data))
 
     def update_data(self, my_task, subworkflow):
         my_task.data = deepcopy(subworkflow.last_task.data)
