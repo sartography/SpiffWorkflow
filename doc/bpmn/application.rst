@@ -16,6 +16,13 @@ We'll mainly focus on the engine, as it contains the interface with the library,
 the other components.  The engine is quite small and simple compared to the code required to handle user input and
 display information in a terminal.
 
+.. warning::
+
+    This application is *not* a robust application and won't be suitable for displaying large amounts of data, which
+    may cause it to crash.  The application won't run unless your terminal is at least 13 lines high.  It also may
+    randomly crash at other times as well.  While I'll make improvements as I add more examples and bug reports and/or
+    fixes are always welcome, my focus is on using the library rather than the UI.
+
 Configuration is set up in a python module and passed into the application with the `-e` argument, which loads the
 configured engine from this file.  This setup should make it relatively to change the behavior of engine.  The
 following configurations are included:

@@ -37,7 +37,7 @@ extensions = ['sphinx.ext.autodoc',
              ]
 
 # Configure links to example repo
-branch = 'improvement/tweaks-and-extra-examples'
+branch = 'main'
 extlinks = {
     'example': (f'https://github.com/sartography/spiff-example-cli/tree/{branch}/' + '%s', '%s'),
     'bpmn': (f'https://github.com/sartography/spiff-example-cli/tree/{branch}/bpmn/tutorial/' + '%s', '%s'),

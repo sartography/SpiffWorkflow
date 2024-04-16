@@ -416,7 +416,7 @@ In this section, we'll show how you might execute your scripts outside of the wo
 contrived and there are undoubtedly better ways to accomplish it, but this has the advantage of being very simple.
 
 First we'll create an executable that can take a JSON-serialized context and an expression to evaluate or a script to execute
-(see :app:`spiff_example/spiff/subprocess_engine.py`).  This little program simply replicates the behavior of the default
+(see :app:`spiff/subprocess_engine.py`).  This little program simply replicates the behavior of the default
 script engine.
 
 We import our custom function here rather than our workflow's engine.  We'll also import the registry used by our serializer;
