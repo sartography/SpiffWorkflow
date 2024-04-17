@@ -124,7 +124,7 @@ Examples
 --------
 
 - :doc:`serialization`
-- :doc:`custom_task_specs`
+- :doc:`custom_task_spec`
 
 DMN
 ===

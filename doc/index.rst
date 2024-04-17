@@ -22,7 +22,7 @@ What is SpiffWorkflow?
 
 SpiffWorkflow is the workflow library underlying `Spiff Arena <https://github.com/sartography/spiff-arena>`_.
 
-It consists of a generic core library, with packages supporting parsing and execution of BPMN diagrams that extend
+It consists of a generic core library, with modules supporting parsing and execution of BPMN diagrams that extend
 this core.
 
 Extensive documentation about BPMN and how SpiffWorkflow interprets it, as well as information about custom extensions
