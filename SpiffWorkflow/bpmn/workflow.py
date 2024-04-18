@@ -217,29 +217,28 @@ class BpmnWorkflow(BpmnBaseWorkflow):
     def reset_from_task_id(self, task_id, data=None, remove_subprocess=True):
 
         task = self.get_task_from_id(task_id)
-        run_task_at_end = False
-        if isinstance(task.parent.task_spec, BoundaryEventSplit):
-            task = task.parent
-            run_task_at_end = True # we jumped up one level, so exectute so we are on the correct task as requested.
-
-        descendants = []
         # Since recursive deletion of subprocesses requires access to the tasks, we have to delete any subprocesses first
         # We also need diffeent behavior for the case where we explictly reset to a subprocess (in which case we delete it)
         # vs resetting inside (where we leave it and reset the tasks that descend from it)
-        for item in task:
-            if item == task and not remove_subprocess:
-                continue
-            if item.id in self.subprocesses:
-                descendants.extend(self.delete_subprocess(item))
-        descendants.extend(super().reset_from_task_id(task.id, data))
+        descendants = []
+
+        # If we're resetting to a boundary event, we also have to delete subprocesses underneath the attached events
+        top = task if not isinstance(task.parent.task_spec, BoundaryEventSplit) else task.parent
+        for desc in filter(lambda t: t.id in self.subprocesses, top):
+            if desc != task or remove_subprocess:
+                descendants.extend(self.delete_subprocess(desc))
+
+        # This resets the boundary event branches
+        if isinstance(task.parent.task_spec, BoundaryEventSplit):
+            for child in task.parent.children:
+                descendants.extend(super().reset_from_task_id(child.id, data if child == task else None))
+        else:
+            descendants.extend(super().reset_from_task_id(task.id, data))
 
         if task.workflow.parent_task_id is not None:
             sp_task = self.get_task_from_id(task.workflow.parent_task_id)
             descendants.extend(self.reset_from_task_id(sp_task.id, remove_subprocess=False))
-            sp_task._set_state(TaskState.WAITING)
-
-        if run_task_at_end:
-            task.run()
+            sp_task._set_state(TaskState.STARTED)
 
         return descendants
 
