@@ -67,7 +67,7 @@ class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
 
         # The task we returned to should be ready, the subprocess should be waiting, the final task should be future
         sub = self.workflow.get_next_task(spec_name='subprocess')
-        self.assertEqual(sub.state, TaskState.WAITING)
+        self.assertEqual(sub.state, TaskState.STARTED)
         self.assertEqual(task.state, TaskState.READY)
         final = self.workflow.get_next_task(spec_name='Final')
         self.assertEqual(final.state, TaskState.FUTURE)
