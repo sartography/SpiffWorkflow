@@ -31,7 +31,7 @@ class MessageEventDefinitionConverter(EventDefinitionConverter):
 
     def from_dict(self, dct):
         dct['correlation_properties'] = self.correlation_properties_from_dict(dct['correlation_properties'])
-        dct['process_correlations'] = self.correlation_properties_from_dict(dct['process_correlations'])
+        dct['process_correlations'] = self.correlation_properties_from_dict(dct.get('process_correlations', []))
         event_definition = super().from_dict(dct)
         return event_definition
 
