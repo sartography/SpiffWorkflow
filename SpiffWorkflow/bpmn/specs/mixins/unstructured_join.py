@@ -16,53 +16,47 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
+from copy import deepcopy
 
 from SpiffWorkflow.util.task import TaskState, TaskIterator
 from SpiffWorkflow.specs.Join import Join
-
 
 class UnstructuredJoin(Join):
     """
     A helper subclass of Join that makes it work in a slightly friendlier way
     for the BPMN style threading
     """
-    def _do_join(self, my_task):
-        split_task = self._get_split_task(my_task)
+    def _update_hook(self, my_task):
 
-        # Identify all corresponding task instances within the thread.
-        # Also remember which of those instances was most recently changed,
-        # because we are making this one the instance that will
-        # continue the thread of control. In other words, we will continue
-        # to build the task tree underneath the most recently changed task.
-        last_changed = None
-        thread_tasks = []
-        for task in TaskIterator(split_task, spec_name=self.name):
-            if task.thread_id != my_task.thread_id:
-                # Ignore tasks from other threads.  (Do we need this condition?)
-                continue
-            if not task.parent.has_state(TaskState.FINISHED_MASK):
-                # For an inclusive join, this can happen - it's a future join
-                continue
-            if my_task.is_descendant_of(task):
-                # Skip ancestors (otherwise the branch this task is on will get dropped)
-                continue
-            # We have found a matching instance.
-            thread_tasks.append(task)
+        may_fire = self._check_threshold_unstructured(my_task)
+        other_tasks = [t for t in my_task.workflow.tasks.values()
+                if t.task_spec == self and t != my_task and t.state is TaskState.WAITING]
+        for task in other_tasks:
+            # By cancelling other waiting tasks immediately, we can prevent them from being updated repeeatedly and pointlessly
+            task.cancel()
+        if not may_fire:
+            # Only the most recent instance of the spec needs to wait.
+            my_task._set_state(TaskState.WAITING)
+        else:
+            # Only copy the data to the task that will proceed
+            my_task._inherit_data()
+        return may_fire
 
-            # Check whether the state of the instance was recently changed.
-            changed = task.parent.last_state_change
-            if last_changed is None or changed > last_changed.parent.last_state_change:
-                last_changed = task
+    def _run_hook(self, my_task):
+        other_tasks = filter(
+            lambda t: t.task_spec == self and t.has_state(TaskState.FINISHED_MASK) and not my_task.is_descendant_of(t),
+            my_task.workflow.tasks.values()
+        )
+        for task in sorted(other_tasks, key=lambda t: t.last_state_change):
+            # By inheriting directly from parent tasks, we can avoid copying previouly merged data
 
-        # Update data from all the same thread tasks.
-        thread_tasks.sort(key=lambda t: t.parent.last_state_change)
-        collected_data = {}
-        for task in thread_tasks:
-            collected_data.update(task.data)
+            my_task.set_data(**deepcopy(task.parent.data))
+            # This condition only applies when a workflow is reset inside a parallel branch.
+            # If reset to a branch that was originally cancelled, all the descendants of the previously completed branch will still
+            # appear in the tree, potentially corrupting the structure and data.
+            if task.has_state(TaskState.COMPLETED):
+                task._drop_children(force=True)
 
-        for task in thread_tasks:
-            if task != last_changed:
-                task._set_state(TaskState.CANCELLED)
-                task._drop_children()
-            else:
-                task.data.update(collected_data)
+        # My task is not finished, so won't be included above.
+        my_task._inherit_data()
+        return True

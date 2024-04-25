@@ -49,7 +49,7 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
         sub = [t for t in self.workflow.get_tasks() if t.task_spec.bpmn_name == 'Nested level 1'][0]
         self.workflow.reset_from_task_id(task.id)
         self.assertEqual(task.state, TaskState.READY)
-        self.assertEqual(sub.state, TaskState.WAITING)
+        self.assertEqual(sub.state, TaskState.STARTED)
         self.assertEqual(len(self.workflow.subprocesses), 1)
         task.run()
 
@@ -68,7 +68,7 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.assertEqual(len(self.workflow.subprocesses), 1)
-        self.assertEqual(task.state, TaskState.WAITING)
+        self.assertEqual(task.state, TaskState.STARTED)
         self.complete_task('Action2', True)
         self.complete_task('Action3', True)
         self.assertTrue(self.workflow.is_completed())

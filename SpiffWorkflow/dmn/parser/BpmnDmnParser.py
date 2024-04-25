@@ -26,7 +26,7 @@ from ...bpmn.parser.util import full_tag
 from ...bpmn.parser.ValidationException import ValidationException
 
 from ...bpmn.parser.BpmnParser import BpmnParser, BpmnValidator
-from ...dmn.parser.DMNParser import DMNParser, get_dmn_ns
+from ...dmn.parser.DMNParser import DMNParser
 from ..engine.DMNEngine import DMNEngine
 
 XSD_DIR = os.path.join(os.path.dirname(__file__), 'schema')
@@ -62,16 +62,19 @@ class BpmnDmnParser(BpmnParser):
         """
         Add the given lxml representation of the DMN file to the parser's set.
         """
-        nsmap = get_dmn_ns(node)
+        namespaces = self.namespaces.copy()
+        namespaces.update(node.nsmap)
+        if None in namespaces:
+            namespaces['dmn'] = namespaces.pop(None)
         # We have to create a dmn validator on the fly, because we support multiple versions
         # If we have a bpmn validator, assume DMN validation should be done as well.
         # I don't like this, but I don't see a better solution.
-        schema = self.dmn_schemas.get(nsmap.get('dmn'))
+        schema = self.dmn_schemas.get(namespaces.get('dmn'))
         if self.validator and schema is not None:
             validator = BpmnValidator(schema)
             validator.validate(node, filename)
 
-        dmn_parser = DMNParser(self, node, nsmap, filename=filename)
+        dmn_parser = DMNParser(self, node, namespaces, filename=filename)
         self.dmn_parsers[dmn_parser.bpmn_id] = dmn_parser
         self.dmn_parsers_by_name[dmn_parser.get_name()] = dmn_parser
 

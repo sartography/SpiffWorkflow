@@ -3,7 +3,8 @@ import os
 from lxml import etree
 
 from SpiffWorkflow.dmn.engine.DMNEngine import DMNEngine
-from SpiffWorkflow.dmn.parser.DMNParser import DMNParser, get_dmn_ns
+from SpiffWorkflow.dmn.parser.DMNParser import DMNParser
+from SpiffWorkflow.bpmn.parser.node_parser import DEFAULT_NSMAP
 
 class WorkflowSpec:
     def __init__(self):
@@ -38,7 +39,12 @@ class DecisionRunner:
         with open(fn) as fh:
             node = etree.parse(fh)
 
-        self.dmnParser = DMNParser(None, node.getroot(), get_dmn_ns(node.getroot()))
+        nsmap = DEFAULT_NSMAP.copy()
+        nsmap.update(node.getroot().nsmap)
+        if None in nsmap:
+            nsmap['dmn'] = nsmap.pop(None)
+
+        self.dmnParser = DMNParser(None, node.getroot(), nsmap)
         self.dmnParser.parse()
 
         decision = self.dmnParser.decision

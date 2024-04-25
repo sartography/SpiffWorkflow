@@ -43,7 +43,7 @@ class DepthFirstTest(IterationTest):
         tasks = self.workflow.get_tasks(end_at_spec='c')
         self.assertEqual(
             [t.task_spec.name for t in tasks],
-            ['Start', 'a', 'a1', 'last', 'End', 'a2', 'last', 'End', 'c']
+            ['Start', 'a', 'a1', 'last', 'End', 'a2', 'last', 'End', 'c', 'b', 'b1', 'last', 'End', 'b2', 'last', 'End']
         )
 
     def test_get_tasks_max_depth(self):
@@ -67,7 +67,7 @@ class BreadthFirstTest(IterationTest):
         tasks = self.workflow.get_tasks(end_at_spec='c', depth_first=False)
         self.assertEqual(
             [t.task_spec.name for t in tasks],
-            ['Start', 'a', 'b', 'a1', 'a2', 'c']
+            ['Start', 'a', 'b', 'a1', 'a2', 'c', 'b1', 'b2', 'last', 'last', 'last', 'last', 'End', 'End', 'End', 'End']
         )
 
     def test_get_tasks_max_depth(self):

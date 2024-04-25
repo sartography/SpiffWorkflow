@@ -9,7 +9,7 @@ From the :code:`start_workflow` method of our BPMN engine (:app:`engine/engine.p
         spec, sp_specs = self.serializer.get_workflow_spec(spec_id)
         wf = BpmnWorkflow(spec, sp_specs, script_engine=self._script_engine)
         wf_id = self.serializer.create_workflow(wf, spec_id)
-        return wf_id
+        return Instance(wf_id, workflow)
 
 We'll use our serializer to recreate the workflow spec based on the id.  As discussed in :ref:`parsing_subprocesses`,
 a process has a top level specification and dictionary of process id -> spec containing any other processes referenced
@@ -27,6 +27,8 @@ In the simplest case, running a workflow involves implementing the following loo
 * refreshes any `WAITING` tasks
 
 until there are no tasks left to complete.
+
+We'll refer to code from :app:`engine/instance.py` in the next few sections.
 
 Here are our engine methods:
 
@@ -54,7 +56,12 @@ it catches whatever event it is waiting on, at which point it becomes :code:`REA
 :code:`workflow.refresh_waiting_tasks` method iterates over all the waiting tasks and changes the state to :code:`READY`
 if the conditions for doing so have been met.
 
-We'll cover using the `workflow.get_next_task` method and handling Human tasks later in this document.
+We'll cover using the :code:`workflow.get_next_task` method and handling Human tasks later in this document.
+
+.. note::
+
+    The :code:`Instance` class also has a task filter attribute and a list of filtered tasks, which are used
+    by the UI, so we update that in these methods as weill.
 
 Tasks
 =====
@@ -72,6 +79,14 @@ don't have to pay much attention to most of them.  A few of the important ones a
 * `description`: we use this attribute to provide a description of the BPMN task type
 * `manual`: :code:`True` if human input is required to complete tasks associated with this Task Spec
 
+The :code:`manual` attribute is particularly important, because SpiffWorkflow does not include built-in
+handling of these tasks so you'll need to implement this as part of your application.  We'll go over how this is
+handled in this application in the next section.
+
+.. note::
+
+    NoneTasks (BPMN tasks with no more specific type assigned) are treated as Manual Tasks by SpiffWorkflow.
+
 BPMN Task Specs have the following additional attributes.
 
 * `bpmn_id`: the ID of the BPMN Task (this will be :code:`None` if the task is not visible on the diagram)
@@ -80,16 +95,17 @@ BPMN Task Specs have the following additional attributes.
 * `documentation`: the contents of the BPMN `documentation` element for the Task
 
 In the example application, we use these :code:`bpmn_name` (or :code:`name` when a :code:`bpmn_name` isn't specified),
-and :code:`lane` to display information about the tasks in a workflow (see the :code:`update_task_tree` method of
-:app:`curses_ui/workflow_view.py`).
+and :code:`lane` to display information about the tasks in a workflow:
 
-The :code:`manual` attribute is particularly important, because SpiffWorkflow does not include built-in
-handling of these tasks so you'll need to implement this as part of your application.  We'll go over how this is
-handled in this application in the next section.
+.. code:: python
 
-.. note::
-
-    NoneTasks (BPMN tasks with no more specific type assigned) are treated as Manual Tasks by SpiffWorkflow.
+    def get_task_display_info(self, task):
+        return {
+            'depth': task.depth,
+            'state': TaskState.get_name(task.state),
+            'name': task.task_spec.bpmn_name or task.task_spec.name,
+            'lane': task.task_spec.lane,
+        }
 
 Instantiated Tasks
 ------------------
@@ -125,14 +141,14 @@ Our User and Manual Task handlers render the instructions (this code is from :ap
 
     from jinja2 import Template
 
-    def get_instructions(self):
-        instructions = f'{self.task.task_spec.bpmn_name}\n\n'
+    def set_instructions(self, task):
+        user_input = self.ui._states['user_input']
+        user_input.instructions = f'{self.task.task_spec.bpmn_name}\n\n'
         text = self.task.task_spec.extensions.get('instructionsForEndUser')
         if text is not None:
             template = Template(text)
-            instructions += template.render(self.task.data)
-        instructions += '\n\n'
-        return instructions
+            user_input.instructions += template.render(self.task.data)
+        user_input.instructions += '\n\n'
 
 We're not going to attempt to handle Markdown in a curses UI, so we'll assume we just have text.  However, we do
 want to be able to incorporate data specific to the workflow in information that is presented to a user; this is
@@ -149,20 +165,19 @@ We won't go into the details about how the form screen works, as it's specific t
 library itself; instead we'll skip to the code that runs the task after it has been presented to the user; any
 application needs to do this.
 
-Simply running the task is sufficient for Manual Tasks.
+When our form is submitted, we ask our :code:`Instance` to update the task data (if applicable, as in the case of a
+form) and run the task.
 
 .. code-block:: python
 
-    def on_complete(self, results):
-        self.task.run()
-
-However, we need to extend this method for User Tasks, to incorporate the user-submitted data into the workflow:
-
-.. code-block:: python
-
-    def on_complete(self, results):
-        self.task.set_data(**results)
-        super().on_complete(results)
+    def run_task(self, task, data=None):
+        if data is not None:
+            task.set_data(**data)
+        task.run()
+        if not self.step:
+            self.run_until_user_input_required()
+        else:
+            self.update_task_filter()
 
 Here we are setting a key for each field in the form.  Other possible options here are to set one key that contains
 all of the form data, or map the schema to Python class and use that in lieu of a dictionary.  It's up to you to
@@ -174,7 +189,7 @@ simple example next.
 
 We'll refer to the process modeled in :bpmn:`task_types.bpmn` contains a simple form which asks a user to input a
 product and quantity as well a manual task presenting the order information at the end of the process (the form is
-defined in :form:`select_product_and_quantity.json`
+defined in :form:`select_product_and_quantity.json`)
 
 After the user submits the form, we'll collect the results in the following dictionary:
 
@@ -227,13 +242,15 @@ Filtering Tasks
 
 SpiffWorkflow has two methods for retrieving tasks:
 
-- :code:`workflow.get_tasks`: returns a list of matching tasks, or an empty list
+- :code:`workflow.get_tasks`: returns an iterator over matching tasks, or an empty list
 - :code:`workflow.get_next_task`: returns the first matching task, or None
 
-Both of these methods use the same helper classes and take the same arguments -- the only difference is the return
-type.
+Both of these methods use the same helper classes and take the same arguments -- the only difference is the return type.
 
-These methods return a :code:`TaskIterator`, which in turn uses a :code:`TaskFilter` to determine what tasks match.
+These methods create a :code:`TaskIterator`. The an optional first argument of a task to begin the iteration from (if it is
+not provided, iteration begins are the root).  This is useful if you know you want to continue executing a workflow from a
+particular place.  The remainder of the arguments are keyword arguments that are passed directly into a :code:`TaskFilter`,
+which will determine which tasks match.
 
 Tasks can be filtered by:
 
@@ -259,6 +276,9 @@ correspond to which states).
 .. code-block:: python
 
     from SpiffWorkflow.util.task import TaskState
+
+We can use this object to translate an integer to a human-readable name using :code:`TaskState.get_name(task.state)`;
+there is also a corresponding :code:`TaskState.get_value` method that goes from name to integer.
 
 Ready Human Tasks
 ^^^^^^^^^^^^^^^^^
@@ -336,6 +356,8 @@ Additionally, the class has a few extra attributes to make it more convenient to
 
 These methods exist on the top level workflow as well, and return :code:`None`.
 
+.. _events:
+
 Events
 ======
 
@@ -373,3 +395,5 @@ of event and might be used to help determine this.
 Once you have determined which workflow should receive the event, you can pass it to :code:`workflow.catch` to handle
 it.
 
+In :doc:`script_engine`, there is an example of how to create an event and pass it back to a workflow when executing
+a Service Task; this shows how you might construct a :code:`BpmnEvent` to pass to :code:`workflow.catch`.

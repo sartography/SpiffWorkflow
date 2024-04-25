@@ -41,14 +41,20 @@ class SubWorkflowTask(TaskSpec):
 
     def _on_subworkflow_completed(self, subworkflow, my_task):
         self.update_data(my_task, subworkflow)
+        # I don't like manually moving back to ready, but don't want to run it
+        # Ideally, update hook would create the subprocess and return True, _run would start the subprocess and 
+        # return None (so that the state would transition to started), and the completed event for this task
+        # could be used to run post-completed actions automatically.
+        # However, until I align the events with state transitions, I don't want to encourage external use of
+        # callback methods (though completed event is not going to change).
+        my_task._set_state(TaskState.READY)
 
     def _update_hook(self, my_task):
         subprocess = my_task.workflow.top_workflow.subprocesses.get(my_task.id)
         if subprocess is None:
             super()._update_hook(my_task)
-            self.create_workflow(my_task)
             self.start_workflow(my_task)
-            my_task._set_state(TaskState.WAITING)
+            my_task._set_state(TaskState.STARTED)
         else:
             return subprocess.is_completed()
 
@@ -59,21 +65,17 @@ class SubWorkflowTask(TaskSpec):
 
     def copy_data(self, my_task, subworkflow):
         start = subworkflow.get_next_task(spec_name='Start')
-        start.set_data(**my_task.data)
+        start.set_data(**deepcopy(my_task.data))
 
     def update_data(self, my_task, subworkflow):
         my_task.data = deepcopy(subworkflow.last_task.data)
 
-    def create_workflow(self, my_task):
+    def start_workflow(self, my_task):
         subworkflow = my_task.workflow.top_workflow.create_subprocess(my_task, self.spec)
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
-
-    def start_workflow(self, my_task):
-        subworkflow = my_task.workflow.top_workflow.get_subprocess(my_task)
         self.copy_data(my_task, subworkflow)
         start = subworkflow.get_next_task(spec_name='Start')
         start.run()
-        my_task._set_state(TaskState.WAITING)
 
 
 class CallActivity(SubWorkflowTask):

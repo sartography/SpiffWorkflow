@@ -16,6 +16,13 @@ We'll mainly focus on the engine, as it contains the interface with the library,
 the other components.  The engine is quite small and simple compared to the code required to handle user input and
 display information in a terminal.
 
+.. warning::
+
+    This application is *not* a robust application and won't be suitable for displaying large amounts of data, which
+    may cause it to crash.  The application won't run unless your terminal is at least 13 lines high.  It also may
+    randomly crash at other times as well.  While I'll make improvements as I add more examples and bug reports and/or
+    fixes are always welcome, my focus is on using the library rather than the UI.
+
 Configuration is set up in a python module and passed into the application with the `-e` argument, which loads the
 configured engine from this file.  This setup should make it relatively to change the behavior of engine.  The
 following configurations are included:
@@ -123,7 +130,7 @@ We initialize a scripting enviroment:
 .. code-block:: python
 
     script_env = TaskDataEnvironment({'datetime': datetime })
-    >script_engine = PythonScriptEngine(script_env)
+    script_engine = PythonScriptEngine(script_env)
 
 The :code:`PythonScriptEngine` handles execution of script tasks and evaluation of gateway and DMN conditions.
 We'll create the script engine based on it; execution and evaluation will occur in the context of this enviroment.
@@ -159,5 +166,6 @@ We then create our BPMN engine (:app:`engine/engine.py`) using each of these com
 .. code-block:: python
 
     from ..engine import BpmnEngine
-    engine = BpmnEngine(parser, serializer, handlers, script_env)
+    engine = BpmnEngine(parser, serializer, script_env)
 
+The handlers are automatically passed to the curses UI by the main runner.

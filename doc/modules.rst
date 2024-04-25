@@ -16,7 +16,7 @@ capabilities.
 
 - Specs implementations are in :code:`specs`
 - Workflow implementation is in :code:`workflow.py`
-- Task implementation is in :code:`task.py`, with utilities for iteration and filtering in :code:`util.task.py`
+- Task implementation is in :code:`task.py`, with utilities for iteration and filtering in :code:`util/task.py`
 
 It is documented in :doc:`core/index`.
 

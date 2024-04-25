@@ -21,16 +21,17 @@ SpiffWorkflow consists of two different categories of objects:
 - **Specification objects**, which represent definitions of structure and behavior and derive from :code:`WorkflowSpec` and :code:`TaskSpec`
 - **Instance objects**, which represent the state of a running workflow (:code:`Workflow`/:code:`BpmnWorkflow` and :code:`Task`)
 
-In the workflow context, a specification is model of the workflow, an abstraction that describes *every path that could
-be taken whenever the workflow is executed*.  An instance is a particular instantiation of a specification.  It describes *the
-current state* or *the path(s) that were actually taken when the workflow ran*.
+For workflows, a specification is model of the workflow, an abstraction that describes *every path that could
+be taken whenever the workflow is executed*.  An instance is an execution of a specification.  It describes *the current state*
+or *the path(s) that were actually taken when the workflow ran*.
 
-In the task context, a specification is a model for how a task behaves.  It describes the mechanisms for deciding *whether
+For tasks, a specification is a model for how a task behaves.  It describes the mechanisms for deciding *whether
 there are preconditions for running an associated task*, *how to decide whether they are met*, and *what it means to complete
-(successfully or unsuccessfully)*.  An instance describes the *state of the task, as it pertains to a particular workflow* and
-*contains the data used to manage that state*.
+(successfully or unsuccessfully)*.  An instance describes the *state of the task, as it pertains to the workflow it is part of*
+and *contains the data used to manage that state*.
 
-Specifications are unique, whereas instances are not.  There is *one* model of a workflow, and *one* specification for a particular task.
+Specifications are unique, whereas instances are not.  There is *one* model of a workflow, and *one* specification for a
+particular task.  The model can be executed many times, and within one execution, a task spec may also be reached many times.
 
 Imagine a workflow with a loop.  The loop is defined once in the specification, but there can be many tasks associated with
 each of the specs that comprise the loop.
@@ -104,7 +105,7 @@ to Task State. These hooks are:
 * `run_hook`: This method implements the task's behavior when it is run, returning:
 
   - :code:`True` if the task completed successfully.  The state will transition to **COMPLETED**.
-  - :code:`False` if the task completed unsucessfully.  The state will transition to **ERRROR**.
+  - :code:`False` if the task completed unsucessfully.  The state will transition to **ERROR**.
   - :code:`None` if the task has not completed.  The state will transition to **STARTED**.
 
 * `_on_complete_hook`: This method will be run when the task's state is changed to **COMPLETED**.

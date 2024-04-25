@@ -9,6 +9,7 @@ class DmnVersionTest(unittest.TestCase):
 
     def setUp(self):
         self.parser = BpmnDmnParser()
+        self.parser.namespaces.update({'dmn': 'https://www.omg.org/spec/DMN/20191111/MODEL/'})
 
     def test_load_v1_0(self):
         filename = os.path.join(data_dir, 'dmn_version_20151101_test.dmn')
