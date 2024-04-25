@@ -52,17 +52,29 @@ class MessageEventDefinition(EventDefinition):
         if payload is not None:
             my_task.set_data(**payload)
 
-    def get_correlations(self, task, payload):
+    def get_correlations(self, my_task, payload):
+        return self.calculate_correlations(
+            my_task.workflow.script_engine,
+            self.correlation_properties,
+            payload
+        )
+
+    def calculate_correlations(self, script_engine, cp, ctx):
         correlations = {}
-        for property in self.correlation_properties:
-            for key in property.correlation_keys:
+        for prop in cp:
+            value = script_engine.environment.evaluate(prop.retrieval_expression, ctx)
+            for key in prop.correlation_keys:
                 if key not in correlations:
                     correlations[key] = {}
                 try:
-                    correlations[key][property.name] = task.workflow.script_engine.environment.evaluate(property.retrieval_expression, payload)
+                    correlations[key][prop.name] = value
                 except WorkflowException:
                     # Just ignore missing keys.  The dictionaries have to match exactly
                     pass
+            if len(prop.correlation_keys) == 0:
+                if self.name not in correlations:
+                    correlations[self.name] = {}
+                correlations[self.name][prop.name] = value
         return correlations
 
     def details(self, my_task):

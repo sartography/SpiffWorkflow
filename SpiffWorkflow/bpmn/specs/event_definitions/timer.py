@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from calendar import monthrange
 from time import timezone as tzoffset, altzone as dstoffset, struct_time, localtime
 
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.util import PendingBpmnEvent
 from .base import EventDefinition
 
@@ -199,6 +200,13 @@ class CycleTimerEventDefinition(TimerEventDefinition):
 
         my_task._set_internal_data(event_value=event_value)
         return ready
+
+    def update_task(self, my_task):
+        if self.cycle_complete(my_task):
+            for output in my_task.task_spec.outputs:
+                child = my_task._add_child(output, TaskState.FUTURE)
+                child.task_spec._predict(child, mask=TaskState.NOT_FINISHED_MASK)
+                child.task_spec._update(child)
 
     def details(self, my_task):
         event_value = my_task._get_internal_data('event_value')

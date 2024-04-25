@@ -92,6 +92,7 @@ class BpmnValidator:
         self.validator = etree.XMLSchema(schema)
 
     def validate(self, bpmn, filename=None):
+        self.preprocess(bpmn)
         try:
             self.validator.assertValid(bpmn)
         except ValidationException as ve:
@@ -101,6 +102,12 @@ class BpmnValidator:
             last_error = self.validator.error_log.last_error
             raise ValidationException(last_error.message, file_name=filename,
                                       line_number=last_error.line)
+
+    def preprocess(self, bpmn):
+        # BPMN js creates invalid XML for message correlation properties and it is apparently too difficult to change
+        # therefore, I'll just preprocess the XML and replace the tag in order to continue validating the XML
+        for expr in bpmn.xpath('.//bpmn:correlationPropertyRetrievalExpression/bpmn:formalExpression', namespaces=DEFAULT_NSMAP):
+            expr.tag = '{' + DEFAULT_NSMAP['bpmn'] + '}messagePath'
 
 class BpmnParser(object):
     """

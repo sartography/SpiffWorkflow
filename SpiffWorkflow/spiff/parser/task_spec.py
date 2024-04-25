@@ -30,8 +30,7 @@ from SpiffWorkflow.spiff.specs.defaults import (
     BusinessRuleTask
 )
 
-SPIFFWORKFLOW_MODEL_NS = 'http://spiffworkflow.org/bpmn/schema/1.0/core'
-SPIFFWORKFLOW_MODEL_PREFIX = 'spiffworkflow'
+SPIFFWORKFLOW_NSMAP = {'spiffworkflow': 'http://spiffworkflow.org/bpmn/schema/1.0/core'}
 
 
 class SpiffTaskParser(TaskParser):
@@ -50,9 +49,8 @@ class SpiffTaskParser(TaskParser):
         # Too bad doing this works in such a stupid way.
         # We should set a namespace and automatically do this.
         extensions = {}
-        extra_ns = {SPIFFWORKFLOW_MODEL_PREFIX: SPIFFWORKFLOW_MODEL_NS}
-        xpath = xpath_eval(node, extra_ns)
-        extension_nodes = xpath(f'./bpmn:extensionElements/{SPIFFWORKFLOW_MODEL_PREFIX}:*')
+        xpath = xpath_eval(node, SPIFFWORKFLOW_NSMAP)
+        extension_nodes = xpath(f'./bpmn:extensionElements/spiffworkflow:*')
         for node in extension_nodes:
             name = etree.QName(node).localname
             if name == 'properties':
@@ -68,7 +66,7 @@ class SpiffTaskParser(TaskParser):
     @classmethod
     def _node_children_by_tag_name(cls, node, tag_name):
         xpath = cls._spiffworkflow_ready_xpath_for_node(node)
-        return xpath(f'.//{SPIFFWORKFLOW_MODEL_PREFIX}:{tag_name}')
+        return xpath(f'.//spiffworkflow:{tag_name}')
 
     @classmethod
     def _parse_properties(cls, node):
@@ -80,8 +78,7 @@ class SpiffTaskParser(TaskParser):
 
     @staticmethod
     def _spiffworkflow_ready_xpath_for_node(node):
-        extra_ns = {SPIFFWORKFLOW_MODEL_PREFIX: SPIFFWORKFLOW_MODEL_NS}
-        return xpath_eval(node, extra_ns)
+        return xpath_eval(node, SPIFFWORKFLOW_NSMAP)
 
     @classmethod
     def _parse_script_unit_tests(cls, node):
@@ -113,7 +110,7 @@ class SpiffTaskParser(TaskParser):
     def _copy_task_attrs(self, original, loop_characteristics):
         # I am so disappointed I have to do this.
         super()._copy_task_attrs(original)
-        if loop_characteristics.attrib.get('{' + SPIFFWORKFLOW_MODEL_NS + '}' + 'scriptsOnInstances') != 'true':
+        if loop_characteristics.xpath('@spiffworkflow:scriptsOnInstances', namespaces=SPIFFWORKFLOW_NSMAP) != ['true']:
             self.task.prescript = original.prescript
             self.task.postscript = original.postscript
             original.prescript = None

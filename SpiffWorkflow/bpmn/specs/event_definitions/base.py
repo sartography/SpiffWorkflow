@@ -29,8 +29,12 @@ class EventDefinition(object):
         event = BpmnEvent(self)
         my_task.workflow.top_workflow.catch(event)
 
+    def update_task(self, my_task):
+        """This method allows events to implement update behavior for the task"""
+        pass
+
     def update_task_data(self, my_task):
-        """This method allows events with payloads mrege them into the task"""
+        """This method allows events with payloads to merge them into the task"""
         pass
 
     def reset(self, my_task):
