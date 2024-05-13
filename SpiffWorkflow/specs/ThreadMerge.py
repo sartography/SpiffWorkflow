@@ -120,7 +120,7 @@ class ThreadMerge(Join):
         # completed, except for the first one, which should be READY.
         for task in tasks:
             if task == last_changed:
-                self.entered_event.emit(my_task.workflow, my_task)
+                self.update_event.emit(my_task.workflow, my_task)
                 task._ready()
             else:
                 task._set_state(TaskState.COMPLETED)

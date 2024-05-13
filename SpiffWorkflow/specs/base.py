@@ -100,12 +100,12 @@ class TaskSpec(object):
         self.lookahead = 2  # Maximum number of MAYBE predictions.
 
         # Events.
-        self.entered_event = Event()
-        self.reached_event = Event()
+        self.update_event = Event()
         self.ready_event = Event()
         self.completed_event = Event()
+        self.error_event = Event()
         self.cancelled_event = Event()
-        self.finished_event = Event()
+        self.run_event = Event()
 
         self._wf_spec._add_notify(self)
         self.data.update(self.defines)
@@ -257,7 +257,6 @@ class TaskSpec(object):
         """
         if my_task.has_state(TaskState.PREDICTED_MASK):
             self._predict(my_task)
-        self.entered_event.emit(my_task.workflow, my_task)
         if self._update_hook(my_task):
             my_task._ready()
 
@@ -268,6 +267,7 @@ class TaskSpec(object):
         Returning True will cause the task to go into READY.
         """
         my_task._inherit_data()
+        self.update_event.emit(my_task.workflow, my_task)
         return True
 
     def _on_ready(self, my_task):
@@ -285,7 +285,6 @@ class TaskSpec(object):
 
         # Run task-specific code.
         self._on_ready_hook(my_task)
-        self.reached_event.emit(my_task.workflow, my_task)
 
     def _on_ready_hook(self, my_task):
         """
@@ -294,7 +293,7 @@ class TaskSpec(object):
         :type  my_task: Task
         :param my_task: The associated task in the task tree.
         """
-        pass
+        self.ready_event.emit(my_task.workflow, my_task)
 
     def _run(self, my_task):
         """
@@ -314,15 +313,11 @@ class TaskSpec(object):
         try:
             result = self._run_hook(my_task)
             # Run user code, if any.
-            if self.ready_event.emit(my_task.workflow, my_task):
-                # Assign variables, if so requested.
-                for assignment in self.post_assign:
-                    assignment.assign(my_task, my_task)
-
-            self.finished_event.emit(my_task.workflow, my_task)
+            for assignment in self.post_assign:
+                assignment.assign(my_task, my_task)
             return result
         except Exception as exc:
-            my_task._set_state(TaskState.ERROR)
+            my_task.error()
             raise exc
 
     def _run_hook(self, my_task):
@@ -332,6 +327,7 @@ class TaskSpec(object):
         :type  my_task: Task
         :param my_task: The associated task in the task tree.
         """
+        self.run_event.emit(my_task.workflow, my_task)
         return True
 
     def _on_cancel(self, my_task):
@@ -371,7 +367,6 @@ class TaskSpec(object):
             if not child.has_state(TaskState.FINISHED_MASK):
                 child.task_spec._update(child)
         my_task.workflow._task_completed_notify(my_task)
-        self.completed_event.emit(my_task.workflow, my_task)
 
     def _on_complete_hook(self, my_task):
         """
@@ -382,14 +377,14 @@ class TaskSpec(object):
         :rtype:  bool
         :returns: True on success, False otherwise.
         """
-        pass
+        self.completed_event.emit(my_task.workflow, my_task)
 
     def _on_error(self, my_task):
         self._on_error_hook(my_task)
     
     def _on_error_hook(self, my_task):
         """Can be overridden for task specific error handling"""
-        pass
+        self.error_event.emit(my_task.workflow, my_task)
 
     @abstractmethod
     def serialize(self, serializer, **kwargs):

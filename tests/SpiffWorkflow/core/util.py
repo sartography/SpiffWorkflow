@@ -4,7 +4,7 @@ from SpiffWorkflow import Workflow
 from SpiffWorkflow.specs import SubWorkflow
 
 
-def on_reached_cb(workflow, task, taken_path):
+def on_ready_cb(workflow, task, taken_path):
     reached_key = "%s_reached" % str(task.task_spec.name)
     n_reached = task.get_data(reached_key, 0) + 1
     task.set_data(**{reached_key:       n_reached,
@@ -44,14 +44,14 @@ def on_complete_cb(workflow, task, taken_path):
     indent = '  ' * task.depth
     taken_path.append('%s%s' % (indent, task.task_spec.name))
     # In workflows that load a subworkflow, the newly loaded children
-    # will not have on_reached_cb() assigned. By using this function, we
+    # will not have on_ready_cb() assigned. By using this function, we
     # re-assign the function in every step, thus making sure that new
-    # children also call on_reached_cb().
+    # children also call on_ready_cb().
     for child in task.children:
         track_task(child.task_spec, taken_path)
     return True
 
-def on_entered_cb(workflow, task, taken_path):
+def on_update_cb(workflow, task, taken_path):
     for child in task.children:
         track_task(child.task_spec, taken_path)
     return True
@@ -59,16 +59,16 @@ def on_entered_cb(workflow, task, taken_path):
 def track_task(task_spec, taken_path):
     # Disconnecting and reconnecting makes absolutely no sense but inexplicably these tests break
     # if just connected based on a check that they're not
-    if task_spec.reached_event.is_connected(on_reached_cb):
-        task_spec.reached_event.disconnect(on_reached_cb)
-    task_spec.reached_event.connect(on_reached_cb, taken_path)
+    if task_spec.ready_event.is_connected(on_ready_cb):
+        task_spec.ready_event.disconnect(on_ready_cb)
+    task_spec.ready_event.connect(on_ready_cb, taken_path)
     if task_spec.completed_event.is_connected(on_complete_cb):
         task_spec.completed_event.disconnect(on_complete_cb)
     task_spec.completed_event.connect(on_complete_cb, taken_path)
     if isinstance(task_spec, SubWorkflow):
-        if task_spec.entered_event.is_connected(on_entered_cb):
-            task_spec.entered_event.disconnect(on_entered_cb)
-        task_spec.entered_event.connect(on_entered_cb, taken_path)
+        if task_spec.update_event.is_connected(on_update_cb):
+            task_spec.update_event.disconnect(on_update_cb)
+        task_spec.update_event.connect(on_update_cb, taken_path)
 
 def track_workflow(wf_spec, taken_path=None):
     if taken_path is None:
