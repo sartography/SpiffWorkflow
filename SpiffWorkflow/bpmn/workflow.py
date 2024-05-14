@@ -28,7 +28,6 @@ from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
 
 from SpiffWorkflow.bpmn.util.subworkflow import BpmnBaseWorkflow, BpmnSubWorkflow
-from SpiffWorkflow.bpmn.util.task import BpmnTaskIterator
 
 from .script_engine.python_engine import PythonScriptEngine
 
@@ -79,9 +78,6 @@ class BpmnWorkflow(BpmnBaseWorkflow):
     def depth(self):
         return 0
 
-    def get_tasks_iterator(self, first_task=None, **kwargs):
-        return BpmnTaskIterator(first_task or self.task_tree, **kwargs)
-
     def create_subprocess(self, my_task, spec_name):
         # This creates a subprocess for an existing task
         subprocess = BpmnSubWorkflow(
@@ -114,30 +110,33 @@ class BpmnWorkflow(BpmnBaseWorkflow):
 
         :param event: the thrown event
         """
-        if event.target is None:
+        if event.target is not None:
+            # This limits results to tasks in the specified workflow
+            tasks = event.target.get_tasks(skip_subpprocesses=True, state=TaskState.NOT_FINISHED_MASK, catches_event=event)
+        else:
             self.update_collaboration(event)
             tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
             # Figure out if we need to create an external event
             if len(tasks) == 0:
                 self.bpmn_events.append(event)
-        else:
-            tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
 
         for task in tasks:
             task.task_spec.catch(task, event)
-
-        self.refresh_waiting_tasks()
+        if len(tasks) > 0:
+            self.refresh_waiting_tasks()
 
     def send_event(self, event):
         """Allows this workflow to catch an externally generated event."""
 
-        tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
-        if len(tasks) == 0:
-            raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
-        for task in tasks:
-            task.task_spec.catch(task, event)
-
-        self.refresh_waiting_tasks()
+        if event.target is not None:
+            self.catch(event)
+        else:
+            tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
+            if len(tasks) == 0:
+                raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
+            for task in tasks:
+                task.task_spec.catch(task, event)
+            self.refresh_waiting_tasks()
 
     def get_events(self):
         """Returns the list of events that cannot be handled from within this workflow."""
