@@ -19,6 +19,7 @@
 
 from SpiffWorkflow import Workflow
 from SpiffWorkflow.exceptions import TaskNotFoundException
+from .task import BpmnTaskIterator
 
 class BpmnBaseWorkflow(Workflow):
 
@@ -30,6 +31,9 @@ class BpmnBaseWorkflow(Workflow):
     @property
     def data_objects(self):
         return self.data.get('data_objects', {})
+
+    def get_tasks_iterator(self, first_task=None, **kwargs):
+        return BpmnTaskIterator(first_task or self.task_tree, **kwargs)
 
 
 class BpmnSubWorkflow(BpmnBaseWorkflow):
