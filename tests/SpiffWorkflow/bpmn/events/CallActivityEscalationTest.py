@@ -8,7 +8,7 @@ from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 __author__ = 'kbogus@gmail.com'
 
 
-def on_reached_cb(workflow, task, completed_set):
+def on_ready_cb(workflow, task, completed_set):
     # In workflows that load a subworkflow, the newly loaded children
     # will not have on_reached_cb() assigned. By using this function, we
     # re-assign the function in every step, thus making sure that new
@@ -24,9 +24,9 @@ def on_complete_cb(workflow, task, completed_set):
 
 
 def track_task(task_spec, completed_set):
-    if task_spec.reached_event.is_connected(on_reached_cb):
-        task_spec.reached_event.disconnect(on_reached_cb)
-    task_spec.reached_event.connect(on_reached_cb, completed_set)
+    if task_spec.ready_event.is_connected(on_ready_cb):
+        task_spec.ready_event.disconnect(on_ready_cb)
+    task_spec.ready_event.connect(on_ready_cb, completed_set)
     if task_spec.completed_event.is_connected(on_complete_cb):
         task_spec.completed_event.disconnect(on_complete_cb)
     task_spec.completed_event.connect(on_complete_cb, completed_set)

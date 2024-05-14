@@ -52,7 +52,7 @@ class AcquireMutex(TaskSpec):
         super()._update_hook(my_task)
         mutex = my_task.workflow._get_mutex(self.mutex)
         if mutex.testandset():
-            self.entered_event.emit(my_task.workflow, my_task)
+            self.update_event.emit(my_task.workflow, my_task)
             return True
         else:
             my_task._set_state(TaskState.WAITING)
