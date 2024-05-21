@@ -85,7 +85,7 @@ class CallActivity(SubWorkflowTask):
 
     def copy_data(self, my_task, subworkflow):
 
-        start = subworkflow.get_next_task(spec_name='Start')
+        start = subworkflow.get_next_task(subworkflow.task_tree, skip_subprocesses=True, spec_name='Start')
         if subworkflow.spec.io_specification is None or len(subworkflow.spec.io_specification.data_inputs) == 0:
             # Copy all task data into start task if no inputs specified
             start.set_data(**my_task.data)
@@ -106,7 +106,7 @@ class CallActivity(SubWorkflowTask):
             # Copy all workflow data if no outputs are specified
             my_task.data = deepcopy(subworkflow.last_task.data)
         else:
-            end = subworkflow.get_next_task(spec_name='End')
+            end = subworkflow.get_next_task(subworkflow.task_tree, skip_subprocesses=True, spec_name='End')
             # Otherwise only copy data with the specified names
             for var in subworkflow.spec.io_specification.data_outputs:
                 if var.bpmn_id not in end.data:

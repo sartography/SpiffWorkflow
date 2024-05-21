@@ -112,7 +112,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         """
         if event.target is not None:
             # This limits results to tasks in the specified workflow
-            tasks = event.target.get_tasks(skip_subpprocesses=True, state=TaskState.NOT_FINISHED_MASK, catches_event=event)
+            tasks = event.target.get_tasks(skip_subprocesses=True, state=TaskState.NOT_FINISHED_MASK, catches_event=event)
         else:
             self.update_collaboration(event)
             tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)

@@ -41,11 +41,11 @@ class BpmnTaskFilter(TaskFilter):
 
 class BpmnTaskIterator(TaskIterator):
 
-    def __init__(self, task, end_at_spec=None, max_depth=1000, depth_first=True, skip_subpprocesses=False, task_filter=None, **kwargs):
+    def __init__(self, task, end_at_spec=None, max_depth=1000, depth_first=True, skip_subprocesses=False, task_filter=None, **kwargs):
 
         task_filter = task_filter or BpmnTaskFilter(**kwargs)
         super().__init__(task, end_at_spec, max_depth, depth_first, task_filter)
-        self.skip_subpprocesses = skip_subpprocesses
+        self.skip_subprocesses = skip_subprocesses
 
     def _next(self):
 
@@ -64,7 +64,7 @@ class BpmnTaskIterator(TaskIterator):
             # Do not descend into a completed subprocess to look for unfinished tasks.
             if (
                 subprocess is None
-                or self.skip_subpprocesses
+                or self.skip_subprocesses
                 or (task.state >= TaskState.FINISHED_MASK and self.task_filter.state <= TaskState.FINISHED_MASK)
             ):
                 subprocess_tasks = []
