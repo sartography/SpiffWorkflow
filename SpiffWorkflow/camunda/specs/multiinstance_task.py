@@ -64,7 +64,5 @@ class SequentialMultiInstanceTask(BpmnSequentialMITask):
 class ParallelMultiInstanceTask(BpmnParallelMITask):
 
     def _update_hook(self, my_task):
-        if not my_task.internal_data.get('started', False):
-            update_task_spec(my_task)
-            self.create_children(my_task)
+        update_task_spec(my_task)
         return super()._update_hook(my_task)

@@ -18,6 +18,7 @@
 # 02110-1301  USA
 
 from ..helpers.bpmn_converter import BpmnConverter
+from SpiffWorkflow.bpmn.specs.mixins.multiinstance_task import LoopTask
 
 
 class BpmnProcessSpecConverter(BpmnConverter):
@@ -71,6 +72,7 @@ class BpmnProcessSpecConverter(BpmnConverter):
         # Add messaging related stuff
         spec.correlation_keys = dct.pop('correlation_keys', {})
 
+        loop_tasks = []
         dct['task_specs'].pop('Root', None)
         for name, task_dict in dct['task_specs'].items():
             # I hate this, but I need to pass in the workflow spec when I create the task.
@@ -80,6 +82,12 @@ class BpmnProcessSpecConverter(BpmnConverter):
             task_spec = self.registry.restore(task_dict)
             if name == 'Start':
                 spec.start = task_spec
+            if isinstance(task_spec, LoopTask):
+                loop_tasks.append(task_spec)
             self.restore_task_spec_extensions(task_dict, task_spec)
+
+        for task_spec in loop_tasks:
+            child_spec = spec.task_specs.get(task_spec.task_spec)
+            child_spec.completed_event.connect(task_spec.merge_child)
 
         return spec
