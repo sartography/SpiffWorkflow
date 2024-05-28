@@ -66,7 +66,7 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
             try:
                 message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
             except Exception:
-                self.raise_validation_error('Expected a Message node', node=message_event)
+                self.raise_validation_exception('Expected a Message node', node=message_event)
             name = message.get('name')
             expression, variable = self.parse_message_extensions(message)
             if expression is not None or variable is not None:
@@ -93,7 +93,7 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
             try:
                 signal = one(self.doc_xpath(f'.//bpmn:signal[@id="{signal_ref}"]'))
             except Exception:
-                self.raise_validation_error('Expected a Signal node', node=signal_event)
+                self.raise_validation_exception('Expected a Signal node', node=signal_event)
             name = signal.get('name')
             extensions = self.parse_extensions(signal)
             expression = extensions.get('payloadExpression')
@@ -110,7 +110,7 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
             try:
                 error = one(self.doc_xpath(f'.//bpmn:error[@id="{error_ref}"]'))
             except Exception:
-                self.raise_validation_error('Expected an Error node', node=error_event)
+                self.raise_validation_exception('Expected an Error node', node=error_event)
             name = error.get('name')
             code = error.get('errorCode')
             extensions = self.parse_extensions(error)
@@ -128,7 +128,7 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
             try:
                 escalation = one(self.doc_xpath(f'.//bpmn:escalation[@id="{escalation_ref}"]'))
             except Exception:
-                self.raise_validation_error('Expected an Escalation node', node=escalation_event)
+                self.raise_validation_exception('Expected an Escalation node', node=escalation_event)
             name = escalation.get('name')
             code = escalation.get('escalationCode')
             extensions = self.parse_extensions(escalation)
