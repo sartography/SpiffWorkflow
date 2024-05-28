@@ -43,6 +43,7 @@ class BpmnSubWorkflow(BpmnBaseWorkflow):
         self.parent_task_id = parent_task_id
         self.top_workflow = top_workflow
         self.correlations = {}
+        self.depth = self._calculate_depth()
 
     @property
     def script_engine(self):
@@ -53,8 +54,7 @@ class BpmnSubWorkflow(BpmnBaseWorkflow):
         task = self.top_workflow.get_task_from_id(self.parent_task_id)
         return task.workflow
 
-    @property
-    def depth(self):
+    def _calculate_depth(self):
         current, depth = self, 0
         while current.parent_workflow is not None:
             depth += 1

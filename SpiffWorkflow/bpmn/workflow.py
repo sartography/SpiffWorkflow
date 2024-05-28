@@ -200,17 +200,18 @@ class BpmnWorkflow(BpmnBaseWorkflow):
                 did_refresh_task(task)           
  
         for subprocess in sorted(self.get_active_subprocesses(), key=lambda v: v.depth, reverse=True):
-            for task in subprocess.get_tasks_iterator(state=TaskState.WAITING):
+            for task in subprocess.get_tasks_iterator(skip_subprocesses=True, state=TaskState.WAITING):
                 update_task(task)
 
-        for task in self.get_tasks_iterator(state=TaskState.WAITING):
+        for task in self.get_tasks_iterator(skip_subprocesses=True, state=TaskState.WAITING):
             update_task(task)
 
     def get_task_from_id(self, task_id):
-        for subprocess in self.subprocesses.values():
-            task = subprocess.get_task_from_id(task_id)
-            if task is not None:
-                return task
+        if task_id not in self.tasks:
+            for subprocess in self.subprocesses.values():
+                task = subprocess.get_task_from_id(task_id)
+                if task is not None:
+                    return task
         return super().get_task_from_id(task_id)
 
     def reset_from_task_id(self, task_id, data=None, remove_subprocess=True):
