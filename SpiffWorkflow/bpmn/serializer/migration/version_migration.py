@@ -35,15 +35,38 @@ from .version_1_3 import (
     add_new_typenames,
     update_data_objects,
 )
+from .version_1_4 import update_mi_states
+
+def from_version_1_3(dct):
+    """Upgrade serialization from v1.3 to v1.4
+
+    Multiinstance tasks now rely on events rather than polling to merge children, so once
+    they are reached, they should be STARTED rather than WAITING.
+    """
+    dct['VERSION'] = "1.3"
+    update_mi_states(dct)
 
 def from_version_1_2(dct):
+    """Upgrade serialization from v.1.2 to v.1.3
+
+    The internal/external distinction on event definitions was replaced with the ability to
+    target a specific workflow.
+
+    Boundary event parent gateway tasks ave been replaced with a gateway structure.
+
+    The creation of an unnecessary root task was removed; the workflow spec's start task is
+    used as the root instead.
+
+    BpmnWorkflows and BpmnSubworkflows were split into to classes.
+
+    Data objects are now stored on the topmost workflow where they are defined.
+    """
     dct['VERSION'] = "1.3"
     update_event_definition_attributes(dct)
     remove_boundary_event_parent(dct)
     remove_root_task(dct)
     add_new_typenames(dct)
     update_data_objects(dct)
-
 
 def from_version_1_1(dct):
     """
@@ -98,4 +121,5 @@ MIGRATIONS = {
     '1.0': from_version_1_0,
     '1.1': from_version_1_1,
     '1.2': from_version_1_2,
+    '1.3': from_version_1_3,
 }
