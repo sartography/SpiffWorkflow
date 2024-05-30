@@ -172,3 +172,36 @@ class Version_1_2_Test(BaseTestCase):
         self.assertNotIn('sub_level_data_object_two', call_sub.data_objects)
         self.assertIn('sub_level_data_object_three', call_sub.data_objects)
         self.assertNotIn('sub_level_data_object_three', process_sub.data_objects)
+
+class Version_1_3_Test(BaseTestCase):
+
+    def test_update_mi_states(self):
+
+        wf = self.deserialize_workflow('v1.3-mi-states.json')
+
+        any_task = wf.get_next_task(spec_name='any_task')
+        task_info = any_task.task_spec.task_info(any_task)
+        instance_map = task_info['instance_map']
+
+        self.assertEqual(len(wf.get_tasks(state=TaskState.WAITING)), 0)
+
+        ready_tasks = wf.get_tasks(state=TaskState.READY, manual=True)
+        self.assertEqual(len(ready_tasks), 1)
+        while len(ready_tasks) > 0:
+            task = ready_tasks[0]
+            task_info = task.task_spec.task_info(task)
+            self.assertEqual(task.task_spec.name, 'any_task [child]')
+            self.assertIn('input_item', task.data)
+            self.assertEqual(instance_map[task_info['instance']], str(task.id))
+            task.data['output_item'] = task.data['input_item'] * 2
+            task.run()
+            ready_tasks = wf.get_tasks(state=TaskState.READY, manual=True)
+        wf.refresh_waiting_tasks()
+        wf.do_engine_steps()
+
+        any_task = wf.get_next_task(spec_name='any_task')
+        task_info = any_task.task_spec.task_info(any_task)
+        self.assertEqual(len(task_info['completed']), 3)
+        self.assertEqual(len(task_info['running']), 0)
+        self.assertEqual(len(task_info['future']), 0)
+        self.assertTrue(wf.is_completed())

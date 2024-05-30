@@ -25,7 +25,7 @@ from .helpers import DefaultRegistry
 from .config import DEFAULT_CONFIG
 
 # This is the default version set on the workflow, it can be overridden in init
-VERSION = "1.3"
+VERSION = "1.4"
 
 
 class BpmnWorkflowSerializer:
