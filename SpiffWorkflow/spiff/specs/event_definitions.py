@@ -35,8 +35,11 @@ class MessageEventDefinition(MessageEventDefinition):
         self.process_correlations = process_correlations or []
 
     def throw(self, my_task):
-        payload = my_task.workflow.script_engine.evaluate(my_task, self.expression)
-        correlations = self.get_correlations(my_task, payload)
+        if self.expression is not None:
+            payload = my_task.workflow.script_engine.evaluate(my_task, self.expression)
+            correlations = self.get_correlations(my_task, payload)
+        else:
+            payload, correlations = {}, {}
         event = BpmnEvent(self, payload=payload, correlations=correlations)
         my_task.workflow.correlations.update(correlations)
         my_task.workflow.top_workflow.catch(event)
