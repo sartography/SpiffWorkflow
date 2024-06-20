@@ -32,6 +32,11 @@ class InclusiveGatewayTest(BpmnWorkflowTestCase):
 
     def testParallelCondition(self):
         self.set_data({'v': 0, 'u': 1, 'w': 1})
+        gw = self.workflow.get_next_task(state=TaskState.READY)
+        gw.run()
+        self.assertIsNone(self.workflow.get_next_task(spec_name='increment_v'))
+        self.assertTrue(self.workflow.get_next_task(spec_name='u_plus_v').state, TaskState.READY)
+        self.assertTrue(self.workflow.get_next_task(spec_name='w_plus_v').state, TaskState.READY)
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.is_completed())
         self.assertDictEqual(self.workflow.data, {'v': 0, 'u': 1, 'w': 1})
