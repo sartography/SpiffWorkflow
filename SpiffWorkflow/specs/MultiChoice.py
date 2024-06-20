@@ -103,17 +103,20 @@ class MultiChoice(TaskSpec):
             my_task._add_child(spec, TaskState.MAYBE)
 
     def _get_matching_outputs(self, my_task):
-        outputs = []
+        matches, defaults = [], []
         for condition, output in self.cond_task_specs:
             if self.choice is not None and output not in self.choice:
                 continue
-            if condition is None or condition._matches(my_task):
-                outputs.append(my_task.workflow.spec.get_task_spec_from_name(output))
-        return outputs
+            if condition is None:
+                defaults.append(my_task.workflow.spec.get_task_spec_from_name(output))
+            elif condition._matches(my_task):
+                matches.append(my_task.workflow.spec.get_task_spec_from_name(output))
+        return matches, defaults
 
     def _run_hook(self, my_task):
         """Runs the task. Should not be called directly."""
-        my_task._sync_children(self._get_matching_outputs(my_task), TaskState.FUTURE)
+        matches, defaults = self._get_matching_outputs(my_task)
+        my_task._sync_children(matches + defaults, TaskState.FUTURE)
         for child in my_task.children:
             child.task_spec._predict(child, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
         return True
