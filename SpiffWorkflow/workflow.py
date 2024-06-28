@@ -56,6 +56,7 @@ class Workflow(object):
         self.last_task = None
         self.success = True
         self.tasks = {}
+        self.completed = False
 
         # Events.
         self.completed_event = Event()
@@ -72,10 +73,13 @@ class Workflow(object):
         Returns:
             bool: True if the workflow has no unfinished tasks
         """
+        if self.completed:
+            return True
         iter = TaskIterator(self.task_tree, state=TaskState.NOT_FINISHED_MASK)
         try:
             next(iter)
         except StopIteration:
+            self.completed = True
             return True
         return False
 
