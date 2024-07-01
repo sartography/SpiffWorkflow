@@ -32,11 +32,16 @@ class BpmnTaskFilter(TaskFilter):
         def _catches_event(task):
             return isinstance(task.task_spec, CatchingEvent) and task.task_spec.catches(task, self.catches_event)
 
-        return all([
-            super().matches(task),
-            self.catches_event is None or _catches_event(task),
-            self.lane is None or task.task_spec.lane == self.lane,
-        ])
+        if not super().matches(task):
+            return False
+
+        if not (self.catches_event is None or _catches_event(task)):
+            return False
+
+        if not (self.lane is None or task.task_spec.lane == self.lane):
+            return False
+
+        return True
 
 
 class BpmnTaskIterator(TaskIterator):
@@ -49,18 +54,17 @@ class BpmnTaskIterator(TaskIterator):
 
     def _next(self):
 
-        if len(self.task_list) == 0:
+        if not self.task_list:
             raise StopIteration()
 
         task = self.task_list.pop(0)
         subprocess = task.workflow.top_workflow.subprocesses.get(task.id)
 
-        if all([
-            len(task._children) > 0 or subprocess is not None,
-            task.state >= self.min_state or subprocess is not None,
-            self.depth < self.max_depth,
-            task.task_spec.name != self.end_at_spec,
-        ]):
+        if (task._children or subprocess is not None) and \
+            (task.state >= self.min_state or subprocess is not None) and \
+            self.depth < self.max_depth and \
+            task.task_spec.name != self.end_at_spec:
+            
             # Do not descend into a completed subprocess to look for unfinished tasks.
             if (
                 subprocess is None
@@ -80,7 +84,7 @@ class BpmnTaskIterator(TaskIterator):
 
             self._update_depth(task)
 
-        elif self.depth_first and len(self.task_list) > 0:
+        elif self.depth_first and self.task_list:
             self._handle_leaf_depth(task)
 
         return task

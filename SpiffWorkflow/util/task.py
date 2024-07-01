@@ -156,14 +156,25 @@ class TaskFilter:
         Returns:
             bool: indicates whether the task matches
         """
-        return all([
-            task.has_state(self.state),
-            task.last_state_change >= self.updated_ts,
-            self.manual is None or task.task_spec.manual == self.manual,
-            self.spec_name is None or task.task_spec.name == self.spec_name,
-            self.spec_class is None or isinstance(task.task_spec, self.spec_class),
-        ])
 
+        if not task.has_state(self.state):
+            return False
+
+        if not task.last_state_change >= self.updated_ts:
+            return False
+            
+        if not (self.manual is None or task.task_spec.manual == self.manual):
+            return False
+            
+        if not (self.spec_name is None or task.task_spec.name == self.spec_name):
+            return False
+            
+        if not (self.spec_class is None or isinstance(task.task_spec, self.spec_class)):
+            return False
+        
+        
+        return True
+        
 
 class TaskIterator:
     """Default task iteration class."""
@@ -214,22 +225,21 @@ class TaskIterator:
 
     def _next(self):
 
-        if len(self.task_list) == 0:
+        if not self.task_list:
             raise StopIteration()
 
         task = self.task_list.pop(0)
-        if all([
-            len(task._children) > 0,
-            task.state >= self.min_state,
-            self.depth < self.max_depth,
-            task.task_spec.name != self.end_at_spec,
-        ]):
+        if task._children and \
+            task.state >= self.min_state and \
+            self.depth < self.max_depth and \
+            task.task_spec.name != self.end_at_spec:
+            
             if self.depth_first:
                 self.task_list = task.children + self.task_list
             else:
                 self.task_list.extend(task.children)
             self._update_depth(task)
-        elif self.depth_first and len(self.task_list) > 0:
+        elif self.depth_first and self.task_list:
             self._handle_leaf_depth(task)
     
         return task

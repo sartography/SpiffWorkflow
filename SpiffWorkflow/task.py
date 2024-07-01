@@ -145,7 +145,7 @@ class Task(object):
         Returns:
             bool: `True` is the task has the state or mask
         """
-        return (self.state & state) != 0
+        return (self._state & state) != 0
 
     def set_data(self, **kwargs):
         """Defines the given attribute/value pairs in this task's data."""
