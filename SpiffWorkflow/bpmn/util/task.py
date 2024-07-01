@@ -60,7 +60,7 @@ class BpmnTaskIterator(TaskIterator):
         task = self.task_list.pop(0)
         subprocess = task.workflow.top_workflow.subprocesses.get(task.id)
 
-        if (len(task._children) > 0 or subprocess is not None) and \
+        if (task._children or subprocess is not None) and \
             (task.state >= self.min_state or subprocess is not None) and \
             self.depth < self.max_depth and \
             task.task_spec.name != self.end_at_spec:

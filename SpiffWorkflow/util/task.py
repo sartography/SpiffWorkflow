@@ -229,7 +229,7 @@ class TaskIterator:
             raise StopIteration()
 
         task = self.task_list.pop(0)
-        if len(task._children) > 0 and \
+        if task._children and \
             task.state >= self.min_state and \
             self.depth < self.max_depth and \
             task.task_spec.name != self.end_at_spec:
