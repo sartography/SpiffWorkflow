@@ -54,7 +54,7 @@ class BpmnTaskIterator(TaskIterator):
 
     def _next(self):
 
-        if len(self.task_list) == 0:
+        if not self.task_list:
             raise StopIteration()
 
         task = self.task_list.pop(0)
@@ -84,7 +84,7 @@ class BpmnTaskIterator(TaskIterator):
 
             self._update_depth(task)
 
-        elif self.depth_first and len(self.task_list) > 0:
+        elif self.depth_first and self.task_list:
             self._handle_leaf_depth(task)
 
         return task
