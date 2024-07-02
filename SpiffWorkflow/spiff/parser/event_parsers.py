@@ -162,8 +162,18 @@ class SpiffBoundaryEventParser(SpiffEventDefinitionParser, BoundaryEventParser):
 
 class SpiffSendTaskParser(SpiffEventDefinitionParser, SendTaskParser):
     def create_task(self):
-        return SendTaskParser.create_task(self)
+        task = SendTaskParser.create_task(self)
+        # Duplicate this code from the SpiffTask parser because of parser limitations
+        extensions = self.parse_extensions()
+        task.prescript = extensions.get('preScript')
+        task.postscript = extensions.get('postScript')
+        return task
 
 class SpiffReceiveTaskParser(SpiffEventDefinitionParser, ReceiveTaskParser):
     def create_task(self):
-        return ReceiveTaskParser.create_task(self)
+        task = ReceiveTaskParser.create_task(self)
+        # I have given up trying to do any of this right
+        extensions = self.parse_extensions()
+        task.prescript = extensions.get('preScript')
+        task.postscript = extensions.get('postScript')
+        return task
