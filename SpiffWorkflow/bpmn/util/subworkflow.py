@@ -62,7 +62,4 @@ class BpmnSubWorkflow(BpmnBaseWorkflow):
         return depth
 
     def get_task_from_id(self, task_id):
-        try:
-            return super().get_task_from_id(task_id)
-        except TaskNotFoundException as exc:
-            pass
+        return self.tasks.get(task_id)
