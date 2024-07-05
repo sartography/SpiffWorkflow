@@ -50,6 +50,8 @@ You'll get an error, because imports have been restricted.
     two script engines (that is the only difference between the two configurations).  If you've made any
     serializer or parser customizations, this is not likely to be possible.
 
+.. _custom_classes_and_functions:
+
 Making Custom Classes and Functions Available
 =============================================
 

@@ -65,6 +65,14 @@ Custom Tasks
 
    custom_task_spec
 
+Diffs
+-----
+
+.. toctree::
+   :maxdepth: 2
+
+   diffs
+
 Logging
 -------
 

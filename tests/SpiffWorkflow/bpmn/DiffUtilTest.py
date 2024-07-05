@@ -1,6 +1,6 @@
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn import BpmnWorkflow
-from SpiffWorkflow.bpmn.util.diff import SpecDiff, WorkflowDiff
+from SpiffWorkflow.bpmn.util.diff import SpecDiff, WorkflowDiff, diff_workflow
 
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -9,7 +9,7 @@ class CompareSpecTest(BpmnWorkflowTestCase):
     def test_tasks_added(self):
         v1_spec, v1_sp_specs = self.load_workflow_spec('diff/v1.bpmn', 'Process')
         v2_spec, v2_sp_specs = self.load_workflow_spec('diff/v2.bpmn', 'Process')
-        result = SpecDiff(self.serializer, v1_spec, v2_spec)
+        result = SpecDiff(self.serializer.registry, v1_spec, v2_spec)
         self.assertEqual(len(result.added), 3)
         self.assertIn(v2_spec.task_specs.get('Gateway_1618q26'), result.added)
         self.assertIn(v2_spec.task_specs.get('Activity_1ds7clb'), result.added)
@@ -18,7 +18,7 @@ class CompareSpecTest(BpmnWorkflowTestCase):
     def test_tasks_removed(self):
         v1_spec, v1_sp_specs = self.load_workflow_spec('diff/v1.bpmn', 'Process')
         v2_spec, v2_sp_specs = self.load_workflow_spec('diff/v2.bpmn', 'Process')
-        result = SpecDiff(self.serializer, v2_spec, v1_spec)
+        result = SpecDiff(self.serializer.registry, v2_spec, v1_spec)
         self.assertEqual(len(result.removed), 3)
         self.assertIn(v2_spec.task_specs.get('Gateway_1618q26'), result.removed)
         self.assertIn(v2_spec.task_specs.get('Activity_1ds7clb'), result.removed)
@@ -27,7 +27,7 @@ class CompareSpecTest(BpmnWorkflowTestCase):
     def test_tasks_changed(self):
         v2_spec, v2_sp_specs = self.load_workflow_spec('diff/v2.bpmn', 'Process')
         v3_spec, v3_sp_specs = self.load_workflow_spec('diff/v3.bpmn', 'Process')
-        result = SpecDiff(self.serializer, v2_spec, v3_spec)
+        result = SpecDiff(self.serializer.registry, v2_spec, v3_spec)
         # The deafult output was changed and a the conditional output was converted to a subprocess
         self.assertListEqual(
             result.changed.get(v2_spec.task_specs.get('Gateway_1618q26')),
@@ -42,7 +42,7 @@ class CompareSpecTest(BpmnWorkflowTestCase):
     def test_alignment(self):
         v2_spec, v2_sp_specs = self.load_workflow_spec('diff/v2.bpmn', 'Process')
         v3_spec, v3_sp_specs = self.load_workflow_spec('diff/v3.bpmn', 'Process')
-        result = SpecDiff(self.serializer, v2_spec, v3_spec)
+        result = SpecDiff(self.serializer.registry, v2_spec, v3_spec)
         old_end_event = v2_spec.task_specs.get('Event_0rilo47')
         new_end_event = v3_spec.task_specs.get('Event_18osyv3')
         self.assertEqual(result.alignment[old_end_event], new_end_event)
@@ -53,7 +53,7 @@ class CompareSpecTest(BpmnWorkflowTestCase):
     def test_multiple(self):
         v4_spec, v4_sp_specs = self.load_workflow_spec('diff/v4.bpmn', 'Process')
         v5_spec, v5_sp_specs = self.load_workflow_spec('diff/v5.bpmn', 'Process')
-        result = SpecDiff(self.serializer, v4_spec, v5_spec)
+        result = SpecDiff(self.serializer.registry, v4_spec, v5_spec)
         self.assertEqual(len(result.removed), 4)
         self.assertEqual(len(result.changed), 4)
         self.assertIn(v4_spec.task_specs.get('Gateway_0z1qhgl'), result.removed)
@@ -78,9 +78,9 @@ class CompareWorkflowTest(BpmnWorkflowTestCase):
     def test_changed(self):
         v3_spec, v3_sp_specs = self.load_workflow_spec('diff/v3.bpmn', 'Process')
         v4_spec, v4_sp_specs = self.load_workflow_spec('diff/v4.bpmn', 'Process')
-        spec_diff = SpecDiff(self.serializer, v3_spec, v4_spec)
+        spec_diff = SpecDiff(self.serializer.registry, v3_spec, v4_spec)
         sp_spec_diff = SpecDiff(
-            self.serializer,
+            self.serializer.registry,
             v3_sp_specs['Activity_1ds7clb'],
             v4_sp_specs['Activity_1ds7clb']
         )
@@ -102,9 +102,9 @@ class CompareWorkflowTest(BpmnWorkflowTestCase):
     def test_removed(self):
         v4_spec, v4_sp_specs = self.load_workflow_spec('diff/v4.bpmn', 'Process')
         v5_spec, v5_sp_specs = self.load_workflow_spec('diff/v5.bpmn', 'Process')
-        spec_diff = SpecDiff(self.serializer, v4_spec, v5_spec)
+        spec_diff = SpecDiff(self.serializer.registry, v4_spec, v5_spec)
         sp_spec_diff = SpecDiff(
-            self.serializer,
+            self.serializer.registry,
             v4_sp_specs['Activity_1ds7clb'],
             v5_sp_specs['Activity_1ds7clb']
         )
@@ -123,3 +123,14 @@ class CompareWorkflowTest(BpmnWorkflowTestCase):
         self.assertIn(workflow.get_next_task(spec_name='Activity_11gnihu'), wf_diff.removed)
         self.assertIn(workflow.get_next_task(spec_name='Gateway_1acqedb'), wf_diff.removed)
 
+    def test_subprocess_changed(self):
+        v3_spec, v3_sp_specs = self.load_workflow_spec('diff/v3.bpmn', 'Process')
+        v4_spec, v4_sp_specs = self.load_workflow_spec('diff/v4.bpmn', 'Process')
+        workflow = BpmnWorkflow(v3_spec, v3_sp_specs)
+        task = workflow.get_next_task(state=TaskState.READY, manual=False)
+        while task is not None:
+            task.run()
+            task = workflow.get_next_task(state=TaskState.READY, manual=False)
+        result, sp_result = diff_workflow(self.serializer.registry, workflow, v4_spec, v4_sp_specs)
+        sp_task = workflow.get_next_task(spec_name='Activity_1ds7clb')
+        self.assertIn(sp_task.id, sp_result)
