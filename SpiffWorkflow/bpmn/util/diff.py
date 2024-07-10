@@ -212,8 +212,9 @@ def migrate_workflow(diff, workflow, spec, reset_mask=None):
     The default rest_mask is TaskState.READY|TaskState.WAITING but can be overridden.
     """
     workflow.spec = spec
-    for task in workflow.get_tasks(skip_subprocesses=True):
-        task.task_spec = diff.alignment.get(task)
+    for task in workflow.tasks.values():
+        if diff.alignment.get(task) is not None:
+            task.task_spec = diff.alignment.get(task)
 
     default_mask = TaskState.READY|TaskState.WAITING
     for task in list(workflow.get_tasks(state=reset_mask or default_mask, skip_subprocesses=True)):
