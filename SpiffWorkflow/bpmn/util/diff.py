@@ -218,4 +218,7 @@ def migrate_workflow(diff, workflow, spec, reset_mask=None):
 
     default_mask = TaskState.READY|TaskState.WAITING
     for task in list(workflow.get_tasks(state=reset_mask or default_mask, skip_subprocesses=True)):
-        task.reset_branch(None)
+        # In some cases, completed tasks with ready or waiting children could get removed
+        # (for example, in cycle timer).  If a task has already been removed from the tree, ignore it.
+        if task.id in workflow.tasks:
+            task.reset_branch(None)
