@@ -235,3 +235,6 @@ def migrate_workflow(diff, workflow, spec, reset_mask=None):
         # (for example, in cycle timer).  If a task has already been removed from the tree, ignore it.
         if task.id in workflow.tasks:
             task.reset_branch(None)
+    
+    if workflow.last_task not in workflow.tasks:
+        workflow.last_task = None
