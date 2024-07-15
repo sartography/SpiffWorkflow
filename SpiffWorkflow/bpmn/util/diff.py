@@ -1,4 +1,5 @@
 from SpiffWorkflow import TaskState
+from SpiffWorkflow.bpmn.specs.mixins.multiinstance_task import LoopTask
 from .task import BpmnTaskFilter
 
 class SpecDiff:
@@ -39,7 +40,7 @@ class SpecDiff:
         self.alignment = {}
         self.comparisons = {}
         self._registry = registry
-        self._align(original.start, new)
+        self._align(original.start, original, new)
 
     @property
     def removed(self):
@@ -51,7 +52,7 @@ class SpecDiff:
         """Task specs with updated attributes"""
         return dict((ts, changes) for ts, changes in self.comparisons.items() if changes)
 
-    def _align(self, spec, new):
+    def _align(self, spec, original, new):
 
         candidate = new.task_specs.get(spec.name)
         self.alignment[spec] = candidate
@@ -62,11 +63,22 @@ class SpecDiff:
         # Without this starting point, alignment would be way too difficult
         for output in spec.outputs:
             if output not in self.alignment:
-                self._align(output, new)
+                self._align(output, original, new)
 
         # If name matching fails, attempt to align by structure
         if candidate is None:
             self._search_unmatched(spec)
+
+        # Multiinstance task specs aren't reachable via task outputs
+        if isinstance(spec, LoopTask):
+            original_child = original.task_specs.get(spec.task_spec)
+            self.alignment[original_child] = new.task_specs.get(original_child.name)
+            if self.alignment[original_child] is None:
+                aligned = self.alignment[spec]
+                if aligned is not None and isinstance(aligned, LoopTask):
+                    self.alignment[original_child] = new.task_specs.get(aligned.task_spec)
+            if self.alignment[original_child] is not None:
+                self.comparisons[original_child] = self._compare_task_specs(original_child, self.alignment[original_child])
 
     def _search_unmatched(self, spec):
         # If any outputs were matched, we can use its unmatched inputs as candidates
@@ -100,6 +112,7 @@ class SpecDiff:
             all(first is not None and first.name == second.name for first, second in zip(subs, candidates))
 
     def _compare_task_specs(self, spec, candidate):
+
         s1 = self._registry.convert(spec)
         s2 = self._registry.convert(candidate)
         if s1.get('typename') != s2.get('typename'):
