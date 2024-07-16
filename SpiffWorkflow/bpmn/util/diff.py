@@ -222,6 +222,9 @@ def migrate_workflow(diff, workflow, spec, reset_mask=None):
     Keyword Args:
         reset_mask (`TaskState`): reset and repredict tasks in this state
 
+    Returns
+        a list of deleted `Task`
+
     The default rest_mask is TaskState.READY|TaskState.WAITING but can be overridden.
     """
     workflow.spec = spec
@@ -230,11 +233,14 @@ def migrate_workflow(diff, workflow, spec, reset_mask=None):
             task.task_spec = diff.alignment.get(task)
 
     default_mask = TaskState.READY|TaskState.WAITING
+    removed_tasks = []
     for task in list(workflow.get_tasks(state=reset_mask or default_mask, skip_subprocesses=True)):
         # In some cases, completed tasks with ready or waiting children could get removed
         # (for example, in cycle timer).  If a task has already been removed from the tree, ignore it.
         if task.id in workflow.tasks:
-            task.reset_branch(None)
+            removed_tasks.extend(task.reset_branch(None))
     
     if workflow.last_task not in workflow.tasks:
         workflow.last_task = None
+
+    return removed_tasks
