@@ -112,7 +112,6 @@ class SpecDiff:
             all(first is not None and first.name == second.name for first, second in zip(subs, candidates))
 
     def _compare_task_specs(self, spec, candidate):
-
         s1 = self._registry.convert(spec)
         s2 = self._registry.convert(candidate)
         if s1.get('typename') != s2.get('typename'):

@@ -22,7 +22,7 @@ from copy import deepcopy
 
 from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
 
-data_log = logging.getLogger('spiff.data')
+logger = logging.getLogger('spiff.data')
 
 
 class BpmnDataSpecification:
@@ -73,7 +73,7 @@ class DataObject(BpmnDataSpecification):
             raise WorkflowDataException(message, my_task, data_input=self)
 
         my_task.data[self.bpmn_id] = deepcopy(wf.data_objects[self.bpmn_id])
-        data_log.info(f'Read workflow variable {self.bpmn_id}', extra=my_task.log_info())
+        logger.info(f'Read workflow variable', extra=my_task.collect_log_extras({'bpmn_id': self.bpmn_id}))
 
     def set(self, my_task):
         """Copy a value from the task data to the workflow data"""
@@ -88,7 +88,7 @@ class DataObject(BpmnDataSpecification):
 
         wf.data_objects[self.bpmn_id] = deepcopy(my_task.data[self.bpmn_id])
         del my_task.data[self.bpmn_id]
-        data_log.info(f'Set workflow variable {self.bpmn_id}', extra=my_task.log_info())
+        logger.info(f'Set workflow variable', extra=my_task.collect_log_extras({'bpmn_id': self.bpmn_id}))
 
     def delete(self, my_task):
         my_task.data.pop(self.bpmn_id, None)

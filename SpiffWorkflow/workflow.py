@@ -25,7 +25,7 @@ from .util.compat import mutex
 from .util.event import Event
 from .exceptions import TaskNotFoundException, WorkflowException
 
-logger = logging.getLogger('spiff')
+logger = logging.getLogger('spiff.workflow')
 
 
 class Workflow(object):
@@ -64,8 +64,8 @@ class Workflow(object):
         if not deserializing:
             self.task_tree = Task(self, self.spec.start, state=TaskState.FUTURE)
             self.task_tree.task_spec._predict(self.task_tree, mask=TaskState.NOT_FINISHED_MASK)
+            logger.info('Initialized workflow', extra=self.collect_log_extras())
             self.task_tree._ready()
-            logger.info('Initialize', extra=self.log_info())
 
     def is_completed(self):
         """Checks whether the workflow is complete.
@@ -215,13 +215,13 @@ class Workflow(object):
             list(`Task`): the cancelled tasks
         """
         self.success = success
-        cancel = []
+        logger.info(f'Workflow cancelled', extra=self.collect_log_extras())
+        cancelled = []
         for task in TaskIterator(self.task_tree, state=TaskState.NOT_FINISHED_MASK):
-            cancel.append(task)
-        for task in cancel:
+            cancelled.append(task)
+        for task in cancelled:
             task.cancel()
-        logger.info(f'Cancel with {len(cancel)} remaining', extra=self.log_info())
-        return cancel
+        return cancelled
 
     def set_data(self, **kwargs):
         """Defines the given attribute/value pairs."""
@@ -254,16 +254,16 @@ class Workflow(object):
         self.last_task = task.parent
         return task.reset_branch(data)
 
-    def log_info(self, dct=None):
+    def collect_log_extras(self, dct=None):
         """Return logging details for this workflow"""
         extra = dct or {}
-        extra.update({
-            'workflow_spec': self.spec.name,
-            'task_spec': None,
-            'task_type': None,
-            'task_id': None,
-            'data': None,
-        })
+        extra.update({'workflow_spec': self.spec.name})
+        if logger.level < 20:
+            extra.update({
+                'finished': len([t for t in self.tasks.values() if t.has_state(TaskState.FINISHED_MASK)]),
+                'definite': len([t for t in self.tasks.values() if t.has_state(TaskState.DEFINITE_MASK)]),
+                'predicted': len([t for t in self.tasks.values() if t.has_state(TaskState.PREDICTED_MASK)]),
+            })
         return extra
 
     def _predict(self, mask=TaskState.NOT_FINISHED_MASK):
