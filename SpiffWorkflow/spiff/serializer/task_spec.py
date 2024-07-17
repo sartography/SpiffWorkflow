@@ -106,7 +106,7 @@ class SubWorkflowTaskConverter(SpiffBpmnTaskConverter):
 class StandardLoopTaskConverter(SpiffBpmnTaskConverter):
 
     def to_dict(self, spec):
-        dct = self.get_default_attributes(spec)
+        dct = super().to_dict(spec)
         dct.update(self.get_standard_loop_attributes(spec))
         return dct
 

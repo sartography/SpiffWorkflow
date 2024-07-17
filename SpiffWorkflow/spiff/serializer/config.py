@@ -109,6 +109,7 @@ SPIFF_CONFIG[CallActivity] = SubWorkflowTaskConverter
 SPIFF_CONFIG[TransactionSubprocess] = SubWorkflowTaskConverter
 SPIFF_CONFIG[ParallelMultiInstanceTask] = SpiffMultiInstanceConverter
 SPIFF_CONFIG[SequentialMultiInstanceTask] = SpiffMultiInstanceConverter
+SPIFF_CONFIG[StandardLoopTask] = StandardLoopTaskConverter
 SPIFF_CONFIG[MessageEventDefinition] = MessageEventDefinitionConverter
 SPIFF_CONFIG[SignalEventDefinition] = ItemAwareEventDefinitionConverter
 SPIFF_CONFIG[ErrorEventDefinition] = ErrorEscalationEventDefinitionConverter
