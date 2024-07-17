@@ -135,7 +135,7 @@ class TaskSpecConverter(BpmnConverter):
         Returns:
             dict: a dictionary of standard task spec attributes
         """
-        return {
+        dct = {
             'name': spec.name,
             'description': spec.description,
             'manual': spec.manual,
@@ -150,6 +150,9 @@ class TaskSpecConverter(BpmnConverter):
             'data_output_associations': self.registry.convert(spec.data_output_associations),
             'io_specification': self.registry.convert(spec.io_specification),
         }
+        if hasattr(spec, 'extensions'):
+            dct['extensions'] = spec.extensions
+        return dct
 
     def get_join_attributes(self, spec):
         """Extracts attributes for task specs that inherit from `Join`.
@@ -213,6 +216,8 @@ class TaskSpecConverter(BpmnConverter):
         bpmn_id = dct.pop('bpmn_id')
 
         spec = self.target_class(wf_spec, name, **dct)
+        if 'extensions' in dct:
+            spec.extensions = dct['extensions']
 
         if issubclass(self.target_class, BpmnSpecMixin) and bpmn_id != name:
             # This is a hack for multiinstance tasks :(  At least it is simple.

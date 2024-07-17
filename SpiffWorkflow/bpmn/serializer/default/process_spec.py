@@ -23,18 +23,11 @@ from SpiffWorkflow.bpmn.specs.mixins.multiinstance_task import LoopTask
 
 class BpmnProcessSpecConverter(BpmnConverter):
 
-    def convert_task_spec_extensions(self, task_spec, dct):
-        # Extensions will be moved out of the base parser, but since we currently add them to some
-        # indeterminate set of tasks, we'll just check all the tasks for them here.
-        if hasattr(task_spec, 'extensions'):
-            dct.update({'extensions': task_spec.extensions})
-
     def restore_task_spec_extensions(self, dct, task_spec):
         if 'extensions' in dct:
             task_spec.extensions = dct.pop('extensions')
 
     def to_dict(self, spec):
-
         dct = {
             'name': spec.name,
             'description': spec.description,
@@ -46,7 +39,6 @@ class BpmnProcessSpecConverter(BpmnConverter):
         }
         for name, task_spec in spec.task_specs.items():
             task_dict = self.registry.convert(task_spec)
-            self.convert_task_spec_extensions(task_spec, task_dict)
             dct['task_specs'][name] = task_dict
 
         return dct
