@@ -73,15 +73,13 @@ class Workflow(object):
         Returns:
             bool: True if the workflow has no unfinished tasks
         """
-        if self.completed:
-            return True
-        iter = TaskIterator(self.task_tree, state=TaskState.NOT_FINISHED_MASK)
-        try:
-            next(iter)
-        except StopIteration:
-            self.completed = True
-            return True
-        return False
+        if not self.completed:
+            iter = TaskIterator(self.task_tree, state=TaskState.NOT_FINISHED_MASK)
+            try:
+                next(iter)
+            except StopIteration:
+                self.completed = True
+        return self.completed
 
     def manual_input_required(self):
         """Checks whether the workflow requires manual input.
@@ -215,6 +213,7 @@ class Workflow(object):
             list(`Task`): the cancelled tasks
         """
         self.success = success
+        self.completed = True
         logger.info(f'Workflow cancelled', extra=self.collect_log_extras())
         cancelled = []
         for task in TaskIterator(self.task_tree, state=TaskState.NOT_FINISHED_MASK):
@@ -273,12 +272,13 @@ class Workflow(object):
 
     def _task_completed_notify(self, task):
         """Called whenever a task completes"""
+        self.last_task = task
         if task.task_spec.name == 'End':
-            self.data.update(task.data)
-        self.update_waiting_tasks()
-        if self.completed_event.n_subscribers() > 0 and self.is_completed():
-            # Since is_completed() is expensive it makes sense to bail out if calling it is not necessary.
+            self._mark_complete(task)
+        if self.completed:
             self.completed_event(self)
+        else:
+            self.update_waiting_tasks()
 
     def _remove_task(self, task_id):
         task = self.tasks[task_id]
@@ -286,6 +286,11 @@ class Workflow(object):
             self._remove_task(child.id)
         task.parent._children.remove(task.id)
         self.tasks.pop(task_id)
+
+    def _mark_complete(self, task):
+        logger.info('Workflow completed', extra=self.collect_log_extras())
+        self.data.update(task.data)
+        self.completed = True
 
     def _get_mutex(self, name):
         """Get or create a mutex"""

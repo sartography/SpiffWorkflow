@@ -16,5 +16,5 @@ class ParallelGatewayLoopInputTest(BpmnWorkflowTestCase):
         self.assertEqual(len(ready), 1)
         ready[0].run()
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, { 'x': 2})

@@ -66,5 +66,5 @@ class NITimerDurationTest(BpmnWorkflowTestCase):
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.workflow.do_engine_steps()
-        self.assertEqual(self.workflow.is_completed(), True)
+        self.assertEqual(self.workflow.completed, True)
         self.assertEqual(self.workflow.last_task.data, {'work_done': 'Yes', 'delay_reason': 'Just Because'})

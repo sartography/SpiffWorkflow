@@ -16,7 +16,7 @@ class ParallelOrderTest(BpmnWorkflowTestCase):
     def testRunThroughHappy(self):
 
         self.workflow.do_engine_steps()
-        self.assertFalse(self.workflow.is_completed())
+        self.assertFalse(self.workflow.completed)
         self.assertEqual(4, len(self.get_ready_user_tasks()))
         tasks = self.get_ready_user_tasks()
         self.assertEqual("Task 1", tasks[0].task_spec.bpmn_name)

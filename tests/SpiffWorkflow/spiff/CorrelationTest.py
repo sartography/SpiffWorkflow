@@ -86,4 +86,4 @@ class ReceiveCorrelationTest(BaseTestCase):
         event = BpmnEvent(event_def, payload, correlations)
         self.workflow.catch(event)
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed)
+        self.assertTrue(self.workflow.completed)

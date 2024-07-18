@@ -36,7 +36,7 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testRunThroughMessageInterruptSaveAndRestore(self):
 
@@ -63,7 +63,7 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         self.save_restore()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testRunThroughHappy(self):
 
@@ -81,7 +81,7 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.WAITING)))
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testRunThroughMessageInterrupt(self):
 
@@ -102,4 +102,4 @@ class MessageInterruptsTest(BpmnWorkflowTestCase):
         self.do_next_exclusive_step('Acknowledge Interrupt Message')
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)

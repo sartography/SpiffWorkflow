@@ -35,7 +35,7 @@ class ParseMultiInstanceTest(BaseTestCase):
             task.run()
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {'input_data': [1, 2, 3], 'output_data': [2, 4, 6]})
 
     def testIntegerCardinality(self):
@@ -61,7 +61,7 @@ class ParseMultiInstanceTest(BaseTestCase):
             task.run()
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {'input_data': [1, 2, 3], 'output_data': [0, 2, 4]})
 
     def testCollection(self):
@@ -87,5 +87,5 @@ class ParseMultiInstanceTest(BaseTestCase):
             task.run()
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {'input_data': [2, 4, 6]})

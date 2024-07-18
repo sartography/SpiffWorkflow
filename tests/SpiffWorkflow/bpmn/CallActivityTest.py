@@ -25,7 +25,7 @@ class CallActivityTest(BpmnWorkflowTestCase):
 
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses, script_engine=CustomScriptEngine())
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertIsInstance(self.workflow.script_engine, CustomScriptEngine)
 
         # Get the subworkflow
@@ -40,7 +40,7 @@ class CallActivityTest(BpmnWorkflowTestCase):
         # data should be removed in the final output as well.
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertNotIn('remove_this_var', self.workflow.last_task.data.keys())
 
     def test_call_activity_errors_include_task_trace(self):

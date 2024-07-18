@@ -14,7 +14,7 @@ class EventPayloadTest(BaseTestCase):
         set_data.data = {'v1': 1, 'v2': 2, 'v3': 3}
         set_data.run()
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {
             'v1': 1,
             'v2': 2,
@@ -32,7 +32,7 @@ class EventPayloadTest(BaseTestCase):
         set_data.data = {'error': True, 'payload': 'ERROR!'}
         set_data.run()
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertEqual(self.workflow.data, {'result': 'ERROR!'})
 
     def testEscalationEvent(self):
@@ -45,5 +45,5 @@ class EventPayloadTest(BaseTestCase):
         set_data.data = {'escalation': True, 'payload': 'ERROR!'}
         set_data.run()
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertEqual(self.workflow.data, {'result': 'ERROR!'})

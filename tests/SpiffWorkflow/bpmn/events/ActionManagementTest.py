@@ -50,7 +50,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.do_next_named_step("Complete Work", choice="Done")
         self.workflow.do_engine_steps()
 
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testRunThroughOverdue(self):
         self.do_next_exclusive_step("Review Action", choice='Approve')
@@ -89,13 +89,13 @@ class ActionManagementTest(BpmnWorkflowTestCase):
 
         self.do_next_named_step("Complete Work", choice="Done")
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testRunThroughCancel(self):
 
         self.do_next_exclusive_step("Review Action", choice='Cancel')
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testRunThroughCancelAfterApproved(self):
         self.do_next_exclusive_step("Review Action", choice='Approve')
@@ -104,7 +104,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.do_next_named_step("Cancel Action (if necessary)")
         self.workflow.do_engine_steps()
 
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertEqual('ACTION CANCELLED', self.workflow.get_data('script_output'))
 
     def testRunThroughCancelAfterWorkStarted(self):
@@ -127,5 +127,5 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.do_next_named_step("Cancel Action (if necessary)")
         self.workflow.do_engine_steps()
 
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertEqual('ACTION CANCELLED', self.workflow.get_data('script_output'))

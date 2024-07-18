@@ -56,7 +56,7 @@ class SubWorkflowTask(TaskSpec):
             self.start_workflow(my_task)
             my_task._set_state(TaskState.STARTED)
         else:
-            return subprocess.is_completed()
+            return subprocess.completed
 
     def _on_cancel(self, my_task):
         subworkflow = my_task.workflow.top_workflow.get_subprocess(my_task)

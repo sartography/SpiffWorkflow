@@ -367,7 +367,6 @@ class Task(object):
         """Marks this task complete."""
         self._set_state(TaskState.COMPLETED)
         self.task_spec._on_complete(self)
-        self.workflow.last_task = self
 
     def error(self):
         """Marks this task as error."""

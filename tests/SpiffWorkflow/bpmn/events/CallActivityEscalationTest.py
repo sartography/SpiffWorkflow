@@ -51,7 +51,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
         self.workflow.run_all()
-        self.assertEqual(True, self.workflow.is_completed())
+        self.assertEqual(True, self.workflow.completed)
 
         self.assertEqual(True, 'EndEvent_specific1_noninterrupting_normal' in completed_set)
         self.assertEqual(True, 'EndEvent_specific1_noninterrupting_escalated' in completed_set)
@@ -81,7 +81,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
         self.workflow.run_all()
-        self.assertEqual(True, self.workflow.is_completed())
+        self.assertEqual(True, self.workflow.completed)
 
         self.assertEqual(True, 'EndEvent_specific1_noninterrupting_normal' in completed_set)
         self.assertEqual(True, 'EndEvent_specific1_noninterrupting_escalated' not in completed_set)
@@ -109,7 +109,7 @@ class CallActivityEscalationTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.save_restore()
         self.workflow.run_all()
-        self.assertEqual(True, self.workflow.is_completed())
+        self.assertEqual(True, self.workflow.completed)
 
         self.assertEqual(True, 'EndEvent_specific1_noninterrupting_normal' in completed_set)
         self.assertEqual(True, 'EndEvent_specific1_noninterrupting_escalated' not in completed_set)

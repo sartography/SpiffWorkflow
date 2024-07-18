@@ -51,7 +51,7 @@ class StartMessageTest(BaseTestCase):
                 self.save_restore()
             ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
 
-        self.assertEqual(self.workflow.is_completed(),True,'Expected the workflow to be complete at this point')
+        self.assertEqual(self.workflow.completed,True,'Expected the workflow to be complete at this point')
         self.assertEqual(self.workflow.last_task.data,
             {
                 'plan_details': 'Best',

@@ -148,7 +148,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         ready_tasks[0].run()
         self.workflow.do_engine_steps()
         self.serializer.serialize_json(self.workflow)
-        assert self.workflow.is_completed()
+        assert self.workflow.completed
         assert 'y' in self.workflow.last_task.data
         assert 'x' not in self.workflow.last_task.data
         assert 'some_fun' not in self.workflow.last_task.data

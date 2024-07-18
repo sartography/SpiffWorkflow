@@ -122,7 +122,7 @@ class SubWorkflow(TaskSpec):
         subworkflow = my_task._get_internal_data('subworkflow')
         if subworkflow is None:
             self._create_subworkflow(my_task)
-        elif subworkflow.is_completed():
+        elif subworkflow.completed:
             my_task.complete()
 
     def _on_subworkflow_completed(self, subworkflow, my_task):

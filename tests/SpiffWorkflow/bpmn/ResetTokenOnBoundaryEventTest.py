@@ -49,7 +49,7 @@ class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
 
         # Ensure the workflow can be completed without being stuck on stranded tasks
         self.complete_workflow()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def reset_to_subprocess(self, save_restore=False):
 
@@ -74,7 +74,7 @@ class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
 
         # Ensure the workflow can be completed without being stuck on stranded tasks        
         self.complete_workflow()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def advance_to_task(self, name):
 

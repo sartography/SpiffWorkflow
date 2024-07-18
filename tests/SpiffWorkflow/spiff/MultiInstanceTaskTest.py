@@ -22,7 +22,7 @@ class MultiInstanceTaskTest(BaseTestCase):
             task.run()
             self.workflow.do_engine_steps()
 
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {
             'input_data': [2, 3, 4],  # Prescript adds 1 to input
             'output_data': [3, 5, 7],  # Postscript subtracts 1 from output
@@ -45,7 +45,7 @@ class MultiInstanceTaskTest(BaseTestCase):
             task.run()
             self.workflow.do_engine_steps()
 
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {
             'input_data': [1, 2, 3],  # Prescript modifies input item
             'output_data': [3, 5, 7],

@@ -108,4 +108,4 @@ class StartedTaskTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         end = self.workflow.get_next_task(spec_name='End')
         self.assertDictEqual(end.data, {'x': 1, 'y': 2, 'z': 3})
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)

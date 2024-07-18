@@ -102,7 +102,7 @@ class DataObjectGatewayTest(BpmnWorkflowTestCase):
         task.run()
         # The gateway depends on the value of the data object
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         completed = [task.task_spec.name for task in self.workflow.get_tasks()]
         self.assertIn('yes', completed)
         self.assertNotIn('no', completed)

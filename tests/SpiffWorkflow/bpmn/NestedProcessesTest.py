@@ -21,7 +21,7 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
         self.complete_task('Action2', True)
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
         self.complete_task('Action3', True)
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testResetToTop(self):
 
@@ -37,7 +37,7 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
 
         self.complete_task('Action2')
         self.complete_task('Action3')
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testResetToIntermediate(self):
 
@@ -54,7 +54,7 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
         task.run()
 
         self.complete_task('Action3')
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testResetToSubworkflow(self):
 
@@ -71,7 +71,7 @@ class NestedProcessesTest(BpmnWorkflowTestCase):
         self.assertEqual(task.state, TaskState.STARTED)
         self.complete_task('Action2', True)
         self.complete_task('Action3', True)
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def complete_task(self, name, save_restore=False):
         self.do_next_named_step(name)

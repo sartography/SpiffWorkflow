@@ -14,14 +14,14 @@ class InclusiveGatewayTest(BpmnWorkflowTestCase):
     def testDefaultConditionOnly(self):
         self.set_data({'v': -1, 'u': -1, 'w': -1})
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {'v': 0, 'u': -1, 'w': -1})
 
     def testDefaultConditionOnlySaveRestore(self):
         self.set_data({'v': -1, 'u': -1, 'w': -1})
         self.save_restore()
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {'v': 0, 'u': -1, 'w': -1})
 
     def testNoPathFromSecondGateway(self):
@@ -38,7 +38,7 @@ class InclusiveGatewayTest(BpmnWorkflowTestCase):
         self.assertTrue(self.workflow.get_next_task(spec_name='u_plus_v').state, TaskState.READY)
         self.assertTrue(self.workflow.get_next_task(spec_name='w_plus_v').state, TaskState.READY)
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {'v': 0, 'u': 1, 'w': 1})
 
     def set_data(self, value):

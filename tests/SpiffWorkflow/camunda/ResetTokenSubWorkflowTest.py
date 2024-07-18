@@ -78,7 +78,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
             if save_restore:
                 self.save_restore()
 
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
         self.assertEqual({'First': 'Yes',
                           'A1': 'a1',
@@ -168,7 +168,7 @@ class ResetTokenTestSubProcess(BaseTestCase):
             if save_restore:
                 self.save_restore()
 
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
         self.assertEqual({'First': 'Yes',
                           'A1': 'xa1',
