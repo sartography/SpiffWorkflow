@@ -292,9 +292,13 @@ class Task(object):
         """Force set the state on a task"""
 
         if value != self.state:
+            elapsed = time.time() - self.last_state_change
             self.last_state_change = time.time()
             self._state = value
-            logger.info(f'State changed to {TaskState.get_name(value)}', extra=self.collect_log_extras())
+            logger.info(
+                f'State changed to {TaskState.get_name(value)}',
+                extra=self.collect_log_extras({'elapsed': elapsed})
+            )
         else:
             logger.debug(f'State set to {TaskState.get_name(value)}', extra=self.collect_log_extras())
 
@@ -382,15 +386,18 @@ class Task(object):
 
     def collect_log_extras(self, dct=None):
         """Return logging details for this task"""
-        extra = dct or {}
-        extra.update({
+        extra = {
             'workflow_spec': self.workflow.spec.name,
             'task_spec': self.task_spec.name,
             'task_id': self.id,
             'task_type': self.task_spec.__class__.__name__,
             'state': TaskState.get_name(self._state),
             'last_state_change': self.last_state_change,
-        })
+            'elapsed': 0,
+            'parent': None if self.parent is None else self.parent.id,
+        }
+        if dct is not None:
+            extra.update(dct)
         if logger.level < 20:
             extra.update({
                 'data': self.data if logger.level < 20 else None,

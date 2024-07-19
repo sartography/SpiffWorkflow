@@ -246,7 +246,7 @@ class Workflow(object):
             task_id: the id of the task to reset to
             data (dict): optionally replace the data (if None, data will be copied from the parent task)
 
-        Returns:
+        Returns:        extra.update(
             list(`Task`): tasks removed from the tree
         """
         task = self.get_task_from_id(task_id)
@@ -256,13 +256,13 @@ class Workflow(object):
     def collect_log_extras(self, dct=None):
         """Return logging details for this workflow"""
         extra = dct or {}
-        extra.update({'workflow_spec': self.spec.name})
+        extra.update({
+            'workflow_spec': self.spec.name,
+            'success': self.success,
+            'completed': self.completed,
+        })
         if logger.level < 20:
-            extra.update({
-                'finished': len([t for t in self.tasks.values() if t.has_state(TaskState.FINISHED_MASK)]),
-                'definite': len([t for t in self.tasks.values() if t.has_state(TaskState.DEFINITE_MASK)]),
-                'predicted': len([t for t in self.tasks.values() if t.has_state(TaskState.PREDICTED_MASK)]),
-            })
+            extra.update({'tasks': [t.id for t in Workflow.get_tasks(self)]})
         return extra
 
     def _predict(self, mask=TaskState.NOT_FINISHED_MASK):
