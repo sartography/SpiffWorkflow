@@ -95,10 +95,13 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
             # Handle the case where there are paths from active tasks that must go through waiting inputs
             waiting_inputs = [i for i in self.inputs if i not in completed_inputs]
 
+            checked = []
             # This will go back through a task spec's ancestors and return the source, if applicable
-            def check(spec): 
+            def check(spec):
+                checked.append(spec)
                 for parent in spec.inputs:
-                    return parent if parent in sources else check(parent)
+                    if parent not in checked:
+                        return parent if parent in sources else check(parent)
 
             # Start with the completed inputs and recurse back through its ancestors, removing any waiting tasks that
             # could reach one of them.
