@@ -31,7 +31,7 @@ class PythonScriptEngineTest(BpmnWorkflowTestCase):
         when it should not be there"""
         startTask = self.workflow.get_tasks(state=TaskState.READY)[0]
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertTrue("testvar" in self.workflow.last_task.data)
         self.assertFalse("testvar" in startTask.data)
 

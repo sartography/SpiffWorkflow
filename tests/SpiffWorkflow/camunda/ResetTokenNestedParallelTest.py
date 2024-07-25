@@ -95,7 +95,7 @@ class ResetTokenTestNestedParallel(BaseTestCase):
             if save_restore:
                 self.save_restore()
         self.get_ready_user_tasks()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertEqual({'First': 'Yes',
                           'A1': 'xa1',
                           'A2': 'xa2',
@@ -188,7 +188,7 @@ class ResetTokenTestNestedParallel(BaseTestCase):
             if save_restore:
                 self.save_restore()
 
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
         self.assertEqual({'First': 'Yes',
                           'A1': 'xa1',

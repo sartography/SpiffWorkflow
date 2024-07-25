@@ -41,6 +41,6 @@ class StartEventSplitTest(BpmnWorkflowTestCase):
         any_task.run()
 
         self.run_until_input_required()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
 

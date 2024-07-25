@@ -10,4 +10,4 @@ class BusinessRuleTaskTest(BaseTestCase):
         self.workflow = BpmnWorkflow(spec, subprocesses)
         self.save_restore()
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)

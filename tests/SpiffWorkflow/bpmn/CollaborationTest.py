@@ -69,7 +69,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertEqual(receive.state, TaskState.COMPLETED)
         self.assertEqual(self.workflow.last_task.data, {'from_name': 'Peggy', 'lover_name': 'Peggy', 'other_nonsense': 1001})
         self.assertEqual(self.workflow.correlations, {'lover':{'lover_name':'Peggy'}})
-        self.assertEqual(self.workflow.is_completed(), True)
+        self.assertEqual(self.workflow.completed, True)
 
     def testCorrelation(self):
 

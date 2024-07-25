@@ -31,7 +31,7 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.assertEqual('Test Message', self.workflow.get_tasks(state=TaskState.READY)[0].task_spec.bpmn_name)
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testRunThroughSaveAndRestore(self):
 
@@ -52,4 +52,4 @@ class MessagesTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)

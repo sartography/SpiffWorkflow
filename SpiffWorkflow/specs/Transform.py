@@ -21,7 +21,7 @@ import logging
 
 from .base import TaskSpec
 
-logger = logging.getLogger('spiff')
+logger = logging.getLogger('spiff.task')
 
 
 class Transform(TaskSpec):
@@ -56,7 +56,7 @@ class Transform(TaskSpec):
 
         if self.transforms:
             for transform in self.transforms:
-                logger.debug('Execute transform', extra=my_task.log_info({'transform': transform}))
+                logger.debug('Execute transform', extra=my_task.collect_log_extras({'transform': transform}))
                 exec(transform)
         return True
 

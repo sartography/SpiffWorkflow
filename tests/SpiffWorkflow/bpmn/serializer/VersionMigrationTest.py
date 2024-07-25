@@ -23,7 +23,7 @@ class Version_1_0_Test(BaseTestCase):
         wf.do_engine_steps()
         wf.refresh_waiting_tasks()
         wf.do_engine_steps()
-        self.assertEqual(True, wf.is_completed())
+        self.assertEqual(True, wf.completed)
 
 
 class Version_1_1_Test(BaseTestCase):
@@ -35,14 +35,14 @@ class Version_1_1_Test(BaseTestCase):
         wf.do_engine_steps()
         wf.refresh_waiting_tasks()
         wf.do_engine_steps()
-        self.assertTrue(wf.is_completed())
+        self.assertTrue(wf.completed)
 
     def test_convert_data_specs(self):
         wf = self.deserialize_workflow('v1.1-data.json')
         wf.do_engine_steps()
         wf.refresh_waiting_tasks()
         wf.do_engine_steps()
-        self.assertTrue(wf.is_completed())
+        self.assertTrue(wf.completed)
 
     def test_convert_exclusive_gateway(self):
         wf = self.deserialize_workflow('v1.1-gateways.json')
@@ -65,10 +65,10 @@ class Version_1_1_Test(BaseTestCase):
         wf = self.deserialize_workflow('v1.1-loop-reset.json')
         # Allow 3 seconds max to allow this test to complete (there are 20 loops with a 0.1s timer)
         end = time.time() + 3
-        while not wf.is_completed() and time.time() < end:
+        while not wf.completed and time.time() < end:
             wf.do_engine_steps()
             wf.refresh_waiting_tasks()
-        self.assertTrue(wf.is_completed())
+        self.assertTrue(wf.completed)
         self.assertEqual(wf.last_task.data['counter'], 20)
 
     def test_update_task_states(self):
@@ -81,7 +81,7 @@ class Version_1_1_Test(BaseTestCase):
         while len(ready_tasks) > 0:
             ready_tasks[0].run()
             ready_tasks = wf.get_tasks(state=TaskState.READY)
-        self.assertTrue(wf.is_completed())
+        self.assertTrue(wf.completed)
 
 
 class Version_1_2_Test(BaseTestCase):
@@ -121,7 +121,7 @@ class Version_1_2_Test(BaseTestCase):
 
         wf.get_next_task(spec_name='sid-6FBBB56D-00CD-4C2B-9345-486986BB4992').run()
         wf.do_engine_steps()
-        self.assertTrue(wf.is_completed())
+        self.assertTrue(wf.completed)
 
     def test_update_data_objects(self):
 
@@ -204,4 +204,4 @@ class Version_1_3_Test(BaseTestCase):
         self.assertEqual(len(task_info['completed']), 3)
         self.assertEqual(len(task_info['running']), 0)
         self.assertEqual(len(task_info['future']), 0)
-        self.assertTrue(wf.is_completed())
+        self.assertTrue(wf.completed)

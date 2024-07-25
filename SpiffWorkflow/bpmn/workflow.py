@@ -99,7 +99,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         return tasks
 
     def get_active_subprocesses(self):
-        return [sp for sp in self.subprocesses.values() if not sp.is_completed()]
+        return [sp for sp in self.subprocesses.values() if not sp.completed]
 
     def catch(self, event):
         """

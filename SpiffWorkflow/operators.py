@@ -20,7 +20,7 @@
 import logging
 import re
 
-logger = logging.getLogger('spiff')
+logger = logging.getLogger('spiff.task')
 
 
 class Term(object):
@@ -182,7 +182,7 @@ def valueof(scope, op, default=None):
         return default
     elif isinstance(op, Attrib):
         if op.name not in scope.data:
-            logger.debug("Attrib('{op.name}') not present in task data", extra=scope.log_info({'data': scope.data}))
+            logger.debug("Attrib('{op.name}') not present in task data", extra=scope.collect_log_extras({'data': scope.data}))
         return scope.get_data(op.name, default)
     elif isinstance(op, PathAttrib):
         if not op.path:
@@ -191,7 +191,7 @@ def valueof(scope, op, default=None):
         data = scope.data
         for part in parts:
             if part not in data:
-                logger.debug(f"PathAttrib('{op.name}') not present in task data",  extra=scope.log_info({'data': scope.data}))
+                logger.debug(f"PathAttrib('{op.name}') not present in task data",  extra=scope.collect_log_extras({'data': scope.data}))
                 return default
             data = data[part]  # move down the path
         return data

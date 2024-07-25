@@ -41,5 +41,5 @@ class TimerDateTest(BpmnWorkflowTestCase):
             loopcount += 1
         endtime = datetime.datetime.now()
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertTrue((endtime-starttime) > datetime.timedelta(seconds=.02))

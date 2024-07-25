@@ -76,12 +76,14 @@ class WorkflowConverter(BpmnConverter):
             'correlations': workflow.correlations,
             'last_task': str(workflow.last_task.id) if workflow.last_task is not None else None,
             'success': workflow.success,
+            'completed': workflow.completed,
             'tasks': self.mapping_to_dict(workflow.tasks),
             'root': str(workflow.task_tree.id),
         }
 
     def set_default_attributes(self, workflow, dct):
         workflow.success = dct['success']
+        workflow.completed = dct.get('completed', False)
         workflow.correlations = dct.pop('correlations', {})
         if isinstance(dct['last_task'], str):
             workflow.last_task = workflow.tasks.get(UUID(dct['last_task']))

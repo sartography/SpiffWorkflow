@@ -36,7 +36,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testRunThroughMessageSaveAndRestore(self):
 
@@ -65,7 +65,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testRunThroughMessageOrder2SaveAndRestore(self):
 
@@ -93,7 +93,7 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testRunThroughMessageOrder3SaveAndRestore(self):
 
@@ -122,4 +122,4 @@ class MessageNonInterruptsSpTest(BpmnWorkflowTestCase):
         self.save_restore()
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)

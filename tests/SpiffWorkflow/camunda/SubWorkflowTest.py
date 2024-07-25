@@ -38,4 +38,4 @@ class SubWorkflowTest(BaseTestCase):
                                                         'FieldA1': 'A1',
                                                         'FieldA2': 'A2',
                                                         'FieldB': 'B'})
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)

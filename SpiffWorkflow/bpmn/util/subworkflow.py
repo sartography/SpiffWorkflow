@@ -39,11 +39,11 @@ class BpmnBaseWorkflow(Workflow):
 class BpmnSubWorkflow(BpmnBaseWorkflow):
 
     def __init__(self, spec, parent_task_id, top_workflow, **kwargs):
-        super().__init__(spec, **kwargs)
         self.parent_task_id = parent_task_id
         self.top_workflow = top_workflow
         self.correlations = {}
         self.depth = self._calculate_depth()
+        super().__init__(spec, **kwargs)
 
     @property
     def script_engine(self):

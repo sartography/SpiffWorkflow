@@ -45,7 +45,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
             ready_tasks[0].run()
             ready_tasks = self.get_ready_user_tasks()
             self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         # Assure that the loopcount is less than 10, and the timer interrupt fired, rather
         # than allowing us to continue to loop the full 10 times.
         self.assertTrue(loopcount < 10)

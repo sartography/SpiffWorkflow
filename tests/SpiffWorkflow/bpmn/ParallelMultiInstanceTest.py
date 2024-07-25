@@ -47,7 +47,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
         self.assertEqual(len(task_info['completed']), 3)
         self.assertEqual(len(task_info['running']), 0)
         self.assertEqual(len(task_info['future']), 0)
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def run_workflow_with_condition(self, data):
 
@@ -66,7 +66,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
         
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertEqual(len([ t for t in ready_tasks if t.state == TaskState.CANCELLED]), 2)
 
 
@@ -169,7 +169,7 @@ class ParallelMultiInstanceNewOutputTest(BaseTestCase):
         start = self.workflow.get_next_task(end_at_spec='Start')
         start.data = {'input_data': []}
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {'input_data': [], 'output_data': []})
 
     def testCondition(self):

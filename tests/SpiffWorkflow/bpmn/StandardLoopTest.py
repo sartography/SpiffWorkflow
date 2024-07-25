@@ -39,7 +39,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
         self.assertEqual(task_info['iterations_remaining'], 0)
         self.assertEqual(len(task_info['instance_map']), 3)
 
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testLoopCondition(self):
 
@@ -54,7 +54,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
         ready_tasks[0].run()
 
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testSkipLoop(self):
 
@@ -64,7 +64,7 @@ class StandardLoopTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
 
 class ParseStandardLoop(BpmnWorkflowTestCase):

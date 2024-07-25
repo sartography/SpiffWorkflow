@@ -53,7 +53,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
             instance = info['instance']
             self.assertEqual(task_info['instance_map'][instance], str(child.id))
         self.assertEqual(len(children), 3)
-        self.assertTrue(self.workflow.is_completed()) 
+        self.assertTrue(self.workflow.completed) 
 
     def run_workflow_with_condition(self, data, condition):
 
@@ -80,7 +80,7 @@ class BaseTestCase(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         children = self.workflow.get_tasks(spec_name='any_task [child]')
         self.assertEqual(len(children), 2)
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
 
 class SequentialMultiInstanceExistingOutputTest(BaseTestCase):
@@ -182,7 +182,7 @@ class SequentialMultiInstanceNewOutputTest(BaseTestCase):
         start = self.workflow.task_tree
         start.data = {'input_data': []}
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
         self.assertDictEqual(self.workflow.data, {'input_data': [], 'output_data': []})
 
     def testCondition(self):

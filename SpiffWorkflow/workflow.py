@@ -25,7 +25,7 @@ from .util.compat import mutex
 from .util.event import Event
 from .exceptions import TaskNotFoundException, WorkflowException
 
-logger = logging.getLogger('spiff')
+logger = logging.getLogger('spiff.workflow')
 
 
 class Workflow(object):
@@ -64,8 +64,8 @@ class Workflow(object):
         if not deserializing:
             self.task_tree = Task(self, self.spec.start, state=TaskState.FUTURE)
             self.task_tree.task_spec._predict(self.task_tree, mask=TaskState.NOT_FINISHED_MASK)
+            logger.info('Initialized workflow', extra=self.collect_log_extras())
             self.task_tree._ready()
-            logger.info('Initialize', extra=self.log_info())
 
     def is_completed(self):
         """Checks whether the workflow is complete.
@@ -73,15 +73,13 @@ class Workflow(object):
         Returns:
             bool: True if the workflow has no unfinished tasks
         """
-        if self.completed:
-            return True
-        iter = TaskIterator(self.task_tree, state=TaskState.NOT_FINISHED_MASK)
-        try:
-            next(iter)
-        except StopIteration:
-            self.completed = True
-            return True
-        return False
+        if not self.completed:
+            iter = TaskIterator(self.task_tree, state=TaskState.NOT_FINISHED_MASK)
+            try:
+                next(iter)
+            except StopIteration:
+                self.completed = True
+        return self.completed
 
     def manual_input_required(self):
         """Checks whether the workflow requires manual input.
@@ -215,13 +213,14 @@ class Workflow(object):
             list(`Task`): the cancelled tasks
         """
         self.success = success
-        cancel = []
+        self.completed = True
+        logger.info(f'Workflow cancelled', extra=self.collect_log_extras())
+        cancelled = []
         for task in TaskIterator(self.task_tree, state=TaskState.NOT_FINISHED_MASK):
-            cancel.append(task)
-        for task in cancel:
+            cancelled.append(task)
+        for task in cancelled:
             task.cancel()
-        logger.info(f'Cancel with {len(cancel)} remaining', extra=self.log_info())
-        return cancel
+        return cancelled
 
     def set_data(self, **kwargs):
         """Defines the given attribute/value pairs."""
@@ -247,23 +246,23 @@ class Workflow(object):
             task_id: the id of the task to reset to
             data (dict): optionally replace the data (if None, data will be copied from the parent task)
 
-        Returns:
+        Returns:        extra.update(
             list(`Task`): tasks removed from the tree
         """
         task = self.get_task_from_id(task_id)
         self.last_task = task.parent
         return task.reset_branch(data)
 
-    def log_info(self, dct=None):
+    def collect_log_extras(self, dct=None):
         """Return logging details for this workflow"""
         extra = dct or {}
         extra.update({
             'workflow_spec': self.spec.name,
-            'task_spec': None,
-            'task_type': None,
-            'task_id': None,
-            'data': None,
+            'success': self.success,
+            'completed': self.completed,
         })
+        if logger.level < 20:
+            extra.update({'tasks': [t.id for t in Workflow.get_tasks(self)]})
         return extra
 
     def _predict(self, mask=TaskState.NOT_FINISHED_MASK):
@@ -273,12 +272,13 @@ class Workflow(object):
 
     def _task_completed_notify(self, task):
         """Called whenever a task completes"""
+        self.last_task = task
         if task.task_spec.name == 'End':
-            self.data.update(task.data)
-        self.update_waiting_tasks()
-        if self.completed_event.n_subscribers() > 0 and self.is_completed():
-            # Since is_completed() is expensive it makes sense to bail out if calling it is not necessary.
+            self._mark_complete(task)
+        if self.completed:
             self.completed_event(self)
+        else:
+            self.update_waiting_tasks()
 
     def _remove_task(self, task_id):
         task = self.tasks[task_id]
@@ -286,6 +286,11 @@ class Workflow(object):
             self._remove_task(child.id)
         task.parent._children.remove(task.id)
         self.tasks.pop(task_id)
+
+    def _mark_complete(self, task):
+        logger.info('Workflow completed', extra=self.collect_log_extras())
+        self.data.update(task.data)
+        self.completed = True
 
     def _get_mutex(self, name):
         """Get or create a mutex"""

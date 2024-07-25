@@ -39,5 +39,5 @@ class TimerDurationTest(BpmnWorkflowTestCase):
         task = self.get_ready_user_tasks()[0]
         task.run()
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 

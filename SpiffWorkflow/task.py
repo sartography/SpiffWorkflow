@@ -27,9 +27,7 @@ from .util.task import TaskState, TaskFilter, TaskIterator
 from .util.deep_merge import DeepMerge
 from .exceptions import WorkflowException
 
-logger = logging.getLogger('spiff')
-metrics = logging.getLogger('spiff.metrics')
-data_log = logging.getLogger('spiff.data')
+logger = logging.getLogger('spiff.task')
 
 
 class Task(object):
@@ -100,7 +98,6 @@ class Task(object):
 
     @state.setter
     def state(self, value):
-
         if value < self._state:
             raise WorkflowException(
                 'state went from %s to %s!' % (TaskState.get_name(self._state), TaskState.get_name(value)),
@@ -173,6 +170,7 @@ class Task(object):
         Returns:
             list(`Task`): tasks removed from the tree
         """
+        logger.info(f'Branch reset', extra=self.collect_log_extras())
         self.internal_data = {}
         self.data = deepcopy(self.parent.data) if data is None else data    
         descendants = [t for t in self]
@@ -294,11 +292,15 @@ class Task(object):
         """Force set the state on a task"""
 
         if value != self.state:
-            logger.info(f'State change to {TaskState.get_name(value)}', extra=self.log_info())
+            elapsed = time.time() - self.last_state_change
             self.last_state_change = time.time()
             self._state = value
+            logger.info(
+                f'State changed to {TaskState.get_name(value)}',
+                extra=self.collect_log_extras({'elapsed': elapsed})
+            )
         else:
-            logger.debug(f'State set to {TaskState.get_name(value)}', extra=self.log_info())
+            logger.debug(f'State set to {TaskState.get_name(value)}', extra=self.collect_log_extras())
 
     def _assign_new_thread_id(self, recursive=True):
         """Assigns a new thread id to the task."""
@@ -347,11 +349,6 @@ class Task(object):
         """
         start = time.time()
         retval = self.task_spec._run(self)
-        extra = self.log_info({
-            'action': 'Complete',
-            'elapsed': time.time() - start
-        })
-        metrics.debug('', extra=extra)
         if retval is None:
             self._set_state(TaskState.STARTED)
         elif retval is False:
@@ -374,7 +371,6 @@ class Task(object):
         """Marks this task complete."""
         self._set_state(TaskState.COMPLETED)
         self.task_spec._on_complete(self)
-        self.workflow.last_task = self
 
     def error(self):
         """Marks this task as error."""
@@ -388,17 +384,25 @@ class Task(object):
         """
         self.task_spec._on_trigger(self, *args)
 
-    def log_info(self, dct=None):
+    def collect_log_extras(self, dct=None):
         """Return logging details for this task"""
-        extra = dct or {}
-        extra.update({
+        extra = {
             'workflow_spec': self.workflow.spec.name,
             'task_spec': self.task_spec.name,
             'task_id': self.id,
             'task_type': self.task_spec.__class__.__name__,
-            'data': self.data if logger.level < 20 else None,
-            'internal_data': self.internal_data if logger.level <= 10 else None,
-        })
+            'state': TaskState.get_name(self._state),
+            'last_state_change': self.last_state_change,
+            'elapsed': 0,
+            'parent': None if self.parent is None else self.parent.id,
+        }
+        if dct is not None:
+            extra.update(dct)
+        if logger.level < 20:
+            extra.update({
+                'data': self.data if logger.level < 20 else None,
+                'internal_data': self.internal_data if logger.level < 20 else None,
+            })
         return extra
 
     def __iter__(self):

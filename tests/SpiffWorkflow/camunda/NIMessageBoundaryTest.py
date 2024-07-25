@@ -81,7 +81,7 @@ class NIMessageBoundaryTest(BaseTestCase):
         task.data['work_completed'] = 'Lots of Stuff'
         self.workflow.run_task_from_id(task.id)
         self.workflow.do_engine_steps()
-        self.assertEqual(self.workflow.is_completed(),True)
+        self.assertEqual(self.workflow.completed,True)
         self.assertEqual(self.workflow.last_task.data,{'Event_InterruptBoundary_Response': 'Youre late!',
                                                        'flag_task': 'Yes',
                                                        'work_done': 'Yes',

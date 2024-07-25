@@ -24,7 +24,7 @@ class ConditionalEventTest(BpmnWorkflowTestCase):
         # Completion of A results in event being updated
         self.assertEqual(event.state, TaskState.READY)
         self.workflow.do_engine_steps()
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 
     def testBoundaryEvent(self):
         spec, subprocesses = self.load_workflow_spec('conditional_event.bpmn', 'boundary')
@@ -40,5 +40,5 @@ class ConditionalEventTest(BpmnWorkflowTestCase):
         self.workflow.do_engine_steps()
         d = self.workflow.get_next_task(spec_name='task_d')
         self.assertEqual(d.state, TaskState.CANCELLED)
-        self.assertTrue(self.workflow.is_completed())
+        self.assertTrue(self.workflow.completed)
 

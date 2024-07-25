@@ -47,5 +47,5 @@ class MessageBoundaryTest(BaseTestCase):
         time.sleep(.01)
         self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(self.workflow.is_completed(), True, 'Expected the workflow to be complete at this point')
+        self.assertEqual(self.workflow.completed, True, 'Expected the workflow to be complete at this point')
 
