@@ -24,6 +24,7 @@ from SpiffWorkflow.exceptions import WorkflowException
 from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
+from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import CodeEventDefinition
 
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
 
@@ -113,6 +114,9 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         if event.target is not None:
             # This limits results to tasks in the specified workflow
             tasks = event.target.get_tasks(skip_subprocesses=True, state=TaskState.NOT_FINISHED_MASK, catches_event=event)
+            if isinstance(event.event_definition, CodeEventDefinition) and len(tasks) == 0:
+                event.target = event.target.parent_workflow
+                self.catch(event)
         else:
             self.update_collaboration(event)
             tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
