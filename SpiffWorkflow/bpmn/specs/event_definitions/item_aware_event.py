@@ -26,44 +26,38 @@ class ItemAwareEventDefinition(EventDefinition):
         my_task.internal_data.pop(self.name, None)
         super().reset(my_task)
 
-class ErrorEventDefinition(ItemAwareEventDefinition):
+
+class CodeEventDefinition(ItemAwareEventDefinition):
+
+    def __init__(self, name, code=None, **kwargs):
+        super().__init__(name, **kwargs)
+        self.code = code
+
+    def throw(self, my_task):
+        payload = deepcopy(my_task.data)
+        event = BpmnEvent(self, payload=payload, target=my_task.workflow)
+        my_task.workflow.top_workflow.catch(event)
+
+    def details(self, my_task):
+        return PendingBpmnEvent(self.name, self.__class__.__name__, self.code)
+
+    def __eq__(self, other):
+        return super().__eq__(other) and self.code in [None, other.code]
+
+
+class ErrorEventDefinition(CodeEventDefinition):
     """
     Error events can occur only in subprocesses and as subprocess boundary events.  They're
     matched by code rather than name.
     """
+    pass
 
-    def __init__(self, name, code=None, **kwargs):
-        super(ErrorEventDefinition, self).__init__(name, **kwargs)
-        self.code = code
-
-    def details(self, my_task):
-        return PendingBpmnEvent(self.name, self.__class__.__name__, self.code)
-
-    def __eq__(self, other):
-        return super().__eq__(other) and self.code in [None, other.code]
-
-
-class EscalationEventDefinition(ItemAwareEventDefinition):
+class EscalationEventDefinition(CodeEventDefinition):
     """
     Escalation events have names, though they don't seem to be used for anything.  Instead
     the spec says that the escalation code should be matched.
     """
-
-    def __init__(self, name, code=None, **kwargs):
-        """
-        Constructor.
-
-        :param escalation_code: The escalation code this event should
-        react to. If None then all escalations will activate this event.
-        """
-        super(EscalationEventDefinition, self).__init__(name, **kwargs)
-        self.code = code
-
-    def details(self, my_task):
-        return PendingBpmnEvent(self.name, self.__class__.__name__, self.code)
-
-    def __eq__(self, other):
-        return super().__eq__(other) and self.code in [None, other.code]
+    pass
 
 
 class SignalEventDefinition(ItemAwareEventDefinition):
