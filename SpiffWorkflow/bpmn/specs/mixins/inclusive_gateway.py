@@ -126,4 +126,6 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
         if len(matches + defaults) == 0:
             raise WorkflowTaskException('No conditions satisfied on gateway', task=my_task)
         my_task._sync_children(matches or defaults, TaskState.FUTURE)
+        for child in my_task.children:
+            child.task_spec._predict(child, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
         return True
