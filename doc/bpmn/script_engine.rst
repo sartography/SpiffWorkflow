@@ -149,7 +149,7 @@ We customize a scripting environment to implement the :code:`call_service` metho
             'product_info_from_dict': product_info_from_dict,
         })
 
-        def call_service(self, operation_name, operation_params, task_data):
+        def call_service(self, task_data, operation_name, operation_params):
             if operation_name == 'lookup_product_info':
                 product_info = lookup_product_info(operation_params['product_name']['value'])
                 result = product_info_to_dict(product_info)
@@ -204,7 +204,7 @@ might serve as a model for you.
 How this all works is obviously heavily dependent on your application, so we won't go into further detail here, except
 to give you a bare bones starting point for implementing something yourself that meets your own needs.
 
-To run this workflow:
+To add this workflow:
 
 .. code-block:: console
 
@@ -242,7 +242,7 @@ requested file is missing, but will otherwise return the contents.
 
     class ServiceTaskEnvironment(TaskDataEnvironment):
 
-        def call_service(self, operation_name, operation_params, context):
+        def call_service(self, context, operation_name, operation_params):
             if operation_name == 'read_file':
                 return open(operation_params['filename']).read()
             else:
@@ -259,8 +259,11 @@ And here is the code for our task spec.
             # The param also has a type, but I don't need it
             params = dict((name, script_engine.evaluate(my_task, p['value'])) for name, p in self.operation_params.items())
             try:
-                result = script_engine.call_service(self.operation_name, params, my_task.data)
-                my_task.data[self._result_variable(my_task)] = result
+                result = script_engine.call_service(
+                    task.data,
+                    operation_name=self.operation_name,
+                    operation_params=params)
+                my_task.data[self.result_variable] = result
                 return True
             except FileNotFoundError as exc:
                 event_definition = ErrorEventDefinition('file_not_found', code='1')
@@ -346,7 +349,7 @@ We'll make this "service" available in our environment:
             self.pool = ThreadPoolExecutor(max_workers=10)
             self.futures = {}
 
-        def call_service(self, operation_name, operation_params, context):
+        def call_service(self, context, operation_name, operation_params):
             if operation_name == 'wait':
                 seconds = randrange(1, 30)
                 return self.pool.submit(wait, seconds, operation_params['job_id'])
@@ -367,7 +370,11 @@ environment.
             script_engine = my_task.workflow.script_engine
             params = dict((name, script_engine.evaluate(my_task, p['value'])) for name, p in self.operation_params.items())
             try:
-                future = script_engine.call_service(self.operation_name, params, my_task.data)
+                future = script_engine.call_service(
+                    my_task.data,
+                    operation_name=self.operation_name,
+                    operation_params=params
+                )
                 script_engine.environment.futures[future] = my_task
             except Exception as exc:
                 raise WorkflowTaskException('Service Task execution error', task=my_task, exception=exc)
@@ -390,7 +397,7 @@ will then be able to continue down that branch.
             for future in finished:
                 task = futures.pop(future)
                 result = future.result()
-                task.data[task.task_spec._result_variable(task)] = result
+                task.data[task.task_spec.result_variable] = result
                 task.complete()
 
         def run_ready_events(self):
