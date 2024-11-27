@@ -29,32 +29,25 @@ class ServiceTask(ServiceTask):
         super().__init__(wf_spec, name, **kwargs)
         self.operation_name = operation_name
         self.operation_params = operation_params
-        self.result_variable = result_variable
+        if result_variable is None or result_variable == '':
+            self.result_variable = f'spiff__{name.replace("-", "_")}_result'
+        else:
+            self.result_variable = result_variable
 
-    def _result_variable(self, task):
-        if self.result_variable is not None and len(self.result_variable) > 0:
-            return self.result_variable
-
-        escaped_spec_name = task.task_spec.name.replace('-', '_')
-
-        return f'spiff__{escaped_spec_name}_result'
+    def evalutate_params(self, task):
+        evaluated_params = {}
+        for name, param in self.operation_params.items():
+            evaluated_params[name] = {
+                'value': task.workflow.script_engine.evaluate(task, param['value']),
+                'type': param['type'],
+            }
+        return evaluated_params
 
     def _execute(self, task):
-        def evaluate(param):
-            param['value'] = task.workflow.script_engine.evaluate(task, param['value'])
-            return param
-
-        operation_params_copy = deepcopy(self.operation_params)
-        evaluated_params = {k: evaluate(v) for k, v in operation_params_copy.items()}
-
-        try:
-            result = task.workflow.script_engine.call_service(self.operation_name,
-                    evaluated_params, task.data)
-        except Exception as e:
-            wte = WorkflowTaskException("Error executing Service Task",
-                                        task=task, exception=e)
-            wte.add_note(str(e))
-            raise wte
-        parsed_result = json.loads(result)
-        task.data[self._result_variable(task)] = parsed_result
+        result = task.workflow.script_engine.call_service(
+            task,
+            operation_name=self.operation_name,
+            operation_params=self.evalutate_params(task),
+        )
+        task.data[self.result_variable] = json.loads(result)
         return True
