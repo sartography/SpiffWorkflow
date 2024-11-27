@@ -25,9 +25,8 @@ class ServiceTaskDelegate:
         return json.dumps(sample_response)
 
 class ExampleCustomScriptEngine(PythonScriptEngine):
-    def call_service(self, operation_name, operation_params, task_data):
-        return ServiceTaskDelegate.call_connector(operation_name, operation_params,
-                task_data)
+    def call_service(self, task, operation_name, operation_params):
+        return ServiceTaskDelegate.call_connector(operation_name, operation_params, task.data)
 
 class ServiceTaskVariableTest(BaseTestCase):
 

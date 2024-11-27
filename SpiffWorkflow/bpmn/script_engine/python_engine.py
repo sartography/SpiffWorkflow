@@ -20,7 +20,6 @@
 import ast
 import sys
 import traceback
-import warnings
 
 from SpiffWorkflow.exceptions import SpiffWorkflowException
 from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
@@ -65,15 +64,13 @@ class PythonScriptEngine(object):
             wte = self.create_task_exec_exception(task, script, err)
             raise wte
 
-    def call_service(self, operation_name, operation_params, task_data):
+    def call_service(self, task, **kwargs):
         """Override to control how external services are called from service tasks."""
-        warnings.warn(
-            'In the next release, implementation of this method will be moved to the scripting environment',
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        # Ideally, this method would look like call_service(self, task, operation_name, operation_params)
-        return self.environment.call_service(operation_name, operation_params, task_data)
+        try:
+            return self.environment.call_service(task.data, **kwargs)
+        except Exception as err:
+            wte = self.create_task_exec_exception(task, script, err)
+            raise wte
 
     def create_task_exec_exception(self, task, script, err):
         line_number, error_line = self.get_error_line_number_and_content(script, err)
