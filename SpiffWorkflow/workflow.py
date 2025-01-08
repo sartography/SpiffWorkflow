@@ -101,7 +101,7 @@ class Workflow:
             return True
         return False
 
-    def get_tasks(self, first_task: Task = None, **kwargs) -> list[Task]:
+    def get_tasks(self, first_task: Optional[Task] = None, **kwargs) -> list[Task]:
         """Returns a list of `Task`s that meet the conditions specified `kwargs`, starting from the root by default.
 
         Notes:
@@ -112,7 +112,7 @@ class Workflow:
         """
         return [task for task in self.get_tasks_iterator(first_task, **kwargs)]
 
-    def get_next_task(self, first_task: Task = None, **kwargs) -> Optional[Task]:
+    def get_next_task(self, first_task: Optional[Task] = None, **kwargs) -> Optional[Task]:
         """Returns the next task that meets the iteration conditions, starting from the root by default.
 
         Parameters:
@@ -130,7 +130,7 @@ class Workflow:
         except StopIteration:
             return None
 
-    def get_tasks_iterator(self, first_task: Task = None, **kwargs) -> TaskIterator:
+    def get_tasks_iterator(self, first_task: Optional[Task] = None, **kwargs) -> TaskIterator:
         """Returns an iterator of Tasks that meet the conditions specified `kwargs`, starting from the root by default.
 
         Parameters:
@@ -158,7 +158,7 @@ class Workflow:
         """
         if task_id not in self.tasks:
             raise TaskNotFoundException(f'A task with id {task_id} was not found', task_spec=self.spec)
-        return self.tasks.get(task_id)
+        return self.tasks[task_id]
 
     def run_task_from_id(self, task_id: str) -> Optional[bool]:
         """Runs the task with the given id.
@@ -169,7 +169,7 @@ class Workflow:
         task = self.get_task_from_id(task_id)
         return task.run()
 
-    def run_next(self, use_last_task: bool = True, halt_on_manual: bool = True) -> bool:
+    def run_next(self, use_last_task: bool = True, halt_on_manual: bool = True) -> Optional[bool]:
         """Runs the next task, starting from the branch containing the last completed task by default.
 
         Parameters:
@@ -246,7 +246,7 @@ class Workflow:
         """
         return self.data.get(name, default)
 
-    def reset_from_task_id(self, task_id: str, data: dict = None) -> list[Task]:
+    def reset_from_task_id(self, task_id: str, data: Optional[dict] = None) -> list[Task]:
         """Removed all descendants of this task and set this task to be runnable.
 
         Args:
@@ -272,7 +272,7 @@ class Workflow:
             extra.update({'tasks': [t.id for t in Workflow.get_tasks(self)]})
         return extra
 
-    def _predict(self, mask: TaskState = TaskState.NOT_FINISHED_MASK) -> None:
+    def _predict(self, mask: int = TaskState.NOT_FINISHED_MASK) -> None:
         """Predict tasks with the provided mask."""
         for task in Workflow.get_tasks(self, state=TaskState.NOT_FINISHED_MASK):
             task.task_spec._predict(task, mask=mask)
