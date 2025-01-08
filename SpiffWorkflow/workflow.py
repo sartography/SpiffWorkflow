@@ -19,6 +19,7 @@
 
 import logging
 from typing import Optional, Any
+from uuid import UUID
 
 from .serializer.base import Serializer
 from .specs import WorkflowSpec
@@ -144,7 +145,7 @@ class Workflow:
         """
         return TaskIterator(first_task or self.task_tree, **kwargs)
 
-    def get_task_from_id(self, task_id: str) -> Task:
+    def get_task_from_id(self, task_id: UUID) -> Task:
         """Returns the task with the given id.
 
         Args:
@@ -160,7 +161,7 @@ class Workflow:
             raise TaskNotFoundException(f'A task with id {task_id} was not found', task_spec=self.spec)
         return self.tasks[task_id]
 
-    def run_task_from_id(self, task_id: str) -> Optional[bool]:
+    def run_task_from_id(self, task_id: UUID) -> Optional[bool]:
         """Runs the task with the given id.
 
         Args:
@@ -246,7 +247,7 @@ class Workflow:
         """
         return self.data.get(name, default)
 
-    def reset_from_task_id(self, task_id: str, data: Optional[dict] = None) -> list[Task]:
+    def reset_from_task_id(self, task_id: UUID, data: Optional[dict] = None) -> list[Task]:
         """Removed all descendants of this task and set this task to be runnable.
 
         Args:
@@ -287,7 +288,7 @@ class Workflow:
         else:
             self.update_waiting_tasks()
 
-    def _remove_task(self, task_id: str) -> None:
+    def _remove_task(self, task_id: UUID) -> None:
         task = self.tasks[task_id]
         for child in task.children:
             self._remove_task(child.id)
