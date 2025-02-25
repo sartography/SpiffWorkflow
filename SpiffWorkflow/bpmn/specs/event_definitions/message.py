@@ -28,7 +28,7 @@ class MessageEventDefinition(EventDefinition):
             correlated = True
         else:
             # Otherwise we have to check to make sure any existing keys match
-            correlated = all([event.correlations.get(key) == correlations.get(key) for key in event.correlations ])
+            correlated = any([event.correlations.get(key) == correlations.get(key) for key in event.correlations ])
         return self == event.event_definition and correlated
 
     def catch(self, my_task, event=None):

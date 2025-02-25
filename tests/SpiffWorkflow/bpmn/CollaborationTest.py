@@ -60,9 +60,11 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertEqual('from_name', events[0].value[0].retrieval_expression)
         self.assertEqual('lover_name', events[0].value[0].name)
 
+        payload = {'from_name': 'Peggy', 'other_nonsense': 1001}
         message = BpmnEvent(
             receive.task_spec.event_definition,
-            {'from_name': 'Peggy', 'other_nonsense': 1001}
+            payload,
+            receive.task_spec.event_definition.get_correlations(receive, payload),
         )
         self.workflow.send_event(message)
         self.workflow.do_engine_steps()
