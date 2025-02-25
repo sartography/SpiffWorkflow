@@ -32,6 +32,13 @@
       </bpmn:messageEventDefinition>
     </bpmn:intermediateCatchEvent>
   </bpmn:process>
+  <bpmn:collaboration id="receive_correlation_test">
+    <bpmn:participant id="collaboration" processRef="correlation-test" />
+    <bpmn:correlationKey name="test">
+      <bpmn:correlationPropertyRef>prop_1</bpmn:correlationPropertyRef>
+      <bpmn:correlationPropertyRef>prop_2</bpmn:correlationPropertyRef>
+    </bpmn:correlationKey>
+  </bpmn:collaboration>
   <bpmn:message id="Message_16t6tet" name="message" />
   <bpmn:correlationProperty id="prop_1" name="prop_1">
     <bpmn:correlationPropertyRetrievalExpression messageRef="Message_16t6tet">

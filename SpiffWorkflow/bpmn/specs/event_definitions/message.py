@@ -71,10 +71,6 @@ class MessageEventDefinition(EventDefinition):
                 except WorkflowException:
                     # Just ignore missing keys.  The dictionaries have to match exactly
                     pass
-            if len(prop.correlation_keys) == 0:
-                if self.name not in correlations:
-                    correlations[self.name] = {}
-                correlations[self.name][prop.name] = value
         return correlations
 
     def details(self, my_task):

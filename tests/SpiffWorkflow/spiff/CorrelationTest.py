@@ -74,7 +74,7 @@ class ReceiveCorrelationTest(BaseTestCase):
         task.data.update(value_1='a', value_2='b')
         task.run()
         self.workflow.do_engine_steps()
-        self.assertEqual(self.workflow.correlations, {'message': {'prop_1': 'a', 'prop_2': 'b'}})
+        self.assertEqual(self.workflow.correlations, {'test': {'prop_1': 'a', 'prop_2': 'b'}})
         waiting_task = self.workflow.get_next_task(state=TaskState.WAITING)
         event_def = waiting_task.task_spec.event_definition
         payload = {'msg_value_1': 'a', 'msg_value_2': 'b'}

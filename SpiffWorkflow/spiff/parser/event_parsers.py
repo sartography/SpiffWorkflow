@@ -55,7 +55,10 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
         for prop in node.xpath('.//spiffworkflow:processVariableCorrelation', namespaces=SPIFFWORKFLOW_NSMAP):
             key = one(prop.xpath('./spiffworkflow:propertyId', namespaces=SPIFFWORKFLOW_NSMAP))
             expression = one(prop.xpath('./spiffworkflow:expression', namespaces=SPIFFWORKFLOW_NSMAP))
-            correlations.append(CorrelationProperty(key.text, expression.text, []))
+            used_by = []
+            for ck in self.xpath(f"//bpmn:collaboration//bpmn:correlationPropertyRef[text()='{key.text}']"):
+                used_by.append(ck.getparent().attrib['name'])
+            correlations.append(CorrelationProperty(key.text, expression.text, used_by))
         return correlations
 
     def parse_message_event(self, message_event):
