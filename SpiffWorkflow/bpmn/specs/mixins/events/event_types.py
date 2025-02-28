@@ -64,6 +64,8 @@ class CatchingEvent(TaskSpec):
     def _run_hook(self, my_task):
 
         self.event_definition.update_task_data(my_task)
+        for task in my_task.workflow.get_tasks(my_task, spec_name=my_task.task_spec.name):
+            task.task_spec.event_definition.reset(task)
         self.event_definition.reset(my_task)
         return super()._run_hook(my_task)
 
