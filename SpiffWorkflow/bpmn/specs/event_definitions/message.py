@@ -33,6 +33,9 @@ class MessageEventDefinition(EventDefinition):
 
     def catch(self, my_task, event=None):
         self.update_internal_data(my_task, event)
+        if event is not None:
+            correlations = self.get_correlations(my_task, event.payload)
+            my_task.workflow.correlations.update(correlations)
         super().catch(my_task, event)
 
     def throw(self, my_task):
