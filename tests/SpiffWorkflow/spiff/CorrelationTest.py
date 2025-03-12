@@ -87,3 +87,24 @@ class ReceiveCorrelationTest(BaseTestCase):
         self.workflow.catch(event)
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.completed)
+
+class DefaultCorrelationKeyTest(BaseTestCase):
+
+    def test_default_key(self):
+        spec, subprocesses = self.load_workflow_spec('default_correlation_key.bpmn', 'main')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
+        self.workflow.do_engine_steps()
+        self.assertEqual(self.workflow.correlations, {'MainCorrelationKey': {'uid': 1}})
+        waiting_task = self.workflow.get_next_task(state=TaskState.WAITING)
+        event_def = waiting_task.task_spec.event_definition
+        payload = {'uid': 1}
+        correlations = event_def.calculate_correlations(
+            waiting_task.workflow.script_engine,
+            event_def.correlation_properties,
+            payload
+        )
+        event = BpmnEvent(event_def, payload, correlations)
+        self.workflow.catch(event)
+        self.workflow.do_engine_steps()
+        self.assertTrue(self.workflow.completed)
+

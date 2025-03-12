@@ -40,16 +40,6 @@
     </bpmn:correlationKey>
   </bpmn:collaboration>
   <bpmn:message id="Message_16t6tet" name="message" />
-  <bpmn:correlationProperty id="prop_1" name="prop_1">
-    <bpmn:correlationPropertyRetrievalExpression messageRef="Message_16t6tet">
-      <bpmn:formalExpression>msg_value_1</bpmn:formalExpression>
-    </bpmn:correlationPropertyRetrievalExpression>
-  </bpmn:correlationProperty>
-  <bpmn:correlationProperty id="prop_2" name="prop_2">
-    <bpmn:correlationPropertyRetrievalExpression messageRef="Message_16t6tet">
-      <bpmn:formalExpression>msg_value_2</bpmn:formalExpression>
-    </bpmn:correlationPropertyRetrievalExpression>
-  </bpmn:correlationProperty>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="correlation-test">
       <bpmndi:BPMNShape id="Event_0gayte6_di" bpmnElement="Event_0gayte6">

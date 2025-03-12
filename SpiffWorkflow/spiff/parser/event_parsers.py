@@ -82,6 +82,9 @@ class SpiffEventDefinitionParser(SpiffTaskParser, EventDefinitionParser):
                 expression, variable = self.parse_message_extensions(message_event)
             correlations = self.get_message_correlations(message_ref)
             process_correlations = self.parse_process_correlations(message_event)
+            for prop in correlations + process_correlations:
+                if len(prop.correlation_keys) == 0:
+                    prop.correlation_keys.append('MainCorrelationKey')
             event_def = MessageEventDefinition(name, correlations, expression, variable, process_correlations)
         else:
             name = message_event.getparent().get('name')
