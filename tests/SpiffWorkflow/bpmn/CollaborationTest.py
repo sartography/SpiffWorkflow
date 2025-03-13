@@ -59,6 +59,7 @@ class CollaborationTest(BpmnWorkflowTestCase):
         self.assertEqual(['lover'], events[0].value[0].correlation_keys)
         self.assertEqual('from_name', events[0].value[0].retrieval_expression)
         self.assertEqual('lover_name', events[0].value[0].name)
+        self.assertEqual({'lover': {'lover_name': 'Peggy'}}, events[0].correlations)
 
         payload = {'from_name': 'Peggy', 'other_nonsense': 1001}
         message = BpmnEvent(

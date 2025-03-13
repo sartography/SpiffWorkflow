@@ -77,7 +77,12 @@ class MessageEventDefinition(EventDefinition):
         return correlations
 
     def details(self, my_task):
-        return PendingBpmnEvent(self.name, self.__class__.__name__, self.correlation_properties)
+        return PendingBpmnEvent(
+            self.name,
+            self.__class__.__name__,
+            self.correlation_properties,
+            my_task.workflow.correlations
+        )
 
     def __eq__(self, other):
         return super().__eq__(other) and self.name == other.name
