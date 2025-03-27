@@ -122,6 +122,7 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
         return complete
 
     def _run_hook(self, my_task):
+        UnstructuredJoin._run_hook(self, my_task)
         matches, defaults = self._get_matching_outputs(my_task)
         if len(matches + defaults) == 0:
             raise WorkflowTaskException('No conditions satisfied on gateway', task=my_task)
