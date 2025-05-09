@@ -101,7 +101,7 @@ class TaskParser(NodeParser):
         sequential = loop_characteristics.get('isSequential') == 'true'
         prefix = 'bpmn:multiInstanceLoopCharacteristics'
         cardinality = self.xpath(f'./{prefix}/bpmn:loopCardinality')
-        loop_input = self.xpath(f'./{prefix}/bpmn:loopDataInputRef')
+        loop_input = self.xpath(f'./{prefix}/bpmn:extensionElements/zeebe:loopCharacteristics')
         if len(cardinality) == 0 and len(loop_input) == 0:
             self.raise_validation_exception(
                 "A multiinstance task must specify a cardinality or a loop input data reference")

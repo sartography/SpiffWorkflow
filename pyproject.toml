@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "SpiffWorkflow"
+name = "rxrx-SpiffWorkflow"
 description = "A workflow framework and BPMN/DMN Processor"
 authors = [
     {name = "Sartography", email = "dan@sartography.com"},
