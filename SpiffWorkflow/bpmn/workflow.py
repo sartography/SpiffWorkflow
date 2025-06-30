@@ -53,6 +53,8 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         self.correlations = {}
         super(BpmnWorkflow, self).__init__(spec, **kwargs)
 
+        for obj in self.spec.data_objects:
+            self.data['data_objects'][obj] = None
         self.__script_engine = script_engine or PythonScriptEngine()
 
     @property
