@@ -27,7 +27,8 @@ from SpiffWorkflow.spiff.specs.defaults import (
     StandardLoopTask,
     ParallelMultiInstanceTask,
     SequentialMultiInstanceTask,
-    BusinessRuleTask
+    BusinessRuleTask,
+    UserTask,
 )
 
 SPIFFWORKFLOW_NSMAP = {'spiffworkflow': 'http://spiffworkflow.org/bpmn/schema/1.0/core'}
@@ -203,3 +204,20 @@ class BusinessRuleTaskParser(SpiffTaskParser):
     def get_decision_ref(node):
         extensions = SpiffTaskParser._parse_extensions(node)
         return extensions.get('calledDecisionId')
+
+class UserTaskParser(SpiffTaskParser):
+
+    def create_task(self):
+        extensions = self.parse_extensions()
+        variable = extensions.get('variableName')
+        prescript = extensions.get('preScript')
+        postscript = extensions.get('postScript')
+        return UserTask(
+            self.spec,
+            self.bpmn_id,
+            variable=variable,
+            prescript=prescript,
+            postscript=postscript,
+            **self.bpmn_attributes,
+        )
+
