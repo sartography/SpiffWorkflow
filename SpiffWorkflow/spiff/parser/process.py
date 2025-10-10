@@ -52,7 +52,8 @@ from SpiffWorkflow.spiff.parser.task_spec import (
     CallActivityParser,
     ServiceTaskParser,
     ScriptTaskParser,
-    BusinessRuleTaskParser
+    BusinessRuleTaskParser,
+    UserTaskParser,
 )
 from SpiffWorkflow.spiff.parser.event_parsers import (
     SpiffStartEventParser,
@@ -94,5 +95,6 @@ class SpiffBpmnParser(BpmnDmnParser):
         full_tag('intermediateThrowEvent'): (SpiffIntermediateThrowEventParser, IntermediateThrowEvent),
         full_tag('sendTask'): (SpiffSendTaskParser, SendTask),
         full_tag('receiveTask'): (SpiffReceiveTaskParser, ReceiveTask),
-        full_tag('businessRuleTask'): (BusinessRuleTaskParser, BusinessRuleTask)
+        full_tag('businessRuleTask'): (BusinessRuleTaskParser, BusinessRuleTask),
+        full_tag('userTask'): (UserTaskParser, UserTask),
     }

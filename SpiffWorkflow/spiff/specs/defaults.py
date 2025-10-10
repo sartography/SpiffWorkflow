@@ -18,7 +18,6 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.bpmn.specs.mixins import (
-    UserTaskMixin,
     ManualTaskMixin,
     NoneTaskMixin,
     ScriptTaskMixin,
@@ -34,6 +33,7 @@ from SpiffWorkflow.bpmn.specs.mixins import (
 from SpiffWorkflow.dmn.specs import BusinessRuleTaskMixin
 
 from .mixins.service_task import ServiceTask as ServiceTaskMixin
+from .mixins.user_task import UserTask as UserTaskMixin
 from .spiff_task import SpiffBpmnTask
 
 
