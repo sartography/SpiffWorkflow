@@ -8,7 +8,7 @@
       <bpmn:incoming>Flow_0m77cxj</bpmn:incoming>
       <bpmn:outgoing>Flow_1jbp2el</bpmn:outgoing>
       <bpmn:standardLoopCharacteristics testBefore="true" loopMaximum="3">
-        <bpmn:loopCondition>done</bpmn:loopCondition>
+        <bpmn:loopCondition>not done</bpmn:loopCondition>
       </bpmn:standardLoopCharacteristics>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_0m77cxj" sourceRef="StartEvent_1" targetRef="any_task" />

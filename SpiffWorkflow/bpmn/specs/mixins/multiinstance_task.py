@@ -83,7 +83,7 @@ class StandardLoopTask(LoopTask):
     def loop_complete(self, my_task):
         merged = my_task.internal_data.get('merged', [])
         max_complete = self.maximum is not None and len(merged) >= self.maximum
-        cond_complete = self.condition is not None and my_task.workflow.script_engine.evaluate(my_task, self.condition)
+        cond_complete = self.condition is not None and not my_task.workflow.script_engine.evaluate(my_task, self.condition)
         return max_complete or cond_complete
 
 
