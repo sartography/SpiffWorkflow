@@ -18,6 +18,7 @@
 # 02110-1301  USA
 from copy import deepcopy
 
+from SpiffWorkflow.util.deep_merge import DeepMerge
 from SpiffWorkflow.util.task import TaskState, TaskIterator
 from SpiffWorkflow.specs.Join import Join
 
@@ -50,7 +51,7 @@ class UnstructuredJoin(Join):
         for task in sorted(other_tasks, key=lambda t: t.last_state_change):
             # By inheriting directly from parent tasks, we can avoid copying previouly merged data
 
-            my_task.set_data(**deepcopy(task.parent.data))
+            DeepMerge.merge(my_task.data, task.parent.data)
             # This condition only applies when a workflow is reset inside a parallel branch.
             # If reset to a branch that was originally cancelled, all the descendants of the previously completed branch will still
             # appear in the tree, potentially corrupting the structure and data.
