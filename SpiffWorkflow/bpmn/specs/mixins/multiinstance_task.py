@@ -218,8 +218,8 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
             my_task.internal_data['current'] = 0
             if self.data_output is not None:
                 self.init_data_output_with_cardinality(my_task)
-        self.add_next_child(my_task)
         if not self.children_complete(my_task):
+            self.add_next_child(my_task)
             my_task._set_state(TaskState.STARTED)
         else:
             return True
