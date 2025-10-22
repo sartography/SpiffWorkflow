@@ -71,6 +71,7 @@ from .task_spec import (
     StandardLoopTaskConverter,
     SpiffMultiInstanceConverter,
     BusinessRuleTaskConverter,
+    UserTaskConverter,
 )
 from .event_definition import (
     MessageEventDefinitionConverter,
@@ -99,7 +100,7 @@ SPIFF_CONFIG.pop(DefaultDataObject)
 
 SPIFF_CONFIG[NoneTask] = SpiffBpmnTaskConverter
 SPIFF_CONFIG[ManualTask] = SpiffBpmnTaskConverter
-SPIFF_CONFIG[UserTask] = SpiffBpmnTaskConverter
+SPIFF_CONFIG[UserTask] = UserTaskConverter
 SPIFF_CONFIG[ScriptTask] = ScriptTaskConverter
 SPIFF_CONFIG[ServiceTask] = ServiceTaskConverter
 SPIFF_CONFIG[SendTask] = SendReceiveTaskConverter

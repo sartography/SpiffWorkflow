@@ -78,6 +78,14 @@ class ScriptTaskConverter(SpiffBpmnTaskConverter):
         return dct
 
 
+class UserTaskConverter(SpiffBpmnTaskConverter):
+
+    def to_dict(self, spec):
+        dct = super().to_dict(spec)
+        dct['variable'] = spec.variable
+        return dct
+
+
 class ServiceTaskConverter(SpiffBpmnTaskConverter):
 
     def to_dict(self, spec):
