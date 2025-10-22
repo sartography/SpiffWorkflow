@@ -75,8 +75,9 @@ class ProcessParser(NodeParser):
                 "messageRef"
             )
             if message_model_identifier is None:
+                med_id = message_event_definition.attrib.get("id")
                 raise ValidationException(
-                    f"Could not find messageRef from message event definition: {message_event_definition}"
+                    f"Could not find messageRef from message event definition: {med_id}"
                 )
             # Convert the id into a Message Name
             message_name = next((m for m in messages if m.attrib.get('id') == message_model_identifier), None)
