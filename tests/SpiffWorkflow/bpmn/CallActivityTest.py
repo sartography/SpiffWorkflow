@@ -50,8 +50,8 @@ class CallActivityTest(BpmnWorkflowTestCase):
             self.workflow = BpmnWorkflow(error_spec, subprocesses)
             self.workflow.do_engine_steps()
         self.assertEqual(2, len(context.exception.task_trace))
-        self.assertRegex(context.exception.task_trace[0], 'Create Data \(.*?call_activity_call_activity.bpmn\)')
-        self.assertRegex(context.exception.task_trace[1], 'Get Data Call Activity \(.*?call_activity_with_error.bpmn\)')
+        self.assertRegex(context.exception.task_trace[0], r'Create Data \(.*?call_activity_call_activity.bpmn\)')
+        self.assertRegex(context.exception.task_trace[1], r'Get Data Call Activity \(.*?call_activity_with_error.bpmn\)')
         task = self.workflow.get_next_task(spec_name='Sub_Bpmn_Task')
         self.assertEqual(task.state, TaskState.ERROR)
 
