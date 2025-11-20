@@ -60,6 +60,8 @@ class SpiffTaskParser(TaskParser):
                 extensions['unitTests'] = SpiffTaskParser._parse_script_unit_tests(node)
             elif name == 'serviceTaskOperator':
                 extensions['serviceTaskOperator'] = SpiffTaskParser._parse_servicetask_operator(node)
+            elif name == 'taskMetadataValues':
+                extensions['taskMetadataValues'] = SpiffTaskParser._parse_task_metadata_values(node)
             else:
                 extensions[name] = node.text
         return extensions
@@ -76,6 +78,14 @@ class SpiffTaskParser(TaskParser):
         for prop_node in property_nodes:
             properties[prop_node.attrib['name']] = prop_node.attrib['value']
         return properties
+
+    @classmethod
+    def _parse_task_metadata_values(cls, node):
+        metadata_value_nodes = cls._node_children_by_tag_name(node, 'taskMetadataValue')
+        metadata_values = {}
+        for metadata_node in metadata_value_nodes:
+            metadata_values[metadata_node.attrib['name']] = metadata_node.attrib['value']
+        return metadata_values
 
     @staticmethod
     def _spiffworkflow_ready_xpath_for_node(node):
