@@ -25,3 +25,7 @@ class HumanTaskMetadataTest(BaseTestCase):
         # Check that the metadata values are correctly parsed
         self.assertEqual(task_metadata_values['dynamic_key'], 'my_var')
         self.assertEqual(task_metadata_values['static_key'], "'static_value'")
+
+        # Check that metadata values without a value attribute are set to None
+        self.assertIsNone(task_metadata_values['key_with_no_value_property_in_xml'],
+                         "Metadata value without value attribute should be None")

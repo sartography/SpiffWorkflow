@@ -20,6 +20,7 @@
         <spiffworkflow:taskMetadataValues>
           <spiffworkflow:taskMetadataValue name="dynamic_key" value="my_var" />
           <spiffworkflow:taskMetadataValue name="static_key" value="'static_value'" />
+          <spiffworkflow:taskMetadataValue name="key_with_no_value_property_in_xml" />
         </spiffworkflow:taskMetadataValues>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0b04rbg</bpmn:incoming>

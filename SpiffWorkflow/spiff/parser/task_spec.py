@@ -84,7 +84,7 @@ class SpiffTaskParser(TaskParser):
         metadata_value_nodes = cls._node_children_by_tag_name(node, 'taskMetadataValue')
         metadata_values = {}
         for metadata_node in metadata_value_nodes:
-            metadata_values[metadata_node.attrib['name']] = metadata_node.attrib['value']
+            metadata_values[metadata_node.attrib['name']] = metadata_node.attrib.get('value', None)
         return metadata_values
 
     @staticmethod
