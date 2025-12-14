@@ -17,6 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from copy import deepcopy
+
 class DeepMerge(object):
     # Merges two deeply nested json-like dictionaries,
     # useful for updating things like task data.
@@ -42,9 +44,9 @@ class DeepMerge(object):
                 elif isinstance(a[key], list) and isinstance(b[key], list):
                     DeepMerge.merge_array(a[key], b[key], path + [str(key)])
                 else:
-                    a[key] = b[key]  # Just overwrite the value in a.
+                    a[key] = deepcopy(b[key])  # Just overwrite the value in a.
             else:
-                a[key] = b[key]
+                a[key] = deepcopy(b[key])
         return a
 
     @staticmethod
