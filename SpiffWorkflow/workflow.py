@@ -260,6 +260,7 @@ class Workflow(object):
             'workflow_spec': self.spec.name,
             'success': self.success,
             'completed': self.completed,
+            'root': self.task_tree.id
         })
         if logger.level < 20:
             extra.update({'tasks': [t.id for t in Workflow.get_tasks(self)]})
