@@ -27,10 +27,18 @@ from ..helpers.bpmn_converter import BpmnConverter
 class TaskConverter(BpmnConverter):
 
     def to_dict(self, task):
-        # Materialize CopyOnWriteDict before serialization
-        task_data = task.data.materialize() if isinstance(task.data, CopyOnWriteDict) else task.data
+        # Optimize serialization by storing only local changes (delta)
+        # instead of the full materialized data when task has a parent
+        if isinstance(task.data, CopyOnWriteDict) and task.parent is not None:
+            # Store only local modifications (delta from parent)
+            task_data = task.data.get_local_data()
+            delta_serialization = True
+        else:
+            # Root task or regular dict: serialize full data
+            task_data = task.data.materialize() if isinstance(task.data, CopyOnWriteDict) else task.data
+            delta_serialization = False
 
-        return {
+        result = {
             'id': str(task.id),
             'parent': str(task._parent) if task.parent is not None else None,
             'children': [ str(child) for child in task._children ],
@@ -42,6 +50,12 @@ class TaskConverter(BpmnConverter):
             'data': self.registry.convert(self.registry.clean(task_data)),
         }
 
+        # Mark delta serialization for deserialization
+        if delta_serialization:
+            result['data_is_delta'] = True
+
+        return result
+
     def from_dict(self, dct, workflow):
         task_spec = workflow.spec.task_specs.get(dct['task_spec'])
         task = self.target_class(workflow, task_spec, state=dct['state'], id=UUID(dct['id']))
@@ -50,7 +64,16 @@ class TaskConverter(BpmnConverter):
         task.last_state_change = dct['last_state_change']
         task.triggered = dct['triggered']
         task.internal_data = self.registry.restore(dct['internal_data'])
-        task.data = self.registry.restore(dct['data'])
+
+        # Handle delta vs full data serialization
+        restored_data = self.registry.restore(dct['data'])
+        if dct.get('data_is_delta', False) and task.parent is not None:
+            # Reconstruct full data from parent + local delta
+            task.data = CopyOnWriteDict(parent=task.parent.data, **restored_data)
+        else:
+            # Full data (backward compatible with old serializations)
+            task.data = restored_data
+
         return task
 
 
