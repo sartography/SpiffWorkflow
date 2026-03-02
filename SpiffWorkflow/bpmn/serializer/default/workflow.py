@@ -20,12 +20,16 @@
 from uuid import UUID
 
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask
+from SpiffWorkflow.util.copyonwrite import CopyOnWriteDict
 
 from ..helpers.bpmn_converter import BpmnConverter
 
 class TaskConverter(BpmnConverter):
 
     def to_dict(self, task):
+        # Materialize CopyOnWriteDict before serialization
+        task_data = task.data.materialize() if isinstance(task.data, CopyOnWriteDict) else task.data
+
         return {
             'id': str(task.id),
             'parent': str(task._parent) if task.parent is not None else None,
@@ -35,7 +39,7 @@ class TaskConverter(BpmnConverter):
             'task_spec': task.task_spec.name,
             'triggered': task.triggered,
             'internal_data': self.registry.convert(task.internal_data),
-            'data': self.registry.convert(self.registry.clean(task.data)),
+            'data': self.registry.convert(self.registry.clean(task_data)),
         }
 
     def from_dict(self, dct, workflow):
