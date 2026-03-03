@@ -74,3 +74,13 @@ class DeepMerge(object):
 
         # Trim a back to the length of b.  In the end, the two arrays should match
         del a[len(b):]
+
+    @staticmethod
+    def get_updated_keys(a, b):
+        """get a list of keys from b that are different from a"""
+        return dict((key, b[key]) for key in b if key not in a or b[key] != a[key])
+
+    @staticmethod
+    def get_deleted_keys(a, b):
+        """get a list of keys from a that do not exist in b"""
+        return [key for key in a if key not in b]

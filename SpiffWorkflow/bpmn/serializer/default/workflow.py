@@ -20,6 +20,7 @@
 from uuid import UUID
 
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask
+from SpiffWorkflow.util.deep_merge import DeepMerge
 from SpiffWorkflow.util.copyonwrite import CopyOnWriteDict
 
 from ..helpers.bpmn_converter import BpmnConverter
@@ -29,16 +30,18 @@ class TaskConverter(BpmnConverter):
     def to_dict(self, task):
         # Optimize serialization by storing only local changes (delta)
         # instead of the full materialized data when task has a parent
-        if isinstance(task.data, CopyOnWriteDict) and task.parent is not None:
-            # Store only local modifications (delta from parent)
-            task_data = task.data.get_local_data()
-            delta_serialization = True
-        else:
-            # Root task or regular dict: serialize full data
-            task_data = task.data.materialize() if isinstance(task.data, CopyOnWriteDict) else task.data
-            delta_serialization = False
 
-        result = {
+        if task.parent is None:
+            data = task.data
+            delta = {}
+        else:
+            data = {}
+            delta = {
+                'updates': DeepMerge.get_updated_keys(task.parent.data, task.data),
+                'deletions': DeepMerge.get_deleted_keys(task.parent.data, task.data),
+            }
+
+        return {
             'id': str(task.id),
             'parent': str(task._parent) if task.parent is not None else None,
             'children': [ str(child) for child in task._children ],
@@ -47,16 +50,12 @@ class TaskConverter(BpmnConverter):
             'task_spec': task.task_spec.name,
             'triggered': task.triggered,
             'internal_data': self.registry.convert(task.internal_data),
-            'data': self.registry.convert(self.registry.clean(task_data)),
+            'data': data,
+            'delta': delta
         }
 
-        # Mark delta serialization for deserialization
-        if delta_serialization:
-            result['data_is_delta'] = True
-
-        return result
-
     def from_dict(self, dct, workflow):
+
         task_spec = workflow.spec.task_specs.get(dct['task_spec'])
         task = self.target_class(workflow, task_spec, state=dct['state'], id=UUID(dct['id']))
         task._parent = UUID(dct['parent']) if dct['parent'] is not None else None
@@ -65,14 +64,17 @@ class TaskConverter(BpmnConverter):
         task.triggered = dct['triggered']
         task.internal_data = self.registry.restore(dct['internal_data'])
 
-        # Handle delta vs full data serialization
-        restored_data = self.registry.restore(dct['data'])
-        if dct.get('data_is_delta', False) and task.parent is not None:
-            # Reconstruct full data from parent + local delta
-            task.data = CopyOnWriteDict(parent=task.parent.data, **restored_data)
+        delta = dct.get('delta')
+        if delta:
+            data = DeepMerge.merge({}, task.parent.data)
+            data.update(self.registry.restore(delta.get('updates', {})))
+            for key in delta.get('deletions', {}):
+                if key in data:
+                    del data[key]
         else:
-            # Full data (backward compatible with old serializations)
-            task.data = restored_data
+            data = self.registry.restore(dct['data'])
+
+        task.data = data
 
         return task
 
