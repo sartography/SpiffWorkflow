@@ -65,7 +65,7 @@ class TaskConverter(BpmnConverter):
         task.internal_data = self.registry.restore(dct['internal_data'])
 
         delta = dct.get('delta')
-        if delta:
+        if delta and task.parent is not None:
             data = DeepMerge.merge({}, task.parent.data)
             data.update(self.registry.restore(delta.get('updates', {})))
             for key in delta.get('deletions', {}):
