@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from types import ModuleType
 from uuid import UUID
 from datetime import datetime, timedelta
 
@@ -60,6 +61,6 @@ class DefaultRegistry(DictionaryConverter):
             the preprocessed object
         """
         if isinstance(obj, dict):
-            return dict((k, v) for k, v in obj.items() if not callable(v))
+            return dict((k, v) for k, v in obj.items() if not callable(v) and not isinstance(v, ModuleType))
         else:
             return obj
