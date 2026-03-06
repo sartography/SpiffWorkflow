@@ -221,3 +221,61 @@ class PerformanceTest(BpmnWorkflowTestCase):
         print(f"    Total:          {execution_time + serialize_time + deserialize_time:.6f} seconds")
         print("="*80)
 
+    def test_performance_periodic_serialization_300_items(self):
+        """Measure execution and periodic serialization time with 300 items."""
+        workflow = self._create_workflow_with_item_count(300)
+
+        # Track serialization metrics
+        serialization_checkpoints = []
+        tasks_completed = 0
+        checkpoint_interval = 10  # Serialize every 10 task completions
+
+        def did_complete_task(task):
+            nonlocal tasks_completed
+            tasks_completed += 1
+
+            # Serialize at checkpoints
+            if tasks_completed % checkpoint_interval == 0:
+                start_serialize = time.time()
+                state = self.serializer.to_dict(workflow)
+                end_serialize = time.time()
+                serialize_time = end_serialize - start_serialize
+
+                serialization_checkpoints.append({
+                    'steps': tasks_completed,
+                    'tasks': len(workflow.tasks),
+                    'time': serialize_time
+                })
+
+        # Measure execution time with periodic serialization
+        start_execution = time.time()
+        workflow.do_engine_steps(did_complete_task=did_complete_task)
+        end_execution = time.time()
+        execution_time = end_execution - start_execution
+
+        # Verify workflow completed
+        self.assertTrue(workflow.completed)
+
+        # Calculate summary metrics
+        total_serialization_time = sum(cp['time'] for cp in serialization_checkpoints)
+        num_serializations = len(serialization_checkpoints)
+        avg_serialization_time = total_serialization_time / num_serializations if num_serializations > 0 else 0
+        overhead_percentage = (total_serialization_time / execution_time * 100) if execution_time > 0 else 0
+
+        # Print results
+        print("\n" + "="*80)
+        print("PERIODIC SERIALIZATION TEST (performance_test.bpmn)")
+        print("="*80)
+        print(f"  300 items (serialize every {checkpoint_interval} steps):")
+        print(f"    Execution time:           {execution_time:.6f} seconds")
+        print(f"")
+        print(f"    Serialization checkpoints:")
+        for cp in serialization_checkpoints:
+            print(f"      After {cp['steps']:3d} steps  ({cp['tasks']:4d} tasks):   {cp['time']:.6f} seconds")
+        print(f"")
+        print(f"    Total serialization time:       {total_serialization_time:.6f} seconds")
+        print(f"    Serialization overhead:         {overhead_percentage:.1f}% of execution time")
+        print(f"    Number of serializations:       {num_serializations}")
+        print(f"    Average per serialization:      {avg_serialization_time:.6f} seconds")
+        print("="*80)
+
