@@ -138,7 +138,7 @@ class BpmnWorkflowSerializer:
             the version of the serializer the serilization we done with, if present
         """
         if isinstance(serialization, dict):
-            return serialization.get(self.VERsiON_KEY)
+            return serialization.get(self.VERSION_KEY)
         elif isinstance(serialization, str):
             dct = json.loads(serialization, cls=self.json_decoder_cls)
             return dct.get(self.VERSION_KEY)
