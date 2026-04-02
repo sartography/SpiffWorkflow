@@ -29,10 +29,8 @@ strategy for building Low-Code applications.
 
 
 ## Dependencies
-We've worked to minimize external dependencies.  We rely on lxml for parsing
+We've worked to minimize external dependencies.  We rely on [lxml](https://lxml.de/) for parsing
 XML Documents, and that's it!
-<b>Built with</b>
-- [lxml](https://lxml.de/)
 
 ## Features
 * __BPMN__ - support for parsing BPMN diagrams, including the more complex
