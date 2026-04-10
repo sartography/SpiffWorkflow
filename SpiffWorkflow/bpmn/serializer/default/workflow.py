@@ -77,6 +77,31 @@ class TaskConverter(BpmnConverter):
 
         return task
 
+class SimpleTaskConverter(BpmnConverter):
+
+    def to_dict(self, task):
+        return {
+            'id': str(task.id),
+            'parent': str(task._parent) if task.parent is not None else None,
+            'children': [ str(child) for child in task._children ],
+            'last_state_change': task.last_state_change,
+            'state': task.state,
+            'task_spec': task.task_spec.name,
+            'triggered': task.triggered,
+            'internal_data': self.registry.convert(task.internal_data),
+            'data': self.registry.convert(self.registry.clean(task.data)),
+        }
+
+    def from_dict(self, dct, workflow):
+        task_spec = workflow.spec.task_specs.get(dct['task_spec'])
+        task = self.target_class(workflow, task_spec, state=dct['state'], id=UUID(dct['id']))
+        task._parent = UUID(dct['parent']) if dct['parent'] is not None else None
+        task._children = [UUID(child) for child in dct['children']]
+        task.last_state_change = dct['last_state_change']
+        task.triggered = dct['triggered']
+        task.internal_data = self.registry.restore(dct['internal_data'])
+        task.data = self.registry.restore(dct['data'])
+        return task
 
 class BpmnEventConverter(BpmnConverter):
 
