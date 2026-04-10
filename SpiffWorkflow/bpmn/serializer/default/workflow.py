@@ -21,7 +21,6 @@ from uuid import UUID
 
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask
 from SpiffWorkflow.util.deep_merge import DeepMerge
-from SpiffWorkflow.util.copyonwrite import CopyOnWriteDict
 
 from ..helpers.bpmn_converter import BpmnConverter
 

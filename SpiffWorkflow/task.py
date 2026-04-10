@@ -25,7 +25,6 @@ from uuid import uuid4
 
 from .util.task import TaskState, TaskFilter, TaskIterator
 from .util.deep_merge import DeepMerge
-#from .util.copyonwrite import CopyOnWriteDict
 from .exceptions import WorkflowException
 
 logger = logging.getLogger('spiff.task')
@@ -317,14 +316,6 @@ class Task(object):
     def _inherit_data(self):
         """Inherits data from the parent."""
         self.data = DeepMerge.merge(self.data, self.parent.data)
-        # Preserve any data that was already set on this task before inheriting
-        # (e.g., multi-instance input items set before _update is called)
-        # But parent data takes precedence for conflicting keys (matches old behavior)
-        #existing_only = {k: v for k, v in (self.data or {}).items() if k not in self.parent.data}
-
-        # Use CopyOnWriteDict to share parent data until modifications are made
-        # This avoids expensive deepcopy operations for every task
-        #self.data = CopyOnWriteDict(parent=self.parent.data, **existing_only)
 
     def _set_internal_data(self, **kwargs):
         """Defines the given attribute/value pairs in this task's internal data."""
