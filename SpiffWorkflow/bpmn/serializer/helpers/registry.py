@@ -33,6 +33,7 @@ class DefaultRegistry(DictionaryConverter):
     def __init__(self):
 
         super().__init__()
+        self._encoder_mode = False
         self.register(UUID, lambda v: { 'value': str(v) }, lambda v: UUID(v['value']))
         self.register(datetime, lambda v:  { 'value': v.isoformat() }, lambda v: datetime.fromisoformat(v['value']))
         self.register(timedelta, lambda v: { 'days': v.days, 'seconds': v.seconds }, lambda v: timedelta(**v))
@@ -46,8 +47,19 @@ class DefaultRegistry(DictionaryConverter):
         Returns:
             the result of `convert` conversion after preprocessing
         """
+        if self._encoder_mode:
+            return self._convert_for_encoder(obj)
         cleaned = self.clean(obj)
         return super().convert(cleaned)
+
+    def _convert_for_encoder(self, obj):
+        typename = self.typenames.get(obj.__class__)
+        if typename in self.convert_to_dict:
+            return self.convert_to_dict[typename](obj)
+        elif isinstance(obj, dict):
+            return self.clean(obj)
+        else:
+            return obj
 
     def clean(self, obj):
         """A method that can be used to preprocess an object before conversion to a dict.
