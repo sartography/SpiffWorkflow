@@ -1,0 +1,60 @@
+name: Publish Alpha to PyPI 📦
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish-alpha:
+    name: Build and publish alpha release to PyPI
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Generate alpha version
+      id: version
+      run: |
+        # Extract current version from version.py
+        CURRENT_VERSION=$(grep -oP "__version__ = '\K[0-9.]+(?=')" SpiffWorkflow/version.py)
+
+        # Split version into major.minor.patch
+        MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
+        MINOR=$(echo $CURRENT_VERSION | cut -d. -f2)
+        PATCH=$(echo $CURRENT_VERSION | cut -d. -f3)
+
+        # Increment patch version
+        NEXT_PATCH=$((PATCH + 1))
+
+        # Get short git SHA
+        GIT_SHA=$(git rev-parse --short HEAD)
+
+        # Generate alpha version: major.minor.(patch+1).alpha+gitsha
+        ALPHA_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}.alpha${GIT_SHA}"
+
+        echo "alpha_version=${ALPHA_VERSION}" >> $GITHUB_OUTPUT
+        echo "Generated alpha version: ${ALPHA_VERSION}"
+
+    - name: Update version.py with alpha version
+      run: |
+        echo "__version__ = '${{ steps.version.outputs.alpha_version }}'" > SpiffWorkflow/version.py
+        cat SpiffWorkflow/version.py
+
+    - name: Install pypa/build
+      run: python -m pip install build --user
+
+    - name: Build a binary wheel and a source tarball
+      run: python -m build --sdist --wheel --outdir dist/
+
+    - name: Publish distribution 📦 to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        username: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
