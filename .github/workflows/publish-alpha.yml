@@ -34,11 +34,11 @@ jobs:
         # Increment patch version
         NEXT_PATCH=$((PATCH + 1))
 
-        # Get short git SHA
-        GIT_SHA=$(git rev-parse --short HEAD)
+        # Get timestamp for unique alpha version
+        TIMESTAMP=$(date +%s)
 
-        # Generate alpha version: major.minor.(patch+1).alpha+gitsha
-        ALPHA_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}.alpha${GIT_SHA}"
+        # Generate alpha version: major.minor.(patch+1)a<timestamp> (PEP 440 compliant, PyPI compatible)
+        ALPHA_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}a${TIMESTAMP}"
 
         echo "alpha_version=${ALPHA_VERSION}" >> $GITHUB_OUTPUT
         echo "Generated alpha version: ${ALPHA_VERSION}"
