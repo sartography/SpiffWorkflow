@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   publish-alpha:
@@ -54,6 +57,7 @@ jobs:
       run: python -m build --sdist --wheel --outdir dist/
 
     - name: Publish distribution 📦 to PyPI
+      if: github.ref == 'refs/heads/main'
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         username: __token__
