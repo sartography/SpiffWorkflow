@@ -314,8 +314,8 @@ class Task(object):
         return self.thread_id
 
     def _inherit_data(self):
-        """Copies the data from the parent."""
-        self.set_data(**deepcopy(self.parent.data))
+        """Inherits data from the parent."""
+        self.data = DeepMerge.merge(self.data, self.parent.data)
 
     def _set_internal_data(self, **kwargs):
         """Defines the given attribute/value pairs in this task's internal data."""

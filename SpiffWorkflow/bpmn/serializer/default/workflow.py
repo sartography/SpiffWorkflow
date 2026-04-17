@@ -20,10 +20,64 @@
 from uuid import UUID
 
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask
+from SpiffWorkflow.util.deep_merge import DeepMerge
 
 from ..helpers.bpmn_converter import BpmnConverter
 
 class TaskConverter(BpmnConverter):
+
+    def to_dict(self, task):
+        # Optimize serialization by storing only local changes (delta)
+        # instead of the full materialized data when task has a parent
+
+        if task.parent is None:
+            data = task.data
+            delta = {}
+        else:
+            data = {}
+            delta = {
+                'updates': DeepMerge.get_updated_keys(task.parent.data, task.data),
+                'deletions': DeepMerge.get_deleted_keys(task.parent.data, task.data),
+            }
+
+        return {
+            'id': str(task.id),
+            'parent': str(task._parent) if task.parent is not None else None,
+            'children': [ str(child) for child in task._children ],
+            'last_state_change': task.last_state_change,
+            'state': task.state,
+            'task_spec': task.task_spec.name,
+            'triggered': task.triggered,
+            'internal_data': self.registry.convert(task.internal_data),
+            'data': data,
+            'delta': delta
+        }
+
+    def from_dict(self, dct, workflow):
+
+        task_spec = workflow.spec.task_specs.get(dct['task_spec'])
+        task = self.target_class(workflow, task_spec, state=dct['state'], id=UUID(dct['id']))
+        task._parent = UUID(dct['parent']) if dct['parent'] is not None else None
+        task._children = [UUID(child) for child in dct['children']]
+        task.last_state_change = dct['last_state_change']
+        task.triggered = dct['triggered']
+        task.internal_data = self.registry.restore(dct['internal_data'])
+
+        delta = dct.get('delta')
+        if delta and task.parent is not None:
+            data = DeepMerge.merge({}, task.parent.data)
+            data.update(self.registry.restore(delta.get('updates', {})))
+            for key in delta.get('deletions', {}):
+                if key in data:
+                    del data[key]
+        else:
+            data = self.registry.restore(dct['data'])
+
+        task.data = data
+
+        return task
+
+class SimpleTaskConverter(BpmnConverter):
 
     def to_dict(self, task):
         return {
@@ -48,7 +102,6 @@ class TaskConverter(BpmnConverter):
         task.internal_data = self.registry.restore(dct['internal_data'])
         task.data = self.registry.restore(dct['data'])
         return task
-
 
 class BpmnEventConverter(BpmnConverter):
 

@@ -164,6 +164,12 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         :param will_complete_task: Callback that will be called prior to completing a task
         :param did_complete_task: Callback that will be called after completing a task
         """
+        count = self._do_engine_steps(will_complete_task, did_complete_task)
+        while count > 0:
+            count = self._do_engine_steps(will_complete_task, did_complete_task)
+
+    def _do_engine_steps(self, will_complete_task=None, did_complete_task=None):
+
         def update_workflow(wf):
             count = 0
             # Wanted to use the iterator method here, but at least this is a shorter list
@@ -187,8 +193,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
                 task.task_spec._update(task)
 
         count = update_workflow(self)
-        if count > 0 or len(self.get_active_subprocesses()) > len(active_subprocesses):
-            self.do_engine_steps(will_complete_task, did_complete_task)
+        return count > 0 or len(self.get_active_subprocesses()) > len(active_subprocesses)
 
     def refresh_waiting_tasks(self, will_refresh_task=None, did_refresh_task=None):
         """

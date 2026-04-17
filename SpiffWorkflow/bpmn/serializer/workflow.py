@@ -21,6 +21,7 @@ import json, gzip
 
 from .migration.version_migration import MIGRATIONS
 from .helpers import DefaultRegistry
+from .helpers.encoder import create_encoder
 
 from .config import DEFAULT_CONFIG
 
@@ -97,6 +98,7 @@ class BpmnWorkflowSerializer:
         self.json_encoder_cls = json_encoder_cls
         self.json_decoder_cls = json_decoder_cls
         self.VERSION = version
+        self._encoder_cls = create_encoder(self.registry, json_encoder_cls)
 
     def serialize_json(self, workflow, use_gzip=False):
         """Serialize the dictionary representation of the workflow to JSON.
@@ -108,9 +110,13 @@ class BpmnWorkflowSerializer:
         Returns:
             a JSON dump of the dictionary representation or a gzipped version of it
         """
-        dct = self.to_dict(workflow)
-        dct[self.VERSION_KEY] = self.VERSION
-        json_str = json.dumps(dct, cls=self.json_encoder_cls)
+        self.registry._encoder_mode = True
+        try:
+            dct = self.to_dict(workflow)
+            dct[self.VERSION_KEY] = self.VERSION
+            json_str = json.dumps(dct, cls=self._encoder_cls)
+        finally:
+            self.registry._encoder_mode = False
         return gzip.compress(json_str.encode('utf-8')) if use_gzip else json_str
 
     def deserialize_json(self, serialization, use_gzip=False):

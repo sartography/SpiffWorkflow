@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from copy import deepcopy
+from copy import copy
 
 class DeepMerge(object):
     # Merges two deeply nested json-like dictionaries,
@@ -44,9 +44,18 @@ class DeepMerge(object):
                 elif isinstance(a[key], list) and isinstance(b[key], list):
                     DeepMerge.merge_array(a[key], b[key], path + [str(key)])
                 else:
-                    a[key] = deepcopy(b[key])  # Just overwrite the value in a.
+                    # Shallow copy only for mutable types (dict/list/set)
+                    # Immutable types (str/int/float/bool/None/tuple) don't need copying
+                    if isinstance(b[key], (dict, list, set)):
+                        a[key] = copy(b[key])
+                    else:
+                        a[key] = b[key]
             else:
-                a[key] = deepcopy(b[key])
+                # Shallow copy only for mutable types
+                if isinstance(b[key], (dict, list, set)):
+                    a[key] = copy(b[key])
+                else:
+                    a[key] = b[key]
         return a
 
     @staticmethod
@@ -65,3 +74,13 @@ class DeepMerge(object):
 
         # Trim a back to the length of b.  In the end, the two arrays should match
         del a[len(b):]
+
+    @staticmethod
+    def get_updated_keys(a, b):
+        """get a list of keys from b that are different from a"""
+        return dict((key, b[key]) for key in b if key not in a or b[key] != a[key])
+
+    @staticmethod
+    def get_deleted_keys(a, b):
+        """get a list of keys from a that do not exist in b"""
+        return [key for key in a if key not in b]
