@@ -80,13 +80,13 @@ class PerformanceTest(BpmnWorkflowTestCase):
 
         # Measure serialization
         start_serialize = time.time()
-        state = self.serializer.to_dict(workflow)
+        state = self.serializer.serialize_json(workflow)
         end_serialize = time.time()
         serialize_time = end_serialize - start_serialize
 
         # Measure deserialization
         start_deserialize = time.time()
-        restored_workflow = self.serializer.from_dict(state)
+        restored_workflow = self.serializer.deserialize_json(state)
         end_deserialize = time.time()
         deserialize_time = end_deserialize - start_deserialize
 
@@ -119,13 +119,13 @@ class PerformanceTest(BpmnWorkflowTestCase):
 
         # Measure serialization
         start_serialize = time.time()
-        state = self.serializer.to_dict(workflow)
+        state = self.serializer.serialize_json(workflow)
         end_serialize = time.time()
         serialize_time = end_serialize - start_serialize
 
         # Measure deserialization
         start_deserialize = time.time()
-        restored_workflow = self.serializer.from_dict(state)
+        restored_workflow = self.serializer.deserialize_json(state)
         end_deserialize = time.time()
         deserialize_time = end_deserialize - start_deserialize
 
@@ -158,13 +158,13 @@ class PerformanceTest(BpmnWorkflowTestCase):
 
         # Measure serialization
         start_serialize = time.time()
-        state = self.serializer.to_dict(workflow)
+        state = self.serializer.serialize_json(workflow)
         end_serialize = time.time()
         serialize_time = end_serialize - start_serialize
 
         # Measure deserialization
         start_deserialize = time.time()
-        restored_workflow = self.serializer.from_dict(state)
+        restored_workflow = self.serializer.deserialize_json(state)
         end_deserialize = time.time()
         deserialize_time = end_deserialize - start_deserialize
 
@@ -197,13 +197,13 @@ class PerformanceTest(BpmnWorkflowTestCase):
 
         # Measure serialization
         start_serialize = time.time()
-        state = self.serializer.to_dict(workflow)
+        state = self.serializer.serialize_json(workflow)
         end_serialize = time.time()
         serialize_time = end_serialize - start_serialize
 
         # Measure deserialization
         start_deserialize = time.time()
-        restored_workflow = self.serializer.from_dict(state)
+        restored_workflow = self.serializer.deserialize_json(state)
         end_deserialize = time.time()
         deserialize_time = end_deserialize - start_deserialize
 
@@ -237,7 +237,7 @@ class PerformanceTest(BpmnWorkflowTestCase):
             # Serialize at checkpoints
             if tasks_completed % checkpoint_interval == 0:
                 start_serialize = time.time()
-                state = self.serializer.to_dict(workflow)
+                state = self.serializer.serialize_json(workflow)
                 end_serialize = time.time()
                 serialize_time = end_serialize - start_serialize
 
