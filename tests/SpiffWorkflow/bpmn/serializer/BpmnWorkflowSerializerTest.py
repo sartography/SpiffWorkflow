@@ -3,10 +3,10 @@ import os
 import json
 
 from SpiffWorkflow.bpmn import BpmnWorkflow
-from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine
 
 from .BaseTestCase import BaseTestCase
+from tests.SpiffWorkflow.bpmn.serializer_support import get_serializer_class, is_compact_serializer_enabled
 
 class BpmnWorkflowSerializerTest(BaseTestCase):
 
@@ -70,17 +70,21 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
 
         try:
             self.assertRaises(TypeError, self.serializer.serialize_json, self.workflow)
-            wf_spec_converter = BpmnWorkflowSerializer.configure()
-            custom_serializer = BpmnWorkflowSerializer(wf_spec_converter,
-                                                       version=self.SERIALIZER_VERSION,
-                                                       json_encoder_cls=MyJsonEncoder,
-                                                       json_decoder_cls=MyJsonDecoder)
+            serializer_class = get_serializer_class()
+            wf_spec_converter = serializer_class.configure()
+            custom_serializer = serializer_class(
+                wf_spec_converter,
+                version=self.SERIALIZER_VERSION,
+                json_encoder_cls=MyJsonEncoder,
+                json_decoder_cls=MyJsonDecoder,
+            )
             serialized_workflow = custom_serializer.serialize_json(self.workflow)
         finally:
             a_task.data.pop('jsonTest',None)
 
-        serialized_task = [x for x in json.loads(serialized_workflow)['tasks'].values() if x['task_spec'] == a_task_spec.name][0]
-        self.assertEqual(serialized_task['data']['jsonTest'], {'a': 1, 'my_type': 'mycls'})
+        if not is_compact_serializer_enabled():
+            serialized_task = [x for x in json.loads(serialized_workflow)['tasks'].values() if x['task_spec'] == a_task_spec.name][0]
+            self.assertEqual(serialized_task['data']['jsonTest'], {'a': 1, 'my_type': 'mycls'})
 
         deserialized_workflow = custom_serializer.deserialize_json(serialized_workflow)
         deserialized_task = deserialized_workflow.get_tasks(spec_name=a_task_spec.name)[0]
@@ -131,7 +135,7 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
             return n + 1
         user_task.data = { 'f': f }
         task_id = str(user_task.id)
-        dct = self.serializer.to_dict(self.workflow)
+        dct = self.serializer.canonical.to_dict(self.workflow) if is_compact_serializer_enabled() else self.serializer.to_dict(self.workflow)
         self.assertNotIn('f', dct['tasks'][task_id]['data'])
 
     def testLastTaskIsSetAndWorksThroughRestore(self):

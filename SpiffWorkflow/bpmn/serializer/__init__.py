@@ -18,5 +18,6 @@
 # 02110-1301  USA
 
 from .workflow import BpmnWorkflowSerializer
+from .compact import CompactBpmnWorkflowSerializer
 from .config import DEFAULT_CONFIG
 from .helpers import DefaultRegistry
