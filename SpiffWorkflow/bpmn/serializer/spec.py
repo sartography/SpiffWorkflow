@@ -17,6 +17,8 @@ from .compact import (
 
 
 FORMAT_VALUE = "compact_bpmn_spec"
+PROCESS_TABLE_KEY = "process_table"
+ROOT_PROCESS_KEY = "root_process"
 
 
 class BpmnSpecSerializer:
@@ -118,10 +120,16 @@ class BpmnSpecSerializer:
         return self._expand_generic(value, type_table)
 
     def _compact_task_spec(self, task_key, task):
-        compact = {}
         typename = task["typename"]
+        extras = {}
         for key, value in task.items():
             if key == "name" and value == task_key:
+                continue
+            if key == "typename":
+                continue
+            if key == "inputs":
+                continue
+            if key == "outputs":
                 continue
             if key == "description" and DEFAULT_TASK_DESCRIPTIONS.get(typename) == value:
                 continue
@@ -145,22 +153,37 @@ class BpmnSpecSerializer:
             if key == "extensions" and value == {}:
                 continue
             alias = self._alias_key(key)
-            if key == "typename":
-                compact[alias] = self._intern_typename(value)
-            else:
-                compact[alias] = self._compact_schema_value(key, value)
-        return compact
+            extras[alias] = self._compact_schema_value(key, value)
 
-    def _expand_task_spec(self, task_key, task, type_table, string_table):
-        expanded = {}
-        for key, value in task.items():
-            logical_key = self._unalias_key(key)
-            if logical_key == "typename" and isinstance(value, int):
-                expanded[logical_key] = type_table[value]
-            else:
+        row = [
+            self._intern_string(task_key),
+            self._intern_typename(typename),
+        ]
+        inputs = [self._intern_string(item) for item in task.get("inputs", [])]
+        outputs = [self._intern_string(item) for item in task.get("outputs", [])]
+        if inputs or outputs or extras:
+            row.append(inputs)
+        if outputs or extras:
+            row.append(outputs)
+        if extras:
+            row.append(extras)
+        return row
+
+    def _expand_task_spec(self, row, type_table, string_table):
+        task_key = string_table[row[0]]
+        expanded = {
+            "name": task_key,
+            "typename": type_table[row[1]],
+        }
+        if len(row) > 2:
+            expanded["inputs"] = [string_table[item] for item in row[2]]
+        if len(row) > 3:
+            expanded["outputs"] = [string_table[item] for item in row[3]]
+        if len(row) > 4:
+            for key, value in row[4].items():
+                logical_key = self._unalias_key(key)
                 expanded[logical_key] = self._expand_schema_value(logical_key, value, type_table, string_table)
         typename = expanded["typename"]
-        expanded.setdefault("name", task_key)
         expanded.setdefault("description", DEFAULT_TASK_DESCRIPTIONS.get(typename))
         expanded.setdefault("manual", False)
         expanded.setdefault("lookahead", 2)
@@ -178,43 +201,52 @@ class BpmnSpecSerializer:
         return expanded
 
     def _compact_process_spec(self, spec_key, spec):
-        compact = {}
+        tasks = []
+        extras = {}
         for key, value in spec.items():
-            if key == "name" and spec_key is not None and value == spec_key:
+            if key == "name":
                 continue
             if key == "description" and value == spec["name"]:
                 continue
+            if key == "file":
+                continue
             if key == "task_specs":
-                compact[self._alias_key(key)] = {
-                    str(self._intern_string(task_key)): self._compact_task_spec(task_key, task)
+                tasks = [
+                    self._compact_task_spec(task_key, task)
                     for task_key, task in value.items()
-                }
+                ]
                 continue
             if key == "io_specification" and value is None:
                 continue
             if key in {"data_objects", "correlation_keys"} and value == {}:
                 continue
-            alias = self._alias_key(key)
-            if key == "typename":
-                compact[alias] = self._intern_typename(value)
-            else:
-                compact[alias] = self._compact_schema_value(key, value)
-        return compact
+            if key == "typename" and value == "BpmnProcessSpec":
+                continue
+            extras[self._alias_key(key)] = self._compact_schema_value(key, value)
 
-    def _expand_process_spec(self, spec_key, spec, type_table, string_table):
-        expanded = {}
-        for key, value in spec.items():
-            logical_key = self._unalias_key(key)
-            if logical_key == "typename" and isinstance(value, int):
-                expanded[logical_key] = type_table[value]
-            elif logical_key == "task_specs":
-                expanded[logical_key] = {
-                    string_table[int(task_key)]: self._expand_task_spec(
-                        string_table[int(task_key)], task, type_table, string_table
-                    )
-                    for task_key, task in value.items()
-                }
-            else:
+        file_ref = self._intern_string(spec["file"]) if spec.get("file") is not None else None
+        row = [file_ref, tasks]
+        if extras:
+            row.append(extras)
+        return row
+
+    def _expand_process_spec(self, spec_key, row, type_table, string_table):
+        expanded = {
+            "name": spec_key,
+            "typename": "BpmnProcessSpec",
+        }
+        if row[0] is not None:
+            expanded["file"] = string_table[row[0]]
+        expanded["task_specs"] = {
+            task["name"]: task
+            for task in (
+                self._expand_task_spec(task_row, type_table, string_table)
+                for task_row in row[1]
+            )
+        }
+        if len(row) > 2:
+            for key, value in row[2].items():
+                logical_key = self._unalias_key(key)
                 expanded[logical_key] = self._expand_schema_value(logical_key, value, type_table, string_table)
         expanded.setdefault("name", spec_key)
         expanded.setdefault("description", expanded["name"])
@@ -240,25 +272,28 @@ class BpmnSpecSerializer:
             self._alias_key(FORMAT_KEY): FORMAT_VALUE,
             self._alias_key(TYPENAME_TABLE_KEY): self._typenames,
             self._alias_key(STRING_TABLE_KEY): self._strings,
-            self._alias_key("spec"): self._compact_process_spec(None, dct["spec"]),
-            self._alias_key("subprocess_specs"): {
-                str(self._intern_string(spec_key)): self._compact_process_spec(spec_key, spec)
-                for spec_key, spec in dct["subprocess_specs"].items()
-            },
+            self._alias_key(ROOT_PROCESS_KEY): self._intern_string(dct["spec"]["name"]),
+            self._alias_key(PROCESS_TABLE_KEY): {},
         }
+        process_table = compact[self._alias_key(PROCESS_TABLE_KEY)]
+        process_table[str(self._intern_string(dct["spec"]["name"]))] = self._compact_process_spec(None, dct["spec"])
+        for spec_key, spec in dct["subprocess_specs"].items():
+            process_table[str(self._intern_string(spec_key))] = self._compact_process_spec(spec_key, spec)
         return compact
 
     def compact_to_canonical(self, dct):
         type_table = dct.pop(self._alias_key(TYPENAME_TABLE_KEY), [])
         string_table = dct.pop(self._alias_key(STRING_TABLE_KEY), [])
         dct.pop(self._alias_key(FORMAT_KEY), None)
+        root_process_ref = dct.pop(self._alias_key(ROOT_PROCESS_KEY))
+        root_process_key = string_table[root_process_ref]
+        process_table = dct.pop(self._alias_key(PROCESS_TABLE_KEY), {})
         return {
-            "spec": self._expand_process_spec(None, dct[self._alias_key("spec")], type_table, string_table),
+            "spec": self._expand_process_spec(root_process_key, process_table[str(root_process_ref)], type_table, string_table),
             "subprocess_specs": {
-                string_table[int(spec_key)]: self._expand_process_spec(
-                    string_table[int(spec_key)], spec, type_table, string_table
-                )
-                for spec_key, spec in dct.get(self._alias_key("subprocess_specs"), {}).items()
+                string_table[int(spec_key)]: self._expand_process_spec(string_table[int(spec_key)], spec, type_table, string_table)
+                for spec_key, spec in process_table.items()
+                if string_table[int(spec_key)] != root_process_key
             },
         }
 

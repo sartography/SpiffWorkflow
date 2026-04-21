@@ -16,6 +16,8 @@ KEY_ALIASES = {
     "serialization_format": "~f",
     "typename_table": "~tt",
     "string_table": "~st",
+    "process_table": "~pt",
+    "root_process": "~rt",
     "spec": "~s",
     "subprocess_specs": "~ps",
     "subprocesses": "~sp",
