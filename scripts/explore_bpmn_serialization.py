@@ -10,6 +10,7 @@ import argparse
 from collections import defaultdict
 import json
 import sys
+import time
 from pathlib import Path
 
 
@@ -19,7 +20,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from SpiffWorkflow.bpmn import BpmnWorkflow
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask as SubWorkflowTaskMixin
-from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer, CompactBpmnWorkflowSerializer
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer, CompactBpmnWorkflowSerializer, BpmnSpecSerializer
 from SpiffWorkflow.spiff.parser import SpiffBpmnParser, VALIDATOR
 from SpiffWorkflow.spiff.serializer import DEFAULT_CONFIG
 
@@ -57,10 +58,20 @@ def parse_args():
         help="Optional path to write the compact serialized JSON.",
     )
     parser.add_argument(
+        "--spec-output",
+        type=Path,
+        help="Optional path to write the editor-spec serialized JSON.",
+    )
+    parser.add_argument(
         "--serializer",
         choices=["canonical", "compact", "both"],
         default="both",
         help="Which serializer(s) to run. Default: both",
+    )
+    parser.add_argument(
+        "--spec-serializer",
+        action="store_true",
+        help="Also run the editor-spec serializer.",
     )
     parser.add_argument(
         "--no-fallback",
@@ -183,6 +194,38 @@ def inspect_compact_serialization(workflow):
     return serializer, as_dict, as_json, parsed_json, restored
 
 
+def inspect_spec_serialization(workflow):
+    serializer = BpmnSpecSerializer(BpmnSpecSerializer.configure(DEFAULT_CONFIG))
+    canonical_specs = serializer.extract_canonical_specs(workflow)
+    canonical_spec_json = json.dumps(
+        {
+            "spec": canonical_specs["spec"],
+            "subprocess_specs": canonical_specs["subprocess_specs"],
+            "serializer_version": serializer.VERSION,
+        },
+        cls=serializer.canonical._encoder_cls,
+    )
+
+    serialize_start = time.perf_counter()
+    as_json = serializer.serialize_json(workflow)
+    serialize_elapsed = time.perf_counter() - serialize_start
+
+    parsed_json = json.loads(as_json)
+    deserialize_start = time.perf_counter()
+    restored = serializer.deserialize_json(as_json)
+    deserialize_elapsed = time.perf_counter() - deserialize_start
+    return (
+        serializer,
+        canonical_specs,
+        canonical_spec_json,
+        as_json,
+        parsed_json,
+        restored,
+        serialize_elapsed,
+        deserialize_elapsed,
+    )
+
+
 def json_size(value):
     return len(json.dumps(value, sort_keys=True).encode("utf-8"))
 
@@ -197,11 +240,24 @@ def main():
     )
     serializer = as_dict = as_json = parsed_json = None
     compact_serializer = compact_dict = compact_json = compact_parsed_json = compact_restored = None
+    spec_serializer = canonical_specs = canonical_spec_json = spec_json = spec_parsed_json = spec_restored = None
+    spec_serialize_elapsed = spec_deserialize_elapsed = None
 
     if args.serializer in {"canonical", "both"}:
         serializer, as_dict, as_json, parsed_json = inspect_serialization(workflow)
     if args.serializer in {"compact", "both"}:
         compact_serializer, compact_dict, compact_json, compact_parsed_json, compact_restored = inspect_compact_serialization(workflow)
+    if args.spec_serializer:
+        (
+            spec_serializer,
+            canonical_specs,
+            canonical_spec_json,
+            spec_json,
+            spec_parsed_json,
+            spec_restored,
+            spec_serialize_elapsed,
+            spec_deserialize_elapsed,
+        ) = inspect_spec_serialization(workflow)
 
     if args.output is not None and as_json is not None:
         output_path = args.output.resolve()
@@ -215,6 +271,12 @@ def main():
         compact_output_path.write_text(compact_json)
     else:
         compact_output_path = None
+    if args.spec_output is not None and spec_json is not None:
+        spec_output_path = args.spec_output.resolve()
+        spec_output_path.parent.mkdir(parents=True, exist_ok=True)
+        spec_output_path.write_text(spec_json)
+    else:
+        spec_output_path = None
 
     print(f"Root BPMN: {args.bpmn_file.resolve()}")
     print(f"Directory: {args.bpmn_file.resolve().parent}")
@@ -264,10 +326,28 @@ def main():
         print(f"Compact round-trip task count: {len(compact_restored.tasks)}")
         print(f"Compact round-trip subprocess specs: {len(compact_restored.subprocess_specs)}")
 
+    if spec_json is not None:
+        print(f"Canonical spec-only JSON bytes: {len(canonical_spec_json.encode('utf-8'))}")
+        print(f"Editor-spec JSON bytes: {len(spec_json.encode('utf-8'))}")
+        print(f"Editor-spec gzip bytes: {len(spec_serializer.serialize_json(workflow, use_gzip=True))}")
+        print(f"Editor-spec serializer version: {spec_serializer.get_version(spec_json)}")
+        print(f"Editor-spec top-level keys: {sorted(spec_parsed_json.keys())}")
+        print(f"Editor-spec round-trip subprocess specs: {len(spec_restored['subprocess_specs'])}")
+        print(f"Editor-spec serialize seconds: {spec_serialize_elapsed:.6f}")
+        print(f"Editor-spec deserialize seconds: {spec_deserialize_elapsed:.6f}")
+
     if as_json is not None and compact_json is not None:
         savings = len(as_json.encode("utf-8")) - len(compact_json.encode("utf-8"))
         percent = (savings / len(as_json.encode("utf-8")) * 100) if as_json else 0
         print(f"Compact savings vs canonical: {savings} bytes ({percent:.1f}%)")
+    if spec_json is not None:
+        spec_savings = len(canonical_spec_json.encode("utf-8")) - len(spec_json.encode("utf-8"))
+        spec_percent = (spec_savings / len(canonical_spec_json.encode("utf-8")) * 100) if canonical_spec_json else 0
+        print(f"Editor-spec savings vs canonical spec-only: {spec_savings} bytes ({spec_percent:.1f}%)")
+        if as_json is not None:
+            workflow_savings = len(as_json.encode("utf-8")) - len(spec_json.encode("utf-8"))
+            workflow_percent = (workflow_savings / len(as_json.encode("utf-8")) * 100) if as_json else 0
+            print(f"Editor-spec savings vs canonical workflow: {workflow_savings} bytes ({workflow_percent:.1f}%)")
 
     subprocess_names = sorted(subprocesses.keys())
     if subprocess_names:
@@ -291,6 +371,8 @@ def main():
         print(f"Serialization written to: {output_path}")
     if compact_output_path is not None:
         print(f"Compact serialization written to: {compact_output_path}")
+    if spec_output_path is not None:
+        print(f"Editor-spec serialization written to: {spec_output_path}")
 
 
 if __name__ == "__main__":
