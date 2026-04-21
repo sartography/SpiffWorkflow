@@ -38,6 +38,7 @@ doc = [
 dev = [
     "build",
     "coverage",
+    "unittest-parallel",
 ]
 
 [tool.setuptools.packages.find]
