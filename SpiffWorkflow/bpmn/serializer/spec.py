@@ -250,6 +250,7 @@ class BpmnSpecSerializer:
                 expanded[logical_key] = self._expand_schema_value(logical_key, value, type_table, string_table)
         expanded.setdefault("name", spec_key)
         expanded.setdefault("description", expanded["name"])
+        expanded.setdefault("file", None)
         expanded.setdefault("io_specification", None)
         expanded.setdefault("data_objects", {})
         expanded.setdefault("correlation_keys", {})

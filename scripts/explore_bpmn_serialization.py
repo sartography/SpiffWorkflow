@@ -9,6 +9,7 @@
 import argparse
 from collections import defaultdict
 import json
+import statistics
 import sys
 import time
 from pathlib import Path
@@ -72,6 +73,12 @@ def parse_args():
         "--spec-serializer",
         action="store_true",
         help="Also run the editor-spec serializer.",
+    )
+    parser.add_argument(
+        "--benchmark-iterations",
+        type=int,
+        default=0,
+        help="Optionally benchmark raw serialize/deserialize times over N iterations.",
     )
     parser.add_argument(
         "--no-fallback",
@@ -230,6 +237,37 @@ def json_size(value):
     return len(json.dumps(value, sort_keys=True).encode("utf-8"))
 
 
+def percentile_ms(samples, percentile):
+    if not samples:
+        return 0.0
+    if len(samples) == 1:
+        return samples[0] * 1000
+    index = max(0, min(len(samples) - 1, round((len(samples) - 1) * percentile)))
+    return sorted(samples)[index] * 1000
+
+
+def benchmark_serializer(serializer, workflow, iterations):
+    serialize_times = []
+    deserialize_times = []
+    payload = serializer.serialize_json(workflow)
+    for _ in range(iterations):
+        start = time.perf_counter()
+        payload = serializer.serialize_json(workflow)
+        serialize_times.append(time.perf_counter() - start)
+        start = time.perf_counter()
+        serializer.deserialize_json(payload)
+        deserialize_times.append(time.perf_counter() - start)
+
+    payload_bytes = len(payload) if isinstance(payload, bytes) else len(payload.encode("utf-8"))
+    return {
+        "bytes": payload_bytes,
+        "serialize_avg_ms": statistics.mean(serialize_times) * 1000,
+        "serialize_p95_ms": percentile_ms(serialize_times, 0.95),
+        "deserialize_avg_ms": statistics.mean(deserialize_times) * 1000,
+        "deserialize_p95_ms": percentile_ms(deserialize_times, 0.95),
+    }
+
+
 def main():
     args = parse_args()
     workflow, parser, loaded_files, skipped_files, subprocesses, missing_subprocess_specs, resolutions = build_workflow(
@@ -242,6 +280,7 @@ def main():
     compact_serializer = compact_dict = compact_json = compact_parsed_json = compact_restored = None
     spec_serializer = canonical_specs = canonical_spec_json = spec_json = spec_parsed_json = spec_restored = None
     spec_serialize_elapsed = spec_deserialize_elapsed = None
+    benchmark_results = {}
 
     if args.serializer in {"canonical", "both"}:
         serializer, as_dict, as_json, parsed_json = inspect_serialization(workflow)
@@ -258,6 +297,13 @@ def main():
             spec_serialize_elapsed,
             spec_deserialize_elapsed,
         ) = inspect_spec_serialization(workflow)
+    if args.benchmark_iterations > 0:
+        if serializer is not None:
+            benchmark_results["canonical"] = benchmark_serializer(serializer, workflow, args.benchmark_iterations)
+        if compact_serializer is not None:
+            benchmark_results["compact"] = benchmark_serializer(compact_serializer, workflow, args.benchmark_iterations)
+        if spec_serializer is not None:
+            benchmark_results["editor_spec"] = benchmark_serializer(spec_serializer, workflow, args.benchmark_iterations)
 
     if args.output is not None and as_json is not None:
         output_path = args.output.resolve()
@@ -373,6 +419,15 @@ def main():
         print(f"Compact serialization written to: {compact_output_path}")
     if spec_output_path is not None:
         print(f"Editor-spec serialization written to: {spec_output_path}")
+    if benchmark_results:
+        print(f"Benchmark iterations: {args.benchmark_iterations}")
+        for name, stats in benchmark_results.items():
+            print(f"{name} benchmark:")
+            print(f"  - bytes: {stats['bytes']}")
+            print(f"  - serialize avg: {stats['serialize_avg_ms']:.3f} ms")
+            print(f"  - serialize p95: {stats['serialize_p95_ms']:.3f} ms")
+            print(f"  - deserialize avg: {stats['deserialize_avg_ms']:.3f} ms")
+            print(f"  - deserialize p95: {stats['deserialize_p95_ms']:.3f} ms")
 
 
 if __name__ == "__main__":
