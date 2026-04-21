@@ -4,16 +4,18 @@ import json
 from .workflow import BpmnWorkflowSerializer, VERSION as CANONICAL_VERSION
 
 
-COMPACT_VERSION = "c1"
+COMPACT_VERSION = "c2"
 
 FORMAT_KEY = "serialization_format"
 FORMAT_VALUE = "compact_bpmn_workflow"
 TYPENAME_TABLE_KEY = "typename_table"
+STRING_TABLE_KEY = "string_table"
 
 KEY_ALIASES = {
     "serializer_version": "~v",
     "serialization_format": "~f",
     "typename_table": "~tt",
+    "string_table": "~st",
     "spec": "~s",
     "subprocess_specs": "~ps",
     "subprocesses": "~sp",
@@ -99,6 +101,27 @@ DEFAULT_TASK_DESCRIPTIONS = {
     "BoundaryEvent": "Boundary Event",
 }
 
+STRING_REF_FIELDS = {
+    "name",
+    "file",
+    "task_spec",
+    "bpmn_id",
+    "bpmn_name",
+    "spec",
+    "default_task_spec",
+    "split_task",
+    "parent",
+    "id",
+    "root",
+    "last_task",
+}
+
+STRING_LIST_FIELDS = {
+    "inputs",
+    "outputs",
+    "children",
+}
+
 
 class CompactBpmnWorkflowSerializer:
     VERSION_KEY = "serializer_version"
@@ -127,6 +150,8 @@ class CompactBpmnWorkflowSerializer:
         self.json_decoder_cls = json_decoder_cls
         self._typenames = []
         self._typename_to_index = {}
+        self._strings = []
+        self._string_to_index = {}
 
     def _alias_key(self, key):
         return KEY_ALIASES.get(key, key)
@@ -139,6 +164,12 @@ class CompactBpmnWorkflowSerializer:
             self._typename_to_index[typename] = len(self._typenames)
             self._typenames.append(typename)
         return self._typename_to_index[typename]
+
+    def _intern_string(self, value):
+        if value not in self._string_to_index:
+            self._string_to_index[value] = len(self._strings)
+            self._strings.append(value)
+        return self._string_to_index[value]
 
     def _compact_generic(self, value):
         if isinstance(value, dict):
@@ -154,6 +185,17 @@ class CompactBpmnWorkflowSerializer:
             return [self._compact_generic(item) for item in value]
         return value
 
+    def _compact_schema_value(self, key, value):
+        if isinstance(value, str) and key in STRING_REF_FIELDS:
+            return self._intern_string(value)
+        if (
+            isinstance(value, list)
+            and key in STRING_LIST_FIELDS
+            and all(isinstance(item, str) for item in value)
+        ):
+            return [self._intern_string(item) for item in value]
+        return self._compact_generic(value)
+
     def _expand_generic(self, value, type_table):
         if isinstance(value, dict):
             expanded = {}
@@ -167,6 +209,17 @@ class CompactBpmnWorkflowSerializer:
         if isinstance(value, list):
             return [self._expand_generic(item, type_table) for item in value]
         return value
+
+    def _expand_schema_value(self, key, value, type_table, string_table):
+        if isinstance(value, int) and key in STRING_REF_FIELDS:
+            return string_table[value]
+        if (
+            isinstance(value, list)
+            and key in STRING_LIST_FIELDS
+            and all(isinstance(item, int) for item in value)
+        ):
+            return [string_table[item] for item in value]
+        return self._expand_generic(value, type_table)
 
     def _compact_task_spec(self, task_key, task):
         compact = {}
@@ -190,11 +243,17 @@ class CompactBpmnWorkflowSerializer:
             if key == "typename":
                 compact[alias] = self._intern_typename(value)
             else:
-                compact[alias] = self._compact_generic(value)
+                compact[alias] = self._compact_schema_value(key, value)
         return compact
 
-    def _expand_task_spec(self, task_key, task, type_table):
-        expanded = self._expand_generic(task, type_table)
+    def _expand_task_spec(self, task_key, task, type_table, string_table):
+        expanded = {}
+        for key, value in task.items():
+            logical_key = self._unalias_key(key)
+            if logical_key == "typename" and isinstance(value, int):
+                expanded[logical_key] = type_table[value]
+            else:
+                expanded[logical_key] = self._expand_schema_value(logical_key, value, type_table, string_table)
         typename = expanded["typename"]
         expanded.setdefault("name", task_key)
         expanded.setdefault("description", DEFAULT_TASK_DESCRIPTIONS.get(typename))
@@ -222,7 +281,7 @@ class CompactBpmnWorkflowSerializer:
                 continue
             if key == "task_specs":
                 compact[self._alias_key(key)] = {
-                    task_key: self._compact_task_spec(task_key, task)
+                    str(self._intern_string(task_key)): self._compact_task_spec(task_key, task)
                     for task_key, task in value.items()
                 }
                 continue
@@ -234,21 +293,27 @@ class CompactBpmnWorkflowSerializer:
             if key == "typename":
                 compact[alias] = self._intern_typename(value)
             else:
-                compact[alias] = self._compact_generic(value)
+                compact[alias] = self._compact_schema_value(key, value)
         return compact
 
-    def _expand_process_spec(self, spec_key, spec, type_table):
-        expanded = self._expand_generic(spec, type_table)
+    def _expand_process_spec(self, spec_key, spec, type_table, string_table):
+        expanded = {}
+        for key, value in spec.items():
+            logical_key = self._unalias_key(key)
+            if logical_key == "typename" and isinstance(value, int):
+                expanded[logical_key] = type_table[value]
+            elif logical_key == "task_specs":
+                expanded[logical_key] = {
+                    string_table[int(task_key)]: self._expand_task_spec(string_table[int(task_key)], task, type_table, string_table)
+                    for task_key, task in value.items()
+                }
+            else:
+                expanded[logical_key] = self._expand_schema_value(logical_key, value, type_table, string_table)
         expanded.setdefault("name", spec_key)
         expanded.setdefault("description", expanded["name"])
         expanded.setdefault("io_specification", None)
         expanded.setdefault("data_objects", {})
         expanded.setdefault("correlation_keys", {})
-        task_specs = expanded.get("task_specs", {})
-        expanded["task_specs"] = {
-            task_key: self._expand_task_spec(task_key, task, type_table)
-            for task_key, task in task_specs.items()
-        }
         return expanded
 
     def _compact_runtime_task(self, task):
@@ -263,11 +328,14 @@ class CompactBpmnWorkflowSerializer:
             if key == "children" and value == []:
                 continue
             alias = self._alias_key(key)
-            compact[alias] = self._compact_generic(value)
+            compact[alias] = self._compact_schema_value(key, value)
         return compact
 
-    def _expand_runtime_task(self, task, type_table):
-        expanded = self._expand_generic(task, type_table)
+    def _expand_runtime_task(self, task, type_table, string_table):
+        expanded = {}
+        for key, value in task.items():
+            logical_key = self._unalias_key(key)
+            expanded[logical_key] = self._expand_schema_value(logical_key, value, type_table, string_table)
         expanded.setdefault("parent", None)
         expanded.setdefault("children", [])
         expanded.setdefault("triggered", False)
@@ -278,22 +346,25 @@ class CompactBpmnWorkflowSerializer:
     def canonical_to_compact(self, dct):
         self._typenames = []
         self._typename_to_index = {}
+        self._strings = []
+        self._string_to_index = {}
 
         compact = {
             self._alias_key(FORMAT_KEY): FORMAT_VALUE,
             self._alias_key(TYPENAME_TABLE_KEY): self._typenames,
+            self._alias_key(STRING_TABLE_KEY): self._strings,
         }
         for key, value in dct.items():
             if key == "spec":
                 compact[self._alias_key(key)] = self._compact_process_spec(None, value)
             elif key == "subprocess_specs":
                 compact[self._alias_key(key)] = {
-                    spec_key: self._compact_process_spec(spec_key, spec)
+                    str(self._intern_string(spec_key)): self._compact_process_spec(spec_key, spec)
                     for spec_key, spec in value.items()
                 }
             elif key == "tasks":
                 compact[self._alias_key(key)] = {
-                    task_id: self._compact_runtime_task(task)
+                    str(self._intern_string(task_id)): self._compact_runtime_task(task)
                     for task_id, task in value.items()
                 }
             elif key == "success" and value is False:
@@ -305,29 +376,30 @@ class CompactBpmnWorkflowSerializer:
             elif key in {"data", "correlations", "subprocesses", "bpmn_events"} and value in ({}, []):
                 continue
             else:
-                compact[self._alias_key(key)] = self._compact_generic(value)
+                compact[self._alias_key(key)] = self._compact_schema_value(key, value)
         return compact
 
     def compact_to_canonical(self, dct):
         type_table = dct.pop(self._alias_key(TYPENAME_TABLE_KEY), [])
+        string_table = dct.pop(self._alias_key(STRING_TABLE_KEY), [])
         dct.pop(self._alias_key(FORMAT_KEY), None)
         expanded = {}
         for key, value in dct.items():
             name = self._unalias_key(key)
             if name == "spec":
-                expanded[name] = self._expand_process_spec(None, value, type_table)
+                expanded[name] = self._expand_process_spec(None, value, type_table, string_table)
             elif name == "subprocess_specs":
                 expanded[name] = {
-                    spec_key: self._expand_process_spec(spec_key, spec, type_table)
-                    for spec_key, spec in self._expand_generic(value, type_table).items()
+                    string_table[int(spec_key)]: self._expand_process_spec(string_table[int(spec_key)], spec, type_table, string_table)
+                    for spec_key, spec in value.items()
                 }
             elif name == "tasks":
                 expanded[name] = {
-                    task_id: self._expand_runtime_task(task, type_table)
-                    for task_id, task in self._expand_generic(value, type_table).items()
+                    string_table[int(task_id)]: self._expand_runtime_task(task, type_table, string_table)
+                    for task_id, task in value.items()
                 }
             else:
-                expanded[name] = self._expand_generic(value, type_table)
+                expanded[name] = self._expand_schema_value(name, value, type_table, string_table)
 
         expanded.setdefault("data", {})
         expanded.setdefault("correlations", {})

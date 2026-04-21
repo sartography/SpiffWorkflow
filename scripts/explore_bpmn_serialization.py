@@ -57,6 +57,12 @@ def parse_args():
         help="Optional path to write the compact serialized JSON.",
     )
     parser.add_argument(
+        "--serializer",
+        choices=["canonical", "compact", "both"],
+        default="both",
+        help="Which serializer(s) to run. Default: both",
+    )
+    parser.add_argument(
         "--no-fallback",
         action="store_true",
         help="Disable temporary process-reference fallback resolution.",
@@ -189,16 +195,21 @@ def main():
         validate=args.validate,
         allow_fallback=not args.no_fallback,
     )
-    serializer, as_dict, as_json, parsed_json = inspect_serialization(workflow)
-    compact_serializer, compact_dict, compact_json, compact_parsed_json, compact_restored = inspect_compact_serialization(workflow)
+    serializer = as_dict = as_json = parsed_json = None
+    compact_serializer = compact_dict = compact_json = compact_parsed_json = compact_restored = None
 
-    if args.output is not None:
+    if args.serializer in {"canonical", "both"}:
+        serializer, as_dict, as_json, parsed_json = inspect_serialization(workflow)
+    if args.serializer in {"compact", "both"}:
+        compact_serializer, compact_dict, compact_json, compact_parsed_json, compact_restored = inspect_compact_serialization(workflow)
+
+    if args.output is not None and as_json is not None:
         output_path = args.output.resolve()
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(as_json)
     else:
         output_path = None
-    if args.compact_output is not None:
+    if args.compact_output is not None and compact_json is not None:
         compact_output_path = args.compact_output.resolve()
         compact_output_path.parent.mkdir(parents=True, exist_ok=True)
         compact_output_path.write_text(compact_json)
@@ -219,41 +230,50 @@ def main():
     print(f"Executable process IDs discovered: {len(parser.get_process_ids())}")
     print(f"Subprocess specs: {len(subprocesses)}")
     print(f"Fallback enabled: {not args.no_fallback}")
+    print(f"Serializer mode: {args.serializer}")
     print(f"Workflow tasks: {len(workflow.tasks)}")
-    print(f"Top-level serialization keys: {sorted(as_dict.keys())}")
-    print(f"JSON keys: {sorted(parsed_json.keys())}")
-    print(f"Serialized JSON bytes: {len(as_json.encode('utf-8'))}")
-    print(f"Canonical gzip bytes: {len(serializer.serialize_json(workflow, use_gzip=True))}")
-    print(f"Serializer version: {serializer.get_version(as_json)}")
-    size_breakdown = sorted(
-        ((key, json_size(value)) for key, value in parsed_json.items() if key != "serializer_version"),
-        key=lambda item: item[1],
-        reverse=True,
-    )
-    print("Top-level section sizes:")
-    for key, size in size_breakdown:
-        print(f"  - {key}: {size} bytes")
-    print(f"Compact JSON bytes: {len(compact_json.encode('utf-8'))}")
-    print(f"Compact gzip bytes: {len(compact_serializer.serialize_json(workflow, use_gzip=True))}")
-    print(f"Compact serializer version: {compact_serializer.get_version(compact_json)}")
-    savings = len(as_json.encode("utf-8")) - len(compact_json.encode("utf-8"))
-    percent = (savings / len(as_json.encode("utf-8")) * 100) if as_json else 0
-    print(f"Compact savings vs canonical: {savings} bytes ({percent:.1f}%)")
-    print(f"Compact top-level keys: {sorted(compact_parsed_json.keys())}")
-
-    tasks = parsed_json.get("tasks", {})
-    print(f"Serialized task entries: {len(tasks)}")
-    if tasks:
-        sample_names = sorted(
-            task.get("task_spec", "<unknown>")
-            for task in list(tasks.values())[:10]
+    if as_json is not None:
+        print(f"Top-level serialization keys: {sorted(as_dict.keys())}")
+        print(f"JSON keys: {sorted(parsed_json.keys())}")
+        print(f"Serialized JSON bytes: {len(as_json.encode('utf-8'))}")
+        print(f"Canonical gzip bytes: {len(serializer.serialize_json(workflow, use_gzip=True))}")
+        print(f"Serializer version: {serializer.get_version(as_json)}")
+        size_breakdown = sorted(
+            ((key, json_size(value)) for key, value in parsed_json.items() if key != "serializer_version"),
+            key=lambda item: item[1],
+            reverse=True,
         )
-        print(f"Sample serialized task specs: {sample_names}")
+        print("Top-level section sizes:")
+        for key, size in size_breakdown:
+            print(f"  - {key}: {size} bytes")
+
+        tasks = parsed_json.get("tasks", {})
+        print(f"Serialized task entries: {len(tasks)}")
+        if tasks:
+            sample_names = sorted(
+                task.get("task_spec", "<unknown>")
+                for task in list(tasks.values())[:10]
+            )
+            print(f"Sample serialized task specs: {sample_names}")
+
+    if compact_json is not None:
+        print(f"Compact JSON bytes: {len(compact_json.encode('utf-8'))}")
+        print(f"Compact gzip bytes: {len(compact_serializer.serialize_json(workflow, use_gzip=True))}")
+        print(f"Compact serializer version: {compact_serializer.get_version(compact_json)}")
+        print(f"Compact top-level keys: {sorted(compact_parsed_json.keys())}")
+        print(f"Compact round-trip task count: {len(compact_restored.tasks)}")
+        print(f"Compact round-trip subprocess specs: {len(compact_restored.subprocess_specs)}")
+
+    if as_json is not None and compact_json is not None:
+        savings = len(as_json.encode("utf-8")) - len(compact_json.encode("utf-8"))
+        percent = (savings / len(as_json.encode("utf-8")) * 100) if as_json else 0
+        print(f"Compact savings vs canonical: {savings} bytes ({percent:.1f}%)")
 
     subprocess_names = sorted(subprocesses.keys())
     if subprocess_names:
         print(f"Sample subprocess spec names: {subprocess_names[:10]}")
-        print(f"Serialized subprocess spec entries: {len(parsed_json.get('subprocess_specs', {}))}")
+        if parsed_json is not None:
+            print(f"Serialized subprocess spec entries: {len(parsed_json.get('subprocess_specs', {}))}")
     if resolutions:
         print("Fallback resolutions:")
         for source_name, resolved_name, resolution_kind, location in resolutions:
@@ -266,8 +286,6 @@ def main():
     process_ids = sorted(parser.get_process_ids())
     if process_ids:
         print(f"Sample executable process IDs: {process_ids[:10]}")
-    print(f"Compact round-trip task count: {len(compact_restored.tasks)}")
-    print(f"Compact round-trip subprocess specs: {len(compact_restored.subprocess_specs)}")
 
     if output_path is not None:
         print(f"Serialization written to: {output_path}")
