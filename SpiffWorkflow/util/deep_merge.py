@@ -60,17 +60,33 @@ class DeepMerge(object):
 
     @staticmethod
     def merge_array(a, b, path=None):
+        seen_hashable = set()
+        seen_unhashable = []
+
+        for item in a:
+            try:
+                seen_hashable.add(item)
+            except TypeError:
+                seen_unhashable.append(item)
 
         for idx, val in enumerate(b):
-            if isinstance(b[idx], dict):  # Recurse back on dictionaries.
+            if isinstance(val, dict):  # Recurse back on dictionaries.
                 # If lists of dictionaries get out of order, this might
                 # cause us some pain.
                 if len(a) > idx:
-                    a[idx] = DeepMerge.merge(a[idx], b[idx], path + [str(idx)])
+                    a[idx] = DeepMerge.merge(a[idx], val, path + [str(idx)])
                 else:
-                    a.append(b[idx])
-            else: # Just merge whatever it is back in.
-                a.extend(x for x in b if x not in a)
+                    a.append(val)
+            else:  # Just merge whatever it is back in.
+                try:
+                    if val in seen_hashable:
+                        continue
+                    seen_hashable.add(val)
+                except TypeError:
+                    if val in seen_unhashable:
+                        continue
+                    seen_unhashable.append(val)
+                a.append(val)
 
         # Trim a back to the length of b.  In the end, the two arrays should match
         del a[len(b):]
