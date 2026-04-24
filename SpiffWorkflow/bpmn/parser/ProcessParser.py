@@ -41,19 +41,63 @@ class ProcessParser(NodeParser):
         :param filename: the source BPMN filename (optional)
         :param lane: the lane of a subprocess (optional)
         """
-        super().__init__(node, nsmap, filename=filename, lane=lane)
         self.parser = p
+        super().__init__(node, nsmap, filename=filename, lane=lane)
         self.lane = lane
         self.spec = None
         self.process_executable = node.get('isExecutable', 'true') == 'true'
         self.data_stores = data_stores
         self.parent = None
+        self.document_root = node.getroottree().getroot()
+        self.nodes_by_id = {}
+        self.outgoing_sequence_flows = {}
+        self.boundary_events_by_attached = {}
+        self.data_object_references = {}
+        self.data_store_references = {}
+        self.positions_by_node_id = self.parser.get_document_positions(self.document_root)
+        self.lanes_by_node_id = self.parser.get_document_lanes(self.document_root)
+        self._index_process_nodes()
 
     def get_name(self):
         """
         Returns the process name (or ID, if no name is included in the file)
         """
         return self.node.get('name', default=self.bpmn_id)
+
+    def _index_process_nodes(self):
+        for node in self.xpath('.//*[@id]'):
+            node_id = node.get('id')
+            if node_id is not None:
+                self.nodes_by_id[node_id] = node
+            if node.tag.endswith('sequenceFlow'):
+                self.outgoing_sequence_flows.setdefault(node.get('sourceRef'), []).append(node)
+            elif node.tag.endswith('boundaryEvent'):
+                self.boundary_events_by_attached.setdefault(node.get('attachedToRef'), []).append(node)
+            elif node.tag.endswith('dataObjectReference'):
+                self.data_object_references[node_id] = node
+            elif node.tag.endswith('dataStoreReference'):
+                self.data_store_references[node_id] = node
+
+    def get_boundary_events(self, attached_to_ref):
+        return self.boundary_events_by_attached.get(attached_to_ref, [])
+
+    def get_outgoing_sequence_flows(self, source_ref):
+        return self.outgoing_sequence_flows.get(source_ref, [])
+
+    def get_node_by_id(self, node_id):
+        return self.nodes_by_id.get(node_id)
+
+    def get_data_object_reference(self, reference_id):
+        return self.data_object_references.get(reference_id)
+
+    def get_data_store_reference(self, reference_id):
+        return self.data_store_references.get(reference_id)
+
+    def get_position(self, node_id):
+        return self.positions_by_node_id.get(node_id, {'x': 0.0, 'y': 0.0})
+
+    def get_lane_name(self, node_id):
+        return self.lanes_by_node_id.get(node_id)
 
     def has_lanes(self) -> bool:
         """Returns true if this process has one or more named lanes """

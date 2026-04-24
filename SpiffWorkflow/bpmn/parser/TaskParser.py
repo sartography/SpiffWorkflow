@@ -59,9 +59,9 @@ class TaskParser(NodeParser):
           extending the TaskParser.
         :param node: the XML node for this task
         """
-        super().__init__(node, nsmap, filename=process_parser.filename, lane=lane)
         self.process_parser = process_parser
         self.spec_class = spec_class
+        super().__init__(node, nsmap, filename=process_parser.filename, lane=lane)
         self.spec = self.process_parser.spec
 
     def _copy_task_attrs(self, original, loop_characteristics=None):
@@ -199,19 +199,18 @@ class TaskParser(NodeParser):
             if len(mi_loop_characteristics) > 0:
                 self._add_multiinstance_task(mi_loop_characteristics[0])
 
-            boundary_event_nodes = self.doc_xpath('.//bpmn:boundaryEvent[@attachedToRef="%s"]' % self.bpmn_id)
+            boundary_event_nodes = self.process_parser.get_boundary_events(self.bpmn_id)
             if boundary_event_nodes:
                 parent = self._add_boundary_event(boundary_event_nodes)
 
             children = []
-            outgoing = self.doc_xpath('.//bpmn:sequenceFlow[@sourceRef="%s"]' % self.bpmn_id)
+            outgoing = self.process_parser.get_outgoing_sequence_flows(self.bpmn_id)
             if len(outgoing) > 1 and not self.handles_multiple_outgoing():
                 self.raise_validation_exception('Multiple outgoing flows are not supported for tasks of type')
             for sequence_flow in outgoing:
                 target_ref = sequence_flow.get('targetRef')
-                try:
-                    target_node = one(self.doc_xpath('.//bpmn:*[@id="%s"]'% target_ref))
-                except Exception:
+                target_node = self.process_parser.get_node_by_id(target_ref)
+                if target_node is None:
                     self.raise_validation_exception('When looking for a task spec, we found two items, '
                         'perhaps a form has the same ID? (%s)' % target_ref)
 
@@ -268,4 +267,3 @@ class TaskParser(NodeParser):
         outgoing sequence flows.
         """
         return False
-

@@ -47,6 +47,7 @@ from SpiffWorkflow.bpmn.specs.defaults import (
 )
 from SpiffWorkflow.bpmn.specs.event_definitions.simple import NoneEventDefinition
 from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.message import CorrelationProperty
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask as SubWorkflowTaskMixin
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent as StartEventMixin
 
@@ -161,8 +162,14 @@ class BpmnParser(object):
         self.collaborations = {}
         self.process_dependencies = set()
         self.messages = {}
+        self.signals = {}
+        self.errors = {}
+        self.escalations = {}
         self.correlations = {}
+        self.message_correlations = {}
         self.data_stores = {}
+        self.document_lanes = {}
+        self.document_positions = {}
 
     def _get_parser_class(self, tag):
         if tag in self.OVERRIDE_PARSER_CLASSES:
@@ -231,16 +238,54 @@ class BpmnParser(object):
         # the parser instances, which need to know about the data stores to
         # resolve data references.
         self._add_data_stores(bpmn)
+        self._add_diagram_indexes(bpmn)
 
         self._add_processes(bpmn, filename)
         self._add_collaborations(bpmn)
         self._add_messages(bpmn)
+        self._add_signals(bpmn)
+        self._add_errors(bpmn)
+        self._add_escalations(bpmn)
         self._add_correlations(bpmn)
 
     def _add_processes(self, bpmn, filename=None):
         for process in bpmn.xpath('.//bpmn:process', namespaces=self.namespaces):
             self._find_dependencies(process)
             self.create_parser(process, filename)
+
+    def _document_key(self, bpmn):
+        root = bpmn.getroot() if hasattr(bpmn, 'getroot') else bpmn
+        return id(root)
+
+    def _add_diagram_indexes(self, bpmn):
+        document_key = self._document_key(bpmn)
+        if document_key in self.document_lanes:
+            return
+
+        lanes = {}
+        for flow_node_ref in bpmn.xpath('.//bpmn:flowNodeRef', namespaces=self.namespaces):
+            flow_node_id = flow_node_ref.text
+            if flow_node_id is not None:
+                lanes[flow_node_id] = flow_node_ref.getparent().get('name')
+
+        positions = {}
+        for shape in bpmn.xpath('.//bpmndi:BPMNShape[@bpmnElement]', namespaces=self.namespaces):
+            node_id = shape.get('bpmnElement')
+            bounds = first(shape.xpath('.//dc:Bounds', namespaces=self.namespaces))
+            if node_id is not None and bounds is not None:
+                positions[node_id] = {
+                    'x': float(bounds.get('x', 0)),
+                    'y': float(bounds.get('y', 0)),
+                }
+
+        self.document_lanes[document_key] = lanes
+        self.document_positions[document_key] = positions
+
+    def get_document_lanes(self, root):
+        return self.document_lanes.get(id(root), {})
+
+    def get_document_positions(self, root):
+        return self.document_positions.get(id(root), {})
 
     def _add_collaborations(self, bpmn):
         collaboration = first(bpmn.xpath('.//bpmn:collaboration', namespaces=self.namespaces))
@@ -257,7 +302,41 @@ class BpmnParser(object):
                 )
             self.messages[message.attrib.get("id")] = message.attrib.get("name")
 
+    def _add_signals(self, bpmn):
+        for signal in bpmn.xpath('.//bpmn:signal', namespaces=self.namespaces):
+            signal_identifier = signal.attrib.get("id")
+            if signal_identifier is None:
+                raise ValidationException("Signal identifier is missing from bpmn xml")
+            self.signals[signal_identifier] = signal.attrib.get("name")
+
+    def _add_errors(self, bpmn):
+        for error in bpmn.xpath('.//bpmn:error', namespaces=self.namespaces):
+            error_identifier = error.attrib.get("id")
+            if error_identifier is None:
+                raise ValidationException("Error identifier is missing from bpmn xml")
+            self.errors[error_identifier] = {
+                "name": error.attrib.get("name"),
+                "error_code": error.attrib.get("errorCode"),
+            }
+
+    def _add_escalations(self, bpmn):
+        for escalation in bpmn.xpath('.//bpmn:escalation', namespaces=self.namespaces):
+            escalation_identifier = escalation.attrib.get("id")
+            if escalation_identifier is None:
+                raise ValidationException("Escalation identifier is missing from bpmn xml")
+            self.escalations[escalation_identifier] = {
+                "name": escalation.attrib.get("name"),
+                "escalation_code": escalation.attrib.get("escalationCode"),
+            }
+
     def _add_correlations(self, bpmn):
+        property_id_to_used_by = {}
+        for correlation_key in bpmn.xpath('.//bpmn:correlationKey', namespaces=self.namespaces):
+            used_by = correlation_key.attrib.get("name")
+            for property_ref in correlation_key.xpath('./bpmn:correlationPropertyRef', namespaces=self.namespaces):
+                if property_ref.text is not None:
+                    property_id_to_used_by.setdefault(property_ref.text, []).append(used_by)
+
         for correlation in bpmn.xpath('.//bpmn:correlationProperty', namespaces=self.namespaces):
             correlation_identifier = correlation.attrib.get("id")
             if correlation_identifier is None:
@@ -279,6 +358,14 @@ class BpmnParser(object):
                 expression = children[0].text if len(children) > 0 else None
                 retrieval_expressions.append({"messageRef": message_model_identifier,
                                              "expression": expression})
+                if expression is not None:
+                    self.message_correlations.setdefault(message_model_identifier, []).append(
+                        CorrelationProperty(
+                            correlation_identifier,
+                            expression,
+                            property_id_to_used_by.get(correlation_identifier, []),
+                        )
+                    )
             self.correlations[correlation_identifier] = {
                 "name": correlation.attrib.get("name"),
                 "retrieval_expressions": retrieval_expressions
