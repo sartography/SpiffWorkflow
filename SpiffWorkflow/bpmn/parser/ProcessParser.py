@@ -67,7 +67,10 @@ class ProcessParser(NodeParser):
         """ This returns a list of message names that would cause this
             process to start. """
         message_names = []
-        messages = self.xpath("//bpmn:message")
+        messages_by_id = {
+            message.attrib.get('id'): message
+            for message in self.xpath("//bpmn:message")
+        }
         message_event_definitions = self.xpath(
             "//bpmn:startEvent/bpmn:messageEventDefinition")
         for message_event_definition in message_event_definitions:
@@ -80,7 +83,7 @@ class ProcessParser(NodeParser):
                     f"Could not find messageRef from message event definition: {med_id}"
                 )
             # Convert the id into a Message Name
-            message_name = next((m for m in messages if m.attrib.get('id') == message_model_identifier), None)
+            message_name = messages_by_id.get(message_model_identifier)
             message_names.append(message_name.attrib.get('name'))
 
         return message_names
