@@ -27,6 +27,15 @@ doc:
 tests:
 	$(RUN) python -m unittest discover -vs tests/SpiffWorkflow -p \*Test.py -t .
 
+.PHONY : tests-compact
+tests-compact:
+	SPIFFWORKFLOW_SERIALIZER=compact $(RUN) python -m unittest discover -vs tests/SpiffWorkflow -p \*Test.py -t .
+
+.PHONY : tests-dual
+tests-dual:
+	$(MAKE) tests RUN='$(RUN)'
+	$(MAKE) tests-compact RUN='$(RUN)'
+
 .PHONY : tests-par
 tests-par:
 	@if ! $(RUN) unittest-parallel --help >/dev/null 2>&1; then \
