@@ -126,10 +126,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
             if len(tasks) == 0:
                 self.bpmn_events.append(event)
 
-        for task in tasks:
-            task.task_spec.catch(task, event)
-        if len(tasks) > 0:
-            self.refresh_waiting_tasks()
+        self._catch_and_refresh_tasks(tasks, event)
 
     def send_event(self, event):
         """Allows this workflow to catch an externally generated event."""
@@ -140,9 +137,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
             tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
             if len(tasks) == 0:
                 raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
-            for task in tasks:
-                task.task_spec.catch(task, event)
-            self.refresh_waiting_tasks()
+            self._catch_and_refresh_tasks(tasks, event)
 
     def get_events(self):
         """Returns the list of events that cannot be handled from within this workflow."""
@@ -164,8 +159,10 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         :param will_complete_task: Callback that will be called prior to completing a task
         :param did_complete_task: Callback that will be called after completing a task
         """
+        self._refresh_waiting_tasks()
         count = self._do_engine_steps(will_complete_task, did_complete_task)
         while count > 0:
+            self._refresh_waiting_tasks()
             count = self._do_engine_steps(will_complete_task, did_complete_task)
 
     def _do_engine_steps(self, will_complete_task=None, did_complete_task=None):
@@ -173,7 +170,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         def update_workflow(wf):
             count = 0
             # Wanted to use the iterator method here, but at least this is a shorter list
-            for task in wf.get_tasks(state=TaskState.READY):
+            for task in self._get_ready_tasks_for_engine(wf):
                 if not task.task_spec.manual:
                     if will_complete_task is not None:
                         will_complete_task(task)
@@ -195,27 +192,54 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         count = update_workflow(self)
         return count > 0 or len(self.get_active_subprocesses()) > len(active_subprocesses)
 
+    def _get_ready_tasks_for_engine(self, wf):
+        if wf is self:
+            return list(super().get_tasks_iterator(state=TaskState.READY))
+        return wf.get_tasks(state=TaskState.READY)
+
+    def _refresh_waiting_task(self, task):
+        task.task_spec._update(task)
+
+    def _catch_and_refresh_tasks(self, tasks, event):
+        for task in tasks:
+            task.task_spec.catch(task, event)
+        for task in tasks:
+            self._refresh_waiting_task(task)
+
+    def _refresh_waiting_tasks(self):
+        if getattr(self, '_refreshing_waiting_tasks', False):
+            return
+
+        self._refreshing_waiting_tasks = True
+        try:
+            for subprocess in sorted(self.get_active_subprocesses(), key=lambda v: v.depth, reverse=True):
+                for task in subprocess.get_tasks_iterator(skip_subprocesses=True, state=TaskState.WAITING, spec_class=CatchingEvent):
+                    self._refresh_waiting_task(task)
+
+            for task in super().get_tasks_iterator(skip_subprocesses=True, state=TaskState.WAITING, spec_class=CatchingEvent):
+                self._refresh_waiting_task(task)
+        finally:
+            self._refreshing_waiting_tasks = False
+
     def refresh_waiting_tasks(self, will_refresh_task=None, did_refresh_task=None):
         """
-        Refresh the state of all WAITING tasks. This will, for example, update
-        Catching Timer Events whose waiting time has passed.
+        Compatibility no-op.
+
+        Waiting BPMN events are refreshed internally when READY tasks are queried,
+        WAITING tasks are queried, engine steps run, or events are delivered.
 
         :param will_refresh_task: Callback that will be called prior to refreshing a task
         :param did_refresh_task: Callback that will be called after refreshing a task
         """
-        def update_task(task):
-            if will_refresh_task is not None:
-                will_refresh_task(task)
-            task.task_spec._update(task)
-            if did_refresh_task is not None:
-                did_refresh_task(task)           
- 
-        for subprocess in sorted(self.get_active_subprocesses(), key=lambda v: v.depth, reverse=True):
-            for task in subprocess.get_tasks_iterator(skip_subprocesses=True, state=TaskState.WAITING):
-                update_task(task)
+        pass
 
-        for task in self.get_tasks_iterator(skip_subprocesses=True, state=TaskState.WAITING):
-            update_task(task)
+    def get_tasks_iterator(self, first_task=None, **kwargs):
+        task_filter = kwargs.get('task_filter')
+        state = task_filter.state if task_filter is not None else kwargs.get('state')
+        refresh_states = TaskState.READY | TaskState.WAITING
+        if state is not None and state & refresh_states and state & ~refresh_states == 0:
+            self._refresh_waiting_tasks()
+        return super().get_tasks_iterator(first_task, **kwargs)
 
     def get_task_from_id(self, task_id):
         if task_id not in self.tasks:

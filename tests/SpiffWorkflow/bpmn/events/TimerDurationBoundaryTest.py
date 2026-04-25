@@ -32,8 +32,6 @@ class TimerDurationTest(BpmnWorkflowTestCase):
             if save_restore:
                 self.save_restore()
             time.sleep(0.01)
-            self.assertEqual(len(self.workflow.get_tasks(state=TaskState.READY)), 1)
-            self.workflow.refresh_waiting_tasks()
             self.workflow.do_engine_steps()
             loopcount += 1
 

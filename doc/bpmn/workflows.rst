@@ -24,7 +24,6 @@ In the simplest case, running a workflow involves implementing the following loo
 * presents `READY` human tasks to users (if any)
 * updates the human task data if necessary
 * runs the human tasks
-* refreshes any `WAITING` tasks
 
 until there are no tasks left to complete.
 
@@ -42,7 +41,6 @@ Here are our engine methods:
             task = workflow.get_next_task(state=TaskState.READY, manual=False)
 
     def run_ready_events(self, workflow):
-        workflow.refresh_waiting_tasks()
         task = workflow.get_next_task(state=TaskState.READY, spec_class=CatchingEvent)
         while task is not None:
             task.run()
@@ -53,8 +51,9 @@ might have occurred.
 
 The second method handles processing events.  A task that corresponds to an event remains in state :code:`WAITING` until
 it catches whatever event it is waiting on, at which point it becomes :code:`READY` and can be run.  The
-:code:`workflow.refresh_waiting_tasks` method iterates over all the waiting tasks and changes the state to :code:`READY`
-if the conditions for doing so have been met.
+:code:`workflow.get_next_task` and :code:`workflow.get_tasks` methods refresh waiting event tasks internally when they
+are asked for :code:`READY` or :code:`WAITING` task states, so applications do not need to call a separate refresh
+method.
 
 We'll cover using the :code:`workflow.get_next_task` method and handling Human tasks later in this document.
 
