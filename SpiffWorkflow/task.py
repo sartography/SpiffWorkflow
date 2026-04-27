@@ -292,9 +292,12 @@ class Task(object):
         """Force set the state on a task"""
 
         if value != self.state:
+            old_state = self._state
             elapsed = time.time() - self.last_state_change
             self.last_state_change = time.time()
             self._state = value
+            if hasattr(self.workflow, '_task_state_changed_notify'):
+                self.workflow._task_state_changed_notify(self, old_state, value)
             logger.info(
                 f'State changed to {TaskState.get_name(value)}',
                 extra=self.collect_log_extras({'elapsed': elapsed})

@@ -285,6 +285,8 @@ class Workflow(object):
         task = self.tasks[task_id]
         for child in task.children:           
             self._remove_task(child.id)
+        if hasattr(self, '_task_state_changed_notify'):
+            self._task_state_changed_notify(task, task.state, None)
         task.parent._children.remove(task.id)
         self.tasks.pop(task_id)
 

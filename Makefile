@@ -59,6 +59,10 @@ tests-ind:
 tests-timing:
 	@make tests-ind 2>&1 | ./scripts/test_times.py
 
+.PHONY : waiting-task-stress
+waiting-task-stress:
+	$(RUN) python -m unittest -v tests.SpiffWorkflow.bpmn.WaitingTaskStressBenchmark
+
 
 wheel: clean
 	$(RUN) python -m build --sdist --wheel --outdir dist/
