@@ -48,7 +48,7 @@ class TimerCycleTest(BpmnWorkflowTestCase):
             self.workflow.do_engine_steps()
             if save_restore:
                 self.save_restore()
-            self.workflow.refresh_waiting_tasks()
+            self.workflow.do_engine_steps()
             events = self.workflow.waiting_events()
             refill = self.workflow.get_tasks(spec_name='Refill_Coffee')
             # Wait time is 0.1s, with a limit of 2 children, so by the 3rd iteration, the event should be complete
