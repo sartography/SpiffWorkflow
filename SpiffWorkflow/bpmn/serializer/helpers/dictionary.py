@@ -19,6 +19,9 @@
 
 from functools import partial
 
+_JSON_PRIMITIVE_TYPES = {str, int, float, bool, type(None)}
+
+
 class DictionaryConverter:
     """
     This is a base class used to convert BPMN specs, workflows, tasks, and (optonally)
@@ -123,12 +126,24 @@ class DictionaryConverter:
         Returns:
             dict: the restored object for registered objects or the original for unregistered values
         """
-        if isinstance(val, dict) and 'typename' in val:
-            from_dict = self.convert_from_dict.get(val.pop('typename'))
-            return from_dict(val, **kwargs)
-        elif isinstance(val, dict):
-            return dict((k, self.restore(v, **kwargs)) for k, v in val.items())
-        if isinstance(val, (list, tuple, set)):
-            return val.__class__([ self.restore(item, **kwargs) for item in val ])
-        else:
+        val_type = type(val)
+        if val_type in _JSON_PRIMITIVE_TYPES:
             return val
+
+        if isinstance(val, dict):
+            if 'typename' in val:
+                from_dict = self.convert_from_dict.get(val['typename'])
+                dct = dict(val)
+                del dct['typename']
+                return from_dict(dct, **kwargs)
+            return dict((k, self.restore(v, **kwargs)) for k, v in val.items())
+
+        if val_type is list:
+            return [self.restore(item, **kwargs) for item in val]
+        if val_type is tuple:
+            return tuple(self.restore(item, **kwargs) for item in val)
+        if val_type is set:
+            return {self.restore(item, **kwargs) for item in val}
+        if isinstance(val, (list, tuple, set)):
+            return val.__class__([self.restore(item, **kwargs) for item in val])
+        return val
