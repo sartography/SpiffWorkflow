@@ -55,6 +55,19 @@ class CallActivityTest(BpmnWorkflowTestCase):
         task = self.workflow.get_next_task(spec_name='Sub_Bpmn_Task')
         self.assertEqual(task.state, TaskState.ERROR)
 
+    def test_call_activity_missing_subprocess_sets_task_error_state(self):
+        error_spec, subprocesses = self.load_workflow_spec('call_activity_*.bpmn', 'ErroringBPMN')
+        subprocesses = dict(subprocesses)
+        subprocesses.pop('Call_Activity_Get_Data')
+
+        with self.assertRaises(WorkflowTaskException) as context:
+            self.workflow = BpmnWorkflow(error_spec, subprocesses)
+            self.workflow.do_engine_steps()
+
+        self.assertIn("The called process 'Call_Activity_Get_Data' was not found.", str(context.exception))
+        task = [task for task in self.workflow.get_tasks() if task.task_spec.name == 'Activity_12zat0d'][0]
+        self.assertEqual(task.state, TaskState.ERROR)
+
     def test_order_of_tasks_in_get_task_is_call_acitivty_task_first_then_sub_tasks(self):
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
         self.workflow.do_engine_steps()
