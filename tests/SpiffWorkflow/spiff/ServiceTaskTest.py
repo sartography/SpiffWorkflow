@@ -80,6 +80,38 @@ class ServiceTaskTest(BaseTestCase):
         self.assertEqual(service_task_with_retry['retries'], 3)
         self.assertEqual(service_task_with_retry['retry_backoff_base'], 2)
 
+    def testServiceTaskRetrySerializationOmitsBackoffWhenRetriesAreUnset(self):
+        service_task = next(
+            task for task in self.workflow.get_tasks()
+            if task.task_spec.name == 'Activity-1inxqgx'
+        )
+        service_task.task_spec.retry_backoff_base = 2
+
+        state = self.serializer.to_dict(self.workflow)
+        serialized_service_task = state['spec']['task_specs']['Activity-1inxqgx']
+
+        self.assertNotIn('retries', serialized_service_task)
+        self.assertNotIn('retry_backoff_base', serialized_service_task)
+
+    def testServiceTaskRetrySerializationOmitsBackoffWhenMissingInXml(self):
+        spec, subprocesses = self.load_workflow_spec(
+            'service_task_retry_without_backoff.bpmn',
+            'service_task_retry_without_backoff',
+        )
+        workflow = BpmnWorkflow(spec, subprocesses, script_engine=self.script_engine)
+        state = self.serializer.to_dict(workflow)
+        service_task = state['spec']['task_specs']['Activity_retry_only']
+
+        self.assertEqual(service_task['retries'], 3)
+        self.assertNotIn('retry_backoff_base', service_task)
+
+        parsed_service_task = [
+            task for task in workflow.get_tasks()
+            if task.task_spec.name == 'Activity_retry_only'
+        ][0]
+        self.assertEqual(parsed_service_task.task_spec.retries, 3)
+        self.assertIsNone(parsed_service_task.task_spec.retry_backoff_base)
+
     def _assert_service_tasks(self):
         # service task without result variable name specified, mock
         # bamboohr/GetPayRate response

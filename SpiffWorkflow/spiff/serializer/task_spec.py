@@ -95,8 +95,8 @@ class ServiceTaskConverter(SpiffBpmnTaskConverter):
         dct['result_variable'] = spec.result_variable
         if spec.retries is not None:
             dct['retries'] = spec.retries
-        if spec.retry_backoff_base is not None:
-            dct['retry_backoff_base'] = spec.retry_backoff_base
+            if spec.retry_backoff_base is not None:
+                dct['retry_backoff_base'] = spec.retry_backoff_base
         return dct
 
     def from_dict(self, dct):
