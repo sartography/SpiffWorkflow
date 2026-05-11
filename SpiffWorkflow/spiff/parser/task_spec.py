@@ -121,8 +121,10 @@ class SpiffTaskParser(TaskParser):
             retry_node = retry_nodes[0]
             retries = retry_node.get('retries', None)
             retry_backoff_base = retry_node.get('backoff_base', None)
-            operator['retries'] = int(retries) if retries is not None else None
-            operator['retryBackoffBase'] = int(retry_backoff_base) if retry_backoff_base is not None else None
+            if retries is not None:
+                operator['retries'] = int(retries)
+            if retry_backoff_base is not None:
+                operator['retryBackoffBase'] = int(retry_backoff_base)
         return operator
 
     def _copy_task_attrs(self, original, loop_characteristics):

@@ -75,10 +75,14 @@ class ServiceTaskTest(BaseTestCase):
         service_task_without_retry = task_specs['Activity-1inxqgx']
         self.assertNotIn('retries', service_task_without_retry)
         self.assertNotIn('retry_backoff_base', service_task_without_retry)
+        self.assertNotIn('retries', service_task_without_retry['extensions']['serviceTaskOperator'])
+        self.assertNotIn('retryBackoffBase', service_task_without_retry['extensions']['serviceTaskOperator'])
 
         service_task_with_retry = task_specs['Activity_12erefa']
         self.assertEqual(service_task_with_retry['retries'], 3)
         self.assertEqual(service_task_with_retry['retry_backoff_base'], 2)
+        self.assertEqual(service_task_with_retry['extensions']['serviceTaskOperator']['retries'], 3)
+        self.assertEqual(service_task_with_retry['extensions']['serviceTaskOperator']['retryBackoffBase'], 2)
 
     def testServiceTaskRetrySerializationOmitsBackoffWhenRetriesAreUnset(self):
         service_task = next(
@@ -104,6 +108,8 @@ class ServiceTaskTest(BaseTestCase):
 
         self.assertEqual(service_task['retries'], 3)
         self.assertNotIn('retry_backoff_base', service_task)
+        self.assertEqual(service_task['extensions']['serviceTaskOperator']['retries'], 3)
+        self.assertNotIn('retryBackoffBase', service_task['extensions']['serviceTaskOperator'])
 
         parsed_service_task = [
             task for task in workflow.get_tasks()
