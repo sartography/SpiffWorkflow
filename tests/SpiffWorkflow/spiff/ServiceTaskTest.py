@@ -68,6 +68,18 @@ class ServiceTaskTest(BaseTestCase):
         self.save_restore()
         self._assert_service_tasks()
 
+    def testServiceTaskRetrySerializationIsSparse(self):
+        state = self.serializer.to_dict(self.workflow)
+        task_specs = state['spec']['task_specs']
+
+        service_task_without_retry = task_specs['Activity-1inxqgx']
+        self.assertNotIn('retries', service_task_without_retry)
+        self.assertNotIn('retry_backoff_base', service_task_without_retry)
+
+        service_task_with_retry = task_specs['Activity_12erefa']
+        self.assertEqual(service_task_with_retry['retries'], 3)
+        self.assertEqual(service_task_with_retry['retry_backoff_base'], 2)
+
     def _assert_service_tasks(self):
         # service task without result variable name specified, mock
         # bamboohr/GetPayRate response
@@ -83,3 +95,6 @@ class ServiceTaskTest(BaseTestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result['temp'], '72F')
 
+        service_task = [t for t in self.workflow.get_tasks() if t.task_spec.name == 'Activity_12erefa'][0]
+        self.assertEqual(service_task.task_spec.retries, 3)
+        self.assertEqual(service_task.task_spec.retry_backoff_base, 2)

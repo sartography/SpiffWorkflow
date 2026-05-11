@@ -58,6 +58,12 @@
             </xsd:sequence>
           </xsd:complexType>
         </xsd:element>
+        <xsd:element name="retry" minOccurs="0">
+          <xsd:complexType>
+            <xsd:attribute type="xsd:integer" name="retries" use="optional"/>
+            <xsd:attribute type="xsd:integer" name="backoff_base" use="optional"/>
+          </xsd:complexType>
+        </xsd:element>
       </xsd:sequence>
       <xsd:attribute type="xsd:string" name="id"/>
       <xsd:attribute type="xsd:string" name="resultVariable" use="optional"/>
