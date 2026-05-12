@@ -16,10 +16,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-from copy import deepcopy
-
 from SpiffWorkflow.util.deep_merge import DeepMerge
-from SpiffWorkflow.util.task import TaskState, TaskIterator
+from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.specs.Join import Join
 
 class UnstructuredJoin(Join):

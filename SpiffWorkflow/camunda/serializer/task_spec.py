@@ -19,7 +19,7 @@
 
 from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
 
-from SpiffWorkflow.camunda.specs.user_task import UserTask, Form
+from SpiffWorkflow.camunda.specs.user_task import Form
 
 
 class UserTaskConverter(TaskSpecConverter):

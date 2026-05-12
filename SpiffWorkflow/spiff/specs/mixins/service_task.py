@@ -18,10 +18,8 @@
 # 02110-1301  USA
 
 import json
-from copy import deepcopy
 
 from SpiffWorkflow.bpmn.specs.mixins.service_task import ServiceTask
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 
 class ServiceTask(ServiceTask):
 

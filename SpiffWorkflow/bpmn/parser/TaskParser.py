@@ -29,7 +29,6 @@ from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit, BoundaryEventJo
 from SpiffWorkflow.bpmn.specs.event_definitions.simple import CancelEventDefinition
 from SpiffWorkflow.bpmn.specs.data_spec import TaskDataReference
 
-from .util import one
 from .node_parser import NodeParser
 from .ValidationException import ValidationException
 

@@ -306,6 +306,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         :param will_refresh_task: Callback that will be called prior to refreshing a task
         :param did_refresh_task: Callback that will be called after refreshing a task
         """
+        _ = will_refresh_task, did_refresh_task
         pass
 
     def refresh_due_waiting_tasks(self):
