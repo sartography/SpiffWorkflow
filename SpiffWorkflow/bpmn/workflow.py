@@ -308,6 +308,10 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         """
         pass
 
+    def refresh_due_waiting_tasks(self):
+        """Refresh WAITING timer tasks that are currently due."""
+        self._refresh_due_waiting_tasks()
+
     def _waiting_task_state_changed(self, task, old_state, new_state):
         self._waiting_task_index.task_state_changed(task, old_state, new_state)
 
