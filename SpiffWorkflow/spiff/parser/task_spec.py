@@ -116,6 +116,15 @@ class SpiffTaskParser(TaskParser):
                     'type': param_node.attrib['type']
                 }
         operator['parameters'] = parameters
+        retry_nodes = cls._node_children_by_tag_name(node, 'retry')
+        if retry_nodes:
+            retry_node = retry_nodes[0]
+            retries = retry_node.get('retries', None)
+            retry_backoff_base = retry_node.get('backoff_base', None)
+            if retries is not None:
+                operator['retries'] = int(retries)
+            if retry_backoff_base is not None:
+                operator['retryBackoffBase'] = int(retry_backoff_base)
         return operator
 
     def _copy_task_attrs(self, original, loop_characteristics):
@@ -190,6 +199,8 @@ class ServiceTaskParser(SpiffTaskParser):
                 operation_name=operator['name'], 
                 operation_params=operator['parameters'],
                 result_variable=operator['resultVariable'],
+                retries=operator.get('retries'),
+                retry_backoff_base=operator.get('retryBackoffBase'),
                 prescript=prescript,
                 postscript=postscript,
                 **self.bpmn_attributes)
@@ -230,4 +241,3 @@ class UserTaskParser(SpiffTaskParser):
             postscript=postscript,
             **self.bpmn_attributes,
         )
-
