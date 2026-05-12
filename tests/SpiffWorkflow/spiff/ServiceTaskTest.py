@@ -1,7 +1,9 @@
 import json
 
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.spiff.serializer import DEFAULT_CONFIG
 from .BaseTestCase import BaseTestCase
 
 
@@ -46,6 +48,8 @@ class ServiceTaskTest(BaseTestCase):
         spec, subprocesses = self.load_workflow_spec('service_task.bpmn','service_task_example1')
         self.script_engine = ExampleCustomScriptEngine()
         self.workflow = BpmnWorkflow(spec, subprocesses, script_engine=self.script_engine)
+        canonical_registry = BpmnWorkflowSerializer.configure(config=DEFAULT_CONFIG)
+        self.canonical_serializer = BpmnWorkflowSerializer(registry=canonical_registry)
 
     def testRunThroughHappy(self):
         self.workflow.do_engine_steps()
@@ -69,8 +73,7 @@ class ServiceTaskTest(BaseTestCase):
         self._assert_service_tasks()
 
     def testServiceTaskRetrySerializationIsSparse(self):
-        state = self.serializer.to_dict(self.workflow)
-        task_specs = state['spec']['task_specs']
+        task_specs = self._get_serialized_task_specs(self.workflow)
 
         service_task_without_retry = task_specs['Activity-1inxqgx']
         self.assertNotIn('retries', service_task_without_retry)
@@ -91,8 +94,7 @@ class ServiceTaskTest(BaseTestCase):
         )
         service_task.task_spec.retry_backoff_base = 2
 
-        state = self.serializer.to_dict(self.workflow)
-        serialized_service_task = state['spec']['task_specs']['Activity-1inxqgx']
+        serialized_service_task = self._get_serialized_task_specs(self.workflow)['Activity-1inxqgx']
 
         self.assertNotIn('retries', serialized_service_task)
         self.assertNotIn('retry_backoff_base', serialized_service_task)
@@ -103,8 +105,7 @@ class ServiceTaskTest(BaseTestCase):
             'service_task_retry_without_backoff',
         )
         workflow = BpmnWorkflow(spec, subprocesses, script_engine=self.script_engine)
-        state = self.serializer.to_dict(workflow)
-        service_task = state['spec']['task_specs']['Activity_retry_only']
+        service_task = self._get_serialized_task_specs(workflow)['Activity_retry_only']
 
         self.assertEqual(service_task['retries'], 3)
         self.assertNotIn('retry_backoff_base', service_task)
@@ -136,3 +137,11 @@ class ServiceTaskTest(BaseTestCase):
         service_task = [t for t in self.workflow.get_tasks() if t.task_spec.name == 'Activity_12erefa'][0]
         self.assertEqual(service_task.task_spec.retries, 3)
         self.assertEqual(service_task.task_spec.retry_backoff_base, 2)
+
+    def _get_serialized_task_specs(self, workflow):
+        state = self.serializer.to_dict(workflow)
+        if 'spec' in state:
+            return state['spec']['task_specs']
+
+        restored_workflow = self.serializer.from_dict(state)
+        return self.canonical_serializer.to_dict(restored_workflow)['spec']['task_specs']
