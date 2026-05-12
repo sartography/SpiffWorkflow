@@ -1,6 +1,3 @@
-import unittest
-
-from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn import BpmnWorkflow
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
@@ -14,4 +11,3 @@ class UncaughtEscalationTest(BpmnWorkflowTestCase):
         self.assertTrue(workflow.completed)
         event = workflow.get_events()[0]
         self.assertEqual(event.event_definition.code, 'escalation-1')
-

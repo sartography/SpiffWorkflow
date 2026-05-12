@@ -1,4 +1,3 @@
-import unittest
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase

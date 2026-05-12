@@ -17,8 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from copy import deepcopy
-
 from SpiffWorkflow.exceptions import SpiffWorkflowException
 from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin

@@ -33,10 +33,6 @@ from SpiffWorkflow.bpmn.serializer.config import (
     StandardLoopTask as DefaultStandardLoopTask,
     ParallelMultiInstanceTask as DefaultParallelMultiInstanceTask,
     SequentialMultiInstanceTask as DefaultSequentialMultiInstanceTask,
-    MessageEventDefinition as DefaultMessageEventDefinition,
-    SignalEventDefinition as DefaultSignalEventDefinition,
-    ErrorEventDefinition as DefaultErrorEventDefinition,
-    EscalationEventDefinition as DefaultEscalationEventDefinition,
 )
 
 from SpiffWorkflow.spiff.specs.defaults import (

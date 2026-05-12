@@ -1,5 +1,3 @@
-import unittest
-
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn import BpmnWorkflow
 from SpiffWorkflow.exceptions import SpiffWorkflowException, WorkflowException
@@ -15,8 +13,8 @@ class BusinessRuleTaskParserTest(BaseTestCase):
         self.workflow = BpmnWorkflow(self.spec)
 
     def testExceptionPrint(self):
-        e1 = Exception("test 1")
-        e = SpiffWorkflowException("test")
+        str(Exception("test 1"))
+        str(SpiffWorkflowException("test"))
 
     def testDmnRaisesTaskErrors(self):
         self.workflow = BpmnWorkflow(self.spec)

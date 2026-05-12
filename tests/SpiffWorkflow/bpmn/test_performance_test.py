@@ -237,7 +237,7 @@ class PerformanceTest(BpmnWorkflowTestCase):
             # Serialize at checkpoints
             if tasks_completed % checkpoint_interval == 0:
                 start_serialize = time.time()
-                state = self.serializer.serialize_json(workflow)
+                self.serializer.serialize_json(workflow)
                 end_serialize = time.time()
                 serialize_time = end_serialize - start_serialize
 
@@ -278,4 +278,3 @@ class PerformanceTest(BpmnWorkflowTestCase):
         print(f"    Number of serializations:       {num_serializations}")
         print(f"    Average per serialization:      {avg_serialization_time:.6f} seconds")
         print("="*80)
-

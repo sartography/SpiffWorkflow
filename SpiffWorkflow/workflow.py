@@ -23,7 +23,7 @@ from .task import Task
 from .util.task import TaskState, TaskIterator, TaskFilter
 from .util.compat import mutex
 from .util.event import Event
-from .exceptions import TaskNotFoundException, WorkflowException
+from .exceptions import TaskNotFoundException
 
 logger = logging.getLogger('spiff.workflow')
 

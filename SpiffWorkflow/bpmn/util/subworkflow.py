@@ -18,7 +18,6 @@
 # 02110-1301  USA
 
 from SpiffWorkflow import Workflow
-from SpiffWorkflow.exceptions import TaskNotFoundException
 from .task import BpmnTaskIterator
 
 class BpmnBaseWorkflow(Workflow):

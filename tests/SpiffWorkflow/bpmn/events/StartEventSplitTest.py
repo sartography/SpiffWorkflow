@@ -18,7 +18,6 @@ class StartEventSplitTest(BpmnWorkflowTestCase):
 
     def actual_test(self, save_restore=False):
 
-        ready = self.workflow.get_next_task(state=TaskState.READY)
         self.run_until_input_required()
 
         if save_restore:
@@ -42,5 +41,4 @@ class StartEventSplitTest(BpmnWorkflowTestCase):
 
         self.run_until_input_required()
         self.assertTrue(self.workflow.completed)
-
 

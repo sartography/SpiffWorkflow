@@ -21,23 +21,6 @@ from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
 from SpiffWorkflow.bpmn.serializer.default.task_spec import MultiInstanceTaskConverter
 from SpiffWorkflow.dmn.serializer.task_spec import BaseBusinessRuleTaskConverter
 
-from SpiffWorkflow.spiff.specs.defaults import (
-    NoneTask,
-    ManualTask,
-    UserTask,
-    ScriptTask,
-    SendTask,
-    ReceiveTask,
-    StandardLoopTask,
-    ParallelMultiInstanceTask,
-    SequentialMultiInstanceTask,
-    BusinessRuleTask,
-    SubWorkflowTask,
-    CallActivity,
-    TransactionSubprocess,
-    ServiceTask
-)
-
 class SpiffBpmnTaskConverter(TaskSpecConverter):
 
     def to_dict(self, spec):

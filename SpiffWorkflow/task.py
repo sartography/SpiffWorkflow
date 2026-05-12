@@ -23,7 +23,7 @@ import logging
 import time
 from uuid import uuid4
 
-from .util.task import TaskState, TaskFilter, TaskIterator
+from .util.task import TaskState, TaskIterator
 from .util.deep_merge import DeepMerge
 from .exceptions import WorkflowException
 
@@ -350,7 +350,6 @@ class Task(object):
 
         See `TaskState` for more information about states.
         """
-        start = time.time()
         retval = self.task_spec._run(self)
         if retval is None:
             self._set_state(TaskState.STARTED)
