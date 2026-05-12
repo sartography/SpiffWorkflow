@@ -17,7 +17,6 @@ class NonTaskDataExampleEnvironment(BasePythonScriptEngineEnvironment):
         super().__init__(environment_globals)
 
     def evaluate(self, expression, context, external_methods=None):
-        _ = expression, context, external_methods
         pass
 
     def execute(self, script, context, external_methods=None):

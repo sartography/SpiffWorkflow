@@ -108,7 +108,7 @@ def _count_duration_timer_checks():
             patcher.start()
             return counter
 
-        def __exit__(self, *_):
+        def __exit__(self, exc_type, exc_value, traceback):
             patcher.stop()
 
     return TimerCheckContext()
