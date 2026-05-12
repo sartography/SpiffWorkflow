@@ -4,7 +4,6 @@ import os
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn import BpmnWorkflow
 from SpiffWorkflow.bpmn.parser import BpmnParser
-from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 from tests.SpiffWorkflow.bpmn.serializer_support import build_serializer
 
 

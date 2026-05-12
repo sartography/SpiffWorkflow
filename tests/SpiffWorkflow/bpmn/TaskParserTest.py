@@ -20,6 +20,7 @@ class IndexedTaskParser(TaskParser):
         return FakeTask(self.bpmn_id)
 
     def connect_outgoing(self, outgoing_task, sequence_flow_node, is_default):
+        _ = outgoing_task, sequence_flow_node, is_default
         return None
 
     def get_position(self, node=None):
@@ -47,8 +48,8 @@ class TaskParserTest(unittest.TestCase):
             parser=SimpleNamespace(spec_descriptions={}),
             parse_node=lambda node: FakeTask(node.get("id")),
             get_lane_name=lambda node_id: None,
-            get_boundary_events=lambda attached_to_ref: [],
-            get_outgoing_sequence_flows=lambda source_ref: [sequence_flow],
+            get_boundary_events=lambda _attached_to_ref: [],
+            get_outgoing_sequence_flows=lambda _source_ref: [sequence_flow],
             get_node_by_id=lambda node_id: target_node if node_id == "Task_2" else None,
         )
 

@@ -1,4 +1,3 @@
-import os
 import time
 import unittest
 from uuid import UUID
@@ -61,7 +60,7 @@ class Version_1_1_Test(BaseTestCase):
 
     def test_check_multiinstance(self):
         with self.assertRaises(VersionMigrationError) as ctx:
-            wf = self.deserialize_workflow('v1.1-multi.json')
+            self.deserialize_workflow('v1.1-multi.json')
             self.assertEqual(ctx.exception.message, "This workflow cannot be migrated because it contains MultiInstance Tasks")
 
     def test_remove_loop_reset(self):

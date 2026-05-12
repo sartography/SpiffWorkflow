@@ -1,5 +1,3 @@
-import unittest
-
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 from tests.SpiffWorkflow.camunda.BaseTestCase import BaseTestCase
 
@@ -27,7 +25,7 @@ class ResetTokenTestParallelMatrix(BaseTestCase):
 
 
 
-    def actual_test(self, save_restore=False,reset_data=False):
+    def actual_test(self, save_restore=False):
         """
         Test a complicated parallel matrix, complete the matrix and
         Reset somewhere in the middle. It should complete the row that we
@@ -117,7 +115,7 @@ class ResetTokenTestParallelMatrix(BaseTestCase):
                           self.workflow.last_task.data)
 
 
-    def actual_test2(self, save_restore=False,reset_data=False):
+    def actual_test2(self, save_restore=False):
         """
         Test a complicated parallel matrix,
         Complete several items in the parallel matrix, but do not complete it,

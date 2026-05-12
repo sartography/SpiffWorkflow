@@ -1,4 +1,3 @@
-import unittest
 from unittest.mock import patch
 
 from SpiffWorkflow import TaskState

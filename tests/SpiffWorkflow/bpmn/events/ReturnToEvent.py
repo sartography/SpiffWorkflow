@@ -1,6 +1,5 @@
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn import BpmnWorkflow, BpmnEvent
-from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -28,4 +27,3 @@ class MessagesTest(BpmnWorkflowTestCase):
         # When we return, the previous event should be cleared and we should wait again
         catching_task = workflow.get_next_task(state=TaskState.WAITING)
         self.assertEqual(catching_task.task_spec.name, 'Event_10ncvxn')
-

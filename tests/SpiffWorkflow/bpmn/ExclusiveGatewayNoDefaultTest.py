@@ -1,5 +1,3 @@
-import unittest
-
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn import BpmnWorkflow
 from SpiffWorkflow.exceptions import WorkflowException
