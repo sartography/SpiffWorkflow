@@ -253,12 +253,9 @@ class BpmnParser:
             self._find_dependencies(process)
             self.create_parser(process, filename)
 
-    def _document_key(self, bpmn):
-        root = bpmn.getroot() if hasattr(bpmn, 'getroot') else bpmn
-        return id(root)
-
     def _add_diagram_indexes(self, bpmn):
-        document_key = self._document_key(bpmn)
+        root = bpmn.getroot() if hasattr(bpmn, 'getroot') else bpmn
+        document_key = id(root)
         if document_key in self.document_lanes:
             return
 

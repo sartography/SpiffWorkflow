@@ -29,13 +29,13 @@ class BpmnTaskFilter(TaskFilter):
 
     def matches(self, task):
 
-        def _catches_event(task):
-            return isinstance(task.task_spec, CatchingEvent) and task.task_spec.catches(task, self.catches_event)
-
         if not super().matches(task):
             return False
 
-        if not (self.catches_event is None or _catches_event(task)):
+        if not (
+            self.catches_event is None
+            or isinstance(task.task_spec, CatchingEvent) and task.task_spec.catches(task, self.catches_event)
+        ):
             return False
 
         if not (self.lane is None or task.task_spec.lane == self.lane):

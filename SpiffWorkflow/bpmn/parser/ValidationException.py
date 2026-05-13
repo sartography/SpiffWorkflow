@@ -31,7 +31,8 @@ class ValidationException(SpiffWorkflowException):
 
     def __init__(self, msg, node=None, file_name=None, *args, **kwargs):
         if node is not None:
-            self.tag = self._shorten_tag(node.tag)
+            prefix = '{%s}' % BPMN_MODEL_NS
+            self.tag = 'bpmn:' + node.tag[len(prefix):] if node.tag.startswith(prefix) else node.tag
             self.id = node.get('id', '')
             self.name = node.get('name', '')
             self.line_number = getattr(node, 'line_number', '')
@@ -43,10 +44,3 @@ class ValidationException(SpiffWorkflowException):
         self.file_name = file_name or ''
 
         super().__init__(msg, *args)
-
-    @classmethod
-    def _shorten_tag(cls, tag):
-        prefix = '{%s}' % BPMN_MODEL_NS
-        if tag.startswith(prefix):
-            return 'bpmn:' + tag[len(prefix):]
-        return tag

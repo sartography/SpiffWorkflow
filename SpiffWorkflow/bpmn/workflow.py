@@ -81,7 +81,7 @@ class _WaitingTaskIndex:
 
     def _add(self, task):
         self.waiting_tasks[task.id] = task
-        if self._is_timer_task(task):
+        if isinstance(task.task_spec, CatchingEvent) and self._has_timer_definition(task.task_spec.event_definition):
             self.timer_tasks[task.id] = task
             self._schedule_timer(task)
 
@@ -105,9 +105,6 @@ class _WaitingTaskIndex:
         self.timer_due_at[task.id] = due_at
         self._sequence += 1
         heapq.heappush(self.timer_heap, (due_at, self._sequence, task.id))
-
-    def _is_timer_task(self, task):
-        return isinstance(task.task_spec, CatchingEvent) and self._has_timer_definition(task.task_spec.event_definition)
 
     def _has_timer_definition(self, event_definition):
         if isinstance(event_definition, TimerEventDefinition):

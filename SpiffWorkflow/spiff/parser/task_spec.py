@@ -68,7 +68,7 @@ class SpiffTaskParser(TaskParser):
 
     @classmethod
     def _node_children_by_tag_name(cls, node, tag_name):
-        xpath = cls._spiffworkflow_ready_xpath_for_node(node)
+        xpath = xpath_eval(node, SPIFFWORKFLOW_NSMAP)
         return xpath(f'.//spiffworkflow:{tag_name}')
 
     @classmethod
@@ -86,10 +86,6 @@ class SpiffTaskParser(TaskParser):
         for metadata_node in metadata_value_nodes:
             metadata_values[metadata_node.attrib['name']] = metadata_node.attrib.get('value', None)
         return metadata_values
-
-    @staticmethod
-    def _spiffworkflow_ready_xpath_for_node(node):
-        return xpath_eval(node, SPIFFWORKFLOW_NSMAP)
 
     @classmethod
     def _parse_script_unit_tests(cls, node):
