@@ -39,7 +39,7 @@ class ScriptTask(ScriptEngineTask):
 
         :param script: the script that must be executed by the script engine.
         """
-        super(ScriptTask, self).__init__(wf_spec, bpmn_id, **kwargs)
+        super().__init__(wf_spec, bpmn_id, **kwargs)
         self.script = script
 
     def _execute(self, task):

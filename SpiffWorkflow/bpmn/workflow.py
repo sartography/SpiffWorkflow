@@ -150,7 +150,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         self.correlations = {}
         self._waiting_task_index = _WaitingTaskIndex()
         self._refreshing_waiting_tasks = False
-        super(BpmnWorkflow, self).__init__(spec, **kwargs)
+        super().__init__(spec, **kwargs)
 
         for obj in self.spec.data_objects:
             self.data['data_objects'][obj] = None

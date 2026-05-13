@@ -32,7 +32,7 @@ class MessageEventDefinition(MessageEventDefinition):
 
     def __init__(self, name, correlation_properties=None, expression=None, result_var=None, **kwargs):
 
-        super(MessageEventDefinition, self).__init__(name, correlation_properties, **kwargs)
+        super().__init__(name, correlation_properties, **kwargs)
         self.expression = expression
         self.result_var = result_var
 
@@ -56,4 +56,4 @@ class MessageEventDefinition(MessageEventDefinition):
 
     def reset(self, my_task):
         my_task.internal_data.pop('result_var', None)
-        super(MessageEventDefinition, self).reset(my_task)
+        super().reset(my_task)

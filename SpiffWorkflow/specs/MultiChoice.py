@@ -42,7 +42,7 @@ class MultiChoice(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        super(MultiChoice, self).__init__(wf_spec, name, **kwargs)
+        super().__init__(wf_spec, name, **kwargs)
         self.cond_task_specs = []
         self.choice = None
 

@@ -29,4 +29,4 @@ class StartEvent(CatchingEvent):
         # if it got cancelled so we'll still catch messages even if we're finished
         if my_task.state == TaskState.COMPLETED or my_task.state == TaskState.CANCELLED:
             my_task.workflow.reset_from_task_id(my_task.id)
-        super(StartEvent, self).catch(my_task, event)
+        super().catch(my_task, event)

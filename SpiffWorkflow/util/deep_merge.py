@@ -19,7 +19,7 @@
 
 from copy import copy
 
-class DeepMerge(object):
+class DeepMerge:
     # Merges two deeply nested json-like dictionaries,
     # useful for updating things like task data.
     # I know in my heart, that this isn't completely correct.
@@ -94,7 +94,7 @@ class DeepMerge(object):
     @staticmethod
     def get_updated_keys(a, b):
         """get a list of keys from b that are different from a"""
-        return dict((key, b[key]) for key in b if key not in a or b[key] != a[key])
+        return {key: b[key] for key in b if key not in a or b[key] != a[key]}
 
     @staticmethod
     def get_deleted_keys(a, b):

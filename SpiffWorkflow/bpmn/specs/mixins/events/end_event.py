@@ -43,7 +43,7 @@ class EndEvent(ThrowingEvent):
     """
     def _on_complete_hook(self, my_task):
 
-        super(EndEvent, self)._on_complete_hook(my_task)
+        super()._on_complete_hook(my_task)
 
         if isinstance(self.event_definition, TerminateEventDefinition):
             # We are finished.  Set the workflow data and cancel all tasks

@@ -58,3 +58,4 @@ version = {attr = "SpiffWorkflow.__version__"}
 
 [tool.ruff]
 line-length = 140
+target-version = "py310"

@@ -25,7 +25,7 @@ from SpiffWorkflow.util.event import Event
 from ..exceptions import WorkflowException
 
 
-class TaskSpec(object):
+class TaskSpec:
 
     """
     This class implements an abstract base type for all tasks.

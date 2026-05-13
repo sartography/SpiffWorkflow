@@ -38,7 +38,7 @@ class DeadMethodCalled(Exception):
     pass
 
 
-class WeakMethod(object):
+class WeakMethod:
 
     """
     Do not create this class directly; use :class:`ref()` instead.

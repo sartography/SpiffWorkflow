@@ -42,7 +42,7 @@ class ValidationException(SpiffWorkflowException):
             self.line_number = kwargs.get('line_number', '')
         self.file_name = file_name or ''
 
-        super(ValidationException, self).__init__(msg, *args)
+        super().__init__(msg, *args)
 
     @classmethod
     def _shorten_tag(cls, tag):

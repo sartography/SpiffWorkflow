@@ -23,7 +23,7 @@ import re
 logger = logging.getLogger('spiff.task')
 
 
-class Term(object):
+class Term:
 
     """
     Abstract base class for all operators and expressions.

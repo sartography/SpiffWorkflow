@@ -75,7 +75,7 @@ def op_map():
     }
 
 
-class Serializer(object):
+class Serializer:
 
     def serialize_workflow_spec(self, wf_spec, **kwargs):
         raise NotImplementedError(

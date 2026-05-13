@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 from unittest import TestCase
 from SpiffWorkflow.util.deep_merge import DeepMerge

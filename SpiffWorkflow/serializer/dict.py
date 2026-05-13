@@ -58,13 +58,10 @@ def get_class(full_class_name):
 class DictionarySerializer(Serializer):
 
     def serialize_dict(self, thedict):
-        return dict(
-            (str(k), b64encode(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL)))
-            for k, v in list(thedict.items())
-        )
+        return {str(k): b64encode(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL)) for k, v in list(thedict.items())}
 
     def deserialize_dict(self, s_state):
-        return dict((k, pickle.loads(b64decode(v))) for k, v in list(s_state.items()))
+        return {k: pickle.loads(b64decode(v)) for k, v in list(s_state.items())}
 
     def serialize_list(self, thelist):
         return [b64encode(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL)) for v in thelist]
@@ -147,10 +144,12 @@ class DictionarySerializer(Serializer):
             return ret
 
     def serialize_task_spec(self, spec):
-        s_state = dict(name=spec.name,
-                       description=spec.description,
-                       manual=spec.manual,
-                       lookahead=spec.lookahead)
+        s_state = {
+            'name': spec.name,
+            'description': spec.description,
+            'manual': spec.manual,
+            'lookahead': spec.lookahead,
+        }
         module_name = spec.__class__.__module__
         s_state['class'] = module_name + '.' + spec.__class__.__name__
         s_state['inputs'] = spec._inputs
@@ -429,11 +428,8 @@ class DictionarySerializer(Serializer):
         return spec
 
     def serialize_workflow_spec(self, spec, **kwargs):
-        s_state = dict(name=spec.name, description=spec.description, file=spec.file)
-        s_state['task_specs'] = dict(
-            (k, v.serialize(self))
-            for k, v in list(spec.task_specs.items())
-        )
+        s_state = {'name': spec.name, 'description': spec.description, 'file': spec.file}
+        s_state['task_specs'] = {k: v.serialize(self) for k, v in list(spec.task_specs.items())}
         return s_state
 
     def deserialize_workflow_spec(self, s_state, **kwargs):
@@ -462,7 +458,7 @@ class DictionarySerializer(Serializer):
     def serialize_workflow(self, workflow, include_spec=True, **kwargs):
 
         assert isinstance(workflow, Workflow)
-        s_state = dict()
+        s_state = {}
         if include_spec:
             s_state['wf_spec'] = self.serialize_workflow_spec(workflow.spec, **kwargs)
 
@@ -505,7 +501,7 @@ class DictionarySerializer(Serializer):
             raise TaskNotSupportedError(
                 "Subworkflow tasks cannot be serialized (due to their use of" +
                 " internal_data to store the subworkflow).")
-        s_state = dict()
+        s_state = {}
         s_state['id'] = task.id
         s_state['parent'] = task.parent.id if task.parent is not None else None
         if not skip_children:

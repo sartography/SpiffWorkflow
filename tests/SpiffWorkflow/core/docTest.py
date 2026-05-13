@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 import sys
 import unittest
@@ -9,7 +8,7 @@ sys.path.insert(0, os.path.join(dirname, '..', '..', '..'))
 doc_dir = os.path.join(dirname, '..', '..', '..', 'doc')
 
 
-class TutorialTest(object):
+class TutorialTest:
 
     """
     Tests the examples that are included in the docs.

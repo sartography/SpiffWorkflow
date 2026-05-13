@@ -42,7 +42,7 @@ class ExclusiveChoice(MultiChoice):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        super(ExclusiveChoice, self).__init__(wf_spec, name, **kwargs)
+        super().__init__(wf_spec, name, **kwargs)
         self.default_task_spec = None
 
     def connect(self, taskspec):

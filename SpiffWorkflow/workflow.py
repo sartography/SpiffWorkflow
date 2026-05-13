@@ -28,7 +28,7 @@ from .exceptions import TaskNotFoundException
 logger = logging.getLogger('spiff.workflow')
 
 
-class Workflow(object):
+class Workflow:
     """The instantiation of a `WorkflowSpec`.
 
     Reprsents the state of a running workflow and its data.
@@ -103,7 +103,7 @@ class Workflow(object):
         Returns:
             list(`Task`): the tasks that match the filtering conditions
         """
-        return [t for t in self.get_tasks_iterator(first_task, **kwargs)]
+        return list(self.get_tasks_iterator(first_task, **kwargs))
 
     def get_next_task(self, first_task=None, **kwargs):
         """Returns the next task that meets the iteration conditions, starting from the root by default.

@@ -106,7 +106,7 @@ class DictionaryConverter:
             to_dict = self.convert_to_dict.get(typename)
             return to_dict(obj, **kwargs)
         elif isinstance(obj, dict):
-            return dict((k, self.convert(v, **kwargs)) for k, v in obj.items())
+            return {k: self.convert(v, **kwargs) for k, v in obj.items()}
         elif isinstance(obj, (list, tuple, set)):
             return obj.__class__([ self.convert(item, **kwargs) for item in obj ])
         else:
@@ -136,7 +136,7 @@ class DictionaryConverter:
                 dct = dict(val)
                 del dct['typename']
                 return from_dict(dct, **kwargs)
-            return dict((k, self.restore(v, **kwargs)) for k, v in val.items())
+            return {k: self.restore(v, **kwargs) for k, v in val.items()}
 
         if val_type is list:
             return [self.restore(item, **kwargs) for item in val]

@@ -50,7 +50,7 @@ class SpecDiff:
     @property
     def changed(self):
         """Task specs with updated attributes"""
-        return dict((ts, changes) for ts, changes in self.comparisons.items() if changes)
+        return {ts: changes for ts, changes in self.comparisons.items() if changes}
 
     def _align(self, spec, original, new):
 

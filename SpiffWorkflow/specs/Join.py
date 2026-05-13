@@ -91,7 +91,7 @@ class Join(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        super(Join, self).__init__(wf_spec, name, **kwargs)
+        super().__init__(wf_spec, name, **kwargs)
         self.split_task = split_task
         self.threshold = threshold
         self.cancel_remaining = cancel

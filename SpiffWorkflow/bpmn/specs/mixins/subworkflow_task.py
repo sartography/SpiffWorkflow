@@ -35,7 +35,7 @@ class SubWorkflowTask(TaskSpec):
         :param bpmn_wf_spec: the BpmnProcessSpec for the sub process.
         :param bpmn_wf_class: the BpmnWorkflow class to instantiate
         """
-        super(SubWorkflowTask, self).__init__(wf_spec, bpmn_id, **kwargs)
+        super().__init__(wf_spec, bpmn_id, **kwargs)
         self.spec = subworkflow_spec
         self.transaction = transaction
 
@@ -87,7 +87,7 @@ class SubWorkflowTask(TaskSpec):
 class CallActivity(SubWorkflowTask):
 
     def __init__(self, wf_spec, bpmn_id, subworkflow_spec, **kwargs):
-        super(CallActivity, self).__init__(wf_spec, bpmn_id, subworkflow_spec, False, **kwargs)
+        super().__init__(wf_spec, bpmn_id, subworkflow_spec, False, **kwargs)
 
     def get_missing_subworkflow_error(self, my_task):
         return f"The called process '{self.spec}' was not found."
@@ -130,4 +130,4 @@ class CallActivity(SubWorkflowTask):
 class TransactionSubprocess(SubWorkflowTask):
 
     def __init__(self, wf_spec, bpmn_id, subworkflow_spec, **kwargs):
-        super(TransactionSubprocess, self).__init__(wf_spec, bpmn_id, subworkflow_spec, True, **kwargs)
+        super().__init__(wf_spec, bpmn_id, subworkflow_spec, True, **kwargs)

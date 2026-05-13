@@ -43,7 +43,7 @@ class BoundaryEvent(CatchingEvent):
 
         :param cancel_activity: True if this is a Cancelling boundary event.
         """
-        super(BoundaryEvent, self).__init__(wf_spec, bpmn_id, event_definition, **kwargs)
+        super().__init__(wf_spec, bpmn_id, event_definition, **kwargs)
         self.cancel_activity = cancel_activity
 
     def catches(self, my_task, event):

@@ -30,7 +30,7 @@ from .exceptions import WorkflowException
 logger = logging.getLogger('spiff.task')
 
 
-class Task(object):
+class Task:
     """Used internally for composing a tree that represents possible paths through a Workflow.
 
     Attributes:
@@ -173,7 +173,7 @@ class Task(object):
         logger.info(f'Branch reset', extra=self.collect_log_extras())
         self.internal_data = {}
         self.data = deepcopy(self.parent.data) if data is None else data    
-        descendants = [t for t in self]
+        descendants = list(self)
         self._drop_children(force=True)
         self._set_state(TaskState.FUTURE)
         self.task_spec._predict(self, mask=TaskState.PREDICTED_MASK|TaskState.FUTURE)
