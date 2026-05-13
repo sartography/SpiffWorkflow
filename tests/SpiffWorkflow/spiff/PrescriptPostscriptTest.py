@@ -20,12 +20,12 @@ class PrescriptPostsciptTest(BaseTestCase):
         self.call_activity_test(True)
 
     def testDataObject(self):
-        self.test_data_object()
+        self.data_object_test()
 
     def testDataObjectSaveRestore(self):
-        self.test_data_object(True)
+        self.data_object_test(True)
 
-    def test_data_object(self, save_restore=False):
+    def data_object_test(self, save_restore=False):
 
         spec, subprocesses = self.load_workflow_spec('prescript_postscript_data_object.bpmn', 'Process_1')
         self.workflow = BpmnWorkflow(spec, subprocesses)

@@ -35,9 +35,6 @@ class TaskSpecTest(unittest.TestCase):
         self.assertEqual(self.spec.get_data('foo'), 'foobar')
         self.assertEqual(self.spec.get_data('foo', 'bar'), 'foobar')
 
-    def testGetData(self):
-        return self.testSetData()
-
     def testConnect(self):
         self.assertEqual(self.spec._outputs, [])
         self.assertEqual(self.spec._inputs, [])
