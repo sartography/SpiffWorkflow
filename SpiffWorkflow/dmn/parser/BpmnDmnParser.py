@@ -96,7 +96,7 @@ class BpmnDmnParser(BpmnParser):
         Add all filenames in the given list to the parser's set.
         """
         for filename in filenames:
-            with open(filename, 'r') as f:
+            with open(filename) as f:
                 self.add_dmn_io(f, filename=filename)
 
     def add_dmn_io(self, file_like_object, filename=None):

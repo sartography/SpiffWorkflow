@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 from SpiffWorkflow.specs.ExclusiveChoice import ExclusiveChoice
 from SpiffWorkflow.specs.Join import Join

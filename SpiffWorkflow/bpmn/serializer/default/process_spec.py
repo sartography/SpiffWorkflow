@@ -34,7 +34,7 @@ class BpmnProcessSpecConverter(BpmnConverter):
             'file': spec.file,
             'task_specs': {},
             'io_specification': self.registry.convert(spec.io_specification),
-            'data_objects': dict([ (name, self.registry.convert(obj)) for name, obj in spec.data_objects.items() ]),
+            'data_objects': {name: self.registry.convert(obj) for name, obj in spec.data_objects.items()},
             'correlation_keys': spec.correlation_keys,
         }
         for name, task_spec in spec.task_specs.items():
@@ -57,7 +57,7 @@ class BpmnProcessSpecConverter(BpmnConverter):
         # fixme:  This conditional can be removed in the next release, just avoiding invalid a potential
         #  serialization issue for some users caught between official releases.
         if isinstance(dct.get('data_objects', {}), dict):
-            spec.data_objects = dict([ (name, self.registry.restore(obj_dct)) for name, obj_dct in dct.pop('data_objects', {}).items() ])
+            spec.data_objects = {name: self.registry.restore(obj_dct) for name, obj_dct in dct.pop('data_objects', {}).items()}
         else:
             spec.data_objects = {}
 

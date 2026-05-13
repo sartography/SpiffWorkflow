@@ -26,7 +26,7 @@ from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 from .python_environment import TaskDataEnvironment
 
 
-class PythonScriptEngine(object):
+class PythonScriptEngine:
     """
     This should serve as a base for all scripting & expression evaluation
     operations that are done within both BPMN and BMN. Eventually it will also

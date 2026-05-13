@@ -79,7 +79,7 @@ class InclusiveGateway(MultiChoice, UnstructuredJoin):
                 sources.append(task.task_spec)
 
         # Look up which tasks have parents completed.
-        completed_inputs = set([ task.parent.task_spec for task in tasks if task.parent.state == TaskState.COMPLETED ])
+        completed_inputs = {task.parent.task_spec for task in tasks if task.parent.state == TaskState.COMPLETED}
 
         # If any parents of this join have not been finished, this task must wait.
         # A parent spec only has to be completed once, even it is on multiple paths

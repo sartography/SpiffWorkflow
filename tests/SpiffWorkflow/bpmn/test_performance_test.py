@@ -30,7 +30,7 @@ class PerformanceTest(BpmnWorkflowTestCase):
             'data',
             'performance_test.bpmn'
         )
-        with open(bpmn_path, 'r') as f:
+        with open(bpmn_path) as f:
             bpmn_content = f.read()
 
         # Replace the item count

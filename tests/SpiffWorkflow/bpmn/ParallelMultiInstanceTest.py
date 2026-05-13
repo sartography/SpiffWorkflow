@@ -111,7 +111,7 @@ class ParallellMultiInstanceExistingOutputTest(BaseTestCase):
     def testInvalidOutputType(self):
         with self.assertRaises(WorkflowDataException) as exc:
             data = {
-                'input_data': set([1, 2, 3]),
+                'input_data': {1, 2, 3},
                 'output_data': set(),
             }
             self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data')
@@ -157,10 +157,10 @@ class ParallelMultiInstanceNewOutputTest(BaseTestCase):
         })
 
     def testSet(self):
-        data = {'input_data': set([1, 2, 3])}
+        data = {'input_data': {1, 2, 3}}
         self.set_io_and_run_workflow(data, data_input='input_data', data_output='output_data')
         self.assertDictEqual(self.workflow.data, {
-            'input_data': set([1, 2, 3]),
+            'input_data': {1, 2, 3},
             'output_data': [2, 4, 6]
         })
 

@@ -49,7 +49,7 @@ class StandardLoopTask(LoopTask):
         info['iterations_completed'] = len(self._merged_children(my_task))
         if self.maximum:
             info['iterations_remaining'] = self.maximum - info['iterations_completed']
-        info['instance_map'] = dict((idx, str(t.id)) for idx, t in enumerate(self._instances(my_task)))
+        info['instance_map'] = {idx: str(t.id) for idx, t in enumerate(self._instances(my_task))}
         return info
 
     def _update_hook(self, my_task):
@@ -174,10 +174,10 @@ class MultiInstanceTask(LoopTask):
                 self.data_output.set(my_task, input_data.__class__())
             elif isinstance(input_data, Mapping):
                 # If we have a map without __setitem__, use a dict
-                self.data_output.set(my_task, dict())
+                self.data_output.set(my_task, {})
             else:
                 # For all other types, we'll append to a list
-                self.data_output.set(my_task, list())
+                self.data_output.set(my_task, [])
         else:
             output_data = self.data_output.get(my_task)
             if not isinstance(output_data, (MutableSequence, MutableMapping)):
@@ -189,7 +189,7 @@ class MultiInstanceTask(LoopTask):
     def init_data_output_with_cardinality(self, my_task):
 
         if not self.data_output.exists(my_task):
-            self.data_output.set(my_task, list())
+            self.data_output.set(my_task, [])
         else:
             data_output = self.data_output.get(my_task)
             if not isinstance(data_ouput, MutableMapping) and len(data_output) > 0:
@@ -227,7 +227,7 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
         info = super().task_info(my_task)
         cardinality = my_task.internal_data.get('cardinality')
         if cardinality is not None:
-            info['future'] = [v for v in range(len(info['completed']) + len(info['running']), cardinality)]
+            info['future'] = list(range(len(info['completed']) + len(info['running']), cardinality))
         return info
 
     def add_next_child(self, my_task):
@@ -282,13 +282,13 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
         # This is internal bookkeeping, so we know where we are; we get the actual items when we create the task
         if isinstance(input_data, Sequence):
             # For lists, keep track of the index
-            remaining = [idx for idx in range(len(input_data))]
+            remaining = list(range(len(input_data)))
         elif isinstance(input_data, Mapping):
             # For dicts, use the keys
-            remaining = [key for key in input_data]
+            remaining = list(input_data)
         elif isinstance(input_data, Iterable):
             # Otherwise, just copy the objects as a last resort
-            remaining = [val for val in input_data]
+            remaining = list(input_data)
         else:
             self.raise_data_exception("Multiinstance data input must be iterable", my_task)
         return remaining

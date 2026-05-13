@@ -89,8 +89,8 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             step_name_path[-1], tasks, set_attribs, choice, only_one_instance=only_one_instance)
 
     def assertTaskNotReady(self, step_name):
-        tasks = list([t for t in self.workflow.get_tasks(state=TaskState.READY)
-                     if t.task_spec.name == step_name or t.task_spec.bpmn_name == step_name])
+        tasks = [t for t in self.workflow.get_tasks(state=TaskState.READY)
+                 if t.task_spec.name == step_name or t.task_spec.bpmn_name == step_name]
         self.assertEqual([], tasks)
 
     def _do_single_step(self, step_name, tasks, set_attribs=None, choice=None, only_one_instance=True):

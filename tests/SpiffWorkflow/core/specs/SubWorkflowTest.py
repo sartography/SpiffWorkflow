@@ -45,7 +45,7 @@ class TaskSpecTest(unittest.TestCase):
         ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         all_tasks = sorted([name] + other_ready_tasks)
         self.assertEqual(all_tasks, sorted([t.task_spec.name for t in ready_tasks]))
-        task = list([t for t in ready_tasks if t.task_spec.name == name])[0]
+        task = [t for t in ready_tasks if t.task_spec.name == name][0]
         task.run()
 
     def test_block_to_subworkflow(self):

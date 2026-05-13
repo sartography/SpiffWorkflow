@@ -73,6 +73,6 @@ class DefaultRegistry(DictionaryConverter):
             the preprocessed object
         """
         if isinstance(obj, dict):
-            return dict((k, v) for k, v in obj.items() if not callable(v) and not isinstance(v, ModuleType))
+            return {k: v for k, v in obj.items() if not callable(v) and not isinstance(v, ModuleType)}
         else:
             return obj

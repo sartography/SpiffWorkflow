@@ -288,7 +288,7 @@ class XmlSerializer(Serializer):
         # Read all task specs and create a list of successors.
         workflow_spec = WorkflowSpec(name, filename)
         end = Simple(workflow_spec, 'End'), []
-        read_specs = dict(end=end)
+        read_specs = {'end': end}
         for child_node in root_node.getchildren():
             if not isinstance(child_node.tag, str):
                 pass

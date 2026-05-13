@@ -29,7 +29,7 @@ from SpiffWorkflow.bpmn import BpmnEvent
 class MessageEventDefinition(MessageEventDefinition):
 
     def __init__(self, name, correlation_properties=None, expression=None, message_var=None, process_correlations=None, **kwargs):
-        super(MessageEventDefinition, self).__init__(name, correlation_properties, **kwargs)
+        super().__init__(name, correlation_properties, **kwargs)
         self.expression = expression
         self.message_var = message_var
         self.process_correlations = process_correlations or []
@@ -58,7 +58,7 @@ class MessageEventDefinition(MessageEventDefinition):
 
     def reset(self, my_task):
         my_task.internal_data.pop(self.message_var, None)
-        super(MessageEventDefinition, self).reset(my_task)
+        super().reset(my_task)
 
 
 class SpiffItemAwareEventDefinition(ItemAwareEventDefinition):
