@@ -9,7 +9,7 @@ authors = [
     {name = "Sartography", email = "dan@sartography.com"},
 ]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 keywords = ["spiff", "workflow", "bpmn", "engine"]
 license = {"text" = "lGPLv3"}
 classifiers = [
@@ -17,6 +17,11 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Other/Nonlisted Topic",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
