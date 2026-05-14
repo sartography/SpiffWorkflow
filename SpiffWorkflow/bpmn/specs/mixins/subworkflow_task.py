@@ -21,7 +21,7 @@ from copy import deepcopy
 
 from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.specs.base import TaskSpec
-from SpiffWorkflow.bpmn.exceptions import WorkflowDataException
+from SpiffWorkflow.bpmn.exceptions import WorkflowDataException, WorkflowTaskException
 
 
 class SubWorkflowTask(TaskSpec):
@@ -35,7 +35,7 @@ class SubWorkflowTask(TaskSpec):
         :param bpmn_wf_spec: the BpmnProcessSpec for the sub process.
         :param bpmn_wf_class: the BpmnWorkflow class to instantiate
         """
-        super(SubWorkflowTask, self).__init__(wf_spec, bpmn_id, **kwargs)
+        super().__init__(wf_spec, bpmn_id, **kwargs)
         self.spec = subworkflow_spec
         self.transaction = transaction
 
@@ -70,7 +70,13 @@ class SubWorkflowTask(TaskSpec):
     def update_data(self, my_task, subworkflow):
         my_task.data = deepcopy(subworkflow.last_task.data)
 
+    def get_missing_subworkflow_error(self, my_task):
+        return f"The subprocess '{self.spec}' was not found."
+
     def start_workflow(self, my_task):
+        if self.spec not in my_task.workflow.top_workflow.subprocess_specs:
+            my_task.error()
+            raise WorkflowTaskException(self.get_missing_subworkflow_error(my_task), task=my_task)
         subworkflow = my_task.workflow.top_workflow.create_subprocess(my_task, self.spec)
         subworkflow.completed_event.connect(self._on_subworkflow_completed, my_task)
         self.copy_data(my_task, subworkflow)
@@ -81,7 +87,10 @@ class SubWorkflowTask(TaskSpec):
 class CallActivity(SubWorkflowTask):
 
     def __init__(self, wf_spec, bpmn_id, subworkflow_spec, **kwargs):
-        super(CallActivity, self).__init__(wf_spec, bpmn_id, subworkflow_spec, False, **kwargs)
+        super().__init__(wf_spec, bpmn_id, subworkflow_spec, False, **kwargs)
+
+    def get_missing_subworkflow_error(self, my_task):
+        return f"The called process '{self.spec}' was not found."
 
     def copy_data(self, my_task, subworkflow):
 
@@ -121,4 +130,4 @@ class CallActivity(SubWorkflowTask):
 class TransactionSubprocess(SubWorkflowTask):
 
     def __init__(self, wf_spec, bpmn_id, subworkflow_spec, **kwargs):
-        super(TransactionSubprocess, self).__init__(wf_spec, bpmn_id, subworkflow_spec, True, **kwargs)
+        super().__init__(wf_spec, bpmn_id, subworkflow_spec, True, **kwargs)

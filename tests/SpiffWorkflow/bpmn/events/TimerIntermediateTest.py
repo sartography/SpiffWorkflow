@@ -31,9 +31,6 @@ class TimerIntermediateTest(BpmnWorkflowTestCase):
         time.sleep(0.02)
 
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
-        self.workflow.refresh_waiting_tasks()
-        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.WAITING)))
-        self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
-
         self.workflow.do_engine_steps()
+        self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.WAITING)))
         self.assertEqual(0, len(self.workflow.get_tasks(state=TaskState.READY|TaskState.WAITING)))

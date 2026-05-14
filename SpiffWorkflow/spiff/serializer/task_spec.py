@@ -21,23 +21,6 @@ from SpiffWorkflow.bpmn.serializer.helpers.spec import TaskSpecConverter
 from SpiffWorkflow.bpmn.serializer.default.task_spec import MultiInstanceTaskConverter
 from SpiffWorkflow.dmn.serializer.task_spec import BaseBusinessRuleTaskConverter
 
-from SpiffWorkflow.spiff.specs.defaults import (
-    NoneTask,
-    ManualTask,
-    UserTask,
-    ScriptTask,
-    SendTask,
-    ReceiveTask,
-    StandardLoopTask,
-    ParallelMultiInstanceTask,
-    SequentialMultiInstanceTask,
-    BusinessRuleTask,
-    SubWorkflowTask,
-    CallActivity,
-    TransactionSubprocess,
-    ServiceTask
-)
-
 class SpiffBpmnTaskConverter(TaskSpecConverter):
 
     def to_dict(self, spec):
@@ -78,6 +61,14 @@ class ScriptTaskConverter(SpiffBpmnTaskConverter):
         return dct
 
 
+class UserTaskConverter(SpiffBpmnTaskConverter):
+
+    def to_dict(self, spec):
+        dct = super().to_dict(spec)
+        dct['variable'] = spec.variable
+        return dct
+
+
 class ServiceTaskConverter(SpiffBpmnTaskConverter):
 
     def to_dict(self, spec):
@@ -85,6 +76,10 @@ class ServiceTaskConverter(SpiffBpmnTaskConverter):
         dct['operation_name'] = spec.operation_name
         dct['operation_params'] = spec.operation_params
         dct['result_variable'] = spec.result_variable
+        if spec.retries is not None:
+            dct['retries'] = spec.retries
+            if spec.retry_backoff_base is not None:
+                dct['retry_backoff_base'] = spec.retry_backoff_base
         return dct
 
     def from_dict(self, dct):

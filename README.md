@@ -29,10 +29,8 @@ strategy for building Low-Code applications.
 
 
 ## Dependencies
-We've worked to minimize external dependencies.  We rely on lxml for parsing
+We've worked to minimize external dependencies.  We rely on [lxml](https://lxml.de/) for parsing
 XML Documents, and that's it!
-<b>Built with</b>
-- [lxml](https://lxml.de/)
 
 ## Features
 * __BPMN__ - support for parsing BPMN diagrams, including the more complex
@@ -57,10 +55,22 @@ pip install spiffworkflow
 ```
 
 ## Tests
+Standard environment:
+
 ```
-pip install spiffworkflow[dev]
-cd tests/SpiffWorkflow
-coverage run --source=SpiffWorkflow -m unittest discover -v . "*Test.py"
+pip install -e .[dev]
+make tests
+make tests-par
+make tests-cov
+```
+
+Using `uv`:
+
+```sh
+uv sync --extra dev
+make RUN='uv run' tests
+make RUN='uv run' tests-par
+make RUN='uv run' tests-cov
 ```
 
 ## Support

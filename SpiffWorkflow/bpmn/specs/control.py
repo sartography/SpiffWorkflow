@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.exceptions import WorkflowException
-from SpiffWorkflow.util.task import TaskState, TaskFilter, TaskIterator
+from SpiffWorkflow.util.task import TaskState, TaskIterator
 from SpiffWorkflow.specs.StartTask import StartTask
 from SpiffWorkflow.specs.Join import Join
 
@@ -89,7 +89,7 @@ class BoundaryEventJoin(Join, BpmnTaskSpec):
         if main is None:
             raise WorkflowException(f'No main task found', task_spec=self)
 
-        interrupt = any([t.has_state(TaskState.READY|TaskState.COMPLETED) for t in interrupting])
+        interrupt = any(t.has_state(TaskState.READY|TaskState.COMPLETED) for t in interrupting)
         finished = main.has_state(TaskState.FINISHED_MASK) or interrupt
         if finished:
             cancel = [t for t in interrupting + noninterrupting if t.state == TaskState.WAITING]
@@ -135,6 +135,6 @@ class _EndJoin(UnstructuredJoin, BpmnTaskSpec):
         return may_fire
 
     def _run_hook(self, my_task):
-        result = super(_EndJoin, self)._run_hook(my_task)
+        result = super()._run_hook(my_task)
         my_task.workflow.data.update(my_task.data)
         return result

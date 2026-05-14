@@ -1,6 +1,6 @@
 from SpiffWorkflow.bpmn.util import BpmnEvent, PendingBpmnEvent
 
-class EventDefinition(object):
+class EventDefinition:
     """
     This is the base class for Event Definitions.  It implements the default throw/catch
     behavior for events.

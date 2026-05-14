@@ -3,7 +3,7 @@ from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
 
 class DataStoreReferenceTest(BpmnWorkflowTestCase):
     def _do_engine_steps(self, file, processid, save_restore):
-        spec, subprocesses = self.load_workflow_spec('data_store.bpmn', 'JustDataStoreRef')
+        spec, subprocesses = self.load_workflow_spec(file, processid)
         self.workflow = BpmnWorkflow(spec, subprocesses)
         if save_restore:
             self.save_restore()
@@ -31,4 +31,3 @@ class DataStoreReferenceTest(BpmnWorkflowTestCase):
         self._do_engine_steps('data_store_write.bpmn', 'JustDataStoreRef', True)
         self._do_engine_steps('data_store_read.bpmn', 'JustDataStoreRef', True)
         self._check_last_script_task_data()
-

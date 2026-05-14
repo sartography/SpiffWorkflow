@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from .BpmnWorkflowTestCase import BpmnWorkflowTestCase
 

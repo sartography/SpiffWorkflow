@@ -34,7 +34,7 @@ class BusinessRuleTaskMixin(TaskSpec):
     def _run_hook(self, my_task):
         try:
             my_task.data = DeepMerge.merge(my_task.data, self.dmnEngine.result(my_task))
-            super(BusinessRuleTaskMixin, self)._run_hook(my_task)
+            super()._run_hook(my_task)
         except SpiffWorkflowException as we:
             we.add_note(f"Business Rule Task '{my_task.task_spec.bpmn_name}'.")
             raise we

@@ -18,17 +18,27 @@
 # 02110-1301  USA
 
 import json
-from copy import deepcopy
 
 from SpiffWorkflow.bpmn.specs.mixins.service_task import ServiceTask
-from SpiffWorkflow.bpmn.exceptions import WorkflowTaskException
 
 class ServiceTask(ServiceTask):
 
-    def __init__(self, wf_spec, name, operation_name, operation_params, result_variable, **kwargs):
+    def __init__(
+            self,
+            wf_spec,
+            name,
+            operation_name,
+            operation_params,
+            result_variable,
+            retries=None,
+            retry_backoff_base=None,
+            **kwargs
+    ):
         super().__init__(wf_spec, name, **kwargs)
         self.operation_name = operation_name
         self.operation_params = operation_params
+        self.retries = retries
+        self.retry_backoff_base = retry_backoff_base
         if result_variable is None or result_variable == '':
             self.result_variable = f'spiff__{name.replace("-", "_")}_result'
         else:

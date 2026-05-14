@@ -1,11 +1,10 @@
 import unittest
 import os
-from datetime import datetime
 
 from lxml import etree
 
 from SpiffWorkflow import TaskState, Workflow
-from SpiffWorkflow.specs import Cancel, Simple, WorkflowSpec
+from SpiffWorkflow.specs import Simple, WorkflowSpec
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 
 data_dir = os.path.join(os.path.dirname(__file__), 'data')

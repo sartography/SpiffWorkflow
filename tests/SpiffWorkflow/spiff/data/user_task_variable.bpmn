@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1qnx3d3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <bpmn:collaboration id="Collaboration_11rypv4">
+    <bpmn:participant id="Participant_190ghs2" processRef="two" />
+    <bpmn:participant id="Participant_0kga0m3" processRef="one" />
+  </bpmn:collaboration>
+  <bpmn:process id="two" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0vt1twq</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="Event_0yxpeto">
+      <bpmn:incoming>Flow_00ilv2d</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="user_task_one" name="User Task">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="pizza_form.json" />
+        </spiffworkflow:properties>
+        <spiffworkflow:variableName />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0vt1twq</bpmn:incoming>
+      <bpmn:outgoing>Flow_00ilv2d</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0vt1twq" sourceRef="StartEvent_1" targetRef="user_task_one" />
+    <bpmn:sequenceFlow id="Flow_00ilv2d" sourceRef="user_task_one" targetRef="Event_0yxpeto" />
+  </bpmn:process>
+  <bpmn:process id="one" isExecutable="true">
+    <bpmn:startEvent id="Event_0pincx2">
+      <bpmn:outgoing>Flow_0qcvsqc</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="Event_0wyj6uh">
+      <bpmn:incoming>Flow_1cmc5fv</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="user_task_two" name="User Task">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="pizza_form.json" />
+        </spiffworkflow:properties>
+        <spiffworkflow:variableName>order</spiffworkflow:variableName>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0qcvsqc</bpmn:incoming>
+      <bpmn:outgoing>Flow_1cmc5fv</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0qcvsqc" sourceRef="Event_0pincx2" targetRef="user_task_two" />
+    <bpmn:sequenceFlow id="Flow_1cmc5fv" sourceRef="user_task_two" targetRef="Event_0wyj6uh" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_11rypv4">
+      <bpmndi:BPMNShape id="Participant_190ghs2_di" bpmnElement="Participant_190ghs2" isHorizontal="true">
+        <dc:Bounds x="92" y="30" width="600" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="232" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0yxpeto_di" bpmnElement="Event_0yxpeto">
+        <dc:Bounds x="512" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08ynz71_di" bpmnElement="user_task">
+        <dc:Bounds x="330" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0vt1twq_di" bpmnElement="Flow_0vt1twq">
+        <di:waypoint x="268" y="140" />
+        <di:waypoint x="330" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00ilv2d_di" bpmnElement="Flow_00ilv2d">
+        <di:waypoint x="430" y="140" />
+        <di:waypoint x="512" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="BPMNShape_1d6xazy" bpmnElement="Participant_0kga0m3" isHorizontal="true">
+        <dc:Bounds x="92" y="-240" width="600" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0ouulug" bpmnElement="Event_0pincx2">
+        <dc:Bounds x="232" y="-148" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0j6zfji" bpmnElement="Event_0wyj6uh">
+        <dc:Bounds x="512" y="-148" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0rfd4sd" bpmnElement="user_task_two">
+        <dc:Bounds x="330" y="-170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_0dyifou" bpmnElement="Flow_0qcvsqc">
+        <di:waypoint x="268" y="-130" />
+        <di:waypoint x="330" y="-130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1r3h3hf" bpmnElement="Flow_1cmc5fv">
+        <di:waypoint x="430" y="-130" />
+        <di:waypoint x="512" y="-130" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

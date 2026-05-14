@@ -27,4 +27,4 @@ class ServiceTask(ScriptEngineTask):
     """
 
     def __init__(self, wf_spec, bpmn_id, **kwargs):
-        super(ServiceTask, self).__init__(wf_spec, bpmn_id, **kwargs)
+        super().__init__(wf_spec, bpmn_id, **kwargs)

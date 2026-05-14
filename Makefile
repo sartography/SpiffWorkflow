@@ -1,4 +1,5 @@
 NAME=SpiffWorkflow
+RUN ?=
 VERSION=`python setup.py --version`
 PREFIX=/usr/local/
 BIN_DIR=$(PREFIX)/bin
@@ -24,31 +25,44 @@ doc:
 
 .PHONY : tests
 tests:
-	python -m unittest discover -vs tests/SpiffWorkflow -p \*Test.py -t .
+	$(RUN) python -m unittest discover -vs tests/SpiffWorkflow -p \*Test.py -t .
+
+.PHONY : tests-compact
+tests-compact:
+	SPIFFWORKFLOW_SERIALIZER=compact $(RUN) python -m unittest discover -vs tests/SpiffWorkflow -p \*Test.py -t .
+
+.PHONY : tests-dual
+tests-dual:
+	$(MAKE) tests RUN='$(RUN)'
+	$(MAKE) tests-compact RUN='$(RUN)'
 
 .PHONY : tests-par
 tests-par:
-	@if ! command -v unittest-parallel >/dev/null 2>&1; then \
+	@if ! $(RUN) unittest-parallel --help >/dev/null 2>&1; then \
 		echo "unittest-parallel not found. Please install it with:"; \
-		echo "  pip install unittest-parallel"; \
+		echo "  pip install -e .[dev]"; \
+		echo "  or"; \
+		echo "  uv sync --extra dev"; \
 		exit 1; \
 	fi
-	unittest-parallel --module-fixtures -qbs tests/SpiffWorkflow -p \*Test.py -t .
+	$(RUN) unittest-parallel -qbs tests/SpiffWorkflow -p \*Test.py -t .
 
 .PHONY : tests-cov
 tests-cov:
-	cd tests/$(NAME)
-	coverage run --source=$(NAME) -m unittest discover -v . "*Test.py"
+	cd tests/$(NAME) && $(RUN) coverage run --source=$(NAME) -m unittest discover -v . "*Test.py"
 
 .PHONY : tests-ind
 tests-ind:
-	cd tests/$(NAME)
-	@PYTHONPATH=../.. find . -name "*Test.py" -printf '%p' -exec python -m unittest {} \;
+	cd tests/$(NAME) && PYTHONPATH=../.. find . -name "*Test.py" -printf '%p' -exec $(RUN) python -m unittest {} \;
 
 .PHONY : tests-timing
 tests-timing:
 	@make tests-ind 2>&1 | ./scripts/test_times.py
 
+.PHONY : waiting-task-stress
+waiting-task-stress:
+	$(RUN) python -m unittest -v tests.SpiffWorkflow.bpmn.WaitingTaskStressBenchmark
+
 
 wheel: clean
-	python -m build --sdist --wheel --outdir dist/
+	$(RUN) python -m build --sdist --wheel --outdir dist/

@@ -36,7 +36,9 @@ class NodeParser:
         self.node = node
         self.nsmap = nsmap or DEFAULT_NSMAP
         self.filename = filename
-        self.lane = self._get_lane() or lane
+        self.lane = lane
+        if self.lane is None and hasattr(self, 'process_parser'):
+            self.lane = self._get_lane()
 
     @property
     def bpmn_id(self):
@@ -81,12 +83,16 @@ class NodeParser:
     def parse_incoming_data_references(self):
         specs = []
         for name in self.xpath('./bpmn:dataInputAssociation/bpmn:sourceRef'):
-            ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
+            ref = self.process_parser.get_data_object_reference(name.text)
+            if ref is None:
+                ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
             data_obj = self._resolve_data_object_ref(ref)
             if data_obj is not None:
                 specs.append(data_obj)
             else:
-                ref = first(self.doc_xpath(f".//bpmn:dataStoreReference[@id='{name.text}']"))
+                ref = self.process_parser.get_data_store_reference(name.text)
+                if ref is None:
+                    ref = first(self.doc_xpath(f".//bpmn:dataStoreReference[@id='{name.text}']"))
                 if ref is not None and ref.get('dataStoreRef') in self.process_parser.data_stores:
                     specs.append(self.process_parser.data_stores[ref.get('dataStoreRef')])
                 else:
@@ -96,12 +102,16 @@ class NodeParser:
     def parse_outgoing_data_references(self):
         specs = []
         for name in self.xpath('./bpmn:dataOutputAssociation/bpmn:targetRef'):
-            ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
+            ref = self.process_parser.get_data_object_reference(name.text)
+            if ref is None:
+                ref = first(self.doc_xpath(f".//bpmn:dataObjectReference[@id='{name.text}']"))
             data_obj = self._resolve_data_object_ref(ref)
             if data_obj is not None:
                 specs.append(data_obj)
             else:
-                ref = first(self.doc_xpath(f".//bpmn:dataStoreReference[@id='{name.text}']"))
+                ref = self.process_parser.get_data_store_reference(name.text)
+                if ref is None:
+                    ref = first(self.doc_xpath(f".//bpmn:dataStoreReference[@id='{name.text}']"))
                 if ref is not None and ref.get('dataStoreRef') in self.process_parser.data_stores:
                     specs.append(self.process_parser.data_stores[ref.get('dataStoreRef')])
                 else:
@@ -146,12 +156,19 @@ class NodeParser:
         node = node if node is not None else self.node
         nodeid = node.get('id')
         if nodeid is not None:
+            position = self.process_parser.get_position(nodeid)
+            if position != {'x': 0.0, 'y': 0.0} or hasattr(self.process_parser, 'positions_by_node_id'):
+                return position
             bounds = first(self.doc_xpath(f".//bpmndi:BPMNShape[@bpmnElement='{nodeid}']//dc:Bounds"))
             if bounds is not None:
                 return {'x': float(bounds.get('x', 0)), 'y': float(bounds.get('y', 0))}
         return {'x': 0.0, 'y': 0.0}
 
     def _get_lane(self):
+        if hasattr(self, 'process_parser'):
+            lane_name = self.process_parser.get_lane_name(self.bpmn_id)
+            if lane_name is not None or hasattr(self.process_parser, 'lanes_by_node_id'):
+                return lane_name
         noderef = first(self.doc_xpath(f".//bpmn:flowNodeRef[text()='{self.bpmn_id}']"))
         if noderef is not None:
             return noderef.getparent().get('name')

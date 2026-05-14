@@ -50,7 +50,7 @@ class SpecDiff:
     @property
     def changed(self):
         """Task specs with updated attributes"""
-        return dict((ts, changes) for ts, changes in self.comparisons.items() if changes)
+        return {ts: changes for ts, changes in self.comparisons.items() if changes}
 
     def _align(self, spec, original, new):
 
@@ -159,7 +159,6 @@ def diff_dependencies(registry, original, new):
             list of names of specs in the new dependencies that did not previously exist
     """
     result = {}
-    subprocesses = {}
     for name, spec in original.items():
         if name in new:
             result[name] = SpecDiff(registry, spec, new[name])

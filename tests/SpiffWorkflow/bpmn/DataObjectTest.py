@@ -43,6 +43,8 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
     def actual_test(self, save_restore):
 
         self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        # Test that the data object has been created
+        self.assertEqual(self.workflow.data['data_objects']['obj_1'], None)
         self.workflow.do_engine_steps()
 
         # Set up the data
@@ -50,7 +52,7 @@ class DataObjectReferenceTest(BpmnWorkflowTestCase):
         ready_tasks[0].data = { 'obj_1': 'hello' }
         ready_tasks[0].run()
         # After task completion, obj_1 should be copied out of the task into the workflow
-        self.assertNotIn('obj_1', ready_tasks[0].data)
+        self.assertEqual(self.workflow.data['data_objects']['obj_1'], 'hello')
         self.assertIn('obj_1', self.workflow.data_objects)
 
         if save_restore:

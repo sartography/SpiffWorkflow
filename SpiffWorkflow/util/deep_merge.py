@@ -17,7 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-class DeepMerge(object):
+from copy import copy
+
+class DeepMerge:
     # Merges two deeply nested json-like dictionaries,
     # useful for updating things like task data.
     # I know in my heart, that this isn't completely correct.
@@ -42,24 +44,59 @@ class DeepMerge(object):
                 elif isinstance(a[key], list) and isinstance(b[key], list):
                     DeepMerge.merge_array(a[key], b[key], path + [str(key)])
                 else:
-                    a[key] = b[key]  # Just overwrite the value in a.
+                    # Shallow copy only for mutable types (dict/list/set)
+                    # Immutable types (str/int/float/bool/None/tuple) don't need copying
+                    if isinstance(b[key], (dict, list, set)):
+                        a[key] = copy(b[key])
+                    else:
+                        a[key] = b[key]
             else:
-                a[key] = b[key]
+                # Shallow copy only for mutable types
+                if isinstance(b[key], (dict, list, set)):
+                    a[key] = copy(b[key])
+                else:
+                    a[key] = b[key]
         return a
 
     @staticmethod
     def merge_array(a, b, path=None):
+        seen_hashable = set()
+        seen_unhashable = []
+
+        for item in a:
+            try:
+                seen_hashable.add(item)
+            except TypeError:
+                seen_unhashable.append(item)
 
         for idx, val in enumerate(b):
-            if isinstance(b[idx], dict):  # Recurse back on dictionaries.
+            if isinstance(val, dict):  # Recurse back on dictionaries.
                 # If lists of dictionaries get out of order, this might
                 # cause us some pain.
                 if len(a) > idx:
-                    a[idx] = DeepMerge.merge(a[idx], b[idx], path + [str(idx)])
+                    a[idx] = DeepMerge.merge(a[idx], val, path + [str(idx)])
                 else:
-                    a.append(b[idx])
-            else: # Just merge whatever it is back in.
-                a.extend(x for x in b if x not in a)
+                    a.append(val)
+            else:  # Just merge whatever it is back in.
+                try:
+                    if val in seen_hashable:
+                        continue
+                    seen_hashable.add(val)
+                except TypeError:
+                    if val in seen_unhashable:
+                        continue
+                    seen_unhashable.append(val)
+                a.append(val)
 
         # Trim a back to the length of b.  In the end, the two arrays should match
         del a[len(b):]
+
+    @staticmethod
+    def get_updated_keys(a, b):
+        """get a list of keys from b that are different from a"""
+        return {key: b[key] for key in b if key not in a or b[key] != a[key]}
+
+    @staticmethod
+    def get_deleted_keys(a, b):
+        """get a list of keys from a that do not exist in b"""
+        return [key for key in a if key not in b]

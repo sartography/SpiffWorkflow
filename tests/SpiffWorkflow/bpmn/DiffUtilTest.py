@@ -103,11 +103,6 @@ class CompareWorkflowTest(BpmnWorkflowTestCase):
         v4_spec, v4_sp_specs = self.load_workflow_spec('diff/v4.bpmn', 'Process')
         v5_spec, v5_sp_specs = self.load_workflow_spec('diff/v5.bpmn', 'Process')
         spec_diff = SpecDiff(self.serializer.registry, v4_spec, v5_spec)
-        sp_spec_diff = SpecDiff(
-            self.serializer.registry,
-            v4_sp_specs['Activity_1ds7clb'],
-            v5_sp_specs['Activity_1ds7clb']
-        )
         workflow = BpmnWorkflow(v4_spec, v4_sp_specs)
         task = workflow.get_next_task(state=TaskState.READY)
         while task is not None:

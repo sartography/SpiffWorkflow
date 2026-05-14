@@ -28,11 +28,14 @@ class MessageEventDefinition(EventDefinition):
             correlated = True
         else:
             # Otherwise we have to check to make sure any existing keys match
-            correlated = all([event.correlations.get(key) == correlations.get(key) for key in event.correlations ])
+            correlated = any(event.correlations.get(key) == correlations.get(key) for key in event.correlations)
         return self == event.event_definition and correlated
 
     def catch(self, my_task, event=None):
         self.update_internal_data(my_task, event)
+        if event is not None:
+            correlations = self.get_correlations(my_task, event.payload)
+            my_task.workflow.correlations.update(correlations)
         super().catch(my_task, event)
 
     def throw(self, my_task):
@@ -71,14 +74,15 @@ class MessageEventDefinition(EventDefinition):
                 except WorkflowException:
                     # Just ignore missing keys.  The dictionaries have to match exactly
                     pass
-            if len(prop.correlation_keys) == 0:
-                if self.name not in correlations:
-                    correlations[self.name] = {}
-                correlations[self.name][prop.name] = value
         return correlations
 
     def details(self, my_task):
-        return PendingBpmnEvent(self.name, self.__class__.__name__, self.correlation_properties)
+        return PendingBpmnEvent(
+            self.name,
+            self.__class__.__name__,
+            self.correlation_properties,
+            my_task.workflow.correlations
+        )
 
     def __eq__(self, other):
         return super().__eq__(other) and self.name == other.name

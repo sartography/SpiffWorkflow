@@ -29,6 +29,7 @@
           <spiffworkflow:parameters>
             <spiffworkflow:parameter id="zipcode" type="int" value="22980" />
           </spiffworkflow:parameters>
+          <spiffworkflow:retry retries="3" backoff_base="2" />
         </spiffworkflow:serviceTaskOperator>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_16rdnn7</bpmn:incoming>

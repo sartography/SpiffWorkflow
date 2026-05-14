@@ -34,7 +34,7 @@ class Merge(Join):
                      if task.task_spec is input_spec]
             for task in tasks:
                 DeepMerge.merge(my_task.data, task.data)
-        return super(Merge, self)._do_join(my_task)
+        return super()._do_join(my_task)
 
     @classmethod
     def deserialize(self, serializer, wf_spec, s_state):

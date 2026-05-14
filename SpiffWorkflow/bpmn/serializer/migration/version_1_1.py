@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 def move_subprocesses_to_top(dct):
-    subprocesses = dict((sp, { 'tasks': {}, 'root': None, 'data': {}, 'success': True }) for sp in dct['subprocesses'])
+    subprocesses = {sp: { 'tasks': {}, 'root': None, 'data': {}, 'success': True } for sp in dct['subprocesses']}
 
     # Move the tasks out of the top-level
     for sp, task_ids in dct['subprocesses'].items():

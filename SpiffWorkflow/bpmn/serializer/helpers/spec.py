@@ -17,10 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from functools import partial
-
-from SpiffWorkflow.operators import Attrib, PathAttrib
-
 from SpiffWorkflow.bpmn.specs.mixins.bpmn_spec_mixin import BpmnSpecMixin
 from SpiffWorkflow.bpmn.specs.event_definitions.message import CorrelationProperty
 from .bpmn_converter import BpmnConverter

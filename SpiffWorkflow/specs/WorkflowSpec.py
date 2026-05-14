@@ -20,7 +20,7 @@
 from ..specs.StartTask import StartTask
 
 
-class WorkflowSpec(object):
+class WorkflowSpec:
 
     """
     This class represents the specification of a workflow.
@@ -33,7 +33,7 @@ class WorkflowSpec(object):
         self.name = name or ''
         self.description = ''
         self.file = filename
-        self.task_specs = dict()
+        self.task_specs = {}
         self.start = None
         if addstart:
             self.start = StartTask(self)

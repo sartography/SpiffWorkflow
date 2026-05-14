@@ -6,7 +6,7 @@ from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.specs.Simple import Simple
 
 
-class MockWorkflow(object):
+class MockWorkflow:
     def __init__(self, spec):
         self.spec = spec
         self.tasks = {}

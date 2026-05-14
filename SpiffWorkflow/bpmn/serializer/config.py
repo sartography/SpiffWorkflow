@@ -31,7 +31,6 @@ from SpiffWorkflow.bpmn.specs.defaults import (
     ParallelGateway,
     EventBasedGateway,
     ScriptTask,
-    ServiceTask,
     StandardLoopTask,
     ParallelMultiInstanceTask,
     SequentialMultiInstanceTask,

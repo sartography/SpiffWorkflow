@@ -1,5 +1,4 @@
 import os
-import unittest
 
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.specs.Execute import Execute

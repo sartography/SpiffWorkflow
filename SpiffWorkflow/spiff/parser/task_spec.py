@@ -27,7 +27,8 @@ from SpiffWorkflow.spiff.specs.defaults import (
     StandardLoopTask,
     ParallelMultiInstanceTask,
     SequentialMultiInstanceTask,
-    BusinessRuleTask
+    BusinessRuleTask,
+    UserTask,
 )
 
 SPIFFWORKFLOW_NSMAP = {'spiffworkflow': 'http://spiffworkflow.org/bpmn/schema/1.0/core'}
@@ -59,6 +60,8 @@ class SpiffTaskParser(TaskParser):
                 extensions['unitTests'] = SpiffTaskParser._parse_script_unit_tests(node)
             elif name == 'serviceTaskOperator':
                 extensions['serviceTaskOperator'] = SpiffTaskParser._parse_servicetask_operator(node)
+            elif name == 'taskMetadataValues':
+                extensions['taskMetadataValues'] = SpiffTaskParser._parse_task_metadata_values(node)
             else:
                 extensions[name] = node.text
         return extensions
@@ -75,6 +78,14 @@ class SpiffTaskParser(TaskParser):
         for prop_node in property_nodes:
             properties[prop_node.attrib['name']] = prop_node.attrib['value']
         return properties
+
+    @classmethod
+    def _parse_task_metadata_values(cls, node):
+        metadata_value_nodes = cls._node_children_by_tag_name(node, 'taskMetadataValue')
+        metadata_values = {}
+        for metadata_node in metadata_value_nodes:
+            metadata_values[metadata_node.attrib['name']] = metadata_node.attrib.get('value', None)
+        return metadata_values
 
     @staticmethod
     def _spiffworkflow_ready_xpath_for_node(node):
@@ -105,6 +116,15 @@ class SpiffTaskParser(TaskParser):
                     'type': param_node.attrib['type']
                 }
         operator['parameters'] = parameters
+        retry_nodes = cls._node_children_by_tag_name(node, 'retry')
+        if retry_nodes:
+            retry_node = retry_nodes[0]
+            retries = retry_node.get('retries', None)
+            retry_backoff_base = retry_node.get('backoff_base', None)
+            if retries is not None:
+                operator['retries'] = int(retries)
+            if retry_backoff_base is not None:
+                operator['retryBackoffBase'] = int(retry_backoff_base)
         return operator
 
     def _copy_task_attrs(self, original, loop_characteristics):
@@ -179,6 +199,8 @@ class ServiceTaskParser(SpiffTaskParser):
                 operation_name=operator['name'], 
                 operation_params=operator['parameters'],
                 result_variable=operator['resultVariable'],
+                retries=operator.get('retries'),
+                retry_backoff_base=operator.get('retryBackoffBase'),
                 prescript=prescript,
                 postscript=postscript,
                 **self.bpmn_attributes)
@@ -203,3 +225,19 @@ class BusinessRuleTaskParser(SpiffTaskParser):
     def get_decision_ref(node):
         extensions = SpiffTaskParser._parse_extensions(node)
         return extensions.get('calledDecisionId')
+
+class UserTaskParser(SpiffTaskParser):
+
+    def create_task(self):
+        extensions = self.parse_extensions()
+        variable = extensions.get('variableName')
+        prescript = extensions.get('preScript')
+        postscript = extensions.get('postScript')
+        return UserTask(
+            self.spec,
+            self.bpmn_id,
+            variable=variable,
+            prescript=prescript,
+            postscript=postscript,
+            **self.bpmn_attributes,
+        )

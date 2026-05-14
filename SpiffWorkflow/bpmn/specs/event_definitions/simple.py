@@ -21,7 +21,7 @@ class CancelEventDefinition(EventDefinition):
     """Cancel events are only handled by the outerworkflow, as they can only be used inside of transaction subprocesses."""
 
     def __init__(self, **kwargs):
-        super(CancelEventDefinition, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def throw(self, my_task, **kwargs):
         event = BpmnEvent(self, target=my_task.workflow.parent_workflow)
@@ -32,7 +32,7 @@ class TerminateEventDefinition(EventDefinition):
     """The TerminateEventDefinition is the implementation of event definition used for Termination Events."""
 
     def __init__(self, **kwargs):
-        super(TerminateEventDefinition, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def throw(self, my_task):
         event = BpmnEvent(my_task.task_spec.event_definition, target=my_task.workflow)

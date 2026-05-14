@@ -21,7 +21,7 @@ from lxml import etree
 
 from .ValidationException import ValidationException
 from .TaskParser import TaskParser
-from .util import first, one
+from .util import first
 
 from SpiffWorkflow.bpmn.specs.event_definitions.simple import (
     NoneEventDefinition,
@@ -38,10 +38,7 @@ from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import (
     ErrorEventDefinition,
     EscalationEventDefinition
 )
-from SpiffWorkflow.bpmn.specs.event_definitions.message import (
-    MessageEventDefinition,
-    CorrelationProperty
-)
+from SpiffWorkflow.bpmn.specs.event_definitions.message import MessageEventDefinition
 from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
 from SpiffWorkflow.bpmn.specs.event_definitions.conditional import ConditionalEventDefinition
 
@@ -89,11 +86,10 @@ class EventDefinitionParser(TaskParser):
         """Parse the errorEventDefinition node and return an instance of ErrorEventDefinition."""
         error_ref = error_event.get('errorRef')
         if error_ref:
-            try:
-                error = one(self.doc_xpath('.//bpmn:error[@id="%s"]' % error_ref))
-            except Exception:
+            error = self.process_parser.parser.errors.get(error_ref)
+            if error is None:
                 self.raise_validation_exception('Expected an error node', node=error_event)
-            error_code = error.get('errorCode')
+            error_code = error.get('error_code')
             name = error.get('name')
         else:
             name, error_code = 'None Error Event', None
@@ -104,11 +100,10 @@ class EventDefinitionParser(TaskParser):
 
         escalation_ref = escalation_event.get('escalationRef')
         if escalation_ref:
-            try:
-                escalation = one(self.doc_xpath('.//bpmn:escalation[@id="%s"]' % escalation_ref))
-            except Exception:
+            escalation = self.process_parser.parser.escalations.get(escalation_ref)
+            if escalation is None:
                 self.raise_validation_exception('Expected an Escalation node', node=escalation_event)
-            escalation_code = escalation.get('escalationCode')
+            escalation_code = escalation.get('escalation_code')
             name = escalation.get('name')
         else:
             name, escalation_code = 'None Escalation Event', None
@@ -118,11 +113,10 @@ class EventDefinitionParser(TaskParser):
 
         message_ref = message_event.get('messageRef')
         if message_ref is not None:
-            try:
-                message = one(self.doc_xpath('.//bpmn:message[@id="%s"]' % message_ref))
-            except Exception:
+            message = self.process_parser.parser.messages.get(message_ref)
+            if message is None:
                 self.raise_validation_exception('Expected a Message node', node=message_event)
-            name = message.get('name')
+            name = message
             description = self.get_event_description(message_event)
             correlations = self.get_message_correlations(message_ref)
         else:
@@ -136,11 +130,10 @@ class EventDefinitionParser(TaskParser):
 
         signal_ref = signal_event.get('signalRef')
         if signal_ref:
-            try:
-                signal = one(self.doc_xpath('.//bpmn:signal[@id="%s"]' % signal_ref))
-            except Exception:
+            signal = self.process_parser.parser.signals.get(signal_ref)
+            if signal is None:
                 self.raise_validation_exception('Expected a Signal node', node=signal_event)
-            name = signal.get('name')
+            name = signal
         else:
             name = signal_event.getparent().get('name')
         return SignalEventDefinition(name, description=self.get_event_description(signal_event))
@@ -168,17 +161,7 @@ class EventDefinitionParser(TaskParser):
             raise ValidationException("Time Specification Error. " + str(e), node=self.node, file_name=self.filename)
 
     def get_message_correlations(self, message_ref):
-
-        correlations = []
-        for correlation in self.doc_xpath(f".//bpmn:correlationPropertyRetrievalExpression[@messageRef='{message_ref}']"):
-            key = correlation.getparent().get('id')
-            children = correlation.getchildren()
-            expression = children[0].text if len(children) > 0 else None
-            used_by = [ e.getparent().get('name') for e in
-                self.doc_xpath(f".//bpmn:correlationKey/bpmn:correlationPropertyRef[text()='{key}']") ]
-            if key is not None and expression is not None:
-                correlations.append(CorrelationProperty(key, expression, used_by))
-        return correlations
+        return self.process_parser.parser.message_correlations.get(message_ref, [])
 
     def _create_task(self, event_definition, cancel_activity=None, parallel=None):
 

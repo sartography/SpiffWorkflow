@@ -1,19 +1,17 @@
 import os
 
-from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 from SpiffWorkflow.camunda.serializer import DEFAULT_CONFIG
 from SpiffWorkflow.camunda.parser.CamundaParser import CamundaParser
 
 from tests.SpiffWorkflow.bpmn.BpmnWorkflowTestCase import BpmnWorkflowTestCase
-
-registry = BpmnWorkflowSerializer.configure(DEFAULT_CONFIG)
+from tests.SpiffWorkflow.bpmn.serializer_support import build_serializer
 
 __author__ = 'danfunk'
 
 class BaseTestCase(BpmnWorkflowTestCase):
     """ Provides some basic tools for loading up and parsing camunda BPMN files """
 
-    serializer = BpmnWorkflowSerializer(registry)
+    serializer = build_serializer(DEFAULT_CONFIG)
 
     def get_parser(self, filename, dmn_filename=None):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)

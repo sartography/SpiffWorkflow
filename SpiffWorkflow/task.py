@@ -35,7 +35,7 @@ from .exceptions import WorkflowException
 logger = logging.getLogger('spiff.task')
 
 
-class Task(object):
+class Task:
     """Used internally for composing a tree that represents possible paths through a Workflow.
 
     Attributes:
@@ -184,8 +184,8 @@ class Task(object):
         """
         logger.info(f'Branch reset', extra=self.collect_log_extras())
         self.internal_data = {}
-        self.data = deepcopy(self.parent.data) if data is None else data
-        descendants = [t for t in self]
+        self.data = deepcopy(self.parent.data) if data is None else data    
+        descendants = list(self)
         self._drop_children(force=True)
         self._set_state(TaskState.FUTURE)
         self.task_spec._predict(self, mask=TaskState.PREDICTED_MASK|TaskState.FUTURE)
@@ -304,9 +304,12 @@ class Task(object):
         """Force set the state on a task"""
 
         if value != self.state:
+            old_state = self._state
             elapsed = time.time() - self.last_state_change
             self.last_state_change = time.time()
             self._state = value
+            if hasattr(self.workflow, '_task_state_changed_notify'):
+                self.workflow._task_state_changed_notify(self, old_state, value)
             logger.info(
                 f'State changed to {TaskState.get_name(value)}',
                 extra=self.collect_log_extras({'elapsed': elapsed})
@@ -325,9 +328,9 @@ class Task(object):
             child.thread_id = self.thread_id
         return self.thread_id
 
-    def _inherit_data(self) -> None:
-        """Copies the data from the parent."""
-        self.set_data(**deepcopy(self.parent.data))
+    def _inherit_data(self):
+        """Inherits data from the parent."""
+        self.data = DeepMerge.merge(self.data, self.parent.data)
 
     def _set_internal_data(self, **kwargs) -> None:
         """Defines the given attribute/value pairs in this task's internal data."""
@@ -359,7 +362,6 @@ class Task(object):
 
         See `TaskState` for more information about states.
         """
-        start = time.time()
         retval = self.task_spec._run(self)
         if retval is None:
             self._set_state(TaskState.STARTED)

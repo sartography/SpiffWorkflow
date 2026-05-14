@@ -17,7 +17,7 @@
 
 from threading import Lock
 
-class mutex(object):
+class mutex:
 
     def __init__(self):
         self.lock = Lock()

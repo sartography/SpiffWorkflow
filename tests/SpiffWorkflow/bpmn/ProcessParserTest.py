@@ -4,6 +4,7 @@ import unittest
 
 from SpiffWorkflow.dmn.parser.BpmnDmnParser import BpmnDmnParser
 from SpiffWorkflow.bpmn.parser.BpmnParser import BpmnParser
+from SpiffWorkflow.bpmn.parser.ProcessParser import ProcessParser
 
 def _process_parser(bpmn_filename, process_id):
     parser = BpmnParser()
@@ -12,6 +13,39 @@ def _process_parser(bpmn_filename, process_id):
     return parser.get_process_parser(process_id)
 
 class ProcessParserTest(unittest.TestCase):
+    def testStartMessagesAvoidsRepeatedMessageIdScans(self):
+        class CountingAttrib(dict):
+            id_gets = 0
+
+            def get(self, key, default=None):
+                if key == 'id':
+                    CountingAttrib.id_gets += 1
+                return super().get(key, default)
+
+        class FakeNode:
+            def __init__(self, attrib):
+                self.attrib = attrib
+
+        messages = [
+            FakeNode(CountingAttrib(id=f'message_{idx}', name=f'Message {idx}'))
+            for idx in range(10)
+        ]
+        message_event_definitions = [
+            FakeNode({'messageRef': f'message_{idx}'})
+            for idx in range(10)
+        ]
+        parser = ProcessParser.__new__(ProcessParser)
+        parser.xpath = lambda expr: (
+            message_event_definitions
+            if expr == "//bpmn:startEvent/bpmn:messageEventDefinition"
+            else messages
+        )
+
+        message_names = parser.start_messages()
+
+        self.assertEqual([f'Message {idx}' for idx in range(10)], message_names)
+        self.assertLessEqual(CountingAttrib.id_gets, 10)
+
     def testReturnsEmptyListIfNoCallActivities(self):
         parser = _process_parser("no-tasks.bpmn", "no_tasks")
         assert parser.called_element_ids() == []

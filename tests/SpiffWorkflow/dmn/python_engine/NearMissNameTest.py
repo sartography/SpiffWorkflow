@@ -41,7 +41,7 @@ class NearMissTestClass(unittest.TestCase):
 
     def test_string_decision_string_output1(self):
         self.assertRaisesRegex(Exception,
-                               ".+\['Exclusive', 'eXclusive', 'EXCLUSIVE'\].+",
+                               r".+\['Exclusive', 'eXclusive', 'EXCLUSIVE'\].+",
                                self.runner.decide,
                                self.data)
 

@@ -4,18 +4,16 @@ import unittest
 
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn.parser import BpmnValidator
-from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 
 from .BpmnLoaderForTests import TestBpmnParser, SERIALIZER_CONFIG
+from .serializer_support import build_serializer
 
 
 __author__ = 'matth'
 
-registry = BpmnWorkflowSerializer.configure(SERIALIZER_CONFIG)
-
 class BpmnWorkflowTestCase(unittest.TestCase):
 
-    serializer = BpmnWorkflowSerializer(registry)
+    serializer = build_serializer(SERIALIZER_CONFIG)
 
     def get_parser(self, filename, validate=True):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
@@ -91,8 +89,8 @@ class BpmnWorkflowTestCase(unittest.TestCase):
             step_name_path[-1], tasks, set_attribs, choice, only_one_instance=only_one_instance)
 
     def assertTaskNotReady(self, step_name):
-        tasks = list([t for t in self.workflow.get_tasks(state=TaskState.READY)
-                     if t.task_spec.name == step_name or t.task_spec.bpmn_name == step_name])
+        tasks = [t for t in self.workflow.get_tasks(state=TaskState.READY)
+                 if t.task_spec.name == step_name or t.task_spec.bpmn_name == step_name]
         self.assertEqual([], tasks)
 
     def _do_single_step(self, step_name, tasks, set_attribs=None, choice=None, only_one_instance=True):

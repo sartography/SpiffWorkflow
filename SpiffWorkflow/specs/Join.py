@@ -17,7 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-from SpiffWorkflow.task import Task
 from SpiffWorkflow.util.task import TaskState, TaskIterator
 from ..exceptions import WorkflowException
 from .base import TaskSpec
@@ -92,7 +91,7 @@ class Join(TaskSpec):
         :type  kwargs: dict
         :param kwargs: See :class:`SpiffWorkflow.specs.TaskSpec`.
         """
-        super(Join, self).__init__(wf_spec, name, **kwargs)
+        super().__init__(wf_spec, name, **kwargs)
         self.split_task = split_task
         self.threshold = threshold
         self.cancel_remaining = cancel

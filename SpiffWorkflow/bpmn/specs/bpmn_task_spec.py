@@ -9,7 +9,7 @@ class _BpmnCondition(Operator):
     def __init__(self, *args):
         if len(args) > 1:
             raise TypeError("Too many arguments")
-        super(_BpmnCondition, self).__init__(*args)
+        super().__init__(*args)
 
     def _matches(self, task):
         return task.workflow.script_engine.evaluate(task, self.args[0], external_context=task.workflow.data_objects)

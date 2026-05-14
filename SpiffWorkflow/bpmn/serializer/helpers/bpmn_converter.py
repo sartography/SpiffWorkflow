@@ -46,11 +46,11 @@ class BpmnConverter:
 
     def mapping_to_dict(self, mapping, **kwargs):
         """Convert both the key and value of a dict with keys that can be converted to strings."""
-        return dict((str(k), self.registry.convert(v, **kwargs)) for k, v in mapping.items())
+        return {str(k): self.registry.convert(v, **kwargs) for k, v in mapping.items()}
 
     def mapping_from_dict(self, mapping, key_class=None, **kwargs):
         """Restore a mapping from a dictionary of strings -> objects."""
         if key_class is None:
-            return dict((k, self.registry.restore(v, **kwargs)) for k, v in mapping.items())
+            return {k: self.registry.restore(v, **kwargs) for k, v in mapping.items()}
         else:
-            return dict((key_class(k), self.registry.restore(v, **kwargs)) for k, v in mapping.items())
+            return {key_class(k): self.registry.restore(v, **kwargs) for k, v in mapping.items()}

@@ -29,11 +29,11 @@ class UserTask(DefaultUserTask):
         :param form: the information that needs to be provided by the user,
         as parsed from the camunda xml file's form details.
         """
-        super(UserTask, self).__init__(wf_spec, name, **kwargs)
+        super().__init__(wf_spec, name, **kwargs)
         self.form = form
 
 
-class FormField(object):
+class FormField:
     def __init__(self, form_type="text"):
         self.id = ""
         self.type = form_type
@@ -67,7 +67,7 @@ class FormField(object):
 
 class EnumFormField(FormField):
     def __init__(self):
-        super(EnumFormField, self).__init__("enum")
+        super().__init__("enum")
         self.options = []
 
     def add_option(self, option_id, name):

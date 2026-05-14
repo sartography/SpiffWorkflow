@@ -16,7 +16,6 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
-import time
 from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.specs.base import TaskSpec
 
@@ -64,6 +63,8 @@ class CatchingEvent(TaskSpec):
     def _run_hook(self, my_task):
 
         self.event_definition.update_task_data(my_task)
+        for task in my_task.workflow.get_tasks(my_task, spec_name=my_task.task_spec.name):
+            task.task_spec.event_definition.reset(task)
         self.event_definition.reset(my_task)
         return super()._run_hook(my_task)
 

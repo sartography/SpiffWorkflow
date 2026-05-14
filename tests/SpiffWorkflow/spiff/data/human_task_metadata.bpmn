@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_96f6665" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.0.0-dev">
+  <bpmn:process id="Process_human_task_metadata" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1my9ag5</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1my9ag5" sourceRef="StartEvent_1" targetRef="Activity_1qtnye8" />
+    <bpmn:sequenceFlow id="Flow_0b04rbg" sourceRef="Activity_1qtnye8" targetRef="Activity_1gqykqt" />
+    <bpmn:endEvent id="Event_0pchbgr">
+      <bpmn:incoming>Flow_13mlau2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_13mlau2" sourceRef="Activity_1gqykqt" targetRef="Event_0pchbgr" />
+    <bpmn:scriptTask id="Activity_1qtnye8" name="set variables" scriptFormat="python">
+      <bpmn:incoming>Flow_1my9ag5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0b04rbg</bpmn:outgoing>
+      <bpmn:script>my_var = "dynamic_value"</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="Activity_1gqykqt" name="User Task with Metadata">
+      <bpmn:extensionElements>
+        <spiffworkflow:taskMetadataValues>
+          <spiffworkflow:taskMetadataValue name="dynamic_key" value="my_var" />
+          <spiffworkflow:taskMetadataValue name="static_key" value="'static_value'" />
+          <spiffworkflow:taskMetadataValue name="key_with_no_value_property_in_xml" />
+        </spiffworkflow:taskMetadataValues>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0b04rbg</bpmn:incoming>
+      <bpmn:outgoing>Flow_13mlau2</bpmn:outgoing>
+    </bpmn:userTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_human_task_metadata">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0pchbgr_di" bpmnElement="Event_0pchbgr">
+        <dc:Bounds x="592" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1x1c7bj_di" bpmnElement="Activity_1qtnye8">
+        <dc:Bounds x="270" y="137" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0w50892_di" bpmnElement="Activity_1gqykqt">
+        <dc:Bounds x="430" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1my9ag5_di" bpmnElement="Flow_1my9ag5">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="270" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b04rbg_di" bpmnElement="Flow_0b04rbg">
+        <di:waypoint x="370" y="177" />
+        <di:waypoint x="430" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13mlau2_di" bpmnElement="Flow_13mlau2">
+        <di:waypoint x="530" y="177" />
+        <di:waypoint x="592" y="177" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

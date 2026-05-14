@@ -44,7 +44,7 @@ class ParserTest(unittest.TestCase):
         bpmn_file = os.path.join(os.path.dirname(__file__), 'data', 'call_activity_end_event.bpmn')
         self.parser.add_bpmn_file(bpmn_file)
         self.assertRaisesRegex(
-            ValidationException, "The process '\w+' was not found*",
+            ValidationException, r"The process '\w+' was not found*",
             self.parser.get_spec, "Process")
 
     def testBoundaryEvent(self):
@@ -64,6 +64,6 @@ class ParserTest(unittest.TestCase):
         bpmn_file = os.path.join(os.path.dirname(__file__), 'data/Invalid-Workflows', 'non-executable-process.bpmn')
         self.parser.add_bpmn_file(bpmn_file)
         self.assertRaisesRegex(
-            ValidationException, "Process \w+ is not executable.",
+            ValidationException, r"Process \w+ is not executable.",
             self.parser.get_spec, 'Process_14di7kj'
         )

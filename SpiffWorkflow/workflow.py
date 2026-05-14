@@ -111,7 +111,7 @@ class Workflow:
         Returns:
             The tasks that match the filtering conditions.
         """
-        return [task for task in self.get_tasks_iterator(first_task, **kwargs)]
+        return list(self.get_tasks_iterator(first_task, **kwargs))
 
     def get_next_task(self, first_task: Optional[Task] = None, **kwargs) -> Optional[Task]:
         """Returns the next task that meets the iteration conditions, starting from the root by default.
@@ -268,6 +268,7 @@ class Workflow:
             'workflow_spec': self.spec.name,
             'success': self.success,
             'completed': self.completed,
+            'root': self.task_tree.id
         })
         if logger.level < 20:
             extra.update({'tasks': [t.id for t in Workflow.get_tasks(self)]})
@@ -292,6 +293,8 @@ class Workflow:
         task = self.tasks[task_id]
         for child in task.children:
             self._remove_task(child.id)
+        if hasattr(self, '_task_state_changed_notify'):
+            self._task_state_changed_notify(task, task.state, None)
         task.parent._children.remove(task.id)
         self.tasks.pop(task_id)
 
