@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 from .specs import StartTask
 from .specs.base import TaskSpec
 from .util.task import TaskState, TaskIterator
+from .util.deep_merge import DeepMerge
 from .exceptions import WorkflowException
 
 logger = logging.getLogger('spiff.task')
@@ -328,7 +329,7 @@ class Task:
             child.thread_id = self.thread_id
         return self.thread_id
 
-    def _inherit_data(self):
+    def _inherit_data(self) -> None:
         """Inherits data from the parent."""
         self.data = DeepMerge.merge(self.data, self.parent.data)
 
