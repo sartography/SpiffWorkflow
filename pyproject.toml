@@ -51,7 +51,7 @@ where = ["."]
 include = ["SpiffWorkflow*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "SpiffWorkflow.__version__"}
+version = {attr = "SpiffWorkflow.version.__version__"}
 
 [tool.setuptools.package-data]
 "*" = ["schema/*.xsd"]
