@@ -1,0 +1,78 @@
+name: Build Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'doc/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'doc/**'
+
+# Security: restrict GITHUB_TOKEN to least privilege.
+# See: https://www.upwind.io/feed/hackerbot-claw-github-actions-pull-request-rce
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build-docs
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: doc
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v5
+        with:
+          python-version: 3.12
+
+      - name: Install doc dependencies
+        working-directory: .
+        run: |
+          pip install ".[doc]"
+
+      - name: Build
+        run: |
+          make html
+
+  sync-to-website:
+    name: sync-docs-to-website
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          persist-credentials: false
+
+      - name: Check out website repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          repository: sartography/SpiffWorks_Website
+          token: ${{ secrets.SPIFFWORKS_WEBSITE_UPDATE_TOKEN }}
+          path: website-repo
+
+      - name: Sync docs source files
+        run: |
+          mkdir -p website-repo/docs/spiffworkflow/
+          rsync -av --delete doc/ website-repo/docs/spiffworkflow/
+
+      - name: Commit and push
+        working-directory: website-repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/spiffworkflow/
+          git diff --staged --quiet && echo "No changes to sync." && exit 0
+          git commit -m "docs(spiffworkflow): sync from ${{ github.repository }}@${{ github.sha }}"
+          git push
