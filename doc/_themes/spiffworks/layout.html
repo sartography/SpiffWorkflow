@@ -28,8 +28,15 @@
     </div>
   </aside>
 
+  <div class="docs-sidebar-backdrop" id="docs-sidebar-backdrop" aria-hidden="true"></div>
+
   <main class="docs-main" role="main">
     <div class="docs-content">
+      <button class="docs-sidebar-toggle" id="docs-sidebar-toggle"
+              aria-controls="docs-sidebar" aria-expanded="false"
+              aria-label="Open navigation">
+        &#9776; Menu
+      </button>
       {%- block body %}{% endblock %}
     </div>
     {%- if prev or next %}
@@ -45,4 +52,59 @@
 {%- block scripts %}
 {{ super() }}
 <script>if (typeof mermaid !== 'undefined') { mermaid.initialize({ startOnLoad: true, theme: 'default' }); }</script>
+<script>
+(function () {
+  var toggle = document.getElementById('docs-sidebar-toggle');
+  var sidebar = document.getElementById('docs-sidebar');
+  var backdrop = document.getElementById('docs-sidebar-backdrop');
+  if (!toggle || !sidebar) return;
+
+  var mql = window.matchMedia('(max-width: 700px)');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    sidebar.setAttribute('aria-hidden', 'false');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Close navigation');
+    if (backdrop) backdrop.classList.add('open');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    sidebar.setAttribute('aria-hidden', 'true');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Open navigation');
+    if (backdrop) backdrop.classList.remove('open');
+  }
+
+  function onBreakpointChange(e) {
+    if (e.matches) {
+      // entered mobile: sidebar is off-canvas unless already open
+      if (!sidebar.classList.contains('open')) {
+        sidebar.setAttribute('aria-hidden', 'true');
+      }
+    } else {
+      // entered desktop: sidebar is always visible, reset mobile state
+      sidebar.classList.remove('open');
+      sidebar.setAttribute('aria-hidden', 'false');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open navigation');
+      if (backdrop) backdrop.classList.remove('open');
+    }
+  }
+
+  mql.addEventListener('change', onBreakpointChange);
+  onBreakpointChange(mql); // set correct initial state
+
+  toggle.addEventListener('click', function () {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+
+  if (backdrop) backdrop.addEventListener('click', closeSidebar);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
+  });
+}());
+</script>
 {%- endblock %}

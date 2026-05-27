@@ -611,9 +611,16 @@ body {
   .docs-main { padding: 2rem 2rem 3rem; }
 }
 
+.docs-sidebar-toggle {
+  display: none;
+}
+
+.docs-sidebar-backdrop {
+  display: none;
+}
+
 @media (max-width: 700px) {
   .docs-sidebar {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -621,8 +628,41 @@ body {
     z-index: 100;
     width: 260px;
     box-shadow: 4px 0 24px rgba(0,0,0,0.08);
+    transform: translateX(-100%);
+    visibility: hidden;
+    opacity: 0;
+    transition: transform 0.25s ease, visibility 0.25s, opacity 0.25s;
   }
 
-  .docs-sidebar.open { display: block; }
+  .docs-sidebar.open {
+    transform: translateX(0);
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .docs-sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+    padding: 0.4rem 0.75rem;
+    background: none;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    color: var(--gray-700);
+  }
+
+  .docs-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background: rgba(0, 0, 0, 0.35);
+    display: none;
+  }
+
+  .docs-sidebar-backdrop.open { display: block; }
+
   .docs-main { padding: 1.5rem 1.25rem 3rem; }
 }
