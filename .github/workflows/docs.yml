@@ -65,7 +65,7 @@ jobs:
       - name: Check out website repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
         with:
-          repository: sartography/SpiffWorks_WebsiteRea
+          repository: sartography/SpiffWorks_Website
           token: ${{ secrets.SPIFFWORKS_WEBSITE_UPDATE_TOKEN }}
           path: website-repo
 
