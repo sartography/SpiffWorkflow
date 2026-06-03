@@ -19,7 +19,7 @@ strategy for building Low-Code applications.
 
 ## Build status
 [![SpiffWorkflow](https://github.com/sartography/SpiffWorkflow/actions/workflows/tests.yaml/badge.svg)](https://github.com/sartography/SpiffWorkflow/actions/workflows/tests.yaml)
-[![Documentation Status](https://readthedocs.org/projects/spiffworkflow/badge/?version=latest)](http://spiffworkflow.readthedocs.io/en/latest/?badge=latest)
+[![Documentation](https://img.shields.io/badge/docs-spiff.works-blue)](https://spiff.works/docs/spiffworkflow/)
 [![Issues](https://img.shields.io/github/issues/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/issues)
 [![Pull Requests](https://img.shields.io/github/issues-pr/sartography/spiffworkflow)](https://github.com/sartography/SpiffWorkflow/pulls)
 
@@ -45,7 +45,7 @@ _A complete list of the latest features is available with our [release notes](ht
 version 1.0._
 
 ## Code Examples and Documentation
-Detailed documentation is available on [ReadTheDocs](https://spiffworkflow.readthedocs.io/en/latest/)
+Detailed documentation is available on [spiff.works](https://spiff.works/docs/spiffworkflow/).
 Also, checkout our [example application](https://github.com/sartography/spiff-example-cli), which we
 reference extensively from the Documentation.
 
