@@ -1,7 +1,7 @@
 ## What's Changed
 
 Since the last release, we've continued to work on making SpiffWorkflow easier to use and internally consistent as well as
-added a few new features to support [SpiffArena](https://www.spiffworkflow.org/).
+added a few new features to support [SpiffArena](https://spiff.works/).
 
 ## Breaking Changes from 2.x:
 

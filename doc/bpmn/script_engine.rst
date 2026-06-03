@@ -198,7 +198,7 @@ their parameters that can be displayed to a BPMN author in the Service Task conf
 hard-coding a list of services in
 `app.js <https://github.com/sartography/bpmn-js-spiffworkflow/blob/0a9db509a0e85aa7adecc8301d8fbca9db75ac7c/app/app.js#L47>`_
 and as suggested, it would be reasonably straightforward to replace this with a API call.  
-`SpiffArena <https://www.spiffworkflow.org/posts/articles/get_started/>`_ has robust mechanisms for handling this that
+`SpiffArena <https://spiff.works/>`_ has robust mechanisms for handling this that
 might serve as a model for you.
 
 How this all works is obviously heavily dependent on your application, so we won't go into further detail here, except
@@ -496,4 +496,3 @@ To load this example:
     ./runner.py -e spiff_example.spiff.custom_exec add -p order_product \
         -b bpmn/tutorial/{top_level_script,call_activity_script}.bpmn
     ./runner.py -e spiff_example.spiff.custom_exec
-

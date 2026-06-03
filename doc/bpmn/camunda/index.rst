@@ -5,7 +5,7 @@ Using the Camunda Configuration Module
   SpiffWorkflow does not aim to support all of Camunda's proprietary extensions.
   Many of of the items in the Camunda Properties Panel do not work.  And
   major features of SpiffWorkflow (Messages, Data Objects, Service Tasks, Pre-Scripts, etc...)
-  can not be configured in the Camunda editor.  Use `SpiffArena <https://www.spiffworkflow.org/posts/articles/get_started/>`_
+  can not be configured in the Camunda editor.  Use `SpiffArena <https://spiff.works/>`_
   to build and test your BPMN models instead!
 
 Earlier users of SpiffWorkflow relied heavily on Camunda's modeler and several of our task spec

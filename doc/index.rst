@@ -16,7 +16,7 @@ What is SpiffWorkflow?
 
 .. image:: images/logo.png
     :align: center
-    :target: https://www.spiffworkflow.org
+    :target: https://spiff.works
 
 **SpiffWorkflow is a library that provides a flexible workflow execution environment.**
 
@@ -32,7 +32,7 @@ should start there. If you are looking for a full-fledged BPMN application, you 
 documentation will focus on the library itself and is geared towards developers who are building their own
 applications.
 
-Please visit `SpiffWorkflow.org <https://www.spiffworkflow.org>`_ for
+Please visit `spiff.works <https://spiff.works>`_ for
 additional articles, videos, and tutorials about SpiffWorkflow and its
 related projects including SpiffArena, Service Connectors, and BPMN.js
 extensions.
