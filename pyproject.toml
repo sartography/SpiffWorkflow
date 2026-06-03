@@ -33,7 +33,7 @@ dynamic = ["version"]
 
 [project.urls]
 Homepage =  "https://github.com/sartography/SpiffWorkflow"
-Documentation = "https://spiffworkflow.readthedocs.io"
+Documentation = "https://spiff.works/docs/spiffworkflow/"
 
 [project.optional-dependencies]
 doc = [

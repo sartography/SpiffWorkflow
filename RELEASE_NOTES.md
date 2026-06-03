@@ -1,16 +1,16 @@
 ## What's Changed
 
 Since the last release, we've continued to work on making SpiffWorkflow easier to use and internally consistent as well as
-added a few new features to support [SpiffArena](https://www.spiffworkflow.org/).
+added a few new features to support [SpiffArena](https://spiff.works/).
 
 ## Breaking Changes from 2.x:
 
 * We refactored task iteration to allow for greater flexibility in selecting tasks.  Usage of `workflow.get_tasks` has changed.
-  See [Filtering Tasks](https://spiffworkflow.readthedocs.io/en/latest/bpmn/workflows.html#filtering-tasks) for documentation.
+  See [Filtering Tasks](https://spiff.works/docs/spiffworkflow/bpmn/workflows.html#filtering-tasks) for documentation.
 * We've continued to reorganize files in order to impose more structure on the package.  Imports have changed (but we've added
   `__init__.py` files to make these reorganizations less painful in the future).  See an overview of the package structure at
-  [What's in the BPMN Module](https://spiffworkflow.readthedocs.io/en/latest/bpmn/imports.html).
-* We've simplified the BPMN serializer. [BPMN Serializer](https://spiffworkflow.readthedocs.io/en/latest/bpmn/serialization.html)
+  [What's in the BPMN Module](https://spiff.works/docs/spiffworkflow/bpmn/imports.html).
+* We've simplified the BPMN serializer. [BPMN Serializer](https://spiff.works/docs/spiffworkflow/bpmn/serialization.html)
 
 ## Features and Improvements
 

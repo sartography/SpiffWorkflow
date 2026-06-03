@@ -41,7 +41,7 @@ Spiff BPMN Extensions
 ---------------------
 
 This module extends the generic BPMN implementation with support for custom extensions used by
-`Spiff Arena <https://spiff-arena.readthedocs.io/en/latest/>`_.
+`Spiff Arena <https://spiff.works/docs/spiff-arena/>`_.
 
 Camunda BPMN Extensions
 -----------------------
