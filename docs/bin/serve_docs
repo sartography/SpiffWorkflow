@@ -8,15 +8,15 @@ PORT="${PORT:-8001}"
 case "${1:-}" in
   -h|--help|help)
     cat <<EOF
-Usage: doc/bin/serve_docs
+Usage: docs/bin/serve_docs
 
 Environment:
   HOST  Bind host, default 127.0.0.1
   PORT  Bind port, default 8001
 
 Examples:
-  doc/bin/serve_docs
-  PORT=8010 doc/bin/serve_docs
+  docs/bin/serve_docs
+  PORT=8010 docs/bin/serve_docs
 EOF
     exit 0
     ;;
@@ -24,7 +24,7 @@ EOF
     ;;
   *)
     echo "Unknown argument: $1" >&2
-    echo "Usage: doc/bin/serve_docs" >&2
+    echo "Usage: docs/bin/serve_docs" >&2
     exit 1
     ;;
 esac
