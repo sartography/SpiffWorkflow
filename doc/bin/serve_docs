@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+HOST="${HOST:-127.0.0.1}"
+PORT="${PORT:-8001}"
+
+case "${1:-}" in
+  -h|--help|help)
+    cat <<EOF
+Usage: doc/bin/serve_docs
+
+Environment:
+  HOST  Bind host, default 127.0.0.1
+  PORT  Bind port, default 8001
+
+Examples:
+  doc/bin/serve_docs
+  PORT=8010 doc/bin/serve_docs
+EOF
+    exit 0
+    ;;
+  "")
+    ;;
+  *)
+    echo "Unknown argument: $1" >&2
+    echo "Usage: doc/bin/serve_docs" >&2
+    exit 1
+    ;;
+esac
+
+if ! command -v uv >/dev/null 2>&1; then
+  echo "uv is required. Install it from https://docs.astral.sh/uv/." >&2
+  exit 1
+fi
+
+cd "$DOCS_DIR"
+
+echo "Serving SpiffWorkflow docs at http://$HOST:$PORT"
+echo "Source: $DOCS_DIR"
+
+exec uv run \
+  --extra doc \
+  --with sphinx-autobuild \
+  sphinx-autobuild \
+  --host "$HOST" \
+  --port "$PORT" \
+  . \
+  _build/html
