@@ -16,12 +16,17 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
       - name: Install dependencies
         run: |
-          uv sync --extra dev
+          python -m pip install --upgrade pip
+          pip install ruff
+          pip install .
+#      - name: Lint with ruff
+#        run: |
+          # stop the build if there are Python syntax errors or undefined names
+#          ruff --format=github --select=E9,F63,F7,F82 --target-version=py37 .
+          # default set of ruff rules with GitHub Annotations
+ #         ruff --format=github --target-version=py37 .
       - name: Run tests
         run: |
-          make RUN='uv run' tests
-          make RUN='uv run' tests-compact
+          python -m unittest discover -v -s ./tests/SpiffWorkflow/ -p *Test.py
