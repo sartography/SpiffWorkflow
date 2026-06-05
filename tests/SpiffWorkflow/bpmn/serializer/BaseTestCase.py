@@ -4,7 +4,7 @@ import os
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn import BpmnWorkflow
 from SpiffWorkflow.bpmn.parser import BpmnParser
-from tests.SpiffWorkflow.bpmn.serializer_support import build_serializer
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 
 
 class BaseTestCase(unittest.TestCase):
@@ -29,6 +29,7 @@ class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.serializer = build_serializer(None, version=self.SERIALIZER_VERSION)
+        wf_spec_converter = BpmnWorkflowSerializer.configure()
+        self.serializer = BpmnWorkflowSerializer(wf_spec_converter, version=self.SERIALIZER_VERSION)
         spec, subprocesses = self.load_workflow_spec('random_fact.bpmn', 'random_fact')
         self.workflow = BpmnWorkflow(spec, subprocesses)

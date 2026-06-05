@@ -1,5 +1,4 @@
 import time
-import unittest
 from uuid import UUID
 
 from SpiffWorkflow import TaskState
@@ -7,9 +6,8 @@ from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnviron
 from SpiffWorkflow.bpmn.serializer.exceptions import VersionMigrationError
 
 from .BaseTestCase import BaseTestCase
-from tests.SpiffWorkflow.bpmn.serializer_support import is_compact_serializer_enabled
 
-@unittest.skipIf(is_compact_serializer_enabled(), "Version migration fixtures are canonical-serializer only")
+
 class Version_1_0_Test(BaseTestCase):
 
     def test_convert_subprocess(self):
@@ -27,7 +25,6 @@ class Version_1_0_Test(BaseTestCase):
         self.assertEqual(True, wf.completed)
 
 
-@unittest.skipIf(is_compact_serializer_enabled(), "Version migration fixtures are canonical-serializer only")
 class Version_1_1_Test(BaseTestCase):
 
     def test_timers(self):
@@ -86,7 +83,6 @@ class Version_1_1_Test(BaseTestCase):
         self.assertTrue(wf.completed)
 
 
-@unittest.skipIf(is_compact_serializer_enabled(), "Version migration fixtures are canonical-serializer only")
 class Version_1_2_Test(BaseTestCase):
 
     def test_remove_boundary_events(self):
@@ -176,7 +172,6 @@ class Version_1_2_Test(BaseTestCase):
         self.assertIn('sub_level_data_object_three', call_sub.data_objects)
         self.assertNotIn('sub_level_data_object_three', process_sub.data_objects)
 
-@unittest.skipIf(is_compact_serializer_enabled(), "Version migration fixtures are canonical-serializer only")
 class Version_1_3_Test(BaseTestCase):
 
     def test_update_mi_states(self):

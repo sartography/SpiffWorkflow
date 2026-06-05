@@ -4,16 +4,18 @@ import unittest
 
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn.parser import BpmnValidator
+from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 
 from .BpmnLoaderForTests import TestBpmnParser, SERIALIZER_CONFIG
-from .serializer_support import build_serializer
 
 
 __author__ = 'matth'
 
+registry = BpmnWorkflowSerializer.configure(SERIALIZER_CONFIG)
+
 class BpmnWorkflowTestCase(unittest.TestCase):
 
-    serializer = build_serializer(SERIALIZER_CONFIG)
+    serializer = BpmnWorkflowSerializer(registry)
 
     def get_parser(self, filename, validate=True):
         f = os.path.join(os.path.dirname(__file__), 'data', filename)
