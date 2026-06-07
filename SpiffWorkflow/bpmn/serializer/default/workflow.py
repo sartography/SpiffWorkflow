@@ -201,7 +201,6 @@ class BpmnWorkflowConverter(WorkflowConverter):
         # Handle the remaining top workflow attributes
         self.subprocesses_from_dict(dct['subprocesses'], workflow)
         workflow.bpmn_events = self.registry.restore(dct.pop('bpmn_events', []))
-        workflow._rebuild_waiting_task_index()
 
         return workflow
 
