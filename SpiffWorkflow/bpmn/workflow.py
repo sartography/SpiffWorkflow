@@ -21,12 +21,9 @@ from SpiffWorkflow.task import Task
 from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.exceptions import WorkflowException
 
-from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
-from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
-from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
-from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import CodeEventDefinition
-
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
+from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
+from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import CodeEventDefinition
 
 from SpiffWorkflow.bpmn.util.subworkflow import BpmnBaseWorkflow, BpmnSubWorkflow
 
@@ -167,6 +164,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         count = self._do_engine_steps(will_complete_task, did_complete_task)
         while count > 0:
             count = self._do_engine_steps(will_complete_task, did_complete_task)
+        self.refresh_waiting_tasks()
 
     def _do_engine_steps(self, will_complete_task=None, did_complete_task=None):
 
@@ -271,33 +269,17 @@ class BpmnWorkflow(BpmnBaseWorkflow):
     def update_collaboration(self, event):
 
         def get_or_create_subprocess(task_spec, wf_spec):
-
             for sp in self.subprocesses.values():
-                if sp.get_next_task(state=TaskState.WAITING, spec_name=task_spec.name) is not None:
+                if sp.get_next_task(state=TaskState.WAITING, spec_name=task_spec) is not None:
                     return sp
-
-            # This creates a new task associated with a process when an event that kicks of a process is received
-            # I need to know what class is being used to create new processes in this case, and this seems slightly
-            # less bad than adding yet another argument.  Still sucks though.
-            # TODO: Make collaborations a class rather than trying to shoehorn them into a process.
-            for spec in self.spec.task_specs.values():
-                if isinstance(spec, CallActivity):
-                    spec_class = spec.__class__
-                    break
-            else:
-                # Default to the mixin class, which will probably fail in many cases.
-                spec_class = CallActivity
-
-            new = spec_class(self.spec, f'{wf_spec.name}_{len(self.subprocesses)}', wf_spec.name)
-            self.spec.start.connect(new)
-            task = Task(self, new, parent=self.task_tree)
-            # This (indirectly) calls create_subprocess
-            task.task_spec._update(task)
-            return self.subprocesses[task.id]
+            child_id = self.spec.start.trigger_wf(self.task_tree, wf_spec)
+            return self.subprocesses[child_id]
 
         # Start a subprocess for known specs with start events that catch this
-        for spec in self.subprocess_specs.values():
-            for task_spec in spec.task_specs.values():
-                if isinstance(task_spec, StartEvent) and task_spec.event_definition == event.event_definition:
-                    subprocess = get_or_create_subprocess(task_spec, spec)
+        for name in self.spec.start.trigger_specs:
+            sp_spec = self.subprocess_specs.get(name)
+            for ts in sp_spec.bpmn_start_events:
+                if ts.event_definition == event.event_definition:
+                    subprocess = get_or_create_subprocess(ts.name, sp_spec.name)
                     subprocess.correlations.update(event.correlations)
+

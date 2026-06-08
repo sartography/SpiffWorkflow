@@ -27,9 +27,8 @@ class MultipleThrowEventIntermediateCatchTest(BpmnWorkflowTestCase):
 class MultipleThrowEventStartsEventTest(BpmnWorkflowTestCase):
 
     def setUp(self):
-        specs = self.get_all_specs('multiple-throw-start.bpmn')
-        self.spec = specs.pop('initiate')
-        self.workflow = BpmnWorkflow(self.spec, specs)
+        self.spec, subprocesses = self.load_collaboration('multiple-throw-start.bpmn', 'top')
+        self.workflow = BpmnWorkflow(self.spec, subprocesses)
 
     def testMultipleThrowEventStartEvent(self):
         self.actual_test()

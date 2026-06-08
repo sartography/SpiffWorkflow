@@ -12,3 +12,17 @@ class PendingBpmnEvent:
         self.event_type = event_type
         self.value = value
         self.correlations = correlations or {}
+
+
+class EventManager:
+
+    def __init__(self):
+        self.tasks = {}
+
+    def add_task(self, my_task):
+        self.tasks[my_task.id] = my_task
+
+    def remove_task(self, my_task):
+        self.tasks.pop(my_task, None)
+
+

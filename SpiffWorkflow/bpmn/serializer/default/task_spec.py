@@ -201,6 +201,18 @@ class ParallelGatewayConverter(BpmnTaskSpecConverter):
     def from_dict(self, dct):
         return self.task_spec_from_dict(dct)
 
+class BpmnStartTaskConverter(BpmnTaskSpecConverter):
+
+    def to_dict(self, spec):
+        dct = super().to_dict(spec)
+        dct['trigger_specs'] = self.registry.convert(spec.trigger_specs)
+        return dct
+
+    def from_dict(self, dct):
+        trigger_specs = dct.pop('trigger_specs', [])
+        spec = super().from_dict(dct)
+        spec.trigger_specs = trigger_specs
+        return spec
 
 class EventConverter(BpmnTaskSpecConverter):
     """The default converter for BPMN events"""

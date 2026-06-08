@@ -96,6 +96,7 @@ from .default.task_spec import (
     EventConverter,
     BoundaryEventConverter,
     IOSpecificationConverter,
+    BpmnStartTaskConverter,
 )
 from .default.event_definition import (
     TimerConditionalEventDefinitionConverter,
@@ -115,7 +116,7 @@ DEFAULT_CONFIG = {
     BpmnIoSpecification: IOSpecificationConverter,
     BpmnProcessSpec: BpmnProcessSpecConverter,
     SimpleBpmnTask: BpmnTaskSpecConverter,
-    BpmnStartTask: BpmnTaskSpecConverter,
+    BpmnStartTask: BpmnStartTaskConverter,
     _EndJoin: BpmnTaskSpecConverter,
     NoneTask: BpmnTaskSpecConverter,
     ManualTask: BpmnTaskSpecConverter,

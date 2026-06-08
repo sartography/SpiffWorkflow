@@ -19,6 +19,7 @@
 
 from SpiffWorkflow.specs.WorkflowSpec import WorkflowSpec
 from SpiffWorkflow.bpmn.specs.control import _EndJoin, BpmnStartTask, SimpleBpmnTask
+from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
 
 
 class BpmnProcessSpec(WorkflowSpec):
@@ -45,3 +46,10 @@ class BpmnProcessSpec(WorkflowSpec):
         self.data_objects = {}
         self.data_stores = {}
         self.correlation_keys = {}
+        self.bpmn_start_events = []
+
+    def _add_notify(self, task_spec):
+        super()._add_notify(task_spec)
+        if isinstance(task_spec, (StartEvent, )):
+            self.bpmn_start_events.append(task_spec)
+
