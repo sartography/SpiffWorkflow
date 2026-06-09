@@ -17,15 +17,17 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+import warnings
+
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.exceptions import WorkflowException
 
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
-from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
-from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import CodeEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
 
 from SpiffWorkflow.bpmn.util.subworkflow import BpmnBaseWorkflow, BpmnSubWorkflow
+from SpiffWorkflow.bpmn.util.event import EventManager
 
 from .script_engine.python_engine import PythonScriptEngine
 
@@ -48,6 +50,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         self.subprocesses = {}
         self.bpmn_events = []
         self.correlations = {}
+        self.event_manager = EventManager(self)
         super().__init__(spec, **kwargs)
 
         for obj in self.spec.data_objects:
@@ -102,44 +105,13 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         return [sp for sp in self.subprocesses.values() if not sp.completed]
 
     def catch(self, event):
-        """
-        Tasks can always catch events, regardless of their state.  The event information is stored in the task's
-        internal data and processed when the task is reached in the workflow.  If a task should only receive messages
-        while it is running (eg a boundary event), the task should call the event_definition's reset method before
-        executing to clear out a stale message.
-
-        :param event: the thrown event
-        """
-        if event.target is not None:
-            # This limits results to tasks in the specified workflow
-            tasks = event.target.get_tasks(skip_subprocesses=True, state=TaskState.NOT_FINISHED_MASK, catches_event=event)
-            if isinstance(event.event_definition, CodeEventDefinition) and len(tasks) == 0:
-                event.target = event.target.parent_workflow
-                self.catch(event)
-        else:
-            self.update_collaboration(event)
-            tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
-            # Figure out if we need to create an external event
-            if len(tasks) == 0:
-                self.bpmn_events.append(event)
-
-        for task in tasks:
-            task.task_spec.catch(task, event)
-        if len(tasks) > 0:
-            self.refresh_waiting_tasks()
+        self.event_manager.catch(event)
 
     def send_event(self, event):
         """Allows this workflow to catch an externally generated event."""
 
-        if event.target is not None:
-            self.catch(event)
-        else:
-            tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
-            if len(tasks) == 0:
-                raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
-            for task in tasks:
-                task.task_spec.catch(task, event)
-            self.refresh_waiting_tasks()
+        if self.event_manager.catch(event, internal=False) == 0:
+            raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
 
     def get_events(self):
         """Returns the list of events that cannot be handled from within this workflow."""
@@ -148,8 +120,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         return events
 
     def waiting_events(self):
-        iter = self.get_tasks_iterator(state=TaskState.WAITING, spec_class=CatchingEvent)
-        return [t.task_spec.event_definition.details(t) for t in iter]
+        return self.event_manager.get_waiting_tasks()
 
     def do_engine_steps(self, will_complete_task=None, did_complete_task=None):
         """
@@ -164,7 +135,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         count = self._do_engine_steps(will_complete_task, did_complete_task)
         while count > 0:
             count = self._do_engine_steps(will_complete_task, did_complete_task)
-        self.refresh_waiting_tasks()
+        self.refresh_timers()
 
     def _do_engine_steps(self, will_complete_task=None, did_complete_task=None):
 
@@ -201,19 +172,17 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         :param will_refresh_task: Callback that will be called prior to refreshing a task
         :param did_refresh_task: Callback that will be called after refreshing a task
         """
-        def update_task(task):
-            if will_refresh_task is not None:
-                will_refresh_task(task)
-            task.task_spec._update(task)
-            if did_refresh_task is not None:
-                did_refresh_task(task)           
- 
-        for subprocess in sorted(self.get_active_subprocesses(), key=lambda v: v.depth, reverse=True):
-            for task in subprocess.get_tasks_iterator(skip_subprocesses=True, state=TaskState.WAITING):
-                update_task(task)
+        warnings.warn(
+            DeprecationWarning(f'BpmnWorkflow.refresh_waiting_tasks will be removed in future versions; use refresh_timers')
+        )
+        self.refresh_timers()
 
-        for task in self.get_tasks_iterator(skip_subprocesses=True, state=TaskState.WAITING):
-            update_task(task)
+    def refresh_timers(self):
+        # Ideally this would go in event manager but I can't import the necessary classes there
+        # Eventually I'll move it
+        for task in list(self.event_manager.tasks.values()):
+            if isinstance(task.task_spec.event_definition, (TimerEventDefinition, )):
+                task.task_spec._update(task)
 
     def get_task_from_id(self, task_id):
         if task_id not in self.tasks:
@@ -266,20 +235,4 @@ class BpmnWorkflow(BpmnBaseWorkflow):
 
         return cancelled
 
-    def update_collaboration(self, event):
-
-        def get_or_create_subprocess(task_spec, wf_spec):
-            for sp in self.subprocesses.values():
-                if sp.get_next_task(state=TaskState.WAITING, spec_name=task_spec) is not None:
-                    return sp
-            child_id = self.spec.start.trigger_wf(self.task_tree, wf_spec)
-            return self.subprocesses[child_id]
-
-        # Start a subprocess for known specs with start events that catch this
-        for name in self.spec.start.trigger_specs:
-            sp_spec = self.subprocess_specs.get(name)
-            for ts in sp_spec.bpmn_start_events:
-                if ts.event_definition == event.event_definition:
-                    subprocess = get_or_create_subprocess(ts.name, sp_spec.name)
-                    subprocess.correlations.update(event.correlations)
 

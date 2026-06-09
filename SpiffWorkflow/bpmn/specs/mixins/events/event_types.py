@@ -58,7 +58,11 @@ class CatchingEvent(TaskSpec):
         elif my_task.state != TaskState.WAITING:
             my_task._set_state(TaskState.WAITING)
 
+        my_task.workflow.top_workflow.event_manager.add_task(my_task)
         self.event_definition.update_task(my_task)
+
+    def _on_ready_hook(self, my_task):
+        my_task.workflow.top_workflow.event_manager.remove_task(my_task)
 
     def _run_hook(self, my_task):
 
@@ -71,6 +75,12 @@ class CatchingEvent(TaskSpec):
     def _predict_hook(self, my_task):
         if not isinstance(self.event_definition, CycleTimerEventDefinition):
             super()._predict_hook(my_task)
+
+    def _on_cancel(self, my_task):
+        for child in my_task:
+            child.workflow.top_workflow.event_manager.remove_task(child)
+        my_task.workflow.top_workflow.event_manager.remove_task(my_task)
+        super()._on_cancel(my_task)
 
 
 class ThrowingEvent(TaskSpec):

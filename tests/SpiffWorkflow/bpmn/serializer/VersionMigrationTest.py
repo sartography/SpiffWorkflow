@@ -18,10 +18,6 @@ class Version_1_0_Test(BaseTestCase):
         self.assertEqual('Action3', ready_tasks[0].task_spec.bpmn_name)
         ready_tasks[0].run()
         wf.do_engine_steps()
-        wf.refresh_waiting_tasks()
-        wf.do_engine_steps()
-        wf.refresh_waiting_tasks()
-        wf.do_engine_steps()
         self.assertEqual(True, wf.completed)
 
 
@@ -30,16 +26,12 @@ class Version_1_1_Test(BaseTestCase):
     def test_timers(self):
         wf = self.deserialize_workflow('v1.1-timers.json')
         wf.script_engine = PythonScriptEngine(environment=TaskDataEnvironment({"time": time}))
-        wf.refresh_waiting_tasks()
-        wf.do_engine_steps()
-        wf.refresh_waiting_tasks()
+        wf.refresh_timers()
         wf.do_engine_steps()
         self.assertTrue(wf.completed)
 
     def test_convert_data_specs(self):
         wf = self.deserialize_workflow('v1.1-data.json')
-        wf.do_engine_steps()
-        wf.refresh_waiting_tasks()
         wf.do_engine_steps()
         self.assertTrue(wf.completed)
 
@@ -66,7 +58,7 @@ class Version_1_1_Test(BaseTestCase):
         end = time.time() + 3
         while not wf.completed and time.time() < end:
             wf.do_engine_steps()
-            wf.refresh_waiting_tasks()
+            wf.refresh_timers()
         self.assertTrue(wf.completed)
         self.assertEqual(wf.last_task.data['counter'], 20)
 
@@ -195,7 +187,6 @@ class Version_1_3_Test(BaseTestCase):
             task.data['output_item'] = task.data['input_item'] * 2
             task.run()
             ready_tasks = wf.get_tasks(state=TaskState.READY, manual=True)
-        wf.refresh_waiting_tasks()
         wf.do_engine_steps()
 
         any_task = wf.get_next_task(spec_name='any_task')

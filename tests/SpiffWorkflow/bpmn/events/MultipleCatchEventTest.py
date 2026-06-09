@@ -30,7 +30,6 @@ class MultipleStartEventTest(BpmnWorkflowTestCase):
         self.assertEqual(waiting_tasks[0].task_spec.name, 'StartEvent_1')
 
         self.workflow.catch(BpmnEvent(MessageEventDefinition('message_1'), {}))
-        self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
 
         # Now the first task should be ready
@@ -64,7 +63,6 @@ class ParallelStartEventTest(BpmnWorkflowTestCase):
         self.assertEqual(waiting_tasks[0].task_spec.name, 'StartEvent_1')
 
         self.workflow.catch(BpmnEvent(MessageEventDefinition('message_1'), {}))
-        self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
 
         # It should still be waiting because it has to receive both messages
@@ -73,7 +71,6 @@ class ParallelStartEventTest(BpmnWorkflowTestCase):
         self.assertEqual(waiting_tasks[0].task_spec.name, 'StartEvent_1')
 
         self.workflow.catch(BpmnEvent(MessageEventDefinition('message_2'), {}))
-        self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
 
         # Now the first task should be ready

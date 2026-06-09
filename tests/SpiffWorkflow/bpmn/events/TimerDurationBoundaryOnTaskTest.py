@@ -29,7 +29,7 @@ class TimerDurationTest(BpmnWorkflowTestCase):
             self.save_restore()
             self.workflow.script_engine = self.script_engine
         time.sleep(1)
-        self.workflow.refresh_waiting_tasks()
+        self.workflow.refresh_timers()
         self.workflow.do_engine_steps()
 
         # Make sure the timer got called

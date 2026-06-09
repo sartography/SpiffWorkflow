@@ -19,7 +19,9 @@
 
 from uuid import UUID
 
+from SpiffWorkflow.task import TaskState
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask
+from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
 from SpiffWorkflow.util.deep_merge import DeepMerge
 
 from ..helpers.bpmn_converter import BpmnConverter
@@ -62,6 +64,8 @@ class TaskConverter(BpmnConverter):
         task.last_state_change = dct['last_state_change']
         task.triggered = dct['triggered']
         task.internal_data = self.registry.restore(dct['internal_data'])
+        if isinstance(task_spec, CatchingEvent) and task.has_state(TaskState.WAITING):
+            task.workflow.top_workflow.event_manager.add_task(task)
 
         delta = dct.get('delta')
         if delta and task.parent is not None:
@@ -101,6 +105,8 @@ class SimpleTaskConverter(BpmnConverter):
         task.triggered = dct['triggered']
         task.internal_data = self.registry.restore(dct['internal_data'])
         task.data = self.registry.restore(dct['data'])
+        if isinstance(task_spec, CatchingEvent) and task.has_state(TaskState.DEFINITE_MASK):
+            task.workflow.top_workflow.event_manager.add_task(task)
         return task
 
 class BpmnEventConverter(BpmnConverter):

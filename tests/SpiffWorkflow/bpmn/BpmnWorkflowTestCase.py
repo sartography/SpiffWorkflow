@@ -141,5 +141,5 @@ class BpmnWorkflowTestCase(unittest.TestCase):
     def _get_workflow_state(self, do_steps=True):
         if do_steps:
             self.workflow.do_engine_steps()
-            self.workflow.refresh_waiting_tasks()
+            self.workflow.refresh_timers()
         return self.serializer.to_dict(self.workflow)
