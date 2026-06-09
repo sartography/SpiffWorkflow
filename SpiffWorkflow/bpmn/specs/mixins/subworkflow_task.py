@@ -131,3 +131,7 @@ class TransactionSubprocess(SubWorkflowTask):
 
     def __init__(self, wf_spec, bpmn_id, subworkflow_spec, **kwargs):
         super().__init__(wf_spec, bpmn_id, subworkflow_spec, True, **kwargs)
+
+class EventSubprocess(SubWorkflowTask):
+    pass
+

@@ -191,6 +191,11 @@ class ProcessParser(NodeParser):
             self.spec.start.outputs = [split_task]
             split_task.inputs = [self.spec.start]
 
+        for node in self.xpath("./bpmn:subProcess[@triggeredByEvent='true']"):
+            task_spec = self.parse_node(node)
+            sp_spec = self.parser.process_parsers[task_spec.spec].get_spec()
+            self.spec.start.connect_or_add_trigger(task_spec, sp_spec)
+
     def parse_data_object(self, obj):
         return self.create_data_spec(obj, DataObject)
 

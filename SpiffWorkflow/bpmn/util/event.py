@@ -68,4 +68,3 @@ class EventManager:
                 if ts.event_definition == event.event_definition:
                     subprocess = get_or_create_subprocess(ts.name, sp_spec.name)
                     subprocess.correlations.update(event.correlations)
-
