@@ -27,9 +27,35 @@ from SpiffWorkflow.bpmn.specs.mixins.unstructured_join import UnstructuredJoin
 from SpiffWorkflow.bpmn.specs.mixins.events.intermediate_event import BoundaryEvent
 from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
 
+from SpiffWorkflow.bpmn.specs.event_definitions.simple import NoneEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
+
 
 class BpmnStartTask(BpmnTaskSpec, StartTask):
-    pass
+
+    def __init__(self, wf_spec, name, **kwargs):
+        super().__init__(wf_spec, name, **kwargs)
+        self.trigger_specs = []
+
+    def connect_or_add_trigger(self, task_spec, sp_spec):
+        for ts in sp_spec.bpmn_start_events:
+            if isinstance(ts.event_definition, (NoneEventDefinition, TimerEventDefinition)):
+                self.connect(task_spec)
+                task_spec.connect(self._wf_spec.end)
+            else:
+                self._wf_spec.task_specs[sp_spec.name] = task_spec
+                self.trigger_specs.append(sp_spec.name)
+
+    def trigger_wf(self, my_task, spec_name):
+        spec = self._wf_spec.task_specs.get(spec_name)
+        if self not in spec.inputs:
+            self.connect(spec)
+            spec.connect(self._wf_spec.end)
+        child = my_task._add_child(spec, TaskState.FUTURE)
+        child.triggered = True
+        child.task_spec._update(child)
+        return child.id
+
 
 class SimpleBpmnTask(BpmnTaskSpec):
     pass

@@ -83,7 +83,6 @@ class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
         while ready_tasks[0].task_spec.name != name:
             ready_tasks[0].run()
             self.workflow.do_engine_steps()
-            self.workflow.refresh_waiting_tasks()
             ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
 
     def complete_workflow(self):
@@ -92,5 +91,4 @@ class ResetTokenOnBoundaryEventTest(BpmnWorkflowTestCase):
         while len(ready_tasks) > 0:
             ready_tasks[0].run()
             self.workflow.do_engine_steps()
-            self.workflow.refresh_waiting_tasks()
             ready_tasks = self.workflow.get_tasks(state=TaskState.READY)

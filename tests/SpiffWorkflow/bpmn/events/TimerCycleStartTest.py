@@ -54,7 +54,7 @@ class TimerCycleStartTest(BpmnWorkflowTestCase):
             if save_restore:
                 self.save_restore()
             time.sleep(0.1)
-            self.workflow.refresh_waiting_tasks()
+            self.workflow.refresh_timers()
 
         self.assertEqual(counter, 2)
         self.assertTrue(self.workflow.completed)

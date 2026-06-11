@@ -17,7 +17,6 @@ class BaseTestCase(BpmnWorkflowTestCase):
         any_task.task_spec.data_output = TaskDataReference(data_output) if data_output is not None else None
 
         self.workflow.do_engine_steps()
-        self.workflow.refresh_waiting_tasks()
         ready_tasks = self.get_ready_user_tasks()
 
         task_info = any_task.task_spec.task_info(any_task)
@@ -64,7 +63,6 @@ class BaseTestCase(BpmnWorkflowTestCase):
         task.task_spec.condition = condition
 
         self.workflow.do_engine_steps()
-        self.workflow.refresh_waiting_tasks()
         ready_tasks = self.get_ready_user_tasks()
 
         while len(ready_tasks) > 0:
@@ -74,7 +72,6 @@ class BaseTestCase(BpmnWorkflowTestCase):
             ready.data['output_item'] = ready.data['input_item'] * 2
             ready.run()
             self.workflow.do_engine_steps()
-            self.workflow.refresh_waiting_tasks()
             ready_tasks = self.get_ready_user_tasks()
 
         self.workflow.do_engine_steps()

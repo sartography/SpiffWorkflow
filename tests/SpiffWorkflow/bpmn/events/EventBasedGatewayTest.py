@@ -27,11 +27,14 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
         if save_restore:
             self.save_restore()
             self.workflow.script_engine = self.script_engine
-        self.assertEqual(len(waiting_tasks), 2)
+        self.assertEqual(len(waiting_tasks), 4)
         self.workflow.catch(BpmnEvent(MessageEventDefinition('message_1'), {}))
         self.workflow.do_engine_steps()
-        self.workflow.refresh_waiting_tasks()
-        self.assertEqual(self.workflow.completed, True)
+        # This needs to be fixed -- it shouldn't be necessary to call this method
+        # Unfortunately that requires completely rewriting event based gateways
+        # I really don't understand why the bpmn spec dictates that both the gateway and the children
+        # have duplicate event definitions, but it sure makes things difficult
+        self.assertEqual(self.workflow.is_completed(), True)
         self.assertEqual(self.workflow.get_next_task(spec_name='message_1_event').state, TaskState.COMPLETED)
         self.assertEqual(self.workflow.get_next_task(spec_name='message_2_event').state, TaskState.CANCELLED)
         self.assertEqual(self.workflow.get_next_task(spec_name='timer_event').state, TaskState.CANCELLED)
@@ -40,12 +43,11 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
 
         self.workflow.do_engine_steps()
         waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
-        self.assertEqual(len(waiting_tasks), 2)
+        self.assertEqual(len(waiting_tasks), 4)
         timer_event_definition = waiting_tasks[0].task_spec.event_definition.event_definitions[-1]
         self.workflow.catch(BpmnEvent(timer_event_definition))
-        self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
-        self.assertEqual(self.workflow.completed, True)
+        self.assertEqual(self.workflow.is_completed(), True)
         self.assertEqual(self.workflow.get_next_task(spec_name='message_1_event').state, TaskState.CANCELLED)
         self.assertEqual(self.workflow.get_next_task(spec_name='message_2_event').state, TaskState.CANCELLED)
         self.assertEqual(self.workflow.get_next_task(spec_name='timer_event').state, TaskState.COMPLETED)
@@ -56,5 +58,4 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
         workflow.do_engine_steps()
         workflow.catch(BpmnEvent(MessageEventDefinition('message_1'), {}))
         workflow.catch(BpmnEvent(MessageEventDefinition('message_2'), {}))
-        workflow.refresh_waiting_tasks()
         workflow.do_engine_steps()

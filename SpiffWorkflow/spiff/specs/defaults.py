@@ -24,6 +24,7 @@ from SpiffWorkflow.bpmn.specs.mixins import (
     SubWorkflowTaskMixin,
     CallActivityMixin,
     TransactionSubprocessMixin,
+    EventSubprocessMixin,
     StandardLoopTaskMixin,
     ParallelMultiInstanceTaskMixin,
     SequentialMultiInstanceTaskMixin,
@@ -74,6 +75,9 @@ class CallActivity(CallActivityMixin, SpiffBpmnTask):
     pass
 
 class TransactionSubprocess(TransactionSubprocessMixin, SpiffBpmnTask):
+    pass
+
+class EventSubprocess(EventSubprocessMixin, SpiffBpmnTask):
     pass
 
 class ServiceTask(ServiceTaskMixin, SpiffBpmnTask):

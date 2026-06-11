@@ -94,7 +94,11 @@ class SubWorkflowParser(TaskParser):
 
     def create_task(self):
         subworkflow_spec = SubprocessParser.get_subprocess_spec(self)
-        return self.spec_class(self.spec, self.bpmn_id, subworkflow_spec=subworkflow_spec, **self.bpmn_attributes)
+        if self.attribute('triggeredByEvent'):
+            spec_class = self.EVENT_SUBPROCESS_CLASS
+        else:
+            spec_class = self.spec_class
+        return spec_class(self.spec, self.bpmn_id, subworkflow_spec=subworkflow_spec, **self.bpmn_attributes)
 
 
 class CallActivityParser(TaskParser):

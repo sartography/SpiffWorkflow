@@ -23,7 +23,8 @@ from SpiffWorkflow.bpmn.specs.mixins.inclusive_gateway import InclusiveGateway
 from SpiffWorkflow.bpmn.specs.defaults import (
     StandardLoopTask,
     SequentialMultiInstanceTask,
-    ParallelMultiInstanceTask
+    ParallelMultiInstanceTask,
+    EventSubprocess,
 )
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit, BoundaryEventJoin
 from SpiffWorkflow.bpmn.specs.event_definitions.simple import CancelEventDefinition
@@ -47,6 +48,8 @@ class TaskParser(NodeParser):
     STANDARD_LOOP_CLASS = StandardLoopTask
     PARALLEL_MI_CLASS = ParallelMultiInstanceTask
     SEQUENTIAL_MI_CLASS = SequentialMultiInstanceTask
+    # I have to add another attribute here.  This parser is so stupid.
+    EVENT_SUBPROCESS_CLASS = EventSubprocess
 
     def __init__(self, process_parser, spec_class, node, nsmap=None, lane=None):
         """

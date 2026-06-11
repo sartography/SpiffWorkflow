@@ -54,9 +54,10 @@ class BoundaryEvent(CatchingEvent):
 class EventBasedGateway(CatchingEvent):
 
     def _predict_hook(self, my_task):
-        my_task._sync_children(self.outputs, state=TaskState.MAYBE)
+        my_task._sync_children(self.outputs, state=TaskState.WAITING)
 
     def _on_ready_hook(self, my_task):
         for child in my_task.children:
             if not child.internal_data.get('event_fired'):
                 child.cancel()
+

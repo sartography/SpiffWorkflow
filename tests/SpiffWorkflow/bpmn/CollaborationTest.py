@@ -76,9 +76,8 @@ class CollaborationTest(BpmnWorkflowTestCase):
 
     def testCorrelation(self):
 
-        specs = self.get_all_specs('correlation.bpmn')
-        proc_1 = specs['proc_1']
-        self.workflow = BpmnWorkflow(proc_1, specs)
+        spec, subprocesses = self.load_collaboration('correlation.bpmn', 'correlation_test')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
         for idx, task in enumerate(self.get_ready_user_tasks()):
             task.data['task_num'] = idx
@@ -102,9 +101,8 @@ class CollaborationTest(BpmnWorkflowTestCase):
 
     def testTwoCorrelationKeys(self):
 
-        specs = self.get_all_specs('correlation_two_conversations.bpmn')
-        proc_1 = specs['proc_1']
-        self.workflow = BpmnWorkflow(proc_1, specs)
+        spec, subprocesses = self.load_collaboration('correlation_two_conversations.bpmn', 'correlation_test')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         self.workflow.do_engine_steps()
         for idx, task in enumerate(self.get_ready_user_tasks()):
             task.data['task_num'] = idx

@@ -29,6 +29,7 @@ Subrocesses and Call Activities
 * Subprocess
 * Call Activity
 * Transaction Subprocess
+* Event Subprocess
 
 Events
 ------
