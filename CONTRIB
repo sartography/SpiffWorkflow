@@ -51,10 +51,10 @@ Licensing:
 ## Releases
 For you dev op folks who release builds to the larger community ...
 
-Update the release tag: doc/conf.py
+Update the release tag: docs/conf.py
 And also edit setup.py and assure that has the same release tag.
 New versions of SpiffWorkflow are automatically published to PyPi whenever
 a maintainer of our GitHub repository creates a new release on  GitHub.  This
 is managed through GitHub's actions.  The configuration of which can be
 found in .github/workflows/....
-Just create a release in GitHub that matches the release number in doc/conf.py
+Just create a release in GitHub that matches the release number in docs/conf.py

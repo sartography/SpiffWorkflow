@@ -13,7 +13,7 @@ clean:
 	find . -name "*.pyc" -o -name "*.pyo" | xargs -rn1 rm -f
 	find . -name "*.egg-info" | xargs -rn1 rm -r
 	rm -Rf build
-	cd doc; make clean
+	cd docs; make clean
 
 .PHONY : dist-clean
 dist-clean: clean
@@ -21,7 +21,7 @@ dist-clean: clean
 
 .PHONY : doc
 doc:
-	cd doc; make html
+	cd docs; make html
 
 .PHONY : tests
 tests:
