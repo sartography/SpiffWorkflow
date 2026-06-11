@@ -34,12 +34,6 @@ class BpmnBaseWorkflow(Workflow):
     def get_tasks_iterator(self, first_task=None, **kwargs):
         return BpmnTaskIterator(first_task or self.task_tree, **kwargs)
 
-    def update_waiting_tasks(self):
-        self.top_workflow._refresh_internal_waiting_tasks()
-
-    def _task_state_changed_notify(self, task, old_state, new_state):
-        self.top_workflow._waiting_task_state_changed(task, old_state, new_state)
-
 
 class BpmnSubWorkflow(BpmnBaseWorkflow):
 
@@ -73,3 +67,4 @@ class BpmnSubWorkflow(BpmnBaseWorkflow):
         dct = super().collect_log_extras()
         dct.update({'parent_task_id': self.parent_task_id})
         return dct
+

@@ -37,7 +37,7 @@ class TimerDateTest(BpmnWorkflowTestCase):
                 self.save_restore()
                 self.workflow.script_engine = self.script_engine
             time.sleep(0.01)
-            self.workflow.refresh_waiting_tasks()
+            self.workflow.refresh_timers()
             loopcount += 1
         endtime = datetime.datetime.now()
         self.workflow.do_engine_steps()

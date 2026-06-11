@@ -38,7 +38,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEqual('Cancel Action (if necessary)', self.workflow.get_tasks(state=TaskState.READY)[0].task_spec.bpmn_name)
 
         time.sleep(self.START_TIME_DELTA)
-        self.workflow.refresh_waiting_tasks()
+        self.workflow.refresh_timers()
         self.workflow.do_engine_steps()
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
@@ -61,7 +61,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEqual('Cancel Action (if necessary)', self.workflow.get_tasks(state=TaskState.READY)[0].task_spec.bpmn_name)
 
         time.sleep(self.START_TIME_DELTA)
-        self.workflow.refresh_waiting_tasks()
+        self.workflow.refresh_timers()
         self.workflow.do_engine_steps()
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
@@ -74,7 +74,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
         self.assertEqual('Finish Time', self.workflow.get_next_task(state=TaskState.WAITING).task_spec.bpmn_name)
         time.sleep(self.FINISH_TIME_DELTA)
-        self.workflow.refresh_waiting_tasks()
+        self.workflow.refresh_timers()
         self.workflow.do_engine_steps()
         self.assertEqual(2, len(self.workflow.get_tasks(state=TaskState.WAITING)))
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))
@@ -115,7 +115,7 @@ class ActionManagementTest(BpmnWorkflowTestCase):
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.READY)))
 
         time.sleep(self.START_TIME_DELTA)
-        self.workflow.refresh_waiting_tasks()
+        self.workflow.refresh_timers()
         self.workflow.do_engine_steps()
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.WAITING)))
         self.assertEqual(1, len(self.workflow.get_tasks(state=TaskState.STARTED)))

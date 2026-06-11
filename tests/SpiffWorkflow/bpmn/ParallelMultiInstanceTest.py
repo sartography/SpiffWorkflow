@@ -39,7 +39,6 @@ class BaseTestCase(BpmnWorkflowTestCase):
             if save_restore:
                 self.save_restore()
             ready_tasks = self.get_ready_user_tasks()
-        self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
 
         any_task = self.workflow.get_next_task(spec_name='any_task')
@@ -64,7 +63,6 @@ class BaseTestCase(BpmnWorkflowTestCase):
         task.data['output_item'] = task.data['input_item'] * 2
         task.run()
         self.workflow.do_engine_steps()
-        self.workflow.refresh_waiting_tasks()
         
         self.assertTrue(self.workflow.completed)
         self.assertEqual(len([ t for t in ready_tasks if t.state == TaskState.CANCELLED]), 2)

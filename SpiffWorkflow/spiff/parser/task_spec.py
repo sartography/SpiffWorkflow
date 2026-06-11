@@ -29,6 +29,7 @@ from SpiffWorkflow.spiff.specs.defaults import (
     SequentialMultiInstanceTask,
     BusinessRuleTask,
     UserTask,
+    EventSubprocess,
 )
 
 SPIFFWORKFLOW_NSMAP = {'spiffworkflow': 'http://spiffworkflow.org/bpmn/schema/1.0/core'}
@@ -39,6 +40,7 @@ class SpiffTaskParser(TaskParser):
     STANDARD_LOOP_CLASS = StandardLoopTask
     PARALLEL_MI_CLASS = ParallelMultiInstanceTask
     SEQUENTIAL_MI_CLASS = SequentialMultiInstanceTask
+    EVENT_SUBPROCESS_CLASS = EventSubprocess
 
     def parse_extensions(self, node=None):
         if node is None:
@@ -154,13 +156,18 @@ class SubWorkflowParser(SpiffTaskParser):
         prescript = extensions.get('preScript')
         postscript = extensions.get('postScript')
         subworkflow_spec = SubprocessParser.get_subprocess_spec(self)
-        return self.spec_class(
+        if self.attribute('triggeredByEvent'):
+            spec_class = self.EVENT_SUBPROCESS_CLASS
+        else:
+            spec_class = self.spec_class
+        return spec_class(
             self.spec, 
             self.bpmn_id,
             subworkflow_spec=subworkflow_spec,
             prescript=prescript,
             postscript=postscript,
-            **self.bpmn_attributes)
+            **self.bpmn_attributes
+        )
 
 
 class ScriptTaskParser(SpiffTaskParser):

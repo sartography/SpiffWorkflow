@@ -17,117 +17,19 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-import heapq
-from datetime import datetime, timezone
+import warnings
 
 from SpiffWorkflow.task import Task
 from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.exceptions import WorkflowException
 
-from SpiffWorkflow.bpmn.specs.mixins.events.event_types import CatchingEvent
-from SpiffWorkflow.bpmn.specs.mixins.events.start_event import StartEvent
-from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import CallActivity
-from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
-from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
-from SpiffWorkflow.bpmn.specs.event_definitions.item_aware_event import CodeEventDefinition
-
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
+from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
 
 from SpiffWorkflow.bpmn.util.subworkflow import BpmnBaseWorkflow, BpmnSubWorkflow
+from SpiffWorkflow.bpmn.util.event import EventManager
 
 from .script_engine.python_engine import PythonScriptEngine
-
-
-class _WaitingTaskIndex:
-
-    def __init__(self):
-        self.waiting_tasks = {}
-        self.timer_tasks = {}
-        self.timer_due_at = {}
-        self.timer_heap = []
-        self._sequence = 0
-
-    def task_state_changed(self, task, old_state, new_state):
-        if old_state == TaskState.WAITING:
-            self._remove(task)
-        if new_state == TaskState.WAITING:
-            self._add(task)
-
-    def refresh_internal_tasks(self, refresh_task):
-        for task in list(self.waiting_tasks.values()):
-            if task.id not in self.timer_tasks and task.state == TaskState.WAITING:
-                refresh_task(task)
-        self.refresh_due_timers(refresh_task)
-
-    def refresh_due_timers(self, refresh_task):
-        self._schedule_missing_timer_due_times(refresh_task)
-        now = datetime.now(timezone.utc).timestamp()
-        while self.timer_heap and self.timer_heap[0][0] <= now:
-            due_at, _sequence, task_id = heapq.heappop(self.timer_heap)
-            if self.timer_due_at.get(task_id) != due_at:
-                continue
-            task = self.timer_tasks.get(task_id)
-            if task is None or task.state != TaskState.WAITING:
-                continue
-            refresh_task(task)
-
-    def refresh_tasks(self, tasks, refresh_task):
-        for task in tasks:
-            refresh_task(task)
-
-    def reschedule_timer(self, task):
-        if task.id in self.timer_tasks:
-            self._schedule_timer(task)
-
-    def _add(self, task):
-        self.waiting_tasks[task.id] = task
-        if self._is_timer_task(task):
-            self.timer_tasks[task.id] = task
-            self._schedule_timer(task)
-
-    def _remove(self, task):
-        self.waiting_tasks.pop(task.id, None)
-        self.timer_tasks.pop(task.id, None)
-        self.timer_due_at.pop(task.id, None)
-
-    def _schedule_missing_timer_due_times(self, refresh_task):
-        for task in list(self.timer_tasks.values()):
-            if task.state != TaskState.WAITING:
-                continue
-            if task.id not in self.timer_due_at:
-                refresh_task(task)
-
-    def _schedule_timer(self, task):
-        due_at = self._get_timer_due_at(task)
-        if due_at is None:
-            self.timer_due_at.pop(task.id, None)
-            return
-        self.timer_due_at[task.id] = due_at
-        self._sequence += 1
-        heapq.heappush(self.timer_heap, (due_at, self._sequence, task.id))
-
-    def _is_timer_task(self, task):
-        return isinstance(task.task_spec, CatchingEvent) and self._has_timer_definition(task.task_spec.event_definition)
-
-    def _has_timer_definition(self, event_definition):
-        if isinstance(event_definition, TimerEventDefinition):
-            return True
-        if isinstance(event_definition, MultipleEventDefinition):
-            return any(self._has_timer_definition(definition) for definition in event_definition.event_definitions)
-        return False
-
-    def _get_timer_due_at(self, task):
-        event_value = task._get_internal_data('event_value')
-        if event_value is None:
-            return None
-        if isinstance(event_value, dict):
-            if event_value.get('cycles') == 0:
-                return 0
-            next_event = event_value.get('next')
-            if next_event is None:
-                return None
-            return TimerEventDefinition.get_datetime(next_event).timestamp()
-        return TimerEventDefinition.get_datetime(event_value).timestamp()
 
 
 class BpmnWorkflow(BpmnBaseWorkflow):
@@ -148,8 +50,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         self.subprocesses = {}
         self.bpmn_events = []
         self.correlations = {}
-        self._waiting_task_index = _WaitingTaskIndex()
-        self._refreshing_waiting_tasks = False
+        self.event_manager = EventManager(self)
         super().__init__(spec, **kwargs)
 
         for obj in self.spec.data_objects:
@@ -204,44 +105,13 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         return [sp for sp in self.subprocesses.values() if not sp.completed]
 
     def catch(self, event):
-        """
-        Tasks can always catch events, regardless of their state.  The event information is stored in the task's
-        internal data and processed when the task is reached in the workflow.  If a task should only receive messages
-        while it is running (eg a boundary event), the task should call the event_definition's reset method before
-        executing to clear out a stale message.
-
-        :param event: the thrown event
-        """
-        if event.target is not None:
-            # This limits results to tasks in the specified workflow
-            tasks = event.target.get_tasks(skip_subprocesses=True, state=TaskState.NOT_FINISHED_MASK, catches_event=event)
-            if isinstance(event.event_definition, CodeEventDefinition) and len(tasks) == 0:
-                event.target = event.target.parent_workflow
-                self.catch(event)
-        else:
-            self.update_collaboration(event)
-            tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
-            # Figure out if we need to create an external event
-            if len(tasks) == 0:
-                self.bpmn_events.append(event)
-
-        for task in tasks:
-            task.task_spec.catch(task, event)
-        if len(tasks) > 0:
-            self._refresh_caught_tasks(tasks)
+        self.event_manager.catch(event)
 
     def send_event(self, event):
         """Allows this workflow to catch an externally generated event."""
 
-        if event.target is not None:
-            self.catch(event)
-        else:
-            tasks = self.get_tasks(state=TaskState.NOT_FINISHED_MASK, catches_event=event)
-            if len(tasks) == 0:
-                raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
-            for task in tasks:
-                task.task_spec.catch(task, event)
-            self._refresh_caught_tasks(tasks)
+        if self.event_manager.catch(event, internal=False) == 0:
+            raise WorkflowException(f"This process is not waiting for {event.event_definition.name}")
 
     def get_events(self):
         """Returns the list of events that cannot be handled from within this workflow."""
@@ -250,8 +120,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         return events
 
     def waiting_events(self):
-        iter = self.get_tasks_iterator(state=TaskState.WAITING, spec_class=CatchingEvent)
-        return [t.task_spec.event_definition.details(t) for t in iter]
+        return self.event_manager.get_waiting_tasks()
 
     def do_engine_steps(self, will_complete_task=None, did_complete_task=None):
         """
@@ -263,11 +132,10 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         :param will_complete_task: Callback that will be called prior to completing a task
         :param did_complete_task: Callback that will be called after completing a task
         """
-        self._refresh_due_waiting_tasks()
         count = self._do_engine_steps(will_complete_task, did_complete_task)
         while count > 0:
-            self._refresh_due_waiting_tasks()
             count = self._do_engine_steps(will_complete_task, did_complete_task)
+        self.refresh_timers()
 
     def _do_engine_steps(self, will_complete_task=None, did_complete_task=None):
 
@@ -298,62 +166,23 @@ class BpmnWorkflow(BpmnBaseWorkflow):
 
     def refresh_waiting_tasks(self, will_refresh_task=None, did_refresh_task=None):
         """
-        Compatibility no-op.
-
-        BPMN workflows now refresh WAITING task internals through engine steps,
-        targeted event catches, and task completion notifications.
+        Refresh the state of all WAITING tasks. This will, for example, update
+        Catching Timer Events whose waiting time has passed.
 
         :param will_refresh_task: Callback that will be called prior to refreshing a task
         :param did_refresh_task: Callback that will be called after refreshing a task
         """
-        pass
+        warnings.warn(
+            DeprecationWarning(f'BpmnWorkflow.refresh_waiting_tasks will be removed in future versions; use refresh_timers')
+        )
+        self.refresh_timers()
 
-    def refresh_due_waiting_tasks(self):
-        """Refresh WAITING timer tasks that are currently due."""
-        self._refresh_due_waiting_tasks()
-
-    def _waiting_task_state_changed(self, task, old_state, new_state):
-        self._waiting_task_index.task_state_changed(task, old_state, new_state)
-
-    def _rebuild_waiting_task_index(self):
-        self._waiting_task_index = _WaitingTaskIndex()
-        workflows = [self] + list(self.subprocesses.values())
-        for workflow in workflows:
-            for task in workflow.tasks.values():
-                if task.state == TaskState.WAITING:
-                    self._waiting_task_index.task_state_changed(task, None, TaskState.WAITING)
-
-    def _refresh_internal_waiting_tasks(self):
-        if self._refreshing_waiting_tasks:
-            return
-        self._refreshing_waiting_tasks = True
-        try:
-            self._waiting_task_index.refresh_internal_tasks(self._refresh_waiting_task)
-        finally:
-            self._refreshing_waiting_tasks = False
-
-    def _refresh_due_waiting_tasks(self):
-        if self._refreshing_waiting_tasks:
-            return
-        self._refreshing_waiting_tasks = True
-        try:
-            self._waiting_task_index.refresh_due_timers(self._refresh_waiting_task)
-        finally:
-            self._refreshing_waiting_tasks = False
-
-    def _refresh_caught_tasks(self, tasks):
-        if self._refreshing_waiting_tasks:
-            return
-        self._refreshing_waiting_tasks = True
-        try:
-            self._waiting_task_index.refresh_tasks(tasks, self._refresh_waiting_task)
-        finally:
-            self._refreshing_waiting_tasks = False
-
-    def _refresh_waiting_task(self, task):
-        if task.state == TaskState.WAITING:
-            task.task_spec._update(task)
-            self._waiting_task_index.reschedule_timer(task)
+    def refresh_timers(self):
+        # Ideally this would go in event manager but I can't import the necessary classes there
+        # Eventually I'll move it
+        for task in list(self.event_manager.tasks.values()):
+            if isinstance(task.task_spec.event_definition, (TimerEventDefinition, )):
+                task.task_spec._update(task)
 
     def get_task_from_id(self, task_id):
         if task_id not in self.tasks:
@@ -406,36 +235,4 @@ class BpmnWorkflow(BpmnBaseWorkflow):
 
         return cancelled
 
-    def update_collaboration(self, event):
 
-        def get_or_create_subprocess(task_spec, wf_spec):
-
-            for sp in self.subprocesses.values():
-                if sp.get_next_task(state=TaskState.WAITING, spec_name=task_spec.name) is not None:
-                    return sp
-
-            # This creates a new task associated with a process when an event that kicks of a process is received
-            # I need to know what class is being used to create new processes in this case, and this seems slightly
-            # less bad than adding yet another argument.  Still sucks though.
-            # TODO: Make collaborations a class rather than trying to shoehorn them into a process.
-            for spec in self.spec.task_specs.values():
-                if isinstance(spec, CallActivity):
-                    spec_class = spec.__class__
-                    break
-            else:
-                # Default to the mixin class, which will probably fail in many cases.
-                spec_class = CallActivity
-
-            new = spec_class(self.spec, f'{wf_spec.name}_{len(self.subprocesses)}', wf_spec.name)
-            self.spec.start.connect(new)
-            task = Task(self, new, parent=self.task_tree)
-            # This (indirectly) calls create_subprocess
-            task.task_spec._update(task)
-            return self.subprocesses[task.id]
-
-        # Start a subprocess for known specs with start events that catch this
-        for spec in self.subprocess_specs.values():
-            for task_spec in spec.task_specs.values():
-                if isinstance(task_spec, StartEvent) and task_spec.event_definition == event.event_definition:
-                    subprocess = get_or_create_subprocess(task_spec, spec)
-                    subprocess.correlations.update(event.correlations)

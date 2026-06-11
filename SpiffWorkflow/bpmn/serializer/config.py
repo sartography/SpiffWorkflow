@@ -37,6 +37,7 @@ from SpiffWorkflow.bpmn.specs.defaults import (
     SubWorkflowTask,
     CallActivity,
     TransactionSubprocess,
+    EventSubprocess,
     StartEvent,
     EndEvent,
     IntermediateCatchEvent,
@@ -96,6 +97,7 @@ from .default.task_spec import (
     EventConverter,
     BoundaryEventConverter,
     IOSpecificationConverter,
+    BpmnStartTaskConverter,
 )
 from .default.event_definition import (
     TimerConditionalEventDefinitionConverter,
@@ -115,7 +117,7 @@ DEFAULT_CONFIG = {
     BpmnIoSpecification: IOSpecificationConverter,
     BpmnProcessSpec: BpmnProcessSpecConverter,
     SimpleBpmnTask: BpmnTaskSpecConverter,
-    BpmnStartTask: BpmnTaskSpecConverter,
+    BpmnStartTask: BpmnStartTaskConverter,
     _EndJoin: BpmnTaskSpecConverter,
     NoneTask: BpmnTaskSpecConverter,
     ManualTask: BpmnTaskSpecConverter,
@@ -127,6 +129,7 @@ DEFAULT_CONFIG = {
     SubWorkflowTask: SubWorkflowConverter,
     CallActivity: SubWorkflowConverter,
     TransactionSubprocess: SubWorkflowConverter,
+    EventSubprocess: SubWorkflowConverter,
     BoundaryEventSplit: BpmnTaskSpecConverter,
     BoundaryEventJoin: EventJoinConverter,
     ExclusiveGateway: ExclusiveGatewayConverter,

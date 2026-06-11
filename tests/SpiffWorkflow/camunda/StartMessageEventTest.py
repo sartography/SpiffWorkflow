@@ -46,7 +46,6 @@ class StartMessageTest(BaseTestCase):
             current_task.set_data(**step[1])
             current_task.run()
             self.workflow.do_engine_steps()
-            self.workflow.refresh_waiting_tasks()
             if save_restore:
                 self.save_restore()
             ready_tasks = self.workflow.get_tasks(state=TaskState.READY)

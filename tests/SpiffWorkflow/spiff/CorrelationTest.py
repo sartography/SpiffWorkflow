@@ -13,9 +13,8 @@ class CorrelationTest(BaseTestCase):
 
     def actual_test(self,save_restore):
 
-        specs = self.get_all_specs('correlation.bpmn')
-        proc_1 = specs['proc_1']
-        self.workflow = BpmnWorkflow(proc_1, specs)
+        spec, subprocesses = self.load_collaboration('correlation.bpmn', 'correlation_test')
+        self.workflow = BpmnWorkflow(spec, subprocesses)
         if save_restore:
             self.save_restore()
         self.workflow.do_engine_steps()

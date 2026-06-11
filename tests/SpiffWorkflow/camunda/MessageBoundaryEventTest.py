@@ -40,12 +40,12 @@ class MessageBoundaryTest(BaseTestCase):
                 self.workflow.run_task_from_id(task.id)
                 self.workflow.do_engine_steps()
                 time.sleep(.01)
-                self.workflow.refresh_waiting_tasks()
+                self.workflow.refresh_timers()
                 if save_restore:
                     self.save_restore()
             ready_tasks = self.workflow.get_tasks(state=TaskState.READY)
         time.sleep(.01)
-        self.workflow.refresh_waiting_tasks()
+        self.workflow.refresh_timers()
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.completed, True, 'Expected the workflow to be complete at this point')
 

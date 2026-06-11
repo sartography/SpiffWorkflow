@@ -29,6 +29,7 @@ from SpiffWorkflow.bpmn.serializer.config import (
     ScriptTask as DefaultScriptTask,
     SubWorkflowTask as DefaultSubWorkflowTask,
     TransactionSubprocess as DefaultTransactionSubprocess,
+    EventSubprocess as DefaultEventSubprocess,
     CallActivity as DefaultCallActivity,
     StandardLoopTask as DefaultStandardLoopTask,
     ParallelMultiInstanceTask as DefaultParallelMultiInstanceTask,
@@ -46,6 +47,7 @@ from SpiffWorkflow.spiff.specs.defaults import (
     ServiceTask,
     SubWorkflowTask,
     TransactionSubprocess,
+    EventSubprocess,
     CallActivity,
     StandardLoopTask,
     ParallelMultiInstanceTask,
@@ -88,6 +90,7 @@ SPIFF_CONFIG.pop(DefaultSendTask)
 SPIFF_CONFIG.pop(DefaultReceiveTask)
 SPIFF_CONFIG.pop(DefaultSubWorkflowTask)
 SPIFF_CONFIG.pop(DefaultTransactionSubprocess)
+SPIFF_CONFIG.pop(DefaultEventSubprocess)
 SPIFF_CONFIG.pop(DefaultCallActivity)
 SPIFF_CONFIG.pop(DefaultStandardLoopTask)
 SPIFF_CONFIG.pop(DefaultParallelMultiInstanceTask)
@@ -104,6 +107,7 @@ SPIFF_CONFIG[ReceiveTask] = SendReceiveTaskConverter
 SPIFF_CONFIG[SubWorkflowTask] = SubWorkflowTaskConverter
 SPIFF_CONFIG[CallActivity] = SubWorkflowTaskConverter
 SPIFF_CONFIG[TransactionSubprocess] = SubWorkflowTaskConverter
+SPIFF_CONFIG[EventSubprocess] = SubWorkflowTaskConverter
 SPIFF_CONFIG[ParallelMultiInstanceTask] = SpiffMultiInstanceConverter
 SPIFF_CONFIG[SequentialMultiInstanceTask] = SpiffMultiInstanceConverter
 SPIFF_CONFIG[StandardLoopTask] = StandardLoopTaskConverter

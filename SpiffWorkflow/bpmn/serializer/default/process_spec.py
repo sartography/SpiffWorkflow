@@ -36,6 +36,7 @@ class BpmnProcessSpecConverter(BpmnConverter):
             'io_specification': self.registry.convert(spec.io_specification),
             'data_objects': {name: self.registry.convert(obj) for name, obj in spec.data_objects.items()},
             'correlation_keys': spec.correlation_keys,
+            'bpmn_start_events': [ts.name for ts in spec.bpmn_start_events],
         }
         for name, task_spec in spec.task_specs.items():
             task_dict = self.registry.convert(task_spec)
@@ -81,5 +82,7 @@ class BpmnProcessSpecConverter(BpmnConverter):
         for task_spec in loop_tasks:
             child_spec = spec.task_specs.get(task_spec.task_spec)
             child_spec.completed_event.connect(task_spec.merge_child)
+
+        spec.bpmn_start_events = [spec.task_specs.get(name) for name in dct.get('bpmn_start_events', [])]
 
         return spec

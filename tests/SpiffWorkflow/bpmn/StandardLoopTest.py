@@ -24,7 +24,6 @@ class StandardLoopTest(BpmnWorkflowTestCase):
 
         for idx in range(3):
             self.workflow.do_engine_steps()
-            self.workflow.refresh_waiting_tasks()
             ready_tasks = self.get_ready_user_tasks()
             self.assertEqual(len(ready_tasks), 1)
             ready_tasks[0].data[str(idx)] = True
@@ -47,7 +46,6 @@ class StandardLoopTest(BpmnWorkflowTestCase):
         start[0].data['done'] = False
 
         self.workflow.do_engine_steps()
-        self.workflow.refresh_waiting_tasks()
         ready_tasks = self.get_ready_user_tasks()
         self.assertEqual(len(ready_tasks), 1)
         ready_tasks[0].data['done'] = True
@@ -61,8 +59,6 @@ class StandardLoopTest(BpmnWorkflowTestCase):
         # This is called "skip loop" because I thought "testTestBefore" was a terrible name
         start = self.workflow.get_tasks(end_at_spec='StartEvent_1')
         start[0].data['done'] = True
-        self.workflow.do_engine_steps()
-        self.workflow.refresh_waiting_tasks()
         self.workflow.do_engine_steps()
         self.assertTrue(self.workflow.completed)
 

@@ -33,6 +33,7 @@ from .mixins import (
     SubWorkflowTaskMixin,
     CallActivityMixin,
     TransactionSubprocessMixin,
+    EventSubprocessMixin,
     StartEventMixin,
     EndEventMixin,
     IntermediateCatchEventMixin,
@@ -86,6 +87,9 @@ class CallActivity(CallActivityMixin, BpmnSpecMixin):
     pass
 
 class TransactionSubprocess(TransactionSubprocessMixin, BpmnSpecMixin):
+    pass
+
+class EventSubprocess(EventSubprocessMixin, BpmnSpecMixin):
     pass
 
 class StartEvent(StartEventMixin, BpmnSpecMixin):
