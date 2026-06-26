@@ -37,7 +37,7 @@ Subrocesses and Call Activities
     Ad Hoc Subprocesses are neither particularly well defined in the BPMN spec, nor
     well-suited to the execution model of this library.
 
-    The BPMN authors have this to say:
+    The BPMN spec authors have this to say:
 
     "It is a challenge for a BPM engine to monitor the status of Ad-Hoc Sub-Processes, 
     usually these kind of Processes are handled through groupware applications (such as e-mail),

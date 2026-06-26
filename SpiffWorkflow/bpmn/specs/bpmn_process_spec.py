@@ -60,11 +60,7 @@ class BpmnProcessSpec(WorkflowSpec):
 class AdHocSubprocessSpec(BpmnProcessSpec):
     """
     This class represents an Ad Hoc Subprocess.  Everything about it is questionable.  I 
-    think even the BPMN authors were skeptical; they say: "It is a challenge for a BPM 
-    engine to monitor the status of Ad-Hoc Sub-Processes, usually these kind of Processes 
-    are handled through groupware applications (such as e-mail), but BPMN allows modeling 
-    of Processes that are not necessarily executable, although there are some process 
-    engines that can follow an Ad-Hoc Sub-Process."
+    think even the BPMN authors were skeptical about it.
 
     But there is a demand for this, so I'm taking a stab at implementation.
 
