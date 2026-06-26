@@ -135,3 +135,6 @@ class TransactionSubprocess(SubWorkflowTask):
 class EventSubprocess(SubWorkflowTask):
     pass
 
+class AdHocSubprocess(SubWorkflowTask):
+    pass
+

@@ -18,7 +18,7 @@
 # 02110-1301  USA
 
 from .workflow import BpmnWorkflowConverter, BpmnSubWorkflowConverter, BpmnEventConverter
-from .process_spec import BpmnProcessSpecConverter
+from .process_spec import BpmnProcessSpecConverter, AdHocSubprocessSpecConverter
 from .task_spec import (
     BpmnTaskSpecConverter,
     ScriptTaskConverter,

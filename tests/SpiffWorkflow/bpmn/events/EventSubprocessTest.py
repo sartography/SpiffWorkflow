@@ -3,7 +3,7 @@ from SpiffWorkflow.bpmn import BpmnWorkflow
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
-class EventBasedGatewayTest(BpmnWorkflowTestCase):
+class EventSubprocessTest(BpmnWorkflowTestCase):
 
     def setUp(self):
         self.spec, self.subprocesses = self.load_workflow_spec('event-subprocess.bpmn', 'main')

@@ -33,6 +33,7 @@ from SpiffWorkflow.bpmn.specs.defaults import (
     CallActivity,
     SubWorkflowTask,
     TransactionSubprocess,
+    AdHocSubprocess,
     InclusiveGateway,
     ExclusiveGateway,
     ParallelGateway,
@@ -49,7 +50,7 @@ from SpiffWorkflow.bpmn.specs.event_definitions.message import CorrelationProper
 from SpiffWorkflow.bpmn.specs.mixins.subworkflow_task import SubWorkflowTask as SubWorkflowTaskMixin
 
 from .ValidationException import ValidationException
-from .ProcessParser import ProcessParser
+from .ProcessParser import ProcessParser, AdHocParser
 from .node_parser import DEFAULT_NSMAP
 from .spec_description import SPEC_DESCRIPTIONS
 from .util import full_tag, xpath_eval, first
@@ -60,6 +61,7 @@ from .task_parsers import (
     CallActivityParser,
     ScriptTaskParser,
     SubWorkflowParser,
+    AdHocSubprocessParser,
 )
 from .event_parsers import (
     EventBasedGatewayParser,
@@ -132,6 +134,7 @@ class BpmnParser:
         full_tag('inclusiveGateway'): (ConditionalGatewayParser, InclusiveGateway),
         full_tag('callActivity'): (CallActivityParser, CallActivity),
         full_tag('transaction'): (SubWorkflowParser, TransactionSubprocess),
+        full_tag('adHocSubProcess'): (AdHocSubprocessParser, AdHocSubprocess),
         full_tag('scriptTask'): (ScriptTaskParser, ScriptTask),
         full_tag('serviceTask'): (TaskParser, ServiceTask),
         full_tag('intermediateCatchEvent'): (IntermediateCatchEventParser, IntermediateCatchEvent),
@@ -145,6 +148,7 @@ class BpmnParser:
     OVERRIDE_PARSER_CLASSES = {}
 
     PROCESS_PARSER_CLASS = ProcessParser
+    AD_HOC_PARSER_CLASS = AdHocParser
 
     DATA_STORE_CLASSES = {}
 
@@ -398,6 +402,12 @@ class BpmnParser:
 
     def create_parser(self, node, filename=None, lane=None):
         parser = self.PROCESS_PARSER_CLASS(self, node, self.namespaces, self.data_stores, filename=filename, lane=lane)
+        if parser.bpmn_id in self.process_parsers:
+            raise ValidationException(f'Duplicate process ID: {parser.bpmn_id}', node=node, file_name=filename)
+        self.process_parsers[parser.bpmn_id] = parser
+
+    def create_ad_hoc_parser(self, node, filename=None, lane=None):
+        parser = self.AD_HOC_PARSER_CLASS(self, node, self.namespaces, self.data_stores, filename=filename, lane=lane)
         if parser.bpmn_id in self.process_parsers:
             raise ValidationException(f'Duplicate process ID: {parser.bpmn_id}', node=node, file_name=filename)
         self.process_parsers[parser.bpmn_id] = parser

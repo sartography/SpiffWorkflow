@@ -18,11 +18,11 @@
 # 02110-1301  USA
 
 from .ValidationException import ValidationException
-from ..specs.bpmn_process_spec import BpmnProcessSpec
+from ..specs.bpmn_process_spec import BpmnProcessSpec, AdHocSubprocessSpec
 from ..specs.data_spec import DataObject
 from ..specs.control import StartEventJoin, StartEventSplit
 from .node_parser import NodeParser
-from .util import first
+from .util import first, full_tag
 
 
 class ProcessParser(NodeParser):
@@ -156,14 +156,8 @@ class ProcessParser(NodeParser):
         return task_spec
 
     def _parse(self):
-        # here we only look in the top level, We will have another
-        # bpmn:startEvent if we have a subworkflow task
-        start_node_list = self.xpath('./bpmn:startEvent')
-        if not start_node_list and self.process_executable:
-            raise ValidationException("No start event found", node=self.node, file_name=self.filename)
-        if not self.process_executable:
-            raise ValidationException(f"Process {self.bpmn_id} is not executable.", node=self.node, file_name=self.filename)
-        self.spec = BpmnProcessSpec(name=self.bpmn_id, description=self.get_name(), filename=self.filename)
+
+        self.spec = self.create_spec()
 
         # Get the data objects
         for obj in self.xpath('./bpmn:dataObject'):
@@ -175,9 +169,20 @@ class ProcessParser(NodeParser):
         if io_spec is not None:
             self.spec.io_specification = self.parse_io_spec()
 
-        # set the data stores on the process spec so they can survive
-        # serialization
         self.spec.data_stores = self.data_stores
+        self.add_tasks()
+
+    def create_spec(self):
+        if not self.process_executable:
+            raise ValidationException(f"Process {self.bpmn_id} is not executable.", node=self.node, file_name=self.filename)
+        return BpmnProcessSpec(name=self.bpmn_id, description=self.get_name(), filename=self.filename)
+
+    def add_tasks(self):
+
+        start_node_list = self.xpath('./bpmn:startEvent')
+        if not start_node_list and self.process_executable:
+            raise ValidationException("No start event found", node=self.node, file_name=self.filename)
+
         for node in start_node_list:
             self.parse_node(node)
 
@@ -207,3 +212,44 @@ class ProcessParser(NodeParser):
         if self.spec is None:
             self._parse()
         return self.spec
+
+class AdHocParser(ProcessParser):
+
+    def _parse(self):
+        super()._parse()
+        self.spec.create_paths()
+
+    def create_spec(self):
+        if self.attribute('ordering') == 'sequential':
+            raise ValidationException(
+                'Sequential ordering for ad hoc subprocesses not supported',
+                node=self.node,
+                file_name=self.filename
+            )
+        cancel_remaining = self.attribute('cancelRemainingInstances') in [None, 'true']
+        condition = self.xpath('./bpmn:completionCondition')
+        condition = condition[0].text if len(condition) > 0 else None
+        return AdHocSubprocessSpec(
+            completion_condition=condition,
+            cancel_remaining=cancel_remaining,
+            name=self.bpmn_id,
+            description=self.get_name(),
+            filename=self.filename,
+        )
+
+    def add_tasks(self):
+        start_node_list = []
+        for node in self.node.getchildren():
+            if node.tag not in self.parser.PARSER_CLASSES:
+                continue
+            elif node.tag in [full_tag('startEvent'), full_tag('endEvent')]:
+                raise ValidationException(
+                    'Ad hoc subprocesses may not contain start or end events',
+                    node=self.node,
+                    file_name=self.filename,
+                )
+            elif len(node.xpath('./bpmn:incoming', namespaces=self.nsmap)) == 0:
+                start_node_list.append(node)
+
+        for node in start_node_list:
+            self.parse_node(node)
