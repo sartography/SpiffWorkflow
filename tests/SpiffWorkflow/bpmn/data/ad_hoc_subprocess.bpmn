@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1qnx3d3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <bpmn:process id="main" isExecutable="true" camunda:versionTag="1">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0vt1twq</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="Event_0yxpeto">
+      <bpmn:incoming>Flow_0nampyr</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0vt1twq" sourceRef="StartEvent_1" targetRef="subprocess" />
+    <bpmn:sequenceFlow id="Flow_0nampyr" sourceRef="subprocess" targetRef="Event_0yxpeto" />
+    <bpmn:adHocSubProcess id="subprocess" name="subprocess">
+      <bpmn:incoming>Flow_0vt1twq</bpmn:incoming>
+      <bpmn:outgoing>Flow_0nampyr</bpmn:outgoing>
+      <bpmn:task id="research" name="research">
+        <bpmn:outgoing>Flow_1mjfkdy</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:task id="revise" name="revise">
+        <bpmn:standardLoopCharacteristics>
+          <bpmn:loopCondition xsi:type="bpmn:tFormalExpression">revision_requested</bpmn:loopCondition>
+        </bpmn:standardLoopCharacteristics>
+      </bpmn:task>
+      <bpmn:task id="edit" name="edit">
+        <bpmn:standardLoopCharacteristics testBefore="true">
+          <bpmn:loopCondition xsi:type="bpmn:tFormalExpression">edit_requested</bpmn:loopCondition>
+        </bpmn:standardLoopCharacteristics>
+      </bpmn:task>
+      <bpmn:task id="organize_references" name="organize references">
+        <bpmn:incoming>Flow_1g7s726</bpmn:incoming>
+      </bpmn:task>
+      <bpmn:task id="make_graphics" name="make graphics" spiffworkflow:isOutputSynced="false">
+        <bpmn:multiInstanceLoopCharacteristics>
+          <bpmn:loopDataInputRef>graphics_needed</bpmn:loopDataInputRef>
+          <bpmn:loopDataOutputRef>graphics</bpmn:loopDataOutputRef>
+          <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">len(graphics) == len(graphics_needed)</bpmn:completionCondition>
+        </bpmn:multiInstanceLoopCharacteristics>
+      </bpmn:task>
+      <bpmn:dataObject id="graphics" name="graphics" />
+      <bpmn:dataObject id="graphics_needed" name="graphics_needed" />
+      <bpmn:exclusiveGateway id="Gateway_1bp40us">
+        <bpmn:outgoing>Flow_00dn0qk</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:task id="finalize" name="finalize">
+        <bpmn:incoming>Flow_00dn0qk</bpmn:incoming>
+      </bpmn:task>
+      <bpmn:sequenceFlow id="Flow_00dn0qk" name="editing done" sourceRef="Gateway_1bp40us" targetRef="finalize">
+        <bpmn:conditionExpression>editing_done</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_1mjfkdy" sourceRef="research" targetRef="first_draft" />
+      <bpmn:task id="first_draft" name="first draft">
+        <bpmn:incoming>Flow_1mjfkdy</bpmn:incoming>
+        <bpmn:outgoing>Flow_1g7s726</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:sequenceFlow id="Flow_1g7s726" sourceRef="first_draft" targetRef="organize_references" />
+      <bpmn:completionCondition>done</bpmn:completionCondition>
+    </bpmn:adHocSubProcess>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="main">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="32" y="-58" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0yxpeto_di" bpmnElement="Event_0yxpeto">
+        <dc:Bounds x="812" y="-58" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1cfxz8l_di" bpmnElement="subprocess" isExpanded="true">
+        <dc:Bounds x="150" y="-280" width="570" height="440" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1dmr5x6_di" bpmnElement="research">
+        <dc:Bounds x="220" y="-220" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ve4mz5_di" bpmnElement="first_draft">
+        <dc:Bounds x="380" y="-220" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1aesrq5_di" bpmnElement="organize_references">
+        <dc:Bounds x="530" y="-220" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_02lv1il_di" bpmnElement="revise">
+        <dc:Bounds x="220" y="-110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0w708zb_di" bpmnElement="edit">
+        <dc:Bounds x="380" y="-110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10lz50r_di" bpmnElement="make_graphics">
+        <dc:Bounds x="530" y="-110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1bp40us_di" bpmnElement="Gateway_1bp40us" isMarkerVisible="true">
+        <dc:Bounds x="285" y="35" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1nbr04r_di" bpmnElement="finalize">
+        <dc:Bounds x="460" y="20" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_00dn0qk_di" bpmnElement="Flow_00dn0qk">
+        <di:waypoint x="335" y="60" />
+        <di:waypoint x="460" y="60" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="368" y="42" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mjfkdy_di" bpmnElement="Flow_1mjfkdy">
+        <di:waypoint x="320" y="-180" />
+        <di:waypoint x="380" y="-180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1g7s726_di" bpmnElement="Flow_1g7s726">
+        <di:waypoint x="480" y="-180" />
+        <di:waypoint x="530" y="-180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vt1twq_di" bpmnElement="Flow_0vt1twq">
+        <di:waypoint x="68" y="-40" />
+        <di:waypoint x="150" y="-40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nampyr_di" bpmnElement="Flow_0nampyr">
+        <di:waypoint x="720" y="-40" />
+        <di:waypoint x="812" y="-40" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

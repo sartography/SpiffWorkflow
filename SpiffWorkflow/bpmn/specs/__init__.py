@@ -19,4 +19,4 @@
 
 from .bpmn_task_spec import BpmnTaskSpec
 from .data_spec import BpmnDataSpecification, BpmnDataStoreSpecification
-from .bpmn_process_spec import BpmnProcessSpec
+from .bpmn_process_spec import BpmnProcessSpec, AdHocSubprocessSpec

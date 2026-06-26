@@ -36,6 +36,7 @@ from .subworkflow_task import (
     CallActivity as CallActivityMixin,
     TransactionSubprocess as TransactionSubprocessMixin,
     EventSubprocess as EventSubprocessMixin,
+    AdHocSubprocess as AdHocSubprocessMixin,
 )
 
 from .events.start_event import StartEvent as StartEventMixin

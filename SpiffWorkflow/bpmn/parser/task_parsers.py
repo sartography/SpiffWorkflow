@@ -89,6 +89,19 @@ class SubprocessParser:
                 file_name=task_parser.filename)
         return called_element
 
+    @staticmethod
+    def get_ad_hoc_spec(task_parser):
+        task_parser.process_parser.parser.create_ad_hoc_parser(
+            task_parser.node,
+            filename=task_parser.filename,
+            lane=task_parser.lane
+        )
+        spec_id = task_parser.node.get('id')
+        # This parser makes me want to cry
+        spec_parser = task_parser.process_parser.parser.process_parsers[spec_id]
+        spec_parser.parent = task_parser.process_parser
+        return spec_id
+
 
 class SubWorkflowParser(TaskParser):
 
@@ -106,6 +119,13 @@ class CallActivityParser(TaskParser):
 
     def create_task(self):
         subworkflow_spec = SubprocessParser.get_call_activity_spec(self)
+        return self.spec_class(self.spec, self.bpmn_id, subworkflow_spec=subworkflow_spec, **self.bpmn_attributes)
+
+
+class AdHocSubprocessParser(TaskParser):
+
+    def create_task(self):
+        subworkflow_spec = SubprocessParser.get_ad_hoc_spec(self)
         return self.spec_class(self.spec, self.bpmn_id, subworkflow_spec=subworkflow_spec, **self.bpmn_attributes)
 
 

@@ -21,7 +21,7 @@ from SpiffWorkflow.task import Task
 from SpiffWorkflow.bpmn import BpmnWorkflow, BpmnEvent
 from SpiffWorkflow.bpmn.util.subworkflow import BpmnSubWorkflow
 
-from SpiffWorkflow.bpmn.specs import BpmnProcessSpec
+from SpiffWorkflow.bpmn.specs import BpmnProcessSpec, AdHocSubprocessSpec
 from SpiffWorkflow.bpmn.specs.defaults import (
     ManualTask,
     NoneTask,
@@ -38,6 +38,7 @@ from SpiffWorkflow.bpmn.specs.defaults import (
     CallActivity,
     TransactionSubprocess,
     EventSubprocess,
+    AdHocSubprocess,
     StartEvent,
     EndEvent,
     IntermediateCatchEvent,
@@ -83,7 +84,7 @@ from .default.workflow import (
     BpmnEventConverter,
 )
 from .helpers import BpmnDataSpecificationConverter, EventDefinitionConverter
-from .default import BpmnProcessSpecConverter
+from .default import BpmnProcessSpecConverter, AdHocSubprocessSpecConverter
 from .default.task_spec import (
     BpmnTaskSpecConverter,
     ScriptTaskConverter,
@@ -116,6 +117,7 @@ DEFAULT_CONFIG = {
     TaskDataReference: BpmnDataSpecificationConverter,
     BpmnIoSpecification: IOSpecificationConverter,
     BpmnProcessSpec: BpmnProcessSpecConverter,
+    AdHocSubprocessSpec: AdHocSubprocessSpecConverter,
     SimpleBpmnTask: BpmnTaskSpecConverter,
     BpmnStartTask: BpmnStartTaskConverter,
     _EndJoin: BpmnTaskSpecConverter,
@@ -130,6 +132,7 @@ DEFAULT_CONFIG = {
     CallActivity: SubWorkflowConverter,
     TransactionSubprocess: SubWorkflowConverter,
     EventSubprocess: SubWorkflowConverter,
+    AdHocSubprocess: SubWorkflowConverter,
     BoundaryEventSplit: BpmnTaskSpecConverter,
     BoundaryEventJoin: EventJoinConverter,
     ExclusiveGateway: ExclusiveGatewayConverter,

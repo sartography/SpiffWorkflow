@@ -86,3 +86,34 @@ class BpmnProcessSpecConverter(BpmnConverter):
         spec.bpmn_start_events = [spec.task_specs.get(name) for name in dct.get('bpmn_start_events', [])]
 
         return spec
+
+class AdHocSubprocessSpecConverter(BpmnProcessSpecConverter):
+
+    def to_dict(self, spec):
+        dct = super().to_dict(spec)
+        dct['completion_condition'] = spec.completion_condition
+        dct['parallel'] = True
+        dct['cancel_remaining'] = True
+        dct['conditional_paths'] = [sp.name for sp in spec.conditional_paths]
+        return dct
+
+    def from_dict(self, dct):
+
+        completion_condition = dct.pop('completion_condition')
+        parallel = dct.pop('parallel')
+        cancel_remaining = dct.pop('cancel_remaining')
+        conditional = dct.pop('conditional_paths')
+
+        spec = super().from_dict(dct)
+        spec.completion_condition = completion_condition
+        spec.parallel = parallel
+        spec.cancel_remaining = cancel_remaining
+
+        for name in conditional:
+            spec.conditional_paths.append(spec.task_specs.get(name))
+
+        for task_spec in spec.task_specs.values():
+            if spec.end.name in task_spec._outputs:
+                task_spec.completed_event.connect(spec.path_complete)
+
+        return spec
