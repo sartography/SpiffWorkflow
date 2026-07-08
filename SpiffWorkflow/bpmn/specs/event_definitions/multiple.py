@@ -1,3 +1,4 @@
+from SpiffWorkflow.bpmn.util.event import BpmnEvent
 from .timer import TimerEventDefinition, EventDefinition
 
 class MultipleEventDefinition(EventDefinition):
@@ -11,16 +12,17 @@ class MultipleEventDefinition(EventDefinition):
 
         event_definitions = list(self.event_definitions)
         seen_events = my_task.internal_data.get('seen_events', [])
-        for event_definition in self.event_definitions:
+        for event in seen_events:
+            if event.event_definition in event_definitions:
+                event_definitions.remove(event.event_definition)
+
+        for event_definition in event_definitions:
             if isinstance(event_definition, TimerEventDefinition):
-                child = [c for c in my_task.children if c.task_spec.event_definition == event_definition]
-                child[0].task_spec._update_hook(child[0])
-                if event_definition.has_fired(child[0]) and event_definition in event_definitions:
+                if event_definition.has_fired(my_task):
                     event_definitions.remove(event_definition)
-            else:
-                for event in seen_events:
-                    if event_definition.catches(my_task, event) and event_definition in event_definitions:
-                        event_definitions.remove(event_definition)
+                    seen_events.append(BpmnEvent(event_definition))
+
+        my_task.internal_data['seen_events'] = seen_events
 
         if self.parallel:
             # Parallel multiple need to match all events
@@ -28,10 +30,16 @@ class MultipleEventDefinition(EventDefinition):
         else:
             return len(seen_events) > 0
 
+    def catches(self, my_task, event=None):
+        for item in self.event_definitions:
+            if item.catches(my_task, event):
+                return True
+
     def catch(self, my_task, event=None):
-        event.event_definition.catch(my_task, event)
-        seen_events = my_task.internal_data.get('seen_events', []) + [event]
-        my_task._set_internal_data(seen_events=seen_events)
+        for item in self.event_definitions:
+            if item.catches(my_task, event):
+                seen_events = my_task.internal_data.get('seen_events', []) + [event]
+                my_task._set_internal_data(seen_events=seen_events)
 
     def reset(self, my_task):
         my_task.internal_data.pop('seen_events', None)

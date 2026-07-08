@@ -306,6 +306,3 @@ class EventBasedGatewayParser(EventDefinitionParser):
     def handles_multiple_outgoing(self):
         return True
 
-    def connect_outgoing(self, outgoing_task, sequence_flow_node, is_default):
-        self.task.event_definition.event_definitions.append(outgoing_task.event_definition)
-        self.task.connect(outgoing_task)
