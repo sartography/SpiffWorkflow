@@ -36,6 +36,19 @@ from .version_1_3 import (
     update_data_objects,
 )
 from .version_1_4 import update_mi_states
+from .version_1_5 import update_event_gateway_children
+
+def from_version_1_4(dct):
+    """Upgrade serialization from v1.4 to v1.5
+
+    Event based gateways now manage events for their children.  Duplicating the events in
+    multiple task specs was very difficult to manage and introduced a lot of problems with
+    task states and predictions.  The gateway will handle dropping the branches for the
+    alternate events and the child branch with the matched event will proceed with a none
+    event.
+    """
+    dct['VERSION'] = "1.5"
+    update_event_gateway_children(dct)
 
 def from_version_1_3(dct):
     """Upgrade serialization from v1.3 to v1.4
@@ -122,4 +135,5 @@ MIGRATIONS = {
     '1.1': from_version_1_1,
     '1.2': from_version_1_2,
     '1.3': from_version_1_3,
+    '1.4': from_version_1_4,
 }

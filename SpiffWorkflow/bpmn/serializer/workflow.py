@@ -26,7 +26,7 @@ from .helpers.encoder import create_encoder
 from .config import DEFAULT_CONFIG
 
 # This is the default version set on the workflow, it can be overridden in init
-VERSION = "1.4"
+VERSION = "1.5"
 
 
 class BpmnWorkflowSerializer:
