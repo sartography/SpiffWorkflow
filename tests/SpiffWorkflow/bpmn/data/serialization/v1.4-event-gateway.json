@@ -1,0 +1,440 @@
+{
+  "serializer_version": "1.4",
+  "data": {},
+  "correlations": {},
+  "last_task": null,
+  "success": true,
+  "completed": false,
+  "tasks": {
+    "1be7f3e2-5256-4587-a4b9-746f6d669ff6": {
+      "id": "1be7f3e2-5256-4587-a4b9-746f6d669ff6",
+      "parent": null,
+      "children": [
+        "122b69da-8576-4cd6-926a-a6f90e01ec03"
+      ],
+      "last_state_change": 1783529182.712798,
+      "state": 16,
+      "task_spec": "Start",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "delta": {},
+      "typename": "Task"
+    },
+    "122b69da-8576-4cd6-926a-a6f90e01ec03": {
+      "id": "122b69da-8576-4cd6-926a-a6f90e01ec03",
+      "parent": "1be7f3e2-5256-4587-a4b9-746f6d669ff6",
+      "children": [
+        "bf38d74f-495a-4528-8e32-f7a05576df55"
+      ],
+      "last_state_change": 1783529182.712654,
+      "state": 4,
+      "task_spec": "StartEvent_1",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "delta": {
+        "updates": {},
+        "deletions": []
+      },
+      "typename": "Task"
+    },
+    "bf38d74f-495a-4528-8e32-f7a05576df55": {
+      "id": "bf38d74f-495a-4528-8e32-f7a05576df55",
+      "parent": "122b69da-8576-4cd6-926a-a6f90e01ec03",
+      "children": [
+        "d51085ff-faa9-4cb7-91cb-40a7e11bd2ab"
+      ],
+      "last_state_change": 1783529182.7126684,
+      "state": 4,
+      "task_spec": "Gateway_1dxbnbw",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "delta": {
+        "updates": {},
+        "deletions": []
+      },
+      "typename": "Task"
+    },
+    "d51085ff-faa9-4cb7-91cb-40a7e11bd2ab": {
+      "id": "d51085ff-faa9-4cb7-91cb-40a7e11bd2ab",
+      "parent": "bf38d74f-495a-4528-8e32-f7a05576df55",
+      "children": [
+        "0bbac972-73ab-4959-b6a6-e41b4bc0de94",
+        "b5f495e6-2743-4790-b188-e2e06d5acb71",
+        "f7067209-8af8-4cce-b200-9949d5c72edc"
+      ],
+      "last_state_change": 1783529182.7126849,
+      "state": 2,
+      "task_spec": "Gateway_1434v9l",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "delta": {
+        "updates": {},
+        "deletions": []
+      },
+      "typename": "Task"
+    },
+    "0bbac972-73ab-4959-b6a6-e41b4bc0de94": {
+      "id": "0bbac972-73ab-4959-b6a6-e41b4bc0de94",
+      "parent": "d51085ff-faa9-4cb7-91cb-40a7e11bd2ab",
+      "children": [],
+      "last_state_change": 1783529182.7126927,
+      "state": 1,
+      "task_spec": "message_1_event",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "delta": {
+        "updates": {},
+        "deletions": []
+      },
+      "typename": "Task"
+    },
+    "b5f495e6-2743-4790-b188-e2e06d5acb71": {
+      "id": "b5f495e6-2743-4790-b188-e2e06d5acb71",
+      "parent": "d51085ff-faa9-4cb7-91cb-40a7e11bd2ab",
+      "children": [],
+      "last_state_change": 1783529182.7126956,
+      "state": 1,
+      "task_spec": "message_2_event",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "delta": {
+        "updates": {},
+        "deletions": []
+      },
+      "typename": "Task"
+    },
+    "f7067209-8af8-4cce-b200-9949d5c72edc": {
+      "id": "f7067209-8af8-4cce-b200-9949d5c72edc",
+      "parent": "d51085ff-faa9-4cb7-91cb-40a7e11bd2ab",
+      "children": [],
+      "last_state_change": 1783529182.7126977,
+      "state": 1,
+      "task_spec": "timer_event",
+      "triggered": false,
+      "internal_data": {},
+      "data": {},
+      "delta": {
+        "updates": {},
+        "deletions": []
+      },
+      "typename": "Task"
+    }
+  },
+  "root": "1be7f3e2-5256-4587-a4b9-746f6d669ff6",
+  "spec": {
+    "name": "Process_0pvx19v",
+    "description": "Process_0pvx19v",
+    "file": "/home/essweine/work/sartography/SpiffWorkflow/tests/SpiffWorkflow/bpmn/data/diagram.bpmn",
+    "task_specs": {
+      "Start": {
+        "name": "Start",
+        "description": "BPMN Task",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [],
+        "outputs": [
+          "StartEvent_1"
+        ],
+        "bpmn_id": null,
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "typename": "BpmnStartTask"
+      },
+      "Process_0pvx19v.EndJoin": {
+        "name": "Process_0pvx19v.EndJoin",
+        "description": "BPMN Task",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "message_2_end",
+          "timer_end"
+        ],
+        "outputs": [
+          "End"
+        ],
+        "bpmn_id": null,
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "typename": "_EndJoin"
+      },
+      "End": {
+        "name": "End",
+        "description": "BPMN Task",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "Process_0pvx19v.EndJoin"
+        ],
+        "outputs": [],
+        "bpmn_id": null,
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "typename": "SimpleBpmnTask"
+      },
+      "StartEvent_1": {
+        "name": "StartEvent_1",
+        "description": "Default Start Event",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "Start"
+        ],
+        "outputs": [
+          "Gateway_1dxbnbw"
+        ],
+        "bpmn_id": "StartEvent_1",
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "extensions": {},
+        "event_definition": {
+          "description": "Default",
+          "name": null,
+          "typename": "NoneEventDefinition"
+        },
+        "typename": "StartEvent"
+      },
+      "Gateway_1dxbnbw": {
+        "name": "Gateway_1dxbnbw",
+        "description": "Exclusive Gateway",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "message_1_event",
+          "StartEvent_1"
+        ],
+        "outputs": [
+          "Gateway_1434v9l"
+        ],
+        "bpmn_id": "Gateway_1dxbnbw",
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "extensions": {},
+        "cond_task_specs": [
+          {
+            "condition": null,
+            "task_spec": "Gateway_1434v9l"
+          }
+        ],
+        "choice": null,
+        "default_task_spec": "Gateway_1434v9l",
+        "typename": "ExclusiveGateway"
+      },
+      "Gateway_1434v9l": {
+        "name": "Gateway_1434v9l",
+        "description": "Default Event Based Gateway",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "Gateway_1dxbnbw"
+        ],
+        "outputs": [
+          "message_1_event",
+          "message_2_event",
+          "timer_event"
+        ],
+        "bpmn_id": "Gateway_1434v9l",
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "extensions": {},
+        "event_definition": {
+          "description": null,
+          "name": null,
+          "parallel": false,
+          "event_definitions": [
+            {
+              "description": "Message",
+              "name": "message_1",
+              "correlation_properties": [],
+              "typename": "MessageEventDefinition"
+            },
+            {
+              "description": "Message",
+              "name": "message_2",
+              "correlation_properties": [],
+              "typename": "MessageEventDefinition"
+            },
+            {
+              "description": "Timer",
+              "name": "timer_event",
+              "expression": "\"PT0.1S\"",
+              "typename": "DurationTimerEventDefinition"
+            }
+          ],
+          "typename": "MultipleEventDefinition"
+        },
+        "typename": "EventBasedGateway"
+      },
+      "message_1_event": {
+        "name": "message_1_event",
+        "description": "Message Intermediate Catch Event",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "Gateway_1434v9l"
+        ],
+        "outputs": [
+          "Gateway_1dxbnbw"
+        ],
+        "bpmn_id": "message_1_event",
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "extensions": {},
+        "event_definition": {
+          "description": "Message",
+          "name": "message_1",
+          "correlation_properties": [],
+          "typename": "MessageEventDefinition"
+        },
+        "typename": "IntermediateCatchEvent"
+      },
+      "message_2_event": {
+        "name": "message_2_event",
+        "description": "Message Intermediate Catch Event",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "Gateway_1434v9l"
+        ],
+        "outputs": [
+          "message_2_end"
+        ],
+        "bpmn_id": "message_2_event",
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "extensions": {},
+        "event_definition": {
+          "description": "Message",
+          "name": "message_2",
+          "correlation_properties": [],
+          "typename": "MessageEventDefinition"
+        },
+        "typename": "IntermediateCatchEvent"
+      },
+      "message_2_end": {
+        "name": "message_2_end",
+        "description": "Default End Event",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "message_2_event"
+        ],
+        "outputs": [
+          "Process_0pvx19v.EndJoin"
+        ],
+        "bpmn_id": "message_2_end",
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "extensions": {},
+        "event_definition": {
+          "description": "Default",
+          "name": null,
+          "typename": "NoneEventDefinition"
+        },
+        "typename": "EndEvent"
+      },
+      "timer_event": {
+        "name": "timer_event",
+        "description": "Timer Intermediate Catch Event",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "Gateway_1434v9l"
+        ],
+        "outputs": [
+          "timer_end"
+        ],
+        "bpmn_id": "timer_event",
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "extensions": {},
+        "event_definition": {
+          "description": "Timer",
+          "name": "timer_event",
+          "expression": "\"PT0.1S\"",
+          "typename": "DurationTimerEventDefinition"
+        },
+        "typename": "IntermediateCatchEvent"
+      },
+      "timer_end": {
+        "name": "timer_end",
+        "description": "Default End Event",
+        "manual": false,
+        "lookahead": 2,
+        "inputs": [
+          "timer_event"
+        ],
+        "outputs": [
+          "Process_0pvx19v.EndJoin"
+        ],
+        "bpmn_id": "timer_end",
+        "bpmn_name": null,
+        "lane": null,
+        "documentation": null,
+        "data_input_associations": [],
+        "data_output_associations": [],
+        "io_specification": null,
+        "extensions": {},
+        "event_definition": {
+          "description": "Default",
+          "name": null,
+          "typename": "NoneEventDefinition"
+        },
+        "typename": "EndEvent"
+      }
+    },
+    "io_specification": null,
+    "data_objects": {},
+    "correlation_keys": {},
+    "typename": "BpmnProcessSpec"
+  },
+  "subprocess_specs": {},
+  "subprocesses": {},
+  "bpmn_events": [],
+  "typename": "BpmnWorkflow"
+}

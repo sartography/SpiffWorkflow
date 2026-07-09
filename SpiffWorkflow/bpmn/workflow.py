@@ -25,6 +25,7 @@ from SpiffWorkflow.exceptions import WorkflowException
 
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
 from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
+from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
 
 from SpiffWorkflow.bpmn.util.subworkflow import BpmnBaseWorkflow, BpmnSubWorkflow
 from SpiffWorkflow.bpmn.util.event import EventManager
@@ -181,7 +182,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         # Ideally this would go in event manager but I can't import the necessary classes there
         # Eventually I'll move it
         for task in list(self.event_manager.tasks.values()):
-            if isinstance(task.task_spec.event_definition, (TimerEventDefinition, )):
+            if isinstance(task.task_spec.event_definition, (TimerEventDefinition, MultipleEventDefinition)):
                 task.task_spec._update(task)
 
     def get_task_from_id(self, task_id):

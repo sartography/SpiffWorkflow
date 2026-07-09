@@ -1,4 +1,5 @@
 from datetime import timedelta
+from time import sleep
 
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn import BpmnWorkflow, BpmnEvent
@@ -13,6 +14,7 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
         self.spec, self.subprocesses = self.load_workflow_spec('event-gateway.bpmn', 'Process_0pvx19v')
         self.script_engine = PythonScriptEngine(environment=TaskDataEnvironment({"timedelta": timedelta}))
         self.workflow = BpmnWorkflow(self.spec, script_engine=self.script_engine)
+        self.workflow.do_engine_steps()
 
     def testEventBasedGateway(self):
         self.actual_test()
@@ -22,34 +24,45 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
 
     def actual_test(self, save_restore=False):
 
-        self.workflow.do_engine_steps()
         waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
         if save_restore:
             self.save_restore()
             self.workflow.script_engine = self.script_engine
-        self.assertEqual(len(waiting_tasks), 4)
+        self.assertEqual(len(waiting_tasks), 1)
+        self.workflow.catch(BpmnEvent(MessageEventDefinition('message_2'), {}))
+        self.workflow.do_engine_steps()
+        self.assertEqual(self.workflow.is_completed(), True)
+        self.assertEqual(self.workflow.get_next_task(spec_name='message_2_event').state, TaskState.COMPLETED)
+        # The gateway now drops the branches that weren't followed, so these tasks shouldn't exist
+        self.assertEqual(self.workflow.get_next_task(spec_name='message_1_event'), None)
+        self.assertEqual(self.workflow.get_next_task(spec_name='timer_event'), None)
+
+    def testLoop(self):
+
         self.workflow.catch(BpmnEvent(MessageEventDefinition('message_1'), {}))
         self.workflow.do_engine_steps()
-        # This needs to be fixed -- it shouldn't be necessary to call this method
-        # Unfortunately that requires completely rewriting event based gateways
-        # I really don't understand why the bpmn spec dictates that both the gateway and the children
-        # have duplicate event definitions, but it sure makes things difficult
-        self.assertEqual(self.workflow.is_completed(), True)
-        self.assertEqual(self.workflow.get_next_task(spec_name='message_1_event').state, TaskState.COMPLETED)
-        self.assertEqual(self.workflow.get_next_task(spec_name='message_2_event').state, TaskState.CANCELLED)
-        self.assertEqual(self.workflow.get_next_task(spec_name='timer_event').state, TaskState.CANCELLED)
+        # We should have returned to the gateway, with one completed message 1 task and three maybe tasks
+        waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
+        self.assertEqual(len(waiting_tasks), 1)
+        states = [t.state for t in self.workflow.get_tasks(spec_name='message_1_event')]
+        self.assertEqual(states, [TaskState.COMPLETED, TaskState.MAYBE])
+        self.assertEqual(self.workflow.get_next_task(spec_name='message_2_event').state, TaskState.MAYBE)
+        self.assertEqual(self.workflow.get_next_task(spec_name='timer_event').state, TaskState.MAYBE)
 
     def testTimeout(self):
 
         self.workflow.do_engine_steps()
         waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
-        self.assertEqual(len(waiting_tasks), 4)
-        timer_event_definition = waiting_tasks[0].task_spec.event_definition.event_definitions[-1]
-        self.workflow.catch(BpmnEvent(timer_event_definition))
+        self.assertEqual(len(waiting_tasks), 1)
+        sleep(0.3)
+        self.workflow.refresh_timers()
+        # The gateway should be ready now
+        task = self.workflow.get_next_task(state=TaskState.READY)
+        self.assertEqual(task.state, TaskState.READY)
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.is_completed(), True)
-        self.assertEqual(self.workflow.get_next_task(spec_name='message_1_event').state, TaskState.CANCELLED)
-        self.assertEqual(self.workflow.get_next_task(spec_name='message_2_event').state, TaskState.CANCELLED)
+        self.assertEqual(self.workflow.get_next_task(spec_name='message_1_event'), None)
+        self.assertEqual(self.workflow.get_next_task(spec_name='message_2_event'), None)
         self.assertEqual(self.workflow.get_next_task(spec_name='timer_event').state, TaskState.COMPLETED)
 
     def testMultipleStart(self):

@@ -4,6 +4,8 @@ from uuid import UUID
 from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
 from SpiffWorkflow.bpmn.serializer.exceptions import VersionMigrationError
+from SpiffWorkflow.bpmn.util.event import BpmnEvent
+from SpiffWorkflow.bpmn.specs.event_definitions import NoneEventDefinition, MessageEventDefinition
 
 from .BaseTestCase import BaseTestCase
 
@@ -195,3 +197,21 @@ class Version_1_3_Test(BaseTestCase):
         self.assertEqual(len(task_info['running']), 0)
         self.assertEqual(len(task_info['future']), 0)
         self.assertTrue(wf.completed)
+
+class Version_1_4_Test(BaseTestCase):
+
+    def test_update_event_gateway_children(self):
+
+        wf = self.deserialize_workflow('v1.4-event-gateway.json')
+        task = wf.get_next_task(spec_name='Gateway_1434v9l')
+        for child in task.children:
+            self.assertTrue(isinstance(child.task_spec.event_definition, NoneEventDefinition))
+
+        wf.do_engine_steps()
+        wf.catch(BpmnEvent(MessageEventDefinition('message_2'), {}))
+        wf.do_engine_steps()
+        self.assertEqual(wf.is_completed(), True)
+        self.assertEqual(wf.get_next_task(spec_name='message_2_event').state, TaskState.COMPLETED)
+        self.assertEqual(wf.get_next_task(spec_name='message_1_event'), None)
+        self.assertEqual(wf.get_next_task(spec_name='timer_event'), None)
+

@@ -18,6 +18,7 @@
 # 02110-1301  USA
 
 from SpiffWorkflow.util.task import TaskState
+from SpiffWorkflow.bpmn.specs.event_definitions import NoneEventDefinition
 from .event_types import ThrowingEvent, CatchingEvent
 
 
@@ -53,11 +54,24 @@ class BoundaryEvent(CatchingEvent):
 
 class EventBasedGateway(CatchingEvent):
 
+    def connect(self, child):
+        # Having the events duplicated in the gateway and the child is difficult to manage
+        # Therefore, I am going to have the gateway manage the events and remove the event from the child
+        super().connect(child)
+        self.event_definition.event_definitions.append(child.event_definition)
+        child.event_definition = NoneEventDefinition()
+
     def _predict_hook(self, my_task):
-        my_task._sync_children(self.outputs, state=TaskState.WAITING)
+        my_task._sync_children(self.outputs, state=TaskState.MAYBE)
 
-    def _on_ready_hook(self, my_task):
+    def _run_hook(self, my_task):
+        seen_events = my_task.internal_data.get('seen_events', [])
+        matches = []
+        for event in seen_events:
+            idx = self.event_definition.event_definitions.index(event.event_definition)
+            matches.append(my_task.children[idx].task_spec)
+
+        my_task._sync_children(matches, TaskState.FUTURE)
         for child in my_task.children:
-            if not child.internal_data.get('event_fired'):
-                child.cancel()
-
+            child.task_spec._predict(child, mask=TaskState.FUTURE|TaskState.PREDICTED_MASK)
+        return True
