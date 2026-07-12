@@ -44,11 +44,11 @@ class ServiceTask(ServiceTask):
         else:
             self.result_variable = result_variable
 
-    def evalutate_params(self, task):
+    def evaluate_params(self, task):
         evaluated_params = {}
         for name, param in self.operation_params.items():
             evaluated_params[name] = {
-                'value': task.workflow.script_engine.evaluate(task, param['value']),
+                'value': task.workflow.script_engine.evaluate(task=task, expression=param['value']),
                 'type': param['type'],
             }
         return evaluated_params
@@ -57,7 +57,7 @@ class ServiceTask(ServiceTask):
         result = task.workflow.script_engine.call_service(
             task,
             operation_name=self.operation_name,
-            operation_params=self.evalutate_params(task),
+            operation_params=self.evaluate_params(task),
         )
         task.data[self.result_variable] = json.loads(result)
         return True
