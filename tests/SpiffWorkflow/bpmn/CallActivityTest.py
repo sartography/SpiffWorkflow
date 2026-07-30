@@ -78,3 +78,20 @@ class CallActivityTest(BpmnWorkflowTestCase):
         self.assertLess(index_of('Activity_Call_Activity'), index_of('Start_Called_Activity'))
         self.assertLess(index_of('Activity_Call_Activity'), index_of('Sub_Bpmn_Task'))
         self.assertLess(index_of('Activity_Call_Activity'), index_of('End_Called_Activity'))
+
+    def test_subworkflow_task_removed_event_is_forwarded_to_top_workflow(self):
+        self.workflow = BpmnWorkflow(self.spec, self.subprocesses)
+        self.workflow.do_engine_steps()
+        task = self.workflow.get_next_task(spec_name='Sub_Bpmn_Task')
+        subworkflow = task.workflow
+        local_removals = []
+        top_level_removals = []
+        subworkflow.task_removed_event.connect(lambda workflow, removed_task: local_removals.append((workflow, removed_task)))
+        self.workflow.task_removed_event.connect(
+            lambda workflow, removed_task: top_level_removals.append((workflow, removed_task))
+        )
+
+        subworkflow._remove_task(task.id)
+
+        self.assertIn((subworkflow, task), local_removals)
+        self.assertIn((subworkflow, task), top_level_removals)

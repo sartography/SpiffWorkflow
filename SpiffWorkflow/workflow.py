@@ -46,6 +46,7 @@ class Workflow:
         tasks (dict(id, `Task`)): a mapping of task ids to tasks
         task_tree (`Task`): the root task of this workflow's task tree
         completed_event (`Event`): an event holding callbacks to be run when the workflow completes
+        task_removed_event (`Event`): an event holding callbacks to be run when a task is removed
     """
 
     def __init__(
@@ -68,6 +69,7 @@ class Workflow:
 
         # Events.
         self.completed_event = Event()
+        self.task_removed_event = Event()
 
         if not deserializing:
             self.task_tree = Task(self, self.spec.start, state=TaskState.FUTURE)
@@ -295,6 +297,11 @@ class Workflow:
             self._remove_task(child.id)
         task.parent._children.remove(task.id)
         self.tasks.pop(task_id)
+        self._task_removed_notify(task)
+
+    def _task_removed_notify(self, task: Task) -> None:
+        """Called after a task has been removed from the workflow."""
+        self.task_removed_event(self, task)
 
     def _mark_complete(self, task: Task) -> None:
         logger.info('Workflow completed', extra=self.collect_log_extras())
