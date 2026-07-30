@@ -69,6 +69,9 @@ class EventBasedGateway(CatchingEvent):
         matches = []
         for event in seen_events:
             idx = self.event_definition.event_definitions.index(event.event_definition)
+            event_definition = self.event_definition.event_definitions[idx]
+            event_definition.catch(my_task, event)
+            event_definition.update_task_data(my_task)
             matches.append(my_task.children[idx].task_spec)
 
         my_task._sync_children(matches, TaskState.FUTURE)

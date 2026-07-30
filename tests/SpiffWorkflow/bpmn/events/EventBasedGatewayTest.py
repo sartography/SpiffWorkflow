@@ -5,6 +5,7 @@ from SpiffWorkflow import TaskState
 from SpiffWorkflow.bpmn import BpmnWorkflow, BpmnEvent
 from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine, TaskDataEnvironment
 from SpiffWorkflow.bpmn.specs.event_definitions import MessageEventDefinition
+from SpiffWorkflow.spiff.specs.event_definitions import MessageEventDefinition as SpiffMessageEventDefinition
 
 from ..BpmnWorkflowTestCase import BpmnWorkflowTestCase
 
@@ -22,6 +23,20 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
     def testEventBasedGatewaySaveRestore(self):
         self.actual_test(True)
 
+    def testMessagePayloadUsesConfiguredEventDefinition(self):
+        gateway_task = self.workflow.get_tasks(state=TaskState.WAITING)[0]
+        event_definitions = gateway_task.task_spec.event_definition.event_definitions
+        message_idx = next(idx for idx, event_definition in enumerate(event_definitions) if event_definition.name == 'message_2')
+        event_definitions[message_idx] = SpiffMessageEventDefinition('message_2', message_var='result')
+
+        self.workflow.catch(
+            BpmnEvent(SpiffMessageEventDefinition('message_2'), {'message': 'message 2'})
+        )
+        self.workflow.do_engine_steps()
+
+        message_task = self.workflow.get_next_task(spec_name='message_2_event')
+        self.assertEqual(message_task.data['result'], {'message': 'message 2'})
+
     def actual_test(self, save_restore=False):
 
         waiting_tasks = self.workflow.get_tasks(state=TaskState.WAITING)
@@ -29,10 +44,12 @@ class EventBasedGatewayTest(BpmnWorkflowTestCase):
             self.save_restore()
             self.workflow.script_engine = self.script_engine
         self.assertEqual(len(waiting_tasks), 1)
-        self.workflow.catch(BpmnEvent(MessageEventDefinition('message_2'), {}))
+        self.workflow.catch(BpmnEvent(MessageEventDefinition('message_2'), {'result': 'message 2'}))
         self.workflow.do_engine_steps()
         self.assertEqual(self.workflow.is_completed(), True)
-        self.assertEqual(self.workflow.get_next_task(spec_name='message_2_event').state, TaskState.COMPLETED)
+        message_task = self.workflow.get_next_task(spec_name='message_2_event')
+        self.assertEqual(message_task.state, TaskState.COMPLETED)
+        self.assertEqual(message_task.data['result'], 'message 2')
         # The gateway now drops the branches that weren't followed, so these tasks shouldn't exist
         self.assertEqual(self.workflow.get_next_task(spec_name='message_1_event'), None)
         self.assertEqual(self.workflow.get_next_task(spec_name='timer_event'), None)
