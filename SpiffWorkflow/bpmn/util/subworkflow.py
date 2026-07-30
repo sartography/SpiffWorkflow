@@ -63,8 +63,11 @@ class BpmnSubWorkflow(BpmnBaseWorkflow):
     def get_task_from_id(self, task_id):
         return self.tasks.get(task_id)
 
+    def _task_removed_notify(self, task):
+        super()._task_removed_notify(task)
+        self.top_workflow.task_removed_event(self, task)
+
     def collect_log_extras(self, dct=None):
         dct = super().collect_log_extras()
         dct.update({'parent_task_id': self.parent_task_id})
         return dct
-

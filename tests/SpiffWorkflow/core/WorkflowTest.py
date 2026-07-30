@@ -4,6 +4,7 @@ import os
 from lxml import etree
 
 from SpiffWorkflow import TaskState, Workflow
+from SpiffWorkflow.exceptions import TaskNotFoundException
 from SpiffWorkflow.specs import Simple, WorkflowSpec
 from SpiffWorkflow.serializer.prettyxml import XmlSerializer
 
@@ -58,3 +59,22 @@ class WorkflowTest(unittest.TestCase):
         tasks = self.workflow.get_tasks(state=TaskState.READY)
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks[0].task_spec.name, 'synch_1')
+
+    def test_task_removed_event(self):
+        removed_tasks = []
+
+        def task_removed(workflow, task):
+            self.assertIs(workflow, self.workflow)
+            with self.assertRaises(TaskNotFoundException):
+                workflow.get_task_from_id(task.id)
+            self.assertNotIn(task, task.parent.children)
+            removed_tasks.append(task)
+
+        self.workflow.task_removed_event.connect(task_removed)
+        task = self.workflow.get_next_task(spec_name='task_c1')
+        self.workflow._remove_task(task.id)
+
+        self.assertEqual(
+            [removed_task.task_spec.name for removed_task in removed_tasks],
+            ['excl_choice_2', 'task_c1'],
+        )
