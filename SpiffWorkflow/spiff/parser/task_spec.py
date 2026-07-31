@@ -20,6 +20,7 @@
 from lxml import etree
 
 from SpiffWorkflow.bpmn.parser.TaskParser import TaskParser
+from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
 from SpiffWorkflow.bpmn.parser.task_parsers import SubprocessParser
 from SpiffWorkflow.bpmn.parser.util import xpath_eval
 
@@ -198,6 +199,11 @@ class ServiceTaskParser(SpiffTaskParser):
     def create_task(self):
         extensions = self.parse_extensions()
         operator = extensions.get('serviceTaskOperator')
+        if operator is None:
+            raise ValidationException(
+                'A Service Task must have an operator',
+                node=self.node,
+                file_name=self.filename)
         prescript = extensions.get('preScript')
         postscript = extensions.get('postScript')
         return self.spec_class(

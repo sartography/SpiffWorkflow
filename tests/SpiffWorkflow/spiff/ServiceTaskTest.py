@@ -3,6 +3,8 @@ import json
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
 from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine
 from SpiffWorkflow.bpmn.workflow import BpmnWorkflow
+from SpiffWorkflow.bpmn.parser.ValidationException import ValidationException
+from SpiffWorkflow.spiff.parser import SpiffBpmnParser
 from SpiffWorkflow.spiff.serializer import DEFAULT_CONFIG
 from .BaseTestCase import BaseTestCase
 
@@ -145,3 +147,27 @@ class ServiceTaskTest(BaseTestCase):
 
         restored_workflow = self.serializer.from_dict(state)
         return self.canonical_serializer.to_dict(restored_workflow)['spec']['task_specs']
+
+
+class EmptyServiceTaskTest(BaseTestCase):
+
+    BPMN = '''<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="empty_service_task" name="EmptyServiceTask" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1"><bpmn:outgoing>Flow_1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_1" />
+    <bpmn:serviceTask id="Activity_1" name="EmptyServiceTask">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_1" targetRef="Event_1" />
+    <bpmn:endEvent id="Event_1"><bpmn:incoming>Flow_2</bpmn:incoming></bpmn:endEvent>
+  </bpmn:process>
+</bpmn:definitions>
+'''
+
+    def test_service_task_without_operator_raises_useful_error(self):
+        parser = SpiffBpmnParser()
+        parser.add_bpmn_str(self.BPMN)
+        with self.assertRaises(ValidationException) as ctx:
+            parser.get_spec('empty_service_task')
+        self.assertIn('A Service Task must have an operator', str(ctx.exception))
