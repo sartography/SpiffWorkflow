@@ -25,7 +25,7 @@
     <bpmn:sequenceFlow id="Flow_1fpsye7" sourceRef="Activity_12erefa" targetRef="Event_0j8psiq" />
     <bpmn:serviceTask id="Activity_12erefa" name="ServiceTask2">
       <bpmn:extensionElements>
-        <spiffworkflow:serviceTaskOperator id="weather/CurrentTemp" resultVariable="waynesboroWeatherResult">
+        <spiffworkflow:serviceTaskOperator id="weather/CurrentTemp" resultVariable="waynesboroWeatherResult" resultSchema="schema.json">
           <spiffworkflow:parameters>
             <spiffworkflow:parameter id="zipcode" type="int" value="22980" />
           </spiffworkflow:parameters>

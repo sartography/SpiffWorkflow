@@ -30,6 +30,7 @@ class ServiceTask(ServiceTask):
             operation_name,
             operation_params,
             result_variable,
+            result_schema=None,
             retries=None,
             retry_backoff_base=None,
             **kwargs
@@ -37,12 +38,15 @@ class ServiceTask(ServiceTask):
         super().__init__(wf_spec, name, **kwargs)
         self.operation_name = operation_name
         self.operation_params = operation_params
-        self.retries = retries
-        self.retry_backoff_base = retry_backoff_base
+
         if result_variable is None or result_variable == '':
             self.result_variable = f'spiff__{name.replace("-", "_")}_result'
         else:
             self.result_variable = result_variable
+        self.result_schema = result_schema
+
+        self.retries = retries
+        self.retry_backoff_base = retry_backoff_base
 
     def evaluate_params(self, task):
         evaluated_params = {}

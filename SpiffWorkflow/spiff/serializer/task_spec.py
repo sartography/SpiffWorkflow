@@ -76,6 +76,7 @@ class ServiceTaskConverter(SpiffBpmnTaskConverter):
         dct['operation_name'] = spec.operation_name
         dct['operation_params'] = spec.operation_params
         dct['result_variable'] = spec.result_variable
+        dct['result_schema'] = spec.result_schema
         if spec.retries is not None:
             dct['retries'] = spec.retries
             if spec.retry_backoff_base is not None:

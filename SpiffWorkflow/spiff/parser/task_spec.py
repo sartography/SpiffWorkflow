@@ -109,8 +109,9 @@ class SpiffTaskParser(TaskParser):
     def _parse_servicetask_operator(cls, node):
         name = node.attrib['id']
         result_variable = node.get('resultVariable', None)
+        result_schema = node.get('resultSchema')
         parameter_nodes = cls._node_children_by_tag_name(node, 'parameter')
-        operator = {'name': name, 'resultVariable': result_variable}
+        operator = {'name': name, 'resultVariable': result_variable, 'resultSchema': result_schema}
         parameters = {}
         for param_node in parameter_nodes:
             if 'value' in param_node.attrib:
@@ -203,20 +204,23 @@ class ServiceTaskParser(SpiffTaskParser):
             raise ValidationException(
                 'A Service Task must have an operator',
                 node=self.node,
-                file_name=self.filename)
+                file_name=self.filename
+            )
         prescript = extensions.get('preScript')
         postscript = extensions.get('postScript')
         return self.spec_class(
-                self.spec,
-                self.bpmn_id,
-                operation_name=operator['name'], 
-                operation_params=operator['parameters'],
-                result_variable=operator['resultVariable'],
-                retries=operator.get('retries'),
-                retry_backoff_base=operator.get('retryBackoffBase'),
-                prescript=prescript,
-                postscript=postscript,
-                **self.bpmn_attributes)
+            self.spec,
+            self.bpmn_id,
+            operation_name=operator['name'], 
+            operation_params=operator['parameters'],
+            result_variable=operator['resultVariable'],
+            result_schema=operator.get('resultSchema'),
+            retries=operator.get('retries'),
+            retry_backoff_base=operator.get('retryBackoffBase'),
+            prescript=prescript,
+            postscript=postscript,
+            **self.bpmn_attributes
+        )
 
 class BusinessRuleTaskParser(SpiffTaskParser):
 

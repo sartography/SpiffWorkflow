@@ -67,6 +67,7 @@
       </xsd:sequence>
       <xsd:attribute type="xsd:string" name="id"/>
       <xsd:attribute type="xsd:string" name="resultVariable" use="optional"/>
+      <xsd:attribute type="xsd:string" name="resultSchema" use="optional"/>
     </xsd:complexType>
   </xsd:element>
 </xsd:schema>

@@ -136,7 +136,8 @@ class ServiceTaskTest(BaseTestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result['temp'], '72F')
 
-        service_task = [t for t in self.workflow.get_tasks() if t.task_spec.name == 'Activity_12erefa'][0]
+        service_task = self.workflow.get_next_task(spec_name='Activity_12erefa')
+        self.assertEqual(service_task.task_spec.result_schema, 'schema.json')
         self.assertEqual(service_task.task_spec.retries, 3)
         self.assertEqual(service_task.task_spec.retry_backoff_base, 2)
 
