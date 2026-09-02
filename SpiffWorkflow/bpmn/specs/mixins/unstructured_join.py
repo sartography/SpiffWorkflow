@@ -47,6 +47,12 @@ class UnstructuredJoin(Join):
             my_task.workflow.tasks.values()
         )
         for task in sorted(other_tasks, key=lambda t: t.last_state_change):
+            if task.parent is None:
+                # `_drop_children` below removes tasks from `workflow.tasks`, and `Task.parent` is a
+                # lookup in that dict, so an earlier pass through this loop can detach an entry that
+                # this snapshot still holds.  There is nothing left to inherit from it.
+                continue
+
             # By inheriting directly from parent tasks, we can avoid copying previouly merged data
 
             DeepMerge.merge(my_task.data, task.parent.data)
