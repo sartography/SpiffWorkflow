@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Defs_f1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="main" isExecutable="true">
+    <bpmn:startEvent id="start">
+      <bpmn:outgoing>f_start</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="init" name="Init">
+      <bpmn:incoming>f_start</bpmn:incoming>
+      <bpmn:outgoing>f_init</bpmn:outgoing>
+      <bpmn:script>plan_runs = 0</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:parallelGateway id="outer_split">
+      <bpmn:incoming>f_init</bpmn:incoming>
+      <bpmn:outgoing>f_o_a</bpmn:outgoing>
+      <bpmn:outgoing>f_o_c1</bpmn:outgoing>
+      <bpmn:outgoing>f_o_c2</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:exclusiveGateway id="mergeA" default="f_a_join">
+      <bpmn:incoming>f_o_a</bpmn:incoming>
+      <bpmn:incoming>f_retry_a</bpmn:incoming>
+      <bpmn:outgoing>f_a_join</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="C1" name="Choice 1">
+      <bpmn:incoming>f_o_c1</bpmn:incoming>
+      <bpmn:outgoing>f_c1_b</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="C2" name="Choice 2">
+      <bpmn:incoming>f_o_c2</bpmn:incoming>
+      <bpmn:outgoing>f_c2_b</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="mergeB" default="f_b_join">
+      <bpmn:incoming>f_c1_b</bpmn:incoming>
+      <bpmn:incoming>f_c2_b</bpmn:incoming>
+      <bpmn:outgoing>f_b_join</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="join">
+      <bpmn:incoming>f_a_join</bpmn:incoming>
+      <bpmn:incoming>f_b_join</bpmn:incoming>
+      <bpmn:outgoing>f_join_plan</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:scriptTask id="plan" name="Plan">
+      <bpmn:incoming>f_join_plan</bpmn:incoming>
+      <bpmn:outgoing>f_plan_gate</bpmn:outgoing>
+      <bpmn:script>plan_runs = plan_runs + 1</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="gate" name="Retry?" default="f_gate_end">
+      <bpmn:incoming>f_plan_gate</bpmn:incoming>
+      <bpmn:outgoing>f_gate_retry</bpmn:outgoing>
+      <bpmn:outgoing>f_gate_end</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="retry" name="Retry">
+      <bpmn:incoming>f_gate_retry</bpmn:incoming>
+      <bpmn:outgoing>f_retry_a</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="end">
+      <bpmn:incoming>f_gate_end</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="f_start" sourceRef="start" targetRef="init" />
+    <bpmn:sequenceFlow id="f_init" sourceRef="init" targetRef="outer_split" />
+    <bpmn:sequenceFlow id="f_o_a" sourceRef="outer_split" targetRef="mergeA" />
+    <bpmn:sequenceFlow id="f_o_c1" sourceRef="outer_split" targetRef="C1" />
+    <bpmn:sequenceFlow id="f_o_c2" sourceRef="outer_split" targetRef="C2" />
+    <bpmn:sequenceFlow id="f_c1_b" sourceRef="C1" targetRef="mergeB" />
+    <bpmn:sequenceFlow id="f_c2_b" sourceRef="C2" targetRef="mergeB" />
+    <bpmn:sequenceFlow id="f_a_join" sourceRef="mergeA" targetRef="join" />
+    <bpmn:sequenceFlow id="f_b_join" sourceRef="mergeB" targetRef="join" />
+    <bpmn:sequenceFlow id="f_join_plan" sourceRef="join" targetRef="plan" />
+    <bpmn:sequenceFlow id="f_plan_gate" sourceRef="plan" targetRef="gate" />
+    <bpmn:sequenceFlow id="f_gate_retry" sourceRef="gate" targetRef="retry">
+      <bpmn:conditionExpression>plan_runs &lt; 3</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f_gate_end" sourceRef="gate" targetRef="end" />
+    <bpmn:sequenceFlow id="f_retry_a" sourceRef="retry" targetRef="mergeA" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="D1">
+    <bpmndi:BPMNPlane id="P1" bpmnElement="main">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="120" y="240" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="init_di" bpmnElement="init">
+        <dc:Bounds x="200" y="218" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="outer_split_di" bpmnElement="outer_split">
+        <dc:Bounds x="350" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="mergeA_di" bpmnElement="mergeA">
+        <dc:Bounds x="560" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="C1_di" bpmnElement="C1">
+        <dc:Bounds x="440" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="C2_di" bpmnElement="C2">
+        <dc:Bounds x="440" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="mergeB_di" bpmnElement="mergeB">
+        <dc:Bounds x="600" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="join_di" bpmnElement="join">
+        <dc:Bounds x="700" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="plan_di" bpmnElement="plan">
+        <dc:Bounds x="780" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gate_di" bpmnElement="gate">
+        <dc:Bounds x="930" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="retry_di" bpmnElement="retry">
+        <dc:Bounds x="860" y="420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1030" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_di" bpmnElement="f_start">
+        <di:waypoint x="156.0" y="258.0" />
+        <di:waypoint x="200.0" y="258.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_init_di" bpmnElement="f_init">
+        <di:waypoint x="300.0" y="250.8" />
+        <di:waypoint x="350.0" y="243.6" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_o_a_di" bpmnElement="f_o_a">
+        <di:waypoint x="400.0" y="240.0" />
+        <di:waypoint x="560.0" y="240.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_o_c1_di" bpmnElement="f_o_c1">
+        <di:waypoint x="399.0" y="265.0" />
+        <di:waypoint x="451.7" y="320.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_o_c2_di" bpmnElement="f_o_c2">
+        <di:waypoint x="387.0" y="265.0" />
+        <di:waypoint x="470.8" y="440.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_c1_b_di" bpmnElement="f_c1_b">
+        <di:waypoint x="540.0" y="367.4" />
+        <di:waypoint x="600.0" y="376.3" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_c2_b_di" bpmnElement="f_c2_b">
+        <di:waypoint x="540.0" y="443.0" />
+        <di:waypoint x="600.0" y="398.5" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_a_join_di" bpmnElement="f_a_join">
+        <di:waypoint x="610.0" y="240.0" />
+        <di:waypoint x="700.0" y="240.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_b_join_di" bpmnElement="f_b_join">
+        <di:waypoint x="642.9" y="355.0" />
+        <di:waypoint x="707.1" y="265.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_join_plan_di" bpmnElement="f_join_plan">
+        <di:waypoint x="750.0" y="240.0" />
+        <di:waypoint x="780.0" y="240.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_plan_gate_di" bpmnElement="f_plan_gate">
+        <di:waypoint x="880.0" y="240.0" />
+        <di:waypoint x="930.0" y="240.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_gate_retry_di" bpmnElement="f_gate_retry">
+        <di:waypoint x="949.9" y="265.0" />
+        <di:waypoint x="918.2" y="420.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_gate_end_di" bpmnElement="f_gate_end">
+        <di:waypoint x="980.0" y="240.0" />
+        <di:waypoint x="1030.0" y="240.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_retry_a_di" bpmnElement="f_retry_a">
+        <di:waypoint x="860.0" y="426.2" />
+        <di:waypoint x="610.0" y="256.9" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
