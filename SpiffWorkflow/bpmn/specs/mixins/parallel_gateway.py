@@ -46,6 +46,10 @@ class ParallelGateway(UnstructuredJoin):
         tasks = my_task.workflow.get_tasks(spec_name=self.name)
         waiting_inputs = set(self.inputs)
 
+        # The most recent instance of this spec on our own branch marks the start of the current
+        # iteration, if we are in a loop at all.
+        previous_iteration = my_task.find_ancestor(self.name)
+
         def remove_ancestor(task):
             # This traces a tasks parents until it finds a spec in the list of sources
             if task.task_spec in waiting_inputs:
@@ -62,7 +66,12 @@ class ParallelGateway(UnstructuredJoin):
             elif my_task.is_descendant_of(task):
                 # This is an subsequent iteration; we need to ignore the parents of previous iterations
                 continue
-            elif task.parent.state == TaskState.COMPLETED and task.parent.task_spec in waiting_inputs:
+            # The last condition only counts inputs that arrived after the previous iteration of this
+            # gateway fired.  Anything older was consumed by that iteration; typically it is a sibling
+            # copy that was cancelled at the time, which is why it is neither our ancestor nor our
+            # descendant and so is not caught above.  It is checked last because it walks the tree.
+            elif (task.parent.state == TaskState.COMPLETED and task.parent.task_spec in waiting_inputs
+                    and (previous_iteration is None or task.parent.is_descendant_of(previous_iteration))):
                 waiting_inputs.remove(task.parent.task_spec)
 
         return len(waiting_inputs) == 0

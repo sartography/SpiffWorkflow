@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_parallel_join_loop" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="main" isExecutable="true">
+    <bpmn:startEvent id="start">
+      <bpmn:outgoing>f_start</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="init" name="Init">
+      <bpmn:incoming>f_start</bpmn:incoming>
+      <bpmn:outgoing>f_init</bpmn:outgoing>
+      <bpmn:script>plan_runs = 0</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:parallelGateway id="initial_split">
+      <bpmn:incoming>f_init</bpmn:incoming>
+      <bpmn:outgoing>f_split_manual</bpmn:outgoing>
+      <bpmn:outgoing>f_split_backbone</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:scriptTask id="run_backbone" name="Run backbone">
+      <bpmn:incoming>f_split_backbone</bpmn:incoming>
+      <bpmn:outgoing>f_backbone_merge</bpmn:outgoing>
+      <bpmn:script>backbone_done = True</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="merge_manual" default="f_manual_join">
+      <bpmn:incoming>f_split_manual</bpmn:incoming>
+      <bpmn:incoming>f_assess_merge</bpmn:incoming>
+      <bpmn:outgoing>f_manual_join</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="merge_backbone" default="f_backbone_join">
+      <bpmn:incoming>f_backbone_merge</bpmn:incoming>
+      <bpmn:incoming>f_loop_backbone</bpmn:incoming>
+      <bpmn:outgoing>f_backbone_join</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="join">
+      <bpmn:incoming>f_manual_join</bpmn:incoming>
+      <bpmn:incoming>f_backbone_join</bpmn:incoming>
+      <bpmn:outgoing>f_join_plan</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:scriptTask id="plan" name="Construct plan">
+      <bpmn:incoming>f_join_plan</bpmn:incoming>
+      <bpmn:outgoing>f_plan_gate</bpmn:outgoing>
+      <bpmn:script>plan_runs = plan_runs + 1</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="loop_gate" name="Replan?" default="f_gate_end">
+      <bpmn:incoming>f_plan_gate</bpmn:incoming>
+      <bpmn:outgoing>f_gate_loop</bpmn:outgoing>
+      <bpmn:outgoing>f_gate_end</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="loop_split">
+      <bpmn:incoming>f_gate_loop</bpmn:incoming>
+      <bpmn:outgoing>f_loop_assess</bpmn:outgoing>
+      <bpmn:outgoing>f_loop_backbone</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:userTask id="assess" name="Assess">
+      <bpmn:incoming>f_loop_assess</bpmn:incoming>
+      <bpmn:outgoing>f_assess_merge</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="end">
+      <bpmn:incoming>f_gate_end</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="f_start" sourceRef="start" targetRef="init" />
+    <bpmn:sequenceFlow id="f_init" sourceRef="init" targetRef="initial_split" />
+    <bpmn:sequenceFlow id="f_split_manual" sourceRef="initial_split" targetRef="merge_manual" />
+    <bpmn:sequenceFlow id="f_split_backbone" sourceRef="initial_split" targetRef="run_backbone" />
+    <bpmn:sequenceFlow id="f_backbone_merge" sourceRef="run_backbone" targetRef="merge_backbone" />
+    <bpmn:sequenceFlow id="f_manual_join" sourceRef="merge_manual" targetRef="join" />
+    <bpmn:sequenceFlow id="f_backbone_join" sourceRef="merge_backbone" targetRef="join" />
+    <bpmn:sequenceFlow id="f_join_plan" sourceRef="join" targetRef="plan" />
+    <bpmn:sequenceFlow id="f_plan_gate" sourceRef="plan" targetRef="loop_gate" />
+    <bpmn:sequenceFlow id="f_gate_loop" sourceRef="loop_gate" targetRef="loop_split">
+      <bpmn:conditionExpression>plan_runs &lt; 3</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f_gate_end" sourceRef="loop_gate" targetRef="end" />
+    <bpmn:sequenceFlow id="f_loop_assess" sourceRef="loop_split" targetRef="assess" />
+    <bpmn:sequenceFlow id="f_loop_backbone" sourceRef="loop_split" targetRef="merge_backbone" />
+    <bpmn:sequenceFlow id="f_assess_merge" sourceRef="assess" targetRef="merge_manual" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="main">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="160" y="240" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="init_di" bpmnElement="init">
+        <dc:Bounds x="240" y="218" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="initial_split_di" bpmnElement="initial_split">
+        <dc:Bounds x="400" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="run_backbone_di" bpmnElement="run_backbone">
+        <dc:Bounds x="490" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="merge_manual_di" bpmnElement="merge_manual" isMarkerVisible="true">
+        <dc:Bounds x="640" y="175" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="merge_backbone_di" bpmnElement="merge_backbone" isMarkerVisible="true">
+        <dc:Bounds x="640" y="315" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="join_di" bpmnElement="join">
+        <dc:Bounds x="740" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="plan_di" bpmnElement="plan">
+        <dc:Bounds x="830" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="loop_gate_di" bpmnElement="loop_gate" isMarkerVisible="true">
+        <dc:Bounds x="990" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="loop_split_di" bpmnElement="loop_split">
+        <dc:Bounds x="990" y="440" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="assess_di" bpmnElement="assess">
+        <dc:Bounds x="790" y="420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1090" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_di" bpmnElement="f_start">
+        <di:waypoint x="196.0" y="258.0" />
+        <di:waypoint x="240.0" y="258.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_init_di" bpmnElement="f_init">
+        <di:waypoint x="340.0" y="251.3" />
+        <di:waypoint x="400.0" y="243.3" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_split_manual_di" bpmnElement="f_split_manual">
+        <di:waypoint x="450.0" y="235.8" />
+        <di:waypoint x="640.0" y="204.2" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_split_backbone_di" bpmnElement="f_split_backbone">
+        <di:waypoint x="450.0" y="261.7" />
+        <di:waypoint x="494.0" y="300.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_backbone_merge_di" bpmnElement="f_backbone_merge">
+        <di:waypoint x="590.0" y="340.0" />
+        <di:waypoint x="640.0" y="340.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_manual_join_di" bpmnElement="f_manual_join">
+        <di:waypoint x="690.0" y="210.0" />
+        <di:waypoint x="740.0" y="230.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_backbone_join_di" bpmnElement="f_backbone_join">
+        <di:waypoint x="690.0" y="315.0" />
+        <di:waypoint x="740.0" y="265.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_join_plan_di" bpmnElement="f_join_plan">
+        <di:waypoint x="790.0" y="240.0" />
+        <di:waypoint x="830.0" y="240.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_plan_gate_di" bpmnElement="f_plan_gate">
+        <di:waypoint x="930.0" y="240.0" />
+        <di:waypoint x="990.0" y="240.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_gate_loop_di" bpmnElement="f_gate_loop">
+        <di:waypoint x="1015.0" y="265.0" />
+        <di:waypoint x="1015.0" y="440.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_gate_end_di" bpmnElement="f_gate_end">
+        <di:waypoint x="1040.0" y="240.0" />
+        <di:waypoint x="1090.0" y="240.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_loop_assess_di" bpmnElement="f_loop_assess">
+        <di:waypoint x="990.0" y="464.3" />
+        <di:waypoint x="890.0" y="461.4" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_loop_backbone_di" bpmnElement="f_loop_backbone">
+        <di:waypoint x="990.0" y="456.1" />
+        <di:waypoint x="690.0" y="348.9" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_assess_merge_di" bpmnElement="f_assess_merge">
+        <di:waypoint x="813.1" y="420.0" />
+        <di:waypoint x="681.8" y="225.0" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
