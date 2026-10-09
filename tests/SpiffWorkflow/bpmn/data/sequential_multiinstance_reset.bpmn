@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Sequential_Reset" targetNamespace="http://example.org/sequential-reset">
+  <bpmn:process id="main" name="Sequential Collection Reset" isExecutable="true">
+    <bpmn:dataObject id="items" name="Input Items" />
+    <bpmn:dataObject id="results" name="Collected Results" />
+    <bpmn:dataObjectReference id="items_ref" name="Input Items" dataObjectRef="items" />
+    <bpmn:dataObjectReference id="results_ref" name="Collected Results" dataObjectRef="results" />
+    <bpmn:startEvent id="start">
+      <bpmn:outgoing>start_prepare</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="prepare" name="Prepare Input Items">
+      <bpmn:incoming>start_prepare</bpmn:incoming>
+      <bpmn:outgoing>prepare_collect</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="prepare_items">
+        <bpmn:targetRef>items_ref</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+      <bpmn:script>items = [1, 2]</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="collect" name="Collect One Result per Item">
+      <bpmn:incoming>prepare_collect</bpmn:incoming>
+      <bpmn:outgoing>collect_review</bpmn:outgoing>
+      <bpmn:property id="collect_input" />
+      <bpmn:dataInputAssociation id="read_items">
+        <bpmn:sourceRef>items_ref</bpmn:sourceRef>
+        <bpmn:targetRef>collect_input</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataOutputAssociation id="write_results">
+        <bpmn:targetRef>results_ref</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true">
+        <bpmn:loopDataInputRef>items</bpmn:loopDataInputRef>
+        <bpmn:loopDataOutputRef>results</bpmn:loopDataOutputRef>
+        <bpmn:inputDataItem id="item" />
+        <bpmn:outputDataItem id="result" />
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:userTask id="review" name="Review Collected Results">
+      <bpmn:incoming>collect_review</bpmn:incoming>
+      <bpmn:outgoing>review_end</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="end">
+      <bpmn:incoming>review_end</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="start_prepare" sourceRef="start" targetRef="prepare" />
+    <bpmn:sequenceFlow id="prepare_collect" sourceRef="prepare" targetRef="collect" />
+    <bpmn:sequenceFlow id="collect_review" sourceRef="collect" targetRef="review" />
+    <bpmn:sequenceFlow id="review_end" sourceRef="review" targetRef="end" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_Sequential_Reset">
+    <bpmndi:BPMNPlane id="Plane_Sequential_Reset" bpmnElement="main">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="100" y="202" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepare_di" bpmnElement="prepare">
+        <dc:Bounds x="201" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="collect_di" bpmnElement="collect">
+        <dc:Bounds x="366" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review">
+        <dc:Bounds x="531" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="696" y="202" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="items_ref_di" bpmnElement="items_ref">
+        <dc:Bounds x="300" y="60" width="36" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="283" y="120" width="70" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="results_ref_di" bpmnElement="results_ref">
+        <dc:Bounds x="398" y="350" width="36" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="371" y="410" width="90" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="start_prepare_di" bpmnElement="start_prepare">
+        <di:waypoint x="136" y="220" /><di:waypoint x="201" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="prepare_collect_di" bpmnElement="prepare_collect">
+        <di:waypoint x="301" y="220" /><di:waypoint x="366" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="collect_review_di" bpmnElement="collect_review">
+        <di:waypoint x="466" y="220" /><di:waypoint x="531" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="review_end_di" bpmnElement="review_end">
+        <di:waypoint x="631" y="220" /><di:waypoint x="696" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="prepare_items_di" bpmnElement="prepare_items">
+        <di:waypoint x="251" y="180" /><di:waypoint x="251" y="85" /><di:waypoint x="300" y="85" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="read_items_di" bpmnElement="read_items">
+        <di:waypoint x="336" y="85" /><di:waypoint x="416" y="85" /><di:waypoint x="416" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="write_results_di" bpmnElement="write_results">
+        <di:waypoint x="416" y="260" /><di:waypoint x="416" y="350" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
