@@ -34,6 +34,85 @@ class LoopTask(BpmnTaskSpec):
     def _instances(self, my_task):
         return filter(lambda c: c.task_spec.name == self.task_spec, my_task.children)
 
+    def is_instance(self, my_task, child):
+        return child.parent is my_task and child.task_spec.name == self.task_spec
+
+    def _instances_after(self, my_task, child):
+        """Instances that only exist because `child` finished (none when instances run in parallel)."""
+        instances = list(self._instances(my_task))
+        return instances[instances.index(child) + 1:]
+
+    def reset_instance(self, my_task, child):
+        """Return the loop to the point where `child` was its unfinished instance.
+
+        A workflow calls this before it resets `child` (or a task inside it).  The
+        loop forgets that `child` and anything that followed it were merged, and
+        its own data is put back the way it was while `child` was running.
+
+        Returns the children of `my_task` that are no longer valid: later instances
+        and whatever followed the loop.  The caller removes them from the tree.
+        """
+        instances = list(self._instances(my_task))
+        later = self._instances_after(my_task, child)
+        discard = {str(task.id) for task in [child] + later}
+        merged = self._merged_children(my_task)
+        # Remember where each instance stood, so that one merged again goes back to its place
+        order = my_task.internal_data.get('merge_order', [])
+        my_task.internal_data['merge_order'] = order + [m for m in merged if m not in order]
+        my_task.internal_data['merged'] = [m for m in merged if m not in discard]
+        self._rewind(my_task, child)
+        return later + [task for task in my_task.children if task not in instances]
+
+    def _rewind(self, my_task, child):
+        # The loop's data is the data it started with plus the results of the
+        # instances that still count.  Completing the loop may have changed it
+        # since (a post script, data outputs), so build it again.
+        self._restore_data_at_start(my_task, child)
+        instances = {str(instance.id): instance for instance in self._instances(my_task)}
+        for merged in self._merged_children(my_task):
+            self.merge_data(my_task, instances[merged])
+
+    def _restore_data_at_start(self, my_task, child):
+        """Give the loop back the data it started with; returns False if no copy of it was kept.
+
+        An instance that is a subprocess copies the loop's data into its start
+        task, and a reset inside the subprocess never touches that task.  (A call
+        activity with declared data inputs copies only those, so it keeps no copy.)"""
+        first = next(self._instances(my_task), None)
+        subprocess = first and my_task.workflow.top_workflow.subprocesses.get(first.id)
+        if subprocess is None or getattr(subprocess.spec.io_specification, 'data_inputs', None):
+            return False
+        my_task.data = deepcopy(subprocess.task_tree.data)
+        return True
+
+    def _merge(self, my_task, child):
+        """Merge `child` where it stood before a reset took it out; otherwise after the others."""
+        merged, child_id = my_task.internal_data['merged'], str(child.id)
+        order = my_task.internal_data.get('merge_order', [])
+        position = len(merged)
+        if child_id in order:
+            position = sum(1 for m in merged if m in order and order.index(m) < order.index(child_id))
+        self.merge_data(my_task, child, position)
+        merged.insert(position, child_id)
+
+    def merge_data(self, my_task, child, position=None):
+        # Merging changes nested values in place, and tasks can share those with
+        # each other.  Merge copies, so no other task's data changes with the loop's.
+        data = deepcopy(my_task.data)
+        DeepMerge.merge(data, deepcopy(child.data))
+        my_task.data = data
+
+    def instance_data(self, my_task, child):
+        """The data `child` starts with."""
+        return deepcopy(my_task.data)
+
+    def restore_instance(self, child, internal_data):
+        """Give a reset instance back its place in the loop; a reset clears a task's internal data."""
+        child.triggered = True
+        for key in ('iteration', 'key_or_index', 'item'):
+            if key in internal_data:
+                child.internal_data[key] = internal_data[key]
+
 
 class StandardLoopTask(LoopTask):
 
@@ -72,8 +151,7 @@ class StandardLoopTask(LoopTask):
 
     def merge_child(self, workflow, child):
         my_task = child.parent
-        DeepMerge.merge(my_task.data, child.data)
-        my_task.internal_data['merged'].append(str(child.id))
+        self._merge(my_task, child)
         if self.loop_complete(my_task):
             my_task._set_state(TaskState.READY)
         else:
@@ -125,6 +203,9 @@ class MultiInstanceTask(LoopTask):
     def merge_child(self, workflow, child):
         """This merges child data into this task's data."""
         my_task = child.parent
+        self._merge(my_task, child)
+
+    def merge_data(self, my_task, child, position=None):
         if self.data_output is not None and self.output_item is not None:
             if not self.output_item.exists(child):
                 self.raise_data_exception("Expected an output item", child)
@@ -135,10 +216,38 @@ class MultiInstanceTask(LoopTask):
             if key_or_index is not None and (isinstance(data_output, Mapping) or data_input is data_output):
                 data_output[key_or_index] = item
             else:
-                data_output.append(item)
+                data_output.insert(len(data_output) if position is None else position, item)
         else:
-            DeepMerge.merge(my_task.data, child.data)
-        my_task.internal_data['merged'].append(str(child.id))
+            super().merge_data(my_task, child)
+
+    def _restore_data_at_start(self, my_task, child):
+        if super()._restore_data_at_start(my_task, child):
+            if self.input_item is not None:
+                my_task.data.pop(self.input_item.bpmn_id, None)  # the first instance's own item
+            return True
+        # No copy was kept, so undo what completing the loop did to its data.  It
+        # removed the inputs copied from data objects (see BpmnTaskSpec._on_complete_hook);
+        # the instance still holds them, and the data objects may have changed since.
+        for obj in self.data_input_associations:
+            if obj.bpmn_id not in my_task.data and obj.bpmn_id in child.data:
+                my_task.data[obj.bpmn_id] = deepcopy(child.data[obj.bpmn_id])
+        # And it had collected every instance's output.  Empty the output, unless the
+        # input is updated in place: there each instance only overwrites its own entry.
+        if self.data_output is not None and self.output_item is not None:
+            data_input = self.data_input.get(my_task) if self.data_input is not None else None
+            if not self.data_output.exists(my_task) or self.data_output.get(my_task) is not data_input:
+                my_task.data.pop(self.data_output.bpmn_id, None)
+                if self.data_input is not None:
+                    self.init_data_output_with_input_data(my_task, data_input)
+                else:
+                    self.init_data_output_with_cardinality(my_task)
+        return False
+
+    def instance_data(self, my_task, child):
+        data = super().instance_data(my_task, child)
+        if self.input_item is not None and self.input_item.exists(child):
+            data[self.input_item.bpmn_id] = deepcopy(self.input_item.get(child))
+        return data
 
     def create_child(self, my_task, item, key_or_index=None):
 
@@ -223,6 +332,14 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
         else:
             return True
 
+    def _rewind(self, my_task, child):
+        super()._rewind(my_task, child)
+        done = len(list(self._instances(my_task))) - len(self._instances_after(my_task, child))
+        if self.data_input is not None:
+            my_task.internal_data['remaining'] = self.init_remaining_items(my_task)[done:]
+        else:
+            my_task.internal_data['current'] = done
+
     def task_info(self, my_task):
         info = super().task_info(my_task)
         cardinality = my_task.internal_data.get('cardinality')
@@ -301,6 +418,9 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
 
 
 class ParallelMultiInstanceTask(MultiInstanceTask):
+
+    def _instances_after(self, my_task, child):
+        return []
 
     def _update_hook(self, my_task):
         super()._update_hook(my_task)

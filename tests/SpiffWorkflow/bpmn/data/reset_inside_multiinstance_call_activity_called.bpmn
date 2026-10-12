@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_reset_mi_called" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="ask_person" isExecutable="true">
+    <bpmn:ioSpecification>
+      <bpmn:dataInput id="person" name="person" />
+      <bpmn:dataOutput id="answer" name="answer" />
+      <bpmn:inputSet id="ask_person_inputs">
+        <bpmn:dataInputRefs>person</bpmn:dataInputRefs>
+      </bpmn:inputSet>
+      <bpmn:outputSet id="ask_person_outputs">
+        <bpmn:dataOutputRefs>answer</bpmn:dataOutputRefs>
+      </bpmn:outputSet>
+    </bpmn:ioSpecification>
+    <bpmn:startEvent id="person_start">
+      <bpmn:outgoing>to_ask</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="to_ask" sourceRef="person_start" targetRef="ask" />
+    <bpmn:userTask id="ask" name="Ask">
+      <bpmn:incoming>to_ask</bpmn:incoming>
+      <bpmn:outgoing>to_person_end</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="to_person_end" sourceRef="ask" targetRef="person_end" />
+    <bpmn:endEvent id="person_end">
+      <bpmn:incoming>to_person_end</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+</bpmn:definitions>

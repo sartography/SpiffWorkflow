@@ -82,6 +82,9 @@ class SubWorkflowTask(TaskSpec):
         self.copy_data(my_task, subworkflow)
         start = subworkflow.get_next_task(spec_name='Start')
         start.run()
+        # Keep what the subprocess started with: the tasks that follow share nested
+        # values with the task they inherit from, and may change them in place.
+        start.data = deepcopy(start.data)
 
 
 class CallActivity(SubWorkflowTask):
