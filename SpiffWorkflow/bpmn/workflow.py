@@ -24,6 +24,7 @@ from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.exceptions import WorkflowException
 
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
+from SpiffWorkflow.bpmn.specs.mixins.multiinstance_task import MultiInstanceTask
 from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
 from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
 
@@ -193,7 +194,7 @@ class BpmnWorkflow(BpmnBaseWorkflow):
                     return task
         return super().get_task_from_id(task_id)
 
-    def reset_from_task_id(self, task_id, data=None, remove_subprocess=True):
+    def reset_from_task_id(self, task_id, data=None, remove_subprocess=True, remove_instances=True):
 
         task = self.get_task_from_id(task_id)
         # Since recursive deletion of subprocesses requires access to the tasks, we have to delete any subprocesses first
@@ -204,13 +205,28 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         # If we're resetting to a boundary event, we also have to delete subprocesses underneath the attached events
         top = task if not isinstance(task.parent.task_spec, BoundaryEventSplit) else task.parent
         for desc in filter(lambda t: t.id in self.subprocesses, top):
+            # Skip subprocess children if resetting to multiinstance child
+            if desc.parent == task and desc.triggered and not remove_instances:
+                continue
             if desc != task or remove_subprocess:
                 descendants.extend(self.delete_subprocess(desc))
 
-        # This resets the boundary event branches
         if isinstance(task.parent.task_spec, BoundaryEventSplit):
+            # This resets the boundary event branches
             for child in task.parent.children:
                 descendants.extend(super().reset_from_task_id(child.id, data if child == task else None))
+        elif isinstance(task.task_spec, MultiInstanceTask) and not remove_instances:
+            # This skips instances of multiinstance tasks and only resets the subsequent workflow tasks
+            # If we directly reset a multiinstance, it can be treated like any other task
+            # However, if we reset to a child, we have to handle the instances as a special case AND reset
+            # the subsequent workflow tasks.
+            for child in filter(lambda t: not t.triggered, task.children):
+                descendants.extend(super().reset_from_task_id(child.id))
+                child._set_state(TaskState.FUTURE)
+            task._set_state(TaskState.STARTED)
+        elif isinstance(task.parent.task_spec, MultiInstanceTask):
+            task.parent.task_spec.reset(task.parent, task)
+            self.reset_from_task_id(task.parent.id, remove_instances=False)
         else:
             descendants.extend(super().reset_from_task_id(task.id, data))
 
@@ -218,6 +234,15 @@ class BpmnWorkflow(BpmnBaseWorkflow):
             sp_task = self.get_task_from_id(task.workflow.parent_task_id)
             descendants.extend(self.reset_from_task_id(sp_task.id, remove_subprocess=False))
             sp_task._set_state(TaskState.STARTED)
+
+        # Handle the case where some subprocess in the hierarchy is multiinstance
+        current = task
+        while current.workflow.parent_task_id is not None:
+            sp_task = self.get_task_from_id(current.workflow.parent_task_id)
+            if isinstance(sp_task.parent.task_spec, MultiInstanceTask):
+                descendants.extend(self.reset_from_task_id(sp_task.parent.id, remove_instances=False))
+                break
+            current = sp_task
 
         return descendants
 

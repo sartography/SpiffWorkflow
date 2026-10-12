@@ -132,7 +132,14 @@ class MultiInstanceTask(LoopTask):
             key_or_index = child.internal_data.get('key_or_index')
             data_output = self.data_output.get(my_task)
             data_input = self.data_input.get(my_task) if self.data_input is not None else None
-            if key_or_index is not None and (isinstance(data_output, Mapping) or data_input is data_output):
+
+            can_set = False
+            if key_or_index is not None:
+                if isinstance(data_output, Mapping):
+                    can_set = True
+                elif isinstance(key_or_index, int) and key_or_index < len(data_output):
+                    can_set = True
+            if can_set:
                 data_output[key_or_index] = item
             else:
                 data_output.append(item)
@@ -194,9 +201,16 @@ class MultiInstanceTask(LoopTask):
             data_output = self.data_output.get(my_task)
             if not isinstance(data_ouput, MutableMapping) and len(data_output) > 0:
                 self.raise_data_exception(
-                    "If loop cardinality is specificied, the output must be a map (dict) or empty sequence (list)",
+                    "If loop cardinality is specified, the output must be a map (dict) or empty sequence (list)",
                     my_task
                 )
+
+    def reset(self, my_task, child):
+        my_task.internal_data.get('merged').remove(str(child.id))
+        for item in self.data_input_associations + self.data_output_associations:
+            item.get(my_task)
+        child._set_state(TaskState.WAITING)
+        child.task_spec._update(child)
 
     def raise_data_exception(self, message, my_task):
         raise WorkflowDataException(message, my_task, data_input=self.data_input, data_output=self.data_output)
@@ -299,7 +313,6 @@ class SequentialMultiInstanceTask(MultiInstanceTask):
         else:
             return my_task.internal_data.get('current', 0) == my_task.internal_data.get('cardinality', 0)
 
-
 class ParallelMultiInstanceTask(MultiInstanceTask):
 
     def _update_hook(self, my_task):
@@ -350,3 +363,5 @@ class ParallelMultiInstanceTask(MultiInstanceTask):
 
     def children_complete(self, my_task):
         return all(c.state == TaskState.COMPLETED for c in self._instances(my_task))
+
+
