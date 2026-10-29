@@ -24,7 +24,11 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Keep fragment targets below the fixed navigation, with room to breathe. */
+  scroll-padding-top: calc(var(--nav-height) + 1rem);
+}
 
 body {
   font-family: var(--sans);
