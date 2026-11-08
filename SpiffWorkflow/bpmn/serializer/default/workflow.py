@@ -1,4 +1,5 @@
 # Copyright (C) 2023 Sartography
+# Copyright (C) 2026 omrzk
 #
 # This file is part of SpiffWorkflow.
 #
@@ -17,6 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
+from graphlib import TopologicalSorter
 from uuid import UUID
 
 from SpiffWorkflow.task import TaskState
@@ -128,6 +130,14 @@ class BpmnEventConverter(BpmnConverter):
 
 class WorkflowConverter(BpmnConverter):
 
+    def _tasks_from_dict(self, mapping, workflow):
+        # Task data is stored relative to the parent, so restore parents first
+        # even when storage has changed the JSON object's key order.
+        graph = {key: [task['parent']] if task['parent'] in mapping else []
+                 for key, task in mapping.items()}
+        return {UUID(key): self.registry.restore(mapping[key], workflow=workflow)
+                for key in TopologicalSorter(graph).static_order()}
+
     def to_dict(self, workflow):
         """Get a dictionary of attributes associated with both top level and subprocesses"""
         return {
@@ -159,7 +169,7 @@ class BpmnSubWorkflowConverter(WorkflowConverter):
     def from_dict(self, dct, task, top_workflow):
         spec = top_workflow.subprocess_specs.get(task.task_spec.spec)
         subprocess = self.target_class(spec, task.id, top_workflow, deserializing=True)
-        subprocess.tasks = self.mapping_from_dict(dct['tasks'], UUID, workflow=subprocess)
+        subprocess.tasks = self._tasks_from_dict(dct['tasks'], subprocess)
         subprocess.task_tree = subprocess.tasks.get(UUID(dct['root']))
         self.set_default_attributes(subprocess, dct)
         return subprocess
@@ -198,7 +208,7 @@ class BpmnWorkflowConverter(WorkflowConverter):
         workflow = self.target_class(spec, subprocess_specs, deserializing=True)
 
         # Restore the task tree
-        workflow.tasks = self.mapping_from_dict(dct['tasks'], UUID, workflow=workflow)
+        workflow.tasks = self._tasks_from_dict(dct['tasks'], workflow)
         workflow.task_tree = workflow.tasks.get(UUID(dct['root']))
 
         # Restore other default attributes

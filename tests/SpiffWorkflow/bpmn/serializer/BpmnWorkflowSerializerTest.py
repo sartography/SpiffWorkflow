@@ -1,10 +1,15 @@
+# Copyright (C) 2026 omrzk
+
 import unittest
 import os
 import json
 
 from SpiffWorkflow.bpmn import BpmnWorkflow
 from SpiffWorkflow.bpmn.serializer import BpmnWorkflowSerializer
+from SpiffWorkflow.bpmn.serializer.config import DEFAULT_CONFIG
+from SpiffWorkflow.bpmn.serializer.default.workflow import SimpleTaskConverter
 from SpiffWorkflow.bpmn.script_engine import PythonScriptEngine
+from SpiffWorkflow.task import Task
 
 from .BaseTestCase import BaseTestCase
 
@@ -123,6 +128,53 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         user_task = self.get_ready_user_tasks()[0]
         user_task.data = {"test":"my_test"}
         self._compare_with_deserialized_copy(self.workflow)
+
+    def testDeserializeReorderedTasks(self):
+        self.workflow.task_tree.set_data(inherited={'value': 1}, removed=True)
+        self.workflow.do_engine_steps()
+        user_task = self.get_ready_user_tasks()[0]
+        user_task.data['inherited']['value'] = 2
+        del user_task.data['removed']
+        user_task.set_data(amount=100)
+        user_task.run()
+        self.workflow.do_engine_steps()
+        self._compare_reordered_workflows(self.workflow)
+
+    def testDeserializeReorderedSubprocessTasks(self):
+        spec, subprocesses = self.load_workflow_spec('call_activity_*.bpmn', 'Process_8200379')
+        workflow = BpmnWorkflow(spec, subprocesses)
+        workflow.do_engine_steps()
+        self.assertTrue(workflow.completed)
+        self._compare_reordered_workflows(workflow)
+
+    def testDeserializeReorderedFullTaskRecords(self):
+        config = dict(DEFAULT_CONFIG)
+        config[Task] = SimpleTaskConverter
+        registry = BpmnWorkflowSerializer.configure(config)
+        self.serializer = BpmnWorkflowSerializer(registry, version=self.SERIALIZER_VERSION)
+        self.workflow.task_tree.set_data(inherited={'value': 1})
+        self.workflow.do_engine_steps()
+        self._compare_reordered_workflows(self.workflow)
+
+    def _compare_reordered_workflows(self, workflow):
+        serialized = self.serializer.to_dict(workflow)
+        for order in ('original', 'reversed', 'sorted'):
+            with self.subTest(order=order):
+                dct = json.loads(json.dumps(serialized))
+                for wf in [dct] + list(dct['subprocesses'].values()):
+                    keys = list(wf['tasks'])
+                    if order == 'reversed':
+                        keys.reverse()
+                    elif order == 'sorted':
+                        keys.sort()
+                    wf['tasks'] = {key: wf['tasks'][key] for key in keys}
+                restored = self.serializer.from_dict(dct)
+                self._compare_workflows(workflow, restored)
+                for task_id, subprocess in workflow.subprocesses.items():
+                    restored_subprocess = restored.subprocesses[task_id]
+                    self.assertEqual(subprocess.data, restored_subprocess.data)
+                    for child_id, task in subprocess.tasks.items():
+                        self.assertEqual(task.data, restored_subprocess.tasks[child_id].data)
 
     def testSerializeIgnoresCallable(self):
         self.workflow.do_engine_steps()
