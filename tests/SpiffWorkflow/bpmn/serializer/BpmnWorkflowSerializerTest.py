@@ -156,6 +156,27 @@ class BpmnWorkflowSerializerTest(BaseTestCase):
         self.workflow.do_engine_steps()
         self._compare_reordered_workflows(self.workflow)
 
+    def testDeserializeCustomTaskRecords(self):
+        for custom_parent in (None, [], {}):
+            with self.subTest(custom_parent=custom_parent):
+                class WrappedTaskConverter(SimpleTaskConverter):
+                    def to_dict(self, task):
+                        record = {'record': super().to_dict(task)}
+                        if custom_parent is not None:
+                            record['parent'] = custom_parent
+                        return record
+
+                    def from_dict(self, dct, workflow):
+                        return super().from_dict(dct['record'], workflow)
+
+                config = dict(DEFAULT_CONFIG)
+                config[Task] = WrappedTaskConverter
+                registry = BpmnWorkflowSerializer.configure(config)
+                self.serializer = BpmnWorkflowSerializer(registry, version=self.SERIALIZER_VERSION)
+                self.workflow.task_tree.set_data(inherited={'value': 1})
+                self.workflow.do_engine_steps()
+                self._compare_reordered_workflows(self.workflow)
+
     def _compare_reordered_workflows(self, workflow):
         serialized = self.serializer.to_dict(workflow)
         for order in ('original', 'reversed', 'sorted'):

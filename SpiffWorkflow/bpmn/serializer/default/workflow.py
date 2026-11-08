@@ -133,8 +133,10 @@ class WorkflowConverter(BpmnConverter):
     def _tasks_from_dict(self, mapping, workflow):
         # Task data is stored relative to the parent, so restore parents first
         # even when storage has changed the JSON object's key order.
-        graph = {key: [task['parent']] if task['parent'] in mapping else []
-                 for key, task in mapping.items()}
+        graph = {}
+        for key, task in mapping.items():
+            parent = task.get('parent')
+            graph[key] = [parent] if isinstance(parent, str) and parent in mapping else []
         return {UUID(key): self.registry.restore(mapping[key], workflow=workflow)
                 for key in TopologicalSorter(graph).static_order()}
 
