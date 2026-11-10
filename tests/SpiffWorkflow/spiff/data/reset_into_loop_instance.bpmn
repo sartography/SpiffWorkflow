@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" id="Definitions_reset_into_loop_instance" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="main" isExecutable="true">
+    <bpmn:startEvent id="start">
+      <bpmn:outgoing>to_set_groups</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="to_set_groups" sourceRef="start" targetRef="set_groups" />
+    <bpmn:scriptTask id="set_groups">
+      <bpmn:incoming>to_set_groups</bpmn:incoming>
+      <bpmn:outgoing>to_each_group</bpmn:outgoing>
+      <bpmn:script>groups = ["g1", "g2"]</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="to_each_group" sourceRef="set_groups" targetRef="each_group" />
+    <bpmn:subProcess id="each_group">
+      <bpmn:extensionElements>
+        <spiffworkflow:preScript>notes = {"kinds": []}</spiffworkflow:preScript>
+        <spiffworkflow:postScript>del(notes)</spiffworkflow:postScript>
+      </bpmn:extensionElements>
+      <bpmn:incoming>to_each_group</bpmn:incoming>
+      <bpmn:outgoing>to_rate</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true">
+        <bpmn:loopDataInputRef>groups</bpmn:loopDataInputRef>
+        <bpmn:loopDataOutputRef>results</bpmn:loopDataOutputRef>
+        <bpmn:inputDataItem id="group" name="group" />
+        <bpmn:outputDataItem id="result" name="result" />
+      </bpmn:multiInstanceLoopCharacteristics>
+      <bpmn:startEvent id="group_start">
+        <bpmn:outgoing>to_set_kinds</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="to_set_kinds" sourceRef="group_start" targetRef="set_kinds" />
+      <bpmn:scriptTask id="set_kinds">
+        <bpmn:incoming>to_set_kinds</bpmn:incoming>
+        <bpmn:outgoing>to_each_kind</bpmn:outgoing>
+        <bpmn:script>todo = 2</bpmn:script>
+      </bpmn:scriptTask>
+      <bpmn:sequenceFlow id="to_each_kind" sourceRef="set_kinds" targetRef="each_kind" />
+      <bpmn:subProcess id="each_kind">
+        <bpmn:incoming>to_each_kind</bpmn:incoming>
+        <bpmn:outgoing>to_build_result</bpmn:outgoing>
+        <bpmn:standardLoopCharacteristics>
+          <bpmn:loopCondition>todo &gt; 0</bpmn:loopCondition>
+        </bpmn:standardLoopCharacteristics>
+        <bpmn:startEvent id="kind_start">
+          <bpmn:outgoing>to_ask</bpmn:outgoing>
+        </bpmn:startEvent>
+        <bpmn:sequenceFlow id="to_ask" sourceRef="kind_start" targetRef="ask" />
+        <bpmn:userTask id="ask">
+          <bpmn:incoming>to_ask</bpmn:incoming>
+          <bpmn:outgoing>to_note</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:sequenceFlow id="to_note" sourceRef="ask" targetRef="note" />
+        <bpmn:scriptTask id="note">
+          <bpmn:incoming>to_note</bpmn:incoming>
+          <bpmn:outgoing>to_kind_end</bpmn:outgoing>
+          <bpmn:script>notes["kinds"] = notes["kinds"] + [group + "/k" + str(3 - todo) + "=" + answer]
+todo = todo - 1
+del(answer)</bpmn:script>
+        </bpmn:scriptTask>
+        <bpmn:sequenceFlow id="to_kind_end" sourceRef="note" targetRef="kind_end" />
+        <bpmn:endEvent id="kind_end">
+          <bpmn:incoming>to_kind_end</bpmn:incoming>
+        </bpmn:endEvent>
+      </bpmn:subProcess>
+      <bpmn:sequenceFlow id="to_build_result" sourceRef="each_kind" targetRef="build_result" />
+      <bpmn:scriptTask id="build_result">
+        <bpmn:incoming>to_build_result</bpmn:incoming>
+        <bpmn:outgoing>to_group_end</bpmn:outgoing>
+        <bpmn:script>result = notes["kinds"]
+del(todo)</bpmn:script>
+      </bpmn:scriptTask>
+      <bpmn:sequenceFlow id="to_group_end" sourceRef="build_result" targetRef="group_end" />
+      <bpmn:endEvent id="group_end">
+        <bpmn:incoming>to_group_end</bpmn:incoming>
+      </bpmn:endEvent>
+    </bpmn:subProcess>
+    <bpmn:sequenceFlow id="to_rate" sourceRef="each_group" targetRef="rate" />
+    <bpmn:userTask id="rate">
+      <bpmn:incoming>to_rate</bpmn:incoming>
+      <bpmn:outgoing>to_review</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true">
+        <bpmn:loopDataInputRef>groups</bpmn:loopDataInputRef>
+        <bpmn:loopDataOutputRef>ratings</bpmn:loopDataOutputRef>
+        <bpmn:inputDataItem id="rated" name="rated" />
+        <bpmn:outputDataItem id="rating" name="rating" />
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="to_review" sourceRef="rate" targetRef="review" />
+    <bpmn:userTask id="review">
+      <bpmn:incoming>to_review</bpmn:incoming>
+      <bpmn:outgoing>to_end</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="to_end" sourceRef="review" targetRef="end" />
+    <bpmn:endEvent id="end">
+      <bpmn:incoming>to_end</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+</bpmn:definitions>

@@ -24,6 +24,7 @@ from SpiffWorkflow.util.task import TaskState
 from SpiffWorkflow.exceptions import WorkflowException
 
 from SpiffWorkflow.bpmn.specs.control import BoundaryEventSplit
+from SpiffWorkflow.bpmn.specs.mixins.multiinstance_task import LoopTask
 from SpiffWorkflow.bpmn.specs.event_definitions.timer import TimerEventDefinition
 from SpiffWorkflow.bpmn.specs.event_definitions.multiple import MultipleEventDefinition
 
@@ -207,6 +208,14 @@ class BpmnWorkflow(BpmnBaseWorkflow):
             if desc != task or remove_subprocess:
                 descendants.extend(self.delete_subprocess(desc))
 
+        # If this task is one pass of a loop, the loop has to go back to that pass as well
+        loop = task.parent if self._is_loop_instance(task) else None
+        if loop is not None:
+            internal_data = dict(task.internal_data)
+            descendants.extend(self._rewind_loop(loop, task))
+            if data is None:
+                data = loop.task_spec.instance_data(loop, task)
+
         # This resets the boundary event branches
         if isinstance(task.parent.task_spec, BoundaryEventSplit):
             for child in task.parent.children:
@@ -214,12 +223,37 @@ class BpmnWorkflow(BpmnBaseWorkflow):
         else:
             descendants.extend(super().reset_from_task_id(task.id, data))
 
+        if loop is not None:
+            loop.task_spec.restore_instance(task, internal_data)
+
+        # The (sub)process this task belongs to has work to do again, and its
+        # last task may have been one of the tasks that were just removed
+        task.workflow.completed = False
+        task.workflow.last_task = task.parent
+
         if task.workflow.parent_task_id is not None:
             sp_task = self.get_task_from_id(task.workflow.parent_task_id)
             descendants.extend(self.reset_from_task_id(sp_task.id, remove_subprocess=False))
             sp_task._set_state(TaskState.STARTED)
 
         return descendants
+
+    def _is_loop_instance(self, task):
+        parent = task.parent
+        return parent is not None and isinstance(parent.task_spec, LoopTask) and parent.task_spec.is_instance(parent, task)
+
+    def _rewind_loop(self, loop, instance):
+        """Put a loop back to where `instance` was unfinished and remove what came after it."""
+        removed = []
+        for stale in loop.task_spec.reset_instance(loop, instance):
+            for desc in filter(lambda t: t.id in self.subprocesses, stale):
+                removed.extend(self.delete_subprocess(desc))
+            removed.extend(stale)
+            loop.workflow._remove_task(stale.id)
+        loop._set_state(TaskState.STARTED)
+        # Put back the (not yet reached) tasks that follow the loop
+        loop.task_spec._predict(loop, mask=TaskState.PREDICTED_MASK|TaskState.FUTURE|TaskState.STARTED)
+        return removed
 
     def cancel(self, workflow=None):
 

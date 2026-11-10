@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_reset_mi_call" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="main" isExecutable="true">
+    <bpmn:startEvent id="start">
+      <bpmn:outgoing>to_set_people</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="to_set_people" sourceRef="start" targetRef="set_people" />
+    <bpmn:scriptTask id="set_people" name="Set People">
+      <bpmn:incoming>to_set_people</bpmn:incoming>
+      <bpmn:outgoing>to_each_person</bpmn:outgoing>
+      <bpmn:script>people = ["first", "second"]
+kept = "not passed to the called process"</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="to_each_person" sourceRef="set_people" targetRef="each_person" />
+    <bpmn:callActivity id="each_person" name="Each Person" calledElement="ask_person">
+      <bpmn:incoming>to_each_person</bpmn:incoming>
+      <bpmn:outgoing>to_review</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true">
+        <bpmn:loopDataInputRef>people</bpmn:loopDataInputRef>
+        <bpmn:loopDataOutputRef>answers</bpmn:loopDataOutputRef>
+        <bpmn:inputDataItem id="person" name="person" />
+        <bpmn:outputDataItem id="answer" name="answer" />
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="to_review" sourceRef="each_person" targetRef="review" />
+    <bpmn:userTask id="review" name="Review">
+      <bpmn:incoming>to_review</bpmn:incoming>
+      <bpmn:outgoing>to_end</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="to_end" sourceRef="review" targetRef="end" />
+    <bpmn:endEvent id="end">
+      <bpmn:incoming>to_end</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+</bpmn:definitions>
