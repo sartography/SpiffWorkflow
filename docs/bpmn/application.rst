@@ -125,7 +125,7 @@ serializer how to handle objects used internally by Spiff.  Workflows can also c
 can also tell the serializer how to handle any non-serializable data in your workflow.  We'll go over this in more
 detail in :ref:`serializing_custom_objects`.
 
-We initialize a scripting enviroment:
+We initialize a scripting environment:
 
 .. code-block:: python
 
@@ -133,7 +133,7 @@ We initialize a scripting enviroment:
     script_engine = PythonScriptEngine(script_env)
 
 The :code:`PythonScriptEngine` handles execution of script tasks and evaluation of gateway and DMN conditions.
-We'll create the script engine based on it; execution and evaluation will occur in the context of this enviroment.
+We'll create the script engine based on it; execution and evaluation will occur in the context of this environment.
 
 SpiffWorkflow provides a default scripting environment that is suitable for simple applications, but a serious
 application will probably need to extend (or restrict) it in some way.  See :doc:`script_engine` for a few examples.
